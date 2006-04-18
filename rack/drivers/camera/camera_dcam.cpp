@@ -1,4 +1,4 @@
-﻿/*
+/*
  * RACK - Robotics Application Construction Kit
  * Copyright (C) 2005-2006 University of Hannover
  *                         Institute for Systems Engineering - RTS
