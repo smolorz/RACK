@@ -1,0 +1,7 @@
+
+config RACK_JOYSTICK_SOFTWARE
+    bool "Joystick Software java module"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.

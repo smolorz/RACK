@@ -1,0 +1,19 @@
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	RackProxy.java \
+	RackDataProxy.java \
+	ContDataMsg.java \
+	GetContDataMsg.java \
+	StopContDataMsg.java \
+	GetDataMsg.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	rack_proxy.cpp

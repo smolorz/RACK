@@ -1,0 +1,85 @@
+menu "Main"
+
+config TIMS_USE_RTNET
+    bool "Sending realtime messages over RTnet"
+    default n
+    help
+
+config RACK_RTNETDIR
+    string "RTnet install directory"
+    depends on TIMS_USE_RTNET
+    default ""
+    help
+
+config RACK_RTCAN_SUPPORT
+    bool "Enable rt_sja100 support"
+    help
+    Enable realtime CAN support for Rack.
+
+config RACK_RTCANDIR
+    string "RTcan rt_sja1000 install directory"
+    depends on RACK_RTCAN_SUPPORT
+    default ""
+    help
+
+config RACK_LIBRAW1394_SUPPORT
+    bool "Enable libraw1394 support"
+    help
+    Enable ieee1394 firewire support for Rack.
+
+config RACK_LIBRAW1394DIR
+    string "libraw1394 install directory"
+    depends on RACK_LIBRAW1394_SUPPORT
+    default ""
+    help
+
+config RACK_LIBDC1394_SUPPORT
+    bool "Enable libdc1394 support"
+    select RACK_LIBRAW1394_SUPPORT
+    help
+    Enable ieee1394 digital camera support for Rack.
+
+config RACK_LIBDC1394DIR
+    string "libdc1394 install directory"
+    depends on RACK_LIBDC1394_SUPPORT
+    default ""
+    help
+
+config RACK_LIBJPEG_SUPPORT
+    bool "Enable libjpeg support"
+    help
+    Enable libjpeg support for Rack.
+
+config RACK_LIBJPEGDIR
+    string "libjpeg install directory"
+    depends on RACK_LIBJPEG_SUPPORT
+    default ""
+    help
+
+config RACK_LIBPNG_SUPPORT
+    bool "Enable libpng support"
+    help
+    Enable libpng support for Rack.
+
+config RACK_LIBPNGDIR
+    string "libpng install directory"
+    default ""
+    depends on RACK_LIBPNG_SUPPORT
+    help
+
+config RACK_OPENCV_SUPPORT
+    bool "Enable opencv support"
+    select RACK_LIBDC1394_SUPPORT
+    select RACK_LIBRAW1394_SUPPORT
+    select RACK_LIBJPEG_SUPPORT
+    select RACK_LIBPNG_SUPPORT
+    help
+    Enable opencv support for Rack.
+
+config RACK_OPENCVDIR
+    string "opencv install directory"
+    depends on RACK_OPENCV_SUPPORT
+    default ""
+    help
+
+endmenu

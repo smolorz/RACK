@@ -1,0 +1,71 @@
+menu "Drivers"
+
+menu "Camera"
+config RACK_CAMERA_JAVA_GUI
+    bool "Camera Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/camera/Kconfig"
+endmenu
+
+menu "Chassis"
+config RACK_CHASSIS_JAVA_GUI
+    bool "Chassis Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/chassis/Kconfig"
+endmenu
+
+menu "Gps"
+config RACK_GPS_JAVA_GUI
+    bool "GPS Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/gps/Kconfig"
+endmenu
+
+menu "Joystick"
+depends on RACK_JAVA_GUI
+
+config RACK_JOYSTICK_JAVA_GUI
+    bool "Joystick Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/joystick/Kconfig"
+endmenu
+
+menu "Ladar"
+config RACK_LADAR_JAVA_GUI
+    bool "Ladar Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/ladar/Kconfig"
+endmenu
+
+menu "Odometry"
+config RACK_ODOMETRY_JAVA_GUI
+    bool "Odomtry Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/odometry/Kconfig"
+endmenu
+
+endmenu

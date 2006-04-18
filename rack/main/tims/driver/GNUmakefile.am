@@ -1,0 +1,40 @@
+
+moduledir = $(DESTDIR)@RACK_MODULE_DIR@
+modext = @RACK_MODULE_EXT@
+
+EXTRA_LIBRARIES = libtims.a
+
+libtims_a_CPPFLAGS = \
+	@RACK_KMOD_CFLAGS@
+
+libtims_a_SOURCES = \
+	tims_driver.c
+
+OBJS = tims$(modext)
+
+tims.o: libtims.a
+	$(LD) --whole-archive $< -r -o $@
+
+tims.ko: @RACK_KBUILD_ENV@
+tims.ko: $(libtims_a_SOURCES) FORCE
+	@RACK_KBUILD_CMD@
+
+all-local: $(OBJS)
+
+install-exec-local: $(OBJS)
+	$(mkinstalldirs) $(moduledir)
+	$(INSTALL_DATA) $^ $(moduledir)
+
+clean-local: $(libtims_a_SOURCES)
+	@RACK_KBUILD_CLEAN@
+
+distclean-local:
+	@RACK_KBUILD_DISTCLEAN@
+
+EXTRA_DIST = \
+	Makefile.kbuild
+
+DISTCLEANFILES = \
+	Makefile
+
+.PHONY: FORCE

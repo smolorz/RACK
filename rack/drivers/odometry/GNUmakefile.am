@@ -1,0 +1,17 @@
+
+bindir = $(prefix)/bin/drivers
+bin_PROGRAMS =
+
+if CONFIG_RACK_ODOMETRY_CHASSIS
+bin_PROGRAMS += OdometryChassis
+endif
+
+
+OdometryChassis_SOURCES = \
+	odometry_chassis.h \
+	odometry_chassis.cpp
+
+OdometryChassis_LDADD = @RACK_LIBS@
+
+EXTRA_DIST = \
+	Kconfig

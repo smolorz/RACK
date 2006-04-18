@@ -1,0 +1,10 @@
+
+bindir = $(prefix)/bin/tools
+
+bin_PROGRAMS = \
+	RackLogger
+
+RackLogger_SOURCES = \
+	racklogger.cpp
+
+RackLogger_LDADD = @RACK_LIBS@

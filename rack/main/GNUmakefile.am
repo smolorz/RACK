@@ -1,0 +1,52 @@
+OPTDIRS =
+OPTHEADERS =
+
+includedir = $(prefix)/include/main
+
+if CONFIG_RACK_RTCAN_SUPPORT
+OPTDIRS += canport
+OPTHEADERS += can_port.h
+endif
+
+if CONFIG_RACK_LIBJPEG_SUPPORT
+OPTHEADERS += jdatadstmem.h
+endif
+
+include_HEADERS = \
+	$(OPTHEADERS) \
+	angle_tool.h \
+	argopts.h \
+	dxf_map.h \
+	image_tool.h \
+	pilot_tool.h \
+	rack_byteorder.h \
+	rack_defines.h \
+	rack_debug.h \
+	rack_mailbox.h \
+	rack_mutex.h \
+	rack_module.h \
+	rack_datamodule.h \
+	rack_name.h \
+	rack_proxy.h \
+	rack_time.h \
+	rack_task.h \
+	serial_port.h
+
+SUBDIRS = \
+	$(OPTDIRS) \
+	serialport \
+	naming \
+	lib \
+	tims \
+	defines \
+	dxfmap \
+	mailbox \
+	proxy \
+	debug \
+	argopts \
+	gui \
+	module
+
+
+EXTRA_DIST = \
+	Kconfig

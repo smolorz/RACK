@@ -1,0 +1,34 @@
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	Gui.java \
+	MapViewGui.java
+
+RACK_JAR = rack.jar
+
+all: $(RACK_JAR)
+
+rack.jar: classdist_java.stamp $(srcdir)/gui.manifest $(shell find $(top_builddir) -name "*.class")
+	@echo "creating $@"; \
+	builddir=`pwd`; \
+	cd $(top_builddir); \
+	$(JAR) cmf $(srcdir)/gui.manifest $$builddir/$(RACK_JAR) `find -L rack -name "*.class" 2> /dev/null`
+
+install-data-local:
+	install -d -m 755 $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
+	install -m 644 $(srcdir)/gui.cfg $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
+	install -m 644 $(RACK_JAR) $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
+
+endif
+
+clean-local:
+	rm -f $(RACK_JAR)
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	gui.cfg \
+	gui.manifest

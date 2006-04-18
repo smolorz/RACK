@@ -1,0 +1,12 @@
+
+noinst_PROGRAMS = NewDatamodule
+
+NewDatamodule_SOURCES = \
+	new_data_module.h \
+	new_data_module.cpp
+
+NewDatamodule_LDADD = @RACK_LIBS@
+
+EXTRA_DIST = \
+	new_data_module_proxy.h \
+	new_data_module_proxy.cpp

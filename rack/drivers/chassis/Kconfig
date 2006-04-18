@@ -1,0 +1,12 @@
+
+config RACK_CHASSIS_SIM
+    bool "Chassis Sim"
+    default y
+    ---help---
+    Help text.
+
+config RACK_CHASSIS_PIONEER
+    bool "Chassis Pioneer"
+    default y
+    ---help---
+    Help text.

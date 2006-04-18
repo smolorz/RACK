@@ -1,0 +1,96 @@
+#
+# Automatically generated make config: don't edit
+# RACK version: 0.1.0
+# Mon Apr 10 13:39:37 2006
+#
+CONFIG_RACK_VERSION="0.1.0"
+
+#
+# Build options
+#
+CONFIG_RACK_INSTALLDIR="/usr/local/rack"
+CONFIG_RACK_LINUXDIR="/usr/src/linux"
+CONFIG_RACK_XENOMAIDIR="/usr/xenomai"
+# CONFIG_RACK_STATIC_LINKING is not set
+CONFIG_RACK_JAVA_GUI=y
+# CONFIG_RACK_DOC_DOX is not set
+
+#
+# Drivers
+#
+
+#
+# Camera
+#
+# CONFIG_RACK_CAMERA_JAVA_GUI is not set
+# CONFIG_RACK_CAMERA_DCAM is not set
+# CONFIG_RACK_CAMERA_FILE is not set
+# CONFIG_RACK_CAMERA_JPEG is not set
+# CONFIG_RACK_CAMERA_V4L is not set
+
+#
+# Chassis
+#
+CONFIG_RACK_CHASSIS_JAVA_GUI=y
+CONFIG_RACK_CHASSIS_SIM=y
+# CONFIG_RACK_CHASSIS_PIONEER is not set
+
+#
+# Gps
+#
+# CONFIG_RACK_GPS_JAVA_GUI is not set
+# CONFIG_RACK_GPS_NMEA is not set
+
+#
+# Joystick
+#
+CONFIG_RACK_JOYSTICK_JAVA_GUI=y
+CONFIG_RACK_JOYSTICK_SOFTWARE=y
+
+#
+# Ladar
+#
+# CONFIG_RACK_LADAR_JAVA_GUI is not set
+# CONFIG_RACK_LADAR_IBEO is not set
+# CONFIG_RACK_LADAR_SICK_LMS200 is not set
+
+#
+# Odometry
+#
+CONFIG_RACK_ODOMETRY_JAVA_GUI=y
+CONFIG_RACK_ODOMETRY_CHASSIS=y
+
+#
+# Navigation
+#
+
+#
+# Pilot
+#
+CONFIG_RACK_PILOT_JAVA_GUI=y
+CONFIG_RACK_PILOT_JOYSTICK=y
+
+#
+# Position
+#
+# CONFIG_RACK_POSITION_JAVA_GUI is not set
+# CONFIG_RACK_POSITION is not set
+
+#
+# Perception
+#
+CONFIG_RACK_SCAN_2D_JAVA_GUI=y
+# CONFIG_RACK_SCAN_2D is not set
+# CONFIG_RACK_SCAN_2D_MERGE is not set
+CONFIG_RACK_SCAN_2D_SIM=y
+
+#
+# Main
+#
+# CONFIG_TIMS_USE_RTNET is not set
+# CONFIG_RACK_RTCAN_SUPPORT is not set
+# CONFIG_RACK_LIBRAW1394_SUPPORT is not set
+# CONFIG_RACK_LIBDC1394_SUPPORT is not set
+# CONFIG_RACK_LIBJPEG_SUPPORT is not set
+# CONFIG_RACK_LIBPNG_SUPPORT is not set
+# CONFIG_RACK_OPENCV_SUPPORT is not set

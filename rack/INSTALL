@@ -1,0 +1,115 @@
+
+********************************************************************************
+* RACK INSTALLATION HOWTO
+********************************************************************************
+
+This installation howto is divided into following steps:
+ 1. configuration
+ 2. building
+ 3. installation
+ 
+************************
+ 1. Configuration
+************************
+
+To configure RACK in the source tree you have to do a
+
+    make menuconfig,
+    make oldconfig or
+    make xconfig
+
+in the RACK source root directory.
+
+To build RACK without polluting the source tree you can build
+RACK in a separate build directory:
+
+    cd <your-rack-build-dir>
+    make -f <rack-source-dir>/makefile [m|x|old]config
+
+-----------------
+1.1 Build options
+------------------
+Here you can select your RACK installation path,
+the linux kernel source directory and
+the installation directory of the realtime extension xenomai.
+You get the linux and xenomai sources here:
+Linux kernel -> www.kernel.org
+Xenomai      -> www.xenomai.org
+
+Additionally you can enable java building (for Java-GUI).
+You need the java compiler (javac) and jar to compile the java sources.
+
+The Doxygen API is still under construction.
+
+-----------
+1.2 Drivers
+-----------
+All implemented drivers are in this section.
+Some special drivers need additional libraries or realtime drivers
+
+drivers/LadarIbeo:
+    realtime CAN driver (rt_sja1000)    
+
+drivers/CameraDcam:
+    firewire libraries (libraw1394, libdc1394)
+
+drivers/CameraJpeg:
+    jpeg libraries (libjpeg)
+
+-> Per default the drivers do not need more libraries.
+
+--------------
+1.3 Navigation
+--------------
+The navigation modules can be selected in this menu.
+At the time there is a PilotJoystick module which needs a Chassis and an 
+optional Scan2D module.
+
+--------------
+1.4 Perception
+--------------
+The Scan2D modules converts Ladar data into a 2D distance map.
+To use a Scan2D module without having a real ladar laser scanner, select
+the Scan2DSim module. This module needs a dxf-map instead.
+
+--------------
+1.5 Main
+--------------
+Here you can enable the support of additional libraries and drivers.
+The path to the directories can be inscribed, too.
+
+--------------
+
+There is a new .rack_config file in your source or build directory now.
+
+************************
+ 2. Building
+************************
+To build RACK you only need to execute
+
+    make
+    
+.
+If you are using distcc or icecream you can build RACK with the additional job option
+
+    make -j<number-of-jobs>
+
+
+************************
+ 3. Installing
+************************
+
+Do a
+
+    make install
+    
+    
+The binaries, modules and libraries are in your RACK install directory 
+(set in Kconfig->Build Options->Installation Directory)
+
+That's all ;-)
+
+************************
+
+To start an example - look @ README file
+

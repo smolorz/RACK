@@ -1,0 +1,6 @@
+* Lizenzfragen
+  - LGPL fuer librack! (Wir wollen ja auch dagegen binary-only linken...)
+
+- Strings über GDOS
+- RackName offset
+- argopts -> string, long

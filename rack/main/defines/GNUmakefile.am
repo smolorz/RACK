@@ -1,0 +1,32 @@
+
+includedir = $(prefix)/include/main/defines
+
+include_HEADERS = \
+	list_head.h \
+	rack_bitops.h \
+	\
+	image_rect.h \
+	point2d.h \
+	point3d.h \
+	polar_spline.h \
+	position2d.h \
+	position3d.h \
+	scan_point.h
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	ImageRect.java \
+	Point2D.java \
+	Point3D.java \
+	PolarSpline.java \
+	Position2D.java \
+	Position3D.java \
+	ScanPoint.java \
+	RackMouseListener.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp

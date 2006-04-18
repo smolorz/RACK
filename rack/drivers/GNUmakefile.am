@@ -1,0 +1,93 @@
+
+includedir = $(prefix)/include/drivers
+
+SUBDIRS = \
+	. \
+	camera \
+	chassis \
+	gps \
+	joystick \
+	ladar \
+	odometry
+
+include_HEADERS = \
+	camera_proxy.h \
+	chassis_proxy.h \
+	gps_proxy.h \
+	joystick_proxy.h \
+	ladar_proxy.h \
+	odometry_proxy.h
+
+dist_java_JAVA =
+
+if CONFIG_RACK_CAMERA_JAVA_GUI
+
+dist_java_JAVA += \
+	CameraComponent.java \
+	CameraProxy.java \
+	CameraGui.java \
+	CameraDataMsg.java \
+	CameraFormatMsg.java \
+	Camera2PngConverter.java
+
+endif
+
+if CONFIG_RACK_CHASSIS_JAVA_GUI
+
+dist_java_JAVA += \
+	ChassisProxy.java \
+	ChassisGui.java \
+	ChassisParamMsg.java \
+	ChassisDataMsg.java \
+	ChassisSetActivePilotMsg.java
+
+endif
+
+if CONFIG_RACK_GPS_JAVA_GUI
+
+dist_java_JAVA += \
+	GpsGui.java \
+	GpsProxy.java \
+	GpsDataMsg.java
+
+endif
+
+if CONFIG_RACK_JOYSTICK_JAVA_GUI
+
+dist_java_JAVA += \
+	JoystickGui.java \
+	JoystickProxy.java \
+	JoystickDataMsg.java
+
+endif
+
+if CONFIG_RACK_LADAR_JAVA_GUI
+
+dist_java_JAVA += \
+	LadarProxy.java \
+	LadarGui.java \
+	LadarComponent.java \
+	LadarDataMsg.java
+
+endif
+
+if CONFIG_RACK_ODOMETRY_JAVA_GUI
+
+dist_java_JAVA += \
+	OdometryGui.java \
+	OdometryProxy.java \
+	OdometryDataMsg.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	Kconfig \
+	\
+	camera_proxy.cpp \
+	chassis_proxy.cpp \
+	gps_proxy.cpp \
+	joystick_proxy.cpp \
+	ladar_proxy.cpp \
+	odometry_proxy.cpp

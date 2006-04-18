@@ -1,0 +1,6 @@
+
+config RACK_PILOT_JOYSTICK
+    bool "Pilot Joystick"
+    default y
+    ---help---
+    Help text.

@@ -1,0 +1,76 @@
+xeno_dir = @XENO_USER_PREFIX@
+xeno_lib_dir = @XENO_LIBRARIES@
+
+bindir = $(prefix)/bin/tims
+etcdir = $(prefix)/etc
+
+etc_HEADERS = \
+	tims_rtnet_example.conf
+
+bin_PROGRAMS = \
+	tims_msg_client \
+	tcp_tims_msg_router
+
+### tims_msg_client ########################################
+
+tims_msg_client_SOURCES = \
+	tims_msg_client.c
+
+tims_msg_client_CFLAGS = \
+	-I$(top_srcdir) \
+	-I$(xeno_dir)/include
+
+#tims_msg_client_LDFLAGS =
+
+if CONFIG_RACK_STATIC_LINKING
+
+tims_msg_client_LDADD = \
+	$(xeno_lib_dir)/libnative.a \
+	$(xeno_lib_dir)/librtdm.a \
+	-lpthread
+
+else
+
+tims_msg_client_LDADD = \
+	-L$(xeno_lib_dir) \
+	-lrtdm -lnative \
+	-lpthread
+
+endif
+
+### tcp_tims_msg_router ####################################
+
+tcp_tims_msg_router_SOURCES = \
+	tcp_tims_msg_router.c
+
+tcp_tims_msg_router_CFLAGS = \
+	-I$(top_srcdir) \
+	-I$(xeno_dir)/include
+
+tcp_tims_msg_router_LDADD = \
+	-lpthread
+
+### JAVA  #######################################
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	TimsMbx.java \
+	TimsMsgRouter.java \
+	TcpTimsMsgRouter.java \
+	TimsMsgGateway.java \
+	TimsMsgGatewayConnection.java \
+	TimsMsgGatewayServer.java \
+	GatewayMbxMsg.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+### JAVA END #######################################
+
+EXTRA_DIST = \
+	tims_msg_gateway.h \
+	tims_msg_router.h

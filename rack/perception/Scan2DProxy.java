@@ -1,0 +1,59 @@
+/*
+ * RACK - Robotics Application Construction Kit
+ * Copyright (C) 2005-2006 University of Hannover
+ *                         Institute for Systems Engineering - RTS
+ *                         Professor Bernardo Wagner
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * Authors
+ *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *
+ */
+package rack.perception;
+
+import rack.main.naming.*;
+import rack.main.proxy.*;
+import rack.main.tims.msg.*;
+import rack.main.tims.exceptions.*;
+
+public class Scan2DProxy extends RackDataProxy
+{
+  public static final int MAX = 8;
+
+  public Scan2DProxy(int id, int replyMbx)
+  {
+    super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 1000);
+    this.id = id;
+  }
+
+  public synchronized Scan2DDataMsg getData(int recordingtime)
+  {
+    try {
+      TimsDataMsg raw = getRawData(recordingtime);
+
+      if (raw != null) {
+        Scan2DDataMsg data = new Scan2DDataMsg(raw);
+        return(data);
+      } else {
+        return(null);
+      }
+    } catch(MsgException e) {
+      System.out.println(e.toString());
+      return(null);
+    }
+  }
+
+  public synchronized Scan2DDataMsg getData()
+  {
+    return(getData(0));
+  }
+
+  public int getCommandMbx()
+  {
+    return(RackName.create(RackName.SCAN2D, id));
+  }
+}

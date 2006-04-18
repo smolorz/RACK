@@ -1,0 +1,10 @@
+
+EXTRA_CFLAGS += \
+	$(rack_kmod_cflags) \
+	-I$(top_srcdir) \
+	-I$(top_builddir) \
+	-I$(linux-dir)/include/xenomai
+
+obj-m += $(build_target).o
+
+tims-objs := $(build_objs)

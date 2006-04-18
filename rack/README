@@ -1,0 +1,58 @@
+
+*******************************************************************************
+* RACK README
+*******************************************************************************
+
+The following points are described in this readme:
+
+ 1. Starting a simulation example
+
+ 2. Starting the JAVA GUI
+
+*********************************
+1. Starting a simulation example
+*********************************
+
+You can test RACK without having a real chassis or ladar laser scanner.
+The drivers ChassisSim and OdometryChassis, the perception module Scan2DSim
+and the navigation module Scan2DSim are needed.
+
+In the direcory 'examples' is the start script of these drivers and
+a dxf-map needed by the Scan2D module.
+
+At the time the default dxf-map will be copied while 'make install' into
+the Scan2DSim binary directory. If you want to use another map file you have
+to copy it into the Scan2DSim directory manually:
+
+    cp your_map_file.dxf <target>/<rack-bin-dir>/perception/map.dxf
+
+Before executing the load script you must adapt the rack binary directory in
+the script 'load_rack_sim'.
+
+After changing the dxf-map file and manipulating the load script you can
+start the modules:
+
+    sh <target>/<rack-example-dir>/load_rack_sim
+
+*********************************
+ 2. Starting the JAVA GUI
+*********************************
+
+If you enable JAVA-Build in the RACK configure process (look @ INSTALL)
+all java files will be compiled and a jar archive of rack will be created in
+<rack-install-dir>/gui.
+
+A default gui config file is in the directory <rack-install-dir>/gui, too.
+In the config file (e.g. gui.cfg) you can add or remove driver components,
+set the message router and add additional jar files or classpaths
+(a small howto is directly in the file).
+
+You can start the JAVA GUI with following command:
+
+    java -jar rack.jar <gui-config-file>
+
+    or
+
+    java -jar rack.jar  (here a little file dialog will ask for the gui config file)
+
+That's all.

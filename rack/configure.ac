@@ -1,0 +1,1521 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+
+AC_INIT([rack],m4_normalize(m4_include([config/version])),[])
+
+CONFIG_RACK_VERSION_MAJOR=`expr $PACKAGE_VERSION : '\([0-9]*\)'`
+CONFIG_RACK_VERSION_MINOR=`expr $PACKAGE_VERSION : '[0-9]*\.\([0-9]*\)'`
+CONFIG_RACK_REVISION_LEVEL=`expr $PACKAGE_VERSION : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
+test "x$CONFIG_RACK_REVISION_LEVEL" = "x" && CONFIG_RACK_REVISION_LEVEL=0
+
+AC_CONFIG_HEADERS([config/rack_config_pre.h])
+AC_CONFIG_AUX_DIR([config/autoconf])
+AC_CONFIG_MACRO_DIR([config/m4])
+AC_CONFIG_SRCDIR([main/module/rack_module.cpp])
+
+AC_PREFIX_DEFAULT([/usr/local/rack])
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+AC_PROG_INSTALL
+
+CFLAGS=${CFLAGS:--s}
+
+dnl ======================================================================
+dnl checking cc
+dnl ======================================================================
+
+AC_ARG_WITH(CC,
+    AS_HELP_STRING([--with-cc=compiler], [use specific C compiler]),
+    [case "$withval" in
+    "" | y | ye | yes | n | no)
+  AC_MSG_ERROR([*** You must supply an argument to --with-cc.]) ;;
+    esac
+    CC="$withval"])
+AC_PROG_CC
+
+AC_DEFINE_UNQUOTED(CONFIG_RACK_BUILD_STRING, "$build", [Build system alias])
+RACK_BUILD_STRING="$build"
+AC_DEFINE_UNQUOTED(CONFIG_RACK_HOST_STRING, "$host", [Host system alias])
+RACK_HOST_STRING="$host"
+AC_DEFINE_UNQUOTED(CONFIG_RACK_COMPILER, "`$CC -v 2>&1 | tail -n 1`" , [Compiler])
+
+AM_INIT_AUTOMAKE([foreign no-exeext no-dist-gzip dist-bzip2])
+AM_MAINTAINER_MODE
+AC_PROG_LIBTOOL
+AM_PROG_AS
+AC_SUBST(LD)
+
+AC_PATH_PROG(JAR, jar,)
+AC_SUBST(JAR)
+
+AC_C_INLINE
+AC_HEADER_STDC
+
+dnl ======================================================================
+dnl checking target arch
+dnl ======================================================================
+
+AC_MSG_CHECKING([for RACK target architecture])
+case "$host" in
+  i*86*-*)
+    RACK_TARGET_ARCH=i386
+    wanted_kernel_arch=CONFIG_X86
+    ;;
+  *)
+    AC_MSG_ERROR([ *** Sorry - Unsupported architecture])
+    ;;
+esac
+AC_MSG_RESULT([${RACK_TARGET_ARCH}])
+
+dnl ======================================================================
+dnl  Loading the RACK configuration.
+dnl ======================================================================
+
+RACK_KCONFIG_FILE=$srcdir/defconfig
+kconfig_type=default
+
+AC_ARG_WITH(kconfig-file,
+    AS_HELP_STRING([--with-kconfig-file=<kconfig-file>], [KConfig parameter file]),
+    [
+        case "$withval" in
+        "" | y | ye | yes | n | no)
+          AC_MSG_ERROR([You must supply an argument to --with-kconfig-file.])
+            ;;
+        esac
+        RACK_KCONFIG_FILE="$withval"
+        kconfig_type=supplied
+    ])
+
+AC_MSG_CHECKING([for RACK Kconfig file])
+if test \! -f $RACK_KCONFIG_FILE; then
+    AC_MSG_ERROR([Kconfig-file $RACK_KCONFIG_FILE not found -- --with-kconfig-file sets Kconfig file])
+fi
+
+. $RACK_KCONFIG_FILE
+AC_MSG_RESULT([$RACK_KCONFIG_FILE ($kconfig_type)])
+
+dnl ======================================================================
+dnl  LINUX kernel with XENOMAI
+dnl ======================================================================
+
+AC_ARG_WITH(linux-dir,
+    AS_HELP_STRING([--with-linux-dir=<Linux-Sources>], [Linux source directory]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-linux-dir.])
+      ;;
+    esac
+    CONFIG_RACK_LINUXDIR="$withval"
+    ])
+
+dnl -----------------------------------------------------------------
+dnl check config file
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([for Linux config file])
+if test \! -f ${CONFIG_RACK_LINUXDIR}/.config ; then
+  AC_MSG_ERROR([*** Please configure your kernel])
+fi
+AC_MSG_RESULT([${CONFIG_RACK_LINUXDIR}/.config])
+
+dnl -----------------------------------------------------------------
+dnl get linux version
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([for Linux version])
+LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
+                 grep "# Linux kernel version:" | \
+                 gawk -F ": " '{print $2}'`"
+AC_MSG_RESULT([${LINUX_VERSION}])
+
+dnl -----------------------------------------------------------------
+dnl check version
+dnl -----------------------------------------------------------------
+
+case "${LINUX_VERSION}" in
+    2.6.*)
+        ;;
+    *)
+        AC_MSG_ERROR([*** Unsupported kernel version $LINUX_VERSION])
+        ;;
+esac
+
+dnl -----------------------------------------------------------------
+dnl loading linux config
+dnl -----------------------------------------------------------------
+
+. ${CONFIG_RACK_LINUXDIR}/.config
+
+dnl -----------------------------------------------------------------
+dnl  checking needed Xenomai and skins in linux config
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([for Xenomai])
+    case "${CONFIG_XENOMAI}" in
+        y) AC_MSG_RESULT([${CONFIG_XENOMAI}]) ;;
+        *) AC_MSG_ERROR([*** Please enable Xenomai]) ;;
+    esac
+
+AC_MSG_CHECKING([for Xenomai native skin])
+    case "${CONFIG_XENO_SKIN_NATIVE}" in
+        y | m) AC_MSG_RESULT([${CONFIG_XENO_SKIN_NATIVE}]) ;;
+        *) AC_MSG_ERROR([*** Please enable native skin]) ;;
+    esac
+
+AC_MSG_CHECKING([for Xenomai RTDM skin])
+    case "${CONFIG_XENO_SKIN_RTDM}" in
+        y | m) AC_MSG_RESULT([${CONFIG_XENO_SKIN_RTDM}]) ;;
+        *) AC_MSG_ERROR([*** Please enable RTDM skin]) ;;
+    esac
+
+dnl ======================================================================
+dnl  XENOMAI userspace
+dnl ======================================================================
+
+AC_ARG_WITH(xeno-user-dir,
+    AS_HELP_STRING([--with-xeno-user-dir=<Xenomai>], [Xenomai userspace installation path]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-xeno-user-dir.])
+      ;;
+    esac
+    CONFIG_RACK_XENOMAIDIR="$withval"
+    ])
+
+dnl -----------------------------------------------------------------
+dnl  try to find Xenomai user
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([for Xenomai userspace installation])
+XENO_USER_CONFIG="${CONFIG_RACK_XENOMAIDIR}/bin/xeno-config"
+if test -x "${XENO_USER_CONFIG}"; then
+  XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`" # let the shell normalize the path
+  AC_MSG_RESULT([${XENO_USER_DIR}])
+else
+  AC_MSG_ERROR([no Xenomai found in $CONFIG_RACK_XENOMAIDIR])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  get Xenomai user prefix
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([for Xenomai userspace PREFIX])
+XENO_USER_PREFIX="`cd \`${XENO_USER_CONFIG} --prefix\` && pwd`"     # let the shell normalize the path
+AC_MSG_RESULT([${XENO_USER_PREFIX}])
+
+dnl -----------------------------------------------------------------
+dnl  checking Xenomai version
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([for Xenomai version])
+XENO_VERSION_PRE="`${XENO_USER_CONFIG} --version`"
+
+case "$XENO_VERSION_PRE" in
+  2.1* | 2.0.9*)
+    XENO_VERSION=xeno-21x
+    ;;
+  *)
+    AC_MSG_ERROR([*** Unsupported Xenomai version $XENO_VERSION_PRE in $XENO_USER_DIR])
+  ;;
+esac
+AC_MSG_RESULT([${XENO_VERSION_PRE}])
+
+dnl -----------------------------------------------------------------
+dnl  get some more information about Xenomai
+dnl -----------------------------------------------------------------
+
+RACK_USER_CFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
+RACK_KMOD_CFLAGS=""
+XENO_USER_ARCH="`${XENO_USER_CONFIG} --arch`"
+XENO_LIBRARIES="`${XENO_USER_CONFIG} --library-dir`"
+
+dnl -----------------------------------------------------------------
+dnl export xenomai values
+dnl -----------------------------------------------------------------
+
+AC_SUBST(XENO_USER_PREFIX)
+AC_SUBST(XENO_LIBRARIES)
+AC_DEFINE(CONFIG_XENO_21X, 1, [We build for Xenomai 2.1 or newer])
+
+dnl ======================================================================
+dnl  architecture test Xenomai <-> Rack
+dnl ======================================================================
+
+AC_MSG_CHECKING([for Xenomai target arch])
+AC_MSG_RESULT([${XENO_USER_ARCH}])
+
+AC_MSG_CHECKING([for RACK target arch])
+AC_MSG_RESULT([${RACK_TARGET_ARCH}])
+
+if test x"${RACK_TARGET_ARCH}" != x"${XENO_USER_ARCH}"; then
+    AC_MSG_ERROR([*** Xenomai Userspace and RACK target architectures are not the same])
+fi
+
+case "${XENO_USER_ARCH}" in
+    i386)
+        AC_DEFINE(CONFIG_ARCH_I386, 1,[we are building for x86])
+        ;;
+    *)
+        AC_MSG_ERROR([*** unsupported architecture])
+        ;;
+esac
+
+AC_SUBST(RACK_TARGET_ARCH)
+
+dnl -----------------------------------------------------------------
+dnl static or dynamic linking
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING(for static linking)
+AC_ARG_ENABLE(static-linking,
+    AS_HELP_STRING([--enable-static-linking], [enable static linking]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_STATIC_LINKING=y ;;
+        *) unset CONFIG_RACK_STATIC_LINKING ;;
+    esac])
+AC_MSG_RESULT(${CONFIG_RACK_STATIC_LINKING:-n})
+
+AM_CONDITIONAL(CONFIG_RACK_STATIC_LINKING,[test "$CONFIG_RACK_STATIC_LINKING" = "y"])
+if test "CONFIG_RACK_STATIC_LINKING" = "y"; then
+    AC_DEFINE(CONFIG_RACK_STATIC_LINKING,1,[static linking])
+fi
+
+dnl ======================================================================
+dnl Setting CPP flags
+dnl ======================================================================
+
+CPPFLAGS="\
+-I\$(top_srcdir) \
+-I\$(top_builddir) \
+-I${XENO_USER_PREFIX}/include \
+-I/usr/include \
+-Wall"
+
+dnl ======================================================================
+dnl Setting LD flags
+dnl ======================================================================
+
+if test x"CONFIG_RACK_STATIC_LINKING" = x"y"; then
+
+LDFLAGS="\
+${XENO_LIBRARIES}/libnative.a \
+${XENO_LIBRARIES}/librtdm.a \
+-lpthread"
+
+else
+
+LDFLAGS="\
+-L${XENO_LIBRARIES} -lnative -lrtdm -lpthread \
+-L/usr/lib"
+
+fi
+
+dnl ======================================================================
+dnl  check support
+dnl ======================================================================
+
+AC_ARG_ENABLE(rtnet-support,
+    AS_HELP_STRING([--enable-rtnet-support], [enable rtnet support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_RTNET_SUPPORT=y ;;
+        *) CONFIG_RACK_RTET_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(rtnet-dir,
+    AS_HELP_STRING([--with-rtet-dir=<rtnet-dir>], [Install directory of RTnet]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-rtnet-dir.])
+      ;;
+    esac
+    CONFIG_RACK_RTNETDIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(rtcan-support,
+    AS_HELP_STRING([--enable-rtcan-support], [enable rtcan support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_RTCAN_SUPPORT=y ;;
+        *) CONFIG_RACK_RTCAN_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(rtcan-dir,
+    AS_HELP_STRING([--with-rtcan-dir=<can-dir>], [Source path of rtcan]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-rtcan-dir.])
+      ;;
+    esac
+    CONFIG_RACK_RTCANDIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(libraw1394-support,
+    AS_HELP_STRING([--enable-libraw1394-support], [enable libraw1394 support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LIBRAW1394_SUPPORT=y ;;
+        *) CONFIG_RACK_LIBRAW1394_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(libraw1394-dir,
+    AS_HELP_STRING([--with-libraw1394=<libraw1394-dir>], [Install directory of libraw1394]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-libraw1394.])
+      ;;
+    esac
+    CONFIG_RACK_LIBRAW1394DIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(libdc1394-support,
+    AS_HELP_STRING([--enable-libdc1394-support], [enable libdc1394 support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LIBDC1394_SUPPORT=y ;;
+        *) CONFIG_RACK_LIBDC1394_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(libdc1394-dir,
+    AS_HELP_STRING([--with-libdc1394=<libdc1394-dir>], [Install directory of libdc1394]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-libdc1394.])
+      ;;
+    esac
+    CONFIG_RACK_LIBDC1394DIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(libjpeg-support,
+    AS_HELP_STRING([--enable-libjpeg-support], [enable libjpeg support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LIBJPEG_SUPPORT=y ;;
+        *) CONFIG_RACK_LIBJPEG_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(libjpeg-dir,
+    AS_HELP_STRING([--with-libjpeg=<libjpeg-dir>], [Install directory of libjpeg]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-libjpeg.])
+      ;;
+    esac
+    CONFIG_RACK_LIBJPEGDIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(libjng-support,
+    AS_HELP_STRING([--enable-libpng-support], [enable libpng support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LIBPNG_SUPPORT=y ;;
+        *) CONFIG_RACK_LIBPNG_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(libpng-dir,
+    AS_HELP_STRING([--with-libpng=<libpng-dir>], [Install directory of libpng]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-libpng.])
+      ;;
+    esac
+    CONFIG_RACK_LIBPNGDIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(opencv-support,
+    AS_HELP_STRING([--enable-opencv-support], [enable opencv support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_OPENCV_SUPPORT=y ;;
+        *) CONFIG_RACK_OPENCV_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(opencv-dir,
+    AS_HELP_STRING([--with-opencv=<opencv-dir>], [Install directory of opencv]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-opencv.])
+      ;;
+    esac
+    CONFIG_RACK_OPENCVDIR="$withval"
+    ])
+
+dnl ======================================================================
+dnl    JAVA Part
+dnl ======================================================================
+
+RACK_JAVA_JARDIR="/gui"
+
+AC_SUBST(RACK_JAVA_JARDIR)
+
+dnl -----------------------------------------------------------------
+dnl  java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build java gui])
+AC_ARG_ENABLE(java-gui,
+    AS_HELP_STRING([--enable-java-gui], [building java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_JAVA_GUI=y ;;
+        *) CONFIG_RACK_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_JAVA_GUI,[test "$CONFIG_RACK_JAVA_GUI" = "y"])
+if test x"$CONFIG_RACK_JAVA_GUI" = "xy"; then
+    AC_DEFINE(CONFIG_RACK_JAVA_GUI,1,[building java gui])
+fi
+
+AC_SUBST(CONFIG_RACK_JAVA_GUI)
+
+dnl -----------------------------------------------------------------
+dnl  javac & jar
+dnl -----------------------------------------------------------------
+
+if test x"$CONFIG_RACK_JAVA_GUI" = "xy"; then
+
+    AC_MSG_CHECKING([javac])
+    JAVAC="`which javac`"
+    if test \! -x ${JAVAC}; then
+    	AC_MSG_ERROR([*** can't find javac])
+    else
+	    AC_MSG_RESULT([${JAVAC}])
+    fi
+
+    AC_MSG_CHECKING([jar])
+    JAR="`which jar`"
+    if test \! -x ${JAR}; then
+    	AC_MSG_ERROR([*** can't find jar])
+    else
+	    AC_MSG_RESULT([${JAR}])
+    fi
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - camera java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build camera java gui])
+AC_ARG_ENABLE(camera-java-gui,
+    AS_HELP_STRING([--enable-camera-java-gui], [building camera java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CAMERA_JAVA_GUI=y ;;
+        *) CONFIG_RACK_CAMERA_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CAMERA_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CAMERA_JAVA_GUI,[test "$CONFIG_RACK_CAMERA_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_CAMERA_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CAMERA_JAVA_GUI,1,[building camera java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - chassis java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build chassis java gui])
+AC_ARG_ENABLE(chassis-java-gui,
+    AS_HELP_STRING([--enable-chassis-java-gui], [building chassis java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CHASSIS_JAVA_GUI=y ;;
+        *) CONFIG_RACK_CHASSIS_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CHASSIS_JAVA_GUI,[test "$CONFIG_RACK_CHASSIS_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_CHASSIS_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CHASSIS_JAVA_GUI,1,[building chassis java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - gps java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build gps java gui])
+AC_ARG_ENABLE(gps-java-gui,
+    AS_HELP_STRING([--enable-gps-java-gui], [building gps java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_GPS_JAVA_GUI=y ;;
+        *) CONFIG_RACK_GPS_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_GPS_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_GPS_JAVA_GUI,[test "$CONFIG_RACK_GPS_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_GPS_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_GPS_JAVA_GUI,1,[building gps java gui])
+fi
+dnl -----------------------------------------------------------------
+dnl  drivers - joystick java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build joystick java gui])
+AC_ARG_ENABLE(joystick-java-gui,
+    AS_HELP_STRING([--enable-joystick-java-gui], [building joystick java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_JOYSTICK_JAVA_GUI=y ;;
+        *) CONFIG_RACK_JOYSTICK_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_JOYSTICK_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_JOYSTICK_JAVA_GUI,[test "$CONFIG_RACK_JOYSTICK_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_JOYSTICK_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_JOYSTICK_JAVA_GUI,1,[building joystick java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - joystick software
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build joystick software])
+AC_ARG_ENABLE(joystick-software,
+    AS_HELP_STRING([--enable-joystick-software], [building joystick software]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_JOYSTICK_SOFTWARE=y ;;
+        *) CONFIG_RACK_JOYSTICK_SOFTWARE=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_JOYSTICK_SOFTWARE:-n}])
+AM_CONDITIONAL(CONFIG_RACK_JOYSTICK_SOFTWARE,[test "$CONFIG_RACK_JOYSTICK_SOFTWARE" = "y"])
+if test "$CONFIG_RACK_JOYSTICK_SOFTWARE" = "y"; then
+    AC_DEFINE(CONFIG_RACK_JOYSTICK_SOFTWARE,1,[building joystick software])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - ladar java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ladar java gui])
+AC_ARG_ENABLE(ladar-java-gui,
+    AS_HELP_STRING([--enable-ladar-java-gui], [building ladar java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_JAVA_GUI=y ;;
+        *) CONFIG_RACK_LADAR_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_JAVA_GUI,[test "$CONFIG_RACK_LADAR_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_LADAR_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_JAVA_GUI,1,[building ladar java gui])
+fi
+dnl -----------------------------------------------------------------
+dnl  drivers - Odometry java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build odometry java gui])
+AC_ARG_ENABLE(odometry-java-gui,
+    AS_HELP_STRING([--enable-odometry-java-gui], [building odometry java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_ODOMETRY_JAVA_GUI=y ;;
+        *) CONFIG_RACK_ODOMETRY_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_ODOMETRY_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_ODOMETRY_JAVA_GUI,[test "$CONFIG_RACK_ODOMETRY_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_ODOMETRY_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_ODOMETRY_JAVA_GUI,1,[building odometry java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  navigation - Pilot java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build pilot java gui])
+AC_ARG_ENABLE(pilot-java-gui,
+    AS_HELP_STRING([--enable-pilot-java-gui], [building pilot java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_PILOT_JAVA_GUI=y ;;
+        *) CONFIG_RACK_PILOT_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_PILOT_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_PILOT_JAVA_GUI,[test "$CONFIG_RACK_PILOT_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_PILOT_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_PILOT_JAVA_GUI,1,[building pilot java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  navigation - Position java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build position java gui])
+AC_ARG_ENABLE(position-java-gui,
+    AS_HELP_STRING([--enable-position-java-gui], [building position java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_POSITION_JAVA_GUI=y ;;
+        *) CONFIG_RACK_POSITION_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_POSITION_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_POSITION_JAVA_GUI,[test "$CONFIG_RACK_POSITION_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_POSITION_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_POSITION_JAVA_GUI,1,[building position java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  perception - scan 2d java gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build scan 2d java gui])
+AC_ARG_ENABLE(scan-2d-java-gui,
+    AS_HELP_STRING([--enable-scan-2d-java-gui], [building scan 2d java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_SCAN_2D_JAVA_GUI=y ;;
+        *) CONFIG_RACK_SCAN_2D_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_JAVA_GUI,[test "$CONFIG_RACK_SCAN_2D_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_SCAN_2D_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN_2D_JAVA_GUI,1,[building scan 2d java gui])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  ...
+dnl -----------------------------------------------------------------
+
+dnl ======================================================================
+dnl    rack modules
+dnl ======================================================================
+
+dnl ======================================================================
+dnl  TiMS
+dnl ======================================================================
+
+AC_MSG_CHECKING([TiMS use RTnet])
+AC_ARG_ENABLE(tims-rtnet,
+    AS_HELP_STRING([--enable-tims-rtnet], [TiMS uses RTnet to send realtime messages]),
+    [case "$enableval" in
+        y | yes) CONFIG_TIMS_USE_RTNET=y ;;
+        *) CONFIG_TIMS_USE_RTNET=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_TIMS_USE_RTNET:-n}])
+
+AM_CONDITIONAL(CONFIG_TIMS_USE_RTNET,[test "$CONFIG_TIMS_USE_RTNET" = "y"])
+if test x"$CONFIG_TIMS_USE_RTNET" = x"y"; then
+    AC_DEFINE(CONFIG_TIMS_USE_RTNET,1,[TiMS uses RTnet to send realtime messages])
+    CONFIG_RACK_RTNET_SUPPORT=y
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - camera dcam
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build camera dcam])
+AC_ARG_ENABLE(camera-dcam,
+    AS_HELP_STRING([--enable-camera-dcam], [building camera dcam]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CAMERA_DCAM=y ;;
+        *) CONFIG_RACK_CAMERA_DCAM=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CAMERA_DCAM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CAMERA_DCAM,[test "$CONFIG_RACK_CAMERA_DCAM" = "y"])
+if test "$CONFIG_RACK_CAMERA_DCAM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CAMERA_DCAM,1,[building camera dcam])
+    CONFIG_RACK_LIBRAW1394_SUPPORT=y
+    CONFIG_RACK_LIBDC1394_SUPPORT=y
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - camera file
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build camera file])
+AC_ARG_ENABLE(camera-file,
+    AS_HELP_STRING([--enable-camera-file], [building camera file]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CAMERA_FILE=y ;;
+        *) CONFIG_RACK_CAMERA_FILE=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CAMERA_FILE:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CAMERA_FILE,[test "$CONFIG_RACK_CAMERA_FILE" = "y"])
+if test "$CONFIG_RACK_CAMERA_FILE" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CAMERA_FILE,1,[building camera file])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - camera jpeg
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build camera jpeg])
+AC_ARG_ENABLE(camera-jpeg,
+    AS_HELP_STRING([--enable-camera-jpeg], [building camera jpeg]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CAMERA_JPEG=y ;;
+        *) CONFIG_RACK_CAMERA_JPEG=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CAMERA_JPEG:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CAMERA_JPEG,[test "$CONFIG_RACK_CAMERA_JPEG" = "y"])
+if test "$CONFIG_RACK_CAMERA_JPEG" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CAMERA_JPEG,1,[building camera jpeg])
+    CONFIG_RACK_LIBJPEG_SUPPORT=y
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - camera v4l
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build camera v4l])
+AC_ARG_ENABLE(camera-v4l,
+    AS_HELP_STRING([--enable-camera-v4l], [building camera v4l]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CAMERA_V4L=y ;;
+        *) CONFIG_RACK_CAMERA_V4L=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CAMERA_V4L:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CAMERA_V4L,[test "$CONFIG_RACK_CAMERA_V4L" = "y"])
+if test "$CONFIG_RACK_CAMERA_V4L" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CAMERA_V4L,1,[building camera v4l])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - chassis pioneer
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build chassis pioneer])
+AC_ARG_ENABLE(chassis-pioneer,
+    AS_HELP_STRING([--enable-chassis-pioneer], [building chassis pioneer]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CHASSIS_PIONEER=y ;;
+        *) CONFIG_RACK_CHASSIS_PIONEER=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_PIONEER:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CHASSIS_PIONEER,[test "$CONFIG_RACK_CHASSIS_PIONEER" = "y"])
+if test "$CONFIG_RACK_CHASSIS_PIONEER" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CHASSIS_PIONEER,1,[building chassis pioneer])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - chassis sim
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build chassis sim])
+AC_ARG_ENABLE(chassis-sim,
+    AS_HELP_STRING([--enable-chassis-sim], [building chassis sim]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CHASSIS_SIM=y ;;
+        *) CONFIG_RACK_CHASSIS_SIM=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_SIM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CHASSIS_SIM,[test "$CONFIG_RACK_CHASSIS_SIM" = "y"])
+if test "$CONFIG_RACK_CHASSIS_SIM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CHASSIS_SIM,1,[building chassis sim])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - gps nmea
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build gps nmea])
+AC_ARG_ENABLE(gps-nmea,
+    AS_HELP_STRING([--enable-gps-nmea], [building gps nmea]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_GPS_NMEA=y ;;
+        *) CONFIG_RACK_GPS_NMEA=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_GPS_NMEA:-n}])
+AM_CONDITIONAL(CONFIG_RACK_GPS_NMEA,[test "$CONFIG_RACK_GPS_NMEA" = "y"])
+if test "$CONFIG_RACK_GPS_NMEA" = "y"; then
+    AC_DEFINE(CONFIG_RACK_GPS_NMEA,1,[building gps nmea])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - ladar hokuyo urg
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ladar hokuyo urg])
+AC_ARG_ENABLE(ladar-hokuyo-urg,
+    AS_HELP_STRING([--enable-ladar-hokuyo-urg], [building ladar hokuyo urg]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_HOKUYO_URG=y ;;
+        *) CONFIG_RACK_LADAR_HOKUYO_URG=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_HOKUYO_URG:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_HOKUYO_URG,[test "$CONFIG_RACK_LADAR_HOKUYO_URG" = "y"])
+if test "$CONFIG_RACK_LADAR_HOKUYO_URG" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_HOKUYO_URG,1,[building ladar hokuyo urg])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - ladar ibeo
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ladar ibeo])
+AC_ARG_ENABLE(ladar-ibeo,
+    AS_HELP_STRING([--enable-ladar-ibeo], [building ladar ibeo]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_IBEO=y ;;
+        *) CONFIG_RACK_LADAR_IBEO=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_IBEO:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_IBEO,[test "$CONFIG_RACK_LADAR_IBEO" = "y"])
+if test "$CONFIG_RACK_LADAR_IBEO" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_IBEO,1,[building ladar ibeo])
+    CONFIG_RACK_RTCAN_SUPPORT=y
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - ladar sick lms200
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ladar sick lms200 driver])
+AC_ARG_ENABLE(ladar-sick-lms200,
+    AS_HELP_STRING([--enable-ladar-sick-lms200], [building ladar sick lms200 laser scanner driver]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_SICK_LMS200=y ;;
+        *) CONFIG_RACK_LADAR_SICK_LMS200=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_LMS200:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_LMS200,[test "$CONFIG_RACK_LADAR_SICK_LMS200" = "y"])
+if test "$CONFIG_RACK_LADAR_SICK_LMS200" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_SICK_LMS200,1,[building ladar sick lms200 laser scanner driver])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - Odometry
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build odometry chassis])
+AC_ARG_ENABLE(odometry-chassis,
+    AS_HELP_STRING([--enable-odometry-chassis], [building odometry chassis]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_ODOMETRY_CHASSIS=y ;;
+        *) CONFIG_RACK_ODOMETRY_CHASSIS=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_ODOMETRY_CHASSIS:-n}])
+AM_CONDITIONAL(CONFIG_RACK_ODOMETRY_CHASSIS,[test "$CONFIG_RACK_ODOMETRY_CHASSIS" = "y"])
+if test "$CONFIG_RACK_ODOMETRY_CHASSIS" = "y"; then
+    AC_DEFINE(CONFIG_RACK_ODOMETRY_CHASSIS,1,[building odometry chassis])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  navigation - Pilot Joystick
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build pilot joystick])
+AC_ARG_ENABLE(pilot-joystick,
+    AS_HELP_STRING([--enable-pilot-joystick], [building pilot joystick]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_PILOT_JOYSTICK=y ;;
+        *) CONFIG_RACK_PILOT_JOYSTICK=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_PILOT_JOYSTICK:-n}])
+AM_CONDITIONAL(CONFIG_RACK_PILOT_JOYSTICK,[test "$CONFIG_RACK_PILOT_JOYSTICK" = "y"])
+if test "$CONFIG_RACK_PILOT_JOYSTICK" = "y"; then
+    AC_DEFINE(CONFIG_RACK_PILOT_JOYSTICK,1,[building pilot joystick])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  navigation - Position
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build position])
+AC_ARG_ENABLE(position,
+    AS_HELP_STRING([--enable-position], [building position]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_POSITION=y ;;
+        *) CONFIG_RACK_POSITION=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_POSITION:-n}])
+AM_CONDITIONAL(CONFIG_RACK_POSITION,[test "$CONFIG_RACK_POSITION" = "y"])
+if test "$CONFIG_RACK_POSITION" = "y"; then
+    AC_DEFINE(CONFIG_RACK_POSITION,1,[building position])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  perception - scan 2d
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Scan2D])
+AC_ARG_ENABLE(scan-2d,
+    AS_HELP_STRING([--enable-scan-2d], [building Scan2D]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_SCAN_2D=y ;;
+        *) CONFIG_RACK_SCAN_2D=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN_2D,[test "$CONFIG_RACK_SCAN_2D" = "y"])
+if test "$CONFIG_RACK_SCAN_2D" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN_2D,1,[building Scan2D])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  perception - scan 2d merge
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Scan2D Merge])
+AC_ARG_ENABLE(scan-2d-merge,
+    AS_HELP_STRING([--enable-scan-2d-merge], [building Scan2D Merge]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_SCAN_2D_MERGE=y ;;
+        *) CONFIG_RACK_SCAN_2D_MERGE=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_MERGE:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_MERGE,[test "$CONFIG_RACK_SCAN_2D_MERGE" = "y"])
+if test "$CONFIG_RACK_SCAN_2D_MERGE" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN_2D_MERGE,1,[building Scan2D Merge])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  perception - scan 2d sim
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Scan2D Sim])
+AC_ARG_ENABLE(scan-2d-sim,
+    AS_HELP_STRING([--enable-scan-2d-sim], [building Scan2D Sim]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_SCAN_2D_SIM=y ;;
+        *) CONFIG_RACK_SCAN_2D_SIM=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_SIM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_SIM,[test "$CONFIG_RACK_SCAN_2D_SIM" = "y"])
+if test "$CONFIG_RACK_SCAN_2D_SIM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN_2D_SIM,1,[building Scan2D Sim])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  ...
+dnl -----------------------------------------------------------------
+
+dnl ======================================================================
+dnl  directory / library checks
+dnl ======================================================================
+
+AC_MSG_CHECKING([rtnet support])
+AC_MSG_RESULT([${CONFIG_RACK_RTNET_SUPPORT}])
+
+if test x"${CONFIG_RACK_RTNET_SUPPORT}" = x"y"; then
+    if test -d ${CONFIG_RACK_RTNETDIR}; then
+        CPPFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${CPPFLAGS}"
+    fi
+    AC_CHECK_HEADER(rtnet.h,,
+                    [AC_MSG_ERROR(cannot find rtnet.h)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
+               [test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"])
+
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([rtcan support])
+AC_MSG_RESULT([${CONFIG_RACK_RTCAN_SUPPORT}])
+
+if test x"${CONFIG_RACK_RTCAN_SUPPORT}" = x"y"; then
+    if test x${CONFIG_RACK_RTCANDIR} != "x"; then
+        AC_MSG_CHECKING([rtcan directory])
+        if test -d ${CONFIG_RACK_RTCANDIR}; then
+            CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include ${CPPFLAGS}"
+            AC_MSG_RESULT([${CONFIG_RACK_RTCANDIR}])
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_RTCANDIR})
+        fi
+    fi
+    AC_CHECK_HEADER(rtcan.h,,
+                    [AC_MSG_ERROR(cannot find rtcan.h)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
+               [test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"])
+
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([libraw1394 support])
+AC_MSG_RESULT([${CONFIG_RACK_LIBRAW1394_SUPPORT}])
+
+if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
+    if test x${CONFIG_RACK_LIBRAW1394DIR} != "x"; then
+        AC_MSG_CHECKING([libraw1394 directory])
+        if test -d ${CONFIG_RACK_LIBRAW1394DIR}; then
+            CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include/ ${CPPFLAGS}"
+            LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib/ ${LDFLAGS}"
+            AC_MSG_RESULT([${CONFIG_RACK_LIBRAW1394DIR}])
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBRAW1394DIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER([libraw1394/raw1394.h],
+                    AC_CHECK_LIB(raw1394,
+                                 raw1394_new_handle,,
+                                 [AC_MSG_ERROR(cannot find function raw1394_new_handle)]
+                                )
+                    LIBRAW1394_LIBS="-lraw1394"
+                    AC_SUBST(LIBRAW1394_LIBS),
+                    [AC_MSG_ERROR(cannot find libraw1394 header files)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_LIBRAW1394,
+               [test x"${LIBRAW1394_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_LIBRAW1394_SUPPORT,
+               [test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = "xy"])
+
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([libdc1394 support])
+AC_MSG_RESULT([${CONFIG_RACK_LIBDC1394_SUPPORT}])
+
+if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
+    if test x${CONFIG_RACK_LIBDC1394DIR} != "x"; then
+        AC_MSG_CHECKING([libdc1394 directory])
+        if test -d ${CONFIG_RACK_LIBDC1394DIR}; then
+            CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include ${CPPFLAGS}"
+            LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib ${LDFLAGS}"
+            AC_MSG_RESULT([${CONFIG_RACK_LIBDC1394DIR}])
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBDC1394DIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER([libdc1394/dc1394_control.h],
+                    AC_CHECK_LIB(dc1394_control,
+                                 dc1394_get_camera_nodes,,
+                                 [AC_MSG_ERROR(cannot find function dc1394_get_camera_nodes)]
+                                )
+                    LIBDC1394_CONTROL_LIBS="-ldc1394_control -lraw1394"
+                    AC_SUBST(LIBDC1394_CONTROL_LIBS),
+                    [AC_MSG_ERROR(cannot find libdc1394 header files)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_LIBDC1394_CONTROL,
+               [test x"${LIBDC1394_CONTROL_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_LIBDC1394_SUPPORT,
+               [test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = "xy"])
+
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([libjpeg support])
+AC_MSG_RESULT([${CONFIG_RACK_LIBJPEG_SUPPORT}])
+
+if test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = x"y"; then
+    if test x${CONFIG_RACK_LIBJPEGDIR} != "x"; then
+        AC_MSG_CHECKING([libjpeg directory])
+        if test -d ${CONFIG_RACK_LIBJPEGDIR}; then
+            CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include ${CPPFLAGS}"
+            LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib ${LDFLAGS}"
+            AC_MSG_RESULT([${CONFIG_RACK_LIBJPEGDIR}])
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBJPEGDIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER(jpeglib.h,
+                    AC_CHECK_LIB(jpeg,
+                                 jpeg_start_compress,,
+                                 [AC_MSG_ERROR(cannot find function jpeg_create_compress)]
+                                )
+                    LIBJPEG_LIBS="-ljpeg"
+                    AC_SUBST(LIBJPEG_LIBS),
+                    [AC_MSG_ERROR(cannot find libjpeg header files)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_LIBJPEG,
+               [test x"${LIBJPEG_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_LIBJPEG_SUPPORT,
+               [test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = "xy"])
+
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([libpng support])
+AC_MSG_RESULT([${CONFIG_RACK_LIBPNG_SUPPORT}])
+
+if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
+    if test x${CONFIG_RACK_LIBPNGDIR} != "x"; then
+        AC_MSG_CHECKING([libpng directory])
+        if test -d ${CONFIG_RACK_LIBPNGDIR}; then
+            CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include ${CPPFLAGS}"
+            LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib ${LDFLAGS}"
+            AC_MSG_RESULT([${CONFIG_RACK_LIBPNGDIR}])
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBPNGDIR})
+        fi
+    fi
+    AC_CHECK_HEADER(libpng/png.h,
+                    AC_CHECK_LIB(png,
+                                 png_write_end,,
+                                 [AC_MSG_ERROR(cannot find function png_write_end)]
+                                )
+                    LIBPNG_LIBS="-lpng"
+                    AC_SUBST(LIBPNG_LIBS),
+                    [AC_MSG_ERROR(cannot find libpng header files)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_LIBPNG,
+               [test x"${LIBPNG_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_LIBPNG_SUPPORT,
+               [test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = "xy"])
+
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([opencv support])
+AC_MSG_RESULT([${CONFIG_RACK_OPENCV_SUPPORT}])
+
+if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
+    if test x${CONFIG_RACK_OPENCVDIR} != "x"; then
+        AC_MSG_CHECKING([opencv directory])
+        if test -d ${CONFIG_RACK_OPENCVDIR}; then
+            CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv ${CPPFLAGS}"
+            LDFLAGS="-L${CONFIG_RACK_OPENCVDIR}/lib ${LDFLAGS}"
+            AC_MSG_RESULT([${CONFIG_RACK_OPENCVDIR}])
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_OPENCVDIR})
+        fi
+    fi
+    AC_CHECK_HEADERS(cv.h cvaux.h cxcore.h highgui.h,
+                    AC_CHECK_LIB(cv,
+                                 cvCreateData,,
+                                 [AC_MSG_ERROR(cannot find function cvCreateData)]
+                                )
+                    AC_CHECK_LIB(cvaux,
+                                 cvFindFace,,
+                                 [AC_MSG_ERROR(cannot find function cvFindFace)]
+                                )
+                    AC_CHECK_LIB(cxcore,
+                                 cvCreateSet,,
+                                 [AC_MSG_ERROR(cannot find function cvCreateSet)]
+                                )
+                    AC_CHECK_LIB(highgui,
+                                 cvShowImage,,
+                                 [AC_MSG_ERROR(cannot find function cvShowImage)]
+                                )
+
+                    OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
+                    AC_SUBST(OPENCV_LIBS),
+                    [AC_MSG_ERROR(cannot find opencv header files)]
+                   )
+fi
+
+AM_CONDITIONAL(CONFIG_OPENCV,
+               [test x"${OPENCV_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_OPENCV_SUPPORT,
+               [test x"${CONFIG_RACK_OPENCV_SUPPORT}" = "xy"])
+
+dnl ======================================================================
+dnl  add additional flags
+dnl ======================================================================
+
+LDFLAGS_GLOB="${LDFLAGS} --export-dynamic"
+
+if test x"CONFIG_RACK_STATIC_LINKING" = x"y"; then
+    LDFLAGS="$(top_builddir)/main/lib/.libs/librack.a ${LDFLAGS_GLOB}"
+else
+    LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${LDFLAGS_GLOB}"
+    RACK_LIBS="-lrack"
+    AC_SUBST(RACK_LIBS)
+fi
+
+
+dnl ======================================================================
+dnl  Export CPPFLAGS & LDFLAGS
+dnl ======================================================================
+
+AC_MSG_CHECKING([for rack cppflags])
+AC_MSG_RESULT([${CPPFLAGS}])
+
+AC_MSG_CHECKING([for rack ldflags])
+AC_MSG_RESULT([${LDFLAGS}])
+
+dnl ======================================================================
+dnl             doxygen documentation
+dnl ======================================================================
+
+if test \! -d $srcdir/doc; then
+    unset RACK_MAYBE_DOCDIR
+else
+    RACK_MAYBE_DOCDIR=doc
+fi
+AC_SUBST(RACK_MAYBE_DOCDIR)
+
+AC_MSG_CHECKING(for Doxygen documentation)
+AC_ARG_ENABLE(dox-doc,
+    AS_HELP_STRING([--enable-dox-doc], [Build Doxygen documentation]),
+    [case "$enableval" in
+    y | yes) CONFIG_RACK_DOC_DOX=y ;;
+    *) unset CONFIG_RACK_DOC_DOX ;;
+    esac])
+
+if test \! -d $srcdir/doc; then
+    if test x$CONFIG_RACK_DOC_DOX = xy ;
+    then
+        AC_MSG_ERROR([documentation tree is missing.])
+    fi
+    AC_MSG_RESULT([not present])
+else
+    AC_MSG_RESULT(${CONFIG_RACK_DOC_DOX:-no})
+fi
+
+AC_CHECK_PROG(DOXYGEN, doxygen, doxygen)
+
+if test x${CONFIG_RACK_DOC_DOX} = xy -a x"$DOXYGEN" = x; then
+   AC_MSG_ERROR([Missing the Doxygen tools to generate the documentation.])
+fi
+
+AC_CHECK_PROG(DOXYGEN_HAVE_DOT, dot, YES, NO)
+if test x"$DOXYGEN_HAVE_DOT" = xYES; then
+   DOXYGEN_SHOW_INCLUDE_FILES=NO
+else
+   DOXYGEN_SHOW_INCLUDE_FILES=YES
+fi
+
+AM_CONDITIONAL(CONFIG_RACK_DOC_DOX,[test "$CONFIG_RACK_DOC_DOX" = y])
+AC_SUBST(DOXYGEN_SHOW_INCLUDE_FILES)
+AC_SUBST(DOXYGEN_HAVE_DOT)
+AC_SUBST(DOXYGEN)
+
+dnl ======================================================================
+dnl             latex documentation
+dnl ======================================================================
+
+AC_MSG_CHECKING(whether using LaTeX non-stop mode)
+AC_ARG_ENABLE(verbose-latex,
+        AS_HELP_STRING([--enable-verbose-latex], [Uses LaTeX non-stop mode]),
+        [case "$enableval" in
+        y | yes) CONFIG_RACK_DOC_LATEX_NONSTOP=y ;;
+        *) unset CONFIG_RACK_DOC_LATEX_NONSTOP ;;
+        esac])
+AC_MSG_RESULT(${CONFIG_RACK_DOC_LATEX_NONSTOP:-no})
+
+if test x${CONFIG_RACK_DOC_LATEX_NONSTOP} = xy; then
+   LATEX_BATCHMODE=NO
+   LATEX_MODE=nonstopmode
+else
+   LATEX_BATCHMODE=YES
+   LATEX_MODE=batchmode
+fi
+
+AC_SUBST(LATEX_BATCHMODE)
+AC_SUBST(LATEX_MODE)
+
+
+dnl ======================================================================
+dnl             crosscompiling
+dnl ======================================================================
+
+AC_MSG_CHECKING([for CROSS_COMPILE])
+if test "${CROSS_COMPILE}" = ""; then
+    CROSS_COMPILE="`echo ${CC} | sed s/gcc//`"
+
+    if test "${CROSS_COMPILE}gcc" \!= "${CC}"; then
+        CROSS_COMPILE=""
+        AC_MSG_RESULT([Cannot identify CROSS_COMPILE - assuming none - set manually if needed])
+    else
+        if test "${CROSS_COMPILE}" = ""; then
+            AC_MSG_RESULT([none])
+        else
+            AC_MSG_RESULT([${CROSS_COMPILE}])
+        fi
+    fi
+else
+    AC_MSG_RESULT([${CROSS_COMPILE}])
+fi
+AC_SUBST(CROSS_COMPILE)
+
+dnl ======================================================================
+dnl             build for 2.6 kernel
+dnl ======================================================================
+
+RACK_MODULE_EXT=.ko
+RACK_KBUILD_ENV='src2obj = $(patsubst %.$(1),%.o,$(filter %.$(1),$(call notdir,$(2))))'
+RACK_KBUILD_CMD="                                                           \
+        @for src in \$(filter-out FORCE, \$^); do                           \
+            if test \\! -r \`basename \$\$src\`; then                       \
+                \$(LN_S) \$\$src;                                           \
+            fi;                                                             \
+        done;                                                               \
+        \$(MAKE) -C ${CONFIG_RACK_LINUXDIR}                                 \
+                CROSS_COMPILE=\$(CROSS_COMPILE)                             \
+                ARCH=\$(RACK_TARGET_ARCH)                                   \
+                M=\"\`pwd\`\"                                               \
+                V=\$(V)                                                     \
+                rack_kmod_cflags=\"\$(RACK_KMOD_CFLAGS)\"                   \
+                top_srcdir=\"\`cd \$(top_srcdir) && pwd\`\"                 \
+                top_builddir=\"\`cd \$(top_builddir) && pwd\`\"             \
+                linux-dir=\"${CONFIG_RACK_LINUXDIR}\"                       \
+                xeno_user_dir=\"${XENO_USER_PREFIX}\"                       \
+                srcdir=\"\`cd \$(srcdir) && pwd\`\"                         \
+                build_objs='\$(call src2obj,c,\$^)'                         \
+                build_target='\$(basename \$@)'                             \
+                modules                                                     \
+                "
+
+RACK_KBUILD_CLEAN="                                                         \
+        @rm -f *.ko *.mod.c .*.cmd *.o;                                     \
+        for src in \$^; do                                                  \
+            if test -h \`basename \$\$src\`; then                           \
+                rm -f \`basename \$\$src\`;                                 \
+            fi;                                                             \
+        done;                                                               \
+        "
+RACK_KBUILD_DISTCLEAN="                                                     \
+        @for mod in \${OBJS}; do                                            \
+            rm -f \`cd \$(top_builddir) && pwd\`/symbols/\`echo \$\$mod |   \
+                sed -e's/${RACK_MODULE_EXT}//'\`.mod;                       \
+        done;                                                               \
+        "
+
+AC_MSG_CHECKING([for kernel module extension])
+AC_MSG_RESULT([$RACK_MODULE_EXT])
+
+AC_SUBST(RACK_MODULE_EXT)
+AC_SUBST(RACK_KBUILD_ENV)
+AC_SUBST(RACK_KBUILD_CMD)
+AC_SUBST(RACK_KBUILD_CLEAN)
+AC_SUBST(RACK_KBUILD_DISTCLEAN)
+
+bs_kmodext=$RACK_MODULE_EXT
+bs_kcompile="make -C $CONFIG_RACK_LINUXDIR ARCH=$RACK_TARGET_ARCH CROSS_COMPILE=$CROSS_COMPILE V=1 M=`pwd` SUBDIRS=`pwd` modules"
+
+dnl ======================================================================
+dnl             Installation directory for modules
+dnl ======================================================================
+
+AC_MSG_CHECKING([for module installation directory])
+
+AC_ARG_WITH(module-dir,
+    AS_HELP_STRING([--with-module-dir=<module-dir>], [Installation directory for modules]),
+    [case "${withval}" in
+    "" | y | ye | yes | n | no)
+        AC_MSG_ERROR([You must supply an argument to --with-module-dir.]) ;;
+    esac],
+    with_module_dir='${exec_prefix}/modules')
+RACK_MODULE_DIR="$with_module_dir"
+AC_MSG_RESULT([$RACK_MODULE_DIR])
+
+AC_SUBST(RACK_MODULE_DIR)
+
+dnl ======================================================================
+dnl             hac^H^H^Hfix problem with multible defined symbols problem
+dnl             shamelessly stolen from RTAI-3.1 tnx to Philippe
+dnl ======================================================================
+
+dnl CAUTION: We need to have the CONFIG_RACK_XX symbols always defined when
+dnl the configuration header is read, but we want the Autoconf-produced
+dnl symbols to be defined only when compiling RACK. This way, we won't
+dnl pollute the namespace with the latter when our configuration header is
+dnl indirectly included by a client application. To achieve this, we ask
+dnl autoheader to produce the following header structure:
+dnl #define CONFIG_XX
+dnl #define CONFIG_XX ...
+dnl #ifdef __IN_RACK__
+dnl <Autoconf-defined symbols>
+dnl #endif /* __IN_RACK__ */
+dnl This is quite a hack since we have to rely on the fact that
+dnl all Autoconf-generated symbols are lexicographically sorted
+dnl after CONFIG_RACK_XX ones, but, well...
+
+dnl Use a key which will cause the verbatim string to be put after
+dnl all CONFIG_RACK_XX symbols, but still before any Autoconf-generated
+dnl symbol, hence CONFIG_RACK___.
+AH_VERBATIM(CONFIG_RACK___,[#ifdef __IN_RACK__])
+
+dnl Now we can close the conditional section, right after all
+dnl Autoconf-generated symbols have been listed.
+AH_BOTTOM([#endif /* __IN_RACK__ */])
+
+RACK_KMOD_CFLAGS="-D__IN_RACK__ $RACK_KMOD_CFLAGS"
+RACK_USER_CFLAGS="-D__IN_RACK__ $RACK_USER_CFLAGS"
+
+AC_SUBST(RACK_KMOD_CFLAGS)
+AC_SUBST(RACK_USER_CFLAGS)
+
+dnl ======================================================================
+dnl             create links to Makefiles used by linux-2.6.x
+dnl ======================================================================
+
+for DIR in \
+    main/tims/driver \
+    ; do
+      AC_CONFIG_LINKS(${DIR}/Makefile:${DIR}/Makefile.kbuild)
+done
+
+dnl ======================================================================
+dnl             generate output
+dnl ======================================================================
+
+AC_CONFIG_FILES([GNUmakefile \
+    \
+    config/GNUmakefile \
+    config/kconfig/GNUmakefile \
+    config/kconfig/lxdialog/GNUmakefile \
+    \
+    main/GNUmakefile \
+    main/argopts/GNUmakefile \
+    main/defines/GNUmakefile \
+	main/gui/GNUmakefile \
+    main/dxfmap/GNUmakefile \
+    main/naming/GNUmakefile \
+    main/lib/GNUmakefile \
+    main/debug/GNUmakefile \
+    main/mailbox/GNUmakefile \
+    main/module/GNUmakefile \
+    main/proxy/GNUmakefile \
+    main/canport/GNUmakefile \
+    main/serialport/GNUmakefile \
+    main/tims/GNUmakefile \
+    main/tims/exceptions/GNUmakefile \
+    main/tims/msg/GNUmakefile \
+    main/tims/msgtypes/GNUmakefile \
+    main/tims/streams/GNUmakefile \
+    main/tims/driver/GNUmakefile \
+    main/tims/router/GNUmakefile \
+    \
+    drivers/GNUmakefile \
+    drivers/camera/GNUmakefile \
+    drivers/chassis/GNUmakefile \
+    drivers/gps/GNUmakefile \
+    drivers/joystick/GNUmakefile \
+    drivers/ladar/GNUmakefile \
+    drivers/odometry/GNUmakefile \
+    \
+    navigation/GNUmakefile \
+    navigation/pilot/GNUmakefile \
+    navigation/position/GNUmakefile \
+    \
+    perception/GNUmakefile \
+    perception/scan2d/GNUmakefile \
+    \
+    gui/GNUmakefile \
+    \
+    tools/GNUmakefile \
+    \
+    examples/GNUmakefile \
+    \
+    skel/GNUmakefile
+])
+
+if test \! x$RACK_MAYBE_DOCDIR = x; then
+
+AC_CONFIG_FILES([ \
+    doc/GNUmakefile \
+    doc/doxygen/GNUmakefile \
+    doc/doxygen/Doxyfile \
+])
+
+fi
+
+if test x"$CONFIG_RACK_JAVA_GUI" = x"y"; then
+AC_CONFIG_COMMANDS([java-link], [if test ! -e rack; then $LN_S . rack; fi], [LN_S="$LN_S"])
+else
+AC_CONFIG_COMMANDS([java-unlink], [if test -e rack; then rm -rf rack; fi])
+fi
+
+AC_OUTPUT
+
+dnl ======================================================================
+dnl generate rack_config.h
+dnl ======================================================================
+
+AC_MSG_NOTICE([creating rack_config.h])
+sed -e "s/ PACKAGE/ RACK_PACKAGE/" -e "s/ VERSION/ RACK_VERSION/" \
+    config/rack_config_pre.h > rack_config.h.new
+if cmp -s rack_config.h.new rack_config.h; then
+    rm rack_config.h.new
+    AC_MSG_NOTICE([rack_config.h is unchanged])
+else
+    mv rack_config.h.new rack_config.h
+fi

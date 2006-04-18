@@ -1,0 +1,39 @@
+
+includedir = $(prefix)/include/navigation
+
+include_HEADERS = \
+	pilot_proxy.h \
+	position_proxy.h
+
+SUBDIRS = \
+	pilot \
+	position
+
+dist_java_JAVA =
+
+if CONFIG_RACK_PILOT_JAVA_GUI
+
+dist_java_JAVA += \
+	PilotGui.java \
+	PilotComponent.java \
+	PilotProxy.java \
+	PilotInfoMsg.java
+
+endif
+
+if CONFIG_RACK_POSITION_JAVA_GUI
+
+dist_java_JAVA += \
+	PositionGui.java \
+	PositionProxy.java \
+	PositionDataMsg.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	Kconfig \
+	\
+	pilot_proxy.cpp \
+	position_proxy.cpp

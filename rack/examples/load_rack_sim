@@ -1,0 +1,87 @@
+#! /bin/sh
+
+#
+# RACK - Robotics Application Construction Kit
+# Copyright (C) 2005-2006 University of Hannover
+#                         Institute for Systems Engineering - RTS
+#                         Professor Bernardo Wagner
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# Authors
+#      Joerg Langenberg <joerg.langenberg@gmx.net>
+#      Jan Kiszka       <jan.kiszka@web.de>
+#
+#
+ 
+RACK_DIR="/usr/local/rack"
+
+CURR_PATH=`pwd`
+
+
+# in case Xenomai was built as modules
+
+modprobe xeno_rtdm 2> /dev/null
+modprobe xeno_native 2> /dev/null
+
+
+# TiMS communication services
+
+cd $RACK_DIR/bin/tims
+
+./tims_msg_client &
+
+./tcp_tims_msg_router &
+
+cd $RACK_DIR/modules
+
+insmod ./tims.ko
+
+
+# RACK real-time applications
+
+export LD_LIBRARY_PATH=$RACK_DIR/lib:$LD_LIBRARY_PATH
+
+cd $RACK_DIR/bin/drivers
+
+./ChassisSim \
+    --instance 0 \
+    --cmdTaskPrio 30 \
+    --dataTaskPrio 29 &
+
+./OdometryChassis \
+    --instance 0 \
+    --cmdTaskPrio 20 \
+    --dataTaskPrio 19 &
+
+cd $RACK_DIR/bin/perception
+
+./Scan2DSim \
+    --instance 0 \
+    --odometryInst 0 \
+    --maxRange=10000 \
+    --cmdTaskPrio 20 \
+    --dataTaskPrio 19 &
+
+cd $RACK_DIR/bin/navigation
+
+./PilotJoystick \
+    --instance 0 \
+    --scan2dInst=0 \
+    --maxSpeed=1000 \
+    --cmdTaskPrio 30 \
+    --dataTaskPrio 29 &
+
+
+cd $CURR_PATH
+
+sleep 3
+echo -n "Press ENTER to terminate"
+read DUMMY
+
+killall PilotJoystick Scan2DSim OdometryChassis ChassisSim tims_msg_client tcp_tims_msg_router
+sleep 3
+rmmod tims

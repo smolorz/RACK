@@ -1,0 +1,50 @@
+
+bindir = $(prefix)/bin/drivers
+bin_PROGRAMS =
+
+if CONFIG_RACK_CAMERA_DCAM
+bin_PROGRAMS += CameraDcam
+endif
+
+if CONFIG_RACK_CAMERA_FILE
+bin_PROGRAMS += CameraFile
+endif
+
+if CONFIG_RACK_CAMERA_JPEG
+bin_PROGRAMS += CameraJpeg
+endif
+
+if CONFIG_RACK_CAMERA_V4L
+bin_PROGRAMS += CameraV4l
+endif
+
+
+CameraDcam_SOURCES = \
+	camera_dcam.h \
+	camera_dcam.cpp
+
+CameraDcam_LDADD = @RACK_LIBS@
+
+CameraFile_SOURCES = \
+	camera_file.h \
+	camera_file.cpp
+
+CameraFile_LDADD = @RACK_LIBS@
+
+CameraJpeg_SOURCES = \
+	camera_jpeg.h \
+	camera_jpeg.cpp
+
+CameraJpeg_LDADD = @RACK_LIBS@
+
+CameraV4l_SOURCES = \
+	camera_v4l.h \
+	camera_v4l.cpp
+
+CameraV4l_LDADD = @RACK_LIBS@
+
+EXTRA_DIST = \
+	Kconfig \
+	\
+	ww_b4_calibration_parameter_lr0.h \
+	ww_b4_calibration_parameter_lr2.h

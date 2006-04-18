@@ -1,0 +1,16 @@
+#! /bin/sh
+
+cd ..
+
+svn revert `find . -name GNUmakefile.in` \
+	configure \
+	aclocal.m4 \
+	config/rack_config_pre.h.in \
+	config/autoconf/compile \
+	config/autoconf/config.guess \
+	config/autoconf/config.sub \
+	config/autoconf/depcomp \
+	config/autoconf/install-sh \
+	config/autoconf/ltmain.sh \
+	config/autoconf/missing
+

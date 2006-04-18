@@ -1,0 +1,34 @@
+OPTSOURCES =
+
+if CONFIG_RACK_RTCAN_SUPPORT
+OPTSOURCES += $(top_srcdir)/main/canport/can_port.cpp
+endif
+
+lib_LTLIBRARIES = \
+	librack.la
+
+librack_la_SOURCES = \
+	$(OPTSOURCES) \
+	\
+	$(top_srcdir)/drivers/camera_proxy.cpp \
+	$(top_srcdir)/drivers/chassis_proxy.cpp \
+	$(top_srcdir)/drivers/gps_proxy.cpp \
+	$(top_srcdir)/drivers/joystick_proxy.cpp \
+	$(top_srcdir)/drivers/ladar_proxy.cpp \
+	$(top_srcdir)/drivers/odometry_proxy.cpp \
+	\
+	$(top_srcdir)/perception/scan2d_proxy.cpp \
+	\
+	$(top_srcdir)/navigation/pilot_proxy.cpp \
+	$(top_srcdir)/navigation/position_proxy.cpp \
+	\
+	$(top_srcdir)/main/argopts/argopts.cpp \
+	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
+	$(top_srcdir)/main/serialport/serial_port.cpp \
+	\
+	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
+	$(top_srcdir)/main/module/rack_datamodule.cpp \
+	$(top_srcdir)/main/module/rack_module.cpp \
+	$(top_srcdir)/main/proxy/rack_proxy.cpp
+
+librack_la_LDFLAGS = @LDFLAGS@ -version-info 0:0:0

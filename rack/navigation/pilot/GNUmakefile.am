@@ -1,0 +1,18 @@
+
+bindir = $(prefix)/bin/navigation
+bin_PROGRAMS =
+
+if CONFIG_RACK_PILOT_JOYSTICK
+bin_PROGRAMS += PilotJoystick
+endif
+
+
+PilotJoystick_SOURCES = \
+	pilot_joystick.h \
+	pilot_joystick.cpp
+
+PilotJoystick_LDADD = @RACK_LIBS@
+
+
+EXTRA_DIST = \
+	Kconfig

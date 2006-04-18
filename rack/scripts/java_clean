@@ -1,0 +1,10 @@
+#! /bin/bash
+
+cd ..
+
+FILES=`find . -name *.class`
+
+for f in $FILES; do
+    echo "remove $f ... "
+    rm -f $f
+done

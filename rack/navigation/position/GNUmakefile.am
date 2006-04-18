@@ -1,0 +1,17 @@
+
+bindir = $(prefix)/bin/navigation
+bin_PROGRAMS =
+
+if CONFIG_RACK_POSITION
+bin_PROGRAMS += Position
+endif
+
+
+Position_SOURCES = \
+	position.h \
+	position.cpp
+
+Position_LDADD = @RACK_LIBS@
+
+EXTRA_DIST = \
+	Kconfig

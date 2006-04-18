@@ -1,0 +1,17 @@
+
+bindir = $(prefix)/bin/drivers
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JOYSTICK_SOFTWARE
+
+dist_java_JAVA += \
+	JoystickSoftware.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	Kconfig
+

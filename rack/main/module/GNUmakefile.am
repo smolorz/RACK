@@ -1,0 +1,15 @@
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	RackDataModule.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	rack_module.cpp \
+	rack_datamodule.cpp

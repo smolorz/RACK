@@ -1,0 +1,18 @@
+
+includedir = $(prefix)/include/main/tims
+
+include_HEADERS = \
+	tims.h \
+	tims_byteorder.h \
+	tims_endian.h
+
+SUBDIRS = \
+	driver \
+	exceptions \
+	streams \
+	msgtypes \
+	msg \
+	router
+
+EXTRA_DIST = \
+	Kconfig

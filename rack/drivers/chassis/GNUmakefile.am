@@ -1,0 +1,28 @@
+
+bindir = $(prefix)/bin/drivers
+bin_PROGRAMS =
+
+if CONFIG_RACK_CHASSIS_SIM
+bin_PROGRAMS += ChassisSim
+endif
+
+if CONFIG_RACK_CHASSIS_PIONEER
+bin_PROGRAMS += ChassisPioneer
+endif
+
+
+ChassisSim_SOURCES = \
+	chassis_sim.h \
+	chassis_sim.cpp
+
+ChassisSim_LDADD = @RACK_LIBS@
+
+ChassisPioneer_SOURCES = \
+	chassis_pioneer.h \
+	chassis_pioneer.cpp
+
+ChassisPioneer_LDADD = @RACK_LIBS@
+
+
+EXTRA_DIST = \
+	Kconfig

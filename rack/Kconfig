@@ -1,0 +1,62 @@
+config RACK_VERSION
+    string
+    default "0.1.0"
+
+mainmenu "RACK configuration"
+
+menu "Build options"
+
+config RACK_INSTALLDIR
+    string "Installation directory"
+    default "/usr/local/rack"
+    help
+    This option defines the directory where the various RACK
+    files will be installed on your target system.
+    This directory may be changed if you double-click in the area
+    named "Value". The default installation directory is
+    /usr/local/rack.
+
+config RACK_LINUXDIR
+    string "Linux source tree"
+    default "/lib/modules/`uname -r`/build"
+    help
+    This variable contains the directory where was your Linux source tree.
+
+config RACK_XENOMAIDIR
+    string "Xenomai build tree"
+    default "/usr/xenomai"
+    help
+    This variable contains the directory where was built your
+    Xenomai. As explained before, you can change the value
+    of the Xenomai build tree which is fixed by default to
+    /usr/xenomai i.e. the build directory of
+    the running Xenomai.
+
+config RACK_STATIC_LINKING
+    bool "Linking all libraries to the programs statically"
+    help
+    Help text.
+
+config RACK_JAVA_GUI
+    bool "Rack Java Gui"
+    help
+    Help text.
+
+config RACK_DOC_DOX
+    bool "Generate Rack Doxygen API"
+    help
+    Help text.
+
+config RACK_DOC_LATEX_NONSTOP
+    depends on RACK_DOC_DOX
+    bool "Using LaTeX non-stop mode"
+    help
+    Help text.
+
+endmenu
+
+source "drivers/Kconfig"
+source "navigation/Kconfig"
+source "perception/Kconfig"
+
+source "main/Kconfig"

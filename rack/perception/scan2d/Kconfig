@@ -1,0 +1,18 @@
+
+config RACK_SCAN_2D
+    bool "Scan 2D"
+    default y
+    ---help---
+    Help text.
+
+config RACK_SCAN_2D_MERGE
+    bool "Scan 2D Merge"
+    default n
+    ---help---
+    Help text.
+
+config RACK_SCAN_2D_SIM
+    bool "Scan 2D Sim"
+    default y
+    ---help---
+    Help text.

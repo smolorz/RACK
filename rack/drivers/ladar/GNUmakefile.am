@@ -1,0 +1,39 @@
+
+bindir = $(prefix)/bin/drivers
+bin_PROGRAMS =
+
+if CONFIG_RACK_LADAR_IBEO
+bin_PROGRAMS +=	LadarIbeo
+endif
+
+if CONFIG_RACK_LADAR_HOKUYO_URG
+bin_PROGRAMS +=	LadarHokuyoUrg
+endif
+
+if CONFIG_RACK_LADAR_SICK_LMS200
+bin_PROGRAMS +=	LadarSickLms200
+endif
+
+
+LadarIbeo_SOURCES = \
+	ladar_ibeo.h \
+	ladar_ibeo.cpp
+
+LadarIbeo_LDADD = @RACK_LIBS@
+
+
+LadarHokuyoUrg_SOURCES = \
+	ladar_hokuyo_urg.h \
+	ladar_hokuyo_urg.cpp
+
+LadarHokuyoUrg_LDADD = @RACK_LIBS@
+
+LadarSickLms200_SOURCES = \
+	ladar_sick_lms200.h \
+	ladar_sick_lms200.cpp
+
+LadarSickLms200_LDADD = @RACK_LIBS@
+
+
+EXTRA_DIST = \
+	Kconfig
