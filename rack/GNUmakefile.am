@@ -23,8 +23,7 @@ SUBDIRS = \
 EXTRA_DIST = \
 	defconfig \
 	makefile \
-	Kconfig \
-	LICENSE
+	Kconfig
 
 DISTCLEANFILES = \
 	.rack_config \

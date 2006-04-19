@@ -273,7 +273,10 @@ data_DATA = \
 	load_rack_sim \
 	rack_sim.dxf
 
-EXTRA_DIST = 
+EXTRA_DIST = \
+	load_rack_sim \
+	rack_sim.dxf
+
 all: all-am
 
 .SUFFIXES:

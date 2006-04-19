@@ -15,4 +15,6 @@ install-data-local:
 
 endif
 
-EXTRA_DIST =
+EXTRA_DIST = \
+	load_rack_sim \
+	rack_sim.dxf
