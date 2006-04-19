@@ -191,7 +191,28 @@ public class Scan2DComponent extends JComponent
         }
         else
         {
-            g.setColor(Color.black);
+            if(point.segment > 0)
+            {
+                switch((point.segment - 1) % 4)
+                {
+                    case 0:
+                        g.setColor(Color.cyan);
+                        break;
+                    case 1:
+                        g.setColor(Color.green);
+                        break;
+                    case 2:
+                        g.setColor(Color.magenta);
+                        break;
+                    case 3:
+                        g.setColor(Color.orange);
+                        break;
+                }
+            }
+            else
+            {
+                g.setColor(Color.black);
+            }
         }
 
         xWindow = transformToXWindow(point.x, point.y);
