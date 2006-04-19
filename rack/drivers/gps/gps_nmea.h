@@ -52,7 +52,8 @@ typedef struct
 class GpsNmea : public DataModule{
   	private:
 	    int         serialDev;
-	    int         trigMessage;
+        int         periodTime;
+        int         trigMsg;
 	    int         posGKOffsetX;
 	    int         posGKOffsetY;
         int         msgCounter;

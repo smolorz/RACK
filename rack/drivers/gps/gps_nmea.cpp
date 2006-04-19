@@ -35,7 +35,10 @@ argTable_t argTab[] = {
   	{ ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    	  "Baudrate of serial device, default 4800", (int)4800 },
 
-  	{ ARGOPT_OPT, "trigMessage", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+  	{ ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   	  "PeriodTime of the GPS - Receiver (in ms), default 2000", (int)2000},
+
+  	{ ARGOPT_OPT, "trigMsg", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    	  "NMEA-message to trigger (RMC = 0, GGA = 1, GSA = 2), default RMC (0)",
    	  (int)0 },
 
@@ -59,7 +62,7 @@ struct rtser_config gps_serial_config = {
     stop_bits         : RTSER_1_STOPB,
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : 50000000llu,
+    rx_timeout        : 200000000llu,
     tx_timeout        : RTSER_DEF_TIMEOUT,
     event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
@@ -79,14 +82,6 @@ struct rtser_config gps_serial_config = {
 
 int GpsNmea::moduleOn(void)
 {
-    int ret;
-
-    ret = serialPort.setRxTimeout(200000000llu);
-	if (ret)
-    {
-    	GDOS_ERROR("Can't set receive timeout, code = %d \n", ret);
-    }
-
     // reset values
     msgCounter = -1;
     msgNum     = -1;
@@ -113,23 +108,26 @@ int GpsNmea::moduleLoop(void)
 
 
     // read next NMEA message
-    if (readNMEAMessage() == 0)
+    ret = readNMEAMessage();
+
+    if (!ret)
     {
         // RMC - Message
         if (strstr(&nmeaMsg.data[0], "GPRMC") != NULL)
         {
-    		if (trigMessage == RMC_MESSAGE)
+    		if (trigMsg == RMC_MESSAGE)
     		{
-    	      	p_data->recordingTime = nmeaMsg.recordingTime;
     		    if (msgCounter > 0)
-    		    {
+                {
     		        msgNum = msgCounter;
-    		    }
+                }
     		    msgCounter = 0;
     		}
 
-            if((analyseRMC(p_data) == 0) && (msgCounter >= 0))
+            if ((analyseRMC(p_data) == 0) && (msgCounter >= 0))
             {
+    	      	p_data->recordingTime = nmeaMsg.recordingTime;
+
                 msgCounter++;
     		    GDOS_DBG_INFO("received RMC message, counter=%i\n", msgCounter);
     		}
@@ -139,9 +137,8 @@ int GpsNmea::moduleLoop(void)
         // GGA - Message
         else if (strstr(&nmeaMsg.data[0], "GPGGA") != NULL)
         {
-		    if (trigMessage == GGA_MESSAGE)
+		    if (trigMsg == GGA_MESSAGE)
     		{
-    	      	p_data->recordingTime = nmeaMsg.recordingTime;
     		    if (msgCounter > 0)
     		    {
     		        msgNum = msgCounter;
@@ -159,9 +156,8 @@ int GpsNmea::moduleLoop(void)
     	// GSA - Message
     	else if (strstr(&nmeaMsg.data[0], "GPGSA") != NULL)
     	{
-    	    if (trigMessage == GSA_MESSAGE)
+    	    if (trigMsg == GSA_MESSAGE)
     	    {
-    	        p_data->recordingTime = nmeaMsg.recordingTime;
     	        if (msgCounter > 0)
     	        {
     	            msgNum = msgCounter;
@@ -177,7 +173,8 @@ int GpsNmea::moduleLoop(void)
     }
     else
     {
-   		GDOS_WARNING("Can't read data from serial device %i\n", serialDev);
+   		GDOS_WARNING("Can't read data from serial device %i, code = %d\n",
+                     serialDev, ret);
 
 		p_data->recordingTime = get_rack_time();
         p_data->mode          = 1;
@@ -206,7 +203,7 @@ int GpsNmea::moduleLoop(void)
         // calculate global position in Gauss-Krueger coordinates
         posLLA.x = p_data->latitude;
         posLLA.y = p_data->longitude;
-        posLLA.z = p_data->altitude;
+        posLLA.z = p_data->altitude / 1000.0;
 
         posWGS84ToGK(&posLLA, &posGK);
         GDOS_DBG_INFO("Position in Gauss-Krueger is x: %f, y: %f, z: %f\n",
@@ -214,17 +211,24 @@ int GpsNmea::moduleLoop(void)
 
 		// subtract local position offset
 		if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
-			p_data->posGK.x = (int)rint((posGK.x - (double)posGKOffsetX) * 1000.0);
+        {
+			p_data->posGK.x = (int)rint((posGK.x -
+                                        (double)posGKOffsetX) * 1000.0);
+        }
 
 	    if (fabs(posGK.y - (double)posGKOffsetY) < 2000000.0)
-			p_data->posGK.y = (int)rint((posGK.y - (double)posGKOffsetY) * 1000.0);
+        {
+			p_data->posGK.y = (int)rint((posGK.y -
+                                        (double)posGKOffsetY) * 1000.0);
+        }
 
-        if (fabs(posGK.z) < 2000000.0)
-            p_data->posGK.z = (int)rint(posGK.z);
+        if (fabs(posGK.z) < 2000000000.0)
+        {
+            p_data->posGK.z = (int)rint(posGK.z * 1000.0);
+        }
 
-        putDataBufferWorkSpace(sizeof(gps_data));
 	    msgCounter = 0;
-	    GDOS_DBG_INFO("write dataset to Buffer\n");
+        putDataBufferWorkSpace(sizeof(gps_data));
     }
     return 0;
 }
@@ -236,13 +240,13 @@ int GpsNmea::moduleCommand(MessageInfo *msgInfo)
 }
 
 
-/****************************************************************************************************************
-* static in readnNMEAMessage(int id)																			*
-*																												*
-* This function reads a NMEA-Message, delimited by the Line Feed character (0x0A)from the serial device. The    *
-* characters and the recordingtime of the first character ('$') are saved to the NMEAMessageStruct. This        *
-* structure will be analyzed by the specific functions, like analyseRMC. 										*
-****************************************************************************************************************/
+/*****************************************************************************
+* This function reads a single NMEA-Message, delimited by the Line Feed      *
+* character (0x0A) from the serial device. The characters and the            *
+* recordingtime of the first character ('$') are saved to the nmea_data      *
+* structure. This structure will be analyzed by the specific functions,      *
+* like analyseRMC. 										                     *
+******************************************************************************/
 int GpsNmea::readNMEAMessage()
 {
 	int 			i, ret;
@@ -770,8 +774,8 @@ void GpsNmea::posWGS84ToGK(pos_3d *posLLA, pos_3d *posGK)
     b2  = b2 * 180.0 / M_PI;
 	l2  = l2 * 180.0 / M_PI;
 
-	posGK->x = r;
-	posGK->y = h;
+	posGK->x = h;
+	posGK->y = r;
 	posGK->z = h1;
 }
 
@@ -923,8 +927,6 @@ void GpsNmea::moduleCleanup(void)
         {
             GDOS_WARNING("Can't close serialDev %i, code=%d\n", serialDev, ret);
         }
-        else
-            GDOS_PRINT("alles top");
     }
 
     // call DataModule cleanup function (last command in cleanup)
@@ -947,7 +949,8 @@ GpsNmea::GpsNmea()
 {
     // get value(s) out of your argument table
     serialDev    = getIntArg("serialDev", argTab);
-    trigMessage  = getIntArg("trigMessage", argTab);
+    periodTime   = getIntArg("periodTime", argTab);
+    trigMsg      = getIntArg("trigMsg", argTab);
     posGKOffsetX = getIntArg("posGKOffsetX", argTab);
     posGKOffsetY = getIntArg("posGKOffsetY", argTab);
     gps_serial_config.baud_rate  = getIntArg("baudrate", argTab);
@@ -956,7 +959,7 @@ GpsNmea::GpsNmea()
     setDataBufferMaxDataSize(sizeof(gps_data));
 
     // set databuffer period time
-    setDataBufferPeriodTime(2000); // 2000 ms (0.5 per sec)
+    setDataBufferPeriodTime(periodTime);
 }
 
 int main(int argc, char *argv[])
