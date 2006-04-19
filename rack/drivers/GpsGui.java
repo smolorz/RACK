@@ -192,20 +192,20 @@ public class GpsGui extends RackModuleGui
 
                     if (latitude >= 0.0)
                     {
-                        latLabel.setText(latitude+" deg E");
+                        latLabel.setText(latitude+" deg N");
                     }
                     else
                     {
-                        latLabel.setText(latitude+" deg W");
+                        latLabel.setText(latitude+" deg S");
                     }
 
                     if (longitude >= 0.0)
                     {
-                        longLabel.setText(longitude+" deg N");
+                        longLabel.setText(longitude+" deg E");
                     }
                     else
                     {
-                        longLabel.setText(longitude+" deg S");
+                        longLabel.setText(longitude+" deg W");
                     }
 
                     altLabel.setText(altitude+" m");
