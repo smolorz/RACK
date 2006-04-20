@@ -1,14 +1,20 @@
 menu "Main"
 
-config TIMS_USE_RTNET
-    bool "Sending realtime messages over RTnet"
-    default n
+config RACK_RTNET_SUPPORT
+    bool "Enable RTnet support"
     help
+    Enable RTnet support for Rack.
 
 config RACK_RTNETDIR
     string "RTnet install directory"
-    depends on TIMS_USE_RTNET
+    depends on RACK_RTNET_SUPPORT
     default ""
+    help
+
+config TIMS_USE_RTNET
+    bool "Sending realtime messages over RTnet"
+    depends on RACK_RTNET_SUPPORT
+    default n
     help
 
 config RACK_RTCAN_SUPPORT

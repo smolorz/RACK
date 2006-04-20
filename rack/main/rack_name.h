@@ -46,6 +46,7 @@
 
 // RACK_RTS
 #define GYRO                    0x12
+#define MODEL_3D                0x46
 #define OBJECT_RECOGNITION      0x4B
 #define SCAN3D           		0x45
 #define SERVO_DRIVE             0x16
@@ -83,7 +84,6 @@
 #define CHASSIS_PROTECTION      0x36
 #define EXPLORATION             0x37
 #define SEGMENTATION            0x38
-#define MODEL_3D                0x46
 #define ELECTROHAND             0x48
 #define ROBOTARM                0x49
 #define ROBOTARM_INTERFACE      0x4A
@@ -134,6 +134,7 @@ class RackName {
                 case TEST:                  return("Test");
 
                 case GYRO:                  return("Gyro");
+                case MODEL_3D:              return("Model3D");
                 case OBJECT_RECOGNITION:    return("ObjectRecognition");
                 case PATH:                  return("Path");
                 case SCAN3D:         		return("Scan3D");

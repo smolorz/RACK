@@ -21540,6 +21540,7 @@ echo "$as_me: error: cannot find rtnet.h" >&2;}
 fi
 
 
+    RACK_KMOD_CFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${RACK_KMOD_CFLAGS}"
 fi
 
 

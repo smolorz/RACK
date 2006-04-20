@@ -986,6 +986,7 @@ if test x"${CONFIG_RACK_RTNET_SUPPORT}" = x"y"; then
     AC_CHECK_HEADER(rtnet.h,,
                     [AC_MSG_ERROR(cannot find rtnet.h)]
                    )
+    RACK_KMOD_CFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${RACK_KMOD_CFLAGS}"
 fi
 
 AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
