@@ -61,6 +61,7 @@ class CameraV4L : public DataModule{
     int      height;
     int      depth;
     int      mode;
+    int      videoId;
 
     int autoBrightness(camera_data_msg *dataPackage);
 

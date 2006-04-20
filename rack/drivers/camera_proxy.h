@@ -33,7 +33,7 @@
 
 #define CAMERA_MAX_WIDTH  1280 //1280
 #define CAMERA_MAX_HEIGHT  960 //960
-#define CAMERA_MAX_DEPTH    24 //max bit per pixel(RGB Mode)
+#define CAMERA_MAX_DEPTH    16 //max bit per pixel(YUV Mode) //actual max of tims
 #define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * CAMERA_MAX_DEPTH / 8)
 
 #define CAMERA_MODE_MONO8  01

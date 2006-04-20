@@ -15,7 +15,7 @@
  */
 
 #include "camera_v4l.h"
-
+#include <main/image_tool.h>
 
 #define INIT_BIT_DATA_MODULE 0
 
@@ -34,6 +34,9 @@ argTable_t argTab[] = {
 
   { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "mode", (int) CAMERA_MODE_RGB24 },
+
+  { ARGOPT_OPT, "videoId", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "videoId", (int) 0 },
 
   { 0,"",0,0,""}                                  // last entry
 };
@@ -292,8 +295,10 @@ int CameraV4L::moduleLoop(void)
 	}
 
     GDOS_DBG_DETAIL("Data recordingtime %i width %i height %i depth %i mode %i\n", p_data->data.recordingTime, p_data->data.width, p_data->data.height, p_data->data.depth, p_data->data.mode);
+    
+    ImageTool::convertCharBGR2RGB((uint8_t *)&(p_data->byteStream), (uint8_t *) &(p_data->byteStream),(int) p_data->data.width, (int) p_data->data.height);
 
-    datalength = camera.grab_size;
+    datalength = sizeof(camera_data) + camera.grab_size;
     putDataBufferWorkSpace(datalength);
 
     RackTask::sleep(500000000llu);
@@ -390,6 +395,7 @@ int CameraV4L::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
+    sprintf(camera.devname, "/dev/video%i", videoId);
     return 0;
 
 }
@@ -420,12 +426,14 @@ CameraV4L::CameraV4L()
 	height   	    = getIntArg("height", argTab);
 	depth	        = getIntArg("depth", argTab);
 	mode	        = getIntArg("mode", argTab);
+	videoId	        = getIntArg("videoId", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(camera_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    setDataBufferPeriodTime(1000); // 100 ms (10 per sec)
+    //500000000llu
 }
 
 int main(int argc, char *argv[])

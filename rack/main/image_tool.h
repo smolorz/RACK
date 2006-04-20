@@ -103,6 +103,25 @@ class ImageTool {
 	    }
 	    return 0;
 	}
+	
+		static int convertCharBGR2RGB(uint8_t* outputData, uint8_t* inputData,
+	                                int width, int height)
+	{
+	    int i,j;
+	    uint8_t swap;
+
+	    for (i = 0; i < height; i++)
+	    {
+	        for (j = 0; j < width; j++ )
+	        {
+	            swap                                = inputData[(i * width + j) * 3];//swap = input_B
+	            outputData[(i * width + j) * 3]     = inputData[(i * width + j) * 3 + 2];
+	            outputData[(i * width + j) * 3 + 2] = swap;
+	        }
+	    }
+	    return 0;
+	}
 };
+
 
 #endif // __IMAGE_TOOL_H__
