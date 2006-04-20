@@ -358,12 +358,14 @@ public class CameraDataMsg extends TimsMsg
         depth  = dataIn.readShort();
         mode   = dataIn.readShort();
         colorFilterId = dataIn.readInt();
+        System.out.println("got image data of width:"+width+" height:"+height+" depth:"+depth+" mode:"+mode);
         imageRawData = new int[width * height];
         byte actualData; // structur to multiply data.
 
         switch (mode)
         {
             case CameraDataMsg.CAMERA_MODE_JPEG:
+            	System.out.println("got a jpeg image");
                 // colorFilterId is missused as length of the jpeg stream here.
                 byte[] rawImageBytes = new byte[colorFilterId];
                 dataIn.readFully(rawImageBytes, 0, colorFilterId);
@@ -398,15 +400,18 @@ public class CameraDataMsg extends TimsMsg
             case CameraDataMsg.CAMERA_MODE_RGB24: // need an array of
                                                         // int's!
                 // every three bytes from the input data are combined to one int
+            	System.out.println("got rgb24 image");
                 for (int j = 0; j < height; j++)
                 {
                     for (int i = 0; i < width; i++)
                     {
                         imageRawData[width * j + i] = // order is important!
                                                         // order defines color!!
-                        (((int) dataIn.readByte() & 0xff)
+                        (
+                        	      (((int) dataIn.readByte() & 0xff) << 16)
                                 | (((int) dataIn.readByte() & 0xff) << 8)
-                                | (((int) dataIn.readByte() & 0xff) << 16) | (255 << 24));
+                                | (((int) dataIn.readByte() & 0xff)) 
+								| (255 << 24));
                     }
                 }
                 break;
