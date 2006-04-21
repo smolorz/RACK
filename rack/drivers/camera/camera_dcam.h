@@ -71,6 +71,7 @@ class CameraDcam : public DataModule{
     int      maxHue;
     int      shutterMult;
     int      gainMult;
+    int      autoBrightnessSize;
 
     //variables needed for initial handling of the firewire bus system.
     int                     firewireNumPorts;

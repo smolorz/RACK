@@ -50,6 +50,9 @@ argTable_t argTab[] = {
   { ARGOPT_OPT, "shutterMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "Multiplikator for shutter correction", (int) 64 },
 
+  { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "Button part of autobrightness part of image", (int) 1 },
+
   { 0,"",0,0,""}                                  // last entry
 };
 
@@ -80,15 +83,18 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
     unsigned int ubrightness;
     unsigned int ushutter;
     unsigned int ugain;
+    int start;
 
 	minCount = 0;
 	maxCount = 0;
-
-	count = dataPackage->data.width * dataPackage->data.height;
+//    third = dataPackage->data.width * dataPackage->data.height
 
 	bytesPerPixel = dataPackage->data.depth / 8;
 
-    for(i = 1; i < count; i += bytesPerPixel)
+	count = dataPackage->data.width * dataPackage->data.height * bytesPerPixel;
+    start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize); 
+
+    for(i = start; i < count; i += bytesPerPixel)
     {
     	if((unsigned char)dataPackage->byteStream[i] <= minHue)
     	{
@@ -770,6 +776,8 @@ CameraDcam::CameraDcam()
 	gainMult  	        = getIntArg("gainMult", argTab);
 	shutterMult         = getIntArg("shutterMult", argTab);
 	lossRate	        = getIntArg("lossrate", argTab);
+	autoBrightnessSize	= getIntArg("autoBrightnessSize", argTab);
+	
                         //fps[i]	is handled as global parameter
 
 	format7image.mode              = MODE_FORMAT7_0;//fixed!!
