@@ -296,6 +296,59 @@ int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
     return -EINVAL;
 }
 
+int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
+{
+    int ret;
+
+    if (!workMbx)
+    {
+        return -EINVAL;
+    }
+
+    ret = workMbx->sendMsg(MSG_GET_STATUS, destMbxAdr, 0);
+    if (ret)
+    {
+        GDOS_WARNING("Proxy cmd to %n: Can't send command %d, code = %d\n",
+                        destMbxAdr, MSG_GET_STATUS, ret);
+        return ret;
+    }
+    GDOS_DBG_DETAIL("Proxy cmd to %n: command %d has been sent\n",
+                        destMbxAdr, MSG_GET_STATUS);
+
+    while (1)
+    {   // waiting for reply (without data)
+        ret = workMbx->recvMsgTimed(reply_timeout_ns, &info);
+        if (ret)
+        {
+            GDOS_WARNING("Proxy cmd to %n: Can't receive reply of "
+                         "command %d, code = %d\n",
+                         destMbxAdr, MSG_GET_STATUS, ret);
+            return ret;
+        }
+
+        if (info.src == destMbxAdr)
+        {
+            switch(info.type)
+            {
+                case MSG_TIMEOUT:
+                    GDOS_WARNING("Proxy cmd %d to %n: Replied - timeout -\n",
+                                 MSG_GET_STATUS, destMbxAdr);
+                    return -ETIMEDOUT;
+
+                case MSG_NOT_AVAILABLE:
+                    GDOS_WARNING("Proxy cmd %d to %n: Replied - not available \n",
+                                 MSG_GET_STATUS, destMbxAdr);
+                    return -ENODATA;
+
+                case MSG_ENABLED:
+                case MSG_DISABLED:
+                case MSG_ERROR:
+                    return info.type;
+            }
+        }
+    } // while-loop
+    return -EINVAL;
+}
 
 //######################################################################
 //# class RackDataProxy

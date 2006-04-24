@@ -341,10 +341,8 @@ class RackProxy {
         return getStatus(dataTimeout);
     }
 
-    int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
-    {
-        return proxySendCmd(MSG_GET_STATUS, reply_timeout_ns);
-    }
+    int RackProxy::getStatus(uint64_t reply_timeout_ns); // use special timeout
+
 
 };
 
