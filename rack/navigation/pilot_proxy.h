@@ -115,7 +115,7 @@ class PilotProxy : public RackDataProxy
   	public:
 
 	    PilotProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
-	            : RackDataProxy(workMbx, PILOT, sys_id, instance)
+	            : RackDataProxy(workMbx, sys_id, PILOT, instance)
 	    {
 	    };
 
