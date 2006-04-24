@@ -84,8 +84,10 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 
     for(i = start; i < count; i += 4)
     {
-        actualHue = dataPackage->byteStream[i + 1]; 
+//        actualHue = (66 * dataPackage->byteStream[i] + 129 * dataPackage->byteStream[i + 1] + 25 * dataPackage->byteStream[i + 2] + 128 ) >> 8;
+         actualHue = (dataPackage->byteStream[i] + dataPackage->byteStream[i + 1] + dataPackage->byteStream[i + 2])  / 3; 
         
+
     	if(actualHue <= minHue)
     	{
     		minCount++;
@@ -97,8 +99,8 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
     }
 
     brightness = camera.vid_picture.brightness;
-
-   	brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
+	if (abs(maxCount-minCount) > 5000)
+   		 brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
 
 	if(brightness > 65536)
 	{
