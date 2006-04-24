@@ -1160,6 +1160,7 @@ public class Gui extends Thread
 
         // if (moduleGui[id] == null)
         moduleButton[id] = new JButton(getModuleName(id));
+        moduleButton[id].setToolTipText(getModuleName(id));
         // else
         // moduleButton[id] = new JButton(moduleGui[id].getModuleName());
         moduleButton[id].setHorizontalAlignment(SwingConstants.LEFT);
