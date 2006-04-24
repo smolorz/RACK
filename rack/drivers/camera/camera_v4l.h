@@ -25,7 +25,7 @@
 #include <sys/mman.h>
 #include <linux/videodev.h>//Video4Linux
 
-#include "ww_b4_calibration_parameter_lr2.h"
+#include "creative_calibration_parameter_lr0.h"
 
 // define module class
 #define MODULE_CLASS_ID     CAMERA
@@ -62,8 +62,12 @@ class CameraV4L : public DataModule{
     int      depth;
     int      mode;
     int      videoId;
+    int      minHue;
+    int      maxHue;
+    int      gainMult;
+    int      autoBrightnessSize;
 
-    int autoBrightness(camera_data_msg *dataPackage);
+    int      autoBrightness(camera_data_msg *dataPackage);
 
   protected:
 

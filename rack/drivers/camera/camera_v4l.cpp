@@ -38,6 +38,18 @@ argTable_t argTab[] = {
   { ARGOPT_OPT, "videoId", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "videoId", (int) 0 },
 
+  { ARGOPT_OPT, "minHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "min not under illum. hue value", (int) 15 },
+
+  { ARGOPT_OPT, "maxHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "max not over illum. hue value", (int) 250 },
+
+  { ARGOPT_OPT, "gainMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "Multiplikator for gain correction", (int) 1000 },
+
+  { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "Button part of autobrightness part of image", (int) 1 },
+
   { 0,"",0,0,""}                                  // last entry
 };
 
@@ -61,21 +73,24 @@ camera_param_data param = {
 
 
 //*** Method for automatic adaption of the lumination parameter****//
-/*int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
+int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 {
-	int i, count, minCount, maxCount, brightness;
+	int i, count, minCount, maxCount, brightness, start, actualHue;
 
-	count    = camera.grab_size;
+	count    = camera.grab_size; 
 	minCount = 0;
 	maxCount = 0;
+    start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize); 
 
-    for(i = 0; i < count; i += 4)
+    for(i = start; i < count; i += 4)
     {
-    	if(camera_data_msg->byteStream[i] == 0)
+        actualHue = dataPackage->byteStream[i + 1]; 
+        
+    	if(actualHue <= minHue)
     	{
     		minCount++;
     	}
-    	else if(dataPackage->byteStream[i] == 255)
+    	else if(actualHue >= maxHue)
     	{
     		maxCount++;
     	}
@@ -83,7 +98,7 @@ camera_param_data param = {
 
     brightness = camera.vid_picture.brightness;
 
-   	brightness -= 2000 * (maxCount - minCount) / count * 4;
+   	brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
 
 	if(brightness > 65536)
 	{
@@ -97,9 +112,9 @@ camera_param_data param = {
     camera.vid_picture.brightness = brightness;
     ioctl(camera.dev,VIDIOCSPICT,&camera.vid_picture);
 
+    GDOS_DBG_DETAIL("count %i minCount %i maxCount %i brightness %i\n", count, minCount, maxCount, brightness);
     return 0;
-//    GDOS_DBG_DETAIL(CMD_MBX(id), "count %i minCount %i maxCount %i brightness %i\n", count, minCount, maxCount, brightness);
-}*/
+}
 
 
 /*******************************************************************************
@@ -303,7 +318,7 @@ int CameraV4L::moduleLoop(void)
 
     RackTask::sleep(500000000llu);
 
-//	autoBrightness(p_data);
+	autoBrightness(p_data);
 
     if(camera.m_buf.frames >= 2)
     {
@@ -427,12 +442,16 @@ CameraV4L::CameraV4L()
 	depth	        = getIntArg("depth", argTab);
 	mode	        = getIntArg("mode", argTab);
 	videoId	        = getIntArg("videoId", argTab);
+	minHue  	    = getIntArg("minHue", argTab);
+	maxHue   	    = getIntArg("maxHue", argTab);
+	gainMult  	    = getIntArg("gainMult", argTab);
+	autoBrightnessSize	= getIntArg("autoBrightnessSize", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(camera_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(1000); // 100 ms (10 per sec)
+    setDataBufferPeriodTime(500); // hardcoded in loop!!! 
     //500000000llu
 }
 
