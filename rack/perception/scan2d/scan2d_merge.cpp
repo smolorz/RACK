@@ -33,13 +33,13 @@ Scan2DMerge *p_inst;
 
 argTable_t argTab[] = {
 
-    {ARGOPT_REQ, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of the odometry module", (int)-1},
+    {ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+     "The instance number of the odometry module", (int)0},
 
     {ARGOPT_REQ, "scan2dInstA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
      "The instance number of a scan2d module", (int)-1 },
 
-    {ARGOPT_REQ, "scan2dInstB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+    {ARGOPT_OPT, "scan2dInstB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
      "The instance number of a scan2d module", (int)-1 },
 
     {ARGOPT_OPT, "scan2dInstC", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -244,7 +244,7 @@ int  Scan2DMerge::moduleLoop(void)
                 if (scan2dInst[k] >= 0)
                 {
                     // scan2d timeout 5s
-                    if (scan2dTimeout[k] > 5 * ((float)1 / getDataBufferPeriodTime(0)))
+                    if (scan2dTimeout[k] > 5 * ((float)1000.0f / getDataBufferPeriodTime(0)))
                     {
                         GDOS_ERROR("Data timeout scan_2d(%i)\n", scan2dInst[k]);
 
