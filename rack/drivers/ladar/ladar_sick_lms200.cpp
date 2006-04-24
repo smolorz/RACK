@@ -38,7 +38,7 @@ argTable_t argTab[] = {
 };
 
 /* serial configuration ( written in non realtime context -> Module::Init() )*/
-const struct rtser_config ladar_serial_nrt_config =
+const struct rtser_config ladar_serial_config =
 {
     config_mask       : 0xFFFF,
     baud_rate         : 9600,
@@ -52,17 +52,6 @@ const struct rtser_config ladar_serial_nrt_config =
     event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
     event_mask        : RTSER_EVENT_RXPEND
-};
-
-/* serial configuration ( written in realtime context -> Module::On() )*/
-const struct rtser_config ladar_serial_rt_config =
-{
-    config_mask       : (RTSER_SET_BAUD | RTSER_SET_PARITY |
-                         RTSER_SET_DATA_BITS | RTSER_SET_STOP_BITS),
-    baud_rate         : 9600,
-    parity            : RTSER_NO_PARITY,
-    data_bits         : RTSER_8_BITS,
-    stop_bits         : RTSER_1_STOPB,
 };
 
 static ladar_config_t config_sick_norm =
@@ -136,15 +125,6 @@ static ladar_config_t config_sick_fast =
 int  LadarSickLms200::moduleOn(void)
 {
     int ret;
-
-    // reset config
-    ret = serialPort.setConfig(&ladar_serial_rt_config);
-    if (ret)
-    {
-        GDOS_ERROR("Can't reset rtser%d\n", conf->serDev);
-        return ret;
-    }
-    GDOS_DBG_INFO("rtser%d has been resetted \n", conf->serDev);
 
     // connecting to scanner
     ret = connect();
@@ -1061,6 +1041,12 @@ int LadarSickLms200::connect(void)
 {
     int ret;
 
+    ret = serialPort.clean();
+    if (ret)
+    {
+        return ret;
+    }
+
     ret = exchangeCommand(ladar_cmd_config, 16);
     if (!ret)
     {
@@ -1097,6 +1083,12 @@ int LadarSickLms200::connect(void)
 
         RackTask::sleep(30000000); // 30 ms
 
+        ret = serialPort.clean();
+        if (ret)
+        {
+            return ret;
+        }
+
         ret = exchangeCommand(ladar_cmd_config, 16);
         if (ret)
         {
@@ -1118,36 +1110,14 @@ int LadarSickLms200::connect(void)
 
 int LadarSickLms200::disconnect(void)
 {
-    int ret;
+    // set ladar into configuration mode
+    exchangeCommand(ladar_cmd_config, 16);
 
-    ret = exchangeCommand(ladar_cmd_config, 16);
-    if (ret)
-    {
-        GDOS_ERROR("Can't set ladar into configuration mode\n");
-        goto set_rtser_slow;
-    }
+    // change baudrate to 9600 (config rate)
+    exchangeCommand(ladar_cmd_baudrate_9600, 8);
 
-    GDOS_DBG_INFO("Change baudrate to 9600 (config rate)\n");
-    ret = exchangeCommand(ladar_cmd_baudrate_9600, 8);
-    if (ret)
-    {
-        GDOS_ERROR("Can't change to baudrate 9600 (config rate), code = %d\n",
-                   ret);
-    }
+    serialPort.setBaudrate(9600);
 
-set_rtser_slow:
-
-    GDOS_DBG_INFO("Reset rtser%d \n", conf->serDev);
-    ret = serialPort.setConfig(&ladar_serial_rt_config);
-    if (ret)
-    {
-        GDOS_ERROR("Can't reset rtser%d\n", conf->serDev);
-        return ret;
-    }
-    else
-    {
-        GDOS_DBG_INFO("rtser%d has been resetted \n", conf->serDev);
-    }
     return 0;
 }
 
@@ -1204,7 +1174,7 @@ int  LadarSickLms200::moduleInit(void)
     GDOS_DBG_DETAIL("LadarSick::moduleInit ... \n");
 
     // open rtserial port
-    ret = serialPort.open(conf->serDev, &ladar_serial_nrt_config);
+    ret = serialPort.open(conf->serDev, &ladar_serial_config);
     if (ret)
     {
         GDOS_ERROR("Can't open rtser%d, code = %d\n", conf->serDev, ret);
