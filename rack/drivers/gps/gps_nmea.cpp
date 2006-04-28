@@ -129,7 +129,7 @@ int GpsNmea::moduleLoop(void)
     	      	p_data->recordingTime = nmeaMsg.recordingTime;
 
                 msgCounter++;
-    		    GDOS_DBG_INFO("received RMC message, counter=%i\n", msgCounter);
+    		    GDOS_DBG_DETAIL("received RMC message, counter=%i\n", msgCounter);
     		}
 
         }
@@ -149,7 +149,7 @@ int GpsNmea::moduleLoop(void)
     		if ((analyseGGA(p_data) == 0) && (msgCounter >= 0))
     		{
     		    msgCounter++;
-       		    GDOS_DBG_INFO("received GGA message, counter=%i\n", msgCounter);
+       		    GDOS_DBG_DETAIL("received GGA message, counter=%i\n", msgCounter);
     		}
     	}
 
@@ -167,7 +167,7 @@ int GpsNmea::moduleLoop(void)
 		    if ((analyseGSA(p_data) == 0) && (msgCounter >= 0))
     		{
     		    msgCounter++;
-     		    GDOS_DBG_INFO("received GSA message, counter=%i\n", msgCounter);
+     		    GDOS_DBG_DETAIL("received GSA message, counter=%i\n", msgCounter);
     		}
         }
     }
@@ -206,8 +206,8 @@ int GpsNmea::moduleLoop(void)
         posLLA.z = p_data->altitude / 1000.0;
 
         posWGS84ToGK(&posLLA, &posGK);
-        GDOS_DBG_INFO("Position in Gauss-Krueger is x: %f, y: %f, z: %f\n",
-                      posGK.x, posGK.y, posGK.z);
+        GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f heading %a speed %i satNum %i\n",
+                       posGK.x, posGK.y, posGK.z, p_data->heading, p_data->speed, p_data->satelliteNum);
 
 		// subtract local position offset
 		if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
