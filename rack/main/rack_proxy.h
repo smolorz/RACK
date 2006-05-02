@@ -120,8 +120,8 @@ class RackGetContData
 
         static void be_to_cpu(rack_get_cont_data *data)
         {
-            data->periodTime = __le32_to_cpu(data->periodTime);
-            data->dataMbxAdr = __le32_to_cpu(data->dataMbxAdr);
+            data->periodTime = __be32_to_cpu(data->periodTime);
+            data->dataMbxAdr = __be32_to_cpu(data->dataMbxAdr);
         }
 
         static rack_get_cont_data* parse(MessageInfo *msgInfo)
@@ -207,7 +207,7 @@ class RackStopContData
 
         static void be_to_cpu(rack_stop_cont_data *data)
         {
-            data->dataMbxAdr = __le32_to_cpu(data->dataMbxAdr);
+            data->dataMbxAdr = __be32_to_cpu(data->dataMbxAdr);
         }
 
         static rack_stop_cont_data* parse(MessageInfo *msgInfo)
