@@ -51,6 +51,7 @@
 #define SCAN3D           		0x45
 #define SERVO_DRIVE             0x16
 #define PATH                    0x34
+#define MCL                     0x33
 
 
 // old ids ...

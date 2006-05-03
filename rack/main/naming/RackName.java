@@ -39,6 +39,7 @@ public class RackName
     public static final int SCAN2D              = 0x30;
     public static final int SCAN3D              = 0x45;    
     public static final int SERVO_DRIVE         = 0x16;
+    public static final int MCL                 = 0x33;
 
 /* OLD IDS
     public static final int SYSTEM              = 0x00;
@@ -136,6 +137,8 @@ public class RackName
             return("Scan3D");
         case SERVO_DRIVE:
             return("ServoDrive");
+        case MCL:
+            return("MCL");
 
 
  /*
