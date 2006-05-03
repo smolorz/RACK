@@ -86,6 +86,7 @@ class JoystickProxy : public RackDataProxy
 	    JoystickProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
 	            : RackDataProxy(workMbx, sys_id, JOYSTICK, instance)
 	    {
+	        setDataTimeout(1000000000llu);	// 1s
 	    };
 
 	    ~JoystickProxy()
