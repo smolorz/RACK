@@ -175,18 +175,21 @@ public abstract class RackDataModule extends RackModuleGui
         msg.src = commandMbx;
         dataMsg = msg;
 
-        for (int i = 0; i < dataListener.size(); i++)
+        synchronized(dataListener)
         {
-            try
+            for (int i = 0; i < dataListener.size(); i++)
             {
-                // System.out.println("Sende Karte to
-                // Listener:"+((Integer)listener.elementAt(i)).intValue());
-                msg.dest = ((Integer) dataListener.elementAt(i)).intValue();
-                TimsMsgRouter.send(msg);
-            }
-            catch (MsgException e)
-            {
-                e.printStackTrace();
+                try
+                {
+                    // System.out.println("Sende Karte to
+                    // Listener:"+((Integer)listener.elementAt(i)).intValue());
+                    msg.dest = ((Integer) dataListener.elementAt(i)).intValue();
+                    TimsMsgRouter.send(msg);
+                }
+                catch (MsgException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -330,30 +333,34 @@ public abstract class RackDataModule extends RackModuleGui
                     try
                     {
                         contPack = new GetContDataMsg(cmdMsg);
-                        int i = 0;
-                        boolean existent = false;
-
-                        // check listener first
-                        for (i = 0; i < dataListener.size(); i++)
+                        
+                        synchronized(dataListener)
                         {
-                            int name = ((Integer) dataListener.elementAt(i))
-                                    .intValue();
-                            if (name == contPack.dataMbx)
+                            int i;
+                            boolean existent = false;
+    
+                            // check listener first
+                            for (i = 0; i < dataListener.size(); i++)
                             {
-                                existent = true;
-                                break;
+                                int name = ((Integer) dataListener.elementAt(i)).intValue();
+                                if (name == contPack.dataMbx)
+                                {
+                                    existent = true;
+                                    break;
+                                }
                             }
+                            if (!existent)
+                            {
+                                dataListener.addElement(new Integer(contPack.dataMbx));
+                            }
+
+                            ContDataMsg contData = new ContDataMsg();
+                            contData.periodTime = periodTime;
+
+                            TimsMsgRouter.sendReply(RackMsgType.MSG_CONT_DATA,
+                                                    cmdMsg,
+                                                    contData);
                         }
-                        if (!existent)
-                            dataListener.addElement(new Integer(
-                                    contPack.dataMbx));
-
-                        ContDataMsg contData = new ContDataMsg();
-                        contData.periodTime = periodTime;
-
-                        TimsMsgRouter.sendReply(RackMsgType.MSG_CONT_DATA,
-                                                cmdMsg,
-                                                contData);
                     }
                     catch (MsgException e4)
                     {
@@ -366,16 +373,18 @@ public abstract class RackDataModule extends RackModuleGui
                     try
                     {
                         stopPack = new StopContDataMsg(cmdMsg);
-                        for (int i = 0; i < dataListener.size(); i++)
+                        synchronized(dataListener)
                         {
-                            int name = ((Integer) dataListener.elementAt(i))
-                                    .intValue();
-                            if (name == stopPack.dataMbx)
+                            for (int i = 0; i < dataListener.size(); i++)
                             {
-                                dataListener.removeElementAt(i);
+                                int name = ((Integer) dataListener.elementAt(i)).intValue();
+                                if (name == stopPack.dataMbx)
+                                {
+                                    dataListener.removeElementAt(i);
+                                }
                             }
+                            TimsMsgRouter.sendReply0(RackMsgType.MSG_OK, cmdMsg);
                         }
-                        TimsMsgRouter.sendReply0(RackMsgType.MSG_OK, cmdMsg);
                     }
                     catch (MsgException e5)
                     {
@@ -438,6 +447,10 @@ public abstract class RackDataModule extends RackModuleGui
                     case RackMsgType.MSG_DISABLED:
                         if (moduleTargetStatus == RackMsgType.MSG_ENABLED)
                         {
+                            synchronized(dataListener)
+                            {
+                                dataListener.removeAllElements();
+                            }
                             GDOS.dbgInfo("Turn on", commandMbx, gdosLevel);
                             if (moduleOn() == true)
                             {
@@ -506,6 +519,10 @@ public abstract class RackDataModule extends RackModuleGui
 
                         if (moduleTargetStatus == RackMsgType.MSG_ENABLED)
                         {
+                            synchronized(dataListener)
+                            {
+                                dataListener.removeAllElements();
+                            }
                             GDOS.dbgInfo("Turn on", commandMbx, gdosLevel);
                             if (moduleOn())
                             {
