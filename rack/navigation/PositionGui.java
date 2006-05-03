@@ -67,7 +67,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
-        JPanel southPanel = new JPanel(new GridLayout(2, 0));
+        JPanel southPanel = new JPanel(new GridLayout(0, 1, 4, 2));
 
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
         JPanel labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
@@ -102,7 +102,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
                 if ((s != null) && (s.length() > 0))
                 {
                     StringTokenizer st = new StringTokenizer(s, ",");
-                    if (st.countTokens() == 6)
+                    if (st.countTokens() == 3)
                     {
                         Position3D robotPosition = new Position3D(
                             Integer.parseInt(st.nextToken()),
