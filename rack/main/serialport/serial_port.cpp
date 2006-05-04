@@ -32,7 +32,7 @@ SerialPort::SerialPort()
 SerialPort::~SerialPort()
 {
     if (fd != -1)
-    	close();
+        close();
 }
 
 //
@@ -119,6 +119,11 @@ int SerialPort::setEventTimeout(int64_t timeout)
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONFIG, &settime_cfg);
 }
 
+int SerialPort::setControl(int32_t bitmask)
+{
+    return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONTROL, bitmask);
+}
+
 int SerialPort::send(const void* data, int dataLen)
 {
     int ret;
@@ -179,7 +184,7 @@ int SerialPort::recv_pending(void *data, int maxdataLen)
 {
     int ret;
 
-    ret = setRxTimeout(-1);	// NONBLOCK
+    ret = setRxTimeout(-1);    // NONBLOCK
     if (ret)
         return ret;
 

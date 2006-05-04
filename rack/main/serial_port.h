@@ -19,6 +19,8 @@
 #include <main/rack_time.h>
 #include <rtdm/rtserial.h>
 
+#define SERPORT_MCR_RTS   RTSER_MCR_RTS
+
 //######################################################################
 //# class SerialPort
 //######################################################################
@@ -43,6 +45,7 @@ class SerialPort
         int setBaudrate(int baudrate);
         int setRxTimeout(int64_t timeout);
         int setEventTimeout(int64_t timeout);
+        int setControl(int32_t bitmask);
 
         int send(const void* data, int dataLen);
 

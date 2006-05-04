@@ -1,6 +1,6 @@
 
 config RACK_POSITION
     bool "Position"
-    default n
+    default y
     ---help---
     Help text.
