@@ -21,7 +21,11 @@ import java.awt.geom.*;
 import java.util.*;
 import javax.swing.*;
 
+import rack.drivers.GpsDataMsg;
+import rack.drivers.GpsProxy;
+import rack.gui.Gui;
 import rack.main.gui.*;
+import rack.main.naming.RackName;
 import rack.main.proxy.*;
 
 import rack.main.defines.Position3D;
@@ -55,14 +59,16 @@ public class PositionGui extends RackModuleGui implements ActionListener
     protected JLabel rhoLabel = new JLabel("-000.00");
 
     protected PositionProxy position;
+    protected Gui rackGui;
     private MapViewActionList mapViewActionList;
     private GeneralPath positionPath;
     private boolean drawPositionPath = false;
 
-    public PositionGui(PositionProxy proxy)
+    public PositionGui(Gui gui, Integer moduleId, PositionProxy proxy)
     {
         position = proxy;
-
+        rackGui = gui;
+        
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
@@ -121,8 +127,22 @@ public class PositionGui extends RackModuleGui implements ActionListener
         {
             public void actionPerformed(ActionEvent e)
             {
-                Position3D robotPosition = new Position3D(0,0,0,0.0f,0.0f,0.0f);
-                position.update(robotPosition, 0);
+                for(int i = 0; i < rackGui.moduleProxy.length; i++)
+                {
+                    if(rackGui.moduleProxy[i].getCommandMbx() == RackName.create(RackName.GPS, 0))
+                    {
+                        GpsProxy gps = (GpsProxy)rackGui.moduleProxy[i];
+                        GpsDataMsg gpsData = gps.getData();
+                        if(gpsData != null)
+                        {
+                            position.update(gpsData.posGK, 0);
+                        }
+                        else
+                        {
+                            System.out.println("Can't read data from GPS(0)");
+                        }
+                    }
+                }
             }
         });
 
