@@ -130,9 +130,10 @@ public class Gui extends Thread
 
     int[] replyMbx;
     int GDOSMbx;
-    int[] moduleStatus;
-    RackProxy[] moduleProxy;
-    RackModuleGui[] moduleGui;
+
+    public int[] moduleStatus;
+    public RackProxy[] moduleProxy;
+    public RackModuleGui[] moduleGui;
 
     byte getStatusSeqNo = 100;
     int getStatusReplyMbx;
