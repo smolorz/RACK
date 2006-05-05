@@ -18,16 +18,20 @@ package rack.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
+import rack.gui.Gui;
 import rack.main.gui.*;
 import rack.main.proxy.*;
 
 public class CameraGui extends RackModuleGui
 {
-    public CameraGui(CameraProxy proxy)
+
+    public CameraGui(Gui gui, Integer moduleId, CameraProxy proxy)
     {
-        camera = proxy;
+    	camera = proxy;
+        rackGui = gui;
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -41,6 +45,8 @@ public class CameraGui extends RackModuleGui
         onButton = new JButton("On");
         offButton = new JButton("Off");
         storeButton = new JButton("Store");
+        storeContOnButton = new JButton("StoreOn");
+        storeContOffButton = new JButton("StoreOff");
 
         onButton.addActionListener(new ActionListener()
         {
@@ -58,17 +64,38 @@ public class CameraGui extends RackModuleGui
             }
         });
 
-        storeButton.addActionListener(new ActionListener()
+        storeContOnButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                camera.storeDataToFile("camera.png");
+                contStoring = 1;
+                contStoringLabel.setText("Cont.storing on.");
+
             }
         });
 
+        storeContOffButton.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        contStoring = 0;
+                        contStoringLabel.setText("Cont.storing off.");
+
+                    }
+                });
+        storeButton.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        camera.storeDataToFile("camera.png");
+                    }
+                });
+        
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
         buttonPanel.add(storeButton);
+        buttonPanel.add(storeContOnButton);
+        buttonPanel.add(storeContOffButton);
 
         northPanel.add(buttonPanel, BorderLayout.NORTH);
 
@@ -138,7 +165,11 @@ public class CameraGui extends RackModuleGui
 
         mousePositionLabel = new JLabel();
         mousePositionLabel.setText("Mouse not in yet.");
+        contStoringLabel = new JLabel();
+        contStoringLabel.setText("Cont.storing off.");
+        
         labelPanel.add(mousePositionLabel, BorderLayout.WEST);
+        labelPanel.add(contStoringLabel, BorderLayout.EAST);
 
         northPanel.add(labelPanel, BorderLayout.SOUTH);
 
@@ -149,8 +180,6 @@ public class CameraGui extends RackModuleGui
 
         panel.add(northPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
-        ;
-
     }
 
     public JComponent getComponent()
@@ -177,10 +206,15 @@ public class CameraGui extends RackModuleGui
             if (panel.isShowing())
             {
                 data = camera.getData();
+
                 if (data != null)
                 {
                     cameraComponent
                             .transformImage(zoomRate, switchRotate, data);
+                    if (contStoring == 1)
+                    {
+                    	camera.storeDataToFile("camera"+System.currentTimeMillis()+".png");
+                    }
                 }
                 else
                 {
@@ -188,7 +222,7 @@ public class CameraGui extends RackModuleGui
                     // cameraComponent.repaint();
                     try
                     {
-                        Thread.sleep(1000);
+                        Thread.sleep(200);
                     }
                     catch (InterruptedException e)
                     {
@@ -214,10 +248,14 @@ public class CameraGui extends RackModuleGui
     protected JButton onButton;
     protected JButton offButton;
     protected JButton storeButton;
+    protected JButton storeContOnButton;
+    protected JButton storeContOffButton;
+    protected int contStoring = 0;
 
     protected CameraComponent cameraComponent;
 
     public JLabel mousePositionLabel;
+    public JLabel contStoringLabel;
     protected JPanel panel;
     protected JPanel labelPanel;
     protected JPanel buttonPanel;
@@ -253,4 +291,6 @@ public class CameraGui extends RackModuleGui
             CameraDataMsg.CAMERA_MODE_RAW16 };
 
     public CameraProxy camera;
+    protected Gui rackGui;
+
 }
