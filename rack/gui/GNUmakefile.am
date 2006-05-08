@@ -15,12 +15,14 @@ rack.jar: classdist_java.stamp $(srcdir)/gui.manifest $(shell find $(top_builddi
 	@echo "creating $@"; \
 	builddir=`pwd`; \
 	cd $(top_builddir); \
-	$(JAR) cmf $(srcdir)/gui.manifest $$builddir/$(RACK_JAR) `find -L rack -name "*.class" 2> /dev/null`
+	$(JAR) cmf $(srcdir)/gui.manifest $(RACK_JAR) `find -L rack -maxdepth 2 \
+	                                               -name "*.class" 2> /dev/null`
 
 install-data-local:
 	install -d -m 755 $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
 	install -m 644 $(srcdir)/gui.cfg $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
-	install -m 644 $(RACK_JAR) $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
+	install -m 644 $(top_builddir)/$(RACK_JAR) \
+	               $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
 
 endif
 
