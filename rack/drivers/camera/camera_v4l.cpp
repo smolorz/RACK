@@ -75,12 +75,14 @@ camera_param_data param = {
 //*** Method for automatic adaption of the lumination parameter****//
 int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 {
-	int i, count, minCount, maxCount, brightness, start, actualHue;
+    int i, count, minCount, maxCount, brightness, start, actualHue;
 
-	count    = camera.grab_size; 
-	minCount = 0;
-	maxCount = 0;
-    start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize); 
+    count    = camera.grab_size; 
+    minCount = 0;
+    maxCount = 0;
+       
+    start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize)); 
+    start -= start % 3; 
 
     for(i = start; i < count; i += 4)
     {
@@ -436,7 +438,7 @@ CameraV4L::CameraV4L()
                       16,                   // command mailbox slots
                       48,                   // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags //## it should be user space
-                      10,                    // max buffer entries
+                      20,                    // max buffer entries
                       10)                   // data buffer listener
 {
 	width  	        = getIntArg("width", argTab);

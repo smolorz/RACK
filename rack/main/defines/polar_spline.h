@@ -75,10 +75,10 @@ class PolarSpline
                                     position_2d *result)
         {
             point_2d        point;
-            double        	x, y, cosRho, sinRho;
-            double        	a, a2, a3, a4, b, b2;
+            double          x, y, cosRho, sinRho;
+            double          a, a2, a3, a4, b, b2;
             int             r;
-            int				lengthSign, radiusSign;
+            int             lengthSign, radiusSign;
 
             // transform position into spline coordinate system
             sinRho = sin(spline->centerPos.phi);
@@ -107,8 +107,8 @@ class PolarSpline
             if (spline->radius != 0)
             {
                 // calculate longitudinal position
-                result->x = (int)rint(spline->radius *
-                                      point_2d_polar_angle(point) * lengthSign);
+                result->x = (int)rint(fabs(spline->radius * 
+                                      point_2d_polar_angle(point)) * lengthSign);
 
                 // calculate transversal deviation
                 a = (double)result->x / (double)spline->radius;
