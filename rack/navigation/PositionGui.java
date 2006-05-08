@@ -23,7 +23,6 @@ import javax.swing.*;
 
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
-import rack.gui.Gui;
 import rack.main.gui.*;
 import rack.main.naming.RackName;
 import rack.main.proxy.*;
@@ -59,15 +58,15 @@ public class PositionGui extends RackModuleGui implements ActionListener
     protected JLabel rhoLabel = new JLabel("-000.00");
 
     protected PositionProxy position;
-    protected Gui rackGui;
+    protected RackProxy[] rackProxyList;
     private MapViewActionList mapViewActionList;
     private GeneralPath positionPath;
     private boolean drawPositionPath = false;
 
-    public PositionGui(Gui gui, Integer moduleId, PositionProxy proxy)
+    public PositionGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
     {
-        position = proxy;
-        rackGui = gui;
+        position = (PositionProxy)proxyList[moduleIndex.intValue()];
+        rackProxyList = proxyList;
         
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -127,11 +126,11 @@ public class PositionGui extends RackModuleGui implements ActionListener
         {
             public void actionPerformed(ActionEvent e)
             {
-                for(int i = 0; i < rackGui.moduleProxy.length; i++)
+                for(int i = 0; i < rackProxyList.length; i++)
                 {
-                    if(rackGui.moduleProxy[i].getCommandMbx() == RackName.create(RackName.GPS, 0))
+                    if(rackProxyList[i].getCommandMbx() == RackName.create(RackName.GPS, 0))
                     {
-                        GpsProxy gps = (GpsProxy)rackGui.moduleProxy[i];
+                        GpsProxy gps = (GpsProxy)rackProxyList[i];
                         GpsDataMsg gpsData = gps.getData();
                         if(gpsData != null)
                         {

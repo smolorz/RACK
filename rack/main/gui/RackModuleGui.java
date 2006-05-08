@@ -29,6 +29,9 @@ import rack.main.proxy.*;
 
 abstract public class RackModuleGui extends Thread//JComponent implements Runnable
 {
+    // use constructor RackModuleGui(RackProxy moduleProxy) or
+    // RackModuleGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
+
     abstract public JComponent getComponent();
 
     /** Liefert den Namen des GUIs zurck */

@@ -131,9 +131,9 @@ public class Gui extends Thread
     int[] replyMbx;
     int GDOSMbx;
 
-    public int[] moduleStatus;
-    public RackProxy[] moduleProxy;
-    public RackModuleGui[] moduleGui;
+    int[] moduleStatus;
+    RackProxy[] moduleProxy;
+    RackModuleGui[] moduleGui;
 
     byte getStatusSeqNo = 100;
     int getStatusReplyMbx;
@@ -742,20 +742,15 @@ public class Gui extends Thread
             errorDialog("\"" + moduleGuiName + "\" class not found!");
             return null;
         }
-        // zunaechst versuchen, ob es einen solchen konstruktor gibt:
-        // (Gui mainJavaGui, Integer module-id, Proxy proxysowiso)
-        // so hat das modul einen "zeiger" auf das gui selbst und kann z.b. mit
-        // hilfe
-        // der module-id die entsrechende zeile der gui.cfg-datei nach
-        // optionalen parametern
-        // durchsuchen oder sonst irgendwie auf eigenschaften des Guis (lesend -
-        // freiwillige selbsverpflichtung) zugreifen
-        guiConstrArgs2[0] = this;
-        guiConstrArgsTypes2[0] = this.getClass();
-        guiConstrArgs2[1] = new Integer(module);
-        guiConstrArgsTypes2[1] = Integer.class;
-        guiConstrArgs2[2] = guiConstrArgs[0];
-        guiConstrArgsTypes2[2] = guiConstrArgsTypes[0];
+        // try to create RackModuleGui instance with constructor:
+        // (Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
+        guiConstrArgs2[0] = new Integer(module);
+        guiConstrArgsTypes2[0] = Integer.class;
+        guiConstrArgs2[1] = moduleProxy;
+        guiConstrArgsTypes2[1] = RackProxy[].class;
+        guiConstrArgs2[2] = moduleGui;
+        guiConstrArgsTypes2[2] = RackModuleGui[].class;
+
         try
         {
             moduleGui[module] = (RackModuleGui) guiCL.loadClass(moduleGuiName)
