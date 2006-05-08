@@ -467,8 +467,7 @@ uninstall-am: uninstall-dist_javaJAVA uninstall-info-am
 @CONFIG_RACK_JAVA_GUI_TRUE@	@echo "creating $@"; \
 @CONFIG_RACK_JAVA_GUI_TRUE@	builddir=`pwd`; \
 @CONFIG_RACK_JAVA_GUI_TRUE@	cd $(top_builddir); \
-@CONFIG_RACK_JAVA_GUI_TRUE@	$(JAR) cmf $(srcdir)/gui.manifest $(RACK_JAR) `find -L rack -maxdepth 2 \
-@CONFIG_RACK_JAVA_GUI_TRUE@	                                               -name "*.class" 2> /dev/null`
+@CONFIG_RACK_JAVA_GUI_TRUE@	$(JAR) cmf $(srcdir)/gui.manifest $(RACK_JAR) `find -H rack/ -name "*.class" 2> /dev/null`
 
 @CONFIG_RACK_JAVA_GUI_TRUE@install-data-local:
 @CONFIG_RACK_JAVA_GUI_TRUE@	install -d -m 755 $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@

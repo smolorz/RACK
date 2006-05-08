@@ -15,8 +15,7 @@ rack.jar: classdist_java.stamp $(srcdir)/gui.manifest $(shell find $(top_builddi
 	@echo "creating $@"; \
 	builddir=`pwd`; \
 	cd $(top_builddir); \
-	$(JAR) cmf $(srcdir)/gui.manifest $(RACK_JAR) `find -L rack -maxdepth 2 \
-	                                               -name "*.class" 2> /dev/null`
+	$(JAR) cmf $(srcdir)/gui.manifest $(RACK_JAR) `find -H rack/ -name "*.class" 2> /dev/null`
 
 install-data-local:
 	install -d -m 755 $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
