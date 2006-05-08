@@ -21,17 +21,16 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import rack.gui.Gui;
 import rack.main.gui.*;
 import rack.main.proxy.*;
 
 public class CameraGui extends RackModuleGui
 {
 
-    public CameraGui(Gui gui, Integer moduleId, CameraProxy proxy)
+    public CameraGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
     {
-    	camera = proxy;
-        rackGui = gui;
+    	camera = (CameraProxy)proxyList[moduleIndex.intValue()];
+        rackProxyList = proxyList;
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -291,6 +290,5 @@ public class CameraGui extends RackModuleGui
             CameraDataMsg.CAMERA_MODE_RAW16 };
 
     public CameraProxy camera;
-    protected Gui rackGui;
-
+    protected RackProxy[] rackProxyList;
 }
