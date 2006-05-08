@@ -26,6 +26,4 @@ public interface MapViewDrawContext
     public Graphics2D getRobotGraphics();
 
     public Position2D getRobotPosition();
-
-    public boolean isDriveDirectionX();
 }

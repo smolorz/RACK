@@ -23,63 +23,73 @@ import rack.main.tims.exceptions.*;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.awt.geom.AffineTransform;
 import java.awt.event.*;
+import java.io.File;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.imageio.*;
 
 import java.util.*;
 import rack.drivers.*;
+import rack.navigation.*;
 
 public class MapViewGui extends Thread
 {
+    private RackModuleGui[]	moduleGui;
+    private ArrayList 		moduleGuiList;
 
-    public final int viewGridDistance = 1000; // mm
-
-    private RackModuleGui[] moduleGui;
-    private ArrayList moduleGuiList;
-
-    private boolean driveDirectionX;
-    private boolean updateNeeded = false;
-
-    // Anfangswerte fuer das Sichtfenster setzen
-    private Position2D viewPosition = new Position2D();
-    private double     viewZoom     = 0.05;
-
-    private Position2D robotPosition = new Position2D();
-
-    private OdometryProxy odometryProxy;
-
+    private boolean 		updateNeeded = false;
+    private Position2D 		viewPosition = new Position2D();
+    private double     		viewZoom     = 0.02;
+    public final int 		viewGridDistance = 10000; // in mm
+    
+    private Position2D 		robotPosition = new Position2D();
+    private Position2D 		worldCursorPosition = new Position2D(0, 0, 0);
+    
     // basic Components
-    private ViewPanel    viewPanel;
-    private ActionCursor actionCursor;
-    private MapNavigator mapNavigator;
-    private JMenu        menuBar;
-    private JPanel       panel;
+    private ViewPanel     	viewPanel;
+    private ActionCursor  	actionCursor;
+    private MapNavigator  	mapNavigator;
+    private JMenu         	menuBar;
+    private JPanel        	panel;
+    private BufferedImage 	backGndImg;
+    private double		  	backGndResX,		// in mm/pixel
+    					  	backGndResY;		// in mm/pixel
+    private Position2D	  	backGndOffset = new Position2D();
+    
+    // proxies
+    private PositionProxy 	positionProxy;
+    private ChassisProxy	chassisProxy;
+    
+    // Messages
+    ChassisParamMsg 		chassisParam;
 
-
-
-    public MapViewGui(RackModuleGui[] n_moduleGui, boolean driveDirectionX)
+    
+    public MapViewGui(RackModuleGui[] n_moduleGui)
     {
-
         this.moduleGui = n_moduleGui;
-        this.driveDirectionX = driveDirectionX;
-
         this.setPriority(Thread.MIN_PRIORITY);
 
-        // create new localisation proxy
-        int mapViewLocMbx = RackName.create(RackName.MAP_VIEW, 0, 10);
+        // create work Mailbox
+        int workMbx = RackName.create(RackName.MAP_VIEW, 0, 10);
         try
         {
-            TimsMsgRouter.mbxInit(mapViewLocMbx);
+            TimsMsgRouter.mbxInit(workMbx);
         }
         catch (MsgException e)
         {
             e.printStackTrace();
         }
 
-        odometryProxy = new OdometryProxy(0, mapViewLocMbx);
+        // create MapView proxies
+        positionProxy = new PositionProxy(0, workMbx);
+        chassisProxy  = new ChassisProxy(0, workMbx);
 
+        // get chassis parameter message
+        chassisParam = chassisProxy.getParam();
+        
         // create MapView components
         menuBar = new JMenu();
         moduleGuiList = new ModuleGuiList();
@@ -93,10 +103,28 @@ public class MapViewGui extends Thread
         panel.add(mapNavigator,BorderLayout.NORTH);
         panel.add(viewPanel,BorderLayout.CENTER);;
 
+        // set MapView background
+        File file = new File("/home/reimer/spbscripts/hentsch/mapUni.jpg");
+        backGndOffset.x   = 84000;
+        backGndOffset.y   = -210000;
+        backGndOffset.phi = (float)(-18.0 / 180.0 * Math.PI);
+        backGndResX		  = 400.0;
+        backGndResY		  = 400.0;
+        
+        // read background image
+        try
+        {
+        	backGndImg = ImageIO.read(file);
+        }
+        catch (Exception exc)
+        {
+        	System.out.println("No background image found!\n"+exc);
+        }
+
         this.start();
     }
 
-
+    
     public JComponent getComponent()
     {
         return panel;
@@ -152,9 +180,10 @@ public class MapViewGui extends Thread
     {
         try
         {
-            Position3D position3D = odometryProxy.getData().position;
+            Position3D position3D = positionProxy.getData().pos;
             robotPosition = new Position2D(position3D.x, position3D.y,
                         position3D.rho);
+                   
         }
         catch (Exception exc)
         {
@@ -174,6 +203,7 @@ public class MapViewGui extends Thread
         wakeup();
     }
 
+    
     public void run()
     {
         Thread.yield();
@@ -192,14 +222,13 @@ public class MapViewGui extends Thread
                 updateRobotPosition();
 
                 // create a new draw context
-
                 DrawContext drawContext;
                 if (actionCursor.isSimRobotPosition())
                     drawContext = new DrawContext(
-                            actionCursor.worldCursorPosition);
+                            		worldCursorPosition);
                 else
                     drawContext = new DrawContext(robotPosition);
-
+                       
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
@@ -216,9 +245,8 @@ public class MapViewGui extends Thread
                         exc.printStackTrace();
                     }
                 } // while
-
-                viewPanel.setDrawContext(drawContext);
-
+              actionCursor.drawDefaultCursor(drawContext.getRobotGraphics());  
+              viewPanel.setDrawContext(drawContext);
             }
             while (updateNeeded == true);
             delay(200);
@@ -241,7 +269,7 @@ public class MapViewGui extends Thread
         this.notifyAll();
     }
 
-    // **********************************************************
+    // *********************************************************
     // draw context
     // **********************************************************
     private class DrawContext extends BufferedImage implements
@@ -251,7 +279,7 @@ public class MapViewGui extends Thread
         private Graphics2D worldGraph;
         private Graphics2D robotGraph;
         private Position2D robotPosition;
-
+  
         public DrawContext(Position2D robotPosition)
         {
             super(viewPanel.getWidth(), viewPanel.getHeight(),
@@ -266,14 +294,16 @@ public class MapViewGui extends Thread
             worldGraph.scale(viewZoom, viewZoom);
             worldGraph.rotate(-viewPosition.phi - Math.PI / 2);
             worldGraph.translate(-viewPosition.x, -viewPosition.y);
-
+            
             // prepare robotGraph
             robotGraph = this.createGraphics();
             robotGraph.setClip(0, 0, this.getWidth(), this.getHeight());
             robotGraph.setTransform(worldGraph.getTransform());
             robotGraph.translate(robotPosition.x, robotPosition.y);
             robotGraph.rotate(robotPosition.phi);
-
+            
+            drawBackgndImg(backGndImg, backGndResX, backGndResY,
+            			   backGndOffset);
             drawGrid();
         }
 
@@ -291,34 +321,48 @@ public class MapViewGui extends Thread
         {
             return (Position2D) robotPosition.clone();
         }
-
-        public boolean isDriveDirectionX()
-        {
-            return driveDirectionX;
-        }
-
+        
+        
         private void drawGrid()
         {
             Rectangle viewBounds = worldGraph.getClipBounds();
-            worldGraph.setBackground(Color.WHITE);
-            worldGraph.clearRect(viewBounds.x, viewBounds.y, viewBounds.width,
-                                 viewBounds.height);
             worldGraph.setColor(Color.LIGHT_GRAY);
-            for (int x = (viewGridDistance * (int) (viewBounds.x / viewGridDistance)); x < (viewBounds.x + viewBounds.width); x += viewGridDistance)
+            
+            for (int x = (viewGridDistance * (int) (viewBounds.x / viewGridDistance));
+                 x < (viewBounds.x + viewBounds.width); x += viewGridDistance)
             {
-                worldGraph.drawLine(x, viewBounds.y, x, viewBounds.y
-                        + viewBounds.height);
+                worldGraph.drawLine(x, viewBounds.y, x, viewBounds.y + 
+                										viewBounds.height);
             }
-            for (int y = (viewGridDistance * (int) (viewBounds.y / viewGridDistance)); y < (viewBounds.y + viewBounds.height); y += viewGridDistance)
+            
+            for (int y = (viewGridDistance * (int) (viewBounds.y / viewGridDistance));
+                 y < (viewBounds.y + viewBounds.height); y += viewGridDistance)
             {
-                worldGraph.drawLine(viewBounds.x, y, viewBounds.x
-                        + viewBounds.width, y);
+                worldGraph.drawLine(viewBounds.x, y, viewBounds.x +
+                									 viewBounds.width, y);
             }
             worldGraph.setColor(Color.ORANGE);
             worldGraph.drawArc(-75, -75, 150, 150, 0, 270);
         }
+        
+        
+        private void drawBackgndImg(BufferedImage image, 
+        							   double resX, double resY, Position2D pos)
+        {
+        	Rectangle viewBounds = worldGraph.getClipBounds();
+            worldGraph.setBackground(Color.WHITE);
+            worldGraph.clearRect(viewBounds.x, viewBounds.y, viewBounds.width,
+                                 viewBounds.height);
+            if (image != null)
+            {
+            	AffineTransform at = new AffineTransform();
+            	at.scale(resX, resY);
+            	at.rotate(pos.phi + Math.PI/2);	
+            	BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+            	worldGraph.drawImage(image, biop, pos.x, pos.y);
+            }
+        }
     }
-
 
     // **********************************************************
     // view panel
@@ -372,44 +416,42 @@ public class MapViewGui extends Thread
     // Map Navigator
     // **********************************************************
     private class MapNavigator extends JPanel implements ActionListener,
-            MouseWheelListener, MouseListener, KeyListener
+            MouseWheelListener, MouseListener, MouseMotionListener, KeyListener
     {
-        private JComboBox   commandBox;
         protected JPanel    eastPanel;
         protected JPanel    centerPanel;
         protected JPanel    westPanel;
         private JButton     viewRobotButton;
         private JButton     viewOriginButton;
-        private JLabel      coordinates;
-
+        private JLabel      coordinateLabel;
+        private ModuleActionEvent actionEvent = null;
 
         public MapNavigator()
         {
             this.setLayout(new BorderLayout(2,2));
             this.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 
-            viewPanel.addMouseWheelListener(this);
+         //   viewPanel.addMouseWheelListener(this);
             viewPanel.addMouseListener(this);
             viewPanel.addKeyListener(this);
-
-            // command
+            viewPanel.addMouseMotionListener(this);
+           
+           // command
             westPanel = new JPanel();
             westPanel.setLayout(new BorderLayout(2,2));
             westPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 
-            commandBox = new CommandBox(); //new JComboBox();
-            commandBox.setEditable(false);
-            commandBox.setPreferredSize(new Dimension(400,
-                                        getPreferredSize().height));
-            westPanel.add(commandBox, BorderLayout.WEST);
+            JMenuBar menu = new JMenuBar();
+            menu.add(new CommandMenu());
+            westPanel.add(menu, BorderLayout.WEST);
 
             // coordinates
             centerPanel = new JPanel();
             centerPanel.setLayout(new BorderLayout(2, 2));
             centerPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 
-            coordinates = new JLabel("(X: 0 mm , Y: 0 mm)");
-            centerPanel.add(coordinates, BorderLayout.CENTER);
+            coordinateLabel = new JLabel("X: 0 mm , Y: 0 mm");
+            centerPanel.add(coordinateLabel, BorderLayout.CENTER);
 
             // view
             eastPanel = new JPanel();
@@ -419,9 +461,11 @@ public class MapViewGui extends Thread
             viewOriginButton = new JButton("Origin");
             viewOriginButton.setActionCommand("origin");
             viewOriginButton.addActionListener(this);
-            viewOriginButton.setToolTipText("zum Ursprung bewegen");
+            viewOriginButton.setToolTipText("global view");
             viewRobotButton = new JButton("Robot");
-            viewRobotButton.setToolTipText("Roboterposition verfolgen");
+            viewRobotButton.setActionCommand("robot");
+            viewRobotButton.addActionListener(this);
+            viewRobotButton.setToolTipText("robot centered view");
 
             eastPanel.add(viewOriginButton, BorderLayout.WEST);
             eastPanel.add(viewRobotButton, BorderLayout.EAST);
@@ -463,10 +507,7 @@ public class MapViewGui extends Thread
             }
             if (event.getActionCommand().equals("left"))
             {
-                if (driveDirectionX)
-                    changePositionAndZoom(0, 0, -1, 0);
-                else
-                    changePositionAndZoom(0, 0, 1, 0);
+            	changePositionAndZoom(0, 0, -1, 0);
                 viewRobotButton.setSelected(false);
             }
             if (event.getActionCommand().equals("right"))
@@ -479,15 +520,34 @@ public class MapViewGui extends Thread
                 viewPosition.phi = 0;
                 setCenter(new Position2D(0, 0));
                 viewRobotButton.setSelected(false);
+                System.out.println("Origin selected");
+            }
+            if (event.getActionCommand().equals("robot"))
+            {
+            	viewRobotButton.setSelected(true);
             }
 
             updateNeeded();
             viewPanel.grabFocus();
         }
 
+        public void mouseMoved(MouseEvent event)
+        {
+            Position2D tempPosition = getPosOnScreen(event.getX(), 
+                                                     event.getY());
+            worldCursorPosition.x   = tempPosition.x;
+            worldCursorPosition.y   = tempPosition.y;
+            coordinateLabel.setText("X: "+worldCursorPosition.x+" mm, " +
+								    "Y: "+worldCursorPosition.y+" mm");            
+        }
+        
+        public void mouseDragged(MouseEvent event)
+        {
+        }
+       
         public void mouseClicked(MouseEvent event)
         {
-            if (event.getButton() == MouseEvent.BUTTON2)
+        	if (event.getButton() == MouseEvent.BUTTON2)
             {
                 setCenter(getPosOnScreen(event.getX(), event.getY()));
                 viewRobotButton.setSelected(false);
@@ -563,145 +623,96 @@ public class MapViewGui extends Thread
         {
             return viewRobotButton.isSelected();
         }
-
-
-        private class CommandBox extends JComboBox implements
-                      FocusListener
+        
+        
+        private class CommandMenu extends JMenu implements MenuListener
         {
 
-            public CommandBox()
+            public CommandMenu()
             {
+                super("   Command   ");
+                addMenuListener(this);
                 setToolTipText("Choose a command");
-                this.addFocusListener(this);
             }
 
-            public void focusGained(FocusEvent e)
+            public void menuCanceled(MenuEvent arg0)
             {
-                this.removeAllItems();
+            }
 
-                this.addItem("Move");
-                this.addItem("Zoom");
+            public void menuDeselected(MenuEvent arg0)
+            {
+            }
+
+            public void menuSelected(MenuEvent arg0)
+            {
+                this.removeAll();
 
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
-
                 while (moduleGuiIterator.hasNext())
                 {
-                    ModuleGuiProp moduleGuiProp = (ModuleGuiProp)moduleGuiIterator
+                	ModuleGuiProp moduleGuiProp = (ModuleGuiProp)moduleGuiIterator
                             .next();
                     if (!moduleGuiProp.isOn())
                         continue;
 
-
                     MapViewActionList actionList = moduleGuiProp.getModuleGui()
-                                                   .getMapViewActionList();
+                            .getMapViewActionList();
                     if (actionList == null)
                         continue;
 
-                    String module = new String(actionList.title);
+                    JMenu newSubmenu = new JMenu(actionList.title);
+                    this.add(newSubmenu);
 
                     ListIterator actionListIterator = actionList.listIterator();
                     while (actionListIterator.hasNext())
                     {
-                        this.addItem(module + "--->" +
-                                     ((MapViewActionList.MapViewActionListItem)
-                                       actionListIterator.next()).title);
-
+                        newSubmenu.add(new ModuleActionEvent(moduleGuiProp,
+                                      (MapViewActionList.
+                                       MapViewActionListItem)actionListIterator.
+                                          next()));
                     }
                 }
-            }
 
-            public void focusLost(FocusEvent e)
-            {
+                if (this.getComponentCount() > 0)
+                	this.addSeparator();
+
+                JMenuItem newMenuItem = new JMenuItem("Cursor");
+                newMenuItem.setActionCommand("selectCursor");
+                newMenuItem.addActionListener(actionCursor);
+                this.add(newMenuItem);
+
+                this.validate();
             }
-        }
+        } // commandMenu        
     }
 
+    
+    
+    
+    
+    
+    
     // **********************************************************
     // Action Cursor
     // **********************************************************
     private class ActionCursor extends JPanel implements MouseListener,
-            MouseMotionListener, ActionListener
+            MouseMotionListener, MouseWheelListener, ActionListener
     {
-
-        public Position2D worldCursorPosition = new Position2D(0, 0, 0);
         public boolean active = false;
-
         private ModuleActionEvent actionEvent = null;
-
-        private JToggleButton simRobotPositionButton;
-        private JButton cancelButton;
-        private JButton executeButton;
-        private InfoBox infoBox;
+        private float dPhiPerClick = (float)Math.toRadians(10.0);
 
         public ActionCursor()
         {
-            super(new GridBagLayout());
-
-            cancelButton = new JButton("Cancel");
-            cancelButton.addActionListener(this);
-            cancelButton.setToolTipText("Aktion abbrechen");
-
-            executeButton = new JButton("Execute");
-            executeButton.setActionCommand("execute");
-            executeButton.addActionListener(this);
-            executeButton.setToolTipText("Aktion ausfuehren");
-
-            simRobotPositionButton = new JToggleButton("SimRobot", false);
-            simRobotPositionButton.setToolTipText("Roboterposition am Cursor simulieren");
-            infoBox = new InfoBox();
-            infoBox.setToolTipText("dargestellte Information auswaehlen");
-
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridy = 0;
-            gbc.gridwidth = 1;
-            gbc.gridheight = 1;
-            gbc.weighty = 1;
-
-            gbc.gridx = 0;
-            gbc.fill = GridBagConstraints.VERTICAL;
-            gbc.weightx = 0;
-            JMenuBar menu = new JMenuBar();
-            menu.add(new ActionMenu());
-            this.add(menu, gbc);
-
-            gbc.gridx = 1;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            this.add(Box.createHorizontalStrut(10), gbc);
-            gbc.gridx = 2;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            this.add(infoBox, gbc);
-
-            gbc.gridx = 3;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.weightx = 1;
-            this.add(Box.createHorizontalGlue(), gbc);
-
-            gbc.gridx = 4;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            this.add(simRobotPositionButton, gbc);
-
-            gbc.gridx = 5;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            this.add(Box.createHorizontalStrut(10), gbc);
-            gbc.gridx = 6;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            this.add(cancelButton, gbc);
-            gbc.gridx = 7;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.weightx = 0;
-            this.add(executeButton, gbc);
-
-            deactivate();
+            viewPanel.addMouseListener(this);
+            viewPanel.addMouseMotionListener(this);
+            viewPanel.addMouseWheelListener(this);
         }
 
         public boolean isSimRobotPosition()
         {
-            return simRobotPositionButton.isSelected();
+        	return false;
+//            return simRobotPositionButton.isSelected();
         }
 
         public void actionPerformed(ActionEvent event)
@@ -709,26 +720,21 @@ public class MapViewGui extends Thread
             if (event.getActionCommand().equals("selectAction"))
             {
                 actionEvent = (ModuleActionEvent) event.getSource();
-                activate();
-            }
-            if (event.getActionCommand().equals("selectCursor"))
-            {
-                actionEvent = null;
-                activate();
+                active = true;
             }
             if (event.getActionCommand().equals("repeat"))
             {
                 if (actionEvent != null && !actionEvent.moduleGuiProp.isOn())
                     actionEvent = null;
-                activate();
+                active = true;
             }
             if (event.getActionCommand().equals("cancel"))
             {
-                deactivate();
+            	actionEvent = null;
+            	active = false;
             }
             if (event.getActionCommand().equals("execute"))
             {
-                deactivate();
                 if (actionEvent != null && actionEvent.moduleGuiProp.isOn())
                 {
                     updateRobotPosition();
@@ -737,13 +743,14 @@ public class MapViewGui extends Thread
                     actionEvent.moduleGuiProp.getModuleGui()
                             .mapViewActionPerformed(actionEvent);
                 }
+                active = true;
             }
-
         }
 
         public synchronized void drawCursor(Graphics2D screenGraph,
                 DrawContext drawContext)
         {
+        	
             if (active)
             {
                 CursorDrawContext cursorDrawContext = new CursorDrawContext(
@@ -764,93 +771,46 @@ public class MapViewGui extends Thread
             }
         }
 
-        private void activate()
-        {
-            if (!active)
-            {
-                viewPanel.addMouseListener(this);
-                viewPanel.addMouseMotionListener(this);
-                worldCursorPosition = getPosOnScreen((int) (viewPanel
-                        .getWidth() * 0.66),
-                        (int) (viewPanel.getHeight() * 0.66));
-            }
-
-            simRobotPositionButton.setEnabled(true);
-            if (actionEvent != null)
-                executeButton.setEnabled(true);
-            else
-                executeButton.setEnabled(false);
-
-            cancelButton.setText("Cancel");
-            cancelButton.setActionCommand("cancel");
-
-            infoBox.setEnabled(true);
-            infoBox.updateEvent(actionEvent);
-            infoBox.updateCoord(worldCursorPosition);
-
-            active = true;
-            viewPanel.repaint();
-        }
-
-        private void deactivate()
-        {
-            active = false;
-
-            simRobotPositionButton.setEnabled(false);
-            simRobotPositionButton.setSelected(false);
-            executeButton.setEnabled(false);
-
-            cancelButton.setText("Repeat");
-            cancelButton.setActionCommand("repeat");
-
-            viewPanel.removeMouseListener(this);
-            viewPanel.removeMouseMotionListener(this);
-
-            infoBox.setEnabled(false);
-            updateNeeded();
-        }
-
         private void drawDefaultCursor(Graphics2D cursorGraphics)
         {
             cursorGraphics.setColor(new Color(0, 0, 255, 180));
-            if (driveDirectionX)
-            {
-                cursorGraphics.fillArc(-200, -200, 400, 400, 30, 300);
-            }
-            else
-            {
-                cursorGraphics.fillArc(-200, -200, 400, 400, -60, 300);
-            }
-        }
+            cursorGraphics.fillArc(-200, -200, 400, 400, 30, 300);
+            
+            int chassisWidth = chassisParam.boundaryLeft + 
+			   chassisParam.boundaryRight;
+            int chassisLength = chassisParam.boundaryBack + 
+			    chassisParam.boundaryFront;
+            
+            cursorGraphics.setColor(Color.GRAY);
+            cursorGraphics.fillRect(-chassisParam.boundaryBack -
+            						 chassisParam.safetyMargin,
+            					    -chassisParam.boundaryLeft -
+            					     chassisParam.safetyMargin,
+            					     chassisLength + 2 * chassisParam.safetyMargin +
+            					     chassisParam.safetyMarginMove,
+            					     chassisWidth + 2 * chassisParam.safetyMargin);
 
-        public void mouseDragged(MouseEvent event)
-        {
-            if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0)
-            {
-                Position2D tempPosition = getPosOnScreen(event.getX(), event
-                        .getY());
-                worldCursorPosition.x = tempPosition.x;
-                worldCursorPosition.y = tempPosition.y;
-            }
-            if ((event.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) > 0)
-            {
-                Position2D mousePsition = getPosOnScreen(event.getX(), event
-                        .getY());
-                if (driveDirectionX)
-                    worldCursorPosition.phi = normalizePhi((float) Math.atan2(
-                            mousePsition.y - worldCursorPosition.y,
-                            mousePsition.x - worldCursorPosition.x));
-                else
-                    worldCursorPosition.phi = normalizePhi((float) Math.atan2(
-                            worldCursorPosition.x - mousePsition.x,
-                            mousePsition.y - worldCursorPosition.y));
-            }
-
-            infoBox.updateCoord(worldCursorPosition);
-            if (isSimRobotPosition())
-                updateNeeded();
-            else
-                viewPanel.repaint();
+            cursorGraphics.setColor(Color.DARK_GRAY);
+            cursorGraphics.fillRect(-chassisParam.boundaryBack,
+            					    -chassisParam.boundaryLeft,
+            					     chassisLength, chassisWidth);
+            
+            cursorGraphics.setColor(Color.BLACK);
+            cursorGraphics.drawRect(-chassisParam.boundaryBack,
+            					    -chassisParam.boundaryLeft,
+            					     chassisWidth, chassisLength);
+            cursorGraphics.drawLine(-chassisParam.boundaryBack +
+            						 (int)(chassisLength * 0.5),
+				   				    -chassisParam.boundaryLeft,
+					   				 chassisParam.boundaryFront,
+					   				-chassisParam.boundaryLeft +
+					   				 (int)(chassisWidth * 0.5));
+            cursorGraphics.drawLine( chassisParam.boundaryFront,
+            					    -chassisParam.boundaryLeft +
+            						 (int)(chassisWidth * 0.5),
+            					    -chassisParam.boundaryBack +
+            					     (int)(chassisLength * 0.5),
+            					     chassisParam.boundaryRight);            
         }
 
         public Position2D translateRobotCursorPosition(
@@ -866,14 +826,49 @@ public class MapViewGui extends Thread
         }
 
         private float normalizePhi(float phi)
-        {
+        { 
             if (phi > Math.PI)
                 phi -= 2 * Math.PI;
             if (phi < -Math.PI)
-                phi += 2 * Math.PI;
+                phi += 2 * Math.PI; 
             return phi;
         }
 
+         
+        public void mouseDragged(MouseEvent event)
+        { 
+            if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0)
+            {
+                Position2D tempPosition = getPosOnScreen(event.getX(), event
+                        .getY());
+                worldCursorPosition.x = tempPosition.x; 
+                worldCursorPosition.y = tempPosition.y;      
+                actionPerformed(new ActionEvent(this, 0, "execute"));                
+            }
+/*            if ((event.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) > 0)
+            {    
+                Position2D mousePsition = getPosOnScreen(event.getX(), event
+                        .getY());
+                worldCursorPosition.phi = normalizePhi((float) Math.atan2( 
+                            mousePsition.y - worldCursorPosition.y,
+                            mousePsition.x - worldCursorPosition.x));
+            }*/
+
+            if (isSimRobotPosition())
+                updateNeeded();
+            else 
+                viewPanel.repaint();
+        }
+        
+        public void mouseWheelMoved(MouseWheelEvent event)
+        {
+        	System.out.println(event.getWheelRotation());
+            worldCursorPosition.phi = normalizePhi(
+            						  worldCursorPosition.phi + 
+            						  event.getWheelRotation() * dPhiPerClick);
+            updateNeeded();
+        }
+        
         public void mouseClicked(MouseEvent event)
         {
         }
@@ -960,58 +955,7 @@ public class MapViewGui extends Thread
             }
         } // actionMenu
 
-        private class InfoBox extends JComboBox
-        {
-
-            public TextString actionString = new TextString();
-            public TextString worldCoordString = new TextString();
-            public TextString robotCoordString = new TextString();
-
-            public InfoBox()
-            {
-                setEditable(false);
-                setPreferredSize(new Dimension(400, getPreferredSize().height));
-                addItem(actionString);
-                addItem(worldCoordString);
-                addItem(robotCoordString);
-            }
-
-            public void updateEvent(ModuleActionEvent actionEvent)
-            {
-                if (actionEvent != null && actionEvent.moduleGuiProp.isOn())
-                    actionString.string = actionEvent.moduleGuiProp.toString()
-                            + " -> " + actionEvent.getText();
-                else
-                    actionString.string = "Cursor";
-                repaint();
-            }
-
-            public void updateCoord(Position2D worldCursorPosition)
-            {
-                worldCoordString.string = "World -> X=" + worldCursorPosition.x
-                        + "mm   Y=" + worldCursorPosition.y + "mm   Phi="
-                        + Math.round(Math.toDegrees(worldCursorPosition.phi))
-                        + "�";
-
-                Position2D robotCursorPosition = translateRobotCursorPosition(
-                        worldCursorPosition, robotPosition);
-                robotCoordString.string = "Robot -> X=" + robotCursorPosition.x
-                        + "mm   Y=" + robotCursorPosition.y + "mm   Phi="
-                        + Math.round(Math.toDegrees(robotCursorPosition.phi))
-                        + "�";
-                repaint();
-            }
-
-            private class TextString
-            {
-                public String string = "";
-
-                public String toString()
-                {
-                    return string;
-                }
-            }
-        }
+     
     }
 
     // **********************************************************
@@ -1067,14 +1011,10 @@ public class MapViewGui extends Thread
         {
             return (Position2D) robotPosition;
         }
-
-        public boolean isDriveDirectionX()
-        {
-            return driveDirectionX;
-        }
     }
-
-
+    
+    
+     
 
 
     // **********************************************************
@@ -1117,9 +1057,9 @@ public class MapViewGui extends Thread
             cursorGraph.setClip(0, 0, drawContext.getWidth(), drawContext
                     .getHeight());
             cursorGraph.setTransform(worldGraph.getTransform());
-            cursorGraph.translate(actionCursor.worldCursorPosition.x,
-                    actionCursor.worldCursorPosition.y);
-            cursorGraph.rotate(actionCursor.worldCursorPosition.phi);
+            cursorGraph.translate(worldCursorPosition.x,
+                    			  worldCursorPosition.y);
+            cursorGraph.rotate(worldCursorPosition.phi);
 
             robotPosition = drawContext.getRobotPosition();
             this.worldCursorPosition = worldCursorPosition;
@@ -1148,7 +1088,7 @@ public class MapViewGui extends Thread
         {
             return robotPosition;
         }
-
+        
         public Position2D getRobotCursorPos()
         {
             return robotCursorPosition;
@@ -1157,11 +1097,6 @@ public class MapViewGui extends Thread
         public Position2D getWorldCursorPos()
         {
             return worldCursorPosition;
-        }
-
-        public boolean isDriveDirectionX()
-        {
-            return driveDirectionX;
         }
 
         public String getActionCommand()

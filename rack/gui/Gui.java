@@ -99,7 +99,6 @@ public class Gui extends Thread
     JCheckBoxMenuItem prefPollingOnCbMenuItem;
 
     boolean showMapView = false;
-    boolean driveDirectionX = false;
 
     // main frame
     JFrame frame;
@@ -1025,7 +1024,7 @@ public class Gui extends Thread
         if (showMapView) 
         {
             //create mapView panel as a tab
-            MapViewGui myMapViewGui = new MapViewGui(moduleGui, driveDirectionX);
+            MapViewGui myMapViewGui = new MapViewGui(moduleGui);
             jtp.add("MapView", myMapViewGui.getComponent());
         }        
 

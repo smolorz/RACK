@@ -27,7 +27,4 @@ public interface MapViewActionEvent
     public Position2D getRobotCursorPos();
 
     public Position2D getRobotPosition();
-
-    public boolean isDriveDirectionX();
-
 }
