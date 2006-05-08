@@ -206,16 +206,9 @@ public class PositionGui extends RackModuleGui implements ActionListener
     public void paintMapView(MapViewDrawContext drawContext)
     {
         Graphics2D robotGraphics = drawContext.getRobotGraphics();
-        if (drawContext.isDriveDirectionX())
-        {
-            robotGraphics.setColor(Color.MAGENTA);
-            robotGraphics.fillArc(-250, -250, 500, 500, 30, 300);
-        }
-        else
-        {
-            robotGraphics.setColor(Color.GREEN);
-            robotGraphics.fillArc(-250, -250, 500, 500, -60, 300);
-        }
+        robotGraphics.setColor(Color.MAGENTA);
+        robotGraphics.fillArc(-250, -250, 500, 500, 30, 300);
+
         if (drawPositionPath)
         {
             Graphics2D worldGraphics = drawContext.getWorldGraphics();
@@ -235,12 +228,9 @@ public class PositionGui extends RackModuleGui implements ActionListener
         {
             Position2D newPosition2D = event.getWorldCursorPos();
             Position3D newPosition3D;
-            if (event.isDriveDirectionX())
-                newPosition3D = new Position3D(newPosition2D.x,
+
+            newPosition3D = new Position3D(newPosition2D.x,
                         newPosition2D.y, 0, 0, 0, newPosition2D.phi);
-            else
-                newPosition3D = new Position3D(newPosition2D.x,
-                        newPosition2D.y, 0, newPosition2D.phi, 0, 0);
             position.update(newPosition3D, 0);
         }
     }
