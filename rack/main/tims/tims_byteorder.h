@@ -103,7 +103,7 @@ static inline float64_t  __le64_float_to_cpu(float64_t x)
 
 static inline float32_t  __le32_float_to_cpu(float32_t x)
 {
-    return x
+    return x;
 }
 
 #else // ! __LITTLE_ENDIAN_BITFIELD
