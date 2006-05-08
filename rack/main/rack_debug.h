@@ -33,8 +33,8 @@
 #define GDOS_MSG_DBG_INFO   -127    // debug information
 #define GDOS_MSG_DBG_DETAIL -128    // detailed debug information
 
-#define GDOS_MSG_DEBUG_BEGIN	GDOS_MSG_PRINT
-#define GDOS_MSG_DEBUG_DEFAULT	GDOS_MSG_WARNING
+#define GDOS_MSG_DEBUG_BEGIN    GDOS_MSG_PRINT
+#define GDOS_MSG_DEBUG_DEFAULT    GDOS_MSG_WARNING
 
 // non realtime / realtime context
 static inline int in_rt_context(void)
@@ -49,24 +49,24 @@ static inline int in_rt_context(void)
 // debug functions
 //
 
-#define printf_level(level, fmt, ... )			                        \
-                    char *tfmt = (char *)fmt;  							\
-                    do 													\
-                    {                                                	\
-                        char *pch;										\
-                        do												\
-                        {												\
-                            pch = strstr(tfmt, "%n");					\
-                            if (pch)									\
-                                strncpy(pch, "%x", 2);					\
-                        } 												\
-                        while (pch);									\
+#define printf_level(level, fmt, ... )                                  \
+                    char *tfmt = (char *)fmt;                           \
+                    do                                                  \
+                    {                                                   \
+                        char *pch;                                      \
+                        do                                              \
+                        {                                               \
+                            pch = strstr(tfmt, "%n");                   \
+                            if (pch)                                    \
+                                strncpy(pch, "%x", 2);                  \
+                        }                                               \
+                        while (pch);                                    \
                         printf(tfmt, ##__VA_ARGS__);                    \
                     } while(0)
 
-#define rack_print(level, fmt, ...)                                 	\
+#define rack_print(level, fmt, ...)                                     \
               do                                                        \
-              {                                                       	\
+              {                                                         \
                   if (in_rt_context())                                  \
                   {                                                     \
                       if (gdos)                                         \
@@ -87,9 +87,9 @@ static inline int in_rt_context(void)
                       else                                              \
                       {                                                 \
                           printf_level(level, "NRT: "fmt, ##__VA_ARGS__);\
-                      }                                                  \
-                  }                                                      \
-               }                                                         \
+                      }                                                 \
+                  }                                                     \
+               }                                                        \
                while(0)
 
 #define GDOS_PRINT(fmt, ...)       rack_print(GDOS_MSG_PRINT, fmt, ##__VA_ARGS__)
@@ -260,7 +260,7 @@ class GdosMailbox
                           sendMbx->getPriority(), 0, 0, TIMS_HEADLEN + datasize);
 
             sendMbx->sendDataMsg(&head, 1, &buffer, datasize);
-          }
+        }
 
 };
 

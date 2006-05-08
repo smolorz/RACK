@@ -36,7 +36,7 @@
 #define POSITION                0x32
 
 // perception
-#define SCAN2D 			        0x30
+#define SCAN2D                  0x30
 
 // main
 #define GDOS                    0xf0
@@ -48,7 +48,7 @@
 #define GYRO                    0x12
 #define MODEL_3D                0x46
 #define OBJECT_RECOGNITION      0x4B
-#define SCAN3D           		0x45
+#define SCAN3D                  0x45
 #define SERVO_DRIVE             0x16
 #define PATH                    0x34
 #define MCL                     0x33
@@ -138,7 +138,7 @@ class RackName {
                 case MODEL_3D:              return("Model3D");
                 case OBJECT_RECOGNITION:    return("ObjectRecognition");
                 case PATH:                  return("Path");
-                case SCAN3D:         		return("Scan3D");
+                case SCAN3D:                return("Scan3D");
                 case SERVO_DRIVE:           return("ServoDrive");
 
 // old ids

@@ -25,52 +25,56 @@
 // internal functions
 //
 
-void         RackMailbox::fillMessageRecvInfo(MessageInfo *msgInfo,
-                                              void *p_data)
+void RackMailbox::fillMessageRecvInfo(MessageInfo *msgInfo, void *p_data)
 {
-  msgInfo->p_data         = p_data;
-  msgInfo->datalen        -= TIMS_HEADLEN;
-  msgInfo->usedMbx        = this;
+    msgInfo->p_data    = p_data;
+    msgInfo->datalen  -= TIMS_HEADLEN;
+    msgInfo->usedMbx   = this;
 }
 
-void         RackMailbox::fillMessagePeekInfo(MessageInfo *msgInfo)
+void RackMailbox::fillMessagePeekInfo(MessageInfo *msgInfo)
 {
-  msgInfo->flags          = p_peek_head->flags;
-  msgInfo->type           = p_peek_head->type;
-  msgInfo->priority       = p_peek_head->priority;
-  msgInfo->seq_nr         = p_peek_head->seq_nr;
-  msgInfo->dest           = p_peek_head->dest;
-  msgInfo->src            = p_peek_head->src;
-  msgInfo->datalen        = p_peek_head->msglen - TIMS_HEADLEN;
-  msgInfo->p_data         = &p_peek_head->data;
-  msgInfo->usedMbx        = this;
+    msgInfo->flags    = p_peek_head->flags;
+    msgInfo->type     = p_peek_head->type;
+    msgInfo->priority = p_peek_head->priority;
+    msgInfo->seq_nr   = p_peek_head->seq_nr;
+    msgInfo->dest     = p_peek_head->dest;
+    msgInfo->src      = p_peek_head->src;
+    msgInfo->datalen  = p_peek_head->msglen - TIMS_HEADLEN;
+    msgInfo->p_data   = &p_peek_head->data;
+    msgInfo->usedMbx  = this;
 }
 
-int          RackMailbox::setDataByteorder(MessageInfo *msgInfo)
+int RackMailbox::setDataByteorder(MessageInfo *msgInfo)
 {
-  if (!msgInfo || !msgInfo->p_data) {
-    // no data
+    if (!msgInfo || !msgInfo->p_data)
+    {
+        // no data
+        return 0;
+    }
+
+    // check peek pointer (change flags in mailbox slot, tims does it)
+    if (p_peek_head &&
+        p_peek_head->data == msgInfo->p_data)
+    {
+        tims_set_body_byteorder(p_peek_head);
+        return 0;
+    }
+
+    // message received (change flags in message info struct)
+    if (tims_cpu_is_le())
+    {
+        msgInfo->flags |= MSGINFO_DATA_LE;
+    }
+    else
+    {
+        msgInfo->flags &= ~MSGINFO_DATA_LE;
+    }
+
     return 0;
-  }
-
-  // check peek pointer (change flags in mailbox slot, tims does it)
-  if (p_peek_head &&
-      p_peek_head->data == msgInfo->p_data) {
-    tims_set_body_byteorder(p_peek_head);
-    return 0;
-  }
-
-  // message received (change flags in message info struct)
-  if (tims_cpu_is_le()) {
-    msgInfo->flags |= MSGINFO_DATA_LE;
-  } else {
-    msgInfo->flags &= ~MSGINFO_DATA_LE;
-  }
-
-  return 0;
 }
 
-int          RackMailbox::mbxOK(void)
+int RackMailbox::mbxOK(void)
 {
     return mbxBits.testBit(INIT_BIT_TIMS_MBX_CREATED);
 }
@@ -88,14 +92,14 @@ RackMailbox::RackMailbox()
     mbxBits.clearAllBits();
 }
 
-int     RackMailbox::create(uint32_t address, int messageSlots,
-                            ssize_t messageDataSize, void *buffer,
-                            ssize_t buffer_size, int8_t sendPriority)
+int RackMailbox::create(uint32_t address, int messageSlots,
+                        ssize_t messageDataSize, void *buffer,
+                        ssize_t buffer_size, int8_t sendPriority)
 {
     int fd = 0;
     ssize_t msglen = messageDataSize + TIMS_HEADLEN;
     fd = tims_mbx_create(address, messageSlots, msglen,
-                        buffer, buffer_size);
+                         buffer, buffer_size);
     if (fd < 0)
     {
         return fd;
@@ -110,7 +114,7 @@ int     RackMailbox::create(uint32_t address, int messageSlots,
     return 0;
 }
 
-int     RackMailbox::remove(void)
+int RackMailbox::remove(void)
 {
     int ret;
 
@@ -129,7 +133,7 @@ int     RackMailbox::remove(void)
     return -ENODEV;
 }
 
-int     RackMailbox::clean(void)
+int RackMailbox::clean(void)
 {
     if (!mbxOK())
         return -ENODEV;
@@ -141,7 +145,7 @@ int     RackMailbox::clean(void)
 // send
 //
 
-int     RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seq_nr)
+int RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seq_nr)
 {
     int ret;
 
@@ -167,7 +171,7 @@ int     RackMailbox::sendMsgReply(int8_t type, MessageInfo* msgInfo)
         return -EINVAL;
 
     ret = (int)tims_sendmsg_0(fildes, type, msgInfo->src, msgInfo->dest,
-                         msgInfo->priority, msgInfo->seq_nr, 0, 0);
+                              msgInfo->priority, msgInfo->seq_nr, 0, 0);
     if (ret != TIMS_HEADLEN)
     {
         return ret;

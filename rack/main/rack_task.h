@@ -21,11 +21,11 @@
 #include <native/task.h>
 
 #ifndef RACK_INFINITE
-#define RACK_INFINITE	   TM_INFINITE
+#define RACK_INFINITE       TM_INFINITE
 #endif
 
 #ifndef RACK_NONBLOCK
-#define RACK_NONBLOCK	   TM_NONBLOCK
+#define RACK_NONBLOCK       TM_NONBLOCK
 #endif
 
 typedef RT_TASK RACK_TASK;
@@ -116,16 +116,16 @@ class RackTask
 
         // set task into primary mode and enable the SIGXCPU signal to
         // detect an unexpected switch to secondary mode
-		static int enableRealtimeMode()
-		{
-			return setMode(0, T_PRIMARY | T_WARNSW, NULL);
-		}
+        static int enableRealtimeMode()
+        {
+            return setMode(0, T_PRIMARY | T_WARNSW, NULL);
+        }
 
         // set task into secondary mode and disable the SIGXCPU signal
-		static int disableRealtimeMode()
-		{
-			return setMode(T_PRIMARY | T_WARNSW, 0, NULL);
-		}
+        static int disableRealtimeMode()
+        {
+            return setMode(T_PRIMARY | T_WARNSW, 0, NULL);
+        }
 
 };
 

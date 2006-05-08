@@ -19,11 +19,11 @@
 #include <native/mutex.h>
 
 #ifndef RACK_INFINITE
-#define RACK_INFINITE	TM_INFINITE
+#define RACK_INFINITE    TM_INFINITE
 #endif
 
 #ifndef RACK_NONBLOCK
-#define RACK_NONBLOCK	TM_NONBLOCK
+#define RACK_NONBLOCK    TM_NONBLOCK
 #endif
 
 class RackMutex

@@ -38,7 +38,7 @@
 #define MSG_STOP_CONT_DATA             6
 
 //TODO
-#define MSG_SET_LOG_LEVEL		       7
+#define MSG_SET_LOG_LEVEL              7
 
 //TODO
 #define MSG_GET_PERIOD_TIME            8
