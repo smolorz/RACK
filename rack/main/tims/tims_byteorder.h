@@ -63,18 +63,26 @@ static inline int16_t __be16_to_cpu(int16_t x)
 
 static inline float64_t __be64_float_to_cpu(float64_t x)
 {
-    uint64_t volatile tmp;
+    union {
+        uint64_t  raw;
+        float64_t flt;
+    } u;
 
-    tmp = bswap_64(*((uint64_t *)&x));
-    return *((float64_t *)&tmp);
+    u.flt = x;
+    u.raw = bswap_64(u.raw);
+    return u.flt;
 }
 
 static inline float32_t __be32_float_to_cpu(float32_t x)
 {
-    uint32_t volatile tmp;
+    union {
+        uint32_t  raw;
+        float32_t flt;
+    } u;
 
-    tmp =  bswap_32(*((uint32_t *)&x));
-    return *((float32_t *)&tmp);
+    u.flt = x;
+    u.raw = bswap_32(u.raw);
+    return u.flt;
 }
 
 //
@@ -158,18 +166,26 @@ static inline int16_t __le16_to_cpu(int16_t x)
 
 static inline float64_t __le64_float_to_cpu(float64_t x)
 {
-    uint64_t volatile tmp;
+    union {
+        uint64_t  raw;
+        float64_t flt;
+    } u;
 
-    tmp = bswap_64(*((uint64_t *)&x));
-    return *((float64_t *)&tmp);
+    u.flt = x;
+    u.raw = bswap_64(u.raw);
+    return u.flt;
 }
 
 static inline float32_t __le32_float_to_cpu(float32_t x)
 {
-    uint32_t volatile tmp;
+    union {
+        uint32_t  raw;
+        float32_t flt;
+    } u;
 
-    tmp =  bswap_32(*((uint32_t *)&x));
-    return *((float32_t *)&tmp);
+    u.flt = x;
+    u.raw = bswap_32(u.raw);
+    return u.flt;
 }
 
 #endif // ! __LITTLE_ENDIAN_BITFIELD
