@@ -760,10 +760,11 @@ int LadarIbeo::moduleInit(void)
         },
         filter :
         {
-        (canSensorIdBase | sensorId), (canSensorIdBase | sensorId)
+            {(canSensorIdBase | sensorId), 0xffff}
         },
     };
-// Open can port
+
+    // Open can port
     ret = canPort.open(canDev, (sockaddr_can *)&cscan, sizeof(cscan));
     if (ret)
     {
