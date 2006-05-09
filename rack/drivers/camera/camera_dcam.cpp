@@ -94,6 +94,8 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
 	count = dataPackage->data.width * dataPackage->data.height * bytesPerPixel;
     start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize); 
 
+    start += start % bytesPerPixel;        
+
     for(i = start; i < count; i += bytesPerPixel)
     {
     	if((unsigned char)dataPackage->byteStream[i] <= minHue)

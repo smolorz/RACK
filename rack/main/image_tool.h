@@ -33,7 +33,7 @@ class ImageTool {
         return in;
     }
 
-    static int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData,
+    static int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData,
                             int width, int height)
     {
         int i,j;
@@ -61,7 +61,7 @@ class ImageTool {
     }
 
 
-	static int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData,
+	static int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData,
 	                               int width, int height)
 	{
 	    int i,j;

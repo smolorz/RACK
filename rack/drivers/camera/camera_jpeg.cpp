@@ -33,7 +33,7 @@ argTable_t argTab[] = {
    "cameraInst", (int) 0 },
 
   { ARGOPT_OPT, "quality", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "quality", (int) 25 },
+   "quality", (int) 50 },
 
   { 0,"",0,0,""}                                  // last entry
 };
@@ -129,7 +129,7 @@ int CameraJpeg::moduleLoop(void)
     int                ret;
 
     GDOS_DBG_INFO("starting loop\n");
-    
+
     // get datapointer from rackdatabuffer
     p_data = (camera_data_msg *)getDataBufferWorkSpace();
 
@@ -165,7 +165,7 @@ int CameraJpeg::moduleLoop(void)
     //convert camera_bytestream (may be yuv/raw mode) to rgb mode
     switch(dataCameraInput->data.mode) {
         case CAMERA_MODE_YUV422:
-            ImageTool::convertCharUYVY2BGR(rgbByteArray,
+            ImageTool::convertCharUYVY2RGB(rgbByteArray,
                                            dataCameraInput->byteStream,
                                            dataCameraInput->data.width,
                                            dataCameraInput->data.height);
@@ -293,7 +293,7 @@ int CameraJpeg::moduleInit(void)
         return -ENOMEM;
     }
     initBits.setBit(INIT_BIT_RGBARRAY);
-    
+
     if((jpegBuffer = (char *) malloc(CAMERA_MAX_WIDTH*CAMERA_MAX_HEIGHT*CAMERA_MAX_DEPTH/8)) == NULL)
     {
         GDOS_ERROR("Can't allocate jpegBuffer\n");
@@ -311,12 +311,12 @@ init_error:
 
 void CameraJpeg::moduleCleanup(void)
 {
-    
+
     if (initBits.testAndClearBit(INIT_BIT_JPEGBUFFER))
     {
         free(jpegBuffer);
     }
-    
+
     if (initBits.testAndClearBit(INIT_BIT_RGBARRAY))
     {
         free(rgbByteArray);
@@ -409,7 +409,7 @@ void CameraJpeg::compressByteStream2JpegStream(uint8_t* byteStream, j_compress_p
     JSAMPLE* image_buffer = (JSAMPLE*) byteStream;
     JSAMPROW row_pointer[1];	/* pointer to a single row */
     int row_stride;			/* physical row width in buffer */
-    
+
     row_stride = cinfo->image_width * cinfo->input_components;	/* JSAMPLEs per row in image_buffer */
 
     while (cinfo->next_scanline < cinfo->image_height) {

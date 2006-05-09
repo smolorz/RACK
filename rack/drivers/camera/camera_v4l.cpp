@@ -75,20 +75,18 @@ camera_param_data param = {
 //*** Method for automatic adaption of the lumination parameter****//
 int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 {
-    int i, count, minCount, maxCount, brightness, start, actualHue;
+	int i, count, minCount, maxCount, brightness, start, actualHue;
 
-    count    = camera.grab_size; 
-    minCount = 0;
-    maxCount = 0;
-       
-    start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize)); 
-    start -= start % 3; 
+	count    = camera.grab_size;
+	minCount = 0;
+	maxCount = 0;
+    start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize));
 
     for(i = start; i < count; i += 4)
     {
 //        actualHue = (66 * dataPackage->byteStream[i] + 129 * dataPackage->byteStream[i + 1] + 25 * dataPackage->byteStream[i + 2] + 128 ) >> 8;
-         actualHue = (dataPackage->byteStream[i] + dataPackage->byteStream[i + 1] + dataPackage->byteStream[i + 2])  / 3; 
-        
+         actualHue = (dataPackage->byteStream[i] + dataPackage->byteStream[i + 1] + dataPackage->byteStream[i + 2])  / 3;
+
 
     	if(actualHue <= minHue)
     	{
@@ -314,7 +312,7 @@ int CameraV4L::moduleLoop(void)
 	}
 
     GDOS_DBG_DETAIL("Data recordingtime %i width %i height %i depth %i mode %i\n", p_data->data.recordingTime, p_data->data.width, p_data->data.height, p_data->data.depth, p_data->data.mode);
-    
+
     ImageTool::convertCharBGR2RGB((uint8_t *)&(p_data->byteStream), (uint8_t *) &(p_data->byteStream),(int) p_data->data.width, (int) p_data->data.height);
 
     datalength = sizeof(camera_data) + camera.grab_size;
@@ -455,7 +453,7 @@ CameraV4L::CameraV4L()
     setDataBufferMaxDataSize(sizeof(camera_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(500); // hardcoded in loop!!! 
+    setDataBufferPeriodTime(5000); // hardcoded in loop!!!
     //500000000llu
 }
 
