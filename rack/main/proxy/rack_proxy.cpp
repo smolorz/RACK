@@ -34,9 +34,9 @@ RackProxy::RackProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t class_id,
     this->classId     = class_id;
     this->instance    = instance;
 
-    onTimeout   = 5000000000llu;	// 5s
-    offTimeout  = 1000000000llu;	// 1s
-    dataTimeout =  100000000llu;	// 100ms
+    onTimeout   = 5000000000llu;    // 5s
+    offTimeout  = 1000000000llu;    // 1s
+    dataTimeout =  100000000llu;    // 100ms
 
     destMbxAdr = RackName::create(sysId, classId, instance);
 

@@ -39,8 +39,8 @@ public abstract class TimsMsgRouter extends Thread
     }
 
     public static void send(byte type, int dest, int src, byte priority,
-    		                byte seq_nr, TimsMsg p)
-                       throws MsgException
+                            byte seq_nr, TimsMsg p)
+                            throws MsgException
     {
       if (thisRouter == null) {
         throw(new MsgIOException("No TimsMsgRouter available"));

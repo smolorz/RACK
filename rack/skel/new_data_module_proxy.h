@@ -23,9 +23,9 @@
 //######################################################################
 
 #define MSG_SEND_CMD                (RACK_PROXY_MSG_POS_OFFSET + 1)
-#define MSG_SEND_DATA_CMD			(RACK_PROXY_MSG_POS_OFFSET + 2)
-#define MSG_RECV_DATA_CMD			(RACK_PROXY_MSG_POS_OFFSET + 3)
-#define MSG_SEND_RECV_DATA_CMD		(RACK_PROXY_MSG_POS_OFFSET + 4)
+#define MSG_SEND_DATA_CMD           (RACK_PROXY_MSG_POS_OFFSET + 2)
+#define MSG_RECV_DATA_CMD           (RACK_PROXY_MSG_POS_OFFSET + 3)
+#define MSG_SEND_RECV_DATA_CMD      (RACK_PROXY_MSG_POS_OFFSET + 4)
 
 //######################################################################
 //# New Data Module Data (!!! VARIABLE SIZE !!! MESSAGE !!!)

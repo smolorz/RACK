@@ -27,48 +27,48 @@
 //######################################################################
 
 class Scan2d : public DataModule {
-  	private:
+    private:
 
-	    // own vars
-	    uint32_t    ladarInst;
+        // own vars
+        uint32_t    ladarInst;
 
-	    int         ladarOffsetX;
-	    int         ladarOffsetY;
-	    int         ladarOffsetRho;
-	    int         maxRange;
-	    int         reduce;
-	    int         angleMin;
-	    int         angleMax;
-	    uint32_t    dataSrcMbxAdr;
+        int         ladarOffsetX;
+        int         ladarOffsetY;
+        int         ladarOffsetRho;
+        int         maxRange;
+        int         reduce;
+        int         angleMin;
+        int         angleMax;
+        uint32_t    dataSrcMbxAdr;
 
-	    float       angleMinFloat;
-	    float       angleMaxFloat;
-	    float       ladarOffsetRhoFloat;
+        float       angleMinFloat;
+        float       angleMaxFloat;
+        float       ladarOffsetRhoFloat;
 
-	    // additional mailboxes
-	    RackMailbox workMbx;
-	    RackMailbox ladarMbx;
+        // additional mailboxes
+        RackMailbox workMbx;
+        RackMailbox ladarMbx;
 
-	    // proxies
-	    LadarProxy  *ladar;
+        // proxies
+        LadarProxy  *ladar;
 
-  	protected:
-	    // -> realtime context
-	    int  moduleOn(void);
-	    void moduleOff(void);
-   	    int  moduleLoop(void);
-	    int  moduleCommand(MessageInfo *msgInfo);
+    protected:
+        // -> realtime context
+        int  moduleOn(void);
+        void moduleOff(void);
+        int  moduleLoop(void);
+        int  moduleCommand(MessageInfo *msgInfo);
 
-	    // -> non realtime context
-	    void moduleCleanup(void);
+        // -> non realtime context
+        void moduleCleanup(void);
 
-  	public:
-	    // constructor und destructor
-	    Scan2d();
-	    ~Scan2d() {};
+    public:
+        // constructor und destructor
+        Scan2d();
+        ~Scan2d() {};
 
-	    // -> non realtime context
-	    int  moduleInit(void);
+        // -> non realtime context
+        int  moduleInit(void);
 };
 
 #endif // __SCAN_2D_H__

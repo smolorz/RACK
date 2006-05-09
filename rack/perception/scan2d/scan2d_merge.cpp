@@ -56,8 +56,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *   initDataBuffer
  *
@@ -104,7 +104,7 @@ int  Scan2DMerge::moduleOn(void)
         return ret;
     }
 
-	setDataBufferPeriodTime(odometryPeriodTime);
+    setDataBufferPeriodTime(odometryPeriodTime);
 
     // get continuous data from scan2d modules
     for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
@@ -315,8 +315,8 @@ int  Scan2DMerge::moduleCommand(MessageInfo *msgInfo)
  *
  *   own non realtime user functions,
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main
  *

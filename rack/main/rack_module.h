@@ -1,7 +1,7 @@
 /**
  * @file
  * RACK - Robotics Application Construction Kit
- * 
+ *
  * @note Copyright (C) 2005-2006 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
@@ -209,7 +209,7 @@ class Module {
     {
         if (gdos) // mailbox exists
         {
-        	gdos->setGdosLevel(newLevel);
+            gdos->setGdosLevel(newLevel);
         }
         else
         {
@@ -263,15 +263,15 @@ class Module {
 // signal handler shutdown function
 //
   public:
-	void   	      moduleShutdown()
-	{
-	  terminate = 1;
+    void             moduleShutdown()
+    {
+      terminate = 1;
 
-	  if (status == MODULE_STATE_ENABLED)
-	    moduleOff();
+      if (status == MODULE_STATE_ENABLED)
+        moduleOff();
 
-      	moduleCleanup();
-	}
+        moduleCleanup();
+    }
 
 //
 // module start arguments

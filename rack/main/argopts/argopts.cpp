@@ -24,8 +24,8 @@
 #endif
 
 struct argTab_longTab {
-      int 			index;
-      argTable_t*		tab;
+    int             index;
+    argTable_t*     tab;
 };
 
 static char arg_classname[50];
@@ -56,7 +56,7 @@ void printAllArgs(argDescriptor_t *p_argdesc)
                            descTab[tabidx].name.c_str(), descTab[tabidx].val.c);
                 }
             }
-            else	// arguments no not have values
+            else    // arguments no not have values
             {
                 printf(" %-18s\n", descTab[tabidx].name.c_str());
             }
@@ -74,7 +74,7 @@ void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg)
     int table = 0;
     int tabidx = 0;
 
-//	GDOS_PRINT("%s", "Hallo");
+//  GDOS_PRINT("%s", "Hallo");
     while (p_argdesc[table].tab)
     {
         descTab = p_argdesc[table].tab;
@@ -86,8 +86,8 @@ void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg)
             {
                 if (descTab[tabidx].val_type == ARGOPT_VAL_INT)
                 {
-//	    			printf(" %-18s: %d\n",
-//	    			       descTab[tabidx].name.c_str(),descTab[tabidx].val.i);
+//                    printf(" %-18s: %d\n",
+//                           descTab[tabidx].name.c_str(),descTab[tabidx].val.i);
                 }
                 else
                 {
@@ -95,7 +95,7 @@ void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg)
 //                         descTab[tabidx].name.c_str(), descTab[tabidx].val.c);
                 }
             }
-            else	// arguments no not have values
+            else    // arguments no not have values
             {
 //              printf(" %-18s\n", descTab[tabidx].name.c_str());
             }

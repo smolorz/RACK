@@ -21,7 +21,8 @@ int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
 {
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                      reply_timeout_ns, msgInfo);
-    if (ret) {
+    if (ret)
+    {
         return ret;
     }
 

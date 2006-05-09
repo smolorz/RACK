@@ -26,8 +26,8 @@
 
 // scan_2d data message (use max message size)
 typedef struct {
-  	scan2d_data     data;
-  	scan_point      point[SCAN2D_POINT_MAX];
+    scan2d_data     data;
+    scan_point      point[SCAN2D_POINT_MAX];
 } __attribute__((packed)) scan2d_data_msg;
 
 //######################################################################
@@ -35,38 +35,39 @@ typedef struct {
 //######################################################################
 
 class Scan2DMerge : public DataModule {
-  	private:
+    private:
         int32_t             odometryInst;
         int32_t             scan2dInst[SCAN_2D_SENSOR_NUM_MAX];
         int                 scan2dTimeout[SCAN_2D_SENSOR_NUM_MAX];
 
         odometry_data       odometryBuffer[SCAN_2D_SENSOR_NUM_MAX];
-        scan2d_data_msg  	scanBuffer[SCAN_2D_SENSOR_NUM_MAX];
+        scan2d_data_msg      scanBuffer[SCAN_2D_SENSOR_NUM_MAX];
 
         // additional mailboxes
-	    RackMailbox         workMbx;
+        RackMailbox         workMbx;
         RackMailbox         dataMbx;
-	    // proxies
+
+        // proxies
         OdometryProxy       *odometry;
         Scan2DProxy         *scan2d[SCAN_2D_SENSOR_NUM_MAX];
 
-  	protected:
-	    // -> realtime context
-	    int  moduleOn(void);
-	    void moduleOff(void);
-   	    int  moduleLoop(void);
-	    int  moduleCommand(MessageInfo *msgInfo);
+    protected:
+        // -> realtime context
+        int  moduleOn(void);
+        void moduleOff(void);
+        int  moduleLoop(void);
+        int  moduleCommand(MessageInfo *msgInfo);
 
-	    // -> non realtime context
-	    void moduleCleanup(void);
+        // -> non realtime context
+        void moduleCleanup(void);
 
-  	public:
-	    // constructor und destructor
-	    Scan2DMerge();
-	    ~Scan2DMerge() {};
+    public:
+        // constructor und destructor
+        Scan2DMerge();
+        ~Scan2DMerge() {};
 
-	    // -> non realtime context
-	    int moduleInit(void);
+        // -> non realtime context
+        int moduleInit(void);
 };
 
 #endif // __SCAN_2D_MERGE_H__

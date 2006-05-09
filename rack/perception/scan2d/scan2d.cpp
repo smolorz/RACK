@@ -24,13 +24,13 @@
 #define INIT_BIT_PROXY_LADAR        3
 
 typedef struct {
-	ladar_data    data;
-  	int32_t       buffer[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_data    data;
+    int32_t       buffer[LADAR_DATA_MAX_DISTANCE_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 typedef struct {
-  	scan2d_data     data;
-  	scan_point      point[SCAN2D_POINT_MAX];
+    scan2d_data     data;
+    scan_point      point[SCAN2D_POINT_MAX];
 } __attribute__((packed)) scan2d_msg;
 
 //
@@ -72,8 +72,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -82,7 +82,7 @@ argTable_t argTab[] = {
  int  Scan2d::moduleOn(void)
 {
     int ret;
-	RACK_TIME realPeriodTime = 0;
+    RACK_TIME realPeriodTime = 0;
 
     GDOS_DBG_DETAIL("Turning on Ladar(%d)\n", ladarInst);
     ret = ladar->on();
@@ -101,7 +101,7 @@ argTable_t argTab[] = {
         return ret;
     }
 
-	setDataBufferPeriodTime(realPeriodTime);
+    setDataBufferPeriodTime(realPeriodTime);
 
     return DataModule::moduleOn();  // have to be last command in moduleOn();
 }
@@ -115,8 +115,8 @@ void Scan2d::moduleOff(void)
 
 int  Scan2d::moduleLoop(void)
 {
-    scan2d_data*	data2D    = NULL;
-    ladar_data*		dataLadar = NULL;
+    scan2d_data*    data2D    = NULL;
+    ladar_data*     dataLadar = NULL;
     MessageInfo     msgInfo;
     ssize_t         datalength = 0;
     double          angle, x, y;
@@ -155,12 +155,12 @@ int  Scan2d::moduleLoop(void)
     }
 
     data2D->recordingTime = dataLadar->recordingTime;
-	data2D->duration      = dataLadar->duration;
+    data2D->duration      = dataLadar->duration;
 
-	if(dataLadar->maxRange < maxRange)
-		data2D->maxRange      = dataLadar->maxRange;
-	else
-		data2D->maxRange      = maxRange;
+    if (dataLadar->maxRange < maxRange)
+        data2D->maxRange      = dataLadar->maxRange;
+    else
+        data2D->maxRange      = maxRange;
 
     data2D->pointNum = 0;
     angle = dataLadar->startAngle;
@@ -171,22 +171,22 @@ int  Scan2d::moduleLoop(void)
             (angle <= angleMaxFloat))
         {
             j = data2D->pointNum;
-			data2D->point[j].type      = TYPE_UNKNOWN;
-			data2D->point[j].segment   = 0;
-			data2D->point[j].intensity = 0;
+            data2D->point[j].type      = TYPE_UNKNOWN;
+            data2D->point[j].segment   = 0;
+            data2D->point[j].intensity = 0;
 
-			if (dataLadar->distance[i] < 0)
-			{
-				dataLadar->distance[i]  = -dataLadar->distance[i];
-				data2D->point[j].type  |= TYPE_REFLECTOR;
-			}
+            if (dataLadar->distance[i] < 0)
+            {
+                dataLadar->distance[i]  = -dataLadar->distance[i];
+                data2D->point[j].type  |= TYPE_REFLECTOR;
+            }
 
-			if(dataLadar->distance[i] >= data2D->maxRange)
-			{
-				dataLadar->distance[i]  = maxRange;
-				data2D->point[j].type  |= TYPE_MAX_RANGE;
-				data2D->point[j].type  |= TYPE_INVALID;
-			}
+            if (dataLadar->distance[i] >= data2D->maxRange)
+            {
+                dataLadar->distance[i]  = maxRange;
+                data2D->point[j].type  |= TYPE_MAX_RANGE;
+                data2D->point[j].type  |= TYPE_INVALID;
+            }
 
             x = (double)dataLadar->distance[i] *
                         cos(angle + ladarOffsetRhoFloat);
@@ -223,8 +223,8 @@ int  Scan2d::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *

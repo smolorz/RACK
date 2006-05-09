@@ -35,8 +35,8 @@
 /* CREATING A MESSAGE :
 
 typedef {
-  pilot_data	data;
-  polar_spline  spline[ ... ];
+    pilot_data    data;
+    polar_spline  spline[ ... ];
 } __attribute__((packed)) pilot_data_msg;
 
 pilot_data_msg msg;
@@ -46,7 +46,7 @@ ACCESS: msg.data.spline[...] OR msg.spline[...];
 */
 
 typedef struct{
-    RACK_TIME   	recordingTime;
+    RACK_TIME       recordingTime;
     position_3d     pos;
     int32_t         speed;
     float32_t       curve;
@@ -59,30 +59,30 @@ class PilotData
     public:
         static void le_to_cpu(pilot_data *data)
         {
-        	int i;
-            data->recordingTime 	= __le32_to_cpu(data->recordingTime);
+            int i;
+            data->recordingTime     = __le32_to_cpu(data->recordingTime);
             Position3D::le_to_cpu(&data->pos);
-            data->speed 			= __le32_to_cpu(data->speed);
-            data->curve 			= __le32_float_to_cpu(data->curve);
-            data->splineNum      	= __le32_to_cpu(data->splineNum);
-			for (i=0; i<data->splineNum; i++)
-			{
-				PolarSpline::le_to_cpu(&data->spline[i]);
-			}
+            data->speed             = __le32_to_cpu(data->speed);
+            data->curve             = __le32_float_to_cpu(data->curve);
+            data->splineNum         = __le32_to_cpu(data->splineNum);
+            for (i=0; i<data->splineNum; i++)
+            {
+                PolarSpline::le_to_cpu(&data->spline[i]);
+            }
         }
 
         static void be_to_cpu(pilot_data *data)
         {
-        	int i;
-            data->recordingTime 	= __be32_to_cpu(data->recordingTime);
+            int i;
+            data->recordingTime     = __be32_to_cpu(data->recordingTime);
             Position3D::be_to_cpu(&data->pos);
-            data->speed 			= __be32_to_cpu(data->speed);
-            data->curve 			= __be32_float_to_cpu(data->curve);
-            data->splineNum      	= __be32_to_cpu(data->splineNum);
-			for (i=0; i<data->splineNum; i++)
-			{
-				PolarSpline::be_to_cpu(&data->spline[i]);
-			}
+            data->speed             = __be32_to_cpu(data->speed);
+            data->curve             = __be32_float_to_cpu(data->curve);
+            data->splineNum         = __be32_to_cpu(data->splineNum);
+            for (i=0; i<data->splineNum; i++)
+            {
+                PolarSpline::be_to_cpu(&data->spline[i]);
+            }
         }
 
         static pilot_data* parse(MessageInfo *msgInfo)
@@ -112,32 +112,32 @@ class PilotData
 class PilotProxy : public RackDataProxy
 {
 
-  	public:
+      public:
 
-	    PilotProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
-	            : RackDataProxy(workMbx, sys_id, PILOT, instance)
-	    {
-	    };
+        PilotProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
+                : RackDataProxy(workMbx, sys_id, PILOT, instance)
+        {
+        };
 
-	    ~PilotProxy()
-	    {
-	    };
+        ~PilotProxy()
+        {
+        };
 
 
 //
 // pilot data
 //
 
-	    int getData(pilot_data *recv_data, ssize_t recv_datalen,
-	    			RACK_TIME timeStamp, MessageInfo *msgInfo)
-	    {
-	      	return getData(recv_data, recv_datalen, timeStamp, dataTimeout,
-	      	               msgInfo);
-	    }
+        int getData(pilot_data *recv_data, ssize_t recv_datalen,
+                    RACK_TIME timeStamp, MessageInfo *msgInfo)
+        {
+              return getData(recv_data, recv_datalen, timeStamp, dataTimeout,
+                             msgInfo);
+        }
 
-	    int getData(pilot_data *recv_data, ssize_t recv_datalen,
-	    			RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-	    			MessageInfo *msgInfo);
+        int getData(pilot_data *recv_data, ssize_t recv_datalen,
+                    RACK_TIME timeStamp, uint64_t reply_timeout_ns,
+                    MessageInfo *msgInfo);
 
 };
 

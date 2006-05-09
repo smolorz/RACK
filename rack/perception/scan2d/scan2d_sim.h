@@ -28,36 +28,36 @@
 //######################################################################
 
 class Scan2DSim : public DataModule {
-  	private:
-	    uint32_t    odometryInst;
-	    uint32_t    maxRange;
+    private:
+        uint32_t    odometryInst;
+        uint32_t    maxRange;
 
         DxfMap      dxfMap;
 
-	    // additional mailboxes
-	    RackMailbox workMbx;
-	    RackMailbox odometryMbx;
+        // additional mailboxes
+        RackMailbox workMbx;
+        RackMailbox odometryMbx;
 
-	    // proxies
-	    OdometryProxy  *odometry;
+        // proxies
+        OdometryProxy  *odometry;
 
-  	protected:
-	    // -> realtime context
-	    int  moduleOn(void);
-  	    void moduleOff(void);
-	    int  moduleLoop(void);
-	    int  moduleCommand(MessageInfo *msgInfo);
+    protected:
+        // -> realtime context
+        int  moduleOn(void);
+        void moduleOff(void);
+        int  moduleLoop(void);
+        int  moduleCommand(MessageInfo *msgInfo);
 
-	    // -> non realtime context
-	    void moduleCleanup(void);
+        // -> non realtime context
+        void moduleCleanup(void);
 
-  	public:
-	    // constructor und destructor
-	    Scan2DSim();
-	    ~Scan2DSim() {};
+      public:
+        // constructor und destructor
+        Scan2DSim();
+        ~Scan2DSim() {};
 
-	    // -> non realtime context
-	    int  moduleInit(void);
+        // -> non realtime context
+        int  moduleInit(void);
 };
 
 #endif // __SCAN_2D_SIM_H__

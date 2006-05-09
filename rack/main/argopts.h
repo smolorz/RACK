@@ -23,7 +23,7 @@
 using std::string;
 
 // arg_type values
-#define ARGOPT_REQ 			1
+#define ARGOPT_REQ          1
 #define ARGOPT_OPT          2
 
 // has_val values

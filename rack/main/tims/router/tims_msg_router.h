@@ -29,7 +29,7 @@
 
 typedef struct {
     timsMsgHead head;
-    uint32_t  	mbx;
+    uint32_t      mbx;
 } __attribute__((packed)) timsMsgRouter_MbxMsg;
 
 //######################################################################
@@ -37,14 +37,14 @@ typedef struct {
 //######################################################################
 
 typedef struct {
-    uint32_t 	mbx;
-    uint32_t 	ip;
+    uint32_t     mbx;
+    uint32_t     ip;
 } __attribute__((packed)) timsMsgRouter_MbxRoute;
 
 typedef struct {
-    timsMsgHead 			head;
-    uint32_t 				num;
-    timsMsgRouter_MbxRoute 	mbx_route[0];
+    timsMsgHead             head;
+    uint32_t                num;
+    timsMsgRouter_MbxRoute  mbx_route[0];
 } __attribute__((packed)) timsMsgRouter_ConfigMsg;
 
 //######################################################################
@@ -53,19 +53,19 @@ typedef struct {
 
 static inline timsMsgRouter_MbxMsg* timsMsgRouter_parse_mbxMsg(timsMsgHead* p)
 {
-  	timsMsgRouter_MbxMsg *returnP = (timsMsgRouter_MbxMsg*)p;
+    timsMsgRouter_MbxMsg *returnP = (timsMsgRouter_MbxMsg*)p;
 
-  	if (returnP->head.flags & MESSAGE_FLAG_BODY_ORDER_LE)  // body is little endian
-  	{
-    	returnP->mbx = __le32_to_cpu(returnP->mbx);
-  	}
-  	else // body is big endian
-  	{
-    	returnP->mbx = __be32_to_cpu(returnP->mbx);
-  	}
+    if (returnP->head.flags & MESSAGE_FLAG_BODY_ORDER_LE)  // body is little endian
+    {
+        returnP->mbx = __le32_to_cpu(returnP->mbx);
+    }
+    else // body is big endian
+    {
+        returnP->mbx = __be32_to_cpu(returnP->mbx);
+    }
 
-  	tims_set_body_byteorder(p);
-  	return returnP;
+      tims_set_body_byteorder(p);
+      return returnP;
 }
 
 #endif // __TIMS_MSG_ROUTER_H_

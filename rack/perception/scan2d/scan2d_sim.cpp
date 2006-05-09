@@ -49,8 +49,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -79,7 +79,7 @@ argTable_t argTab[] = {
         return ret;
     }
 
-	setDataBufferPeriodTime(realPeriodTime);
+    setDataBufferPeriodTime(realPeriodTime);
 
     return DataModule::moduleOn();  // have to be last command in moduleOn();
 }
@@ -93,7 +93,7 @@ void Scan2DSim::moduleOff(void)
 
 int  Scan2DSim::moduleLoop(void)
 {
-    scan2d_data*	data2D    = NULL;
+    scan2d_data*    data2D       = NULL;
     odometry_data*  dataOdometry = NULL;
     MessageInfo     msgInfo;
     ssize_t         datalength = 0;
@@ -226,8 +226,8 @@ int  Scan2DSim::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *

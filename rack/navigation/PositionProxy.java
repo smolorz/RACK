@@ -30,14 +30,14 @@ public class PositionProxy extends RackDataProxy
 
     public PositionProxy(int id , int replyMbx)
     {
-    	super(RackName.create(RackName.POSITION, id), replyMbx, 5000, 1000, 1000);
-    	this.id = id;
+        super(RackName.create(RackName.POSITION, id), replyMbx, 5000, 1000, 1000);
+        this.id = id;
     }
 
     public PositionProxy(int id , int replyMbx, int dataMbx)
     {
-    	super(RackName.create(RackName.POSITION, id), replyMbx, dataMbx, 5000, 1000, 1000);
-    	this.id = id;
+        super(RackName.create(RackName.POSITION, id), replyMbx, dataMbx, 5000, 1000, 1000);
+        this.id = id;
     }
 
     public synchronized PositionDataMsg getData(int recordingtime)
@@ -45,10 +45,10 @@ public class PositionProxy extends RackDataProxy
         try
         {
             TimsDataMsg raw = getRawData(recordingtime);
-        	if (raw!=null) {
-	            PositionDataMsg data = new PositionDataMsg(raw);
-	            return(data);
-        	}
+            if (raw!=null) {
+                PositionDataMsg data = new PositionDataMsg(raw);
+                return(data);
+            }
 
             return(null);
         }
@@ -66,41 +66,41 @@ public class PositionProxy extends RackDataProxy
 
     public synchronized void update(Position3D pos, int recordingTime)
     {
-		currentSequenceNo++;
+        currentSequenceNo++;
 
-		try {
-			PositionDataMsg updateMsg = new PositionDataMsg();
-			updateMsg.recordingTime = recordingTime;
-			updateMsg.pos = pos;
-			TimsMsgRouter.send(MSG_POSITION_UPDATE,
+        try {
+            PositionDataMsg updateMsg = new PositionDataMsg();
+            updateMsg.recordingTime = recordingTime;
+            updateMsg.pos = pos;
+            TimsMsgRouter.send(MSG_POSITION_UPDATE,
                                commandMbx,
                                replyMbx,
                                (byte)0,
                                (byte)currentSequenceNo,
                                updateMsg);
 
-			TimsDataMsg reply;
+            TimsDataMsg reply;
 
-			do
-			{
-				reply = TimsMsgRouter.receive(replyMbx, 1000);
-				System.out.println(RackName.nameString(replyMbx) + ": " + reply.type + " " + reply.seq_nr);
-			}
-			while(reply.seq_nr != currentSequenceNo);
-		}
-		catch(MsgException e)
-		{
-			System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".update " + e);
-		}
+            do
+            {
+                reply = TimsMsgRouter.receive(replyMbx, 1000);
+                System.out.println(RackName.nameString(replyMbx) + ": " + reply.type + " " + reply.seq_nr);
+            }
+            while(reply.seq_nr != currentSequenceNo);
+        }
+        catch(MsgException e)
+        {
+            System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".update " + e);
+        }
     }
 
     public PositionDataMsg readContinuousData(int timeOut) {
-    	if (dataMbx == 0) {
+        if (dataMbx == 0) {
             System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData: Keine Datenmailbox eingerichtet."  );
             return null;
-    	}
-    	try
-    	{
+        }
+        try
+        {
             TimsDataMsg data = TimsMsgRouter.receive(dataMbx, timeOut);
             PositionDataMsg locData = new PositionDataMsg(data);
             System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
@@ -114,8 +114,8 @@ public class PositionProxy extends RackDataProxy
 
     }
 
-	public int getCommandMbx()
-	{
-		return(RackName.create(RackName.POSITION, id));
-	}
+    public int getCommandMbx()
+    {
+        return(RackName.create(RackName.POSITION, id));
+    }
 }

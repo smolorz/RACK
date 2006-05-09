@@ -59,7 +59,7 @@ public class PilotComponent extends JComponent
     public void setMaxDistance(double factor)
     {
         this.maxDistance = (int) ((double) this.maxDistance * factor);
-        
+
         if (factor >= 1.0)
         {
             updateIsNeeded = true;
@@ -127,13 +127,13 @@ public class PilotComponent extends JComponent
 
         if ((topPoint.x != bottomPoint.x) || (topPoint.y != bottomPoint.y))
         {
-            xMapCenter = transformToXMap(this.RectangleX + 
+            xMapCenter = transformToXMap(this.RectangleX +
                                          this.RectangleWidth / 2,
-                                         this.RectangleY + 
+                                         this.RectangleY +
                                          this.RectangleHeight / 2);
-            yMapCenter = transformToYMap(this.RectangleX + 
+            yMapCenter = transformToYMap(this.RectangleX +
                                          this.RectangleWidth / 2,
-                                         this.RectangleY + 
+                                         this.RectangleY +
                                          this.RectangleHeight / 2);
 
             if (widthReduction < heightReduction)
@@ -234,8 +234,8 @@ public class PilotComponent extends JComponent
         {
             for (int j = 0; j < lineWidth; j++)
             {
-                g.drawLine(startX + (i - offset), 
-                           startY + (j - offset), 
+                g.drawLine(startX + (i - offset),
+                           startY + (j - offset),
                            endX + (i - offset),
                            endY + (j - offset));
             }
@@ -258,7 +258,7 @@ public class PilotComponent extends JComponent
 
     /**
      * Zeichnet Splines in die Karte ein.
-     * 
+     *
      * @param PathDataMsg
      *            Die zu zeichnenden PolarSplines vom Bahnplaner
      */
@@ -306,14 +306,14 @@ public class PilotComponent extends JComponent
     public void paint(Graphics g)
     {
         double angleOffset;
-        
+
         if (controlInfo != null)
         {
             int width = this.getSize().width;
             int height = this.getSize().height;
             xWindowCenter = width / 2;
             yWindowCenter = height / 2;
-            mmToPixel = ((double) this.getSize().width / 
+            mmToPixel = ((double) this.getSize().width /
                          (double) (2 * maxDistance));
             int mToPixel = (int) (1000 * mmToPixel);
             int xWindow;
@@ -331,9 +331,9 @@ public class PilotComponent extends JComponent
             // zeichnen der Skalierung
             // don't draw narrow grid when mToPix < 20,
             // that means a meter = 20 Pix
-            if (mToPixel >= 20) 
+            if (mToPixel >= 20)
             {
-                for (xWindow = 0; 
+                for (xWindow = 0;
                      xWindow < Math.max(transformToXWindow(0.0, 0.0), width);
                      xWindow++)
                 {
@@ -345,18 +345,18 @@ public class PilotComponent extends JComponent
                     {
                         g.setColor(Color.gray);
                     }
-                    
-                    g.drawLine(transformToXWindow(0.0, 0.0) + 
-                               xWindow * mToPixel, 0, 
-                               transformToXWindow(0.0, 0.0) + 
-                               xWindow * mToPixel, height);
-                    g.drawLine(transformToXWindow(0.0, 0.0) - 
+
+                    g.drawLine(transformToXWindow(0.0, 0.0) +
                                xWindow * mToPixel, 0,
-                               transformToXWindow(0.0, 0.0) - 
+                               transformToXWindow(0.0, 0.0) +
+                               xWindow * mToPixel, height);
+                    g.drawLine(transformToXWindow(0.0, 0.0) -
+                               xWindow * mToPixel, 0,
+                               transformToXWindow(0.0, 0.0) -
                                xWindow * mToPixel, height);
                 }
-                
-                for (yWindow = 0; 
+
+                for (yWindow = 0;
                      yWindow < Math.max(transformToYWindow(0.0, 0.0), height);
                      yWindow++)
                 {
@@ -370,17 +370,17 @@ public class PilotComponent extends JComponent
                     }
                     g.drawLine(0,
                                transformToYWindow(0, 0) + yWindow * mToPixel,
-                               width, 
+                               width,
                                transformToYWindow(0, 0) + yWindow * mToPixel);
                     g.drawLine(0,
                                transformToYWindow(0, 0) - yWindow * mToPixel,
-                               width, 
+                               width,
                                transformToYWindow(0, 0) - yWindow * mToPixel);
                 }
             }
 
             // zeichnen des Roboters in die Karte
-            if ((chassisLength != 0) && 
+            if ((chassisLength != 0) &&
                 (chassisWidth != 0))
             {
                 Point2D upperLeftCorner = new Point2D();
@@ -389,90 +389,90 @@ public class PilotComponent extends JComponent
                 Point2D lowerLeftCorner = new Point2D();
 
                 double PolarLaenge = Math.sqrt(Math.pow(
-                                        (float)chassisLength * 0.5, 2.0) + 
+                                        (float)chassisLength * 0.5, 2.0) +
                                         Math.pow((float)chassisWidth * 0.5,
                                         2.0));
                 double PolarWinkel = arcusTangens((double)chassisWidth,
                                                 (double)chassisLength);
 
                 upperLeftCorner.x = transformToXWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
                                         (double)controlInfo.pos.rho -
                                         PolarWinkel)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho - 
+                                        (double)controlInfo.pos.rho -
                                         PolarWinkel))));
-                
+
                 upperLeftCorner.y = transformToYWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
-                                        (double)controlInfo.pos.rho - 
+                                        (double)controlInfo.pos.rho -
                                         PolarWinkel)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho - 
+                                        (double)controlInfo.pos.rho -
                                         PolarWinkel))));
 
                 upperRightCorner.x = transformToXWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
-                                        (double)controlInfo.pos.rho + 
+                                        (double)controlInfo.pos.rho +
                                         PolarWinkel)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho + 
+                                        (double)controlInfo.pos.rho +
                                         PolarWinkel))));
-                
+
                 upperRightCorner.y = transformToYWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
-                                        (double)controlInfo.pos.rho + 
+                                        (double)controlInfo.pos.rho +
                                         PolarWinkel)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho + 
+                                        (double)controlInfo.pos.rho +
                                         PolarWinkel))));
 
                 lowerRightCorner.x = transformToXWindow(
-                                        controlInfo.pos.x + 
-                                        (PolarLaenge * Math.cos(
-                                        (double)controlInfo.pos.rho - 
-                                        PolarWinkel + Math.PI)),
-                                        -(controlInfo.pos.y + 
-                                        (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho - 
-                                        PolarWinkel + Math.PI))));
-                
-                lowerRightCorner.y = transformToYWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
                                         (double)controlInfo.pos.rho -
                                         PolarWinkel + Math.PI)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho - 
+                                        (double)controlInfo.pos.rho -
+                                        PolarWinkel + Math.PI))));
+
+                lowerRightCorner.y = transformToYWindow(
+                                        controlInfo.pos.x +
+                                        (PolarLaenge * Math.cos(
+                                        (double)controlInfo.pos.rho -
+                                        PolarWinkel + Math.PI)),
+                                        -(controlInfo.pos.y +
+                                        (PolarLaenge * Math.sin(
+                                        (double)controlInfo.pos.rho -
                                         PolarWinkel + Math.PI))));
 
                 lowerLeftCorner.x = transformToXWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
-                                        (double)controlInfo.pos.rho + 
+                                        (double)controlInfo.pos.rho +
                                         PolarWinkel + Math.PI)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double)controlInfo.pos.rho + 
+                                        (double)controlInfo.pos.rho +
                                         PolarWinkel + Math.PI))));
-                
+
                 lowerLeftCorner.y = transformToYWindow(
-                                        controlInfo.pos.x + 
+                                        controlInfo.pos.x +
                                         (PolarLaenge * Math.cos(
-                                        (double) controlInfo.pos.rho + 
+                                        (double) controlInfo.pos.rho +
                                         PolarWinkel + Math.PI)),
-                                        -(controlInfo.pos.y + 
+                                        -(controlInfo.pos.y +
                                         (PolarLaenge * Math.sin(
-                                        (double) controlInfo.pos.rho + 
+                                        (double) controlInfo.pos.rho +
                                         PolarWinkel + Math.PI))));
 
                 g.setColor(Color.DARK_GRAY);
@@ -541,7 +541,7 @@ public class PilotComponent extends JComponent
                                         -controlInfo.spline[i].centerPos.y);
 
                     route.radius = (int) Math.round(Math.abs(
-                                        controlInfo.spline[i].radius) * 
+                                        controlInfo.spline[i].radius) *
                                         mmToPixel);
 
                     openAngle = Math.abs((double)controlInfo.spline[i].length /
@@ -567,7 +567,7 @@ public class PilotComponent extends JComponent
                         if (controlInfo.spline[i].radius > 0)
                         {
                             route.startPos.phi = (float) Math.toDegrees(
-                                                 normAngle(Math.PI - 
+                                                 normAngle(Math.PI -
                                                  controlInfo.spline[i].startPos.phi -
                                                  openAngle));
                         }
@@ -584,24 +584,24 @@ public class PilotComponent extends JComponent
                     int r = (int) route.radius;
                     drawArc(g, 3, (int) route.centerPos.x - r,
                             (int) route.centerPos.y - r, r * 2, r * 2,
-                            (int) Math.round(route.startPos.phi), 
+                            (int) Math.round(route.startPos.phi),
                             (int) Math.round((float)Math.toDegrees(normAngle(openAngle))));
                 }
             } //
-            
-         
+
+
             // zeichen der Sollwerte an den Roboter in gruen
             float radius = 1.0f / controlInfo.curve;
             if ((radius > 100000) | (radius < -100000))
             {
                 radius = 0;
             }
-            
+
             // curved spline
             if (radius != 0)
             {
                 openAngle = Math.abs(controlInfo.speed * controlInfo.curve);
-                
+
                 if (openAngle > Math.PI)
                     openAngle = Math.PI;
 
@@ -609,27 +609,27 @@ public class PilotComponent extends JComponent
                     angleOffset = Math.PI * 0.5;
                 else
                     angleOffset = Math.PI * 1.5;
-                    
+
                 route.centerPos.x = transformToXWindow(
-                                        controlInfo.pos.x + 
-                                        Math.cos(angleOffset + 
-                                        (double)controlInfo.pos.rho) / 
+                                        controlInfo.pos.x +
+                                        Math.cos(angleOffset +
+                                        (double)controlInfo.pos.rho) /
                                         Math.abs(controlInfo.curve),
-                                        -(controlInfo.pos.y + 
-                                        Math.sin(angleOffset + 
+                                        -(controlInfo.pos.y +
+                                        Math.sin(angleOffset +
                                         (double)controlInfo.pos.rho) /
                                         Math.abs(controlInfo.curve)));
                 route.centerPos.y = transformToYWindow(
-                                        controlInfo.pos.x + 
-                                        Math.cos(angleOffset + 
+                                        controlInfo.pos.x +
+                                        Math.cos(angleOffset +
                                         (double)controlInfo.pos.rho) /
                                         Math.abs(controlInfo.curve),
-                                        -(controlInfo.pos.y + 
-                                        Math.sin(angleOffset + 
+                                        -(controlInfo.pos.y +
+                                        Math.sin(angleOffset +
                                         (double)controlInfo.pos.rho) /
                                         Math.abs(controlInfo.curve)));
-                
-                route.radius = (int)Math.round(Math.abs(mmToPixel / 
+
+                route.radius = (int)Math.round(Math.abs(mmToPixel /
                                                     controlInfo.curve));
 
                 // backward movement
@@ -637,29 +637,29 @@ public class PilotComponent extends JComponent
                 {
                     if (controlInfo.curve > 0)
                         route.startPos.phi = (float)Math.toDegrees(
-                                               normAngle(Math.PI - 
+                                               normAngle(Math.PI -
                                                controlInfo.pos.rho));
                     else
                         route.startPos.phi = (float)Math.toDegrees(
-                                               normAngle(-controlInfo.pos.rho - 
-                                               openAngle));      
+                                               normAngle(-controlInfo.pos.rho -
+                                               openAngle));
                 }
                 // forward movement
                 else
                 {
                     if (controlInfo.curve > 0)
                         route.startPos.phi = (float)Math.toDegrees(
-                                               normAngle(Math.PI - 
+                                               normAngle(Math.PI -
                                                controlInfo.pos.rho - openAngle));
                     else
                     {
                         route.startPos.phi = (float)Math.toDegrees(
-                                                normAngle(-controlInfo.pos.rho));                        
+                                                normAngle(-controlInfo.pos.rho));
                     }
                 }
-                
+
                 g.setColor(Color.GREEN);
-                int r = (int) route.radius;                
+                int r = (int) route.radius;
                 drawArc(g, 3, (int) route.centerPos.x - r,
                        (int)route.centerPos.y - r, r * 2, r * 2,
                        (int)Math.round(route.startPos.phi),
@@ -669,7 +669,7 @@ public class PilotComponent extends JComponent
             else
             {
                 int length = controlInfo.speed;
-                
+
                 route.startPos.x = transformToXWindow(
                                      controlInfo.pos.x,
                                      -controlInfo.pos.y);
@@ -680,21 +680,21 @@ public class PilotComponent extends JComponent
                                      controlInfo.pos.x +
                                      length * Math.cos(
                                      (double)controlInfo.pos.rho),
-                                     -(controlInfo.pos.y + 
+                                     -(controlInfo.pos.y +
                                      length * Math.sin(
                                      (double)controlInfo.pos.rho)));
                 route.endPos.y = transformToYWindow(
-                                     controlInfo.pos.x + 
+                                     controlInfo.pos.x +
                                      length* Math.cos(
                                      (double)controlInfo.pos.rho),
-                                     -(controlInfo.pos.y + 
+                                     -(controlInfo.pos.y +
                                      length * Math.sin(
                                      (double)controlInfo.pos.rho)));
 
                 g.setColor(Color.GREEN);
                 drawLine(g, 5, route.startPos.x, route.startPos.y,
                          route.endPos.x, route.endPos.y);
-            }                
+            }
 
             // draw scan position
             g.setColor(Color.black);

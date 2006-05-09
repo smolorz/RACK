@@ -37,9 +37,9 @@ extern "C" {
 typedef struct {
     struct jpeg_destination_mgr pub; /* public fields */
 
-    char * outstream;		  /* target stream */
-    int    outstreamOffset; /* offset into outstream */
-    JOCTET * buffer;		  /* start of buffer */
+    char * outstream;          /* target stream */
+    int    outstreamOffset;    /* offset into outstream */
+    JOCTET * buffer;           /* start of buffer */
 } my_destination_mgr;
 
 typedef my_destination_mgr * my_dest_ptr;
@@ -57,7 +57,7 @@ inline METHODDEF(void) init_destination (j_compress_ptr cinfo)
     /* Allocate the output buffer --- it will be released when done with image */
     dest->buffer = (JOCTET *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-				  OUTPUT_BUF_SIZE * sizeof(JOCTET));
+                                  OUTPUT_BUF_SIZE * sizeof(JOCTET));
 
     dest->pub.next_output_byte = dest->buffer;
     dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
@@ -149,10 +149,10 @@ inline GLOBAL(void) jpeg_stdmem_dest (j_compress_ptr cinfo, char * outstream)
      * sizes may be different.  Caveat programmer.
      */
     if (cinfo->dest == NULL)
-    {	/* first time for this JPEG object? */
+    {    /* first time for this JPEG object? */
         cinfo->dest = (struct jpeg_destination_mgr *)
               (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-		      sizeof(my_destination_mgr));
+              sizeof(my_destination_mgr));
     }
 
     dest = (my_dest_ptr) cinfo->dest;

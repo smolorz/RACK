@@ -215,27 +215,27 @@ void data_task_proc(void *arg)
                         p_mod->targetStatus = MODULE_TSTATE_OFF;
                         notify(MSG_ERROR, p_mod);
                     }
-                    else	// module is on now
+                    else    // module is on now
                     {
                         GDOS_PRINT("Module on\n");
                         p_mod->status = MODULE_STATE_ENABLED;
 
-                    	// calling loop first time
+                        // calling loop first time
 
-                    	ret = p_mod->moduleLoop();
-                    	if (ret)
-                    	{
-                        	GDOS_ERROR("Error in moduleLoop()\n");
-                        	p_mod->status = MODULE_STATE_ERROR;
-                        	GDOS_PRINT("Turning off ... \n");
-                        	p_mod->moduleOff();
-                        	GDOS_PRINT("Module off \n");
-                        	notify(MSG_ERROR, p_mod);
-                    	}
-                    	else
-                    	{
-                        	notify(MSG_OK, p_mod);
-                    	}
+                        ret = p_mod->moduleLoop();
+                        if (ret)
+                        {
+                            GDOS_ERROR("Error in moduleLoop()\n");
+                            p_mod->status = MODULE_STATE_ERROR;
+                            GDOS_PRINT("Turning off ... \n");
+                            p_mod->moduleOff();
+                            GDOS_PRINT("Module off \n");
+                            notify(MSG_ERROR, p_mod);
+                        }
+                        else
+                        {
+                            notify(MSG_OK, p_mod);
+                        }
                     }
                 }
                 else
@@ -250,7 +250,7 @@ void data_task_proc(void *arg)
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                	GDOS_PRINT("Turning on ... \n");
+                    GDOS_PRINT("Turning on ... \n");
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
@@ -546,7 +546,7 @@ int       Module::moduleInit(void)
 {
     int ret;
 
-	argDescriptor_t module_argDesc[] = {
+    argDescriptor_t module_argDesc[] = {
           {module_argTab},
           {arg_table},
           {NULL}
@@ -585,8 +585,8 @@ int       Module::moduleInit(void)
     modBits.setBit(INIT_BIT_GDOSMBX_CREATED);
     GDOS_DBG_INFO("Gdos mailbox created\n");
 
-	// print all start arguments
-	gdosAllArgs(module_argDesc, gdos);
+    // print all start arguments
+    gdosAllArgs(module_argDesc, gdos);
 
     // create command task
     ret = cmdTask.create(0, cmdTaskPrio, T_FPU | T_JOINABLE);
@@ -752,12 +752,12 @@ int       Module::moduleCommand(MessageInfo *msgInfo)
 
     case MSG_SET_LOG_LEVEL: {
 //TODO
-		return -0;
+        return -0;
     }
 
     case MSG_GET_PERIOD_TIME: {
 //TODO
-		return -0;
+        return -0;
     }
 
 
@@ -822,8 +822,8 @@ exit_error:
 
 void save_argTab(argTable_t* p_tab, const char* name)
 {
-	arg_table = p_tab;
-	strncpy(classname, name, 50);
+    arg_table = p_tab;
+    strncpy(classname, name, 50);
 }
 
 //
@@ -843,113 +843,115 @@ static int signal_flags = 0;
 
 void signal_handler(int sig)
 {
-  	int nentries;
-  	void *array[10];
-  	char **strings;
-  	int i;
+    int nentries;
+    void *array[10];
+    char **strings;
+    int i;
 
-  	if (!p_signal_module)
-  	{
-    	printf("SIGNAL_HANDLER: can't calling cleanup function. "
-    	       "Pointer invalid \n");
-    	return;
-  	}
+    if (!p_signal_module)
+    {
+        printf("SIGNAL_HANDLER: can't calling cleanup function. "
+               "Pointer invalid \n");
+        return;
+    }
 
-  	switch(sig)
-  	{
+    switch(sig)
+    {
 #ifndef PRINTF_DEBUG
-    	case SIGXCPU:
+        case SIGXCPU:
 
-    		if (signal_flags & HANDLING_TERM) // ignore while cleaning up
-        		return;
+            if (signal_flags & HANDLING_TERM) // ignore while cleaning up
+                return;
 
-			printf("\n");
-      		printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
-      		printf(" -> SIGXCPU (%02d)\n", sig);
-      		printf(" !!! WARNING unexpected switch to secondary mode !!!\n");
-      		nentries = backtrace (array, 10);
-      		strings = backtrace_symbols (array, nentries);
-      		for (i = 0; i < nentries; i++)
-      		{
-        		printf ("  %s\n", strings[i]);
-      		}
-      		free (strings);
-      		printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
-      		return;
+            printf("\n");
+            printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
+            printf(" -> SIGXCPU (%02d)\n", sig);
+            printf(" !!! WARNING unexpected switch to secondary mode !!!\n");
+            nentries = backtrace (array, 10);
+            strings = backtrace_symbols (array, nentries);
+            for (i = 0; i < nentries; i++)
+            {
+                printf ("  %s\n", strings[i]);
+            }
+            free (strings);
+            printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
+            return;
 #endif
 
-    	case SIGSEGV:
-      		if (signal_flags & HANDLING_TERM) // ignore while cleaning up
-        		return;
+        case SIGSEGV:
+            if (signal_flags & HANDLING_TERM) // ignore while cleaning up
+                return;
 
-      		signal_flags |= HANDLING_TERM;
+            signal_flags |= HANDLING_TERM;
 
-      		printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
-      		printf(" -> SIGSEGV (%02d)\n", sig);
-      		printf(" -> Segmentation fault \n");
-      		nentries = backtrace (array, 10);
-      		strings = backtrace_symbols (array, nentries);
-      		for (i = 0; i < nentries; i++)
-      		{
-        		printf ("  %s\n", strings[i]);
-      		}
-      		free (strings);
+            printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
+            printf(" -> SIGSEGV (%02d)\n", sig);
+            printf(" -> Segmentation fault \n");
+            nentries = backtrace (array, 10);
+            strings = backtrace_symbols (array, nentries);
+            for (i = 0; i < nentries; i++)
+            {
+                printf ("  %s\n", strings[i]);
+            }
+            free (strings);
 
-			// shutdown module
-			p_signal_module->moduleShutdown();
+            // shutdown module
+            p_signal_module->moduleShutdown();
 
-      		printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
-      		return;
+            printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
+            return;
 
-    	case SIGTERM:
-    	case SIGINT:
-      		if (signal_flags & HANDLING_TERM) // ignore while cleaning up
-        		return;
+        case SIGTERM:
+        case SIGINT:
+            if (signal_flags & HANDLING_TERM) // ignore while cleaning up
+                return;
 
-      		signal_flags |= HANDLING_TERM;
+            signal_flags |= HANDLING_TERM;
 
-      		printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
-      		printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
-      		printf(" -> calling cleanup function of Module class %p\n",
-      		       p_signal_module);
+            printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
+            printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
+            printf(" -> calling cleanup function of Module class %p\n",
+                   p_signal_module);
 
-			// shutdown module
-			p_signal_module->moduleShutdown();
+            // shutdown module
+            p_signal_module->moduleShutdown();
 
-      		printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
-      		return;
+            printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
+            return;
 
-    default:
-      printf("------------ SIGNAL_HANDLER START -----------------\n");
-      printf(" -> (%02d)\n", sig);
-      printf(" -> NOT HANDLED\n");
-      printf("------------ SIGNAL_HANDLER STOP ------------------\n");
-      return;
-  }
-
+        default:
+            printf("------------ SIGNAL_HANDLER START -----------------\n");
+            printf(" -> (%02d)\n", sig);
+            printf(" -> NOT HANDLED\n");
+            printf("------------ SIGNAL_HANDLER STOP ------------------\n");
+            return;
+    }
 }
 
 int init_signal_handler(Module *p_mod)
 {
-  if (!p_mod) {
-    printf("SIGNAL_HANDLER: invalid module class pointer\n");
-    return -EINVAL;
-  }
+    if (!p_mod)
+    {
+        printf("SIGNAL_HANDLER: invalid module class pointer\n");
+        return -EINVAL;
+    }
 
-  if (p_signal_module) {
-    printf("SIGNAL_HANDLER: there is already a pointer to a class (%p)\n", p_signal_module);
-    return -EBUSY;
-  }
+    if (p_signal_module)
+    {
+        printf("SIGNAL_HANDLER: there is already a pointer to a class (%p)\n",
+               p_signal_module);
+        return -EBUSY;
+    }
 
-  p_signal_module = p_mod;
+    p_signal_module = p_mod;
 
-  printf("SIGNAL_HANDLER: get module class pointer %p \n", p_signal_module);
+    printf("SIGNAL_HANDLER: get module class pointer %p \n", p_signal_module);
 
-  signal(SIGTERM, signal_handler);
-  signal(SIGINT,  signal_handler);
-  signal(SIGXCPU, signal_handler);
-  signal(SIGSEGV, signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT,  signal_handler);
+    signal(SIGXCPU, signal_handler);
+    signal(SIGSEGV, signal_handler);
 
-  return 0;
+    return 0;
 }
 

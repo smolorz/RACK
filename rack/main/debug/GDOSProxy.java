@@ -78,7 +78,7 @@ public class GDOSProxy extends RackDataProxy {
     public synchronized void setForwardMbx(int GDOSTarget) {
         try {
             // xxx Vorlaeufige Loesung. sollte spaeter noch ueber
-        	// echtes GetCont Paket laufen.
+            // echtes GetCont Paket laufen.
             TimsMsgRouter.send0(
                 RackMsgType.MSG_GET_CONT_DATA,
                 GDOSTarget,

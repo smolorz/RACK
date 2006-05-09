@@ -21,90 +21,90 @@ import rack.main.tims.exceptions.*;
 
 public class GDOS {
 
-	public static void print(String message, int module, int gdosLevel)
-	{
-		GDOSDataMsg msg = new GDOSDataMsg(message);
+    public static void print(String message, int module, int gdosLevel)
+    {
+        GDOSDataMsg msg = new GDOSDataMsg(message);
 
-		try {
-			TimsMsgRouter.send(GDOSProxy.GDOS_PRINT,
-					           RackName.create(RackName.GDOS, 0),
-					           module,
-					           (byte)0,
-					           (byte)0,
-					           msg);
-		} catch (MsgException e) {
-		}
-	}
+        try {
+            TimsMsgRouter.send(GDOSProxy.GDOS_PRINT,
+                               RackName.create(RackName.GDOS, 0),
+                               module,
+                               (byte)0,
+                               (byte)0,
+                               msg);
+        } catch (MsgException e) {
+        }
+    }
 
-	public static void error(String message, int module, int gdosLevel)
-	{
-		if(gdosLevel <= GDOSProxy.GDOS_ERROR)
-		{
-			GDOSDataMsg msg = new GDOSDataMsg(message);
+    public static void error(String message, int module, int gdosLevel)
+    {
+        if(gdosLevel <= GDOSProxy.GDOS_ERROR)
+        {
+            GDOSDataMsg msg = new GDOSDataMsg(message);
 
-			try {
-				TimsMsgRouter.send(GDOSProxy.GDOS_ERROR,
-						           RackName.create(RackName.GDOS, 0),
-						           module,
-						           (byte)0,
-						           (byte)0,
-						           msg);
-			} catch (MsgException e) {
-			}
-		}
-	}
+            try {
+                TimsMsgRouter.send(GDOSProxy.GDOS_ERROR,
+                                   RackName.create(RackName.GDOS, 0),
+                                   module,
+                                   (byte)0,
+                                   (byte)0,
+                                   msg);
+            } catch (MsgException e) {
+            }
+        }
+    }
 
-	public static void warning(String message, int module, int gdosLevel)
-	{
-		if(gdosLevel <= GDOSProxy.GDOS_WARNING)
-		{
-			GDOSDataMsg msg = new GDOSDataMsg(message);
+    public static void warning(String message, int module, int gdosLevel)
+    {
+        if(gdosLevel <= GDOSProxy.GDOS_WARNING)
+        {
+            GDOSDataMsg msg = new GDOSDataMsg(message);
 
-			try {
-				TimsMsgRouter.send(GDOSProxy.GDOS_WARNING,
-								    RackName.create(RackName.GDOS, 0),
-								    module,
-								    (byte)0,
-								    (byte)0,
-								    msg);
-			} catch (MsgException e) {
-			}
-		}
-	}
+            try {
+                TimsMsgRouter.send(GDOSProxy.GDOS_WARNING,
+                                    RackName.create(RackName.GDOS, 0),
+                                    module,
+                                    (byte)0,
+                                    (byte)0,
+                                    msg);
+            } catch (MsgException e) {
+            }
+        }
+    }
 
-	public static void dbgInfo(String message, int module, int gdosLevel)
-	{
-		if(gdosLevel <= GDOSProxy.GDOS_DBG_INFO)
-		{
-			GDOSDataMsg msg = new GDOSDataMsg(message);
+    public static void dbgInfo(String message, int module, int gdosLevel)
+    {
+        if(gdosLevel <= GDOSProxy.GDOS_DBG_INFO)
+        {
+            GDOSDataMsg msg = new GDOSDataMsg(message);
 
-			try {
-				TimsMsgRouter.send(GDOSProxy.GDOS_DBG_INFO,
-						           RackName.create(RackName.GDOS, 0),
-						           module,
-						           (byte)0,
-						           (byte)0,
-						           msg);
-			} catch (MsgException e) {
-			}
-		}
-	}
+            try {
+                TimsMsgRouter.send(GDOSProxy.GDOS_DBG_INFO,
+                                   RackName.create(RackName.GDOS, 0),
+                                   module,
+                                   (byte)0,
+                                   (byte)0,
+                                   msg);
+            } catch (MsgException e) {
+            }
+        }
+    }
 
-	public static void dbgDetail(String message, int module, int gdosLevel)
-	{
-		if(gdosLevel <= GDOSProxy.GDOS_DBG_DETAIL)
-		{
-			GDOSDataMsg msg = new GDOSDataMsg(message);
+    public static void dbgDetail(String message, int module, int gdosLevel)
+    {
+        if(gdosLevel <= GDOSProxy.GDOS_DBG_DETAIL)
+        {
+            GDOSDataMsg msg = new GDOSDataMsg(message);
 
-			try {
-				TimsMsgRouter.send(GDOSProxy.GDOS_DBG_DETAIL,
-						           RackName.create(RackName.GDOS, 0),
-						           module,
-						           (byte)0,
-						           (byte)0,
-						           msg);
-			} catch (MsgException e) {
-			}
-		}
-	}
+            try {
+                TimsMsgRouter.send(GDOSProxy.GDOS_DBG_DETAIL,
+                                   RackName.create(RackName.GDOS, 0),
+                                   module,
+                                   (byte)0,
+                                   (byte)0,
+                                   msg);
+            } catch (MsgException e) {
+            }
+        }
+    }
 }

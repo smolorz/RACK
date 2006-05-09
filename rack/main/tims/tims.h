@@ -4,9 +4,9 @@
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 2 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * Authors
@@ -87,11 +87,11 @@ struct tims_sockaddr {
 //
 
 struct tims_mbx_cfg {
-	unsigned int msg_size;        // max size per message
-	unsigned int slot_count;      // 0  => FIFO Queuing
-	                              // >0 => Priority Queuing
-	void         *buffer;         // NULL: kernel-located
-	unsigned int buffer_size;
+    unsigned int msg_size;        // max size per message
+    unsigned int slot_count;      // 0  => FIFO Queuing
+                                  // >0 => Priority Queuing
+    void         *buffer;         // NULL: kernel-located
+    unsigned int buffer_size;
 };
 
 #define RTIOC_TYPE_TIMS             RTDM_CLASS_NETWORK

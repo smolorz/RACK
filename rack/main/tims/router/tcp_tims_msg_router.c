@@ -85,7 +85,7 @@ int                     loglevel = 0;
 
 
 typedef struct {
-    int               	index;
+    int                 index;
     int                 socket;
     struct sockaddr_in  addr;
     socklen_t           addrLen;
@@ -121,8 +121,8 @@ int getMbx(int mbx)
     {
         if (mbxList[i].mbx == mbx)
         {
-        	sem_post(&mbxListSem);
-        	return mbxList[i].conIndex;
+            sem_post(&mbxListSem);
+            return mbxList[i].conIndex;
         }
     }
     sem_post(&mbxListSem);
@@ -225,13 +225,13 @@ int sndTcpTimsMsg(CONNECTION *con, timsMsgHead* sndMsg)
     ret = send(con->socket, sndMsg, sndMsg->msglen, 0);
     if ( ret == -1)
     {
-    	close(con->socket);
-    	con->socket = -1;
+        close(con->socket);
+        con->socket = -1;
 
-    	sem_post(&con->sendSem);
-    	tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, (%u bytes), "
-    	           "send ERROR, code = %d\n", idx, inet_ntoa(con->addr.sin_addr),
-    	           sndMsg->src, sndMsg->type, sndMsg->dest, sndMsg->msglen, errno);
+        sem_post(&con->sendSem);
+        tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, (%u bytes), "
+                   "send ERROR, code = %d\n", idx, inet_ntoa(con->addr.sin_addr),
+                   sndMsg->src, sndMsg->type, sndMsg->dest, sndMsg->msglen, errno);
 
         return -1;
     }

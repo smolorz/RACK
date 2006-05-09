@@ -109,8 +109,8 @@ int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
         reduction = periodTime / dataBufferPeriodTime;
     }
 
-	GDOS_DBG_DETAIL("Setting reduction to %d (self %d ms, request %d ms)\n",
-	                reduction, dataBufferPeriodTime, periodTime);
+    GDOS_DBG_DETAIL("Setting reduction to %d (self %d ms, request %d ms)\n",
+                    reduction, dataBufferPeriodTime, periodTime);
 
     memcpy(&listener[i].msgInfo, msgInfo, sizeof(MessageInfo));
     listener[i].msgInfo.src = destMbxAdr;
@@ -297,10 +297,10 @@ void        DataModule::setDataBufferMaxDataSize(uint32_t dataSize)
 
 RACK_TIME   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
 {
-	uint32_t i;
+    uint32_t i;
 
-	if (!dataMbx)
-    	return dataBufferPeriodTime;
+    if (!dataMbx)
+        return dataBufferPeriodTime;
 
     listenerMtx.lock(RACK_INFINITE);
 
@@ -308,8 +308,8 @@ RACK_TIME   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
     {
         if (listener[i].msgInfo.src == dataMbx)
         {
-        	listenerMtx.unlock();
-        	return listener[i].reduction * dataBufferPeriodTime;
+            listenerMtx.unlock();
+            return listener[i].reduction * dataBufferPeriodTime;
         }
     }
 
@@ -319,7 +319,7 @@ RACK_TIME   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
 
 void DataModule::setDataBufferPeriodTime(RACK_TIME periodTime)
 {
-	GDOS_PRINT("Setting local period time to %d ms \n", periodTime);
+    GDOS_PRINT("Setting local period time to %d ms \n", periodTime);
     dataBufferPeriodTime = periodTime;
 }
 
@@ -542,12 +542,12 @@ void        DataModule::moduleCleanup(void)
 // realtime context (dataTask)
 int         DataModule::moduleOn(void)
 {
-	if (!dataBufferPeriodTime)
-	{
-		GDOS_ERROR("Local dataBuffer period time was not set \n");
-		GDOS_ERROR("You have to set this value before calling DataModule::moduleOn()\n");
-		return -EINVAL;
-	}
+    if (!dataBufferPeriodTime)
+    {
+        GDOS_ERROR("Local dataBuffer period time was not set \n");
+        GDOS_ERROR("You have to set this value before calling DataModule::moduleOn()\n");
+        return -EINVAL;
+    }
 
     listenerNum     = 0;
     globalDataCount = 0;
@@ -631,8 +631,8 @@ int         DataModule::moduleCommand(MessageInfo *msgInfo)
                 }
                 else
                 {
-                	rack_cont_data contData;
-                	contData.periodTime = getDataBufferPeriodTime(p_data->dataMbxAdr);
+                    rack_cont_data contData;
+                    contData.periodTime = getDataBufferPeriodTime(p_data->dataMbxAdr);
                     ret = cmdMbx.sendDataMsgReply(MSG_CONT_DATA, msgInfo, 1,
                                                   &contData,
                                                   sizeof(rack_cont_data));

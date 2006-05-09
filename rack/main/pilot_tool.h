@@ -78,160 +78,160 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
                             scan2d_data *scan,
                             chassis_param_data *param)
 {
-	int     i;
-	int     xMax, xMin;
-	int     yMax, yMin;
-	int     sign;
-	int     vMax, vMaxX, vMaxY;
-	float   rotationSpeed;
+    int     i;
+    int     xMax, xMin;
+    int     yMax, yMin;
+    int     sign;
+    int     vMax, vMaxX, vMaxY;
+    float   rotationSpeed;
 
 
-	// set parameters for forward movement
+    // set parameters for forward movement
 
-	if (speed > 0)  // set hysteresis boundaries
-	{
-	    if ((moveStatus != NULL) && (*moveStatus == HOLD))
-	    {
-	    	xMax =  param->boundaryFront + 2 * param->safetyMargin +
-	                param->safetyMarginMove;
-	      	xMin = -param->boundaryBack - param->safetyMargin;
-	      	yMax =  param->boundaryRight + 2 * param->safetyMargin;
-	      	yMin = -param->boundaryLeft  - 2 * param->safetyMargin;
-	    }
-	    else    // set normal boundaries
-	    {
-	    	xMax =  param->boundaryFront + param->safetyMargin +
-	                param->safetyMarginMove;
-	      	xMin = -param->boundaryBack;
-	      	yMax =  param->boundaryRight + param->safetyMargin;
-	      	yMin = -param->boundaryLeft  - param->safetyMargin;
-	    }
+    if (speed > 0)  // set hysteresis boundaries
+    {
+        if ((moveStatus != NULL) && (*moveStatus == HOLD))
+        {
+            xMax =  param->boundaryFront + 2 * param->safetyMargin +
+                    param->safetyMarginMove;
+              xMin = -param->boundaryBack - param->safetyMargin;
+              yMax =  param->boundaryRight + 2 * param->safetyMargin;
+              yMin = -param->boundaryLeft  - 2 * param->safetyMargin;
+        }
+        else    // set normal boundaries
+        {
+            xMax =  param->boundaryFront + param->safetyMargin +
+                    param->safetyMarginMove;
+              xMin = -param->boundaryBack;
+              yMax =  param->boundaryRight + param->safetyMargin;
+              yMin = -param->boundaryLeft  - param->safetyMargin;
+        }
 
-	    // reduce max speed
-	    if (speed > param->vxMax)
-	    {
-	    	speed = param->vxMax;
-	    }
+        // reduce max speed
+        if (speed > param->vxMax)
+        {
+            speed = param->vxMax;
+        }
 
-	    // set movement flag
-	    sign = 1;
+        // set movement flag
+        sign = 1;
 
-	}
-	else if (speed < 0) // backward
-	{
-	    if ((moveStatus != NULL) && (*moveStatus == HOLD))
-	    { // set hysteresis boundaries
-	    	xMax =  param->boundaryFront + param->safetyMargin;
-	      	xMin = -param->boundaryBack - 2 * param->safetyMargin -
-	                param->safetyMarginMove;
-	      	yMax =  param->boundaryRight + 2 * param->safetyMargin;
-	      	yMin = -param->boundaryLeft  - 2 * param->safetyMargin;
-	    }
-	    else // set normal boundaries
-	    {
-	    	xMax =  param->boundaryFront;
-	      	xMin = -param->boundaryBack - param->safetyMargin -
-	                param->safetyMarginMove;
-	      	yMax =  param->boundaryRight + param->safetyMargin;
-	      	yMin = -param->boundaryLeft - param->safetyMargin;
-	    }
+    }
+    else if (speed < 0) // backward
+    {
+        if ((moveStatus != NULL) && (*moveStatus == HOLD))
+        { // set hysteresis boundaries
+            xMax =  param->boundaryFront + param->safetyMargin;
+            xMin = -param->boundaryBack - 2 * param->safetyMargin -
+                    param->safetyMarginMove;
+            yMax =  param->boundaryRight + 2 * param->safetyMargin;
+            yMin = -param->boundaryLeft  - 2 * param->safetyMargin;
+        }
+        else // set normal boundaries
+        {
+            xMax =  param->boundaryFront;
+            xMin = -param->boundaryBack - param->safetyMargin -
+                    param->safetyMarginMove;
+            yMax =  param->boundaryRight + param->safetyMargin;
+            yMin = -param->boundaryLeft - param->safetyMargin;
+        }
 
-	    // limit reverse speed
-	    if (speed < -500)
-	    {
-	    	speed = -500;
-	    }
+        // limit reverse speed
+        if (speed < -500)
+        {
+            speed = -500;
+        }
 
-	    // set movement flag
-	    sign	= -1;
-	    speed   = abs(speed);
+        // set movement flag
+        sign    = -1;
+        speed   = abs(speed);
 
-	}
-	else // no movement
-	{
-	    speed = 0;
+    }
+    else // no movement
+    {
+        speed = 0;
 
-	    // set move status
-	    if (moveStatus != NULL)
-	    {
-	    	*moveStatus = HOLD;
-	    }
+        // set move status
+        if (moveStatus != NULL)
+        {
+            *moveStatus = HOLD;
+        }
 
-	    return speed;
-	}
+        return speed;
+    }
 
-	// reduce max rotation speed
-	if (radius != 0)
-	{
-	    rotationSpeed = (float)(speed) / (float)abs(radius);
+    // reduce max rotation speed
+    if (radius != 0)
+    {
+        rotationSpeed = (float)(speed) / (float)abs(radius);
 
-	    if (rotationSpeed > param->omegaMax)
-	    {
-	    	speed = (int)(abs(radius) * param->omegaMax);
-	    }
-	}
+        if (rotationSpeed > param->omegaMax)
+        {
+            speed = (int)(abs(radius) * param->omegaMax);
+        }
+    }
 
-	// check Scan2D
-	for (i = 0; i < scan->pointNum; i += 2)
-	{
-		if ((scan->point[i].type & TYPE_INVALID) == 0)
-		{
-	    	// check x-coordinate
-	      	if (scan->point[i].x > xMax)
-	      	{
-	        	if (sign > 0)
-	        		vMaxX = (int)rint((float)abs(scan->point[i].x - xMax) / param->breakConstant);
-	        	else
-	        	    vMaxX = speed;
-	        }
-	    	else if (scan->point[i].x < xMin)
-	    	{
-	        	if (sign > 0)
-	        		vMaxX = speed;
-	        	else
-	            	vMaxX = (int)rint((float)abs(scan->point[i].x - xMin) / param->breakConstant);
-	        }
-	        else
-	        {
-	        	vMaxX = 0;
-	      	}
+    // check Scan2D
+    for (i = 0; i < scan->pointNum; i += 2)
+    {
+        if ((scan->point[i].type & TYPE_INVALID) == 0)
+        {
+            // check x-coordinate
+              if (scan->point[i].x > xMax)
+              {
+                if (sign > 0)
+                    vMaxX = (int)rint((float)abs(scan->point[i].x - xMax) / param->breakConstant);
+                else
+                    vMaxX = speed;
+            }
+            else if (scan->point[i].x < xMin)
+            {
+                if (sign > 0)
+                    vMaxX = speed;
+                else
+                    vMaxX = (int)rint((float)abs(scan->point[i].x - xMin) / param->breakConstant);
+            }
+            else
+            {
+                vMaxX = 0;
+              }
 
 
-	      	// check y coordinate
-	      	if (scan->point[i].y > yMax)
-	      	{
-	        	vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) * 2.0f / param->breakConstant);
-	        }
-	      	else if (scan->point[i].y < yMin)
-	      	{
-	        	vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) * 2.0f / param->breakConstant);
-	        }
-	      	else
-	      	{
-	        	vMaxY = 0;
-	      	}
+            // check y coordinate
+            if (scan->point[i].y > yMax)
+            {
+                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) * 2.0f / param->breakConstant);
+            }
+            else if (scan->point[i].y < yMin)
+            {
+                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) * 2.0f / param->breakConstant);
+            }
+            else
+            {
+                vMaxY = 0;
+            }
 
-	      	// reduce speed if necessary
-	      	if (vMaxX > vMaxY)
-	        	vMax = vMaxX;
-	      	else
-	        	vMax = vMaxY;
+            // reduce speed if necessary
+            if (vMaxX > vMaxY)
+                vMax = vMaxX;
+            else
+                vMax = vMaxY;
 
-	      	if (vMax < speed)
-	        	speed = vMax;
-		}
-	}
+            if (vMax < speed)
+                speed = vMax;
+        }
+    }
 
-  	// set new move status
-	if (moveStatus != NULL)
-	{
-		if (speed != 0)
-	      *moveStatus = MOVING;
-	    else
-	      *moveStatus = HOLD;
-	}
+      // set new move status
+    if (moveStatus != NULL)
+    {
+        if (speed != 0)
+            *moveStatus = MOVING;
+        else
+            *moveStatus = HOLD;
+    }
 
-	return speed * sign;
+    return speed * sign;
 }
 
 #endif // __PILOT_TOOL_H__

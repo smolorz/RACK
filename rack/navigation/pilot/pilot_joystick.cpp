@@ -56,8 +56,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -75,7 +75,7 @@ argTable_t argTab[] = {
         return ret;
     }
 
-	// get chassis parameter data
+    // get chassis parameter data
 
     ret = chassis->getParam(&chasParData, sizeof(chassis_param_data), &info);
     if (ret)
@@ -84,7 +84,7 @@ argTable_t argTab[] = {
         return ret;
     }
 
-	ChassisParamData::parse(&info);
+    ChassisParamData::parse(&info);
 
     if (maxSpeed > chasParData.vxMax)
     {
@@ -92,7 +92,7 @@ argTable_t argTab[] = {
         GDOS_DBG_DETAIL("Max speed : %d\n", maxSpeed);
     }
 
-	// enable joystick
+    // enable joystick
 
     ret = joystick->on();
     if (ret)
@@ -101,7 +101,7 @@ argTable_t argTab[] = {
         return ret;
     }
 
-	// get joystick data
+    // get joystick data
 
     ret = joystick->getData(&jstkData, sizeof(joystick_data), 0, &info);
     if (ret)
@@ -111,7 +111,7 @@ argTable_t argTab[] = {
         return ret;
     }
 
-	JoystickData::parse(&info);
+    JoystickData::parse(&info);
 
     if ((jstkData.position.x != 0) ||
         (jstkData.position.y != 0))
@@ -120,7 +120,7 @@ argTable_t argTab[] = {
         return -EINVAL;
     }
 
-	// enable scan2d module
+    // enable scan2d module
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
     {
@@ -133,7 +133,7 @@ argTable_t argTab[] = {
         }
     }
 
-	// get continuous data from joystick
+    // get continuous data from joystick
 
     ret = joystick->getContData(0, &joystickMbx, NULL);
     if (ret)
@@ -157,8 +157,8 @@ argTable_t argTab[] = {
             return ret;
         }
 
-	    scan2dMsg.data.pointNum = 0;
-		scan2dDataMissing = 0;
+        scan2dMsg.data.pointNum = 0;
+        scan2dDataMissing = 0;
     }
 
     GDOS_PRINT("maxSpeed %f m/s, minRadius %f m  scan2D(%i)\n",
@@ -184,119 +184,119 @@ void PilotJoystick::moduleOff(void)
 // realtime context
 int  PilotJoystick::moduleLoop(void)
 {
-	int         speed;
+    int         speed;
     float       curve;
-	int         ret;
+    int         ret;
     MessageInfo jstkInfo;
     MessageInfo s2dInfo;
-	pilot_data*	pilotData = NULL;
+    pilot_data*    pilotData = NULL;
 
-	// get all joystick messages
+    // get all joystick messages
 
-	jstkInfo.type = 0;
-	do
-	{
-		ret = joystickMbx.recvDataMsgIf(&jstkData, sizeof(joystick_data),
-		                                &jstkInfo);
-		if (ret && ret != -EWOULDBLOCK) // error
-			return ret;
-	}
-	while (!ret);
+    jstkInfo.type = 0;
+    do
+    {
+        ret = joystickMbx.recvDataMsgIf(&jstkData, sizeof(joystick_data),
+                                        &jstkInfo);
+        if (ret && ret != -EWOULDBLOCK) // error
+            return ret;
+    }
+    while (!ret);
 
-	// newest message received and mailbox is empty
+    // newest message received and mailbox is empty
 
-	if ((jstkInfo.src  == RackName::create(JOYSTICK, joystickInst)) &&
-	    (jstkInfo.type == MSG_DATA))
-	{
-		// joystick data message received
+    if ((jstkInfo.src  == RackName::create(JOYSTICK, joystickInst)) &&
+        (jstkInfo.type == MSG_DATA))
+    {
+        // joystick data message received
 
-	    JoystickData::parse(&jstkInfo);
+        JoystickData::parse(&jstkInfo);
 
-    	joystickSpeed = (int)rint((float)maxSpeed *
+        joystickSpeed = (int)rint((float)maxSpeed *
                                   ((float)jstkData.position.x / 100.0f));
 
-	    if (jstkData.position.y != 0)
-    	{
-        	joystickCurve = radius2Curve(chasParData.minTurningRadius) *
+        if (jstkData.position.y != 0)
+        {
+            joystickCurve = radius2Curve(chasParData.minTurningRadius) *
                             ((float)jstkData.position.y / 100.0f);
-	    }
-    	else
-    	{
-        	joystickCurve = 0.0f;
-    	}
+        }
+        else
+        {
+            joystickCurve = 0.0f;
+        }
 
-   		joystikDataMissing = 0;
-	}
-	else
-	{
-		joystikDataMissing++;
+           joystikDataMissing = 0;
+    }
+    else
+    {
+        joystikDataMissing++;
 
-		if (joystikDataMissing >= 10)
-		{
-			GDOS_ERROR("No data from Joystick(%i)\n", joystickInst);
-			return -ETIMEDOUT;
-		}
-	}
+        if (joystikDataMissing >= 10)
+        {
+            GDOS_ERROR("No data from Joystick(%i)\n", joystickInst);
+            return -ETIMEDOUT;
+        }
+    }
 
-	if ((jstkInfo.src  == RackName::create(JOYSTICK, joystickInst)) &&
-	    (jstkInfo.type == MSG_ERROR))
-	{
-		GDOS_ERROR("Joystick(%i) reported ERROR\n", joystickInst);
-		return -EFAULT;
-	}
+    if ((jstkInfo.src  == RackName::create(JOYSTICK, joystickInst)) &&
+        (jstkInfo.type == MSG_ERROR))
+    {
+        GDOS_ERROR("Joystick(%i) reported ERROR\n", joystickInst);
+        return -EFAULT;
+    }
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
     {
-   		s2dInfo.type = 0;
-    	do
-		{
-			ret = scan2dMbx.recvDataMsgIf(&scan2dMsg.data,
-										  sizeof(scan2d_data_msg), &s2dInfo);
-			if (ret && ret != -EWOULDBLOCK) // error
-				return ret;
-		}
-		while (!ret);
+           s2dInfo.type = 0;
+        do
+        {
+            ret = scan2dMbx.recvDataMsgIf(&scan2dMsg.data,
+                                          sizeof(scan2d_data_msg), &s2dInfo);
+            if (ret && ret != -EWOULDBLOCK) // error
+                return ret;
+        }
+        while (!ret);
 
-		// joystick data message received
+        // joystick data message received
 
-		if ((s2dInfo.src  == RackName::create(SCAN2D, scan2dInst)) &&
-			(s2dInfo.type == MSG_DATA))
-		{
-			scan2dDataMissing = 0;
-		}
-		else
-		{
-			scan2dDataMissing++;
+        if ((s2dInfo.src  == RackName::create(SCAN2D, scan2dInst)) &&
+            (s2dInfo.type == MSG_DATA))
+        {
+            scan2dDataMissing = 0;
+        }
+        else
+        {
+            scan2dDataMissing++;
 
-			if (scan2dDataMissing >= 10)
-			{
-				GDOS_ERROR("No data from Scan2D(%i)\n", scan2dInst);
-				return -ETIMEDOUT;
-			}
-		}
+            if (scan2dDataMissing >= 10)
+            {
+                GDOS_ERROR("No data from Scan2D(%i)\n", scan2dInst);
+                return -ETIMEDOUT;
+            }
+        }
 
-		if ((s2dInfo.src  == RackName::create(SCAN2D, scan2dInst)) &&
-			(s2dInfo.type == MSG_ERROR))
-		{
-			GDOS_ERROR("Scan2D(%i) reported ERROR\n", scan2dInst);
-			return -EFAULT;
-		}
+        if ((s2dInfo.src  == RackName::create(SCAN2D, scan2dInst)) &&
+            (s2dInfo.type == MSG_ERROR))
+        {
+            GDOS_ERROR("Scan2D(%i) reported ERROR\n", scan2dInst);
+            return -EFAULT;
+        }
 
-		// scan2d data message received
+        // scan2d data message received
 
         Scan2DData::parse(&s2dInfo);
         speed  = safeSpeed(joystickSpeed, curve2Radius(joystickCurve), NULL,
                            &scan2dMsg.data, &chasParData);
         curve  = joystickCurve;
-	}
-	else // scan2d is not used if id is -1
+    }
+    else // scan2d is not used if id is -1
     {
         speed  = joystickSpeed;
         curve  = joystickCurve;
     }
 
     // move chassis
-  	ret = chassis->moveCurve(speed, curve);
+    ret = chassis->moveCurve(speed, curve);
     if (ret)
     {
         GDOS_ERROR("Can't send chassis_move, code = %d\n", ret);
@@ -330,8 +330,8 @@ int  PilotJoystick::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *
@@ -396,7 +396,7 @@ int  PilotJoystick::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_JOYSTICK);
 
-	// scan2d
+    // scan2d
     scan2d = new Scan2DProxy(&workMbx, 0, scan2dInst);
     if (!scan2d)
     {
@@ -479,15 +479,15 @@ PilotJoystick::PilotJoystick()
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
-	// get value(s) out of your argument table
+    // get value(s) out of your argument table
     chassisInst  = getIntArg("chassisInst", argTab);
-	scan2dInst   = getIntArg("scan2dInst", argTab);
-	joystickInst = getIntArg("joystickInst", argTab);
-	joystickSys  = getIntArg("joystickSys", argTab);
-	maxSpeed     = getIntArg("maxSpeed", argTab);
+    scan2dInst   = getIntArg("scan2dInst", argTab);
+    joystickInst = getIntArg("joystickInst", argTab);
+    joystickSys  = getIntArg("joystickSys", argTab);
+    maxSpeed     = getIntArg("maxSpeed", argTab);
 
-	// set dataBuffer size
-	setDataBufferMaxDataSize(sizeof(pilot_data_msg));
+    // set dataBuffer size
+    setDataBufferMaxDataSize(sizeof(pilot_data_msg));
 
     // set databuffer period time (preset)
     setDataBufferPeriodTime(100); // 100ms (10 per sec)

@@ -24,7 +24,7 @@
 
 typedef struct {
     new_data    data;
-    int32_t 	value[NEWDATAMODULE_VALUE_MAX];
+    int32_t     value[NEWDATAMODULE_VALUE_MAX];
 } __attribute__((packed)) new_data_msg;
 
 //######################################################################
@@ -51,8 +51,8 @@ class NewDataModule : public DataModule{
     int  moduleLoop(void);
     int  moduleCommand(MessageInfo *msgInfo);
 
-	// -> non realtime context
-	void moduleCleanup(void);
+    // -> non realtime context
+    void moduleCleanup(void);
 
   public:
 

@@ -4,9 +4,9 @@
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 2 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * Authors
@@ -272,9 +272,9 @@ typedef struct tims_context { // context will be created in rt_tims_socket by RT
 } timsCtx;
 
 typedef struct tims_ctx_cache { // fast search for context
-    timsCtx*                p_ctx;         	// pointer to context
-    unsigned int            mbxAdr;        	// mbx address
-    uint64_t                timestamp;     	// last access time
+    timsCtx*                p_ctx;          // pointer to context
+    unsigned int            mbxAdr;         // mbx address
+    uint64_t                timestamp;      // last access time
 } timsCtxCache;
 
 #define CONFIG_TIMS_CTX_CACHE_SIZE      64

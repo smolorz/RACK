@@ -37,36 +37,36 @@ import rack.navigation.*;
 
 public class MapViewGui extends Thread
 {
-    private RackModuleGui[]	moduleGui;
-    private ArrayList 		moduleGuiList;
+    private RackModuleGui[] moduleGui;
+    private ArrayList       moduleGuiList;
 
-    private boolean 		updateNeeded = false;
-    private Position2D 		viewPosition = new Position2D();
-    private double     		viewZoom     = 0.02;
-    public final int 		viewGridDistance = 10000; // in mm
-    
-    private Position2D 		robotPosition = new Position2D();
-    private Position2D 		worldCursorPosition = new Position2D(0, 0, 0);
-    
+    private boolean         updateNeeded = false;
+    private Position2D      viewPosition = new Position2D();
+    private double          viewZoom     = 0.02;
+    public final int        viewGridDistance = 10000; // in mm
+
+    private Position2D      robotPosition = new Position2D();
+    private Position2D      worldCursorPosition = new Position2D(0, 0, 0);
+
     // basic Components
-    private ViewPanel     	viewPanel;
-    private ActionCursor  	actionCursor;
-    private MapNavigator  	mapNavigator;
-    private JMenu         	menuBar;
-    private JPanel        	panel;
-    private BufferedImage 	backGndImg;
-    private double		  	backGndResX,		// in mm/pixel
-    					  	backGndResY;		// in mm/pixel
-    private Position2D	  	backGndOffset = new Position2D();
-    
-    // proxies
-    private PositionProxy 	positionProxy;
-    private ChassisProxy	chassisProxy;
-    
-    // Messages
-    ChassisParamMsg 		chassisParam;
+    private ViewPanel       viewPanel;
+    private ActionCursor    actionCursor;
+    private MapNavigator    mapNavigator;
+    private JMenu           menuBar;
+    private JPanel          panel;
+    private BufferedImage   backGndImg;
+    private double          backGndResX,        // in mm/pixel
+                            backGndResY;        // in mm/pixel
+    private Position2D      backGndOffset = new Position2D();
 
-    
+    // proxies
+    private PositionProxy   positionProxy;
+    private ChassisProxy    chassisProxy;
+
+    // Messages
+    ChassisParamMsg         chassisParam;
+
+
     public MapViewGui(RackModuleGui[] n_moduleGui)
     {
         this.moduleGui = n_moduleGui;
@@ -89,7 +89,7 @@ public class MapViewGui extends Thread
 
         // get chassis parameter message
         chassisParam = chassisProxy.getParam();
-        
+
         // create MapView components
         menuBar = new JMenu();
         moduleGuiList = new ModuleGuiList();
@@ -108,23 +108,23 @@ public class MapViewGui extends Thread
         backGndOffset.x   = 84000;
         backGndOffset.y   = -210000;
         backGndOffset.phi = (float)(-18.0 / 180.0 * Math.PI);
-        backGndResX		  = 400.0;
-        backGndResY		  = 400.0;
-        
+        backGndResX       = 400.0;
+        backGndResY       = 400.0;
+
         // read background image
         try
         {
-        	backGndImg = ImageIO.read(file);
+            backGndImg = ImageIO.read(file);
         }
         catch (Exception exc)
         {
-        	System.out.println("No background image found!\n"+exc);
+            System.out.println("No background image found!\n"+exc);
         }
 
         this.start();
     }
 
-    
+
     public JComponent getComponent()
     {
         return panel;
@@ -182,8 +182,8 @@ public class MapViewGui extends Thread
         {
             Position3D position3D = positionProxy.getData().pos;
             robotPosition = new Position2D(position3D.x, position3D.y,
-                        position3D.rho);
-                   
+                                           position3D.rho);
+
         }
         catch (Exception exc)
         {
@@ -203,7 +203,7 @@ public class MapViewGui extends Thread
         wakeup();
     }
 
-    
+
     public void run()
     {
         Thread.yield();
@@ -224,11 +224,10 @@ public class MapViewGui extends Thread
                 // create a new draw context
                 DrawContext drawContext;
                 if (actionCursor.isSimRobotPosition())
-                    drawContext = new DrawContext(
-                            		worldCursorPosition);
+                    drawContext = new DrawContext(worldCursorPosition);
                 else
                     drawContext = new DrawContext(robotPosition);
-                       
+
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
@@ -245,7 +244,7 @@ public class MapViewGui extends Thread
                         exc.printStackTrace();
                     }
                 } // while
-              actionCursor.drawDefaultCursor(drawContext.getRobotGraphics());  
+              actionCursor.drawDefaultCursor(drawContext.getRobotGraphics());
               viewPanel.setDrawContext(drawContext);
             }
             while (updateNeeded == true);
@@ -279,7 +278,7 @@ public class MapViewGui extends Thread
         private Graphics2D worldGraph;
         private Graphics2D robotGraph;
         private Position2D robotPosition;
-  
+
         public DrawContext(Position2D robotPosition)
         {
             super(viewPanel.getWidth(), viewPanel.getHeight(),
@@ -294,16 +293,16 @@ public class MapViewGui extends Thread
             worldGraph.scale(viewZoom, viewZoom);
             worldGraph.rotate(-viewPosition.phi - Math.PI / 2);
             worldGraph.translate(-viewPosition.x, -viewPosition.y);
-            
+
             // prepare robotGraph
             robotGraph = this.createGraphics();
             robotGraph.setClip(0, 0, this.getWidth(), this.getHeight());
             robotGraph.setTransform(worldGraph.getTransform());
             robotGraph.translate(robotPosition.x, robotPosition.y);
             robotGraph.rotate(robotPosition.phi);
-            
+
             drawBackgndImg(backGndImg, backGndResX, backGndResY,
-            			   backGndOffset);
+                           backGndOffset);
             drawGrid();
         }
 
@@ -321,45 +320,45 @@ public class MapViewGui extends Thread
         {
             return (Position2D) robotPosition.clone();
         }
-        
-        
+
+
         private void drawGrid()
         {
             Rectangle viewBounds = worldGraph.getClipBounds();
             worldGraph.setColor(Color.LIGHT_GRAY);
-            
+
             for (int x = (viewGridDistance * (int) (viewBounds.x / viewGridDistance));
                  x < (viewBounds.x + viewBounds.width); x += viewGridDistance)
             {
-                worldGraph.drawLine(x, viewBounds.y, x, viewBounds.y + 
-                										viewBounds.height);
+                worldGraph.drawLine(x, viewBounds.y, x, viewBounds.y +
+                                                        viewBounds.height);
             }
-            
+
             for (int y = (viewGridDistance * (int) (viewBounds.y / viewGridDistance));
                  y < (viewBounds.y + viewBounds.height); y += viewGridDistance)
             {
                 worldGraph.drawLine(viewBounds.x, y, viewBounds.x +
-                									 viewBounds.width, y);
+                                                     viewBounds.width, y);
             }
             worldGraph.setColor(Color.ORANGE);
             worldGraph.drawArc(-75, -75, 150, 150, 0, 270);
         }
-        
-        
-        private void drawBackgndImg(BufferedImage image, 
-        							   double resX, double resY, Position2D pos)
+
+
+        private void drawBackgndImg(BufferedImage image,
+                                       double resX, double resY, Position2D pos)
         {
-        	Rectangle viewBounds = worldGraph.getClipBounds();
+            Rectangle viewBounds = worldGraph.getClipBounds();
             worldGraph.setBackground(Color.WHITE);
             worldGraph.clearRect(viewBounds.x, viewBounds.y, viewBounds.width,
                                  viewBounds.height);
             if (image != null)
             {
-            	AffineTransform at = new AffineTransform();
-            	at.scale(resX, resY);
-            	at.rotate(pos.phi + Math.PI/2);	
-            	BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-            	worldGraph.drawImage(image, biop, pos.x, pos.y);
+                AffineTransform at = new AffineTransform();
+                at.scale(resX, resY);
+                at.rotate(pos.phi + Math.PI/2);
+                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+                worldGraph.drawImage(image, biop, pos.x, pos.y);
             }
         }
     }
@@ -435,7 +434,7 @@ public class MapViewGui extends Thread
             viewPanel.addMouseListener(this);
             viewPanel.addKeyListener(this);
             viewPanel.addMouseMotionListener(this);
-           
+
            // command
             westPanel = new JPanel();
             westPanel.setLayout(new BorderLayout(2,2));
@@ -507,7 +506,7 @@ public class MapViewGui extends Thread
             }
             if (event.getActionCommand().equals("left"))
             {
-            	changePositionAndZoom(0, 0, -1, 0);
+                changePositionAndZoom(0, 0, -1, 0);
                 viewRobotButton.setSelected(false);
             }
             if (event.getActionCommand().equals("right"))
@@ -524,7 +523,7 @@ public class MapViewGui extends Thread
             }
             if (event.getActionCommand().equals("robot"))
             {
-            	viewRobotButton.setSelected(true);
+                viewRobotButton.setSelected(true);
             }
 
             updateNeeded();
@@ -533,21 +532,21 @@ public class MapViewGui extends Thread
 
         public void mouseMoved(MouseEvent event)
         {
-            Position2D tempPosition = getPosOnScreen(event.getX(), 
+            Position2D tempPosition = getPosOnScreen(event.getX(),
                                                      event.getY());
             worldCursorPosition.x   = tempPosition.x;
             worldCursorPosition.y   = tempPosition.y;
             coordinateLabel.setText("X: "+worldCursorPosition.x+" mm, " +
-								    "Y: "+worldCursorPosition.y+" mm");            
+                                    "Y: "+worldCursorPosition.y+" mm");
         }
-        
+
         public void mouseDragged(MouseEvent event)
         {
         }
-       
+
         public void mouseClicked(MouseEvent event)
         {
-        	if (event.getButton() == MouseEvent.BUTTON2)
+            if (event.getButton() == MouseEvent.BUTTON2)
             {
                 setCenter(getPosOnScreen(event.getX(), event.getY()));
                 viewRobotButton.setSelected(false);
@@ -623,8 +622,8 @@ public class MapViewGui extends Thread
         {
             return viewRobotButton.isSelected();
         }
-        
-        
+
+
         private class CommandMenu extends JMenu implements MenuListener
         {
 
@@ -650,7 +649,7 @@ public class MapViewGui extends Thread
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
-                	ModuleGuiProp moduleGuiProp = (ModuleGuiProp)moduleGuiIterator
+                    ModuleGuiProp moduleGuiProp = (ModuleGuiProp)moduleGuiIterator
                             .next();
                     if (!moduleGuiProp.isOn())
                         continue;
@@ -674,7 +673,7 @@ public class MapViewGui extends Thread
                 }
 
                 if (this.getComponentCount() > 0)
-                	this.addSeparator();
+                    this.addSeparator();
 
                 JMenuItem newMenuItem = new JMenuItem("Cursor");
                 newMenuItem.setActionCommand("selectCursor");
@@ -683,15 +682,15 @@ public class MapViewGui extends Thread
 
                 this.validate();
             }
-        } // commandMenu        
+        } // commandMenu
     }
 
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     // **********************************************************
     // Action Cursor
     // **********************************************************
@@ -711,7 +710,7 @@ public class MapViewGui extends Thread
 
         public boolean isSimRobotPosition()
         {
-        	return false;
+            return false;
 //            return simRobotPositionButton.isSelected();
         }
 
@@ -730,8 +729,8 @@ public class MapViewGui extends Thread
             }
             if (event.getActionCommand().equals("cancel"))
             {
-            	actionEvent = null;
-            	active = false;
+                actionEvent = null;
+                active = false;
             }
             if (event.getActionCommand().equals("execute"))
             {
@@ -750,7 +749,7 @@ public class MapViewGui extends Thread
         public synchronized void drawCursor(Graphics2D screenGraph,
                 DrawContext drawContext)
         {
-        	
+
             if (active)
             {
                 CursorDrawContext cursorDrawContext = new CursorDrawContext(
@@ -775,42 +774,42 @@ public class MapViewGui extends Thread
         {
             cursorGraphics.setColor(new Color(0, 0, 255, 180));
             cursorGraphics.fillArc(-200, -200, 400, 400, 30, 300);
-            
-            int chassisWidth = chassisParam.boundaryLeft + 
-			   chassisParam.boundaryRight;
-            int chassisLength = chassisParam.boundaryBack + 
-			    chassisParam.boundaryFront;
-            
+
+            int chassisWidth = chassisParam.boundaryLeft +
+               chassisParam.boundaryRight;
+            int chassisLength = chassisParam.boundaryBack +
+                chassisParam.boundaryFront;
+
             cursorGraphics.setColor(Color.GRAY);
             cursorGraphics.fillRect(-chassisParam.boundaryBack -
-            						 chassisParam.safetyMargin,
-            					    -chassisParam.boundaryLeft -
-            					     chassisParam.safetyMargin,
-            					     chassisLength + 2 * chassisParam.safetyMargin +
-            					     chassisParam.safetyMarginMove,
-            					     chassisWidth + 2 * chassisParam.safetyMargin);
+                                     chassisParam.safetyMargin,
+                                    -chassisParam.boundaryLeft -
+                                     chassisParam.safetyMargin,
+                                     chassisLength + 2 * chassisParam.safetyMargin +
+                                     chassisParam.safetyMarginMove,
+                                     chassisWidth + 2 * chassisParam.safetyMargin);
 
             cursorGraphics.setColor(Color.DARK_GRAY);
             cursorGraphics.fillRect(-chassisParam.boundaryBack,
-            					    -chassisParam.boundaryLeft,
-            					     chassisLength, chassisWidth);
-            
+                                    -chassisParam.boundaryLeft,
+                                     chassisLength, chassisWidth);
+
             cursorGraphics.setColor(Color.BLACK);
             cursorGraphics.drawRect(-chassisParam.boundaryBack,
-            					    -chassisParam.boundaryLeft,
-            					     chassisWidth, chassisLength);
+                                    -chassisParam.boundaryLeft,
+                                     chassisWidth, chassisLength);
             cursorGraphics.drawLine(-chassisParam.boundaryBack +
-            						 (int)(chassisLength * 0.5),
-				   				    -chassisParam.boundaryLeft,
-					   				 chassisParam.boundaryFront,
-					   				-chassisParam.boundaryLeft +
-					   				 (int)(chassisWidth * 0.5));
+                                     (int)(chassisLength * 0.5),
+                                       -chassisParam.boundaryLeft,
+                                        chassisParam.boundaryFront,
+                                       -chassisParam.boundaryLeft +
+                                        (int)(chassisWidth * 0.5));
             cursorGraphics.drawLine( chassisParam.boundaryFront,
-            					    -chassisParam.boundaryLeft +
-            						 (int)(chassisWidth * 0.5),
-            					    -chassisParam.boundaryBack +
-            					     (int)(chassisLength * 0.5),
-            					     chassisParam.boundaryRight);            
+                                    -chassisParam.boundaryLeft +
+                                     (int)(chassisWidth * 0.5),
+                                    -chassisParam.boundaryBack +
+                                     (int)(chassisLength * 0.5),
+                                     chassisParam.boundaryRight);
         }
 
         public Position2D translateRobotCursorPosition(
@@ -826,49 +825,49 @@ public class MapViewGui extends Thread
         }
 
         private float normalizePhi(float phi)
-        { 
+        {
             if (phi > Math.PI)
                 phi -= 2 * Math.PI;
             if (phi < -Math.PI)
-                phi += 2 * Math.PI; 
+                phi += 2 * Math.PI;
             return phi;
         }
 
-         
+
         public void mouseDragged(MouseEvent event)
-        { 
+        {
             if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0)
             {
                 Position2D tempPosition = getPosOnScreen(event.getX(), event
                         .getY());
-                worldCursorPosition.x = tempPosition.x; 
-                worldCursorPosition.y = tempPosition.y;      
-                actionPerformed(new ActionEvent(this, 0, "execute"));                
+                worldCursorPosition.x = tempPosition.x;
+                worldCursorPosition.y = tempPosition.y;
+                actionPerformed(new ActionEvent(this, 0, "execute"));
             }
 /*            if ((event.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) > 0)
-            {    
+            {
                 Position2D mousePsition = getPosOnScreen(event.getX(), event
                         .getY());
-                worldCursorPosition.phi = normalizePhi((float) Math.atan2( 
+                worldCursorPosition.phi = normalizePhi((float) Math.atan2(
                             mousePsition.y - worldCursorPosition.y,
                             mousePsition.x - worldCursorPosition.x));
             }*/
 
             if (isSimRobotPosition())
                 updateNeeded();
-            else 
+            else
                 viewPanel.repaint();
         }
-        
+
         public void mouseWheelMoved(MouseWheelEvent event)
         {
-        	System.out.println(event.getWheelRotation());
+            System.out.println(event.getWheelRotation());
             worldCursorPosition.phi = normalizePhi(
-            						  worldCursorPosition.phi + 
-            						  event.getWheelRotation() * dPhiPerClick);
+                                      worldCursorPosition.phi +
+                                      event.getWheelRotation() * dPhiPerClick);
             updateNeeded();
         }
-        
+
         public void mouseClicked(MouseEvent event)
         {
         }
@@ -955,7 +954,7 @@ public class MapViewGui extends Thread
             }
         } // actionMenu
 
-     
+
     }
 
     // **********************************************************
@@ -1012,9 +1011,9 @@ public class MapViewGui extends Thread
             return (Position2D) robotPosition;
         }
     }
-    
-    
-     
+
+
+
 
 
     // **********************************************************
@@ -1058,7 +1057,7 @@ public class MapViewGui extends Thread
                     .getHeight());
             cursorGraph.setTransform(worldGraph.getTransform());
             cursorGraph.translate(worldCursorPosition.x,
-                    			  worldCursorPosition.y);
+                                  worldCursorPosition.y);
             cursorGraph.rotate(worldCursorPosition.phi);
 
             robotPosition = drawContext.getRobotPosition();
@@ -1088,7 +1087,7 @@ public class MapViewGui extends Thread
         {
             return robotPosition;
         }
-        
+
         public Position2D getRobotCursorPos()
         {
             return robotCursorPosition;

@@ -67,7 +67,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
     {
         position = (PositionProxy)proxyList[moduleIndex.intValue()];
         rackProxyList = proxyList;
-        
+
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 

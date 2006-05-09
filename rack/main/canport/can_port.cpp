@@ -29,8 +29,8 @@ CanPort::CanPort()
 
 CanPort::~CanPort()
 {
-	if (fd != -1)
-    	close();
+    if (fd != -1)
+        close();
 }
 
 //
@@ -142,19 +142,19 @@ int CanPort::recv(rtcan_frame_t *recv_frame, uint64_t *timestamp)
         iov_len  : sizeof(rtcan_frame_t)
     };
 
-	struct msghdr msg =
-	{
+    struct msghdr msg =
+    {
         msg_name       : NULL,
         msg_namelen    : 0,
 
-	    msg_iov        : &iov,
+        msg_iov        : &iov,
         msg_iovlen     : 1,
 
         msg_control    : (void *)timestamp,
         msg_controllen : timestamp ? sizeof(uint64_t) : 0
-	};
+    };
 
-	ret = rt_dev_recvmsg(fd, &msg, 0);
+    ret = rt_dev_recvmsg(fd, &msg, 0);
     if (ret != sizeof(rtcan_frame_t))
     {
         return ret;

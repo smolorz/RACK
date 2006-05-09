@@ -144,18 +144,18 @@ public class Gui extends Thread
 
     InetAddress gwAddress;
     int gwPort;
-    int  i;    
+    int  i;
 
     public Gui(String[] args)
     {
         gwAddress = null;
         gwPort = 0;
-         
+
         switch (args.length)
         {
-        	case 0:
-        		fileName = loadFile(new Frame(), "Open ...", "./rack/gui", "*.cfg");
-        		break;
+            case 0:
+                fileName = loadFile(new Frame(), "Open ...", "./rack/gui", "*.cfg");
+                break;
             case 1: // only config file
                 fileName = args[0];
                 break;
@@ -169,7 +169,7 @@ public class Gui extends Thread
         // reading config file
 
         System.out.println("Load config file \"" + fileName + "\"");
-        System.out.println("showMapView="+showMapView);        
+        System.out.println("showMapView="+showMapView);
         readConfig(fileName);
 
         // checks
@@ -203,32 +203,32 @@ public class Gui extends Thread
         System.out.println("Found " + JARFILE_NUM + " jar files");
 
         // load additional jar files
-      	for (i=0; i< JARFILE_NUM; i++)
-      	{
-       		File jf = new File((String) jarFiles.get(i));
-       		if (jf.exists() == true)
-       		{
-       			try {
-       				addFile(jf);
-       				System.out.println("File " + (String) jarFiles.get(i) + " has been loaded");
-       			}
-       	        catch (IOException ioe)
-       	        {
-       	            JOptionPane.showMessageDialog(
-       	                            frame,
-       	                            "The given jar file " + jf.getName() + " could not be found.",
-       	                            "I/O error", JOptionPane.ERROR_MESSAGE);
-       	            System.exit(0);
-       	        }
-       		}
-       		else
-     		{
-       			JOptionPane.showMessageDialog(
+          for (i=0; i< JARFILE_NUM; i++)
+          {
+               File jf = new File((String) jarFiles.get(i));
+               if (jf.exists() == true)
+               {
+                   try {
+                       addFile(jf);
+                       System.out.println("File " + (String) jarFiles.get(i) + " has been loaded");
+                   }
+                   catch (IOException ioe)
+                   {
+                       JOptionPane.showMessageDialog(
+                                       frame,
+                                       "The given jar file " + jf.getName() + " could not be found.",
+                                       "I/O error", JOptionPane.ERROR_MESSAGE);
+                       System.exit(0);
+                   }
+               }
+               else
+             {
+                   JOptionPane.showMessageDialog(
                            frame,
                            "The given jar file " + jf.getName() + " could not be found.",
                            "I/O error", JOptionPane.ERROR_MESSAGE);
-       			System.exit(-1);
-        	}
+                   System.exit(-1);
+            }
         }
 
         // connect to router ...
@@ -377,7 +377,7 @@ public class Gui extends Thread
                         }
                         if (readMode == 4) // jar files
                         {
-                        	jarFiles.add(string);
+                            jarFiles.add(string);
                         }
 
                     }
@@ -1020,13 +1020,13 @@ public class Gui extends Thread
         messageFrame.setVisible(true);
         jdp.add(messageFrame);
         gdosGui.start();
-        
-        if (showMapView) 
+
+        if (showMapView)
         {
             //create mapView panel as a tab
             MapViewGui myMapViewGui = new MapViewGui(moduleGui);
             jtp.add("MapView", myMapViewGui.getComponent());
-        }        
+        }
 
         frame.setJMenuBar(createMenu());
         if ((mainFrameLocationSize = getMainFrameLocationSize(configZeilen)) != null)
