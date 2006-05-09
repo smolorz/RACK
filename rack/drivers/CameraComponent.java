@@ -52,7 +52,7 @@ public class CameraComponent extends JComponent
         img = createImage(new MemoryImageSource(zoomDataMsg.width,
                 zoomDataMsg.height, zoomDataMsg.imageRawData, 0,
                 zoomDataMsg.width));
-        
+
         if (zoomRate > 0)
         {
             zoomDataMsg.width = zoomDataMsg.width * zoomRate;
@@ -229,26 +229,26 @@ public class CameraComponent extends JComponent
             return zoomData;
         }
     }
-    
-    
+
+
     public void setRects(int number, ImageRect[] newRects)
     {
-    	rectNumber = number;
-    	rects 	   = newRects;
+        rectNumber = number;
+        rects        = newRects;
     }
-    
+
     public void paintComponent(Graphics g)
     {
         if (img != null)
         {
             g.drawImage(img, 0, 0, this);
-            
+
             g.setColor(Color.GREEN);
             for (int a = 0; a < rectNumber; a++)
-        	{
+            {
                 g.drawRect(rects[a].x, rects[a].y,
-                	       rects[a].width, rects[a].height);        		
-        	}
+                           rects[a].width, rects[a].height);
+            }
         }
     }
 

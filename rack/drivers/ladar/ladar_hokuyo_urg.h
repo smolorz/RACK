@@ -25,8 +25,8 @@
 #define MODULE_CLASS_ID         LADAR
 
 typedef struct {
-  ladar_data    data;
-  int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_data    data;
+    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 struct rtser_config urg_serial_config = {
@@ -70,8 +70,8 @@ class LadarHokuyoUrg : public DataModule{
     int  moduleLoop(void);
     int  moduleCommand(MessageInfo *msgInfo);
 
-	// -> non realtime context
-	void moduleCleanup(void);
+    // -> non realtime context
+    void moduleCleanup(void);
 
   public:
 

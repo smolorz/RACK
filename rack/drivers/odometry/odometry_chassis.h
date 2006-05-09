@@ -21,48 +21,48 @@
 #include <drivers/odometry_proxy.h>
 
 // define module class
-#define MODULE_CLASS_ID     			ODOMETRY
+#define MODULE_CLASS_ID                 ODOMETRY
 
 //######################################################################
 //# class OdometryChassis
 //######################################################################
 
 class OdometryChassis : public DataModule {
-  	private:
-	    float     			oldPositionX;
-	    float     			oldPositionY;
-	    float     			oldPositionRho;
-	    RACK_TIME 			oldPositionTime;
+    private:
+        float               oldPositionX;
+        float               oldPositionY;
+        float               oldPositionRho;
+        RACK_TIME           oldPositionTime;
 
-		uint32_t            chassisInst;
+        uint32_t            chassisInst;
 
-	    // mailboxes
-	    RackMailbox 		chassisMbx;
-	    RackMailbox 		workMbx;
+        // mailboxes
+        RackMailbox         chassisMbx;
+        RackMailbox         workMbx;
 
-	    // proxies
-	    ChassisProxy*		chassis;
+        // proxies
+        ChassisProxy*       chassis;
 
-	    // buffer
-	    chassis_data 		chassisData;
+        // buffer
+        chassis_data        chassisData;
 
-  	protected:
-	    // -> realtime context
-	    int  	moduleOn(void);
-	    int  	moduleLoop(void);
-	    void 	moduleOff(void);
-	    int  	moduleCommand(MessageInfo *msgInfo);
+      protected:
+        // -> realtime context
+        int      moduleOn(void);
+        int      moduleLoop(void);
+        void     moduleOff(void);
+        int      moduleCommand(MessageInfo *msgInfo);
 
-	    // -> non realtime context
-	    void 	moduleCleanup(void);
+        // -> non realtime context
+        void     moduleCleanup(void);
 
-  	public:
-	    // constructor und destructor
-	    OdometryChassis();
-	    ~OdometryChassis() {};
+      public:
+        // constructor und destructor
+        OdometryChassis();
+        ~OdometryChassis() {};
 
-	    // -> non realtime context
-	    int  moduleInit(void);
+        // -> non realtime context
+        int  moduleInit(void);
 };
 
 #endif // __ODOMETRY_CHASSIS_H__

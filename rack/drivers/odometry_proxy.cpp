@@ -20,12 +20,13 @@
                             RACK_TIME timeStamp, uint64_t reply_timeout_ns,
                             MessageInfo *msgInfo)
 {
-	int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
-	                                 reply_timeout_ns, msgInfo);
-	if (ret) {
-	    return ret;
-	}
+    int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
+                                     reply_timeout_ns, msgInfo);
+    if (ret)
+    {
+        return ret;
+    }
 
-	recv_data = OdometryData::parse(msgInfo);
-	return 0;
+    recv_data = OdometryData::parse(msgInfo);
+    return 0;
 }

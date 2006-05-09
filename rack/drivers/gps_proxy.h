@@ -29,7 +29,7 @@
 //######################################################################
 
 typedef struct {
-    RACK_TIME	recordingTime;  // has to be first element
+    RACK_TIME   recordingTime;  // has to be first element
     int32_t     mode;
     float64_t   latitude;       // rad
     float64_t   longitude;      // rad

@@ -43,8 +43,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -241,8 +241,8 @@ int CameraJpeg::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *
@@ -407,10 +407,10 @@ exit_error:
 void CameraJpeg::compressByteStream2JpegStream(uint8_t* byteStream, j_compress_ptr cinfo)
 {
     JSAMPLE* image_buffer = (JSAMPLE*) byteStream;
-    JSAMPROW row_pointer[1];	/* pointer to a single row */
-    int row_stride;			/* physical row width in buffer */
+    JSAMPROW row_pointer[1];   /* pointer to a single row */
+    int row_stride;            /* physical row width in buffer */
 
-    row_stride = cinfo->image_width * cinfo->input_components;	/* JSAMPLEs per row in image_buffer */
+    row_stride = cinfo->image_width * cinfo->input_components;    /* JSAMPLEs per row in image_buffer */
 
     while (cinfo->next_scanline < cinfo->image_height) {
         row_pointer[0] = &(image_buffer[cinfo->next_scanline * row_stride]);

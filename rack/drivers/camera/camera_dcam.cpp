@@ -57,55 +57,55 @@ argTable_t argTab[] = {
 };
 
 camera_param_data param = {
-		calibration_width  : CALIBRATION_WIDTH,
-		calibration_height : CALIBRATION_HEIGHT,
-		f   : F,
-		fx  : F_x,
-		fy  : F_y,
-		sx  : S_x,
-		sy  : S_y,
-		dx  : D_x,
-		dy  : D_y,
-		k1  : K1,
-		k2  : K2,
-		p1  : P1,
-		p2  : P2,
-		e0  : E0,
-		n0  : N0,
+        calibration_width  : CALIBRATION_WIDTH,
+        calibration_height : CALIBRATION_HEIGHT,
+        f   : F,
+        fx  : F_x,
+        fy  : F_y,
+        sx  : S_x,
+        sy  : S_y,
+        dx  : D_x,
+        dy  : D_y,
+        k1  : K1,
+        k2  : K2,
+        p1  : P1,
+        p2  : P2,
+        e0  : E0,
+        n0  : N0,
 };
 
 
 //*** Method for automatic adaption of the lumination parameter****//
 int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
 {
-	int i, count, minCount, maxCount, bytesPerPixel, gain, shutter;
-	double unclearPixel;
+    int i, count, minCount, maxCount, bytesPerPixel, gain, shutter;
+    double unclearPixel;
     unsigned int ubrightness;
     unsigned int ushutter;
     unsigned int ugain;
     int start;
 
-	minCount = 0;
-	maxCount = 0;
+    minCount = 0;
+    maxCount = 0;
 //    third = dataPackage->data.width * dataPackage->data.height
 
-	bytesPerPixel = dataPackage->data.depth / 8;
+    bytesPerPixel = dataPackage->data.depth / 8;
 
-	count = dataPackage->data.width * dataPackage->data.height * bytesPerPixel;
-    start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize); 
+    count = dataPackage->data.width * dataPackage->data.height * bytesPerPixel;
+    start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize);
 
-    start += start % bytesPerPixel;        
+    start += start % bytesPerPixel;
 
     for(i = start; i < count; i += bytesPerPixel)
     {
-    	if((unsigned char)dataPackage->byteStream[i] <= minHue)
-    	{
-    		minCount++;
-    	}
-    	else if((unsigned char)dataPackage->byteStream[i] >= maxHue)
-    	{
-    		maxCount++;
-    	}
+        if((unsigned char)dataPackage->byteStream[i] <= minHue)
+        {
+            minCount++;
+        }
+        else if((unsigned char)dataPackage->byteStream[i] >= maxHue)
+        {
+            maxCount++;
+        }
     }
 
     if (dc1394_get_shutter(porthandle[dc1394CameraPortNo], camera_node, &ushutter) != DC1394_SUCCESS)
@@ -138,31 +138,31 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
         if (ushutter < 4095)
         {
             ushutter += (unsigned int) (unclearPixel * shutterMult);
-          	if(ushutter > 4095)
-          	    ushutter = 4095;
+              if(ushutter > 4095)
+                  ushutter = 4095;
         } else
-    	{   //increase gain
-    		ugain += (unsigned int) (unclearPixel * gainMult);
-    		if (ugain > 1023)
-        		{ ugain = 1023;}
-    	}
+        {   //increase gain
+            ugain += (unsigned int) (unclearPixel * gainMult);
+            if (ugain > 1023)
+                { ugain = 1023;}
+        }
     } else
-	{  //unclearPixel is negative, darken image
-	   if (ugain > 192)
-	   {
-	       //to handle negative values
-	       gain = (int) (ugain + unclearPixel * gainMult);
-	       if (gain < 192)
-	           gain = 192;
-	       ugain = gain;
-	   } else
-	   {
-	       shutter = (int) (ushutter + unclearPixel * shutterMult);
-	       if (shutter < 1)
-		       shutter = 1;
-		   ushutter = shutter;
-	   }
-	}
+    {  //unclearPixel is negative, darken image
+       if (ugain > 192)
+       {
+           //to handle negative values
+           gain = (int) (ugain + unclearPixel * gainMult);
+           if (gain < 192)
+               gain = 192;
+           ugain = gain;
+       } else
+       {
+           shutter = (int) (ushutter + unclearPixel * shutterMult);
+           if (shutter < 1)
+               shutter = 1;
+           ushutter = shutter;
+       }
+    }
 
     if (dc1394_set_shutter(porthandle[dc1394CameraPortNo], camera_node, ushutter) != DC1394_SUCCESS)
     {
@@ -193,12 +193,12 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
 
 int CameraDcam::getFirewirePortnum(void)
 {
-	/*
-	 * handling of ports not yet correct.
-	 * variable not used as intended.
-	 */
-	raw1394handle_t 		handle; //handle to raw 1394 bus
-	struct raw1394_portinfo ports[MAX_PORTS];
+    /*
+     * handling of ports not yet correct.
+     * variable not used as intended.
+     */
+    raw1394handle_t         handle; //handle to raw 1394 bus
+    struct raw1394_portinfo ports[MAX_PORTS];
 
     //try to open raw 1394 handle
     handle = raw1394_new_handle();
@@ -286,9 +286,9 @@ int CameraDcam::findCameraByGuid(void)
                 }//for numCameras
             }//if numCamera > 0
             else {
-        	   GDOS_ERROR("No cameras found! (%d nodes on the bus)\n"
-		       "  - could be you need to try a different 1394 device (modify code to fix)\n",
-		       numNodes );
+               GDOS_ERROR("No cameras found! (%d nodes on the bus)\n"
+               "  - could be you need to try a different 1394 device (modify code to fix)\n",
+               numNodes );
             }
         }//for firewireNumPorts
     }//for MAXRESETS
@@ -329,16 +329,16 @@ int CameraDcam::setupCaptureFormat2()
        /* Setup the capture mode */
    GDOS_DBG_INFO("Setting capture mode: porthandle:%i camera_node:%i channel:%i format:%i lokalmode:%i frameRate:%i device:",porthandle[dc1394CameraPortNo], camera_node, channel, format, lokalmode, frameRate);
    if (dc1394_dma_setup_capture( porthandle[dc1394CameraPortNo],
-				     camera_node,
-				     channel,
-				     format,
-				     lokalmode,//mode[id],
-				     SPEED_400,
-				     frameRate,
-				     8,	// number of buffers
-				     1,	// drop frames
-				     device,
-				     &dc1394Camera ) != DC1394_SUCCESS)
+                     camera_node,
+                     channel,
+                     format,
+                     lokalmode,//mode[id],
+                     SPEED_400,
+                     frameRate,
+                     8,    // number of buffers
+                     1,    // drop frames
+                     device,
+                     &dc1394Camera ) != DC1394_SUCCESS)
    {
       GDOS_WARNING("Unable to setup capture format 2.\n");
       return DC1394_FAILURE;
@@ -356,17 +356,17 @@ int CameraDcam::setupCaptureFormat7()
     switch(mode)
     {
         case CAMERA_MODE_RAW8:
-		    format7image.colorCodingId = COLOR_FORMAT7_RAW8;
-		    bytesPerPixel = 1;
-		    break;
-	    case CAMERA_MODE_RAW12:
-		    format7image.colorCodingId = COLOR_FORMAT7_RAW16;
-		    bytesPerPixel = 2;
-		    break;
+            format7image.colorCodingId = COLOR_FORMAT7_RAW8;
+            bytesPerPixel = 1;
+            break;
+        case CAMERA_MODE_RAW12:
+            format7image.colorCodingId = COLOR_FORMAT7_RAW16;
+            bytesPerPixel = 2;
+            break;
         case CAMERA_MODE_MONO8:
-		    format7image.colorCodingId = COLOR_FORMAT7_MONO8;
-		    bytesPerPixel = 1;
-		    break;
+            format7image.colorCodingId = COLOR_FORMAT7_MONO8;
+            bytesPerPixel = 1;
+            break;
         default:
             GDOS_WARNING("Unable to setup capture format 7.\n");
             return DC1394_FAILURE;
@@ -376,19 +376,19 @@ int CameraDcam::setupCaptureFormat7()
    *  setup capture for format 7
    *-----------------------------------------------------------------------*/
    if (dc1394_dma_setup_format7_capture( porthandle[dc1394CameraPortNo],
-				     camera_node,
-				     channel,
-				     format7image.mode,
-				     SPEED_400,
-				     format7image.bytesPerPacket,
-				     format7image.leftImagePosition,
-				     format7image.topImagePosition,
-				     format7image.width,
-				     format7image.height,
-				     8,	// number of buffers
-				     1,	// drop frames
-				     device,
-				     &dc1394Camera ) != DC1394_SUCCESS)
+                     camera_node,
+                     channel,
+                     format7image.mode,
+                     SPEED_400,
+                     format7image.bytesPerPacket,
+                     format7image.leftImagePosition,
+                     format7image.topImagePosition,
+                     format7image.width,
+                     format7image.height,
+                     8,    // number of buffers
+                     1,    // drop frames
+                     device,
+                     &dc1394Camera ) != DC1394_SUCCESS)
    {
       GDOS_ERROR("Unable to setup camera format 7.\n");
       return DC1394_FAILURE;
@@ -396,8 +396,8 @@ int CameraDcam::setupCaptureFormat7()
 
   if( dc1394_set_format7_color_coding_id(
                      porthandle[dc1394CameraPortNo],
-				     camera_node,
-				     format7image.mode,
+                     camera_node,
+                     format7image.mode,
                      format7image.colorCodingId) != DC1394_SUCCESS)
   {
       GDOS_ERROR("Unable to setup camera color mode 7.\n");
@@ -407,8 +407,8 @@ int CameraDcam::setupCaptureFormat7()
 
   if( dc1394_query_format7_color_filter_id(
                      porthandle[dc1394CameraPortNo],
-				     camera_node,
-				     format7image.mode,
+                     camera_node,
+                     format7image.mode,
                      &format7image.colorFilterId) != DC1394_SUCCESS)
   {
       GDOS_ERROR("Unable to query camera color filter id 7.\n");
@@ -421,7 +421,7 @@ int CameraDcam::setupCaptureFormat7()
   /* not used with shot function!) */
   if( dc1394_set_trigger_mode(
                      porthandle[dc1394CameraPortNo],
-				     camera_node,
+                     camera_node,
                      TRIGGER_MODE_0)
       != DC1394_SUCCESS) //falling edge of extTrig shutter time set in register (no parameter)
   {
@@ -445,8 +445,8 @@ int CameraDcam::setupCaptureFormat7()
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *      moduleOff,
+ *      moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -478,9 +478,9 @@ int CameraDcam::setupCaptureFormat7()
     *  setup capture format 2 + 7
     *-----------------------------------------------------------------------*/
    if ( dc1394_get_iso_channel_and_speed( porthandle[dc1394CameraPortNo],
-					  camera_node,
-					  &channel,
-					  &speed) !=DC1394_SUCCESS )
+                      camera_node,
+                      &channel,
+                      &speed) !=DC1394_SUCCESS )
    {
       GDOS_WARNING("Unable to get the iso channel number\n" );
       return FW_ERROR;
@@ -506,7 +506,7 @@ int CameraDcam::setupCaptureFormat7()
     *  have the camera start sending us data
     *-----------------------------------------------------------------------*/
     if ( dc1394_start_iso_transmission( porthandle[dc1394CameraPortNo], dc1394Camera.node )
-	!=DC1394_SUCCESS )
+    !=DC1394_SUCCESS )
    {
       GDOS_WARNING("Unable to start camera iso transmission\n" );
       return DC1394_FAILURE;
@@ -574,15 +574,15 @@ int CameraDcam::moduleLoop(void)
     p_data->data.colorFilterId   =  format7image.colorFilterId;
 
     switch (mode){
-    	case CAMERA_MODE_MONO8:
-    	case CAMERA_MODE_RAW8:
-    	    p_data->data.depth = 8;
-    	    break;
-    	case CAMERA_MODE_RAW12:
-    	case CAMERA_MODE_YUV422:
-    	    p_data->data.depth = 16;
-    		break;
-   		default:
+        case CAMERA_MODE_MONO8:
+        case CAMERA_MODE_RAW8:
+            p_data->data.depth = 8;
+            break;
+        case CAMERA_MODE_RAW12:
+        case CAMERA_MODE_YUV422:
+            p_data->data.depth = 16;
+            break;
+           default:
             GDOS_ERROR("Unknown mode %i \n",mode);
             return -1;
     }
@@ -591,8 +591,8 @@ int CameraDcam::moduleLoop(void)
     *  capture one frame and send to mbx
     *-----------------------------------------------------------------------*/
     GDOS_DBG_INFO("Capturing one image\n");
-	if ((ret = dc1394_dma_single_capture( &dc1394Camera ))!=DC1394_SUCCESS)
-   	{
+    if ((ret = dc1394_dma_single_capture( &dc1394Camera ))!=DC1394_SUCCESS)
+       {
       GDOS_WARNING("Unable to capture a frame. ret = %i \n", ret);
     }
     else
@@ -601,11 +601,11 @@ int CameraDcam::moduleLoop(void)
         p_data->data.height = dc1394Camera.frame_height / lossRate;
 
         //shrink data if set to.
-    	if (lossRate == 1)
-    	{
-    	    memcpy(p_data->byteStream, dc1394Camera.capture_buffer, dc1394Camera.dma_frame_size );
-    	}
-    	else
+        if (lossRate == 1)
+        {
+            memcpy(p_data->byteStream, dc1394Camera.capture_buffer, dc1394Camera.dma_frame_size );
+        }
+        else
         {
             /*lossRate != 1 so we need to throw some pixel away. -> iterate over array.
              *The loss in YUV422 format must lose pairs of pixel! as UYVY pairs cannot be divided up!!
@@ -673,21 +673,21 @@ int CameraDcam::moduleCommand(MessageInfo *msgInfo)
                                 sizeof(camera_param_data));
         break;
 
-	case MSG_CAMERA_SET_FORMAT:
+    case MSG_CAMERA_SET_FORMAT:
         if(status == MODULE_STATE_DISABLED)
         {
             p_format = CameraFormatData::parse(msgInfo);
 
             GDOS_DBG_INFO( "set format width=%i height=%i depth=%i mode=%i\n", p_format->width, p_format->height, p_format->depth, p_format->mode);
 
-			if(p_format->width  >= 0)
-				 lossRate = CAMERA_MAX_WIDTH / p_format->width; //##use actual camera instead
-			if(p_format->height >= 0)
-			     {;}
-			if(p_format->depth  >= 0)
-     		     {;}
-			if(p_format->mode >= 0)
-	               mode = p_format->mode;
+            if(p_format->width  >= 0)
+                 lossRate = CAMERA_MAX_WIDTH / p_format->width; //##use actual camera instead
+            if(p_format->height >= 0)
+                 {;}
+            if(p_format->depth  >= 0)
+                  {;}
+            if(p_format->mode >= 0)
+                   mode = p_format->mode;
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         }
         else
@@ -697,9 +697,9 @@ int CameraDcam::moduleCommand(MessageInfo *msgInfo)
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
         }
-		break;
+        break;
 
-	default:
+    default:
         // not for me -> ask DataModule
         return DataModule::moduleCommand(msgInfo);
     }
@@ -711,8 +711,8 @@ int CameraDcam::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *      moduleCleanup,
+ *      Constructor,
  *   Destructor,
  *   main,
  *
@@ -765,31 +765,31 @@ CameraDcam::CameraDcam()
                       10)                   // data buffer listener
 {
     // get value(s) out of your argument table
-    format 			= FORMAT_SVGA_NONCOMPRESSED_2;
-	frameRate		= FRAMERATE_7_5; // only used in continuous grabbing mode (con. iso transmission, not implemented yet.)
-	                                     // not used in singleshot opiton! Must be set in protocol.
-	device 			=  "/dev/video1394"; // only possible with only one device!
-	mode		    	= getIntArg("mode", argTab);
-                    	//bytesPerPixel[i]	included in mode
-	vValue  	        = getIntArg("vValue", argTab);
-	uValue   	        = getIntArg("uValue", argTab);
-	minHue  	        = getIntArg("minHue", argTab);
-	maxHue   	        = getIntArg("maxHue", argTab);
-	gainMult  	        = getIntArg("gainMult", argTab);
-	shutterMult         = getIntArg("shutterMult", argTab);
-	lossRate	        = getIntArg("lossrate", argTab);
-	autoBrightnessSize	= getIntArg("autoBrightnessSize", argTab);
-	
-                        //fps[i]	is handled as global parameter
+    format             = FORMAT_SVGA_NONCOMPRESSED_2;
+    frameRate        = FRAMERATE_7_5; // only used in continuous grabbing mode (con. iso transmission, not implemented yet.)
+                                         // not used in singleshot opiton! Must be set in protocol.
+    device             =  "/dev/video1394"; // only possible with only one device!
+    mode                = getIntArg("mode", argTab);
+                        //bytesPerPixel[i]    included in mode
+    vValue              = getIntArg("vValue", argTab);
+    uValue               = getIntArg("uValue", argTab);
+    minHue              = getIntArg("minHue", argTab);
+    maxHue               = getIntArg("maxHue", argTab);
+    gainMult              = getIntArg("gainMult", argTab);
+    shutterMult         = getIntArg("shutterMult", argTab);
+    lossRate            = getIntArg("lossrate", argTab);
+    autoBrightnessSize    = getIntArg("autoBrightnessSize", argTab);
 
-	format7image.mode              = MODE_FORMAT7_0;//fixed!!
+                        //fps[i]    is handled as global parameter
+
+    format7image.mode              = MODE_FORMAT7_0;//fixed!!
     format7image.bytesPerPacket    = USE_MAX_AVAIL;
-	format7image.leftImagePosition =   54;//take middle part of image at max image size //values for OUR camera
-	format7image.topImagePosition  =   39;//take middle part of image at max image size
-	format7image.width             = 1280;//1388
-	format7image.height            =  960;//1038
-	format7image.colorFilterId     = COLORFILTER_RGGB;
-	format7image.colorCodingId     = COLOR_FORMAT7_MONO8; //COLOR_FORMAT7_RAW8; //COLOR_FORMAT7_RAW16;
+    format7image.leftImagePosition =   54;//take middle part of image at max image size //values for OUR camera
+    format7image.topImagePosition  =   39;//take middle part of image at max image size
+    format7image.width             = 1280;//1388
+    format7image.height            =  960;//1038
+    format7image.colorFilterId     = COLORFILTER_RGGB;
+    format7image.colorCodingId     = COLOR_FORMAT7_MONO8; //COLOR_FORMAT7_RAW8; //COLOR_FORMAT7_RAW16;
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(camera_data_msg));

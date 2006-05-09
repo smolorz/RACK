@@ -25,14 +25,14 @@
 //# Joystick Message Types
 //######################################################################
 
-#define MSG_SET_POSITION            (RACK_PROXY_MSG_POS_OFFSET + 1)
+#define MSG_SET_POSITION        (RACK_PROXY_MSG_POS_OFFSET + 1)
 
 //######################################################################
 //# Joystick Data (static size - MESSAGE)
 //######################################################################
 
 typedef struct {
-    RACK_TIME	recordingTime;  // have to be first element
+    RACK_TIME    recordingTime; // have to be first element
     position_3d position;       // joystick-position in percent -100<x<100 ...
     int32_t     buttons;        // binary button information bit0->button0, ...
 } __attribute__((packed)) joystick_data;
@@ -81,47 +81,47 @@ class JoystickData
 class JoystickProxy : public RackDataProxy
 {
 
-  	public:
+      public:
 
-	    JoystickProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
-	            : RackDataProxy(workMbx, sys_id, JOYSTICK, instance)
-	    {
-	        setDataTimeout(1000000000llu);	// 1s
-	    };
+        JoystickProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
+                : RackDataProxy(workMbx, sys_id, JOYSTICK, instance)
+        {
+            setDataTimeout(1000000000llu);    // 1s
+        };
 
-	    ~JoystickProxy()
-	    {
-	    };
+        ~JoystickProxy()
+        {
+        };
 
 //
 // joystick data
 //
 
-	    int getData(joystick_data *recv_data, ssize_t recv_datalen,
-	                RACK_TIME timeStamp, MessageInfo *msgInfo)
-	    {
-	      	return getData(recv_data, recv_datalen, timeStamp,
-	      	               dataTimeout, msgInfo);
-	    }
+        int getData(joystick_data *recv_data, ssize_t recv_datalen,
+                    RACK_TIME timeStamp, MessageInfo *msgInfo)
+        {
+            return getData(recv_data, recv_datalen, timeStamp,
+                           dataTimeout, msgInfo);
+        }
 
-	    int getData(joystick_data *recv_data, ssize_t recv_datalen,
-	                RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-	                MessageInfo *msgInfo);
+        int getData(joystick_data *recv_data, ssize_t recv_datalen,
+                    RACK_TIME timeStamp, uint64_t reply_timeout_ns,
+                    MessageInfo *msgInfo);
 
 //
 // set data
 //
 
-	    int setData(joystick_data *p_data)
-	    {
-	      return setData(p_data, dataTimeout);
-	    }
+        int setData(joystick_data *p_data)
+        {
+            return setData(p_data, dataTimeout);
+        }
 
-	    int setData(joystick_data *p_data, uint64_t reply_timeout_ns)
-	    {
-	        return proxySendDataCmd(MSG_SET_POSITION, &p_data,
-	                                sizeof(joystick_data), reply_timeout_ns);
-	    }
+        int setData(joystick_data *p_data, uint64_t reply_timeout_ns)
+        {
+            return proxySendDataCmd(MSG_SET_POSITION, &p_data,
+                                    sizeof(joystick_data), reply_timeout_ns);
+        }
 
 };
 

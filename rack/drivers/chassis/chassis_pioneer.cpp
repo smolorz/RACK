@@ -42,17 +42,17 @@ const unsigned char sync2Command[]     = {0xFA, 0xFB, 3, 2, 0x00, 0x02};
 const unsigned char openCommand[]      = {0xFA, 0xFB, 3, 1, 0x00, 0x01};
 const unsigned char closeCommand[]     = {0xFA, 0xFB, 3, 2, 0x00, 0x02};
 const unsigned char motorEnable[]      = {0xFA, 0xFB, 6, 4, 0x3b, 0x01,
-	                                      0x00, 0x05, 0x3b};
+                                          0x00, 0x05, 0x3b};
 const unsigned char motorDisable[]     = {0xFA, 0xFB, 6, 4, 0x3b, 0x00, 0x00,
-	                                      0x04, 0x3b};
+                                          0x04, 0x3b};
 
 const unsigned char pulseCommand[]     = {0xFA, 0xFB, 3, 0, 0x00, 0x00};
 
 const unsigned char encoderOnCommand[] = {0xFA, 0xFB, 6, 19, 0x3b, 0x02, 0x00,
-	                                      0x15, 0x3b};
+                                          0x15, 0x3b};
 
 const unsigned char sonarOffCommand[]  = {0xFA, 0xFB, 6, 28, 0x3b, 0x00, 0x00,
-	                                      0x1C, 0x3b};
+                                          0x1C, 0x3b};
 
 ChassisPioneer *p_inst;
 
@@ -117,8 +117,8 @@ chassis_param_data param = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -667,8 +667,8 @@ int ChassisPioneer::sendMovePackage(int vx, float omega)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *

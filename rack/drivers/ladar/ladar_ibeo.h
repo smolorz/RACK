@@ -114,8 +114,8 @@ class LadarIbeo : public DataModule{
     int  moduleLoop(void);
     int  moduleCommand(MessageInfo *msgInfo);
 
-	// -> non realtime context
-	void moduleCleanup(void);
+    // -> non realtime context
+    void moduleCleanup(void);
 
   public:
 

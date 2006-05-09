@@ -40,23 +40,23 @@ class CameraFile : public DataModule{
   private:
 
     // your values
-    ifstream 	imageFileList;
-    ifstream 	imageFile;
-    string 		line;
-    string      valueString;
-    string      imageFileNameSkel;
-    string      imageFileListName;
-    int32_t 	imageCounter;
-    int32_t		loopCounter;
-    int32_t		width;
-    int32_t 	depth;
-    int32_t 	height;
-    int32_t		mode;
-    int32_t		colorFilterId;
-    int32_t   * imageRecordingtimeArray;
+    ifstream     imageFileList;
+    ifstream     imageFile;
+    string       line;
+    string       valueString;
+    string       imageFileNameSkel;
+    string       imageFileListName;
+    int32_t      imageCounter;
+    int32_t      loopCounter;
+    int32_t      width;
+    int32_t      depth;
+    int32_t      height;
+    int32_t      mode;
+    int32_t      colorFilterId;
+    int32_t     *imageRecordingtimeArray;
 
     string intToString(int n);
-    
+
   protected:
 
     // -> realtime context

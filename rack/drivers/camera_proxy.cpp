@@ -26,8 +26,9 @@ int CameraProxy::getData(camera_data *recv_data, ssize_t recv_datalen,
 {
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, msgInfo);
-    if (ret) {
-	    return ret;
+    if (ret)
+    {
+        return ret;
     }
 
     recv_data = CameraData::parse(msgInfo);
@@ -42,7 +43,8 @@ int CameraProxy::getParam(camera_param_data *recv_data, ssize_t recv_datalen,
     int ret = proxyRecvDataCmd(MSG_CAMERA_GET_PARAMETER, MSG_CAMERA_PARAMETER,
                               (void *)recv_data, recv_datalen,
                               reply_timeout_ns, msgInfo);
-    if (ret) {
+    if (ret)
+    {
         return ret;
     }
 

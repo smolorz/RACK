@@ -54,32 +54,32 @@ argTable_t argTab[] = {
 };
 
 camera_param_data param = {
-		calibration_width  : CALIBRATION_WIDTH,
-		calibration_height : CALIBRATION_HEIGHT,
-		f   : F,
-		fx  : F_x,
-		fy  : F_y,
-		sx  : S_x,
-		sy  : S_y,
-		dx  : D_x,
-		dy  : D_y,
-		k1  : K1,
-		k2  : K2,
-		p1  : P1,
-		p2  : P2,
-		e0  : E0,
-		n0  : N0,
+        calibration_width  : CALIBRATION_WIDTH,
+        calibration_height : CALIBRATION_HEIGHT,
+        f   : F,
+        fx  : F_x,
+        fy  : F_y,
+        sx  : S_x,
+        sy  : S_y,
+        dx  : D_x,
+        dy  : D_y,
+        k1  : K1,
+        k2  : K2,
+        p1  : P1,
+        p2  : P2,
+        e0  : E0,
+        n0  : N0,
 };
 
 
 //*** Method for automatic adaption of the lumination parameter****//
 int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 {
-	int i, count, minCount, maxCount, brightness, start, actualHue;
+    int i, count, minCount, maxCount, brightness, start, actualHue;
 
-	count    = camera.grab_size;
-	minCount = 0;
-	maxCount = 0;
+    count    = camera.grab_size;
+    minCount = 0;
+    maxCount = 0;
     start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize));
 
     for(i = start; i < count; i += 4)
@@ -88,28 +88,28 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
          actualHue = (dataPackage->byteStream[i] + dataPackage->byteStream[i + 1] + dataPackage->byteStream[i + 2])  / 3;
 
 
-    	if(actualHue <= minHue)
-    	{
-    		minCount++;
-    	}
-    	else if(actualHue >= maxHue)
-    	{
-    		maxCount++;
-    	}
+        if(actualHue <= minHue)
+        {
+            minCount++;
+        }
+        else if(actualHue >= maxHue)
+        {
+            maxCount++;
+        }
     }
 
     brightness = camera.vid_picture.brightness;
-	if (abs(maxCount-minCount) > 5000)
-   		 brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
+    if (abs(maxCount-minCount) > 5000)
+            brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
 
-	if(brightness > 65536)
-	{
-		brightness = 65536;
-	}
-	else if(brightness < 0)
-	{
-		brightness = 0;
-	}
+    if(brightness > 65536)
+    {
+        brightness = 65536;
+    }
+    else if(brightness < 0)
+    {
+        brightness = 0;
+    }
 
     camera.vid_picture.brightness = brightness;
     ioctl(camera.dev,VIDIOCSPICT,&camera.vid_picture);
@@ -123,8 +123,8 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -138,14 +138,14 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 
     camera.dev=open(camera.devname,O_RDWR);
 
-	bzero(&camera.vid_capability, sizeof(camera.vid_capability));
+    bzero(&camera.vid_capability, sizeof(camera.vid_capability));
     ioctl(camera.dev,VIDIOCGCAP,&camera.vid_capability);//get possibilities of the device
 
-	if(!(camera.vid_capability.type & VID_TYPE_CAPTURE))
-	{
-		GDOS_ERROR("No video capturer at /dev/video\n");
-		return -EINVAL;
-	}
+    if (!(camera.vid_capability.type & VID_TYPE_CAPTURE))
+    {
+        GDOS_ERROR("No video capturer at /dev/video\n");
+        return -EINVAL;
+    }
 
     //is an image of maximal size possible?
     if (camera.vid_capability.maxwidth >= width) {
@@ -169,16 +169,16 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
     ioctl(camera.dev,VIDIOCGWIN,&camera.vid_window);//get the chosen windowsize
 
     //get possible image parameter
-	bzero(&camera.vid_picture, sizeof(camera.vid_picture));
+    bzero(&camera.vid_picture, sizeof(camera.vid_picture));
     ioctl(camera.dev,VIDIOCGPICT,&camera.vid_picture);
 
     //try to set parameter according to preferences.
     switch(mode)
-	{
-	case CAMERA_MODE_MONO8:
-					        camera.vid_picture.palette = VIDEO_PALETTE_GREY;
-					        camera.vid_picture.depth = 8;
-				            break;
+    {
+    case CAMERA_MODE_MONO8:
+                            camera.vid_picture.palette = VIDEO_PALETTE_GREY;
+                            camera.vid_picture.depth = 8;
+                            break;
     case CAMERA_MODE_RGB565:
                             camera.vid_picture.palette = VIDEO_PALETTE_RGB565;
                             camera.vid_picture.depth = 16;
@@ -202,9 +202,9 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 
     switch(camera.vid_picture.palette)
     {
-	case VIDEO_PALETTE_GREY:
-					        camera.mode = CAMERA_MODE_MONO8;
-				            break;
+    case VIDEO_PALETTE_GREY:
+                            camera.mode = CAMERA_MODE_MONO8;
+                            break;
     case VIDEO_PALETTE_RGB24:
                             camera.mode = CAMERA_MODE_RGB24;
                             break;
@@ -212,8 +212,8 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
                             camera.mode = CAMERA_MODE_RGB565;
                             break;
     default:
-	    GDOS_DBG_INFO("Video mode not supported %i\n", camera.vid_picture.palette);
-	    return -EINVAL;
+        GDOS_DBG_INFO("Video mode not supported %i\n", camera.vid_picture.palette);
+        return -EINVAL;
     }
 
     camera.grab_size = camera.vid_window.width * camera.vid_window.height * camera.vid_picture.depth / 8;
@@ -221,36 +221,36 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
     GDOS_DBG_INFO("Camera on with parameter: width %i height %i depth %i mode %i\n", camera.vid_window.width, camera.vid_window.height, camera.vid_picture.depth, camera.mode);
 //    GDOS_DBG_INFO("brightness %i hue %i color %i contrast %i whiteness %i\n", camera.vid_picture.brightness, camera.vid_picture.hue, camera.vid_picture.colour, camera.vid_picture.contrast, camera.vid_picture.whiteness);
 
-	bzero(&camera.m_buf, sizeof(camera.m_buf));
+    bzero(&camera.m_buf, sizeof(camera.m_buf));
     ioctl(camera.dev,VIDIOCGMBUF,&camera.m_buf);//get max buffers
 
     if(camera.m_buf.frames >= 2)
     {
-		if((camera.grab_data = (unsigned char *)mmap(0,camera.m_buf.size, PROT_READ|PROT_WRITE, MAP_SHARED,camera.dev,0)) == NULL)
-		{
-	    	GDOS_ERROR("Can't init memory map function\n");
-	    	return -ENOMEM;
-		}
+        if((camera.grab_data = (unsigned char *)mmap(0,camera.m_buf.size, PROT_READ|PROT_WRITE, MAP_SHARED,camera.dev,0)) == NULL)
+        {
+            GDOS_ERROR("Can't init memory map function\n");
+            return -ENOMEM;
+        }
 
-	    camera.grab_buf.width  = camera.vid_window.width;
-	    camera.grab_buf.height = camera.vid_window.height;
-	   	camera.grab_buf.format = camera.vid_picture.palette;
+        camera.grab_buf.width  = camera.vid_window.width;
+        camera.grab_buf.height = camera.vid_window.height;
+           camera.grab_buf.format = camera.vid_picture.palette;
 
-		for(camera.currentFrame = 0; camera.currentFrame < camera.m_buf.frames; camera.currentFrame++)
-		{
-		    camera.grab_buf.frame  = camera.currentFrame;
+        for(camera.currentFrame = 0; camera.currentFrame < camera.m_buf.frames; camera.currentFrame++)
+        {
+            camera.grab_buf.frame  = camera.currentFrame;
 
-		    if (-1 == ioctl(camera.dev,VIDIOCMCAPTURE,&camera.grab_buf)) {
-		        GDOS_ERROR("Error grabbing picture (buffer)\n");
-		        return -EINVAL;
-		    }
-	    }
+            if (-1 == ioctl(camera.dev,VIDIOCMCAPTURE,&camera.grab_buf)) {
+                GDOS_ERROR("Error grabbing picture (buffer)\n");
+                return -EINVAL;
+            }
+        }
 
-		camera.currentFrame = 0;
-	}
+        camera.currentFrame = 0;
+    }
     else
     {
-    	GDOS_WARNING("Not enough memory map buffers %i < 2. Using read\n", camera.m_buf.frames);
+        GDOS_WARNING("Not enough memory map buffers %i < 2. Using read\n", camera.m_buf.frames);
     }
 
     return DataModule::moduleOn();  // have to be last command in moduleOn();
@@ -267,8 +267,8 @@ void CameraV4L::moduleOff(void)
 
     if(camera.m_buf.frames >= 2)
     {
-	    munmap(camera.grab_data, camera.m_buf.size);
-	}
+        munmap(camera.grab_data, camera.m_buf.size);
+    }
 
 }
 
@@ -293,23 +293,23 @@ int CameraV4L::moduleLoop(void)
 
     if(camera.m_buf.frames >= 2)
     {
-	    camera.grab_buf.frame = camera.currentFrame;
-	    if (-1 == ioctl(camera.dev,VIDIOCSYNC,&camera.grab_buf)) {
-	        GDOS_ERROR("Error synconizing buffer.\n");
-	        return -ENOMEM;
-	    }
+        camera.grab_buf.frame = camera.currentFrame;
+        if (-1 == ioctl(camera.dev,VIDIOCSYNC,&camera.grab_buf)) {
+            GDOS_ERROR("Error synconizing buffer.\n");
+            return -ENOMEM;
+        }
 
-	    memcpy(p_data->byteStream, camera.grab_data + camera.m_buf.offsets[camera.currentFrame], camera.grab_size);
-	}
-	else
-	{
-	    if(read(camera.dev, p_data->byteStream, camera.grab_size) <= 0)
-	    {
-	        GDOS_ERROR("Can't read image data.\n");
-	        return -EINVAL;
-	    }
+        memcpy(p_data->byteStream, camera.grab_data + camera.m_buf.offsets[camera.currentFrame], camera.grab_size);
+    }
+    else
+    {
+        if(read(camera.dev, p_data->byteStream, camera.grab_size) <= 0)
+        {
+            GDOS_ERROR("Can't read image data.\n");
+            return -EINVAL;
+        }
 
-	}
+    }
 
     GDOS_DBG_DETAIL("Data recordingtime %i width %i height %i depth %i mode %i\n", p_data->data.recordingTime, p_data->data.width, p_data->data.height, p_data->data.depth, p_data->data.mode);
 
@@ -320,18 +320,18 @@ int CameraV4L::moduleLoop(void)
 
     RackTask::sleep(500000000llu);
 
-	autoBrightness(p_data);
+    autoBrightness(p_data);
 
     if(camera.m_buf.frames >= 2)
     {
-	    camera.grab_buf.frame = camera.currentFrame;
-	    if (-1 == ioctl(camera.dev,VIDIOCMCAPTURE,&camera.grab_buf)) {
-	        GDOS_ERROR("Error grabbing picture (buffer)\n");
-	        return -EINVAL;
-	    }
+        camera.grab_buf.frame = camera.currentFrame;
+        if (-1 == ioctl(camera.dev,VIDIOCMCAPTURE,&camera.grab_buf)) {
+            GDOS_ERROR("Error grabbing picture (buffer)\n");
+            return -EINVAL;
+        }
 
-	    camera.currentFrame = (camera.currentFrame + 1) % camera.m_buf.frames;
-	}
+        camera.currentFrame = (camera.currentFrame + 1) % camera.m_buf.frames;
+    }
 
 //    rt_sleep(timeCount1s/fps);//## zeitverwaltung zentral erledigt
     return 0;
@@ -353,21 +353,21 @@ int CameraV4L::moduleCommand(MessageInfo *msgInfo)
                                 sizeof(camera_param_data));
         break;
 
-	case MSG_CAMERA_SET_FORMAT:
+    case MSG_CAMERA_SET_FORMAT:
         if(status == MODULE_STATE_DISABLED)
         {
             p_format = CameraFormatData::parse(msgInfo);
 
             GDOS_DBG_INFO( "set format width=%i height=%i depth=%i mode=%i\n", p_format->width, p_format->height, p_format->depth, p_format->mode);
 
-			if(p_format->width >= 0)
-		        width    = p_format->width;
-			if(p_format->height >= 0)
-		        height   = p_format->height;
-			if(p_format->depth >= 0)
-		        depth    = p_format->depth;
-			if(p_format->mode >= 0)
-		        mode     = p_format->mode;
+            if(p_format->width >= 0)
+                width    = p_format->width;
+            if(p_format->height >= 0)
+                height   = p_format->height;
+            if(p_format->depth >= 0)
+                depth    = p_format->depth;
+            if(p_format->mode >= 0)
+                mode     = p_format->mode;
 
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         }
@@ -378,9 +378,9 @@ int CameraV4L::moduleCommand(MessageInfo *msgInfo)
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
         }
-		break;
+        break;
 
-	default:
+    default:
         // not for me -> ask DataModule
         return DataModule::moduleCommand(msgInfo);
     }
@@ -392,8 +392,8 @@ int CameraV4L::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *      moduleCleanup,
+ *      Constructor,
  *   Destructor,
  *   main,
  *
@@ -439,15 +439,15 @@ CameraV4L::CameraV4L()
                       20,                    // max buffer entries
                       10)                   // data buffer listener
 {
-	width  	        = getIntArg("width", argTab);
-	height   	    = getIntArg("height", argTab);
-	depth	        = getIntArg("depth", argTab);
-	mode	        = getIntArg("mode", argTab);
-	videoId	        = getIntArg("videoId", argTab);
-	minHue  	    = getIntArg("minHue", argTab);
-	maxHue   	    = getIntArg("maxHue", argTab);
-	gainMult  	    = getIntArg("gainMult", argTab);
-	autoBrightnessSize	= getIntArg("autoBrightnessSize", argTab);
+    width              = getIntArg("width", argTab);
+    height           = getIntArg("height", argTab);
+    depth            = getIntArg("depth", argTab);
+    mode            = getIntArg("mode", argTab);
+    videoId            = getIntArg("videoId", argTab);
+    minHue          = getIntArg("minHue", argTab);
+    maxHue           = getIntArg("maxHue", argTab);
+    gainMult          = getIntArg("gainMult", argTab);
+    autoBrightnessSize    = getIntArg("autoBrightnessSize", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(camera_data_msg));

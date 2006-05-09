@@ -25,7 +25,8 @@ int ChassisProxy::getData(chassis_data *recv_data, ssize_t recv_datalen,
 {
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, msgInfo);
-    if (ret) {
+    if (ret)
+    {
         return ret;
     }
 
@@ -50,7 +51,8 @@ int ChassisProxy::getParam(chassis_param_data *recv_data, ssize_t recv_datalen,
     int ret = proxyRecvDataCmd(MSG_CHASSIS_GET_PARAMETER, MSG_CHASSIS_PARAMETER,
                               (void *)recv_data, recv_datalen,
                               reply_timeout_ns, msgInfo);
-    if (ret) {
+    if (ret)
+    {
         return ret;
     }
 

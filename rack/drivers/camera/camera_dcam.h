@@ -29,13 +29,13 @@
 //helper construct for format7 specification
 typedef struct {
     int leftImagePosition;
-	int topImagePosition;
-	int width;
-	int height;
-	short bytesPerPacket;
-	unsigned int colorFilterId;
-	short mode;
-	short colorCodingId; // rggb=0; gbrg=1; grbg=2; bggr=3;
+    int topImagePosition;
+    int width;
+    int height;
+    short bytesPerPacket;
+    unsigned int colorFilterId;
+    short mode;
+    short colorCodingId; // rggb=0; gbrg=1; grbg=2; bggr=3;
 } iidc_format7_image_t;
 
 // define module class
@@ -64,7 +64,7 @@ class CameraDcam : public DataModule{
     //variables for parameter
     int      cameraGuid;
     int      mode;
-    unsigned int 	lossRate;
+    unsigned int lossRate;
     int      vValueSet;
     int      uValueSet;
     int      minHue;
@@ -77,16 +77,16 @@ class CameraDcam : public DataModule{
     int                     firewireNumPorts;
 
     //variable needed to initialise and handle dcam strucures
-    raw1394handle_t 		porthandle[MAX_PORTS]; //handle to raw 1394 bus for each port
-    nodeid_t 				camera_node; //cameras[MODULE_NUM];
-    dc1394_cameracapture 	dc1394Camera;//[id] //camera type already defined
-    int 					dc1394CameraPortNo; //cameraId2portNo[MODULE_NUM];
+    raw1394handle_t         porthandle[MAX_PORTS]; //handle to raw 1394 bus for each port
+    nodeid_t                camera_node; //cameras[MODULE_NUM];
+    dc1394_cameracapture    dc1394Camera;//[id] //camera type already defined
+    int                     dc1394CameraPortNo; //cameraId2portNo[MODULE_NUM];
 
     //variables for dcam parameter
-    unsigned int 			channel;
+    unsigned int            channel;
     unsigned int            frameRate;
-    unsigned int 			speed;
-    char* 					device;
+    unsigned int            speed;
+    char*                   device;
     iidc_format7_image_t    format7image;
 
     int autoBrightness(camera_data_msg *dataPackage);

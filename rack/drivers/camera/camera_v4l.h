@@ -35,7 +35,7 @@ typedef struct
     int dev;
     char devname[256];
     int mode;
-	int currentFrame;
+    int currentFrame;
     struct video_capability vid_capability;
     struct video_window vid_window;
     struct video_picture vid_picture;

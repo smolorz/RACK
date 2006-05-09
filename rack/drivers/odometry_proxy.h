@@ -24,7 +24,7 @@
 //# Odometry Message Types
 //######################################################################
 
-#define MSG_ODOMETRY_RESET				(RACK_PROXY_MSG_POS_OFFSET + 1)
+#define MSG_ODOMETRY_RESET      (RACK_PROXY_MSG_POS_OFFSET + 1)
 
 //######################################################################
 //# Odometry Data (static size - MESSAGE)
@@ -76,16 +76,16 @@ class OdometryData
 
 class OdometryProxy : public RackDataProxy {
 
-  	public:
+      public:
 
-	    OdometryProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
-	          : RackDataProxy(workMbx, sys_id, ODOMETRY, instance)
-	    {
-	    };
+        OdometryProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
+              : RackDataProxy(workMbx, sys_id, ODOMETRY, instance)
+        {
+        };
 
-	    ~OdometryProxy()
-	    {
-	    };
+        ~OdometryProxy()
+        {
+        };
 
 //
 // overwriting getData (includes parsing and type conversion)

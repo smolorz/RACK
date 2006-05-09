@@ -46,8 +46,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -62,7 +62,7 @@ int  LadarHokuyoUrg::moduleOn(void)
     ret = serialPort.send(sCommand115200, 15);
     if (ret)
     {
-        GDOS_ERROR("Can't send S-Command to serial dev,code=%d\n", ret);  
+        GDOS_ERROR("Can't send S-Command to serial dev,code=%d\n", ret);
         return ret;
     }
 
@@ -76,11 +76,11 @@ int  LadarHokuyoUrg::moduleOn(void)
     }
 
     RackTask::sleep(200000000); // 200 ms
-    
+
     ret = serialPort.setBaudrate(115200);
     if (ret)
     {
-        GDOS_ERROR("Can't set baudrate to 115200, code=%d\n", ret);  
+        GDOS_ERROR("Can't set baudrate to 115200, code=%d\n", ret);
         return ret;
     }
 
@@ -96,7 +96,7 @@ void LadarHokuyoUrg::moduleOff(void)
     GDOS_DBG_INFO("Disconnect\n");
 
     serialPort.send(sCommand19200, 15);
-  
+
     RackTask::sleep(200000000); // 200 ms
 
     serialPort.setBaudrate(19200);
@@ -112,33 +112,33 @@ int  LadarHokuyoUrg::moduleLoop(void)
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
     // send G-Command (Distance Data Acquisition)
-    gCommand[1] = (int)(start/100)      + 0x30; 
-	gCommand[2] = ((int)(start/10))%10  + 0x30;
-	gCommand[3] = (start%10)                + 0x30;
-	 
-	gCommand[4] = (int)(end/100)        + 0x30;
-	gCommand[5] = ((int)(end/10))%10    + 0x30;
-	gCommand[6] = (end%10) + 0x30;
-	 
-	gCommand[7] = (int)(cluster/10)     + 0x30;
-	gCommand[8] = (cluster%10)              + 0x30;
+    gCommand[1] = (int)(start/100)      + 0x30;
+    gCommand[2] = ((int)(start/10))%10  + 0x30;
+    gCommand[3] = (start%10)            + 0x30;
+
+    gCommand[4] = (int)(end/100)        + 0x30;
+    gCommand[5] = ((int)(end/10))%10    + 0x30;
+    gCommand[6] = (end%10) + 0x30;
+
+    gCommand[7] = (int)(cluster/10)     + 0x30;
+    gCommand[8] = (cluster%10)          + 0x30;
 
     ret = serialPort.send(gCommand, 10);
     if (ret)
     {
-        GDOS_ERROR("Can't send G-Command to serial dev, code=%d\n", ret);  
+        GDOS_ERROR("Can't send G-Command to serial dev, code=%d\n", ret);
         return ret;
     }
-    
-	// receive G-Command (Distance Data Acquisition)
 
-	// synchronize on message head, timeout after 200 attempts *****
-	i = 0;
-	serialBuffer[0] = 0;
+    // receive G-Command (Distance Data Acquisition)
 
-	while((i < 2000) && (serialBuffer[0] != 'G'))
-	{          
-		// Read next character
+    // synchronize on message head, timeout after 200 attempts *****
+    i = 0;
+    serialBuffer[0] = 0;
+
+    while((i < 2000) && (serialBuffer[0] != 'G'))
+    {
+        // Read next character
         ret = serialPort.recv(serialBuffer, 1, &(p_data->recordingTime), 2000000000ll);
         if (ret)
         {
@@ -147,13 +147,13 @@ int  LadarHokuyoUrg::moduleLoop(void)
         }
         i++;
     }
-		
-	if(i == 2000)
+
+    if(i == 2000)
     {
         GDOS_ERROR("Can't read data 2 from serial dev\n");
         return -1;
     }
-    p_data->distanceNum     = (int32_t)((end - start)/cluster);     //max 681   
+    p_data->distanceNum     = (int32_t)((end - start)/cluster);     //max 681
     p_data->startAngle      = (float32_t)startAngle * M_PI/180.0;
     p_data->angleResolution = (float32_t)cluster * -0.3515625 * M_PI/180.0;
 
@@ -164,27 +164,27 @@ int  LadarHokuyoUrg::moduleLoop(void)
     {
         GDOS_ERROR("Can't read data 3 from serial dev, code=%d\n",ret);
         return ret;
-    }	
+    }
 
-	j = 10;
-	for(i = 0; i < p_data->distanceNum; i++)
-	{
-	    if((i % 32) == 0)
-	    {
-	    	j += 1;  // first j = 11
-	    }
-	    p_data->distance[i] = ((int32_t)(serialBuffer[j] - 0x30) << 6) | (int32_t)(serialBuffer[j + 1] - 0x30);
-	    
-	    if(p_data->distance[i] < 20)
-	    {
-	    	p_data->distance[i] = 0;
-	    }
-	    
-	    j += 2;
-	}
+    j = 10;
+    for(i = 0; i < p_data->distanceNum; i++)
+    {
+        if((i % 32) == 0)
+        {
+            j += 1;  // first j = 11
+        }
+        p_data->distance[i] = ((int32_t)(serialBuffer[j] - 0x30) << 6) | (int32_t)(serialBuffer[j + 1] - 0x30);
+
+        if(p_data->distance[i] < 20)
+        {
+            p_data->distance[i] = 0;
+        }
+
+        j += 2;
+    }
 
     p_data->recordingTime = get_rack_time();
- 
+
     datalength = sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum; // points
 
     // write data buffer slot (and send it to all listener)
@@ -206,8 +206,8 @@ int  LadarHokuyoUrg::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *
@@ -233,7 +233,7 @@ int  LadarHokuyoUrg::moduleInit(void)
     }
 
     GDOS_DBG_INFO("serialDev %d has been opened \n", serialDev);
-	initBits.setBit(INIT_BIT_SERIALPORT_OPEN);
+    initBits.setBit(INIT_BIT_SERIALPORT_OPEN);
     return 0;
 
 init_error:
@@ -290,7 +290,7 @@ LadarHokuyoUrg::LadarHokuyoUrg()
     if (cluster < 0 || cluster > 3)
     {
         printf("Invalid argument -> cluster [use 1..3] \n");
-    }  
+    }
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(ladar_data_msg));

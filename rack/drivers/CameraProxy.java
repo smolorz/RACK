@@ -33,58 +33,58 @@ import rack.main.tims.exceptions.*;
 
 public class CameraProxy extends RackDataProxy {
 
-	public static final int  MAX = 1;
-    
+    public static final int  MAX = 1;
+
     public static final byte MSG_CAMERA_GET_PARAMETER =
         RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
 
     public static final byte MSG_CAMERA_SET_FORMAT =
         RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 2;
-    
+
     public static final byte MSG_CAMERA_PARAMETER =
         RackMsgType.RACK_PROXY_MSG_NEG_OFFSET - 1;
-    
+
     public static final byte MSG_CAMERA_FORMAT =
         RackMsgType.RACK_PROXY_MSG_NEG_OFFSET - 2;
-    
 
-	public CameraProxy(int id, int replyMbx)
+
+    public CameraProxy(int id, int replyMbx)
     {
-    	super(RackName.create(RackName.CAMERA, id), replyMbx, 5000, 1000, 5000);
-    	this.id = id;
+        super(RackName.create(RackName.CAMERA, id), replyMbx, 5000, 1000, 5000);
+        this.id = id;
     }
     public void storeDataToFile(String filename)
-	{
-    	CameraDataMsg data = getData();
+    {
+        CameraDataMsg data = getData();
 
-		if(data != null)
-		{
-			try{
-				System.out.println("Store image data filename=" + filename);
-			    BufferedImage image = new BufferedImage(data.width, data.height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
-			    image.setRGB(0, 0, data.width, data.height, data.imageRawData, 0, data.width);
-			    File file = new File(filename);
-		        ImageIO.write(image, "png", file);
-			} catch(IOException e) {
-				System.out.println("Error storing image filename=" + filename + e.toString());
-			}
-		}
-	}
+        if(data != null)
+        {
+            try{
+                System.out.println("Store image data filename=" + filename);
+                BufferedImage image = new BufferedImage(data.width, data.height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
+                image.setRGB(0, 0, data.width, data.height, data.imageRawData, 0, data.width);
+                File file = new File(filename);
+                ImageIO.write(image, "png", file);
+            } catch(IOException e) {
+                System.out.println("Error storing image filename=" + filename + e.toString());
+            }
+        }
+    }
     public synchronized CameraDataMsg getData(int recordingtime)
     {
         try
         {
             TimsDataMsg raw = getRawData(recordingtime);
 
-        	if(raw != null)
-        	{
+            if(raw != null)
+            {
                 CameraDataMsg data = new CameraDataMsg(raw);
-				return data;
-        	}
-        	else
-        	{
-        		return null;
-        	}
+                return data;
+            }
+            else
+            {
+                return null;
+            }
         }
         catch(MsgException e)
         {
@@ -98,44 +98,44 @@ public class CameraProxy extends RackDataProxy {
         return(getData(0));
     }
 
-	public synchronized void setFormat(CameraFormatMsg format)
-	{
-		currentSequenceNo++;
-		System.out.println(format);
+    public synchronized void setFormat(CameraFormatMsg format)
+    {
+        currentSequenceNo++;
+        System.out.println(format);
 
-		try {
-			TimsMsgRouter.send(
-				MSG_CAMERA_SET_FORMAT,
-				commandMbx,
-				replyMbx,
-				(byte)0,
-				(byte)currentSequenceNo,
-				format);
+        try {
+            TimsMsgRouter.send(
+                MSG_CAMERA_SET_FORMAT,
+                commandMbx,
+                replyMbx,
+                (byte)0,
+                (byte)currentSequenceNo,
+                format);
 
-			TimsDataMsg reply;
+            TimsDataMsg reply;
 
-			do {
-				reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
-			} while (reply.seq_nr != currentSequenceNo);
+            do {
+                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
+            } while (reply.seq_nr != currentSequenceNo);
 
-			if (reply.type == RackMsgType.MSG_OK) {
-				System.out.println(
+            if (reply.type == RackMsgType.MSG_OK) {
+                System.out.println(
                         RackName.nameString(replyMbx) + ": cameraProxy setFormat");
-			} else {
-				System.out.println(
-					RackName.nameString(replyMbx)
-						+ ": "
-						+ RackName.nameString(commandMbx)
-						+ ".setFormat replied error");
-			}
-		} catch (MsgException e) {
-			System.out.println(
-				RackName.nameString(replyMbx) + ": cameraProxy setFormat " + e);
-		}
-	}
+            } else {
+                System.out.println(
+                    RackName.nameString(replyMbx)
+                        + ": "
+                        + RackName.nameString(commandMbx)
+                        + ".setFormat replied error");
+            }
+        } catch (MsgException e) {
+            System.out.println(
+                RackName.nameString(replyMbx) + ": cameraProxy setFormat " + e);
+        }
+    }
 
-	public int getCommandMbx()
-	{
-		return(RackName.create(RackName.CAMERA, id));
-	}
+    public int getCommandMbx()
+    {
+        return(RackName.create(RackName.CAMERA, id));
+    }
 }

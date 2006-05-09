@@ -38,7 +38,7 @@ typedef struct {
 
     int         serial_buffer_size;
 
-	int32_t     periodTime;
+    int32_t     periodTime;
     int         messageDistanceNum;
     float       startAngle;
     float       angleResolution;
@@ -84,21 +84,21 @@ static char ladar_cmd_sendData_norm[] =
 static char ladar_cmd_sendData_int[] =
                                      {0x02,0x00,0x02,0x00,0x20,0x2A,0x3A,0x08};
 
-static char ladar_cmd_baudrate_9600[] = {0x02,			// STX
-                                         0x00,			// Adresse
-                                         0x02,0x00, 	// Datenlänge
-                                         0x20,			// Betriebmodus wechseln
-                                         0x42,			//
+static char ladar_cmd_baudrate_9600[] = {0x02,          // STX
+                                         0x00,          // Adresse
+                                         0x02,0x00,     // Datenlänge
+                                         0x20,          // Betriebmodus wechseln
+                                         0x42,          //
                                          0x52,0x08};
 
-static char ladar_cmd_config[] = {0x02, 				// STX
-                                  0x00,					// Adresse
-                                  0x0A,0x00,			// Datenlänge
-                                  0x20,					// Betriebmodus wechseln
-                                  0x00,					// Einrichtmodus
-                                  0x53,0x49,0x43,0x4B, 	// Passwort:
-                                  0x5F,0x4C,0x4D,0x53, 	//   SICK_LMS
-                                  0xBE,0xC5 };			// Checksumme
+static char ladar_cmd_config[] = {0x02,                 // STX
+                                  0x00,                 // Adresse
+                                  0x0A,0x00,            // Datenlänge
+                                  0x20,                 // Betriebmodus wechseln
+                                  0x00,                 // Einrichtmodus
+                                  0x53,0x49,0x43,0x4B,  // Passwort:
+                                  0x5F,0x4C,0x4D,0x53,  //   SICK_LMS
+                                  0xBE,0xC5 };          // Checksumme
 
 /*
 static char ladar_cmd_hardreset[] = {0x02,0x00,0x01,0x00,0x10,0x34,0x12};
@@ -145,24 +145,24 @@ class LadarSickLms200 : public DataModule {
 
     protected:
         // -> realtime context
-    	int  	moduleOn(void);
-    	void 	moduleOff(void);
-    	int  	moduleLoop(void);
-    	int  	moduleCommand(MessageInfo *p_msginfo);
+        int      moduleOn(void);
+        void     moduleOff(void);
+        int      moduleLoop(void);
+        int      moduleCommand(MessageInfo *p_msginfo);
 
         // -> non realtime context
-    	void 	moduleCleanup(void);
+        void     moduleCleanup(void);
 
     public:
-	    // ladar configuration struct
-	    ladar_config_t*	conf;
+        // ladar configuration struct
+        ladar_config_t*    conf;
 
-	    // constructor und destructor
-	    LadarSickLms200();
-	    ~LadarSickLms200() {};
+        // constructor und destructor
+        LadarSickLms200();
+        ~LadarSickLms200() {};
 
         // -> non realtime context
-	    int  moduleInit(void);
+        int  moduleInit(void);
 };
 
 #endif

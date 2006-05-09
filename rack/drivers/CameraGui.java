@@ -29,7 +29,7 @@ public class CameraGui extends RackModuleGui
 
     public CameraGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
     {
-    	camera = (CameraProxy)proxyList[moduleIndex.intValue()];
+        camera = (CameraProxy)proxyList[moduleIndex.intValue()];
         rackProxyList = proxyList;
 
         panel = new JPanel(new BorderLayout(2, 2));
@@ -89,7 +89,7 @@ public class CameraGui extends RackModuleGui
                         camera.storeDataToFile("camera.png");
                     }
                 });
-        
+
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
         buttonPanel.add(storeButton);
@@ -166,7 +166,7 @@ public class CameraGui extends RackModuleGui
         mousePositionLabel.setText("Mouse not in yet.");
         contStoringLabel = new JLabel();
         contStoringLabel.setText("Cont.storing off.");
-        
+
         labelPanel.add(mousePositionLabel, BorderLayout.WEST);
         labelPanel.add(contStoringLabel, BorderLayout.EAST);
 
@@ -212,7 +212,7 @@ public class CameraGui extends RackModuleGui
                             .transformImage(zoomRate, switchRotate, data);
                     if (contStoring == 1)
                     {
-                    	camera.storeDataToFile("camera"+System.currentTimeMillis()+".png");
+                        camera.storeDataToFile("camera"+System.currentTimeMillis()+".png");
                     }
                 }
                 else

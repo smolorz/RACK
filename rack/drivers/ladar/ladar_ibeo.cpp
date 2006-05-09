@@ -32,8 +32,8 @@
 #define INIT_BIT_CAN_OPEN                   1
 
 typedef struct {
-  ladar_data    data;
-  int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_data    data;
+    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 //
@@ -71,22 +71,22 @@ int LadarIbeo::moduleOn(void)
 {
     int ret;
 
-	if(getSensorStatus() == -1)
-		return -1;
+    if(getSensorStatus() == -1)
+        return -1;
 
-	timeOffsetSector[0] = 0;
-	timeOffsetSector[1] = 0;
-	timeOffsetSector[2] = 0;
-	timeOffsetSector[3] = 0;
-	timeOffsetSector[4] = 0;
-	timeOffsetSector[5] = 0;
-	timeOffsetSector[6] = 0;
-	timeOffsetSector[7] = 0;
+    timeOffsetSector[0] = 0;
+    timeOffsetSector[1] = 0;
+    timeOffsetSector[2] = 0;
+    timeOffsetSector[3] = 0;
+    timeOffsetSector[4] = 0;
+    timeOffsetSector[5] = 0;
+    timeOffsetSector[6] = 0;
+    timeOffsetSector[7] = 0;
 
     GDOS_DBG_DETAIL("getSensorStatus ... \n");
 
-	if(setTimeAbs() == -1)
-		return -1;
+    if(setTimeAbs() == -1)
+        return -1;
 
     GDOS_DBG_DETAIL("setTimeAbs ... \n");
 
@@ -173,98 +173,98 @@ int  LadarIbeo::moduleLoop(void)
     uint16_t tend;
     int distanceIndex;
 
-	RACK_TIME recordingtime;
+    RACK_TIME recordingtime;
 
     // get datapointer from rackdatabuffer
     // you don't need check this pointer
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
-	// read data profile
-	if((profileLen = receiveResponsePackage(0x8301, MAX_PROFILE_SIZE, profile, &recordingtime)) < 4)
-	{
-		GDOS_ERROR("Can't receive data profile\n");
-		return -1;
-	}
+    // read data profile
+    if((profileLen = receiveResponsePackage(0x8301, MAX_PROFILE_SIZE, profile, &recordingtime)) < 4)
+    {
+        GDOS_ERROR("Can't receive data profile\n");
+        return -1;
+    }
 
-	// decode profile head
+    // decode profile head
     format         = __be16_to_cpu(*((uint16_t*)(profile + 0)));
-	layerNum       = profile[2];
-	sectorNum      = profile[3];
-	profileIdx     = 4;
+    layerNum       = profile[2];
+    sectorNum      = profile[3];
+    profileIdx     = 4;
 
-	GDOS_DBG_DETAIL("Data profile length %i format 0x%x layers %i sectors %i CAN-recordingtime %i\n",
-	                profileLen, format, layerNum, sectorNum, recordingtime);
-	// loop over all sectors of the profile
-	for(sector = 0; sector < sectorNum; sector++)
-	{
+    GDOS_DBG_DETAIL("Data profile length %i format 0x%x layers %i sectors %i CAN-recordingtime %i\n",
+                    profileLen, format, layerNum, sectorNum, recordingtime);
+    // loop over all sectors of the profile
+    for(sector = 0; sector < sectorNum; sector++)
+    {
         dirstep = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
 
-		profileIdx += 2;
+        profileIdx += 2;
 
-		p_data->angleResolution = (dirstep * M_PI/180.0f) / 16.0f;
-		p_data->distanceNum     = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
+        p_data->angleResolution = (dirstep * M_PI/180.0f) / 16.0f;
+        p_data->distanceNum     = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
 
-    	profileIdx += 2;
+        profileIdx += 2;
 
-		p_data->duration = 100;  // 100ms
-		p_data->maxRange = 100000;  // 100m
+        p_data->duration = 100;  // 100ms
+        p_data->maxRange = 100000;  // 100m
 
-		if(p_data->distanceNum > LADAR_DATA_MAX_DISTANCE_NUM)
-		{
-			GDOS_ERROR("Number of distanceNum is bigger than MAX_DISTANCE_NUM\n");
-			return -1;
-		}
+        if(p_data->distanceNum > LADAR_DATA_MAX_DISTANCE_NUM)
+        {
+            GDOS_ERROR("Number of distanceNum is bigger than MAX_DISTANCE_NUM\n");
+            return -1;
+        }
         tstart = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
-		profileIdx += 2;
+        profileIdx += 2;
 
-		startdir = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
-		profileIdx += 2;
-		p_data->startAngle = (startdir * M_PI/180.0f) / 16.0f - M_PI;
+        startdir = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
+        profileIdx += 2;
+        p_data->startAngle = (startdir * M_PI/180.0f) / 16.0f - M_PI;
 
-		for(distanceIndex = 0; distanceIndex < p_data->distanceNum; distanceIndex++)
-		{
-			distance = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));  // measurement unit is m * 256
+        for(distanceIndex = 0; distanceIndex < p_data->distanceNum; distanceIndex++)
+        {
+            distance = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));  // measurement unit is m * 256
             if (distance == 0)
             {
-			    p_data->distance[distanceIndex] = 100000 ;  // maxRange (unit is mm)
+                p_data->distance[distanceIndex] = 100000 ;  // maxRange (unit is mm)
             }
             else
             {
-			    p_data->distance[distanceIndex] = (int)((float)distance * 1000.0f / 256.0f) ;  // measurement unit is mm
-			}
+                p_data->distance[distanceIndex] = (int)((float)distance * 1000.0f / 256.0f) ;  // measurement unit is mm
+            }
             profileIdx += 2;
-		}
+        }
 
-		tend = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
-		profileIdx += 2;
+        tend = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
+        profileIdx += 2;
 
-		if(timeOffsetSector[sector] != 0)
-		{
-			p_data->recordingTime = recordingtime + timeOffsetSector[sector];
-		}
-		else
-		{
-			p_data->recordingTime = ((((RACK_TIME)tstart) + ((RACK_TIME)tend))/2) + timeOffset;
-			timeOffsetSector[sector] = p_data->recordingTime - recordingtime;
-		}
+        if(timeOffsetSector[sector] != 0)
+        {
+            p_data->recordingTime = recordingtime + timeOffsetSector[sector];
+        }
+        else
+        {
+            p_data->recordingTime = ((((RACK_TIME)tstart) + ((RACK_TIME)tend))/2) + timeOffset;
+            timeOffsetSector[sector] = p_data->recordingTime - recordingtime;
+        }
 
         if(p_data->distanceNum > 0)
-		{
+        {
             datalength = sizeof(ladar_data) +
                     sizeof(int32_t) * p_data->distanceNum; // points
             putDataBufferWorkSpace(datalength);
-        	GDOS_DBG_DETAIL("Data sector %i distanceNum %i startAngle %a angleResolution %a tstart %i tend %i recordingtime  %i\n", sector,
-			                p_data->distanceNum, p_data->startAngle, p_data->angleResolution, tstart, tend, p_data->recordingTime);
-		}
-	}
-	if(decodeSensorStatus(*((unsigned int*)(profile + profileIdx))) == -1)
-	{
-		return -1;
-	}
-	else
-	{
-		return 0;
-	}
+            GDOS_DBG_DETAIL("Data sector %i distanceNum %i startAngle %a angleResolution %a tstart %i tend %i recordingtime  %i\n", sector,
+                            p_data->distanceNum, p_data->startAngle, p_data->angleResolution, tstart, tend, p_data->recordingTime);
+        }
+    }
+    if(decodeSensorStatus(*((unsigned int*)(profile + profileIdx))) == -1)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 int  LadarIbeo::moduleCommand(MessageInfo *p_msginfo)
@@ -275,35 +275,35 @@ int  LadarIbeo::moduleCommand(MessageInfo *p_msginfo)
 
 int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* parameter)
 {
-	rtcan_frame_t canSend;
+    rtcan_frame_t canSend;
     UINT16_PACKAGE canPackage;
-	int packageId;
-	int parameterCount;
-	int i, ret;
+    int packageId;
+    int parameterCount;
+    int i, ret;
 
-	GDOS_DBG_DETAIL("send sensor request %x parameterLen %i\n", requestCommand, parameterLen);
+    GDOS_DBG_DETAIL("send sensor request %x parameterLen %i\n", requestCommand, parameterLen);
 
-	canSend.can_dlc     = 8;
-	canSend.can_id      = canHostIdBase | hostId;
+    canSend.can_dlc     = 8;
+    canSend.can_id      = canHostIdBase | hostId;
 
-	if(parameterLen <= 2)  // request frame fits into one CAN package
-	{
-		canSend.data[0] = 0;  // packageId = 0x0000
-		canSend.data[1] = 0;
-		canSend.data[2] = 0;
-		canSend.data[3] = sensorId;
+    if(parameterLen <= 2)  // request frame fits into one CAN package
+    {
+        canSend.data[0] = 0;  // packageId = 0x0000
+        canSend.data[1] = 0;
+        canSend.data[2] = 0;
+        canSend.data[3] = sensorId;
 
         canPackage.word[2]  =   __cpu_to_be16(requestCommand);
 
-		canSend.data[4]     =   canPackage.word[2];
-		canSend.data[5]     =   (canPackage.word[2] >> 8) & 0xff;
+        canSend.data[4]     =   canPackage.word[2];
+        canSend.data[5]     =   (canPackage.word[2] >> 8) & 0xff;
 
-		for(i = 0; i < parameterLen; i++)
-		{
-			canSend.data[6 + i] = *((char*)parameter + i);
-		}
+        for(i = 0; i < parameterLen; i++)
+        {
+            canSend.data[6 + i] = *((char*)parameter + i);
+        }
 
-		GDOS_DBG_DETAIL( "send CAN package 0=%x 1=%x 2=%x 3=%x 4=%x 5=%x 6=%x 7=%x\n", canSend.data[0], canSend.data[1], canSend.data[2], canSend.data[3], canSend.data[4], canSend.data[5], canSend.data[6], canSend.data[7]);
+        GDOS_DBG_DETAIL( "send CAN package 0=%x 1=%x 2=%x 3=%x 4=%x 5=%x 6=%x 7=%x\n", canSend.data[0], canSend.data[1], canSend.data[2], canSend.data[3], canSend.data[4], canSend.data[5], canSend.data[6], canSend.data[7]);
 
         ret = canPort.send(&canSend);
         if (ret)
@@ -311,26 +311,26 @@ int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* pa
             GDOS_ERROR("Can't send can command, code = %d\n", ret);
             return ret;
         }
-	}
-	else  // request frame will be split into several CAN packages
-	{
-		packageId = (parameterLen + 9) / 6;
+    }
+    else  // request frame will be split into several CAN packages
+    {
+        packageId = (parameterLen + 9) / 6;
 
         canPackage.word[0]  = __cpu_to_be16(0xffff);
         canPackage.word[1]  = __cpu_to_be16(packageId);
         canPackage.word[2]  = __cpu_to_be16(sensorId);
         canPackage.word[3]  = __cpu_to_be16(requestCommand);
 
-		canSend.data[0]     =   canPackage.word[0];
-		canSend.data[1]     =   (canPackage.word[0] >> 8) & 0xff;
-		canSend.data[2]     =   canPackage.word[1];
-		canSend.data[3]     =   (canPackage.word[1] >> 8) & 0xff;
-		canSend.data[4]     =   canPackage.word[2]; // __cpu_to_be16(sensorId);
-		canSend.data[5]     =   (canPackage.word[2] >> 8) & 0xff;
-		canSend.data[6]     =   canPackage.word[3];
-		canSend.data[7]     =   (canPackage.word[3] >> 8) & 0xff;
+        canSend.data[0]     =   canPackage.word[0];
+        canSend.data[1]     =   (canPackage.word[0] >> 8) & 0xff;
+        canSend.data[2]     =   canPackage.word[1];
+        canSend.data[3]     =   (canPackage.word[1] >> 8) & 0xff;
+        canSend.data[4]     =   canPackage.word[2]; // __cpu_to_be16(sensorId);
+        canSend.data[5]     =   (canPackage.word[2] >> 8) & 0xff;
+        canSend.data[6]     =   canPackage.word[3];
+        canSend.data[7]     =   (canPackage.word[3] >> 8) & 0xff;
 
-		GDOS_DBG_DETAIL( "send first CAN package 0=%x 1=%x 2=%x 3=%x 4=%x 5=%x 6=%x 7=%x\n", canSend.data[0], canSend.data[1], canSend.data[2], canSend.data[3], canSend.data[4], canSend.data[5], canSend.data[6], canSend.data[7]);
+        GDOS_DBG_DETAIL( "send first CAN package 0=%x 1=%x 2=%x 3=%x 4=%x 5=%x 6=%x 7=%x\n", canSend.data[0], canSend.data[1], canSend.data[2], canSend.data[3], canSend.data[4], canSend.data[5], canSend.data[6], canSend.data[7]);
 
         ret = canPort.send(&canSend);
         if (ret)
@@ -338,25 +338,25 @@ int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* pa
             GDOS_ERROR("Can't send can command, code = %d\n", ret);
             return ret;
         }
-		packageId--;
-		parameterCount = 0;
+        packageId--;
+        parameterCount = 0;
 
-		while(packageId > 0)
-		{
+        while(packageId > 0)
+        {
             canPackage.word[0]  = __cpu_to_be16(packageId);
 
-		    canSend.data[0]     =   canPackage.word[0];
-		    canSend.data[1]     =   (canPackage.word[0] >> 8) & 0xff;
+            canSend.data[0]     =   canPackage.word[0];
+            canSend.data[1]     =   (canPackage.word[0] >> 8) & 0xff;
 
-			for(i = 0; i < 6; i++)
-			{
-				canSend.data[2 + i] = *((char*)parameter + parameterCount);
-				parameterCount++;
-			}
+            for(i = 0; i < 6; i++)
+            {
+                canSend.data[2 + i] = *((char*)parameter + parameterCount);
+                parameterCount++;
+            }
 
             RackTask::sleep(5000000llu); // 1ms
 
-    		GDOS_DBG_DETAIL( "send CAN package 0=%x 1=%x 2=%x 3=%x 4=%x 5=%x 6=%x 7=%x\n", canSend.data[0], canSend.data[1], canSend.data[2], canSend.data[3], canSend.data[4], canSend.data[5], canSend.data[6], canSend.data[7]);
+            GDOS_DBG_DETAIL( "send CAN package 0=%x 1=%x 2=%x 3=%x 4=%x 5=%x 6=%x 7=%x\n", canSend.data[0], canSend.data[1], canSend.data[2], canSend.data[3], canSend.data[4], canSend.data[5], canSend.data[6], canSend.data[7]);
 
             ret = canPort.send(&canSend);
             if (ret)
@@ -364,27 +364,27 @@ int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* pa
                 GDOS_ERROR("Can't send can command, code = %d\n", ret);
                 return ret;
             }
-			packageId--;
-		}
-		return 0;
-	}
-	return 0;
+            packageId--;
+        }
+        return 0;
+    }
+    return 0;
 }
 
 int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, void* parameter, RACK_TIME* recordingtime)
 {
-	rtcan_frame_t canReceive;
+    rtcan_frame_t canReceive;
     uint64_t    timestamp = 0;
-	int parameterLen;
-	int sequenceFlag;
-	int packageId;
-	int did;
-	int code;
-	int pid;
-	int i, ret;
+    int parameterLen;
+    int sequenceFlag;
+    int packageId;
+    int did;
+    int code;
+    int pid;
+    int i, ret;
 
-	do  // synchronize on first frame package with correct response code
-	{
+    do  // synchronize on first frame package with correct response code
+    {
         ret = canPort.recv(&canReceive, &timestamp);
         if (ret)
         {
@@ -394,42 +394,42 @@ int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, voi
 
 //      packageId = __be16_to_cpu(*((uint16_t*)(&canReceive.data[0])));
         packageId = byteorder_read_be_u16(canReceive.data);
-		if(packageId == 0xffff)  // receive 1st package of multi package frame
-		{
+        if(packageId == 0xffff)  // receive 1st package of multi package frame
+        {
             GDOS_DBG_DETAIL("Multi package frame ... \n");
-			sequenceFlag = 0xffff;
+            sequenceFlag = 0xffff;
 //          packageId = __be16_to_cpu(*((uint16_t*)(&canReceive.data[2])));
-	        packageId    = byteorder_read_be_u16(&canReceive.data[2]);
+            packageId    = byteorder_read_be_u16(&canReceive.data[2]);
 //          code         = __be16_to_cpu(*((uint16_t*)(&canReceive.data[6])));
-    	    code         = byteorder_read_be_u16(&canReceive.data[6]);
-    	    did          = canReceive.data[5];
-    	    parameterLen = 0;
-    	    if(recordingtime != NULL)
-	    	    *recordingtime = timestamp;
-    	}
-    	else  // receive singel package frame
-    	{
-			sequenceFlag = 0;
+            code         = byteorder_read_be_u16(&canReceive.data[6]);
+            did          = canReceive.data[5];
+            parameterLen = 0;
+            if(recordingtime != NULL)
+                *recordingtime = timestamp;
+        }
+        else  // receive singel package frame
+        {
+            sequenceFlag = 0;
 //          code = __be16_to_cpu(*((uint16_t*)(&canReceive.data[4])));
             code = byteorder_read_be_u16(&canReceive.data[4]);
-     	    did  = canReceive.data[3];
-    	    for(parameterLen = 0; parameterLen < 2; parameterLen++)
-    	    {
-    	    	if(parameterLen >= maxParameterLen)
-    	    		break;
+             did  = canReceive.data[3];
+            for(parameterLen = 0; parameterLen < 2; parameterLen++)
+            {
+                if(parameterLen >= maxParameterLen)
+                    break;
 
-    	    	*((char*)parameter + parameterLen) = canReceive.data[6 + parameterLen];
-    	    }
-    	    if(recordingtime != NULL)
-	    	    *recordingtime = timestamp;
-		}
+                *((char*)parameter + parameterLen) = canReceive.data[6 + parameterLen];
+            }
+            if(recordingtime != NULL)
+                *recordingtime = timestamp;
+        }
     }
     while(((packageId != 0) & (sequenceFlag != 0xffff)) | (code != responseCode) | (did != hostId));
 
-	if(sequenceFlag == 0xffff)  // receive multi package frame
-	{
- 		for(pid = (packageId - 1); pid > 0; pid--)  // receive all expected following packages
-		{
+    if(sequenceFlag == 0xffff)  // receive multi package frame
+    {
+         for(pid = (packageId - 1); pid > 0; pid--)  // receive all expected following packages
+        {
             ret = canPort.recv(&canReceive, &timestamp);
             if (ret)
             {
@@ -438,290 +438,290 @@ int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, voi
             }
             packageId = __be16_to_cpu(*((uint16_t*)(&canReceive.data[0])));
 
-	        //packageId = byteorder_read_be_u16(canReceive.data);
+            //packageId = byteorder_read_be_u16(canReceive.data);
 
-	        if(packageId != pid)  // check if this package is expected
-	        {
-	        	GDOS_WARNING("CAN package lost\n");
-	        	return -1;
-	        }
+            if(packageId != pid)  // check if this package is expected
+            {
+                GDOS_WARNING("CAN package lost\n");
+                return -1;
+            }
 
-			for(i = 0; i < 6; i++)
-			{
-				*((char*)parameter + parameterLen) = canReceive.data[2 + i];
+            for(i = 0; i < 6; i++)
+            {
+                *((char*)parameter + parameterLen) = canReceive.data[2 + i];
 
-				parameterLen++;
-				if(parameterLen >= maxParameterLen)
-				{
-					GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
-					return(parameterLen);
-				}
-			}
-		}
-//		GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
-		return(parameterLen);
-	}
-	else
-	{
-//		GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
-		return(parameterLen);
-	}
+                parameterLen++;
+                if(parameterLen >= maxParameterLen)
+                {
+                    GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
+                    return(parameterLen);
+                }
+            }
+        }
+//        GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
+        return(parameterLen);
+    }
+    else
+    {
+//        GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
+        return(parameterLen);
+    }
 }
 
 int LadarIbeo::decodeSensorStatus(unsigned int senstat)
 {
-	uint32_t workingMode       = (senstat & 0x0f000000) >> 24;
-	uint32_t motorMode         = (senstat & 0xf0000000) >> 28;
-	uint32_t measureMode       = (senstat & 0x00ff0000) >> 16;
-	uint32_t systemMode        = (senstat & 0x0000ff00) >> 8;
-	uint32_t communicationMode = (senstat & 0x000000ff);
+    uint32_t workingMode       = (senstat & 0x0f000000) >> 24;
+    uint32_t motorMode         = (senstat & 0xf0000000) >> 28;
+    uint32_t measureMode       = (senstat & 0x00ff0000) >> 16;
+    uint32_t systemMode        = (senstat & 0x0000ff00) >> 8;
+    uint32_t communicationMode = (senstat & 0x000000ff);
 
-	switch(motorMode)
-	{
-	case 0x9:
-		GDOS_WARNING("Motor spin to high\n");
-		break;
-	case 0xa:
-		GDOS_WARNING("Motor spin to low\n");
-		break;
-	case 0xb:
-		GDOS_WARNING("Motor stops on coder error\n");
-		break;
-	}
+    switch(motorMode)
+    {
+    case 0x9:
+        GDOS_WARNING("Motor spin to high\n");
+        break;
+    case 0xa:
+        GDOS_WARNING("Motor spin to low\n");
+        break;
+    case 0xb:
+        GDOS_WARNING("Motor stops on coder error\n");
+        break;
+    }
 
-	if(measureMode & 0x1)
-	{
-		GDOS_WARNING("External reference target not found\n");
-	}
+    if(measureMode & 0x1)
+    {
+        GDOS_WARNING("External reference target not found\n");
+    }
 
-	if(systemMode & 0x0)
-	{
-		GDOS_WARNING("Signatur Failure Program Code (Flash)\n");
-	}
-	if(systemMode & 0x1)
-	{
-		GDOS_WARNING("Signatur Failure Configuration Table (Flash)\n");
-	}
-	if(systemMode & 0x2)
-	{
-		GDOS_WARNING("Signatur Failure User (Flash)\n");
-	}
-	if(systemMode & 0x4)
-	{
-		GDOS_WARNING("Failure in SRAM\n");
-	}
-	if(systemMode & 0x8)
-	{
-		GDOS_WARNING("Communication failure with Application DSP\n");
-	}
-	if(systemMode & 0xa)
-	{
-		GDOS_WARNING("Internal temperature is higher than 65�C\n");
-	}
+    if(systemMode & 0x0)
+    {
+        GDOS_WARNING("Signatur Failure Program Code (Flash)\n");
+    }
+    if(systemMode & 0x1)
+    {
+        GDOS_WARNING("Signatur Failure Configuration Table (Flash)\n");
+    }
+    if(systemMode & 0x2)
+    {
+        GDOS_WARNING("Signatur Failure User (Flash)\n");
+    }
+    if(systemMode & 0x4)
+    {
+        GDOS_WARNING("Failure in SRAM\n");
+    }
+    if(systemMode & 0x8)
+    {
+        GDOS_WARNING("Communication failure with Application DSP\n");
+    }
+    if(systemMode & 0xa)
+    {
+        GDOS_WARNING("Internal temperature is higher than 65�C\n");
+    }
 
-	if(communicationMode & 0x0)
-	{
-		GDOS_WARNING("Sensor was busoff (CAN)\n");
-	}
-	if(communicationMode & 0x1)
-	{
-		GDOS_WARNING("Package lost (CAN)\n");
-	}
-	if(communicationMode & 0x2)
-	{
-		GDOS_WARNING("Incorrect header (RS232/RS422)\n");
-	}
-	if(communicationMode & 0x4)
-	{
-		GDOS_WARNING("Incorrect data (RS232/RS422)\n");
-	}
-	if(workingMode == 0x4)
-	{
-		GDOS_ERROR("Sensor in ERROR_MODE");
-		return -1;
-	}
-	else
-	{
-//		return(workingMode);
-		return 0;
-	}
+    if(communicationMode & 0x0)
+    {
+        GDOS_WARNING("Sensor was busoff (CAN)\n");
+    }
+    if(communicationMode & 0x1)
+    {
+        GDOS_WARNING("Package lost (CAN)\n");
+    }
+    if(communicationMode & 0x2)
+    {
+        GDOS_WARNING("Incorrect header (RS232/RS422)\n");
+    }
+    if(communicationMode & 0x4)
+    {
+        GDOS_WARNING("Incorrect data (RS232/RS422)\n");
+    }
+    if(workingMode == 0x4)
+    {
+        GDOS_ERROR("Sensor in ERROR_MODE");
+        return -1;
+    }
+    else
+    {
+//        return(workingMode);
+        return 0;
+    }
 }
 
 int LadarIbeo::getSensorStatus(void)
 {
-	STATUS_RESPONSE response;
+    STATUS_RESPONSE response;
 
-	if(sendRequestPackage(0x0102, 0, NULL) != 0)
-	{
-		GDOS_ERROR("Can't send getStatus request to sensor\n");
-		return -1;
-	}
+    if(sendRequestPackage(0x0102, 0, NULL) != 0)
+    {
+        GDOS_ERROR("Can't send getStatus request to sensor\n");
+        return -1;
+    }
     GDOS_DBG_DETAIL("receiveResponsePackage ... \n");
 
-	if(receiveResponsePackage(0x8102, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
-	{
-		GDOS_ERROR("Can't receive response on getStatus request\n");
-		return -1;
-	}
+    if(receiveResponsePackage(0x8102, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    {
+        GDOS_ERROR("Can't receive response on getStatus request\n");
+        return -1;
+    }
 
-	return(decodeSensorStatus(response.senstat));
+    return(decodeSensorStatus(response.senstat));
 }
 
 int LadarIbeo::transIdle(void)
 {
-	STATUS_RESPONSE response;
+    STATUS_RESPONSE response;
 
-	GDOS_DBG_INFO("transIdle\n");
+    GDOS_DBG_INFO("transIdle\n");
 
-	if(sendRequestPackage(0x0402, 0, NULL) != 0)
-	{
-		GDOS_ERROR("Can't send transIdle request to sensor\n");
-		return -1;
-	}
+    if(sendRequestPackage(0x0402, 0, NULL) != 0)
+    {
+        GDOS_ERROR("Can't send transIdle request to sensor\n");
+        return -1;
+    }
 
-	if(receiveResponsePackage(0x8402, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
-	{
-		GDOS_ERROR("Can't receive response on transIdle request\n");
-		return -1;
-	}
+    if(receiveResponsePackage(0x8402, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    {
+        GDOS_ERROR("Can't receive response on transIdle request\n");
+        return -1;
+    }
 
-	return(decodeSensorStatus(response.senstat));
+    return(decodeSensorStatus(response.senstat));
 }
 
 int LadarIbeo::transRot(void)
 {
-	TRANS_ROT_REQUEST request;
-	STATUS_RESPONSE response;
+    TRANS_ROT_REQUEST request;
+    STATUS_RESPONSE response;
 
-	GDOS_DBG_INFO("transRot\n");
+    GDOS_DBG_INFO("transRot\n");
 
-	request.rev = 0;  // Scanning frequency corresponds to the configuration parameter
-	if(sendRequestPackage(0x0403, sizeof(TRANS_ROT_REQUEST), &request) != 0)
-	{
-		GDOS_ERROR("Can't send transRot request to sensor\n");
-		return -1;
-	}
+    request.rev = 0;  // Scanning frequency corresponds to the configuration parameter
+    if(sendRequestPackage(0x0403, sizeof(TRANS_ROT_REQUEST), &request) != 0)
+    {
+        GDOS_ERROR("Can't send transRot request to sensor\n");
+        return -1;
+    }
 
-	if(receiveResponsePackage(0x8403, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
-	{
-		GDOS_ERROR("Can't receive response on transRot request\n");
-		return -1;
-	}
+    if(receiveResponsePackage(0x8403, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    {
+        GDOS_ERROR("Can't receive response on transRot request\n");
+        return -1;
+    }
 
-	return(decodeSensorStatus(response.senstat));
+    return(decodeSensorStatus(response.senstat));
 }
 
 int LadarIbeo::transMeasure(void)
 {
-	TRANS_MEASURE_RESPONSE response;
+    TRANS_MEASURE_RESPONSE response;
 
-	GDOS_DBG_INFO("transMeasure\n");
+    GDOS_DBG_INFO("transMeasure\n");
 
-	if(sendRequestPackage(0x0404, 0, NULL) != 0)
-	{
-		GDOS_ERROR("Can't send transMeasure request to sensor\n");
-		return -1;
-	}
+    if(sendRequestPackage(0x0404, 0, NULL) != 0)
+    {
+        GDOS_ERROR("Can't send transMeasure request to sensor\n");
+        return -1;
+    }
 
-	if(receiveResponsePackage(0x8404, sizeof(TRANS_MEASURE_RESPONSE), &response, NULL) != sizeof(TRANS_MEASURE_RESPONSE))
-	{
-		GDOS_ERROR("Can't receive response on transMeasure request\n");
-		return -1;
-	}
+    if(receiveResponsePackage(0x8404, sizeof(TRANS_MEASURE_RESPONSE), &response, NULL) != sizeof(TRANS_MEASURE_RESPONSE))
+    {
+        GDOS_ERROR("Can't receive response on transMeasure request\n");
+        return -1;
+    }
 
-	switch(response.errorcode >> 8)
-	{
-	case 1:
-		GDOS_ERROR("Maximum laser pulse frequency too high\n");
-		return -1;
-	case 2:
-		GDOS_ERROR("Mean laser pulse frequency too high\n");
-		return -1;
-	case 3:
-		GDOS_ERROR("The sector borders are not configured correctly\n");
-		return -1;
-	case 4:
-		GDOS_ERROR("A sector border is not a whole multiple of the angle step\n");
-		return -1;
-	}
+    switch(response.errorcode >> 8)
+    {
+    case 1:
+        GDOS_ERROR("Maximum laser pulse frequency too high\n");
+        return -1;
+    case 2:
+        GDOS_ERROR("Mean laser pulse frequency too high\n");
+        return -1;
+    case 3:
+        GDOS_ERROR("The sector borders are not configured correctly\n");
+        return -1;
+    case 4:
+        GDOS_ERROR("A sector border is not a whole multiple of the angle step\n");
+        return -1;
+    }
 
 // ******************** should be replaced by a better solution *****************************************
    RackTask::sleep(5000000000llu); // 5s
 // ******************************************************************************************************
 
-	return(decodeSensorStatus(response.senstat));
+    return(decodeSensorStatus(response.senstat));
 }
 
 int LadarIbeo::getProfile(void)
 {
-	GET_PROFILE_REQUEST request;
-	int profilenum    = 0;  // request continuous data
-	int profileformat = PROFILEFORMAT_DIRSTEP | PROFILEFORMAT_POINTNUM | PROFILEFORMAT_TSTART | PROFILEFORMAT_STARTDIR |
-	                    PROFILEFORMAT_DISTANCE |
-	                    PROFILEFORMAT_TEND | PROFILEFORMAT_SENSTAT;
+    GET_PROFILE_REQUEST request;
+    int profilenum    = 0;  // request continuous data
+    int profileformat = PROFILEFORMAT_DIRSTEP | PROFILEFORMAT_POINTNUM | PROFILEFORMAT_TSTART | PROFILEFORMAT_STARTDIR |
+                        PROFILEFORMAT_DISTANCE |
+                        PROFILEFORMAT_TEND | PROFILEFORMAT_SENSTAT;
 
-	GDOS_DBG_INFO("getProfile\n");
+    GDOS_DBG_INFO("getProfile\n");
 
     request.profilenum      = __cpu_to_be16(profilenum);
     request.profileformat   = __cpu_to_be16(profileformat);
 
-	if(sendRequestPackage(0x0301, sizeof(GET_PROFILE_REQUEST), &request) != 0)
-	{
-		GDOS_ERROR("Can't send getProfile request to sensor\n");
-		return -1;
-	}
-	return 0;
+    if(sendRequestPackage(0x0301, sizeof(GET_PROFILE_REQUEST), &request) != 0)
+    {
+        GDOS_ERROR("Can't send getProfile request to sensor\n");
+        return -1;
+    }
+    return 0;
 }
 
 int LadarIbeo::cancelProfile(void)
 {
-	STATUS_RESPONSE response;
+    STATUS_RESPONSE response;
 
-	if(sendRequestPackage(0x0302, 0, NULL) != 0)
-	{
-		GDOS_ERROR("Can't send cancleProfile request to sensor\n");
-		return -1;
-	}
+    if(sendRequestPackage(0x0302, 0, NULL) != 0)
+    {
+        GDOS_ERROR("Can't send cancleProfile request to sensor\n");
+        return -1;
+    }
 
-	if(receiveResponsePackage(0x8302, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
-	{
-		GDOS_ERROR("Can't receive response on cancelProfile request\n");
-		return -1;
-	}
+    if(receiveResponsePackage(0x8302, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    {
+        GDOS_ERROR("Can't receive response on cancelProfile request\n");
+        return -1;
+    }
 
-	return(decodeSensorStatus(response.senstat));
+    return(decodeSensorStatus(response.senstat));
 }
 
 int LadarIbeo::setTimeAbs(void)
 {
-	SET_TIME_ABS send;
-	SET_TIME_ABS_RESPONSE response;
-	RACK_TIME recordingtime;
+    SET_TIME_ABS send;
+    SET_TIME_ABS_RESPONSE response;
+    RACK_TIME recordingtime;
 
-	send.syncabs = 0;
+    send.syncabs = 0;
 
-	if(sendRequestPackage(0x0203, sizeof(SET_TIME_ABS), &send) != 0)
-	{
-		GDOS_ERROR("Can't send setTimeAbs request to sensor\n");
-		return-1;
-	}
+    if(sendRequestPackage(0x0203, sizeof(SET_TIME_ABS), &send) != 0)
+    {
+        GDOS_ERROR("Can't send setTimeAbs request to sensor\n");
+        return-1;
+    }
 
-	if(receiveResponsePackage(0x8203, sizeof(SET_TIME_ABS_RESPONSE), &response, &recordingtime) != sizeof(SET_TIME_ABS_RESPONSE))
-	{
-		GDOS_ERROR("Can't receive response on setTimeAbs request\n");
-		return -1;
-	}
+    if(receiveResponsePackage(0x8203, sizeof(SET_TIME_ABS_RESPONSE), &response, &recordingtime) != sizeof(SET_TIME_ABS_RESPONSE))
+    {
+        GDOS_ERROR("Can't receive response on setTimeAbs request\n");
+        return -1;
+    }
 
-	timeOffset = recordingtime - (RACK_TIME)(response.synctime)*10;
+    timeOffset = recordingtime - (RACK_TIME)(response.synctime)*10;
 
-	GDOS_DBG_DETAIL("getSyncTime synctime %i recordingtime %i timeOffset %i\n", (int)(response.synctime), recordingtime, timeOffset);
+    GDOS_DBG_DETAIL("getSyncTime synctime %i recordingtime %i timeOffset %i\n", (int)(response.synctime), recordingtime, timeOffset);
 
-	return(0);
+    return(0);
 }
 
 int LadarIbeo::byteorder_read_be_u16(void* u16)
 {
-	return((int)((*((unsigned char*)u16) << 8) | *((unsigned char*)u16 + 1)));
+    return((int)((*((unsigned char*)u16) << 8) | *((unsigned char*)u16 + 1)));
 }
 
 

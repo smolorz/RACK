@@ -23,7 +23,7 @@
 #include <time.h>
 
 // define module class
-#define MODULE_CLASS_ID     				GPS
+#define MODULE_CLASS_ID                     GPS
 
 #define RMC_MESSAGE 0
 #define GGA_MESSAGE 1
@@ -34,15 +34,15 @@
 
 typedef struct
 {
-	double	x;
-	double	y;
-	double	z;
+    double    x;
+    double    y;
+    double    z;
 } pos_3d;
 
 typedef struct
 {
-	RACK_TIME		recordingTime;
-	char 	        data[1024];
+    RACK_TIME        recordingTime;
+    char             data[1024];
 } nmea_data;
 
 //######################################################################
@@ -50,19 +50,19 @@ typedef struct
 //######################################################################
 
 class GpsNmea : public DataModule{
-  	private:
-	    int         serialDev;
+    private:
+        int         serialDev;
         int         periodTime;
         int         trigMsg;
-	    int         posGKOffsetX;
-	    int         posGKOffsetY;
+        int         posGKOffsetX;
+        int         posGKOffsetY;
         int         msgCounter;
         int         msgNum;
-	    SerialPort  serialPort;
-	    nmea_data   nmeaMsg;
+        SerialPort  serialPort;
+        nmea_data   nmeaMsg;
 
-	    // -> realtime context
-	    int readNMEAMessage();
+        // -> realtime context
+        int readNMEAMessage();
         int analyseRMC(gps_data *data);
         int analyseGGA(gps_data *data);
         int analyseGSA(gps_data *data);
@@ -80,23 +80,23 @@ class GpsNmea : public DataModule{
         double  newF(double f, double x, double y,
                      double p, double eq, double a);
 
-  	protected:
-	    // -> realtime context
-	    int  	moduleOn(void);
-	    void 	moduleOff(void);
-   	    int  	moduleLoop(void);
-	    int  	moduleCommand(MessageInfo *msgInfo);
+    protected:
+        // -> realtime context
+        int      moduleOn(void);
+        void     moduleOff(void);
+        int      moduleLoop(void);
+        int      moduleCommand(MessageInfo *msgInfo);
 
-	    // -> non realtime context
-	    void 	moduleCleanup(void);
+        // -> non realtime context
+        void     moduleCleanup(void);
 
-  	public:
-	    // constructor und destructor
-	    GpsNmea();
-	    ~GpsNmea() {};
+    public:
+        // constructor und destructor
+        GpsNmea();
+        ~GpsNmea() {};
 
-	    // -> realtime context
-	    int  moduleInit(void);
+        // -> realtime context
+        int  moduleInit(void);
 };
 
 #endif // __GPS_NMEA_H__

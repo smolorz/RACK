@@ -40,8 +40,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -64,7 +64,7 @@ int  CameraFile::moduleLoop(void)
 {
 //    int j;
     camera_data_msg   *p_data     = NULL;
-    uint32_t   	      datalength = 0;
+    uint32_t          datalength = 0;
     string            imageFileName;
 
     // get datapointer from rackdatabuffer
@@ -93,7 +93,7 @@ int  CameraFile::moduleLoop(void)
         GDOS_DBG_INFO("ERROR opening image file no:%i. \n",loopCounter);
     }
 
-/*	for (j = 0; j < imageSize; j++)
+/*  for (j = 0; j < imageSize; j++)
     {
         imageFile.get(dataPackage->body.byteStream[j]);
     }*/
@@ -126,8 +126,8 @@ int  CameraFile::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *

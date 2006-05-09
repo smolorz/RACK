@@ -43,8 +43,8 @@ argTable_t argTab[] = {
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -84,12 +84,12 @@ void OdometryChassis::moduleOff(void)
 
 int  OdometryChassis::moduleLoop(void)
 {
-    int 			ret;
-    MessageInfo   	info;
-    odometry_data*	p_odo;
-    float         	positionX, positionY, positionRho;
+    int             ret;
+    MessageInfo     info;
+    odometry_data*  p_odo;
+    float           positionX, positionY, positionRho;
     float           sinOldRho, cosOldRho;
-    float         	dX, dY;
+    float           dX, dY;
 
     p_odo = (odometry_data *)getDataBufferWorkSpace();
 
@@ -169,8 +169,8 @@ int  OdometryChassis::moduleCommand(MessageInfo *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *

@@ -26,10 +26,10 @@ public class ChassisDataMsg extends TimsMsg
 {
     public int   recordingtime = 0;
     public float deltaX        = 0;
-    public float deltaY        = 0;    
+    public float deltaY        = 0;
     public float deltaRho      = 0;
     public float vx            = 0;
-    public float vy            = 0;    
+    public float vy            = 0;
     public float omega         = 0;
     public float battery       = 0;
     public int   activePilot   = 0;
@@ -70,10 +70,10 @@ public class ChassisDataMsg extends TimsMsg
 
       recordingtime = dataIn.readInt();
       deltaX        = dataIn.readFloat();
-      deltaY        = dataIn.readFloat();      
+      deltaY        = dataIn.readFloat();
       deltaRho      = dataIn.readFloat();
       vx            = dataIn.readFloat();
-      vy            = dataIn.readFloat();      
+      vy            = dataIn.readFloat();
       omega         = dataIn.readFloat();
       battery       = dataIn.readFloat();
       activePilot   = dataIn.readInt();
@@ -85,10 +85,10 @@ public class ChassisDataMsg extends TimsMsg
       DataOutputStream dataOut = new DataOutputStream(out);
       dataOut.writeInt(recordingtime);
       dataOut.writeFloat(deltaX);
-      dataOut.writeFloat(deltaY);      
+      dataOut.writeFloat(deltaY);
       dataOut.writeFloat(deltaRho);
       dataOut.writeFloat(vx);
-      dataOut.writeFloat(vy);      
+      dataOut.writeFloat(vy);
       dataOut.writeFloat(omega);
       dataOut.writeFloat(battery);
       dataOut.writeInt(activePilot);

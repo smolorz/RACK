@@ -57,7 +57,7 @@ public class CameraDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-    	//width, height, depth and mode are short values! 
+        //width, height, depth and mode are short values!
         return ( 16 + 2 * width * height);
     }
 
@@ -68,7 +68,7 @@ public class CameraDataMsg extends TimsMsg
     }
 
     public CameraDataMsg(TimsDataMsg p) throws MsgException
-    { 
+    {
         readTimsDataMsg(p);
     }
 
@@ -365,7 +365,7 @@ public class CameraDataMsg extends TimsMsg
         switch (mode)
         {
             case CameraDataMsg.CAMERA_MODE_JPEG:
-            	System.out.println("got a jpeg image");
+                System.out.println("got a jpeg image");
                 // colorFilterId is missused as length of the jpeg stream here.
                 byte[] rawImageBytes = new byte[colorFilterId];
                 dataIn.readFully(rawImageBytes, 0, colorFilterId);
@@ -400,7 +400,7 @@ public class CameraDataMsg extends TimsMsg
             case CameraDataMsg.CAMERA_MODE_RGB24: // need an array of
                                                         // int's!
                 // every three bytes from the input data are combined to one int
-            	System.out.println("got rgb24 image");
+                System.out.println("got rgb24 image");
                 for (int j = 0; j < height; j++)
                 {
                     for (int i = 0; i < width; i++)
@@ -408,10 +408,10 @@ public class CameraDataMsg extends TimsMsg
                         imageRawData[width * j + i] = // order is important!
                                                         // order defines color!!
                         (
-                        	      (((int) dataIn.readByte() & 0xff) << 16)
+                                  (((int) dataIn.readByte() & 0xff) << 16)
                                 | (((int) dataIn.readByte() & 0xff) << 8)
-                                | (((int) dataIn.readByte() & 0xff)) 
-								| (255 << 24));
+                                | (((int) dataIn.readByte() & 0xff))
+                                | (255 << 24));
                     }
                 }
                 break;
@@ -428,12 +428,12 @@ public class CameraDataMsg extends TimsMsg
                 Y1,
                 U,
                 V;
-                
+
                 for (int j = 0; j < height; j++)
                 {
                     for (int i = 0; i < width; i = i + 2)
                     {
-                    	//System.out.println("width loop " + i);
+                        //System.out.println("width loop " + i);
                         U = (int) dataIn.readByte() & 0xff;
                         Y0 = (int) dataIn.readByte() & 0xff;
                         V = (int) dataIn.readByte() & 0xff;

@@ -27,13 +27,17 @@
 LadarSickLms200 *p_inst;
 
 argTable_t argTab[] = {
+
   {ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "The number of the local serial device", (int)-1 },
+
   {ARGOPT_OPT, "protocol", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "Protocol (normal = 0, interlaced(raw) = 1, fast = 2), default normal(0)",
    (int)0 },
+
   {ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "Working serial baudrate [ 38400 | 500000 ], default 38400", (int)38400 },
+
   {0,"",0,0,""}
 };
 
@@ -56,58 +60,58 @@ const struct rtser_config ladar_serial_config =
 
 static ladar_config_t config_sick_norm =
 {
-    serDev:               	-1,
-    cmd_baudrate:         	NULL,
-    cmd_sendData:         	ladar_cmd_sendData_norm,
-    baudrate:             	9600,
-    protocol:             	normal,
-    serial_buffer_size:   	725 + 7,
+    serDev:                 1,
+    cmd_baudrate:           NULL,
+    cmd_sendData:           ladar_cmd_sendData_norm,
+    baudrate:               9600,
+    protocol:               normal,
+    serial_buffer_size:     725 + 7,
     periodTime:             213, // sampling_rate = 4.7
-    messageDistanceNum:   	361,
-    startAngle:           	(90.0 * M_PI/180.0),
-    angleResolution:      	(-0.5 * M_PI/180.0),
-    duration:             	20,
-    maxRange:             	80000,
-    wait_for_ack:         	  60000000ll,   // 60ms
-    wait_for_modechange:  	1000000000ll,   //  1 s
-    wait_after_modechange:	  30000000ll    // 30ms
+    messageDistanceNum:     361,
+    startAngle:             (90.0 * M_PI/180.0),
+    angleResolution:        (-0.5 * M_PI/180.0),
+    duration:               20,
+    maxRange:               80000,
+    wait_for_ack:             60000000ll,   // 60ms
+    wait_for_modechange:    1000000000ll,   //  1 s
+    wait_after_modechange:    30000000ll    // 30ms
 };
 
 static ladar_config_t config_sick_interlaced =
 {
-    serDev:               	-1,
-    cmd_baudrate:         	NULL,
-    cmd_sendData:         	ladar_cmd_sendData_int,
-    baudrate:             	9600,
-    protocol:             	interlaced,
-    serial_buffer_size:   	365 + 7,
+    serDev:                 -1,
+    cmd_baudrate:           NULL,
+    cmd_sendData:           ladar_cmd_sendData_int,
+    baudrate:               9600,
+    protocol:               interlaced,
+    serial_buffer_size:     365 + 7,
     periodTime:             13,    // sampling_rate = 75.0,
-    messageDistanceNum:   	181,
-    startAngle:           	0.0,
-    angleResolution:      	0.0,
-    duration:             	6,
-    maxRange:             	80000,
-    wait_for_ack:             60000000ll,
+    messageDistanceNum:     181,
+    startAngle:             0.0,
+    angleResolution:        0.0,
+    duration:               6,
+    maxRange:               80000,
+    wait_for_ack:            60000000ll,
     wait_for_modechange:    3000000000ll,
     wait_after_modechange:    30000000ll
 };
 
 static ladar_config_t config_sick_fast =
 {
-    serDev:               	-1,
-    cmd_baudrate:         	NULL,
-    cmd_sendData:         	ladar_cmd_sendData_norm,
-    baudrate:             	9600,
-    protocol:             	fast,
-    serial_buffer_size:   	365 + 7,
+    serDev:                 -1,
+    cmd_baudrate:           NULL,
+    cmd_sendData:           ladar_cmd_sendData_norm,
+    baudrate:               9600,
+    protocol:               fast,
+    serial_buffer_size:     365 + 7,
     periodTime:             13,    // sampling_rate = 75.0,
-    messageDistanceNum:   	181,
-    startAngle:           	(45.0 * M_PI/180.0),
-    angleResolution:      	(-0.5 * M_PI/180.0),
-    duration:             	6,
-    maxRange:             	80000,
+    messageDistanceNum:     181,
+    startAngle:             (45.0 * M_PI/180.0),
+    angleResolution:        (-0.5 * M_PI/180.0),
+    duration:               6,
+    maxRange:               80000,
     wait_for_ack:             60000000ll, // 60ms
-    wait_for_modechange:  	1000000000ll, // 1s
+    wait_for_modechange:    1000000000ll, // 1s
     wait_after_modechange:    30000000ll  // 30ms
 };
 
@@ -115,8 +119,8 @@ static ladar_config_t config_sick_fast =
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- * 	 moduleOff,
- * 	 moduleLoop,
+ *      moduleOff,
+ *      moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -1151,8 +1155,8 @@ unsigned short LadarSickLms200::crc_check(unsigned char* data, int len)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- * 	 moduleCleanup,
- * 	 Constructor,
+ *      moduleCleanup,
+ *      Constructor,
  *   Destructor,
  *   main,
  *

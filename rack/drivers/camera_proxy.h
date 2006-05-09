@@ -71,8 +71,8 @@ class CameraData
     public:
         static void le_to_cpu(camera_data *data)
         {
-        	int i;
-        	int bytes;
+            int i;
+            int bytes;
             data->recordingTime = __le32_to_cpu(data->recordingTime);
             data->width         = __le16_to_cpu(data->width);
             data->height        = __le16_to_cpu(data->height);
@@ -90,8 +90,8 @@ class CameraData
 
         static void be_to_cpu(camera_data *data)
         {
-        	int i;
-        	int bytes;
+            int i;
+            int bytes;
 
             data->recordingTime = __be32_to_cpu(data->recordingTime);
             data->width         = __be16_to_cpu(data->width);
@@ -130,8 +130,8 @@ class CameraData
 };
 
 typedef struct {
-    camera_data 	data;
-    uint8_t		    byteStream[CAMERA_MAX_BYTES];
+    camera_data     data;
+    uint8_t         byteStream[CAMERA_MAX_BYTES];
 } __attribute__((packed)) camera_data_msg;
 
 
