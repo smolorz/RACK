@@ -92,9 +92,10 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
     bytesPerPixel = dataPackage->data.depth / 8;
 
     count = dataPackage->data.width * dataPackage->data.height * bytesPerPixel;
-    start = count * (((double ) 1) - ((double) 1) / autoBrightnessSize);
+    start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize));
 
     start += start % bytesPerPixel;
+    start++; 
 
     for(i = start; i < count; i += bytesPerPixel)
     {
