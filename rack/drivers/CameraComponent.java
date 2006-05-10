@@ -239,15 +239,18 @@ public class CameraComponent extends JComponent
 
     public void paintComponent(Graphics g)
     {
+    	Graphics2D g2 = (Graphics2D)g;
+    	
         if (img != null)
         {
-            g.drawImage(img, 0, 0, this);
+            g2.drawImage(img, 0, 0, this);
 
-            g.setColor(Color.GREEN);
+            g2.setColor(Color.GREEN);
+            g2.setStroke(new BasicStroke(5));
             for (int a = 0; a < rectNumber; a++)
             {
-                g.drawRect(rects[a].x, rects[a].y,
-                           rects[a].width, rects[a].height);
+                g2.drawRect(rects[a].x, rects[a].y,
+                            rects[a].width, rects[a].height);
             }
         }
     }
