@@ -104,10 +104,11 @@ public class MapViewGui extends Thread
         panel.add(viewPanel,BorderLayout.CENTER);;
 
         // set MapView background
-        File file = new File("/home/reimer/spbscripts/hentsch/mapUni.jpg");
+        File file = new File("mapViewBackground.jpg");        
         backGndOffset.x   = 84000;
         backGndOffset.y   = -210000;
         backGndOffset.phi = (float)(-18.0 / 180.0 * Math.PI);
+        backGndOffset.phi = 0.0f;
         backGndResX       = 400.0;
         backGndResY       = 400.0;
 
@@ -797,7 +798,7 @@ public class MapViewGui extends Thread
             cursorGraphics.setColor(Color.BLACK);
             cursorGraphics.drawRect(-chassisParam.boundaryBack,
                                     -chassisParam.boundaryLeft,
-                                     chassisWidth, chassisLength);
+                                     chassisLength, chassisWidth);
             cursorGraphics.drawLine(-chassisParam.boundaryBack +
                                      (int)(chassisLength * 0.5),
                                        -chassisParam.boundaryLeft,
