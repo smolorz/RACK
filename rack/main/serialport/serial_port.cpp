@@ -119,6 +119,11 @@ int SerialPort::setEventTimeout(int64_t timeout)
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONFIG, &settime_cfg);
 }
 
+int SerialPort::getControl(int32_t *bitmask)
+{
+    return rt_dev_ioctl(fd, RTSER_RTIOC_GET_CONTROL, bitmask);
+}
+
 int SerialPort::setControl(int32_t bitmask)
 {
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONTROL, bitmask);
