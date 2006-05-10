@@ -45,6 +45,7 @@ class SerialPort
         int setBaudrate(int baudrate);
         int setRxTimeout(int64_t timeout);
         int setEventTimeout(int64_t timeout);
+        int getControl(int32_t *bitmask);
         int setControl(int32_t bitmask);
 
         int send(const void* data, int dataLen);
