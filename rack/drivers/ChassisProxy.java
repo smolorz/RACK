@@ -23,6 +23,7 @@ import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
 import rack.main.tims.router.*;
 
+
 public class ChassisProxy extends RackDataProxy
 {
     public static final byte MSG_CHASSIS_MOVE =
@@ -72,8 +73,28 @@ public class ChassisProxy extends RackDataProxy
 
     public synchronized ChassisParamMsg getParam()
     {
-        // TODO
-        return (new ChassisParamMsg());
+        currentSequenceNo++;
+        try
+        {
+            TimsMsgRouter.send0(MSG_CHASSIS_GET_PARAMETER, commandMbx, replyMbx,
+                    (byte) 0, currentSequenceNo);
+
+            TimsDataMsg reply;
+            do
+            {
+                reply = TimsMsgRouter.receive(replyMbx, 1000);
+            }
+            while ((reply.seq_nr != currentSequenceNo)
+                    & (reply.type == MSG_CHASSIS_PARAMETER));
+            
+            ChassisParamMsg data = new ChassisParamMsg(reply);
+            return (data);
+        }
+        catch (MsgException e)
+        {
+        	System.out.println(e);
+            return (null);
+        }
     }
 
     public synchronized void setActivePilot(int pilotMbx)
