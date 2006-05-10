@@ -35,7 +35,8 @@ public class ChassisParamMsg extends TimsMsg
     public float omegaMax = 0.0f;
     public float omegaDotMax = 0.0f;
     public int minTurningRadius = 0;
-
+    
+    public float breakConstant = 0.0f;
     public int safetyMargin = 0;
     public int safetyMarginMove = 0;
     public int comfortMargin = 0;
@@ -52,9 +53,10 @@ public class ChassisParamMsg extends TimsMsg
     public float pilotParameterA = 0;
     public float pilotParameterB = 0;
 
+    
     public int getDataLen()
     {
-        return (84);
+        return (88);
     }
 
     public ChassisParamMsg()
@@ -69,8 +71,9 @@ public class ChassisParamMsg extends TimsMsg
 
     protected boolean checkTimsMsgHead()
     {
-        if ((type == RackMsgType.MSG_DATA)
-                && (msglen == headLen + getDataLen()))
+        /*if ((type == RackMsgType.MSG_DATA)
+                && (msglen == headLen + getDataLen()))*/
+            if (msglen == headLen + getDataLen())            
         {
             return (true);
         }
@@ -101,6 +104,7 @@ public class ChassisParamMsg extends TimsMsg
         omegaMax = dataIn.readFloat();
         omegaDotMax = dataIn.readFloat();
         minTurningRadius = dataIn.readInt();
+        breakConstant = dataIn.readFloat();
         safetyMargin = dataIn.readInt();
         safetyMarginMove = dataIn.readInt();
         comfortMargin = dataIn.readInt();
@@ -130,6 +134,7 @@ public class ChassisParamMsg extends TimsMsg
         dataOut.writeFloat(omegaMax);
         dataOut.writeFloat(omegaDotMax);
         dataOut.writeInt(minTurningRadius);
+        dataOut.writeFloat(breakConstant);
         dataOut.writeInt(safetyMargin);
         dataOut.writeInt(safetyMarginMove);
         dataOut.writeInt(comfortMargin);
