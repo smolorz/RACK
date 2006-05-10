@@ -33,7 +33,7 @@ class ImageTool {
         return in;
     }
 
-    static int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData,
+    static int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData,
                             int width, int height)
     {
         int i,j;
@@ -61,7 +61,7 @@ class ImageTool {
     }
 
 
-    static int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData,
+    static int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData,
                                    int width, int height)
     {
         int i,j;
@@ -75,7 +75,6 @@ class ImageTool {
                 y0 = (int) (0xff & inputData[2 * (i * width + j) + 1]);
                 v  = (int) (0xff & inputData[2 * (i * width + j) + 2]);
                 y1 = (int) (0xff & inputData[2 * (i * width + j) + 3]);
-
                 outputData[3 * (i * width + j) + 0] = (uint8_t) clip(( 298 * (y0-16)                 + 409 * (v-128) + 128) >> 8);//bo
                 outputData[3 * (i * width + j) + 1] = (uint8_t) clip(( 298 * (y0-16) - 100 * (u-128) - 208 * (v-128) + 128) >> 8);//g0
                 outputData[3 * (i * width + j) + 2] = (uint8_t) clip(( 298 * (y0-16) + 516 * (u-128)                 + 128) >> 8);//r0
