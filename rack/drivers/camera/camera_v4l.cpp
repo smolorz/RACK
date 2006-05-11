@@ -313,7 +313,7 @@ int CameraV4L::moduleLoop(void)
 
     GDOS_DBG_DETAIL("Data recordingtime %i width %i height %i depth %i mode %i\n", p_data->data.recordingTime, p_data->data.width, p_data->data.height, p_data->data.depth, p_data->data.mode);
 
-    ImageTool::convertCharBGR2RGB((uint8_t *)&(p_data->byteStream), (uint8_t *) &(p_data->byteStream),(int) p_data->data.width, (int) p_data->data.height);
+//    ImageTool::convertCharBGR2RGB((uint8_t *)&(p_data->byteStream), (uint8_t *) &(p_data->byteStream),(int) p_data->data.width, (int) p_data->data.height);
 
     datalength = sizeof(camera_data) + camera.grab_size;
     putDataBufferWorkSpace(datalength);

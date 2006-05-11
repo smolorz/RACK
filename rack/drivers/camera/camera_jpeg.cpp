@@ -165,14 +165,18 @@ int CameraJpeg::moduleLoop(void)
     //convert camera_bytestream (may be yuv/raw mode) to rgb mode
     switch(dataCameraInput->data.mode) {
         case CAMERA_MODE_YUV422:
-            ImageTool::convertCharUYVY2RGB(rgbByteArray,
+            ImageTool::convertCharUYVY2BGR(rgbByteArray,
                                            dataCameraInput->byteStream,
                                            dataCameraInput->data.width,
                                            dataCameraInput->data.height);
             break;
         case CAMERA_MODE_MONO8:
         case CAMERA_MODE_RGB24:
-            memcpy(rgbByteArray, dataCameraInput->byteStream, sizeof(dataCameraInput->byteStream));
+            ImageTool::convertCharBGR2RGB(rgbByteArray,
+                                           dataCameraInput->byteStream,
+                                           dataCameraInput->data.width,
+                                           dataCameraInput->data.height);
+//memcpy(rgbByteArray, dataCameraInput->byteStream, sizeof(dataCameraInput->byteStream));
             break;
         default:
             GDOS_ERROR( "Unkown image mode %i for camera_jpeg\n", dataCameraInput->data.mode);
