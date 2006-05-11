@@ -111,6 +111,9 @@ int  LadarHokuyoUrg::moduleLoop(void)
 
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
+    p_data->duration        = 1000;
+    p_data->maxRange        = 4000;
+
     // send G-Command (Distance Data Acquisition)
     gCommand[1] = (int)(start/100)      + 0x30;
     gCommand[2] = ((int)(start/10))%10  + 0x30;
