@@ -99,7 +99,7 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
     }
 
     brightness = camera.vid_picture.brightness;
-    if (abs(maxCount-minCount) > 5000)
+    if (abs(maxCount-minCount) > (count / 60))
             brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
 
     if(brightness > 65536)
