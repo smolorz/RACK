@@ -65,8 +65,12 @@ class DxfMap
         double yMin;
         double yMax;
 
-        int load(char *filename);
         int save(char *filename);
+        int load(char *filename, double mapOffsetX, double mapOffsetY);
+        int load(char *filename)
+        {
+            return load(filename, 0.0, 0.0);
+        }
 };
 
 #endif // __DXF_MAP_H__
