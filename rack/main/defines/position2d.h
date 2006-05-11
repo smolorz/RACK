@@ -48,7 +48,7 @@ class Position2D
 
 static inline int position_2d_distance(position_2d position, position_2d origin)
 {
-    int x,y;
+    double x,y;
 
     x = position.x - origin.x;
     y = position.y - origin.y;
