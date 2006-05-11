@@ -23,6 +23,7 @@ package rack.drivers;
  */
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -80,7 +81,25 @@ public class Camera2PngConverter {
         imageRawData  = new int[width*height];
 
         switch(mode) {
-            case CameraDataMsg.CAMERA_MODE_YUV422:
+        case CameraDataMsg.CAMERA_MODE_JPEG:
+	        System.out.println("got a jpeg image");
+	        // colorFilterId is missused as length of the jpeg stream here.
+	        byte[] rawImageBytes = new byte[colorFilterId];
+	        dataIn.readFully(rawImageBytes, 0, colorFilterId);
+	        BufferedImage image = ImageIO.read(new ByteArrayInputStream(
+	                rawImageBytes));
+	        if (image != null)
+	        {
+	            image.getRGB(0, 0, image.getWidth(), image.getHeight(),
+	                    imageRawData, 0, image.getWidth());
+	        }
+	        else
+	        {
+	            System.out
+	                    .print("No buffered image created in cameraDataPackage->readPackageBodyEndianInput\n");
+	        }
+	        break;
+        case CameraDataMsg.CAMERA_MODE_YUV422:
                 //http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwmt/html/YUVFormats.asp
                 //expecting: U Y0 V Y1 as defined in IIDC 1.30
                 //two bytes are one pixel.
@@ -108,6 +127,22 @@ public class Camera2PngConverter {
                     }
                 }
                 break;
+            case CameraDataMsg.CAMERA_MODE_RGB24:
+                System.out.println("got rgb24 image");
+	            for (int j = 0; j < height; j++)
+	            {
+	                for (int i = 0; i < width; i++)
+	                {
+	                    imageRawData[width * j + i] = // order is important!
+	                                                    // order defines color!!
+	                    (
+	                              (((int) dataIn.readByte() & 0xff) << 16)
+	                            | (((int) dataIn.readByte() & 0xff) << 8)
+	                            | (((int) dataIn.readByte() & 0xff))
+	                            | (255 << 24));
+	                }
+	            }
+	            break;
         }
     }
 
@@ -138,36 +173,36 @@ public class Camera2PngConverter {
             endung = filename.substring(filename.indexOf('.') + 1, filename.length());
             if ( (endung.compareTo("raw") == 0) || (endung.compareTo("rcc") == 0))
             {
-            file  = new File(filename);
-            saveFilename = filename.substring(0,filename.indexOf('.'));
-            saveFilename = saveFilename.concat(".png");
+	            file  = new File(filename);
+	            saveFilename = filename.substring(0,filename.indexOf('.'));
+	            saveFilename = saveFilename.concat(".png");
+	
+	            EndianDataInputStream dataIn;
+	
+	            try{
+	                FileInputStream fileInputStream = new FileInputStream(file);
+	                if(bodyByteorder == BIG_ENDIAN)
+	                {
+	                    dataIn = new BigEndianDataInputStream(fileInputStream);
+	                } else {
+	                    dataIn = new LittleEndianDataInputStream(fileInputStream);
+	                }
+	                //only works for yuv422 yet
+	                readPackageBodyEndianInput(dataIn);
+	            }catch(Exception e){
+	                System.out.println("File not useable."+e.toString());
+	            }
 
-            EndianDataInputStream dataIn;
-
-            try{
-                FileInputStream fileInputStream = new FileInputStream(file);
-                if(bodyByteorder == BIG_ENDIAN)
-                {
-                    dataIn = new BigEndianDataInputStream(fileInputStream);
-                } else {
-                    dataIn = new LittleEndianDataInputStream(fileInputStream);
-                }
-                //only works for yuv422 yet
-                readPackageBodyEndianInput(dataIn);
-            }catch(Exception e){
-                System.out.println("File not useable."+e.toString());
+	            try{
+	                System.out.println("Store image data filename=" + saveFilename);
+	                BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
+	                image.setRGB(0, 0, width, height, imageRawData, 0, width);
+	                File saveFile = new File(saveFilename);
+	                ImageIO.write(image, "png", saveFile);
+	            } catch(IOException e) {
+	                System.out.println("Error storing image filename=" + saveFilename + e.toString());
+	            }
             }
-
-            try{
-                System.out.println("Store image data filename=" + saveFilename);
-                BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
-                image.setRGB(0, 0, width, height, imageRawData, 0, width);
-                File saveFile = new File(saveFilename);
-                ImageIO.write(image, "png", saveFile);
-            } catch(IOException e) {
-                System.out.println("Error storing image filename=" + saveFilename + e.toString());
-            }
-        }
       }
 
     }
