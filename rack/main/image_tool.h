@@ -115,6 +115,7 @@ class ImageTool {
             {
                 swap                                = inputData[(i * width + j) * 3];//swap = input_B
                 outputData[(i * width + j) * 3]     = inputData[(i * width + j) * 3 + 2];
+                outputData[(i * width + j) * 3 +1 ] = inputData[(i * width + j) * 3 + 1];
                 outputData[(i * width + j) * 3 + 2] = swap;
             }
         }
