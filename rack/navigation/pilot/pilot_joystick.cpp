@@ -135,6 +135,8 @@ argTable_t argTab[] = {
 
     // get continuous data from joystick
 
+    joystickMbx.clean();
+
     ret = joystick->getContData(0, &joystickMbx, NULL);
     if (ret)
     {
@@ -149,6 +151,8 @@ argTable_t argTab[] = {
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
     {
+        scan2dMbx.clean();
+
         ret = scan2d->getContData(0, &scan2dMbx, NULL);
         if (ret)
         {
@@ -190,7 +194,6 @@ int  PilotJoystick::moduleLoop(void)
     MessageInfo jstkInfo;
     MessageInfo s2dInfo;
     pilot_data*    pilotData = NULL;
-
     // get all joystick messages
 
     jstkInfo.type = 0;
@@ -247,7 +250,7 @@ int  PilotJoystick::moduleLoop(void)
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
     {
-           s2dInfo.type = 0;
+        s2dInfo.type = 0;
         do
         {
             ret = scan2dMbx.recvDataMsgIf(&scan2dMsg.data,
@@ -263,6 +266,7 @@ int  PilotJoystick::moduleLoop(void)
             (s2dInfo.type == MSG_DATA))
         {
             scan2dDataMissing = 0;
+            Scan2DData::parse(&s2dInfo);
         }
         else
         {
@@ -284,7 +288,6 @@ int  PilotJoystick::moduleLoop(void)
 
         // scan2d data message received
 
-        Scan2DData::parse(&s2dInfo);
         speed  = safeSpeed(joystickSpeed, curve2Radius(joystickCurve), NULL,
                            &scan2dMsg.data, &chasParData);
         curve  = joystickCurve;
