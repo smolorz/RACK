@@ -129,6 +129,11 @@ int SerialPort::setControl(int32_t bitmask)
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONTROL, bitmask);
 }
 
+int SerialPort::getStatus(struct rtser_status *status)
+{
+    return rt_dev_ioctl(fd, RTSER_RTIOC_GET_STATUS, status);
+}
+
 int SerialPort::send(const void* data, int dataLen)
 {
     int ret;

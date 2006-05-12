@@ -47,6 +47,7 @@ class SerialPort
         int setEventTimeout(int64_t timeout);
         int getControl(int32_t *bitmask);
         int setControl(int32_t bitmask);
+        int getStatus(struct rtser_status *status);
 
         int send(const void* data, int dataLen);
 
