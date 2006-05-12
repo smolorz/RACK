@@ -68,11 +68,11 @@ int  LadarHokuyoUrg::moduleOn(void)
 
     GDOS_DBG_INFO("Set baudrate to 115200\n");
 
-    ret = serialPort.recv(serialBuffer, 1, NULL, 2000000000ll);
+    ret = serialPort.recv(serialBuffer, 1);
     if (ret)
     {
-        GDOS_ERROR("Can't read set baudrate ack, code=%d\n", ret);
-        return ret;
+        GDOS_WARNING("Can't read set baudrate ack, code=%d\n", ret);
+        GDOS_WARNING("Try on work baudrate 115200\n");
     }
 
     RackTask::sleep(200000000); // 200 ms
@@ -85,6 +85,13 @@ int  LadarHokuyoUrg::moduleOn(void)
     }
 
     RackTask::sleep(200000000); // 200 ms
+
+    ret = serialPort.clean();    
+    if (ret)
+    {
+        GDOS_ERROR("Can't clean serial port\n", ret);
+        return ret;
+    }
 
     return DataModule::moduleOn();   // have to be last command in moduleOn();
 }
