@@ -174,7 +174,8 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
     // check Scan2D
     for (i = 0; i < scan->pointNum; i += 2)
     {
-        if ((scan->point[i].type & TYPE_INVALID) == 0)
+        if (((scan->point[i].type & TYPE_INVALID) == 0) &
+            ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
         {
             // check x-coordinate
               if (scan->point[i].x > xMax)
