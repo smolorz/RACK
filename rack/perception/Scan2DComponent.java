@@ -183,36 +183,11 @@ public class Scan2DComponent extends JComponent
         }
         else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
         {
-            g.setColor(Color.blue);
-        }
-        else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
-        {
-            g.setColor(Color.red);
+            g.setColor(Color.BLUE);
         }
         else
         {
-            if(point.segment > 0)
-            {
-                switch((point.segment - 1) % 4)
-                {
-                    case 0:
-                        g.setColor(Color.cyan);
-                        break;
-                    case 1:
-                        g.setColor(Color.green);
-                        break;
-                    case 2:
-                        g.setColor(Color.magenta);
-                        break;
-                    case 3:
-                        g.setColor(Color.orange);
-                        break;
-                }
-            }
-            else
-            {
-                g.setColor(Color.black);
-            }
+            g.setColor(Color.RED);
         }
 
         xWindow = transformToXWindow(point.x, point.y);

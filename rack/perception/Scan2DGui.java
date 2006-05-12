@@ -250,41 +250,26 @@ public class Scan2DGui extends RackModuleGui
         for (int i = 0; i < scan2DData.pointNum; i++) 
         {
             ScanPoint point = scan2DData.point[i];
-            int type = point.type & 0xff;
             int size = 50;
             int dist;            
             
-            if(type == 0) 
-            { 
-                robotGraphics.setColor(Color.red); 
+            if((point.type & ScanPoint.TYPE_INVALID) != 0)
+            {               
+            	robotGraphics.setColor(Color.GRAY);
             }
-            else 
-            {              
-                switch((type - 1) % 7) 
-                {
-                    case 0:
-                        robotGraphics.setColor(Color.blue);
-                        break;
-                    case 1:
-                        robotGraphics.setColor(Color.cyan);
-                        break;
-                    case 2:
-                        robotGraphics.setColor(Color.green);
-                        break;
-                    case 3:
-                        robotGraphics.setColor(Color.magenta);
-                        break;
-                    case 4:
-                        robotGraphics.setColor(Color.orange);
-                        break;
-                    case 5:
-                        robotGraphics.setColor(Color.pink);
-                        break;
-                    case 6:
-                        robotGraphics.setColor(Color.yellow);
-                        break;
-                }
+            else if((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
+            {
+            	robotGraphics.setColor(Color.YELLOW);
             }
+            else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
+            {
+            	robotGraphics.setColor(Color.BLUE);
+            }
+            else
+            {
+            	robotGraphics.setColor(Color.RED);
+            }
+
             // draw scanpoints in mm
             dist  = (int)Math.sqrt(point.x * point.x + point.y * point.y);
             size += (int)(dist * 0.025);
