@@ -25,5 +25,9 @@ public interface MapViewDrawContext
 
     public Graphics2D getRobotGraphics();
 
+    public Graphics2D getRobotGraphics(int time);
+
     public Position2D getRobotPosition();
+
+    public Position2D getRobotPosition(int time);
 }

@@ -46,6 +46,8 @@ public class MapViewGui extends Thread
     public final int        viewGridDistance = 10000; // in mm
 
     private Position2D      robotPosition = new Position2D();
+    private PositionDataMsg[] robotPositionList;
+    private int             robotPositionListIndex = 0;
     private Position2D      worldCursorPosition = new Position2D(0, 0, 0);
 
     // basic Components
@@ -122,6 +124,12 @@ public class MapViewGui extends Thread
             System.out.println("No background image found!\n"+exc);
         }
 
+        robotPositionList = new PositionDataMsg[25];
+        for(int i = 0; i < 25; i++)
+        {
+            robotPositionList[i] = new PositionDataMsg();
+        }
+
         this.start();
     }
 
@@ -181,10 +189,18 @@ public class MapViewGui extends Thread
     {
         try
         {
-            Position3D position3D = positionProxy.getData().pos;
-            robotPosition = new Position2D(position3D.x, position3D.y,
-                                           position3D.rho);
+            PositionDataMsg position = positionProxy.getData();
 
+            robotPosition = new Position2D(position.pos.x, position.pos.y,
+                                           position.pos.rho);
+
+            synchronized(robotPositionList)
+            {
+                robotPositionListIndex++;
+                if(robotPositionListIndex >= 25)
+                    robotPositionListIndex = 0;
+                robotPositionList[robotPositionListIndex] = position;
+            }
         }
         catch (Exception exc)
         {
@@ -225,9 +241,13 @@ public class MapViewGui extends Thread
                 // create a new draw context
                 DrawContext drawContext;
                 if (actionCursor.isSimRobotPosition())
-                    drawContext = new DrawContext(worldCursorPosition);
+                {
+                    drawContext = new DrawContext(worldCursorPosition, null);
+                }
                 else
-                    drawContext = new DrawContext(robotPosition);
+                {
+                    drawContext = new DrawContext(robotPosition, robotPositionList);
+                }
 
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
@@ -279,13 +299,15 @@ public class MapViewGui extends Thread
         private Graphics2D worldGraph;
         private Graphics2D robotGraph;
         private Position2D robotPosition;
+        private PositionDataMsg robotPositionList[];
 
-        public DrawContext(Position2D robotPosition)
+        public DrawContext(Position2D robotPosition, PositionDataMsg[] robotPositionList)
         {
             super(viewPanel.getWidth(), viewPanel.getHeight(),
                     BufferedImage.TYPE_INT_RGB);
 
             this.robotPosition = robotPosition;
+            this.robotPositionList = robotPositionList;
 
             worldGraph = this.createGraphics();
             worldGraph.setClip(0, 0, this.getWidth(), this.getHeight());
@@ -317,11 +339,55 @@ public class MapViewGui extends Thread
             return robotGraph;
         }
 
+        public Graphics2D getRobotGraphics(int time)
+        {
+            Position2D robotPositionTime = getRobotPosition(time);
+
+            // prepare robotGraph
+            Graphics2D robotGraphTime = this.createGraphics();
+
+            robotGraphTime.setClip(0, 0, this.getWidth(), this.getHeight());
+            robotGraphTime.setTransform(worldGraph.getTransform());
+            robotGraphTime.translate(robotPositionTime.x, robotPositionTime.y);
+            robotGraphTime.rotate(robotPositionTime.phi);
+
+            return robotGraphTime;
+        }
+
         public Position2D getRobotPosition()
         {
             return (Position2D) robotPosition.clone();
         }
 
+        public Position2D getRobotPosition(int time)
+        {
+            if(robotPositionList != null)
+            {
+                Position2D robotPosition;
+                
+                synchronized(robotPositionList)
+                {
+                    int index = robotPositionListIndex;
+                    int indexTimeDiff = Math.abs(time - robotPositionList[index].recordingTime);
+                    
+                    for(int i = 0; i < robotPositionList.length; i++)
+                    {
+                        int timeDiff = Math.abs(time - robotPositionList[i].recordingTime);
+                        if(timeDiff < indexTimeDiff)
+                        {
+                            index = i;
+                            indexTimeDiff = timeDiff;
+                        }
+                    }
+                    robotPosition = new Position2D(robotPositionList[index].pos.x,
+                                                   robotPositionList[index].pos.y,
+                                                   robotPositionList[index].pos.rho);
+                }
+                return robotPosition;
+            }
+            else
+                return (Position2D) robotPosition.clone();
+        }
 
         private void drawGrid()
         {
@@ -1079,12 +1145,22 @@ public class MapViewGui extends Thread
             return robotGraph;
         }
 
+        public Graphics2D getRobotGraphics(int time)
+        {
+            return robotGraph;
+        }
+
         public Graphics2D getCursorGraphics()
         {
             return cursorGraph;
         }
 
         public Position2D getRobotPosition()
+        {
+            return robotPosition;
+        }
+
+        public Position2D getRobotPosition(int time)
         {
             return robotPosition;
         }
