@@ -1,4 +1,4 @@
-/*/*
+/*
  * RACK - Robotics Application Construction Kit
  * Copyright (C) 2005-2006 University of Hannover
  *                         Institute for Systems Engineering - RTS
@@ -224,14 +224,7 @@ int  LadarIbeo::moduleLoop(void)
         for(distanceIndex = 0; distanceIndex < p_data->distanceNum; distanceIndex++)
         {
             distance = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));  // measurement unit is m * 256
-            if (distance == 0)
-            {
-                p_data->distance[distanceIndex] = 100000 ;  // maxRange (unit is mm)
-            }
-            else
-            {
-                p_data->distance[distanceIndex] = (int)((float)distance * 1000.0f / 256.0f) ;  // measurement unit is mm
-            }
+            p_data->distance[distanceIndex] = (int)((float)distance * 1000.0f / 256.0f) ;  // measurement unit is mm
             profileIdx += 2;
         }
 
