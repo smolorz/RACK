@@ -78,6 +78,7 @@ public class Gui extends Thread
     public static int GROUP_NUM;
     public static int JARFILE_NUM;
     public static int DRIVERS_NUM;
+    public static int WORKSPACE_NUM;
 
     /** enable / disable module state polling */
     private boolean prefPollingOn = true;
@@ -87,6 +88,9 @@ public class Gui extends Thread
     Vector groupName = new Vector();
     Vector groupSize = new Vector();
     Vector jarFiles = new Vector();
+    Vector workSpaceName = new Vector();
+    Vector workSpaceSize = new Vector();
+    Vector moduleWorkSpace = new Vector();    
     int[] groupSizeInt;
 
     ClassLoader guiCL = this.getContextClassLoader();
@@ -99,6 +103,7 @@ public class Gui extends Thread
     JCheckBoxMenuItem prefPollingOnCbMenuItem;
 
     boolean showMapView = false;
+    int mapViewWorkSpace;
 
     // main frame
     JFrame frame;
@@ -111,8 +116,9 @@ public class Gui extends Thread
     JButton[] groupButton;
     // work panel
     JTabbedPane jtp;
-    JDesktopPane jdp;
-    // JDesktopPane jdp2;
+//    JDesktopPane jdp;
+//    JDesktopPane jdp2;
+    JDesktopPane [] jdp;
     // JDesktopPane jdp3;
     // message internal frame
     JInternalFrame messageFrame;
@@ -169,7 +175,6 @@ public class Gui extends Thread
         // reading config file
 
         System.out.println("Load config file \"" + fileName + "\"");
-        System.out.println("showMapView="+showMapView);
         readConfig(fileName);
 
         // checks
@@ -326,6 +331,10 @@ public class Gui extends Thread
             string = bfr.readLine().trim();
             int grpElement = 0;
             int readMode = 0; // init
+            String currWorkSpace = "workspace";
+            workSpaceName.add(currWorkSpace);
+            
+            
             while (string != null)
             {
                 configZeilen.add(string);
@@ -367,12 +376,32 @@ public class Gui extends Thread
                     else if (string.startsWith("MAPVIEW"))
                     {
                         showMapView = true;
+                        mapViewWorkSpace = workSpaceName.indexOf(currWorkSpace);
+                    }
+                    else if (string.startsWith("WORKSPACE"))
+                    {
+                    	if (moduleName.size() == 0)
+                        {
+                        	workSpaceName.remove(0);
+                        }
+                        
+                    	string = string.substring(9).toLowerCase();
+                        if (string.length() > 0)
+                    	{
+                        	if (workSpaceName.indexOf(string) < 0)
+                        	{
+                        		workSpaceName.add(string);
+                        	}
+                        	currWorkSpace = string;
+                    	}
                     }
                     else // line starts without keyword
                     {
                         if (readMode == 1) // module
                         {
                             moduleName.add(string);
+                            moduleWorkSpace.add(new Integer(
+                            			workSpaceName.indexOf(currWorkSpace)));                            
                             grpElement++;
                         }
                         if (readMode == 4) // jar files
@@ -399,16 +428,17 @@ public class Gui extends Thread
                             "E/A-Fehler", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
-        MODULE_NUM  = moduleName.size();
-        GROUP_NUM   = groupName.size();
-        JARFILE_NUM = jarFiles.size();
+        MODULE_NUM    = moduleName.size();
+        GROUP_NUM     = groupName.size();
+        JARFILE_NUM   = jarFiles.size();
+        WORKSPACE_NUM = workSpaceName.size();        
         // System.out.println("module_num=" + MODULE_NUM);
         groupSizeInt = new int[GROUP_NUM];
+       	
         for (int i = 0; i < GROUP_NUM; i++)
         {
             groupSizeInt[i] = ((Integer) groupSize.get(i)).intValue();
         }
-
     }
 
     public String getModuleName(int id)
@@ -1002,14 +1032,13 @@ public class Gui extends Thread
         frame.getContentPane().add(navigationScrollPanel, BorderLayout.WEST);
 
         // create work panel (Tabbed Panel in the center)
-
         jtp = new JTabbedPane();
-        jdp = new JDesktopPane();
-//        jdp2 = new JDesktopPane();
-        // jdp3 = new JDesktopPane();
-        jtp.add("Workspace", jdp);
-        //jtp.add("MapView", jdp2);
-        // jtp.add("Messages", jdp3);
+        jdp = new JDesktopPane[WORKSPACE_NUM];
+        for (int i = 0; i < WORKSPACE_NUM; i++)
+        {
+        	jdp[i] = new JDesktopPane();
+         	jtp.add((String)workSpaceName.get(i),jdp[i]);
+        }
         frame.getContentPane().add(jtp, BorderLayout.CENTER);
 
         // create message frame as an internal frame
@@ -1018,14 +1047,18 @@ public class Gui extends Thread
         messageFrame.getContentPane().add(gdosGui.getComponent());
         messageFrame.pack();
         messageFrame.setVisible(true);
-        jdp.add(messageFrame);
+        jdp[0].add(messageFrame);
         gdosGui.start();
 
         if (showMapView)
         {
             //create mapView panel as a tab
+        	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
             MapViewGui myMapViewGui = new MapViewGui(moduleGui);
-            jtp.add("MapView", myMapViewGui.getComponent());
+        	mapViewFrame.getContentPane().add(myMapViewGui.getComponent());
+        	mapViewFrame.pack();
+        	mapViewFrame.setVisible(true);
+        	jdp[mapViewWorkSpace].add(mapViewFrame);
         }
 
         frame.setJMenuBar(createMenu());
@@ -1262,7 +1295,7 @@ public class Gui extends Thread
                 moduleFrame[id].setSize(moduleLocationSize[2],
                         moduleLocationSize[3]);
             }
-            jdp.add(moduleFrame[id]);
+            jdp[((Integer)moduleWorkSpace.get(id)).intValue()].add(moduleFrame[id]);
         }
 
         try
