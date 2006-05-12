@@ -53,10 +53,15 @@ public class CameraProxy extends RackDataProxy {
         super(RackName.create(RackName.CAMERA, id), replyMbx, 5000, 1000, 5000);
         this.id = id;
     }
+
     public void storeDataToFile(String filename)
     {
-        CameraDataMsg data = getData();
-
+    	CameraDataMsg data = getData(0);
+    	storeDataToFile(filename, data );
+    }
+    
+    public void storeDataToFile(String filename, CameraDataMsg data )
+    {
         if(data != null)
         {
             try{

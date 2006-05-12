@@ -171,7 +171,7 @@ public class Camera2PngConverter {
             filename = dirname.concat(filenames[i]);
 
             endung = filename.substring(filename.indexOf('.') + 1, filename.length());
-            if ( (endung.compareTo("raw") == 0) || (endung.compareTo("rcc") == 0))
+            if ( (endung.compareTo("rck") == 0) || (endung.compareTo("rcc") == 0))
             {
 	            file  = new File(filename);
 	            saveFilename = filename.substring(0,filename.indexOf('.'));

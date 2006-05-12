@@ -212,7 +212,7 @@ public class CameraGui extends RackModuleGui
                             .transformImage(zoomRate, switchRotate, data);
                     if (contStoring == 1)
                     {
-                        camera.storeDataToFile("camera"+System.currentTimeMillis()+".png");
+                        camera.storeDataToFile("camera"+System.currentTimeMillis()+".png", data);
                     }
                 }
                 else
