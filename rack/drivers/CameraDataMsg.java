@@ -408,9 +408,9 @@ public class CameraDataMsg extends TimsMsg
                         imageRawData[width * j + i] = // order is important!
                                                         // order defines color!!
                         (
-                                  (((int) dataIn.readByte() & 0xff) << 16)
+                                  (((int) dataIn.readByte() & 0xff) )
                                 | (((int) dataIn.readByte() & 0xff) << 8)
-                                | (((int) dataIn.readByte() & 0xff))
+                                | (((int) dataIn.readByte() & 0xff) << 16)
                                 | (255 << 24));
                     }
                 }

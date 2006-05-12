@@ -59,7 +59,7 @@ public class Camera2PngConverter {
     public static int mode   = 0;
     public static int[] imageRawData;
     public static int bodyByteorder = BIG_ENDIAN;
-
+    public static int jpegByteStreamLength = 0;
 
     public static int clip(int in) {
         if (in < 0) {
@@ -84,8 +84,8 @@ public class Camera2PngConverter {
         case CameraDataMsg.CAMERA_MODE_JPEG:
 	        System.out.println("got a jpeg image");
 	        // colorFilterId is missused as length of the jpeg stream here.
-	        byte[] rawImageBytes = new byte[colorFilterId];
-	        dataIn.readFully(rawImageBytes, 0, colorFilterId);
+	        byte[] rawImageBytes = new byte[jpegByteStreamLength];
+	        dataIn.readFully(rawImageBytes, 0, jpegByteStreamLength);
 	        BufferedImage image = ImageIO.read(new ByteArrayInputStream(
 	                rawImageBytes));
 	        if (image != null)
@@ -157,7 +157,8 @@ public class Camera2PngConverter {
         depth  = Integer.parseInt(args[3]);
         mode   = Integer.parseInt(args[4]);
         colorFilterId = Integer.parseInt(args[5]);
-
+        jpegByteStreamLength = Integer.parseInt(args[6]);
+        
         File file;
         String filename;
         String saveFilename;
