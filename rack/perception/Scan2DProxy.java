@@ -15,6 +15,16 @@
  */
 package rack.perception;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.imageio.ImageIO;
+
+import rack.drivers.CameraDataMsg;
 import rack.main.naming.*;
 import rack.main.proxy.*;
 import rack.main.tims.msg.*;
@@ -55,5 +65,36 @@ public class Scan2DProxy extends RackDataProxy
   public int getCommandMbx()
   {
     return(RackName.create(RackName.SCAN2D, id));
+  }
+  
+  public int storeDataToFile(String filename, Scan2DDataMsg scan2DData)
+  {
+      if(scan2DData != null)
+      {
+         try
+          {
+	          PrintWriter fileOut = new PrintWriter(new BufferedWriter(
+	                  new FileWriter(filename)));
+	
+	          for (int i = 0; i < scan2DData.pointNum; i++)
+	          {
+	              fileOut.println(scan2DData.point[i].toString());
+	          }
+	          fileOut.flush();
+	          fileOut.close();
+          }
+         catch (IOException e)
+	      {
+	          System.out.println("Can't write 2D data to file.");
+	          System.out.println(e.toString());
+	      }
+      }
+	  return 0;
+  }
+  
+  public int storeDataToFile(String filename)
+  {
+  	Scan2DDataMsg scan2DData = getData(0);
+  	return storeDataToFile(filename, scan2DData);
   }
 }

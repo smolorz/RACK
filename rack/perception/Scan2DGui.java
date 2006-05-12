@@ -17,8 +17,15 @@ package rack.perception;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.swing.*;
 
+import rack.drivers.CameraComponent;
 import rack.main.gui.*;
 import rack.main.defines.*;
 import rack.main.proxy.*;
@@ -37,11 +44,17 @@ public class Scan2DGui extends RackModuleGui
     protected JButton offButton;
     protected JButton zoomOutButton;
     protected JButton zoomInButton;
+    protected JButton storeContOnButton;
+    protected JButton storeContOffButton;
+    public 	  JLabel  contStoringLabel;
+    protected int     contStoring = 0;
+
 
     protected JPanel panel;
     protected JPanel northPanel;
     protected JPanel wButtonPanel;
     protected JPanel eButtonPanel;
+    protected JPanel sButtonPanel;
 
     protected Point aktuellPoint;
     protected Point mousePressedPoint;
@@ -57,11 +70,17 @@ public class Scan2DGui extends RackModuleGui
         northPanel   = new JPanel(new BorderLayout(2,2));
         wButtonPanel = new JPanel(new GridLayout(1,0,4,2));
         eButtonPanel = new JPanel(new GridLayout(1,0,4,2));
+        sButtonPanel = new JPanel(new GridLayout(1,0,4,2));
 
         onButton      = new JButton("On");
         offButton     = new JButton("Off");
         zoomOutButton = new JButton("Zoom out");
         zoomInButton  = new JButton("Zoom in");
+        storeContOnButton  = new JButton("StoreOn");
+        storeContOffButton = new JButton("StoreOff");
+        contStoringLabel   = new JLabel();
+        contStoringLabel.setText("Cont.storing off.");
+
 
         scan2DComponent = new Scan2DComponent(maxDistance);
 
@@ -134,14 +153,40 @@ public class Scan2DGui extends RackModuleGui
         );
 
         zoomInButton.addKeyListener(new myKeyListener());
+        
+        storeContOnButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                contStoring = 1;
+                contStoringLabel.setText("Cont.storing on.");
+
+            }
+        });
+
+        storeContOffButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                contStoring = 0;
+                contStoringLabel.setText("Cont.storing off.");
+
+            }
+        });
+
 
         wButtonPanel.add(onButton);
         wButtonPanel.add(offButton);
         eButtonPanel.add(zoomOutButton);
         eButtonPanel.add(zoomInButton);
+        
+        sButtonPanel.add(storeContOnButton, BorderLayout.WEST);
+        sButtonPanel.add(storeContOffButton);
+        sButtonPanel.add(contStoringLabel);
 
         northPanel.add(wButtonPanel,BorderLayout.WEST);
         northPanel.add(eButtonPanel,BorderLayout.EAST);
+        northPanel.add(sButtonPanel,BorderLayout.SOUTH);
 
         panel.add(northPanel,BorderLayout.NORTH);
         panel.add(scan2DComponent,BorderLayout.CENTER);
@@ -174,6 +219,10 @@ public class Scan2DGui extends RackModuleGui
           if (data != null) {
             scan2DData = data;
             scan2DComponent.updateData(data);
+            if (contStoring == 1)
+            {
+                scan2D.storeDataToFile("scan2D-"+System.currentTimeMillis()+".txt");
+            }
           }
           mapViewIsShowing = false;
         }
@@ -188,6 +237,7 @@ public class Scan2DGui extends RackModuleGui
         return true;
     }
     
+
     public void paintMapView(MapViewDrawContext drawContext) 
     {
         mapViewIsShowing = true;
