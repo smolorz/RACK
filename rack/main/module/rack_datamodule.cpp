@@ -83,22 +83,25 @@ RACK_TIME   DataModule::getRecTime(void *p_data)
 int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
                                     MessageInfo* msgInfo)
 {
-    int i;
+    unsigned int i, idx;
     unsigned int reduction;
 
     listenerMtx.lock(RACK_INFINITE);
 
-    if (listenerNum >= dataBufferMaxListener)
-    {
-        listenerMtx.unlock();
-        GDOS_ERROR("Can't add listener %n. To many listener registered \n",
-                   msgInfo->src);
-        return -EBUSY;
-    }
-    GDOS_DBG_INFO("Listener %n (datambx: %x) has been added \n",
-                  msgInfo->src, destMbxAdr);
+    idx = listenerNum;
 
-    i = listenerNum;
+    // check if listener is in table yet
+    for (i = 0; i < listenerNum; i++)
+    {
+        if (destMbxAdr == listener[i].msgInfo.src) // in table
+        {
+            GDOS_WARNING("Listener %n (datambx: %x) is in list yet \n",
+                         msgInfo->src, destMbxAdr);
+            idx = i;
+            break;
+        }
+    }
+
     if ((periodTime < dataBufferPeriodTime) ||
         (periodTime == 0))
     {
@@ -112,11 +115,29 @@ int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
     GDOS_DBG_DETAIL("Setting reduction to %d (self %d ms, request %d ms)\n",
                     reduction, dataBufferPeriodTime, periodTime);
 
-    memcpy(&listener[i].msgInfo, msgInfo, sizeof(MessageInfo));
-    listener[i].msgInfo.src = destMbxAdr;
-    listener[i].reduction = reduction;
+    if (idx == listenerNum) // not in table
+    {
+        if (listenerNum >= dataBufferMaxListener)
+        {
+            listenerMtx.unlock();
+            GDOS_ERROR("Can't add listener %n. To many listener are "
+                       "registered (max %d)\n", msgInfo->src,
+                       dataBufferMaxListener);
 
-    listenerNum++;
+            return -EBUSY;
+        }
+
+        memcpy(&listener[idx].msgInfo, msgInfo, sizeof(MessageInfo));
+        listener[idx].msgInfo.src = destMbxAdr;
+        listenerNum++;
+
+        GDOS_DBG_INFO("Listener %n (datambx: %x) has been added into "
+                      "list (%d/%d)\n", msgInfo->src, destMbxAdr,
+                      listenerNum - 1, dataBufferMaxListener);
+    }
+
+    listener[idx].reduction = reduction;
+
     listenerMtx.unlock();
     return 0;
 }
