@@ -64,18 +64,18 @@ ListHead mbxList;
 argTable_t module_argTab[] = {
 
   {ARGOPT_REQ, "instance" , ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The global instance number of this driver", (int)-1},
+   "The global instance number of this driver", { -1 } },
 
   {ARGOPT_REQ, "cmdTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "priority of the command Task (1-32)", (int)-1 },
+   "priority of the command Task (1-32)", { -1 } },
 
   {ARGOPT_REQ, "dataTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "priority of the data Task (1-32)", (int)-1 },
+   "priority of the data Task (1-32)", { -1 } },
 
   {ARGOPT_OPT, "gdosLevel", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "GDOS level (0:print, 1:error, 2:warning, 3:info, 4:detail) [2]", (int)2 },
+   "GDOS level (0:print, 1:error, 2:warning, 3:info, 4:detail) [2]", { 2 } },
 
-  {0,"",0,0,""}
+  {0, "", 0, 0, "", { 0 } }
 };
 
 //

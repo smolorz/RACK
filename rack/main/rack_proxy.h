@@ -288,17 +288,17 @@ class RackProxy {
 // timeouts
 //
 
-    void RackProxy::setOnTimeout(uint64_t onTimeout_ns)
+    void setOnTimeout(uint64_t onTimeout_ns)
     {
         onTimeout = onTimeout_ns;
     }
 
-    void RackProxy::setOffTimeout(uint64_t offTimeout_ns)
+    void setOffTimeout(uint64_t offTimeout_ns)
     {
         offTimeout = offTimeout_ns;
     }
 
-    void RackProxy::setDataTimeout(uint64_t dataTimeout_ns)
+    void setDataTimeout(uint64_t dataTimeout_ns)
     {
         dataTimeout = dataTimeout_ns;
     }
@@ -336,12 +336,12 @@ class RackProxy {
 // get module status
 //
 
-    int RackProxy::getStatus(void)  // use default timeout
+    int getStatus(void)  // use default timeout
     {
         return getStatus(dataTimeout);
     }
 
-    int RackProxy::getStatus(uint64_t reply_timeout_ns); // use special timeout
+    int getStatus(uint64_t reply_timeout_ns); // use special timeout
 
 
 };
