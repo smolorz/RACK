@@ -41,31 +41,31 @@ Scan2d *p_inst;
 
 argTable_t argTab[] = {
 
-  {ARGOPT_REQ, "ladarInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The instance number of the ladar driver", (int)-1},
+    { ARGOPT_REQ, "ladarInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the ladar driver", { -1 } },
 
-  {ARGOPT_OPT, "ladarOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Ladar X offset (default 0)", (int)0},
+    { ARGOPT_OPT, "ladarOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Ladar X offset (default 0)", { 0 } },
 
-  {ARGOPT_OPT, "ladarOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Ladar Y offset (default 0)", (int)0},
+    { ARGOPT_OPT, "ladarOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Ladar Y offset (default 0)", { 0 } },
 
-  {ARGOPT_OPT, "ladarOffsetRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Ladar rho offset (default 0)", (int)0},
+    { ARGOPT_OPT, "ladarOffsetRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Ladar rho offset (default 0)", { 0 } },
 
-  {ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Maximal ladar range", (int)30000},
+    { ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Maximal ladar range", { 30000 } },
 
-  {ARGOPT_OPT, "reduce", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "reduce (default 1)", (int)1},
+    { ARGOPT_OPT, "reduce", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "reduce (default 1)", { 1 } },
 
-  {ARGOPT_OPT, "angleMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "minimum angle (default -180)", (int)-180},
+    { ARGOPT_OPT, "angleMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "minimum angle (default -180)", { -180 } },
 
-  {ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "maximum angle (default 180)", (int)180},
+    { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "maximum angle (default 180)", { 180 } },
 
-  {0,"",0,0,""} // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 /*******************************************************************************
@@ -181,7 +181,7 @@ int  Scan2d::moduleLoop(void)
                 data2D->point[j].type  |= TYPE_REFLECTOR;
             }
 
-            if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0)) 
+            if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0))
             {
                 dataLadar->distance[i]  = maxRange;
                 data2D->point[j].type  |= TYPE_MAX_RANGE;

@@ -31,10 +31,10 @@ Position *p_inst;
 
 argTable_t argTab[] = {
 
-     {ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of the odometry module", (int)0},
+    { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the odometry module", { 0 } },
 
-  { 0,"",0,0,""}                                  // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 /*******************************************************************************

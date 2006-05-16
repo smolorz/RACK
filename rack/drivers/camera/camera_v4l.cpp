@@ -23,34 +23,34 @@ CameraV4L *p_inst;
 
 argTable_t argTab[] = {
 
-  { ARGOPT_OPT, "width", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "width", (int) 320 },
+    { ARGOPT_OPT, "width", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "width", { 320 } },
 
-  { ARGOPT_OPT, "height", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "height", (int) 240 },
+    { ARGOPT_OPT, "height", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "height", { 240 } },
 
-  { ARGOPT_OPT, "depth", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "depth", (int) 24 },
+    { ARGOPT_OPT, "depth", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "depth", { 24 } },
 
-  { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "mode", (int) CAMERA_MODE_RGB24 },
+    { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "mode", { CAMERA_MODE_RGB24 } },
 
-  { ARGOPT_OPT, "videoId", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "videoId", (int) 0 },
+    { ARGOPT_OPT, "videoId", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "videoId", { 0 } },
 
-  { ARGOPT_OPT, "minHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "min not under illum. hue value", (int) 15 },
+    { ARGOPT_OPT, "minHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "min not under illum. hue value", { 15 } },
 
-  { ARGOPT_OPT, "maxHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "max not over illum. hue value", (int) 250 },
+    { ARGOPT_OPT, "maxHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max not over illum. hue value", { 250 } },
 
-  { ARGOPT_OPT, "gainMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Multiplikator for gain correction", (int) 1000 },
+    { ARGOPT_OPT, "gainMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Multiplikator for gain correction", { 1000 } },
 
-  { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Button part of autobrightness part of image", (int) 1 },
+    { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Button part of autobrightness part of image", { 1 } },
 
-  { 0,"",0,0,""}                                  // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 camera_param_data param = {

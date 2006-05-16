@@ -34,22 +34,22 @@ PilotJoystick *p_inst;
 
 argTable_t argTab[] = {
 
-  {ARGOPT_REQ, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The instance number of the Scan2D module", (int)-1 },
+    { ARGOPT_REQ, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the Scan2D module", { -1 } },
 
-  {ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The instance number of the chassis module", (int)0 },
+    { ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the chassis module", { 0 } },
 
-  {ARGOPT_OPT, "joystickInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The instance number of the Joystick module ", (int)0 },
+    { ARGOPT_OPT, "joystickInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the Joystick module ", { 0 } },
 
-  {ARGOPT_OPT, "joystickSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The system number of the Joystick module ", (int)0 },
+    { ARGOPT_OPT, "joystickSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the Joystick module ", { 0 } },
 
-  {ARGOPT_OPT, "maxSpeed", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Maximal Speed, default 4000", (int)4000 },
+    { ARGOPT_OPT, "maxSpeed", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Maximal Speed, default 4000", { 4000 } },
 
-  {0,"",0,0,""}
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 /*******************************************************************************

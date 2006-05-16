@@ -30,27 +30,27 @@ GpsNmea *p_inst;
 argTable_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Serial device number", (int)-1 },
+      "Serial device number", { -1 } },
 
     { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Baudrate of serial device, default 4800", (int)4800 },
+      "Baudrate of serial device, default 4800", { 4800 } },
 
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "PeriodTime of the GPS - Receiver (in ms), default 2000", (int)2000},
+      "PeriodTime of the GPS - Receiver (in ms), default 2000", { 2000 } },
 
     { ARGOPT_OPT, "trigMsg", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "NMEA-message to trigger (RMC = 0, GGA = 1, GSA = 2), default RMC (0)",
-      (int)0 },
+      { 0 } },
 
     { ARGOPT_OPT, "posGKOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "X-Offset for position in Gauss-Krueger coordinates (in mm), default 0",
-      (int)0 },
+      { 0 } },
 
     { ARGOPT_OPT, "posGKOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Y-Offset for position in Gauss-Krueger coordinates (in mm), default 0",
-      (int)0 },
+      { 0 } },
 
-    { 0,"",0,0,""}                                  // last entry
+  { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 

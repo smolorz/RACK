@@ -48,11 +48,14 @@ struct ladar_sockaddr_can {
 };
 
 argTable_t argTab[] = {
+
     { ARGOPT_REQ, "canDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-    "CAN device number", (int)-1 },
-    {ARGOPT_REQ, "sensorId", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-    "CAN Sensor ID", (int)-1 },
-    { 0,"",0,0,""}                                  // last entry
+      "CAN device number", { -1 } },
+
+    { ARGOPT_REQ, "sensorId", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "CAN Sensor ID", { -1 } },
+
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 

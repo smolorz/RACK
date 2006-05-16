@@ -30,14 +30,14 @@ NewDataModule *p_inst;
 
 argTable_t argTab[] = {
 
-  { ARGOPT_REQ,                                   // argument required
-   "reqVal" ,                                    // name of argument
-   ARGOPT_REQVAL,                                 // this argument needs a value
-   ARGOPT_VAL_INT,                                // value is an integer
-   "new required int argument",                   // help string
-   (int)-1 },                                     // default value
+    { ARGOPT_REQ,                                  // argument required
+      "reqVal" ,                                   // name of argument
+      ARGOPT_REQVAL,                               // this argument needs a value
+      ARGOPT_VAL_INT,                              // value is an integer
+      "new required int argument",                 // help string
+      { -1 } },                                    // default value
 
-  { 0,"",0,0,""}                                  // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 /*******************************************************************************

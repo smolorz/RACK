@@ -29,13 +29,13 @@ CameraJpeg *p_inst;
 
 argTable_t argTab[] = {
 
-  { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "cameraInst", (int) 0 },
+    { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "cameraInst", { 0 } },
 
-  { ARGOPT_OPT, "quality", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "quality", (int) 50 },
+    { ARGOPT_OPT, "quality", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "quality", { 50 } },
 
-  { 0,"",0,0,""}                                  // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 

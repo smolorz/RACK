@@ -28,17 +28,17 @@ LadarSickLms200 *p_inst;
 
 argTable_t argTab[] = {
 
-  {ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The number of the local serial device", (int)-1 },
+    { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The number of the local serial device", { -1 } },
 
-  {ARGOPT_OPT, "protocol", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Protocol (normal = 0, interlaced(raw) = 1, fast = 2), default normal(0)",
-   (int)0 },
+    { ARGOPT_OPT, "protocol", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Protocol (normal = 0, interlaced(raw) = 1, fast = 2), default normal(0)",
+      { 0 } },
 
-  {ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Working serial baudrate [ 38400 | 500000 ], default 38400", (int)38400 },
+    { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Working serial baudrate [ 38400 | 500000 ], default 38400", { 38400 } },
 
-  {0,"",0,0,""}
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 /* serial configuration ( written in non realtime context -> Module::Init() )*/

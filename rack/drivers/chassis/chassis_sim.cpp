@@ -28,7 +28,9 @@
 ChassisSim *p_inst;
 
 argTable_t argTab[] = {
-  { 0,"",0,0,""}                                  // last entry
+
+    { 0, "", 0, 0, "", { 0 } } // last entry
+
 };
 
 // Parameter des Fahrzeugs

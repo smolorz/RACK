@@ -59,12 +59,12 @@ ChassisPioneer *p_inst;
 argTable_t argTab[] = {
 
   { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Serial device number", (int)-1 },
+    "Serial device number", { -1 } },
 
   { ARGOPT_REQ, "sonar", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "disable sonar = 0; enable sonar = 1", (int)0 },
+    "disable sonar = 0; enable sonar = 1", { 0 } },
 
-  { 0,"",0,0,""}                                  // last entry
+  { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 const struct rtser_config pioneer_serial_config = {

@@ -36,13 +36,13 @@ Scan2DSim *p_inst;
 
 argTable_t argTab[] = {
 
-  {ARGOPT_REQ, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The instance number of the odometry module", (int)-1},
+    { ARGOPT_REQ, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the odometry module", { -1 } },
 
-  {ARGOPT_REQ, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "maximum laser range", (int)10000},
+    { ARGOPT_REQ, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "maximum laser range", { 10000 } },
 
-  {0,"",0,0,""} // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 /*******************************************************************************

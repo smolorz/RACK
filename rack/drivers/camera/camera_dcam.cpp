@@ -23,37 +23,37 @@ CameraDcam *p_inst;
 
 argTable_t argTab[] = {
 
-  { ARGOPT_OPT, "cameraGuid", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "cameraGuid", (int) 0 },
+    { ARGOPT_OPT, "cameraGuid", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "cameraGuid", { 0 } },
 
-  { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "mode", (int) CAMERA_MODE_YUV422 },
+    { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "mode", { CAMERA_MODE_YUV422 } },
 
-  { ARGOPT_OPT, "lossrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "lossrate", (int) 1 },
+    { ARGOPT_OPT, "lossrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "lossrate", { 1 } },
 
-  { ARGOPT_OPT, "uValue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "uValue", (int) 150 },
+    { ARGOPT_OPT, "uValue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "uValue", { 150 } },
 
-  { ARGOPT_OPT, "vValue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "vValue", (int) 120 },
+    { ARGOPT_OPT, "vValue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "vValue", { 120 } },
 
-  { ARGOPT_OPT, "minHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "min not under illum. hue value", (int) 60 },
+    { ARGOPT_OPT, "minHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "min not under illum. hue value", { 60 } },
 
-  { ARGOPT_OPT, "maxHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "max not over illum. hue value", (int) 250 },
+    { ARGOPT_OPT, "maxHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max not over illum. hue value", { 250 } },
 
-  { ARGOPT_OPT, "gainMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Multiplikator for gain correction", (int) 16 },
+    { ARGOPT_OPT, "gainMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Multiplikator for gain correction", { 16 } },
 
-  { ARGOPT_OPT, "shutterMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Multiplikator for shutter correction", (int) 64 },
+    { ARGOPT_OPT, "shutterMult", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Multiplikator for shutter correction", { 64 } },
 
-  { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Button part of autobrightness part of image", (int) 1 },
+    { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Button part of autobrightness part of image", { 1 } },
 
-  { 0,"",0,0,""}                                  // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 camera_param_data param = {
@@ -95,7 +95,7 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
     start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize));
 
     start += start % bytesPerPixel;
-    start++; 
+    start++;
 
     for(i = start; i < count; i += bytesPerPixel)
     {

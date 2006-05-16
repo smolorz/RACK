@@ -33,22 +33,22 @@ Scan2DMerge *p_inst;
 
 argTable_t argTab[] = {
 
-    {ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of the odometry module", (int)0},
+    { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the odometry module", { 0 } },
 
-    {ARGOPT_REQ, "scan2dInstA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of a scan2d module", (int)-1 },
+    { ARGOPT_REQ, "scan2dInstA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of a scan2d module", { -1 } },
 
-    {ARGOPT_OPT, "scan2dInstB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of a scan2d module", (int)-1 },
+    { ARGOPT_OPT, "scan2dInstB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of a scan2d module", { -1 } },
 
-    {ARGOPT_OPT, "scan2dInstC", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of a scan2d module", (int)-1 },
+    { ARGOPT_OPT, "scan2dInstC", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of a scan2d module", { -1 } },
 
-    {ARGOPT_OPT, "scan2dInstD", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-     "The instance number of a scan2d module", (int)-1 },
+    { ARGOPT_OPT, "scan2dInstD", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of a scan2d module", { -1 } },
 
-    {0,"",0,0,""} // last entry
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
 

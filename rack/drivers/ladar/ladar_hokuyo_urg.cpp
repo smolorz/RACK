@@ -26,20 +26,27 @@
 LadarHokuyoUrg *p_inst;
 
 argTable_t argTab[] = {
-  {ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "The number of the local serial device", (int)-1 },
-  {ARGOPT_OPT, "start", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Point of the area from where the data reading starts, default 44",
-   (int)44 },
-  {ARGOPT_OPT, "end", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Point of the area from where the data reading stops, default 725",
-   (int)725 },
-  {ARGOPT_OPT, "cluster", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "Number of neighboring points that are grouped as a cluster, default 3",
-   (int)3 },
-  {ARGOPT_OPT, "startAngle", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "startAngle, default 120", (int)120 },
-  {0,"",0,0,""}
+
+    { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The number of the local serial device", { -1 } },
+
+    { ARGOPT_OPT, "start", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Point of the area from where the data reading starts, default 44",
+      { 44 } },
+
+    { ARGOPT_OPT, "end", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Point of the area from where the data reading stops, default 725",
+      { 725 } },
+
+    { ARGOPT_OPT, "cluster", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Number of neighboring points that are grouped as a cluster, default 3",
+      { 3 } },
+
+    { ARGOPT_OPT, "startAngle", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "startAngle, default 120", { 120 } },
+
+    { 0, "", 0, 0, "", { 0 } } // last entry
+
 };
 
 /*******************************************************************************
@@ -86,7 +93,7 @@ int  LadarHokuyoUrg::moduleOn(void)
 
     RackTask::sleep(200000000); // 200 ms
 
-    ret = serialPort.clean();    
+    ret = serialPort.clean();
     if (ret)
     {
         GDOS_ERROR("Can't clean serial port\n", ret);
