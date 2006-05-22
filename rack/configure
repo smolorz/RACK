@@ -464,7 +464,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL CCAS CCASFLAGS LD JAR XENO_USER_PREFIX XENO_LIBRARIES RACK_TARGET_ARCH CONFIG_RACK_STATIC_LINKING_TRUE CONFIG_RACK_STATIC_LINKING_FALSE RACK_JAVA_JARDIR CONFIG_RACK_JAVA_GUI_TRUE CONFIG_RACK_JAVA_GUI_FALSE CONFIG_RACK_JAVA_GUI CONFIG_RACK_CAMERA_JAVA_GUI_TRUE CONFIG_RACK_CAMERA_JAVA_GUI_FALSE CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE CONFIG_RACK_GPS_JAVA_GUI_TRUE CONFIG_RACK_GPS_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE CONFIG_RACK_LADAR_JAVA_GUI_TRUE CONFIG_RACK_LADAR_JAVA_GUI_FALSE CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE CONFIG_RACK_PILOT_JAVA_GUI_TRUE CONFIG_RACK_PILOT_JAVA_GUI_FALSE CONFIG_RACK_POSITION_JAVA_GUI_TRUE CONFIG_RACK_POSITION_JAVA_GUI_FALSE CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE CONFIG_TIMS_USE_RTNET_TRUE CONFIG_TIMS_USE_RTNET_FALSE CONFIG_RACK_CAMERA_DCAM_TRUE CONFIG_RACK_CAMERA_DCAM_FALSE CONFIG_RACK_CAMERA_FILE_TRUE CONFIG_RACK_CAMERA_FILE_FALSE CONFIG_RACK_CAMERA_JPEG_TRUE CONFIG_RACK_CAMERA_JPEG_FALSE CONFIG_RACK_CAMERA_V4L_TRUE CONFIG_RACK_CAMERA_V4L_FALSE CONFIG_RACK_CHASSIS_PIONEER_TRUE CONFIG_RACK_CHASSIS_PIONEER_FALSE CONFIG_RACK_CHASSIS_SIM_TRUE CONFIG_RACK_CHASSIS_SIM_FALSE CONFIG_RACK_GPS_NMEA_TRUE CONFIG_RACK_GPS_NMEA_FALSE CONFIG_RACK_LADAR_HOKUYO_URG_TRUE CONFIG_RACK_LADAR_HOKUYO_URG_FALSE CONFIG_RACK_LADAR_IBEO_TRUE CONFIG_RACK_LADAR_IBEO_FALSE CONFIG_RACK_LADAR_SICK_LMS200_TRUE CONFIG_RACK_LADAR_SICK_LMS200_FALSE CONFIG_RACK_ODOMETRY_CHASSIS_TRUE CONFIG_RACK_ODOMETRY_CHASSIS_FALSE CONFIG_RACK_PILOT_JOYSTICK_TRUE CONFIG_RACK_PILOT_JOYSTICK_FALSE CONFIG_RACK_POSITION_TRUE CONFIG_RACK_POSITION_FALSE CONFIG_RACK_SCAN_2D_TRUE CONFIG_RACK_SCAN_2D_FALSE CONFIG_RACK_SCAN_2D_MERGE_TRUE CONFIG_RACK_SCAN_2D_MERGE_FALSE CONFIG_RACK_SCAN_2D_SIM_TRUE CONFIG_RACK_SCAN_2D_SIM_FALSE CONFIG_RACK_RTCAN_SUPPORT_TRUE CONFIG_RACK_RTCAN_SUPPORT_FALSE LIBRAW1394_LIBS CONFIG_LIBRAW1394_TRUE CONFIG_LIBRAW1394_FALSE CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE LIBDC1394_CONTROL_LIBS CONFIG_LIBDC1394_CONTROL_TRUE CONFIG_LIBDC1394_CONTROL_FALSE CONFIG_RACK_LIBDC1394_SUPPORT_TRUE CONFIG_RACK_LIBDC1394_SUPPORT_FALSE LIBJPEG_LIBS CONFIG_LIBJPEG_TRUE CONFIG_LIBJPEG_FALSE CONFIG_RACK_LIBJPEG_SUPPORT_TRUE CONFIG_RACK_LIBJPEG_SUPPORT_FALSE LIBPNG_LIBS CONFIG_LIBPNG_TRUE CONFIG_LIBPNG_FALSE CONFIG_RACK_LIBPNG_SUPPORT_TRUE CONFIG_RACK_LIBPNG_SUPPORT_FALSE OPENCV_LIBS CONFIG_OPENCV_TRUE CONFIG_OPENCV_FALSE CONFIG_RACK_OPENCV_SUPPORT_TRUE CONFIG_RACK_OPENCV_SUPPORT_FALSE RACK_LIBS RACK_MAYBE_DOCDIR DOXYGEN DOXYGEN_HAVE_DOT CONFIG_RACK_DOC_DOX_TRUE CONFIG_RACK_DOC_DOX_FALSE DOXYGEN_SHOW_INCLUDE_FILES LATEX_BATCHMODE LATEX_MODE CROSS_COMPILE RACK_MODULE_EXT RACK_KBUILD_ENV RACK_KBUILD_CMD RACK_KBUILD_CLEAN RACK_KBUILD_DISTCLEAN RACK_MODULE_DIR RACK_KMOD_CFLAGS RACK_USER_CFLAGS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROJNAME build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL CCAS CCASFLAGS LD JAR XENO_USER_PREFIX XENO_LIBRARIES RACK_TARGET_ARCH RACK_JAVA_JARDIR CONFIG_RACK_JAVA_GUI_TRUE CONFIG_RACK_JAVA_GUI_FALSE CONFIG_RACK_JAVA_GUI CONFIG_RACK_CAMERA_JAVA_GUI_TRUE CONFIG_RACK_CAMERA_JAVA_GUI_FALSE CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE CONFIG_RACK_GPS_JAVA_GUI_TRUE CONFIG_RACK_GPS_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE CONFIG_RACK_LADAR_JAVA_GUI_TRUE CONFIG_RACK_LADAR_JAVA_GUI_FALSE CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE CONFIG_RACK_PILOT_JAVA_GUI_TRUE CONFIG_RACK_PILOT_JAVA_GUI_FALSE CONFIG_RACK_POSITION_JAVA_GUI_TRUE CONFIG_RACK_POSITION_JAVA_GUI_FALSE CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE CONFIG_TIMS_USE_RTNET_TRUE CONFIG_TIMS_USE_RTNET_FALSE CONFIG_RACK_CAMERA_DCAM_TRUE CONFIG_RACK_CAMERA_DCAM_FALSE CONFIG_RACK_CAMERA_FILE_TRUE CONFIG_RACK_CAMERA_FILE_FALSE CONFIG_RACK_CAMERA_JPEG_TRUE CONFIG_RACK_CAMERA_JPEG_FALSE CONFIG_RACK_CAMERA_V4L_TRUE CONFIG_RACK_CAMERA_V4L_FALSE CONFIG_RACK_CHASSIS_PIONEER_TRUE CONFIG_RACK_CHASSIS_PIONEER_FALSE CONFIG_RACK_CHASSIS_SIM_TRUE CONFIG_RACK_CHASSIS_SIM_FALSE CONFIG_RACK_GPS_NMEA_TRUE CONFIG_RACK_GPS_NMEA_FALSE CONFIG_RACK_LADAR_HOKUYO_URG_TRUE CONFIG_RACK_LADAR_HOKUYO_URG_FALSE CONFIG_RACK_LADAR_IBEO_TRUE CONFIG_RACK_LADAR_IBEO_FALSE CONFIG_RACK_LADAR_SICK_LMS200_TRUE CONFIG_RACK_LADAR_SICK_LMS200_FALSE CONFIG_RACK_ODOMETRY_CHASSIS_TRUE CONFIG_RACK_ODOMETRY_CHASSIS_FALSE CONFIG_RACK_PILOT_JOYSTICK_TRUE CONFIG_RACK_PILOT_JOYSTICK_FALSE CONFIG_RACK_POSITION_TRUE CONFIG_RACK_POSITION_FALSE CONFIG_RACK_SCAN_2D_TRUE CONFIG_RACK_SCAN_2D_FALSE CONFIG_RACK_SCAN_2D_MERGE_TRUE CONFIG_RACK_SCAN_2D_MERGE_FALSE CONFIG_RACK_SCAN_2D_SIM_TRUE CONFIG_RACK_SCAN_2D_SIM_FALSE XENOMAI_CPPFLAGS XENOMAI_LDFLAGS XENOMAI_LIBS CONFIG_RACK_XENOMAI_SUPPORT_TRUE CONFIG_RACK_XENOMAI_SUPPORT_FALSE RTNET_CPPFLAGS CONFIG_RACK_RTNET_SUPPORT_TRUE CONFIG_RACK_RTNET_SUPPORT_FALSE RTCAN_CPPFLAGS CONFIG_RACK_RTCAN_SUPPORT_TRUE CONFIG_RACK_RTCAN_SUPPORT_FALSE LIBRAW1394_CPPFLAGS LIBRAW1394_LDFLAGS LIBRAW1394_LIBS CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE LIBDC1394_CPPFLAGS LIBDC1394_LDFLAGS LIBDC1394_LIBS CONFIG_RACK_LIBDC1394_SUPPORT_TRUE CONFIG_RACK_LIBDC1394_SUPPORT_FALSE LIBJPEG_CPPFLAGS LIBJPEG_LDFLAGS LIBJPEG_LIBS CONFIG_RACK_LIBJPEG_SUPPORT_TRUE CONFIG_RACK_LIBJPEG_SUPPORT_FALSE LIBPNG_CPPFLAGS LIBPNG_LDFLAGS LIBPNG_LIBS CONFIG_LIBPNG_TRUE CONFIG_LIBPNG_FALSE CONFIG_RACK_LIBPNG_SUPPORT_TRUE CONFIG_RACK_LIBPNG_SUPPORT_FALSE OPENCV_CPPFLAGS OPENCV_LDFLAGS OPENCV_LIBS CONFIG_OPENCV_TRUE CONFIG_OPENCV_FALSE CONFIG_RACK_OPENCV_SUPPORT_TRUE CONFIG_RACK_OPENCV_SUPPORT_FALSE RACK_SUPPORTS RACK_LIBS RACK_GLOBAL_CPPFLAGS RACK_GLOBAL_LDFLAGS RACK_MAYBE_DOCDIR DOXYGEN DOXYGEN_HAVE_DOT CONFIG_RACK_DOC_DOX_TRUE CONFIG_RACK_DOC_DOX_FALSE DOXYGEN_SHOW_INCLUDE_FILES LATEX_BATCHMODE LATEX_MODE CROSS_COMPILE RACK_MODULE_EXT RACK_KBUILD_ENV RACK_KBUILD_CMD RACK_KBUILD_CLEAN RACK_KBUILD_DISTCLEAN RACK_MODULE_DIR RACK_KMOD_CFLAGS RACK_USER_CFLAGS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1045,7 +1045,6 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --enable-static-linking enable static linking
   --enable-rtnet-support  enable rtnet support
   --enable-rtcan-support  enable rtcan support
   --enable-libraw1394-support
@@ -1113,7 +1112,7 @@ Optional Packages:
                           Linux source directory
   --with-xeno-user-dir=<Xenomai>
                           Xenomai userspace installation path
-  --with-rtet-dir=<rtnet-dir>
+  --with-rtnet-dir=<rtnet-dir>
                           Install directory of RTnet
   --with-rtcan-dir=<can-dir>
                           Source path of rtcan
@@ -1595,12 +1594,17 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+PROJNAME=rack
+
+
 CONFIG_RACK_VERSION_MAJOR=`expr $PACKAGE_VERSION : '\(0-9*\)'`
 CONFIG_RACK_VERSION_MINOR=`expr $PACKAGE_VERSION : '0-9*\.\(0-9*\)'`
 CONFIG_RACK_REVISION_LEVEL=`expr $PACKAGE_VERSION : '0-9*\.0-9*\.\(0-9*\)'`
 test "x$CONFIG_RACK_REVISION_LEVEL" = "x" && CONFIG_RACK_REVISION_LEVEL=0
 
           ac_config_headers="$ac_config_headers config/rack_config_pre.h"
+
+
 
 ac_aux_dir=
 for ac_dir in config/autoconf $srcdir/config/autoconf; do
@@ -1637,8 +1641,6 @@ else
 echo "$as_me: error: cannot find macro directory \`config/m4'" >&2;}
    { (exit 1); exit 1; }; }
 fi
-
-
 
 
 # Make sure we can run config.sub.
@@ -3836,7 +3838,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3839 "configure"' > conftest.$ac_ext
+  echo '#line 3841 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5435,7 +5437,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5438:" \
+echo "$as_me:5440:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6498,11 +6500,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6501: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6503: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6505: \$? = $ac_status" >&5
+   echo "$as_me:6507: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6766,11 +6768,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6769: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6771: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6773: \$? = $ac_status" >&5
+   echo "$as_me:6775: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6870,11 +6872,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6873: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6875: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6877: \$? = $ac_status" >&5
+   echo "$as_me:6879: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9215,7 +9217,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9218 "configure"
+#line 9220 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9315,7 +9317,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9318 "configure"
+#line 9320 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11655,11 +11657,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11658: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11660: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11662: \$? = $ac_status" >&5
+   echo "$as_me:11664: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -11759,11 +11761,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11762: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11764: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11766: \$? = $ac_status" >&5
+   echo "$as_me:11768: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13329,11 +13331,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13332: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13334: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13336: \$? = $ac_status" >&5
+   echo "$as_me:13338: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13433,11 +13435,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13436: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13438: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13440: \$? = $ac_status" >&5
+   echo "$as_me:13442: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15636,11 +15638,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15639: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15641: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15643: \$? = $ac_status" >&5
+   echo "$as_me:15645: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15904,11 +15906,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15907: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15909: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15911: \$? = $ac_status" >&5
+   echo "$as_me:15913: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16008,11 +16010,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16011: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16013: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16015: \$? = $ac_status" >&5
+   echo "$as_me:16017: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18964,8 +18966,8 @@ fi
 
 
 
-echo "$as_me:$LINENO: checking for RACK target architecture" >&5
-echo $ECHO_N "checking for RACK target architecture... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking for target architecture" >&5
+echo $ECHO_N "checking for target architecture... $ECHO_C" >&6
 case "$host" in
   i*86*-*)
     RACK_TARGET_ARCH=i386
@@ -19115,19 +19117,19 @@ echo "$as_me:$LINENO: checking for Xenomai userspace installation" >&5
 echo $ECHO_N "checking for Xenomai userspace installation... $ECHO_C" >&6
 XENO_USER_CONFIG="${CONFIG_RACK_XENOMAIDIR}/bin/xeno-config"
 if test -x "${XENO_USER_CONFIG}"; then
-  XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`" # let the shell normalize the path
+  XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`"
   echo "$as_me:$LINENO: result: ${XENO_USER_DIR}" >&5
 echo "${ECHO_T}${XENO_USER_DIR}" >&6
 else
-  { { echo "$as_me:$LINENO: error: no Xenomai found in $CONFIG_RACK_XENOMAIDIR" >&5
-echo "$as_me: error: no Xenomai found in $CONFIG_RACK_XENOMAIDIR" >&2;}
+  { { echo "$as_me:$LINENO: error: no Xenomai found in ${CONFIG_RACK_XENOMAIDIR}" >&5
+echo "$as_me: error: no Xenomai found in ${CONFIG_RACK_XENOMAIDIR}" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
 
 echo "$as_me:$LINENO: checking for Xenomai userspace PREFIX" >&5
 echo $ECHO_N "checking for Xenomai userspace PREFIX... $ECHO_C" >&6
-XENO_USER_PREFIX="`cd \`${XENO_USER_CONFIG} --prefix\` && pwd`"     # let the shell normalize the path
+XENO_USER_PREFIX="`cd \`${XENO_USER_CONFIG} --prefix\` && pwd`"
 echo "$as_me:$LINENO: result: ${XENO_USER_PREFIX}" >&5
 echo "${ECHO_T}${XENO_USER_PREFIX}" >&6
 
@@ -19150,8 +19152,6 @@ echo "$as_me:$LINENO: result: ${XENO_VERSION_PRE}" >&5
 echo "${ECHO_T}${XENO_VERSION_PRE}" >&6
 
 
-RACK_USER_CFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
-RACK_KMOD_CFLAGS=""
 XENO_USER_ARCH="`${XENO_USER_CONFIG} --arch`"
 XENO_LIBRARIES="`${XENO_USER_CONFIG} --library-dir`"
 
@@ -19172,12 +19172,12 @@ echo "${ECHO_T}${XENO_USER_ARCH}" >&6
 
 echo "$as_me:$LINENO: checking for RACK target arch" >&5
 echo $ECHO_N "checking for RACK target arch... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${RACK_TARGET_ARCH}" >&5
-echo "${ECHO_T}${RACK_TARGET_ARCH}" >&6
+echo "$as_me:$LINENO: result: ${TARGET_ARCH}" >&5
+echo "${ECHO_T}${TARGET_ARCH}" >&6
 
 if test x"${RACK_TARGET_ARCH}" != x"${XENO_USER_ARCH}"; then
-    { { echo "$as_me:$LINENO: error: *** Xenomai Userspace and RACK target architectures are not the same" >&5
-echo "$as_me: error: *** Xenomai Userspace and RACK target architectures are not the same" >&2;}
+    { { echo "$as_me:$LINENO: error: *** Xenomai Userspace and current target architectures are not the same" >&5
+echo "$as_me: error: *** Xenomai Userspace and current target architectures are not the same" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
@@ -19198,61 +19198,6 @@ esac
 
 
 
-
-echo "$as_me:$LINENO: checking for static linking" >&5
-echo $ECHO_N "checking for static linking... $ECHO_C" >&6
-# Check whether --enable-static-linking or --disable-static-linking was given.
-if test "${enable_static_linking+set}" = set; then
-  enableval="$enable_static_linking"
-  case "$enableval" in
-        y | yes) CONFIG_RACK_STATIC_LINKING=y ;;
-        *) unset CONFIG_RACK_STATIC_LINKING ;;
-    esac
-fi;
-echo "$as_me:$LINENO: result: ${CONFIG_RACK_STATIC_LINKING:-n}" >&5
-echo "${ECHO_T}${CONFIG_RACK_STATIC_LINKING:-n}" >&6
-
-
-
-if test "$CONFIG_RACK_STATIC_LINKING" = "y"; then
-  CONFIG_RACK_STATIC_LINKING_TRUE=
-  CONFIG_RACK_STATIC_LINKING_FALSE='#'
-else
-  CONFIG_RACK_STATIC_LINKING_TRUE='#'
-  CONFIG_RACK_STATIC_LINKING_FALSE=
-fi
-
-if test "CONFIG_RACK_STATIC_LINKING" = "y"; then
-
-cat >>confdefs.h <<\_ACEOF
-#define CONFIG_RACK_STATIC_LINKING 1
-_ACEOF
-
-fi
-
-
-CPPFLAGS="\
--I\$(top_srcdir) \
--I\$(top_builddir) \
--I${XENO_USER_PREFIX}/include \
--I/usr/include \
--Wall"
-
-
-if test x"CONFIG_RACK_STATIC_LINKING" = x"y"; then
-
-LDFLAGS="\
-${XENO_LIBRARIES}/libnative.a \
-${XENO_LIBRARIES}/librtdm.a \
--lpthread"
-
-else
-
-LDFLAGS="\
--L${XENO_LIBRARIES} -lnative -lrtdm -lpthread \
--L/usr/lib"
-
-fi
 
 
 # Check whether --enable-rtnet-support or --disable-rtnet-support was given.
@@ -19474,11 +19419,11 @@ if test x"$CONFIG_RACK_JAVA_GUI" = "xy"; then
 echo $ECHO_N "checking javac... $ECHO_C" >&6
     JAVAC="`which javac`"
     if test \! -x ${JAVAC}; then
-    	{ { echo "$as_me:$LINENO: error: *** can't find javac" >&5
+        { { echo "$as_me:$LINENO: error: *** can't find javac" >&5
 echo "$as_me: error: *** can't find javac" >&2;}
    { (exit 1); exit 1; }; }
     else
-	    echo "$as_me:$LINENO: result: ${JAVAC}" >&5
+        echo "$as_me:$LINENO: result: ${JAVAC}" >&5
 echo "${ECHO_T}${JAVAC}" >&6
     fi
 
@@ -19486,11 +19431,11 @@ echo "${ECHO_T}${JAVAC}" >&6
 echo $ECHO_N "checking jar... $ECHO_C" >&6
     JAR="`which jar`"
     if test \! -x ${JAR}; then
-    	{ { echo "$as_me:$LINENO: error: *** can't find jar" >&5
+        { { echo "$as_me:$LINENO: error: *** can't find jar" >&5
 echo "$as_me: error: *** can't find jar" >&2;}
    { (exit 1); exit 1; }; }
     else
-	    echo "$as_me:$LINENO: result: ${JAR}" >&5
+        echo "$as_me:$LINENO: result: ${JAR}" >&5
 echo "${ECHO_T}${JAR}" >&6
     fi
 fi
@@ -20340,15 +20285,62 @@ fi
 
 
 
-echo "$as_me:$LINENO: checking rtnet support" >&5
-echo $ECHO_N "checking rtnet support... $ECHO_C" >&6
+RACK_KMOD_CFLAGS=""
+RACK_SUPPORTS=""
+
+
+XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
+XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
+XENOMAI_LIBS="-lnative -lrtdm"
+
+RACK_SUPPORTS="xenomai ${RACK_SUPPORTS}"
+
+
+
+
+
+CONFIG_RACK_XENOMAI_SUPPORT=y
+
+
+
+if test x"${CONFIG_RACK_XENOMAI_SUPPORT}" = "xy"; then
+  CONFIG_RACK_XENOMAI_SUPPORT_TRUE=
+  CONFIG_RACK_XENOMAI_SUPPORT_FALSE='#'
+else
+  CONFIG_RACK_XENOMAI_SUPPORT_TRUE='#'
+  CONFIG_RACK_XENOMAI_SUPPORT_FALSE=
+fi
+
+
+
+echo "$as_me:$LINENO: checking rtnet support is needed" >&5
+echo $ECHO_N "checking rtnet support is needed... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${CONFIG_RACK_RTNET_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_RTNET_SUPPORT}" >&6
 
+RTNET_CPPFLAGS=""
+
 if test x"${CONFIG_RACK_RTNET_SUPPORT}" = x"y"; then
-    if test -d ${CONFIG_RACK_RTNETDIR}; then
-        CPPFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${CPPFLAGS}"
+
+    cppflags_backup="${CPPFLAGS}"
+    if test x${CONFIG_RACK_RTNETDIR} != "x"; then
+        echo "$as_me:$LINENO: checking rtnet directory" >&5
+echo $ECHO_N "checking rtnet directory... $ECHO_C" >&6
+        if test -d ${CONFIG_RACK_RTNETDIR}; then
+            echo "$as_me:$LINENO: result: ${CONFIG_RACK_RTNETDIR}" >&5
+echo "${ECHO_T}${CONFIG_RACK_RTNETDIR}" >&6
+
+            RTNET_CPPFLAGS="-I${CONFIG_RACK_RTNETDIR}/include"
+
+            CPPFLAGS="${XENOMAI_CPPFLAGS} ${CPPFLAGS}"
+            CPPFLAGS="${RTNET_CPPFLAGS} ${CPPFLAGS}"
+        else
+            { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_RTNETDIR}" >&5
+echo "$as_me: error: cannot find ${CONFIG_RACK_RTNETDIR}" >&2;}
+   { (exit 1); exit 1; }; }
+        fi
     fi
+
     if test "${ac_cv_header_rtnet_h+set}" = set; then
   echo "$as_me:$LINENO: checking for rtnet.h" >&5
 echo $ECHO_N "checking for rtnet.h... $ECHO_C" >&6
@@ -20496,40 +20488,53 @@ echo "$as_me: error: cannot find rtnet.h" >&2;}
 fi
 
 
-    RACK_KMOD_CFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${RACK_KMOD_CFLAGS}"
+
+    RACK_SUPPORTS="rtnet ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
 fi
 
 
 
-if test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"; then
-  CONFIG_RACK_RTCAN_SUPPORT_TRUE=
-  CONFIG_RACK_RTCAN_SUPPORT_FALSE='#'
+
+if test x"${CONFIG_RACK_RTNET_SUPPORT}" = "xy"; then
+  CONFIG_RACK_RTNET_SUPPORT_TRUE=
+  CONFIG_RACK_RTNET_SUPPORT_FALSE='#'
 else
-  CONFIG_RACK_RTCAN_SUPPORT_TRUE='#'
-  CONFIG_RACK_RTCAN_SUPPORT_FALSE=
+  CONFIG_RACK_RTNET_SUPPORT_TRUE='#'
+  CONFIG_RACK_RTNET_SUPPORT_FALSE=
 fi
 
 
 
-echo "$as_me:$LINENO: checking rtcan support" >&5
-echo $ECHO_N "checking rtcan support... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking rtcan support is needed" >&5
+echo $ECHO_N "checking rtcan support is needed... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${CONFIG_RACK_RTCAN_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_RTCAN_SUPPORT}" >&6
 
+RTCAN_CPPFLAGS=""
+
 if test x"${CONFIG_RACK_RTCAN_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+
     if test x${CONFIG_RACK_RTCANDIR} != "x"; then
         echo "$as_me:$LINENO: checking rtcan directory" >&5
 echo $ECHO_N "checking rtcan directory... $ECHO_C" >&6
         if test -d ${CONFIG_RACK_RTCANDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include ${CPPFLAGS}"
             echo "$as_me:$LINENO: result: ${CONFIG_RACK_RTCANDIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_RTCANDIR}" >&6
+
+            RTCAN_CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include"
+
+            CPPFLAGS="${XENOMAI_CPPFLAGS} ${CPPFLAGS}"
+            CPPFLAGS="${RTCAN_CPPFLAGS} ${CPPFLAGS}"
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_RTCANDIR}" >&5
 echo "$as_me: error: cannot find ${CONFIG_RACK_RTCANDIR}" >&2;}
    { (exit 1); exit 1; }; }
         fi
     fi
+
     if test "${ac_cv_header_rtcan_h+set}" = set; then
   echo "$as_me:$LINENO: checking for rtcan.h" >&5
 echo $ECHO_N "checking for rtcan.h... $ECHO_C" >&6
@@ -20677,7 +20682,11 @@ echo "$as_me: error: cannot find rtcan.h" >&2;}
 fi
 
 
+
+    RACK_SUPPORTS="rtcan ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
 fi
+
 
 
 
@@ -20696,15 +20705,31 @@ echo $ECHO_N "checking libraw1394 support... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBRAW1394_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBRAW1394_SUPPORT}" >&6
 
+LIBRAW1394_CPPFLAGS=""
+LIBRAW1394_LDFLAGS=""
+LIBRAW1394_LIBS=""
+
 if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
     if test x${CONFIG_RACK_LIBRAW1394DIR} != "x"; then
         echo "$as_me:$LINENO: checking libraw1394 directory" >&5
 echo $ECHO_N "checking libraw1394 directory... $ECHO_C" >&6
         if test -d ${CONFIG_RACK_LIBRAW1394DIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include/ ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib/ ${LDFLAGS}"
             echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBRAW1394DIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBRAW1394DIR}" >&6
+
+            LIBRAW1394_CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include"
+            LIBRAW1394_LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib"
+            LIBRAW1394_LIBS="-lraw1394"
+
+            CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBRAW1394_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBRAW394_LIBS"
+
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_LIBRAW1394DIR}" >&5
 echo "$as_me: error: cannot find ${CONFIG_RACK_LIBRAW1394DIR}" >&2;}
@@ -20929,8 +20954,6 @@ echo "$as_me: error: cannot find function raw1394_new_handle" >&2;}
 
 fi
 
-                    LIBRAW1394_LIBS="-lraw1394"
-
 else
   { { echo "$as_me:$LINENO: error: cannot find libraw1394 header files" >&5
 echo "$as_me: error: cannot find libraw1394 header files" >&2;}
@@ -20939,17 +20962,14 @@ echo "$as_me: error: cannot find libraw1394 header files" >&2;}
 fi
 
 
+
+    RACK_SUPPORTS="libraw1394 ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 
-
-if test x"${LIBRAW1394_LIBS}" != x""; then
-  CONFIG_LIBRAW1394_TRUE=
-  CONFIG_LIBRAW1394_FALSE='#'
-else
-  CONFIG_LIBRAW1394_TRUE='#'
-  CONFIG_LIBRAW1394_FALSE=
-fi
 
 
 
@@ -20969,15 +20989,34 @@ echo $ECHO_N "checking libdc1394 support... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBDC1394_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBDC1394_SUPPORT}" >&6
 
+LIBDC1394_CPPFLAGS=""
+LIBDC1394_LDFLAGS=""
+LIBDC1394_LIBS=""
+
 if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
     if test x${CONFIG_RACK_LIBDC1394DIR} != "x"; then
         echo "$as_me:$LINENO: checking libdc1394 directory" >&5
 echo $ECHO_N "checking libdc1394 directory... $ECHO_C" >&6
         if test -d ${CONFIG_RACK_LIBDC1394DIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib ${LDFLAGS}"
             echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBDC1394DIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBDC1394DIR}" >&6
+
+            LIBDC1394_CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include"
+            LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib"
+            LIBDC1394_LIBS="-ldc1394_control"
+
+            CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBRAW1394_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBRAW394_LIBS"
+
+            CPPFLAGS="${LIBDC1394_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBDC1394_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBDC1394_LIBS"
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_LIBDC1394DIR}" >&5
 echo "$as_me: error: cannot find ${CONFIG_RACK_LIBDC1394DIR}" >&2;}
@@ -21202,8 +21241,6 @@ echo "$as_me: error: cannot find function dc1394_get_camera_nodes" >&2;}
 
 fi
 
-                    LIBDC1394_CONTROL_LIBS="-ldc1394_control -lraw1394"
-
 else
   { { echo "$as_me:$LINENO: error: cannot find libdc1394 header files" >&5
 echo "$as_me: error: cannot find libdc1394 header files" >&2;}
@@ -21212,17 +21249,14 @@ echo "$as_me: error: cannot find libdc1394 header files" >&2;}
 fi
 
 
+
+    RACK_SUPPORTS="libdc1394 ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 
-
-if test x"${LIBDC1394_CONTROL_LIBS}" != x""; then
-  CONFIG_LIBDC1394_CONTROL_TRUE=
-  CONFIG_LIBDC1394_CONTROL_FALSE='#'
-else
-  CONFIG_LIBDC1394_CONTROL_TRUE='#'
-  CONFIG_LIBDC1394_CONTROL_FALSE=
-fi
 
 
 
@@ -21242,15 +21276,30 @@ echo $ECHO_N "checking libjpeg support... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBJPEG_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBJPEG_SUPPORT}" >&6
 
+LIBJPEG_CPPFLAGS=""
+LIBJPEG_LDFLAGS=""
+LIBJPEG_LIBS=""
+
 if test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
     if test x${CONFIG_RACK_LIBJPEGDIR} != "x"; then
         echo "$as_me:$LINENO: checking libjpeg directory" >&5
 echo $ECHO_N "checking libjpeg directory... $ECHO_C" >&6
         if test -d ${CONFIG_RACK_LIBJPEGDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib ${LDFLAGS}"
             echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBJPEGDIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBJPEGDIR}" >&6
+
+            LIBJPEG_CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include"
+            LIBJPEG_LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib"
+            LIBJPEG_LIBS="-ljpeg"
+
+            CPPFLAGS="${LIBJPEG_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBJPEG_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBJPEG_LIBS"
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_LIBJPEGDIR}" >&5
 echo "$as_me: error: cannot find ${CONFIG_RACK_LIBJPEGDIR}" >&2;}
@@ -21475,8 +21524,6 @@ echo "$as_me: error: cannot find function jpeg_create_compress" >&2;}
 
 fi
 
-                    LIBJPEG_LIBS="-ljpeg"
-
 else
   { { echo "$as_me:$LINENO: error: cannot find libjpeg header files" >&5
 echo "$as_me: error: cannot find libjpeg header files" >&2;}
@@ -21485,17 +21532,14 @@ echo "$as_me: error: cannot find libjpeg header files" >&2;}
 fi
 
 
+
+    RACK_SUPPORTS="libjpeg ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 
-
-if test x"${LIBJPEG_LIBS}" != x""; then
-  CONFIG_LIBJPEG_TRUE=
-  CONFIG_LIBJPEG_FALSE='#'
-else
-  CONFIG_LIBJPEG_TRUE='#'
-  CONFIG_LIBJPEG_FALSE=
-fi
 
 
 
@@ -21516,20 +21560,36 @@ echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBPNG_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBPNG_SUPPORT}" >&6
 
 if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    LIBPNG_CPPFLAGS=""
+    LIBPNG_LDFLAGS=""
+    LIBPNG_LIBS=""
+
     if test x${CONFIG_RACK_LIBPNGDIR} != "x"; then
         echo "$as_me:$LINENO: checking libpng directory" >&5
 echo $ECHO_N "checking libpng directory... $ECHO_C" >&6
         if test -d ${CONFIG_RACK_LIBPNGDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib ${LDFLAGS}"
             echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBPNGDIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBPNGDIR}" >&6
+
+            LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include"
+            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib"
+            LIBPNG_LIBS="-lpng12"
+
+            CPPFLAGS="${LIBPNG_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBPNG_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBPNG_LIBS"
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_LIBPNGDIR}" >&5
 echo "$as_me: error: cannot find ${CONFIG_RACK_LIBPNGDIR}" >&2;}
    { (exit 1); exit 1; }; }
         fi
     fi
+
     if test "${ac_cv_header_libpng_png_h+set}" = set; then
   echo "$as_me:$LINENO: checking for libpng/png.h" >&5
 echo $ECHO_N "checking for libpng/png.h... $ECHO_C" >&6
@@ -21669,13 +21729,13 @@ echo "${ECHO_T}$ac_cv_header_libpng_png_h" >&6
 fi
 if test $ac_cv_header_libpng_png_h = yes; then
 
-echo "$as_me:$LINENO: checking for png_write_end in -lpng" >&5
-echo $ECHO_N "checking for png_write_end in -lpng... $ECHO_C" >&6
-if test "${ac_cv_lib_png_png_write_end+set}" = set; then
+echo "$as_me:$LINENO: checking for png_write_end in -lpng12" >&5
+echo $ECHO_N "checking for png_write_end in -lpng12... $ECHO_C" >&6
+if test "${ac_cv_lib_png12_png_write_end+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpng  $LIBS"
+LIBS="-lpng12  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -21720,25 +21780,25 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_lib_png_png_write_end=yes
+  ac_cv_lib_png12_png_write_end=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_lib_png_png_write_end=no
+ac_cv_lib_png12_png_write_end=no
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_png_png_write_end" >&5
-echo "${ECHO_T}$ac_cv_lib_png_png_write_end" >&6
-if test $ac_cv_lib_png_png_write_end = yes; then
+echo "$as_me:$LINENO: result: $ac_cv_lib_png12_png_write_end" >&5
+echo "${ECHO_T}$ac_cv_lib_png12_png_write_end" >&6
+if test $ac_cv_lib_png12_png_write_end = yes; then
   cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBPNG 1
+#define HAVE_LIBPNG12 1
 _ACEOF
 
-  LIBS="-lpng $LIBS"
+  LIBS="-lpng12 $LIBS"
 
 else
   { { echo "$as_me:$LINENO: error: cannot find function png_write_end" >&5
@@ -21746,8 +21806,6 @@ echo "$as_me: error: cannot find function png_write_end" >&2;}
    { (exit 1); exit 1; }; }
 
 fi
-
-                    LIBPNG_LIBS="-lpng"
 
 else
   { { echo "$as_me:$LINENO: error: cannot find libpng header files" >&5
@@ -21757,6 +21815,16 @@ echo "$as_me: error: cannot find libpng header files" >&2;}
 fi
 
 
+
+    RACK_SUPPORTS="libpng ${RACK_SUPPORTS}"
+
+
+
+
+
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 
@@ -21788,20 +21856,36 @@ echo "$as_me:$LINENO: result: ${CONFIG_RACK_OPENCV_SUPPORT}" >&5
 echo "${ECHO_T}${CONFIG_RACK_OPENCV_SUPPORT}" >&6
 
 if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    OPENCV_CPPFLAGS=""
+    OPENCV_LDFLAGS=""
+    OPENCV_LIBS=""
+
     if test x${CONFIG_RACK_OPENCVDIR} != "x"; then
         echo "$as_me:$LINENO: checking opencv directory" >&5
 echo $ECHO_N "checking opencv directory... $ECHO_C" >&6
         if test -d ${CONFIG_RACK_OPENCVDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_OPENCVDIR}/lib ${LDFLAGS}"
             echo "$as_me:$LINENO: result: ${CONFIG_RACK_OPENCVDIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_OPENCVDIR}" >&6
+
+            OPENCV_CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv"
+            OPENCV_LDFLAGS="-L${CONFIG_RACK_OPENCVDIR}/lib"
+            OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
+
+            CPPFLAGS="${OPENCV_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${OPENCV_LDFLAGS} ${LDFLAGS}"
+            LIBS="$OPENCV_LIBS"
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_OPENCVDIR}" >&5
 echo "$as_me: error: cannot find ${CONFIG_RACK_OPENCVDIR}" >&2;}
    { (exit 1); exit 1; }; }
         fi
     fi
+
 
 
 
@@ -22266,9 +22350,6 @@ echo "$as_me: error: cannot find function cvShowImage" >&2;}
 
 fi
 
-
-                    OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
-
 else
   { { echo "$as_me:$LINENO: error: cannot find opencv header files" >&5
 echo "$as_me: error: cannot find opencv header files" >&2;}
@@ -22278,6 +22359,16 @@ fi
 
 done
 
+
+    RACK_SUPPORTS="opencv ${RACK_SUPPORTS}"
+
+
+
+
+
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 
@@ -22303,27 +22394,54 @@ fi
 
 
 
-LDFLAGS_GLOB="${LDFLAGS} --export-dynamic"
+RACK_SUPPORTS="${PROJNAME} ${RACK_SUPPORTS}"
 
-if test x"CONFIG_RACK_STATIC_LINKING" = x"y"; then
-    LDFLAGS="$(top_builddir)/main/lib/.libs/librack.a ${LDFLAGS_GLOB}"
-else
-    LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${LDFLAGS_GLOB}"
-    RACK_LIBS="-lrack"
 
-fi
+RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir}"
+RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs"
+RACK_LIBS="-l${PROJNAME}"
 
 
 
-echo "$as_me:$LINENO: checking for rack cppflags" >&5
-echo $ECHO_N "checking for rack cppflags... $ECHO_C" >&6
+
+
+RACK_GLOBAL_CPPFLAGS=" -I/usr/include -Wall"
+
+
+CPPFLAGS="\
+${XENOMAI_CPPFLAGS} \
+${RACK_GLOBAL_CPPFLAGS} \
+${RACK_CPPFLAGS} \
+${CPPFLAGS}"
+
+echo "$as_me:$LINENO: checking for cppflags" >&5
+echo $ECHO_N "checking for cppflags... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${CPPFLAGS}" >&5
 echo "${ECHO_T}${CPPFLAGS}" >&6
 
-echo "$as_me:$LINENO: checking for rack ldflags" >&5
-echo $ECHO_N "checking for rack ldflags... $ECHO_C" >&6
+
+RACK_GLOBAL_LDFLAGS="-L/usr/lib --export-dynamic"
+
+
+LDFLAGS="\
+${XENOMAI_LDFLAGS} \
+${RACK_GLOBAL_LDFLAGS} \
+${RACK_LDFLAGS} \
+${LDFLAGS}"
+
+echo "$as_me:$LINENO: checking for ldflags" >&5
+echo $ECHO_N "checking for ldflags... $ECHO_C" >&6
 echo "$as_me:$LINENO: result: ${LDFLAGS}" >&5
 echo "${ECHO_T}${LDFLAGS}" >&6
+
+
+LIBS="\
+${XENOMAI_LIBS}"
+
+echo "$as_me:$LINENO: checking for libs" >&5
+echo $ECHO_N "checking for libs... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: ${LIBS}" >&5
+echo "${ECHO_T}${LIBS}" >&6
 
 
 if test \! -d $srcdir/doc; then
@@ -22607,7 +22725,7 @@ for DIR in \
 done
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/gui/GNUmakefile main/dxfmap/GNUmakefile main/naming/GNUmakefile main/lib/GNUmakefile main/debug/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/exceptions/GNUmakefile main/tims/msg/GNUmakefile main/tims/msgtypes/GNUmakefile main/tims/streams/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/gps/GNUmakefile drivers/joystick/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile gui/GNUmakefile tools/GNUmakefile examples/GNUmakefile skel/GNUmakefile"
+                                                                                                                                                                                                                                                                                                                                                                                                                                    ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/gui/GNUmakefile main/dxfmap/GNUmakefile main/naming/GNUmakefile main/lib/GNUmakefile main/debug/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/exceptions/GNUmakefile main/tims/msg/GNUmakefile main/tims/msgtypes/GNUmakefile main/tims/streams/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/gps/GNUmakefile drivers/joystick/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile gui/GNUmakefile tools/GNUmakefile examples/GNUmakefile scripts/rack-config scripts/GNUmakefile skel/GNUmakefile"
 
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
@@ -22741,13 +22859,6 @@ if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${CONFIG_RACK_STATIC_LINKING_TRUE}" && test -z "${CONFIG_RACK_STATIC_LINKING_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_STATIC_LINKING\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"CONFIG_RACK_STATIC_LINKING\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -22947,10 +23058,17 @@ echo "$as_me: error: conditional \"CONFIG_RACK_SCAN_2D_SIM\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${CONFIG_RACK_RTCAN_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_RTCAN_SUPPORT_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_RTCAN_SUPPORT\" was never defined.
+if test -z "${CONFIG_RACK_XENOMAI_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_XENOMAI_SUPPORT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_XENOMAI_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"CONFIG_RACK_RTCAN_SUPPORT\" was never defined.
+echo "$as_me: error: conditional \"CONFIG_RACK_XENOMAI_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_RACK_RTNET_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_RTNET_SUPPORT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_RTNET_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_RTNET_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -22958,13 +23076,6 @@ if test -z "${CONFIG_RACK_RTCAN_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_RTCAN_S
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_RTCAN_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"CONFIG_RACK_RTCAN_SUPPORT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${CONFIG_LIBRAW1394_TRUE}" && test -z "${CONFIG_LIBRAW1394_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_LIBRAW1394\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"CONFIG_LIBRAW1394\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -22975,24 +23086,10 @@ echo "$as_me: error: conditional \"CONFIG_RACK_LIBRAW1394_SUPPORT\" was never de
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${CONFIG_LIBDC1394_CONTROL_TRUE}" && test -z "${CONFIG_LIBDC1394_CONTROL_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_LIBDC1394_CONTROL\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"CONFIG_LIBDC1394_CONTROL\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
 if test -z "${CONFIG_RACK_LIBDC1394_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_LIBDC1394_SUPPORT_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_LIBDC1394_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"CONFIG_RACK_LIBDC1394_SUPPORT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${CONFIG_LIBJPEG_TRUE}" && test -z "${CONFIG_LIBJPEG_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_LIBJPEG\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"CONFIG_LIBJPEG\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -23525,6 +23622,8 @@ do
   "gui/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES gui/GNUmakefile" ;;
   "tools/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES tools/GNUmakefile" ;;
   "examples/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES examples/GNUmakefile" ;;
+  "scripts/rack-config" ) CONFIG_FILES="$CONFIG_FILES scripts/rack-config" ;;
+  "scripts/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES scripts/GNUmakefile" ;;
   "skel/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES skel/GNUmakefile" ;;
   "doc/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES doc/GNUmakefile" ;;
   "doc/doxygen/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES doc/doxygen/GNUmakefile" ;;
@@ -23620,6 +23719,7 @@ s,@ECHO_C@,$ECHO_C,;t t
 s,@ECHO_N@,$ECHO_N,;t t
 s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
+s,@PROJNAME@,$PROJNAME,;t t
 s,@build@,$build,;t t
 s,@build_cpu@,$build_cpu,;t t
 s,@build_vendor@,$build_vendor,;t t
@@ -23695,8 +23795,6 @@ s,@JAR@,$JAR,;t t
 s,@XENO_USER_PREFIX@,$XENO_USER_PREFIX,;t t
 s,@XENO_LIBRARIES@,$XENO_LIBRARIES,;t t
 s,@RACK_TARGET_ARCH@,$RACK_TARGET_ARCH,;t t
-s,@CONFIG_RACK_STATIC_LINKING_TRUE@,$CONFIG_RACK_STATIC_LINKING_TRUE,;t t
-s,@CONFIG_RACK_STATIC_LINKING_FALSE@,$CONFIG_RACK_STATIC_LINKING_FALSE,;t t
 s,@RACK_JAVA_JARDIR@,$RACK_JAVA_JARDIR,;t t
 s,@CONFIG_RACK_JAVA_GUI_TRUE@,$CONFIG_RACK_JAVA_GUI_TRUE,;t t
 s,@CONFIG_RACK_JAVA_GUI_FALSE@,$CONFIG_RACK_JAVA_GUI_FALSE,;t t
@@ -23755,34 +23853,50 @@ s,@CONFIG_RACK_SCAN_2D_MERGE_TRUE@,$CONFIG_RACK_SCAN_2D_MERGE_TRUE,;t t
 s,@CONFIG_RACK_SCAN_2D_MERGE_FALSE@,$CONFIG_RACK_SCAN_2D_MERGE_FALSE,;t t
 s,@CONFIG_RACK_SCAN_2D_SIM_TRUE@,$CONFIG_RACK_SCAN_2D_SIM_TRUE,;t t
 s,@CONFIG_RACK_SCAN_2D_SIM_FALSE@,$CONFIG_RACK_SCAN_2D_SIM_FALSE,;t t
+s,@XENOMAI_CPPFLAGS@,$XENOMAI_CPPFLAGS,;t t
+s,@XENOMAI_LDFLAGS@,$XENOMAI_LDFLAGS,;t t
+s,@XENOMAI_LIBS@,$XENOMAI_LIBS,;t t
+s,@CONFIG_RACK_XENOMAI_SUPPORT_TRUE@,$CONFIG_RACK_XENOMAI_SUPPORT_TRUE,;t t
+s,@CONFIG_RACK_XENOMAI_SUPPORT_FALSE@,$CONFIG_RACK_XENOMAI_SUPPORT_FALSE,;t t
+s,@RTNET_CPPFLAGS@,$RTNET_CPPFLAGS,;t t
+s,@CONFIG_RACK_RTNET_SUPPORT_TRUE@,$CONFIG_RACK_RTNET_SUPPORT_TRUE,;t t
+s,@CONFIG_RACK_RTNET_SUPPORT_FALSE@,$CONFIG_RACK_RTNET_SUPPORT_FALSE,;t t
+s,@RTCAN_CPPFLAGS@,$RTCAN_CPPFLAGS,;t t
 s,@CONFIG_RACK_RTCAN_SUPPORT_TRUE@,$CONFIG_RACK_RTCAN_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_RTCAN_SUPPORT_FALSE@,$CONFIG_RACK_RTCAN_SUPPORT_FALSE,;t t
+s,@LIBRAW1394_CPPFLAGS@,$LIBRAW1394_CPPFLAGS,;t t
+s,@LIBRAW1394_LDFLAGS@,$LIBRAW1394_LDFLAGS,;t t
 s,@LIBRAW1394_LIBS@,$LIBRAW1394_LIBS,;t t
-s,@CONFIG_LIBRAW1394_TRUE@,$CONFIG_LIBRAW1394_TRUE,;t t
-s,@CONFIG_LIBRAW1394_FALSE@,$CONFIG_LIBRAW1394_FALSE,;t t
 s,@CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE@,$CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE@,$CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE,;t t
-s,@LIBDC1394_CONTROL_LIBS@,$LIBDC1394_CONTROL_LIBS,;t t
-s,@CONFIG_LIBDC1394_CONTROL_TRUE@,$CONFIG_LIBDC1394_CONTROL_TRUE,;t t
-s,@CONFIG_LIBDC1394_CONTROL_FALSE@,$CONFIG_LIBDC1394_CONTROL_FALSE,;t t
+s,@LIBDC1394_CPPFLAGS@,$LIBDC1394_CPPFLAGS,;t t
+s,@LIBDC1394_LDFLAGS@,$LIBDC1394_LDFLAGS,;t t
+s,@LIBDC1394_LIBS@,$LIBDC1394_LIBS,;t t
 s,@CONFIG_RACK_LIBDC1394_SUPPORT_TRUE@,$CONFIG_RACK_LIBDC1394_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_LIBDC1394_SUPPORT_FALSE@,$CONFIG_RACK_LIBDC1394_SUPPORT_FALSE,;t t
+s,@LIBJPEG_CPPFLAGS@,$LIBJPEG_CPPFLAGS,;t t
+s,@LIBJPEG_LDFLAGS@,$LIBJPEG_LDFLAGS,;t t
 s,@LIBJPEG_LIBS@,$LIBJPEG_LIBS,;t t
-s,@CONFIG_LIBJPEG_TRUE@,$CONFIG_LIBJPEG_TRUE,;t t
-s,@CONFIG_LIBJPEG_FALSE@,$CONFIG_LIBJPEG_FALSE,;t t
 s,@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@,$CONFIG_RACK_LIBJPEG_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_LIBJPEG_SUPPORT_FALSE@,$CONFIG_RACK_LIBJPEG_SUPPORT_FALSE,;t t
+s,@LIBPNG_CPPFLAGS@,$LIBPNG_CPPFLAGS,;t t
+s,@LIBPNG_LDFLAGS@,$LIBPNG_LDFLAGS,;t t
 s,@LIBPNG_LIBS@,$LIBPNG_LIBS,;t t
 s,@CONFIG_LIBPNG_TRUE@,$CONFIG_LIBPNG_TRUE,;t t
 s,@CONFIG_LIBPNG_FALSE@,$CONFIG_LIBPNG_FALSE,;t t
 s,@CONFIG_RACK_LIBPNG_SUPPORT_TRUE@,$CONFIG_RACK_LIBPNG_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_LIBPNG_SUPPORT_FALSE@,$CONFIG_RACK_LIBPNG_SUPPORT_FALSE,;t t
+s,@OPENCV_CPPFLAGS@,$OPENCV_CPPFLAGS,;t t
+s,@OPENCV_LDFLAGS@,$OPENCV_LDFLAGS,;t t
 s,@OPENCV_LIBS@,$OPENCV_LIBS,;t t
 s,@CONFIG_OPENCV_TRUE@,$CONFIG_OPENCV_TRUE,;t t
 s,@CONFIG_OPENCV_FALSE@,$CONFIG_OPENCV_FALSE,;t t
 s,@CONFIG_RACK_OPENCV_SUPPORT_TRUE@,$CONFIG_RACK_OPENCV_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_OPENCV_SUPPORT_FALSE@,$CONFIG_RACK_OPENCV_SUPPORT_FALSE,;t t
+s,@RACK_SUPPORTS@,$RACK_SUPPORTS,;t t
 s,@RACK_LIBS@,$RACK_LIBS,;t t
+s,@RACK_GLOBAL_CPPFLAGS@,$RACK_GLOBAL_CPPFLAGS,;t t
+s,@RACK_GLOBAL_LDFLAGS@,$RACK_GLOBAL_LDFLAGS,;t t
 s,@RACK_MAYBE_DOCDIR@,$RACK_MAYBE_DOCDIR,;t t
 s,@DOXYGEN@,$DOXYGEN,;t t
 s,@DOXYGEN_HAVE_DOT@,$DOXYGEN_HAVE_DOT,;t t
@@ -24662,11 +24776,11 @@ fi
 { echo "$as_me:$LINENO: creating rack_config.h" >&5
 echo "$as_me: creating rack_config.h" >&6;}
 sed -e "s/ PACKAGE/ RACK_PACKAGE/" -e "s/ VERSION/ RACK_VERSION/" \
-    config/rack_config_pre.h > rack_config.h.new
-if cmp -s rack_config.h.new rack_config.h; then
-    rm rack_config.h.new
+    config/${PROJNAME}_config_pre.h > ${PROJNAME}_config.h.new
+if cmp -s ${PROJNAME}_config.h.new ${PROJNAME}_config.h; then
+    rm ${PROJNAME}_config.h.new
     { echo "$as_me:$LINENO: rack_config.h is unchanged" >&5
 echo "$as_me: rack_config.h is unchanged" >&6;}
 else
-    mv rack_config.h.new rack_config.h
+    mv ${PROJNAME}_config.h.new ${PROJNAME}_config.h
 fi

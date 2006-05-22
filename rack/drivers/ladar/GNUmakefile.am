@@ -19,20 +19,21 @@ LadarIbeo_SOURCES = \
 	ladar_ibeo.h \
 	ladar_ibeo.cpp
 
-LadarIbeo_LDADD = @RACK_LIBS@
+LadarIbeo_CPPFLAGS = @RTCAN_CPPFLAGS@
+LadarIbeo_LDFLAGS = @RACK_LIBS@
 
 
 LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp
 
-LadarHokuyoUrg_LDADD = @RACK_LIBS@
+LadarHokuyoUrg_LDFLAGS = @RACK_LIBS@
 
 LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.h \
 	ladar_sick_lms200.cpp
 
-LadarSickLms200_LDADD = @RACK_LIBS@
+LadarSickLms200_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

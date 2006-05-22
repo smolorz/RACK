@@ -424,7 +424,7 @@ void tcpConnectionTask(void *arg)
     CONNECTION*           con = (CONNECTION*)arg;
     int                   forwardConIndex;
     int                   ret, idx;
-    timsMsgRouter_MbxMsg* mbxMsg;
+    timsMsgRouter_MbxMsg* mbxMsg = NULL;
 
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
@@ -783,39 +783,43 @@ void watchdogTask(void *arg)
 
 int init()
 {
-  int  ret;
-  int i;
+    int ret = 0;
+    int i;
 
-  init_flags = 0;
-  sem_flags  = 0;
+    init_flags = 0;
+    sem_flags  = 0;
 
-  for (i = 0; i < MAX_CONNECTIONS; i++) {
-    if (sem_init(&conList[i].sendSem, 0, 1) < 0) {
-      printf(NAME " con[%i] error: Can't create sendSem\n", i);
-      goto init_error;
+    for (i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (sem_init(&conList[i].sendSem, 0, 1) < 0)
+        {
+            printf(NAME " con[%i] error: Can't create sendSem\n", i);
+            goto init_error;
+        }
+        conList[i].socket = -1;
+        conList[i].index  = -1;
+        sem_flags |= ( 1 << i);
     }
-    conList[i].socket = -1;
-    conList[i].index  = -1;
-    sem_flags |= ( 1 << i);
-  }
 
-  if (sem_init(&mbxListSem, 0, 1) < 0) {
-    tims_print("error: Can't create mbxListSem\n");
-    goto init_error;
-  }
-  init_flags |= TIMS_ROUTER_SEM_LIST;
+    if (sem_init(&mbxListSem, 0, 1) < 0)
+    {
+        tims_print("error: Can't create mbxListSem\n");
+        goto init_error;
+    }
+    init_flags |= TIMS_ROUTER_SEM_LIST;
 
-  if (pthread_create(&watchdogThread, NULL, (void *)watchdogTask, NULL)) {
-    tims_print("error: Can't create watchdog thread\n");
-    goto init_error;
-  }
-  init_flags |= TIMS_ROUTER_WATCHDOG;
+    if (pthread_create(&watchdogThread, NULL, (void *)watchdogTask, NULL))
+    {
+        tims_print("error: Can't create watchdog thread\n");
+        goto init_error;
+    }
+    init_flags |= TIMS_ROUTER_WATCHDOG;
 
-  return 0;
+    return 0;
 
 init_error:
-  cleanup();
-  return ret;
+    cleanup();
+    return ret;
 }
 
 int main(int argc, char* argv[])

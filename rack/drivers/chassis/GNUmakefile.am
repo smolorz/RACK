@@ -15,13 +15,14 @@ ChassisSim_SOURCES = \
 	chassis_sim.h \
 	chassis_sim.cpp
 
-ChassisSim_LDADD = @RACK_LIBS@
+ChassisSim_LDFLAGS = @RACK_LIBS@
+
 
 ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
 
-ChassisPioneer_LDADD = @RACK_LIBS@
+ChassisPioneer_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

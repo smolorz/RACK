@@ -22,21 +22,10 @@ tims_msg_client_CFLAGS = \
 
 #tims_msg_client_LDFLAGS =
 
-if CONFIG_RACK_STATIC_LINKING
-
-tims_msg_client_LDADD = \
-	$(xeno_lib_dir)/libnative.a \
-	$(xeno_lib_dir)/librtdm.a \
-	-lpthread
-
-else
-
 tims_msg_client_LDADD = \
 	-L$(xeno_lib_dir) \
 	-lrtdm -lnative \
 	-lpthread
-
-endif
 
 ### tcp_tims_msg_router ####################################
 

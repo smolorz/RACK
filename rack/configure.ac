@@ -3,19 +3,26 @@
 
 AC_PREREQ(2.59)
 
+m4_define([ProjectName], [rack])
+m4_define([PrefixDefault], [/usr/local/rack])
+m4_define([SourceFile], [main/module/rack_module.cpp])
+
 AC_INIT([rack],m4_normalize(m4_include([config/version])),[])
+
+PROJNAME=ProjectName
+AC_SUBST(PROJNAME)
 
 CONFIG_RACK_VERSION_MAJOR=`expr $PACKAGE_VERSION : '\([0-9]*\)'`
 CONFIG_RACK_VERSION_MINOR=`expr $PACKAGE_VERSION : '[0-9]*\.\([0-9]*\)'`
 CONFIG_RACK_REVISION_LEVEL=`expr $PACKAGE_VERSION : '[0-9]*\.[0-9]*\.\([0-9]*\)'`
 test "x$CONFIG_RACK_REVISION_LEVEL" = "x" && CONFIG_RACK_REVISION_LEVEL=0
 
-AC_CONFIG_HEADERS([config/rack_config_pre.h])
+AC_CONFIG_HEADERS([config/]ProjectName[_config_pre.h])
+AC_CONFIG_SRCDIR(SourceFile)
+AC_PREFIX_DEFAULT(PrefixDefault)
 AC_CONFIG_AUX_DIR([config/autoconf])
 AC_CONFIG_MACRO_DIR([config/m4])
-AC_CONFIG_SRCDIR([main/module/rack_module.cpp])
 
-AC_PREFIX_DEFAULT([/usr/local/rack])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_PROG_INSTALL
@@ -54,10 +61,10 @@ AC_C_INLINE
 AC_HEADER_STDC
 
 dnl ======================================================================
-dnl checking target arch
+dnl  checking target arch
 dnl ======================================================================
 
-AC_MSG_CHECKING([for RACK target architecture])
+AC_MSG_CHECKING([for target architecture])
 case "$host" in
   i*86*-*)
     RACK_TARGET_ARCH=i386
@@ -185,16 +192,16 @@ AC_ARG_WITH(xeno-user-dir,
     ])
 
 dnl -----------------------------------------------------------------
-dnl  try to find Xenomai user
+dnl  try to find Xenomai config
 dnl -----------------------------------------------------------------
 
 AC_MSG_CHECKING([for Xenomai userspace installation])
 XENO_USER_CONFIG="${CONFIG_RACK_XENOMAIDIR}/bin/xeno-config"
 if test -x "${XENO_USER_CONFIG}"; then
-  XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`" # let the shell normalize the path
+  XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`"
   AC_MSG_RESULT([${XENO_USER_DIR}])
 else
-  AC_MSG_ERROR([no Xenomai found in $CONFIG_RACK_XENOMAIDIR])
+  AC_MSG_ERROR([no Xenomai found in ${CONFIG_RACK_XENOMAIDIR}])
 fi
 
 dnl -----------------------------------------------------------------
@@ -202,7 +209,7 @@ dnl  get Xenomai user prefix
 dnl -----------------------------------------------------------------
 
 AC_MSG_CHECKING([for Xenomai userspace PREFIX])
-XENO_USER_PREFIX="`cd \`${XENO_USER_CONFIG} --prefix\` && pwd`"     # let the shell normalize the path
+XENO_USER_PREFIX="`cd \`${XENO_USER_CONFIG} --prefix\` && pwd`"
 AC_MSG_RESULT([${XENO_USER_PREFIX}])
 
 dnl -----------------------------------------------------------------
@@ -226,8 +233,6 @@ dnl -----------------------------------------------------------------
 dnl  get some more information about Xenomai
 dnl -----------------------------------------------------------------
 
-RACK_USER_CFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
-RACK_KMOD_CFLAGS=""
 XENO_USER_ARCH="`${XENO_USER_CONFIG} --arch`"
 XENO_LIBRARIES="`${XENO_USER_CONFIG} --library-dir`"
 
@@ -247,10 +252,10 @@ AC_MSG_CHECKING([for Xenomai target arch])
 AC_MSG_RESULT([${XENO_USER_ARCH}])
 
 AC_MSG_CHECKING([for RACK target arch])
-AC_MSG_RESULT([${RACK_TARGET_ARCH}])
+AC_MSG_RESULT([${TARGET_ARCH}])
 
 if test x"${RACK_TARGET_ARCH}" != x"${XENO_USER_ARCH}"; then
-    AC_MSG_ERROR([*** Xenomai Userspace and RACK target architectures are not the same])
+    AC_MSG_ERROR([*** Xenomai Userspace and current target architectures are not the same])
 fi
 
 case "${XENO_USER_ARCH}" in
@@ -264,57 +269,11 @@ esac
 
 AC_SUBST(RACK_TARGET_ARCH)
 
-dnl -----------------------------------------------------------------
-dnl static or dynamic linking
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING(for static linking)
-AC_ARG_ENABLE(static-linking,
-    AS_HELP_STRING([--enable-static-linking], [enable static linking]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_STATIC_LINKING=y ;;
-        *) unset CONFIG_RACK_STATIC_LINKING ;;
-    esac])
-AC_MSG_RESULT(${CONFIG_RACK_STATIC_LINKING:-n})
-
-AM_CONDITIONAL(CONFIG_RACK_STATIC_LINKING,[test "$CONFIG_RACK_STATIC_LINKING" = "y"])
-if test "CONFIG_RACK_STATIC_LINKING" = "y"; then
-    AC_DEFINE(CONFIG_RACK_STATIC_LINKING,1,[static linking])
-fi
-
-dnl ======================================================================
-dnl Setting CPP flags
-dnl ======================================================================
-
-CPPFLAGS="\
--I\$(top_srcdir) \
--I\$(top_builddir) \
--I${XENO_USER_PREFIX}/include \
--I/usr/include \
--Wall"
-
-dnl ======================================================================
-dnl Setting LD flags
-dnl ======================================================================
-
-if test x"CONFIG_RACK_STATIC_LINKING" = x"y"; then
-
-LDFLAGS="\
-${XENO_LIBRARIES}/libnative.a \
-${XENO_LIBRARIES}/librtdm.a \
--lpthread"
-
-else
-
-LDFLAGS="\
--L${XENO_LIBRARIES} -lnative -lrtdm -lpthread \
--L/usr/lib"
-
-fi
-
 dnl ======================================================================
 dnl  check support
 dnl ======================================================================
+
+dnl ----- RTnet ---------------------------------------------------------------
 
 AC_ARG_ENABLE(rtnet-support,
     AS_HELP_STRING([--enable-rtnet-support], [enable rtnet support]),
@@ -324,7 +283,7 @@ AC_ARG_ENABLE(rtnet-support,
     esac])
 
 AC_ARG_WITH(rtnet-dir,
-    AS_HELP_STRING([--with-rtet-dir=<rtnet-dir>], [Install directory of RTnet]),
+    AS_HELP_STRING([--with-rtnet-dir=<rtnet-dir>], [Install directory of RTnet]),
     [case "${withval}" in
         "" | y | ye | yes | n | no)
             AC_MSG_ERROR([You must supply an argument to --with-rtnet-dir.])
@@ -483,17 +442,17 @@ if test x"$CONFIG_RACK_JAVA_GUI" = "xy"; then
     AC_MSG_CHECKING([javac])
     JAVAC="`which javac`"
     if test \! -x ${JAVAC}; then
-    	AC_MSG_ERROR([*** can't find javac])
+        AC_MSG_ERROR([*** can't find javac])
     else
-	    AC_MSG_RESULT([${JAVAC}])
+        AC_MSG_RESULT([${JAVAC}])
     fi
 
     AC_MSG_CHECKING([jar])
     JAR="`which jar`"
     if test \! -x ${JAR}; then
-    	AC_MSG_ERROR([*** can't find jar])
+        AC_MSG_ERROR([*** can't find jar])
     else
-	    AC_MSG_RESULT([${JAR}])
+        AC_MSG_RESULT([${JAR}])
     fi
 fi
 
@@ -670,7 +629,7 @@ dnl  ...
 dnl -----------------------------------------------------------------
 
 dnl ======================================================================
-dnl    rack modules
+dnl    project modules
 dnl ======================================================================
 
 dnl ======================================================================
@@ -976,57 +935,146 @@ dnl ======================================================================
 dnl  directory / library checks
 dnl ======================================================================
 
-AC_MSG_CHECKING([rtnet support])
+RACK_KMOD_CFLAGS=""
+RACK_SUPPORTS=""
+
+dnl ----- Xenomai --------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl
+
+XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
+XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
+XENOMAI_LIBS="-lnative -lrtdm"
+
+RACK_SUPPORTS="xenomai ${RACK_SUPPORTS}"
+
+AC_SUBST(XENOMAI_CPPFLAGS)
+AC_SUBST(XENOMAI_LDFLAGS)
+AC_SUBST(XENOMAI_LIBS)
+
+dnl *** little hack ***
+CONFIG_RACK_XENOMAI_SUPPORT=y
+
+AM_CONDITIONAL(CONFIG_RACK_XENOMAI_SUPPORT,
+               [test x"${CONFIG_RACK_XENOMAI_SUPPORT}" = "xy"])
+               
+dnl ----- rtnet ----------------------------------------------------------------
+dnl
+dnl  depends on xenomai
+dnl  provides headers: yes
+dnl  provides libs:    no
+dnl
+
+AC_MSG_CHECKING([rtnet support is needed])
 AC_MSG_RESULT([${CONFIG_RACK_RTNET_SUPPORT}])
 
+RTNET_CPPFLAGS=""
+    
 if test x"${CONFIG_RACK_RTNET_SUPPORT}" = x"y"; then
-    if test -d ${CONFIG_RACK_RTNETDIR}; then
-        CPPFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${CPPFLAGS}"
+
+    cppflags_backup="${CPPFLAGS}"
+    if test x${CONFIG_RACK_RTNETDIR} != "x"; then
+        AC_MSG_CHECKING([rtnet directory])
+        if test -d ${CONFIG_RACK_RTNETDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_RTNETDIR}])
+
+            RTNET_CPPFLAGS="-I${CONFIG_RACK_RTNETDIR}/include"
+
+            CPPFLAGS="${XENOMAI_CPPFLAGS} ${CPPFLAGS}"
+            CPPFLAGS="${RTNET_CPPFLAGS} ${CPPFLAGS}"
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_RTNETDIR})
+        fi
     fi
+
     AC_CHECK_HEADER(rtnet.h,,
                     [AC_MSG_ERROR(cannot find rtnet.h)]
                    )
-    RACK_KMOD_CFLAGS="-I${CONFIG_RACK_RTNETDIR}/include ${RACK_KMOD_CFLAGS}"
+
+    RACK_SUPPORTS="rtnet ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
 fi
 
-AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
-               [test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"])
+AC_SUBST(RTNET_CPPFLAGS)
+AM_CONDITIONAL(CONFIG_RACK_RTNET_SUPPORT,
+               [test x"${CONFIG_RACK_RTNET_SUPPORT}" = "xy"])
 
-dnl -----------------------------------------------------------------
+dnl ----- rt_sja1000 -----------------------------------------------------------
+dnl
+dnl  depends on xenomai
+dnl  provides headers: yes
+dnl  provides libs:    no
+dnl
 
-AC_MSG_CHECKING([rtcan support])
+AC_MSG_CHECKING([rtcan support is needed])
 AC_MSG_RESULT([${CONFIG_RACK_RTCAN_SUPPORT}])
 
+RTCAN_CPPFLAGS=""
+    
 if test x"${CONFIG_RACK_RTCAN_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+
     if test x${CONFIG_RACK_RTCANDIR} != "x"; then
         AC_MSG_CHECKING([rtcan directory])
         if test -d ${CONFIG_RACK_RTCANDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include ${CPPFLAGS}"
             AC_MSG_RESULT([${CONFIG_RACK_RTCANDIR}])
+
+            RTCAN_CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include"
+
+            CPPFLAGS="${XENOMAI_CPPFLAGS} ${CPPFLAGS}"
+            CPPFLAGS="${RTCAN_CPPFLAGS} ${CPPFLAGS}"
         else
             AC_MSG_ERROR(cannot find ${CONFIG_RACK_RTCANDIR})
         fi
     fi
+
     AC_CHECK_HEADER(rtcan.h,,
                     [AC_MSG_ERROR(cannot find rtcan.h)]
                    )
+
+    RACK_SUPPORTS="rtcan ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
 fi
 
+AC_SUBST(RTCAN_CPPFLAGS)
 AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
                [test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"])
 
-dnl -----------------------------------------------------------------
+dnl ----- libraw1394 -----------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
 
 AC_MSG_CHECKING([libraw1394 support])
 AC_MSG_RESULT([${CONFIG_RACK_LIBRAW1394_SUPPORT}])
 
+LIBRAW1394_CPPFLAGS=""
+LIBRAW1394_LDFLAGS=""
+LIBRAW1394_LIBS=""
+
 if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+    
     if test x${CONFIG_RACK_LIBRAW1394DIR} != "x"; then
         AC_MSG_CHECKING([libraw1394 directory])
         if test -d ${CONFIG_RACK_LIBRAW1394DIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include/ ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib/ ${LDFLAGS}"
             AC_MSG_RESULT([${CONFIG_RACK_LIBRAW1394DIR}])
+
+            LIBRAW1394_CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include"
+            LIBRAW1394_LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib"
+            LIBRAW1394_LIBS="-lraw1394"
+
+            CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBRAW1394_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBRAW394_LIBS"
+
         else
             AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBRAW1394DIR})
         fi
@@ -1036,31 +1084,58 @@ if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
                     AC_CHECK_LIB(raw1394,
                                  raw1394_new_handle,,
                                  [AC_MSG_ERROR(cannot find function raw1394_new_handle)]
-                                )
-                    LIBRAW1394_LIBS="-lraw1394"
-                    AC_SUBST(LIBRAW1394_LIBS),
+                                ),
                     [AC_MSG_ERROR(cannot find libraw1394 header files)]
                    )
+
+    RACK_SUPPORTS="libraw1394 ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
-AM_CONDITIONAL(CONFIG_LIBRAW1394,
-               [test x"${LIBRAW1394_LIBS}" != x""])
-
+AC_SUBST(LIBRAW1394_CPPFLAGS)
+AC_SUBST(LIBRAW1394_LDFLAGS)
+AC_SUBST(LIBRAW1394_LIBS)
 AM_CONDITIONAL(CONFIG_RACK_LIBRAW1394_SUPPORT,
                [test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = "xy"])
 
-dnl -----------------------------------------------------------------
+dnl ----- libdc1394_control ----------------------------------------------------
+dnl
+dnl  depends on libraw1394
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
 
 AC_MSG_CHECKING([libdc1394 support])
 AC_MSG_RESULT([${CONFIG_RACK_LIBDC1394_SUPPORT}])
 
+LIBDC1394_CPPFLAGS=""
+LIBDC1394_LDFLAGS=""
+LIBDC1394_LIBS=""
+
 if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
     if test x${CONFIG_RACK_LIBDC1394DIR} != "x"; then
         AC_MSG_CHECKING([libdc1394 directory])
         if test -d ${CONFIG_RACK_LIBDC1394DIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib ${LDFLAGS}"
             AC_MSG_RESULT([${CONFIG_RACK_LIBDC1394DIR}])
+
+            LIBDC1394_CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include"
+            LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib"
+            LIBDC1394_LIBS="-ldc1394_control"
+
+            CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBRAW1394_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBRAW394_LIBS"
+
+            CPPFLAGS="${LIBDC1394_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBDC1394_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBDC1394_LIBS"
         else
             AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBDC1394DIR})
         fi
@@ -1070,31 +1145,54 @@ if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
                     AC_CHECK_LIB(dc1394_control,
                                  dc1394_get_camera_nodes,,
                                  [AC_MSG_ERROR(cannot find function dc1394_get_camera_nodes)]
-                                )
-                    LIBDC1394_CONTROL_LIBS="-ldc1394_control -lraw1394"
-                    AC_SUBST(LIBDC1394_CONTROL_LIBS),
+                                ),
                     [AC_MSG_ERROR(cannot find libdc1394 header files)]
                    )
+
+    RACK_SUPPORTS="libdc1394 ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
-AM_CONDITIONAL(CONFIG_LIBDC1394_CONTROL,
-               [test x"${LIBDC1394_CONTROL_LIBS}" != x""])
-
+AC_SUBST(LIBDC1394_CPPFLAGS)
+AC_SUBST(LIBDC1394_LDFLAGS)
+AC_SUBST(LIBDC1394_LIBS)
 AM_CONDITIONAL(CONFIG_RACK_LIBDC1394_SUPPORT,
                [test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = "xy"])
 
-dnl -----------------------------------------------------------------
+dnl ----- libjpeg --------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
 
 AC_MSG_CHECKING([libjpeg support])
 AC_MSG_RESULT([${CONFIG_RACK_LIBJPEG_SUPPORT}])
 
+LIBJPEG_CPPFLAGS=""
+LIBJPEG_LDFLAGS=""
+LIBJPEG_LIBS=""
+
 if test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
     if test x${CONFIG_RACK_LIBJPEGDIR} != "x"; then
         AC_MSG_CHECKING([libjpeg directory])
         if test -d ${CONFIG_RACK_LIBJPEGDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib ${LDFLAGS}"
             AC_MSG_RESULT([${CONFIG_RACK_LIBJPEGDIR}])
+
+            LIBJPEG_CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include"
+            LIBJPEG_LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib"
+            LIBJPEG_LIBS="-ljpeg"
+
+            CPPFLAGS="${LIBJPEG_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBJPEG_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBJPEG_LIBS"
         else
             AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBJPEGDIR})
         fi
@@ -1104,44 +1202,76 @@ if test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = x"y"; then
                     AC_CHECK_LIB(jpeg,
                                  jpeg_start_compress,,
                                  [AC_MSG_ERROR(cannot find function jpeg_create_compress)]
-                                )
-                    LIBJPEG_LIBS="-ljpeg"
-                    AC_SUBST(LIBJPEG_LIBS),
+                                ),
                     [AC_MSG_ERROR(cannot find libjpeg header files)]
                    )
+
+    RACK_SUPPORTS="libjpeg ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
-AM_CONDITIONAL(CONFIG_LIBJPEG,
-               [test x"${LIBJPEG_LIBS}" != x""])
-
+AC_SUBST(LIBJPEG_CPPFLAGS)
+AC_SUBST(LIBJPEG_LDFLAGS)
+AC_SUBST(LIBJPEG_LIBS)
 AM_CONDITIONAL(CONFIG_RACK_LIBJPEG_SUPPORT,
                [test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = "xy"])
 
-dnl -----------------------------------------------------------------
+dnl ----- libpng ---------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
 
 AC_MSG_CHECKING([libpng support])
 AC_MSG_RESULT([${CONFIG_RACK_LIBPNG_SUPPORT}])
 
 if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    LIBPNG_CPPFLAGS=""
+    LIBPNG_LDFLAGS=""
+    LIBPNG_LIBS=""
+
     if test x${CONFIG_RACK_LIBPNGDIR} != "x"; then
         AC_MSG_CHECKING([libpng directory])
         if test -d ${CONFIG_RACK_LIBPNGDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib ${LDFLAGS}"
             AC_MSG_RESULT([${CONFIG_RACK_LIBPNGDIR}])
+
+            LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include"
+            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib"
+            LIBPNG_LIBS="-lpng12"
+
+            CPPFLAGS="${LIBPNG_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBPNG_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBPNG_LIBS"
         else
             AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBPNGDIR})
         fi
     fi
+
     AC_CHECK_HEADER(libpng/png.h,
-                    AC_CHECK_LIB(png,
+                    AC_CHECK_LIB(png12,
                                  png_write_end,,
                                  [AC_MSG_ERROR(cannot find function png_write_end)]
-                                )
-                    LIBPNG_LIBS="-lpng"
-                    AC_SUBST(LIBPNG_LIBS),
+                                ),
                     [AC_MSG_ERROR(cannot find libpng header files)]
                    )
+
+    RACK_SUPPORTS="libpng ${RACK_SUPPORTS}"
+
+    AC_SUBST(LIBPNG_CPPFLAGS)
+    AC_SUBST(LIBPNG_LDFLAGS)
+    AC_SUBST(LIBPNG_LIBS)
+
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 AM_CONDITIONAL(CONFIG_LIBPNG,
@@ -1150,22 +1280,43 @@ AM_CONDITIONAL(CONFIG_LIBPNG,
 AM_CONDITIONAL(CONFIG_RACK_LIBPNG_SUPPORT,
                [test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = "xy"])
 
-dnl -----------------------------------------------------------------
+dnl ----- opencv ---------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
 
 AC_MSG_CHECKING([opencv support])
 AC_MSG_RESULT([${CONFIG_RACK_OPENCV_SUPPORT}])
 
 if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    OPENCV_CPPFLAGS=""
+    OPENCV_LDFLAGS=""
+    OPENCV_LIBS=""
+
     if test x${CONFIG_RACK_OPENCVDIR} != "x"; then
         AC_MSG_CHECKING([opencv directory])
         if test -d ${CONFIG_RACK_OPENCVDIR}; then
-            CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv ${CPPFLAGS}"
-            LDFLAGS="-L${CONFIG_RACK_OPENCVDIR}/lib ${LDFLAGS}"
             AC_MSG_RESULT([${CONFIG_RACK_OPENCVDIR}])
+
+            OPENCV_CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv"
+            OPENCV_LDFLAGS="-L${CONFIG_RACK_OPENCVDIR}/lib"
+            OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
+
+            CPPFLAGS="${OPENCV_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${OPENCV_LDFLAGS} ${LDFLAGS}"
+            LIBS="$OPENCV_LIBS"
         else
             AC_MSG_ERROR(cannot find ${CONFIG_RACK_OPENCVDIR})
         fi
     fi
+
     AC_CHECK_HEADERS(cv.h cvaux.h cxcore.h highgui.h,
                     AC_CHECK_LIB(cv,
                                  cvCreateData,,
@@ -1182,12 +1333,19 @@ if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
                     AC_CHECK_LIB(highgui,
                                  cvShowImage,,
                                  [AC_MSG_ERROR(cannot find function cvShowImage)]
-                                )
-
-                    OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
-                    AC_SUBST(OPENCV_LIBS),
+                                ),
                     [AC_MSG_ERROR(cannot find opencv header files)]
                    )
+
+    RACK_SUPPORTS="opencv ${RACK_SUPPORTS}"
+
+    AC_SUBST(OPENCV_CPPFLAGS)
+    AC_SUBST(OPENCV_LDFLAGS)
+    AC_SUBST(OPENCV_LIBS)
+
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
 fi
 
 AM_CONDITIONAL(CONFIG_OPENCV,
@@ -1197,29 +1355,57 @@ AM_CONDITIONAL(CONFIG_RACK_OPENCV_SUPPORT,
                [test x"${CONFIG_RACK_OPENCV_SUPPORT}" = "xy"])
 
 dnl ======================================================================
-dnl  add additional flags
+dnl  current project
 dnl ======================================================================
 
-LDFLAGS_GLOB="${LDFLAGS} --export-dynamic"
+RACK_SUPPORTS="${PROJNAME} ${RACK_SUPPORTS}"
+AC_SUBST(RACK_SUPPORTS)
 
-if test x"CONFIG_RACK_STATIC_LINKING" = x"y"; then
-    LDFLAGS="$(top_builddir)/main/lib/.libs/librack.a ${LDFLAGS_GLOB}"
-else
-    LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${LDFLAGS_GLOB}"
-    RACK_LIBS="-lrack"
-    AC_SUBST(RACK_LIBS)
-fi
+RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir}"
+RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs"
+RACK_LIBS="-l${PROJNAME}"
 
+AC_SUBST(RACK_LIBS)
 
 dnl ======================================================================
-dnl  Export CPPFLAGS & LDFLAGS
+dnl  set flags / libs
 dnl ======================================================================
 
-AC_MSG_CHECKING([for rack cppflags])
+dnl ---- cppflags --------------------------------------------------------------
+
+RACK_GLOBAL_CPPFLAGS=" -I/usr/include -Wall"
+AC_SUBST(RACK_GLOBAL_CPPFLAGS)
+
+CPPFLAGS="\
+${XENOMAI_CPPFLAGS} \
+${RACK_GLOBAL_CPPFLAGS} \
+${RACK_CPPFLAGS} \
+${CPPFLAGS}"
+
+AC_MSG_CHECKING([for cppflags])
 AC_MSG_RESULT([${CPPFLAGS}])
 
-AC_MSG_CHECKING([for rack ldflags])
+dnl ---- ldflags ---------------------------------------------------------------
+
+RACK_GLOBAL_LDFLAGS="-L/usr/lib --export-dynamic"
+AC_SUBST(RACK_GLOBAL_LDFLAGS)
+
+LDFLAGS="\
+${XENOMAI_LDFLAGS} \
+${RACK_GLOBAL_LDFLAGS} \
+${RACK_LDFLAGS} \
+${LDFLAGS}"
+
+AC_MSG_CHECKING([for ldflags])
 AC_MSG_RESULT([${LDFLAGS}])
+
+dnl ---- libs ------------------------------------------------------------------
+
+LIBS="\
+${XENOMAI_LIBS}"
+
+AC_MSG_CHECKING([for libs])
+AC_MSG_RESULT([${LIBS}])
 
 dnl ======================================================================
 dnl             doxygen documentation
@@ -1447,7 +1633,7 @@ AC_CONFIG_FILES([GNUmakefile \
     main/GNUmakefile \
     main/argopts/GNUmakefile \
     main/defines/GNUmakefile \
-	main/gui/GNUmakefile \
+    main/gui/GNUmakefile \
     main/dxfmap/GNUmakefile \
     main/naming/GNUmakefile \
     main/lib/GNUmakefile \
@@ -1486,6 +1672,9 @@ AC_CONFIG_FILES([GNUmakefile \
     \
     examples/GNUmakefile \
     \
+    scripts/rack-config \
+    scripts/GNUmakefile \
+    \
     skel/GNUmakefile
 ])
 
@@ -1500,23 +1689,23 @@ AC_CONFIG_FILES([ \
 fi
 
 if test x"$CONFIG_RACK_JAVA_GUI" = x"y"; then
-AC_CONFIG_COMMANDS([java-link], [if test ! -e rack; then $LN_S . rack; fi], [LN_S="$LN_S"])
+AC_CONFIG_COMMANDS([java-link], [if test ! -e ProjectName; then $LN_S . ProjectName; fi], [LN_S="$LN_S"])
 else
-AC_CONFIG_COMMANDS([java-unlink], [if test -e rack; then rm -rf rack; fi])
+AC_CONFIG_COMMANDS([java-unlink], [if test -e ProjectName; then rm -rf ProjectName; fi])
 fi
 
 AC_OUTPUT
 
 dnl ======================================================================
-dnl generate rack_config.h
+dnl generate ${PROJNAME}_config.h
 dnl ======================================================================
 
-AC_MSG_NOTICE([creating rack_config.h])
+AC_MSG_NOTICE([creating ]ProjectName[_config.h])
 sed -e "s/ PACKAGE/ RACK_PACKAGE/" -e "s/ VERSION/ RACK_VERSION/" \
-    config/rack_config_pre.h > rack_config.h.new
-if cmp -s rack_config.h.new rack_config.h; then
-    rm rack_config.h.new
-    AC_MSG_NOTICE([rack_config.h is unchanged])
+    config/${PROJNAME}_config_pre.h > ${PROJNAME}_config.h.new
+if cmp -s ${PROJNAME}_config.h.new ${PROJNAME}_config.h; then
+    rm ${PROJNAME}_config.h.new
+    AC_MSG_NOTICE(ProjectName[_config.h is unchanged])
 else
-    mv rack_config.h.new rack_config.h
+    mv ${PROJNAME}_config.h.new ${PROJNAME}_config.h
 fi

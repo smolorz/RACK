@@ -15,7 +15,7 @@ menu "Position"
 config RACK_POSITION_JAVA_GUI
     bool "Position Java GUI"
     depends on RACK_JAVA_GUI
-    default n
+    default y
     ---help---
     Help text.
 

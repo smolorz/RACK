@@ -59,18 +59,18 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_CameraDcam_OBJECTS = camera_dcam.$(OBJEXT)
+am_CameraDcam_OBJECTS = CameraDcam-camera_dcam.$(OBJEXT)
 CameraDcam_OBJECTS = $(am_CameraDcam_OBJECTS)
-CameraDcam_DEPENDENCIES =
+CameraDcam_LDADD = $(LDADD)
 am_CameraFile_OBJECTS = camera_file.$(OBJEXT)
 CameraFile_OBJECTS = $(am_CameraFile_OBJECTS)
-CameraFile_DEPENDENCIES =
-am_CameraJpeg_OBJECTS = camera_jpeg.$(OBJEXT)
+CameraFile_LDADD = $(LDADD)
+am_CameraJpeg_OBJECTS = CameraJpeg-camera_jpeg.$(OBJEXT)
 CameraJpeg_OBJECTS = $(am_CameraJpeg_OBJECTS)
-CameraJpeg_DEPENDENCIES =
+CameraJpeg_LDADD = $(LDADD)
 am_CameraV4l_OBJECTS = camera_v4l.$(OBJEXT)
 CameraV4l_OBJECTS = $(am_CameraV4l_OBJECTS)
-CameraV4l_DEPENDENCIES =
+CameraV4l_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -111,14 +111,8 @@ CCAS = @CCAS@
 CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CONFIG_LIBDC1394_CONTROL_FALSE = @CONFIG_LIBDC1394_CONTROL_FALSE@
-CONFIG_LIBDC1394_CONTROL_TRUE = @CONFIG_LIBDC1394_CONTROL_TRUE@
-CONFIG_LIBJPEG_FALSE = @CONFIG_LIBJPEG_FALSE@
-CONFIG_LIBJPEG_TRUE = @CONFIG_LIBJPEG_TRUE@
 CONFIG_LIBPNG_FALSE = @CONFIG_LIBPNG_FALSE@
 CONFIG_LIBPNG_TRUE = @CONFIG_LIBPNG_TRUE@
-CONFIG_LIBRAW1394_FALSE = @CONFIG_LIBRAW1394_FALSE@
-CONFIG_LIBRAW1394_TRUE = @CONFIG_LIBRAW1394_TRUE@
 CONFIG_OPENCV_FALSE = @CONFIG_OPENCV_FALSE@
 CONFIG_OPENCV_TRUE = @CONFIG_OPENCV_TRUE@
 CONFIG_RACK_CAMERA_DCAM_FALSE = @CONFIG_RACK_CAMERA_DCAM_FALSE@
@@ -182,6 +176,8 @@ CONFIG_RACK_POSITION_JAVA_GUI_TRUE = @CONFIG_RACK_POSITION_JAVA_GUI_TRUE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
 CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
 CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
+CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
+CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
 CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE = @CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE@
 CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE = @CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE@
@@ -190,8 +186,8 @@ CONFIG_RACK_SCAN_2D_MERGE_TRUE = @CONFIG_RACK_SCAN_2D_MERGE_TRUE@
 CONFIG_RACK_SCAN_2D_SIM_FALSE = @CONFIG_RACK_SCAN_2D_SIM_FALSE@
 CONFIG_RACK_SCAN_2D_SIM_TRUE = @CONFIG_RACK_SCAN_2D_SIM_TRUE@
 CONFIG_RACK_SCAN_2D_TRUE = @CONFIG_RACK_SCAN_2D_TRUE@
-CONFIG_RACK_STATIC_LINKING_FALSE = @CONFIG_RACK_STATIC_LINKING_FALSE@
-CONFIG_RACK_STATIC_LINKING_TRUE = @CONFIG_RACK_STATIC_LINKING_TRUE@
+CONFIG_RACK_XENOMAI_SUPPORT_FALSE = @CONFIG_RACK_XENOMAI_SUPPORT_FALSE@
+CONFIG_RACK_XENOMAI_SUPPORT_TRUE = @CONFIG_RACK_XENOMAI_SUPPORT_TRUE@
 CONFIG_TIMS_USE_RTNET_FALSE = @CONFIG_TIMS_USE_RTNET_FALSE@
 CONFIG_TIMS_USE_RTNET_TRUE = @CONFIG_TIMS_USE_RTNET_TRUE@
 CPP = @CPP@
@@ -224,10 +220,18 @@ LATEX_BATCHMODE = @LATEX_BATCHMODE@
 LATEX_MODE = @LATEX_MODE@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
-LIBDC1394_CONTROL_LIBS = @LIBDC1394_CONTROL_LIBS@
+LIBDC1394_CPPFLAGS = @LIBDC1394_CPPFLAGS@
+LIBDC1394_LDFLAGS = @LIBDC1394_LDFLAGS@
+LIBDC1394_LIBS = @LIBDC1394_LIBS@
+LIBJPEG_CPPFLAGS = @LIBJPEG_CPPFLAGS@
+LIBJPEG_LDFLAGS = @LIBJPEG_LDFLAGS@
 LIBJPEG_LIBS = @LIBJPEG_LIBS@
 LIBOBJS = @LIBOBJS@
+LIBPNG_CPPFLAGS = @LIBPNG_CPPFLAGS@
+LIBPNG_LDFLAGS = @LIBPNG_LDFLAGS@
 LIBPNG_LIBS = @LIBPNG_LIBS@
+LIBRAW1394_CPPFLAGS = @LIBRAW1394_CPPFLAGS@
+LIBRAW1394_LDFLAGS = @LIBRAW1394_LDFLAGS@
 LIBRAW1394_LIBS = @LIBRAW1394_LIBS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -238,6 +242,8 @@ MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
 MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
 OBJEXT = @OBJEXT@
+OPENCV_CPPFLAGS = @OPENCV_CPPFLAGS@
+OPENCV_LDFLAGS = @OPENCV_LDFLAGS@
 OPENCV_LIBS = @OPENCV_LIBS@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -246,6 +252,9 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PROJNAME = @PROJNAME@
+RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
+RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
 RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
 RACK_KBUILD_CLEAN = @RACK_KBUILD_CLEAN@
 RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
@@ -256,13 +265,19 @@ RACK_LIBS = @RACK_LIBS@
 RACK_MAYBE_DOCDIR = @RACK_MAYBE_DOCDIR@
 RACK_MODULE_DIR = @RACK_MODULE_DIR@
 RACK_MODULE_EXT = @RACK_MODULE_EXT@
+RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
 RACK_USER_CFLAGS = @RACK_USER_CFLAGS@
 RANLIB = @RANLIB@
+RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
+RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+XENOMAI_CPPFLAGS = @XENOMAI_CPPFLAGS@
+XENOMAI_LDFLAGS = @XENOMAI_LDFLAGS@
+XENOMAI_LIBS = @XENOMAI_LIBS@
 XENO_LIBRARIES = @XENO_LIBRARIES@
 XENO_USER_PREFIX = @XENO_USER_PREFIX@
 ac_ct_AR = @ac_ct_AR@
@@ -312,22 +327,29 @@ CameraDcam_SOURCES = \
 	camera_dcam.h \
 	camera_dcam.cpp
 
-CameraDcam_LDADD = @RACK_LIBS@
+CameraDcam_CPPFLAGS = \
+	@LIBRAW1394_CPPFLAGS@ @LIBDC1394_CPPFLAGS@
+
+CameraDcam_LDFLAGS = \
+	@LIBRAW1394_LDFLAGS@ @LIBDC1394_LDFLAGS@ \
+	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@ @RACK_LIBS@
+
 CameraFile_SOURCES = \
 	camera_file.h \
 	camera_file.cpp
 
-CameraFile_LDADD = @RACK_LIBS@
+CameraFile_LDFLAGS = @RACK_LIBS@
 CameraJpeg_SOURCES = \
 	camera_jpeg.h \
 	camera_jpeg.cpp
 
-CameraJpeg_LDADD = @RACK_LIBS@
+CameraJpeg_CPPFLAGS = @LIBJPEG_CPPFLAGS@
+CameraJpeg_LDFLAGS = @LIBJPEG_LDFLAGS@ @LIBJPEG_LIBS@ @RACK_LIBS@
 CameraV4l_SOURCES = \
 	camera_v4l.h \
 	camera_v4l.cpp
 
-CameraV4l_LDADD = @RACK_LIBS@
+CameraV4l_LDFLAGS = @RACK_LIBS@
 EXTRA_DIST = \
 	Kconfig \
 	\
@@ -414,9 +436,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera_dcam.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CameraDcam-camera_dcam.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CameraJpeg-camera_jpeg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera_file.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera_jpeg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera_v4l.Po@am__quote@
 
 .cpp.o:
@@ -439,6 +461,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+CameraDcam-camera_dcam.o: camera_dcam.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraDcam_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CameraDcam-camera_dcam.o -MD -MP -MF "$(DEPDIR)/CameraDcam-camera_dcam.Tpo" -c -o CameraDcam-camera_dcam.o `test -f 'camera_dcam.cpp' || echo '$(srcdir)/'`camera_dcam.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/CameraDcam-camera_dcam.Tpo" "$(DEPDIR)/CameraDcam-camera_dcam.Po"; else rm -f "$(DEPDIR)/CameraDcam-camera_dcam.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='camera_dcam.cpp' object='CameraDcam-camera_dcam.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraDcam_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CameraDcam-camera_dcam.o `test -f 'camera_dcam.cpp' || echo '$(srcdir)/'`camera_dcam.cpp
+
+CameraDcam-camera_dcam.obj: camera_dcam.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraDcam_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CameraDcam-camera_dcam.obj -MD -MP -MF "$(DEPDIR)/CameraDcam-camera_dcam.Tpo" -c -o CameraDcam-camera_dcam.obj `if test -f 'camera_dcam.cpp'; then $(CYGPATH_W) 'camera_dcam.cpp'; else $(CYGPATH_W) '$(srcdir)/camera_dcam.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/CameraDcam-camera_dcam.Tpo" "$(DEPDIR)/CameraDcam-camera_dcam.Po"; else rm -f "$(DEPDIR)/CameraDcam-camera_dcam.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='camera_dcam.cpp' object='CameraDcam-camera_dcam.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraDcam_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CameraDcam-camera_dcam.obj `if test -f 'camera_dcam.cpp'; then $(CYGPATH_W) 'camera_dcam.cpp'; else $(CYGPATH_W) '$(srcdir)/camera_dcam.cpp'; fi`
+
+CameraJpeg-camera_jpeg.o: camera_jpeg.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraJpeg_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CameraJpeg-camera_jpeg.o -MD -MP -MF "$(DEPDIR)/CameraJpeg-camera_jpeg.Tpo" -c -o CameraJpeg-camera_jpeg.o `test -f 'camera_jpeg.cpp' || echo '$(srcdir)/'`camera_jpeg.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/CameraJpeg-camera_jpeg.Tpo" "$(DEPDIR)/CameraJpeg-camera_jpeg.Po"; else rm -f "$(DEPDIR)/CameraJpeg-camera_jpeg.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='camera_jpeg.cpp' object='CameraJpeg-camera_jpeg.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraJpeg_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CameraJpeg-camera_jpeg.o `test -f 'camera_jpeg.cpp' || echo '$(srcdir)/'`camera_jpeg.cpp
+
+CameraJpeg-camera_jpeg.obj: camera_jpeg.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraJpeg_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CameraJpeg-camera_jpeg.obj -MD -MP -MF "$(DEPDIR)/CameraJpeg-camera_jpeg.Tpo" -c -o CameraJpeg-camera_jpeg.obj `if test -f 'camera_jpeg.cpp'; then $(CYGPATH_W) 'camera_jpeg.cpp'; else $(CYGPATH_W) '$(srcdir)/camera_jpeg.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/CameraJpeg-camera_jpeg.Tpo" "$(DEPDIR)/CameraJpeg-camera_jpeg.Po"; else rm -f "$(DEPDIR)/CameraJpeg-camera_jpeg.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='camera_jpeg.cpp' object='CameraJpeg-camera_jpeg.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CameraJpeg_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CameraJpeg-camera_jpeg.obj `if test -f 'camera_jpeg.cpp'; then $(CYGPATH_W) 'camera_jpeg.cpp'; else $(CYGPATH_W) '$(srcdir)/camera_jpeg.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

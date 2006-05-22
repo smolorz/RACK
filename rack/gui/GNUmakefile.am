@@ -7,26 +7,26 @@ dist_java_JAVA += \
 	Gui.java \
 	MapViewGui.java
 
-RACK_JAR = rack.jar
+JARFILE = @PROJNAME@.jar
 
-all: $(RACK_JAR)
+all: $(JARFILE)
 
-rack.jar: classdist_java.stamp $(srcdir)/gui.manifest $(shell find $(top_builddir) -name "*.class")
+ @PROJNAME@.jar: classdist_java.stamp $(srcdir)/gui.manifest $(shell find $(top_builddir) -name "*.class")
 	@echo "creating $@"; \
 	builddir=`pwd`; \
 	cd $(top_builddir); \
-	$(JAR) cmf $(srcdir)/gui.manifest $(RACK_JAR) `find -H rack/ -name "*.class" 2> /dev/null`
+	$(JAR) cmf $(srcdir)/gui.manifest $(JARFILE) `find -H @PROJNAME@/ -name "*.class" 2> /dev/null`
 
 install-data-local:
-	install -d -m 755 $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
-	install -m 644 $(srcdir)/gui.cfg $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
-	install -m 644 $(top_builddir)/$(RACK_JAR) \
-	               $(DESTDIR)$(prefix)@RACK_JAVA_JARDIR@
+	install -d -m 755 $(DESTDIR)$(prefix)/gui
+	install -m 644 $(srcdir)/gui.cfg $(DESTDIR)$(prefix)/gui
+	install -m 644 $(top_builddir)/$(JARFILE) \
+	               $(DESTDIR)$(prefix)/gui
 
 endif
 
 clean-local:
-	rm -f $(RACK_JAR)
+	rm -f $(JARFILE)
 
 install-dist_javaJAVA: classdist_java.stamp
 

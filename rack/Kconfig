@@ -32,11 +32,6 @@ config RACK_XENOMAIDIR
     /usr/xenomai i.e. the build directory of
     the running Xenomai.
 
-config RACK_STATIC_LINKING
-    bool "Linking all libraries to the programs statically"
-    help
-    Help text.
-
 config RACK_JAVA_GUI
     bool "Rack Java Gui"
     help

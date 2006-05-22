@@ -5,8 +5,8 @@ OPTDIRS =
 includedir = $(prefix)/include
 
 include_HEADERS = \
-	rack_config.h \
-	.rack_config
+	@PROJNAME@_config.h \
+	.@PROJNAME@_config
 
 SUBDIRS = \
 	config \
@@ -18,7 +18,8 @@ SUBDIRS = \
 	tools \
 	skel \
 	gui \
-	examples
+	examples \
+	scripts
 
 EXTRA_DIST = \
 	defconfig \
@@ -26,9 +27,9 @@ EXTRA_DIST = \
 	Kconfig
 
 DISTCLEANFILES = \
-	.rack_config \
-	.rack_config.old \
-	rack_config.h \
+	.@PROJNAME@_config \
+	.@PROJNAME@_config.old \
+	@PROJNAME@_config.h \
 	.cfok \
 	.cfchanged \
 	symbols

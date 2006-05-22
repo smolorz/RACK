@@ -11,7 +11,7 @@ PilotJoystick_SOURCES = \
 	pilot_joystick.h \
 	pilot_joystick.cpp
 
-PilotJoystick_LDADD = @RACK_LIBS@
+PilotJoystick_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

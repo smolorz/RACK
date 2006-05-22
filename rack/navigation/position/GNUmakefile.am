@@ -11,7 +11,8 @@ Position_SOURCES = \
 	position.h \
 	position.cpp
 
-Position_LDADD = @RACK_LIBS@
+Position_LDFLAGS = @RACK_LIBS@
+
 
 EXTRA_DIST = \
 	Kconfig

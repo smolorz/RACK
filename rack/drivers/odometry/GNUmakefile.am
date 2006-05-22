@@ -11,7 +11,8 @@ OdometryChassis_SOURCES = \
 	odometry_chassis.h \
 	odometry_chassis.cpp
 
-OdometryChassis_LDADD = @RACK_LIBS@
+OdometryChassis_LDFLAGS = @RACK_LIBS@
+
 
 EXTRA_DIST = \
 	Kconfig

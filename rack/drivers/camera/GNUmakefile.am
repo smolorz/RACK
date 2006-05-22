@@ -23,25 +23,34 @@ CameraDcam_SOURCES = \
 	camera_dcam.h \
 	camera_dcam.cpp
 
-CameraDcam_LDADD = @RACK_LIBS@
+CameraDcam_CPPFLAGS = \
+	@LIBRAW1394_CPPFLAGS@ @LIBDC1394_CPPFLAGS@
+CameraDcam_LDFLAGS = \
+	@LIBRAW1394_LDFLAGS@ @LIBDC1394_LDFLAGS@ \
+	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@ @RACK_LIBS@
+
 
 CameraFile_SOURCES = \
 	camera_file.h \
 	camera_file.cpp
 
-CameraFile_LDADD = @RACK_LIBS@
+CameraFile_LDFLAGS = @RACK_LIBS@
+
 
 CameraJpeg_SOURCES = \
 	camera_jpeg.h \
 	camera_jpeg.cpp
 
-CameraJpeg_LDADD = @RACK_LIBS@
+CameraJpeg_CPPFLAGS = @LIBJPEG_CPPFLAGS@
+CameraJpeg_LDFLAGS = @LIBJPEG_LDFLAGS@ @LIBJPEG_LIBS@ @RACK_LIBS@
+
 
 CameraV4l_SOURCES = \
 	camera_v4l.h \
 	camera_v4l.cpp
 
-CameraV4l_LDADD = @RACK_LIBS@
+CameraV4l_LDFLAGS = @RACK_LIBS@
+
 
 EXTRA_DIST = \
 	Kconfig \

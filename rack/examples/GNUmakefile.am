@@ -1,5 +1,6 @@
 
 datadir = $(prefix)/examples
+
 data_DATA = \
 	load_rack_sim \
 	rack_sim.dxf

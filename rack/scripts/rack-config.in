@@ -1,0 +1,167 @@
+#! /bin/bash
+
+staging=${DESTDIR}
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+libdir="@libdir@"
+datadir="@datadir@"
+pkgdatadir="${datadir}/@PACKAGE@"
+includedir="@includedir@"
+
+#
+# RACK
+#
+RACK_VERSION="@PACKAGE_VERSION@"
+RACK_PREFIX="${staging}${prefix}"
+RACK_CPPFLAGS="-I${staging}${includedir}"
+RACK_LDFLAGS="-L${staging}${libdir}"
+RACK_LIBS="@RACK_LIBS@"
+
+#
+# common
+#
+RACK_CC="@CC@"
+RACK_TARGET_ARCH="@RACK_TARGET_ARCH@"
+RACK_GLOBAL_CPPFLAGS="@RACK_GLOBAL_CPPFLAGS@"
+RACK_GLOBAL_LDFLAGS="@RACK_GLOBAL_LDFLAGS@"
+RACK_SUPPORTS="@RACK_SUPPORTS@"
+
+#
+# supports packages
+#
+XENOMAI_CPPFLAGS="@XENOMAI_CPPFLAGS@"
+XENOMAI_LDFLAGS="@XENOMAI_LDFLAGS@"
+XENOMAI_LIBS="@XENOMAI_LIBS@"
+
+RTNET_CPPFLAGS="@RTNET_CPPFLAGS@"
+
+RTCAN_CPPFLAGS="@RTCAN_CPPFLAGS@"
+
+LIBRAW1394_CPPFLAGS="@LIBRAW1394_CPPFLAGS@"
+LIBRAW1394_LDFLAGS="@LIBRAW1394_LDFLAGS@"
+LIBRAW1394_LIBS="@LIBRAW1394_LIBS@"
+
+LIBDC1394_CPPFLAGS="@LIBDC1394_CPPFLAGS@"
+LIBDC1394_LDFLAGS="@LIBDC1394_LDFLAGS@"
+LIBDC1394_LIBS="@LIBDC1394_LIBS@"
+
+LIBJPEG_CPPFLAGS="@LIBJPEG_CPPFLAGS@"
+LIBJPEG_LDFLAGS="@LIBJPEG_LDFLAGS@"
+LIBJPEG_LIBS="@LIBJPEG_LIBS@"
+
+LIBPNG_CPPFLAGS="@LIBPNG_CPPFLAGS@"
+LIBPNG_LDFLAGS="@LIBPNG_LDFLAGS@"
+LIBPNG_LIBS="@LIBPNG_LIBS@"
+
+OPENCV_CPPFLAGS="@OPENCV_CPPFLAGS@"
+OPENCV_LDFLAGS="@OPENCV_LDFLAGS@"
+OPENCV_LIBS="@OPENCV_LIBS@"
+
+unset prefix exec_prefix libdir datadir pkgdatadir includedir
+
+usage ()
+{
+cat <<EOF
+Usage rack-config OPTIONS
+Options :
+        --help
+        --v,--verbose
+        --cc
+        --arch
+        --global-cppflags
+        --global-ldflags
+        --supports <package>
+        --cppflags <package>
+        --ldflags <package>
+        --lib <package>
+        --rack-version
+        --rack-prefix
+EOF
+    exit $1
+}
+
+verbose ()
+{
+    echo rack-config --verbose
+    echo "   " --cc="\"$RACK_CC\""
+    echo "   " --arch="\"$RACK_TARGET_ARCH\""
+    echo "   " --global-cppflags="\"$RACK_GLOBAL_CPPFLAGS\""
+    echo "   " --global-ldflags="\"$RACK_GLOBAL_LDFLAGS\""
+    echo "   " --supports="\"$RACK_SUPPORTS\""
+    echo "   " --rack-version="\"$RACK_VERSION\""
+    echo "   " --rack-prefix="\"$RACK_PREFIX\""
+}
+
+if test $# -eq 0; then
+    verbose $*
+    usage 1 1>&2
+fi
+
+while test $# -gt 0; do
+    case "$1" in
+        --v|--verbose)        verbose $*; exit 0         ;;
+        --cc)                 echo $RACK_CC              ;;
+        --arch)               echo $RACK_TARGET_ARCH     ;;
+        --global-cppflags)    echo $RACK_GLOBAL_CPPFLAGS ;;
+        --global-ldflags)     echo $RACK_GLOBAL_LDFLAGS  ;;
+        --supports)
+            if [ "$2" == "" ]; then
+                echo $RACK_SUPPORTS
+            else
+                DUMMY=`echo "$RACK_SUPPORTS" | grep -w "$2"`
+                if [ "$DUMMY" == "" ]; then
+                    echo "n"
+                else
+                    echo "y"
+                fi
+                shift
+            fi
+            ;;
+        --cppflags)
+            case "$2" in
+                rack)       echo $RACK_CPPFLAGS       ;;
+                xenomai)    echo $XENOMAI_CPPFLAGS    ;;
+                rtnet)      echo $RTNET_CPPFLAGS      ;;
+                rtcan)      echo $RTCAN_CPPFLAGS      ;;
+                libraw1394) echo $LIBRAW1394_CPPFLAGS ;;
+                libdc1394)  echo $LIBDC1394_CPPFLAGS  ;;
+                libjpeg)    echo $LIBJPEG_CPPFLAGS    ;;
+                libpng)     echo $LIBPNG_CPPFLAGS     ;;
+                opencv)     echo $OPENCV_CPPFLAGS     ;;
+                *)          echo ""                   ;;
+            esac
+            shift
+            ;;
+        --ldflags)
+            case "$2" in
+                rack)       echo $RACK_LDFLAGS       ;;
+                xenomai)    echo $XENOMAI_LDFLAGS    ;;
+                libraw1394) echo $LIBRAW1394_LDFLAGS ;;
+                libdc1394)  echo $LIBDC1394_LDFLAGS  ;;
+                libjpeg)    echo $LIBJPEG_LDFLAGS    ;;
+                libpng)     echo $LIBPNG_LDFLAGS     ;;
+                opencv)     echo $OPENCV_LDFLAGS     ;;
+                *)          echo ""                  ;;
+            esac
+            shift
+            ;;
+        --libs)
+            case "$2" in
+                rack)       echo $RACK_LIBS       ;;
+                xenomai)    echo $XENOMAI_LIBS    ;;
+                libraw1394) echo $LIBRAW1394_LIBS ;;
+                libdc1394)  echo $LIBDC1394_LIBS  ;;
+                libjpeg)    echo $LIBJPEG_LIBS    ;;
+                libpng)     echo $LIBPNG_LIBS     ;;
+                opencv)     echo $OPENCV_LIBS     ;;
+                *)          echo ""               ;;
+            esac
+            shift
+            ;;
+        --rack-prefix)      echo $RACK_PREFIX     ;;
+        --rack-version)     echo $RACK_VERSION    ;;
+        --help)             usage 0 1>&2          ;;
+        *)                  usage 1 1>&2          ;;
+    esac
+    shift
+done

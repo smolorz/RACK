@@ -11,7 +11,8 @@ GpsNmea_SOURCES = \
 	gps_nmea.h \
 	gps_nmea.cpp
 
-GpsNmea_LDADD = @RACK_LIBS@
+GpsNmea_LDFLAGS = @RACK_LIBS@
+
 
 EXTRA_DIST = \
 	Kconfig

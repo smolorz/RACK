@@ -19,19 +19,19 @@ Scan2D_SOURCES = \
 	scan2d.h \
 	scan2d.cpp
 
-Scan2D_LDADD = @RACK_LIBS@
+Scan2D_LDFLAGS = @RACK_LIBS@
 
 Scan2DMerge_SOURCES = \
 	scan2d_merge.h \
 	scan2d_merge.cpp
 
-Scan2DMerge_LDADD = @RACK_LIBS@
+Scan2DMerge_LDFLAGS = @RACK_LIBS@
 
 Scan2DSim_SOURCES = \
 	scan2d_sim.h \
 	scan2d_sim.cpp
 
-Scan2DSim_LDADD = @RACK_LIBS@
+Scan2DSim_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

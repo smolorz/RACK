@@ -31,4 +31,9 @@ librack_la_SOURCES = \
 	$(top_srcdir)/main/module/rack_module.cpp \
 	$(top_srcdir)/main/proxy/rack_proxy.cpp
 
-librack_la_LDFLAGS = @LDFLAGS@ -version-info 0:0:0
+librack_la_CPPFLAGS =
+librack_la_LDFLAGS = -version-info 0:0:0
+
+if CONFIG_RACK_RTCAN_SUPPORT
+librack_la_CPPFLAGS += @RTCAN_CPPFLAGS@
+endif
