@@ -107,12 +107,18 @@ public class MapViewGui extends Thread
 
         // set MapView background
         File file = new File("mapViewBackground.jpg");        
-        backGndOffset.x   = 84000;
-        backGndOffset.y   = -210000;
-        backGndOffset.phi = (float)(-18.0 / 180.0 * Math.PI);
+/*        backGndOffset.x   = 106432;
+        backGndOffset.y   = 204500;
+//        backGndOffset.phi = (float)(-18.0 / 180.0 * Math.PI);
         backGndOffset.phi = 0.0f;
-        backGndResX       = 400.0;
-        backGndResY       = 400.0;
+        backGndResX       = 220.0;
+        backGndResY       = 230.0;*/
+        backGndOffset.x   = 362800;
+        backGndOffset.y   = 96500;
+        backGndOffset.phi = (float)(-0.1/ 180.0 * Math.PI);
+//        backGndOffset.phi = 0.0f;
+        backGndResX       = 250.0;
+        backGndResY       = 250.0;
 
         // read background image
         try
@@ -212,6 +218,25 @@ public class MapViewGui extends Thread
             viewPosition.phi = robotPosition.phi;
             setCenter(robotPosition);
         }
+
+        // center mapView
+        else
+        {
+        	Position2D upLeftBound     = getPosOnScreen(viewPanel.getWidth() / 4,
+            										    viewPanel.getHeight() / 4);
+            Position2D lowRightBound   = getPosOnScreen(viewPanel.getWidth() - 
+            										    viewPanel.getWidth() / 4,
+            										    viewPanel.getHeight() -
+            										    viewPanel.getHeight() / 4);
+            if ((robotPosition.x > upLeftBound.x) |
+               (robotPosition.y < upLeftBound.y) |
+               (robotPosition.x < lowRightBound.x) |
+               (robotPosition.y > lowRightBound.y))
+            {
+            	setCenter(robotPosition);
+            }
+        }
+
     }
 
     public void updateNeeded()
@@ -249,6 +274,8 @@ public class MapViewGui extends Thread
                     drawContext = new DrawContext(robotPosition, robotPositionList);
                 }
 
+                actionCursor.drawDefaultCursor(drawContext.getRobotGraphics());
+
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
@@ -265,7 +292,6 @@ public class MapViewGui extends Thread
                         exc.printStackTrace();
                     }
                 } // while
-              actionCursor.drawDefaultCursor(drawContext.getRobotGraphics());
               viewPanel.setDrawContext(drawContext);
             }
             while (updateNeeded == true);
@@ -424,7 +450,7 @@ public class MapViewGui extends Thread
                 AffineTransform at = new AffineTransform();
                 at.scale(resX, resY);
                 at.rotate(pos.phi + Math.PI/2);
-                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                 worldGraph.drawImage(image, biop, pos.x, pos.y);
             }
         }
@@ -584,9 +610,8 @@ public class MapViewGui extends Thread
             if (event.getActionCommand().equals("origin"))
             {
                 viewPosition.phi = 0;
-                setCenter(new Position2D(0, 0));
+                setCenter(robotPosition);
                 viewRobotButton.setSelected(false);
-                System.out.println("Origin selected");
             }
             if (event.getActionCommand().equals("robot"))
             {
@@ -689,7 +714,7 @@ public class MapViewGui extends Thread
         {
             return viewRobotButton.isSelected();
         }
-
+        
 
         private class CommandMenu extends JMenu implements MenuListener
         {

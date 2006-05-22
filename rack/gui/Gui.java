@@ -1056,9 +1056,13 @@ public class Gui extends Thread
         	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
             MapViewGui myMapViewGui = new MapViewGui(moduleGui);
         	mapViewFrame.getContentPane().add(myMapViewGui.getComponent());
-        	mapViewFrame.pack();
+        	mapViewFrame.pack();        	
         	mapViewFrame.setVisible(true);
         	jdp[mapViewWorkSpace].add(mapViewFrame);
+        	mapViewFrame.setLocation(0, 0);
+        	mapViewFrame.setSize(850, 
+        						 400);
+        	
         }
 
         frame.setJMenuBar(createMenu());
