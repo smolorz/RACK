@@ -189,6 +189,9 @@ int GpsNmea::moduleLoop(void)
         p_data->posGK.x       = 0;
         p_data->posGK.y       = 0;
         p_data->posGK.z       = 0;
+        p_data->posGK.phi     = 0.0f;
+        p_data->posGK.psi     = 0.0f;
+        p_data->posGK.rho     = 0.0f;
 
         msgCounter = -1;
         msgNum     = -1;
@@ -208,6 +211,10 @@ int GpsNmea::moduleLoop(void)
         posWGS84ToGK(&posLLA, &posGK);
         GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f heading %a speed %i satNum %i\n",
                        posGK.x, posGK.y, posGK.z, p_data->heading, p_data->speed, p_data->satelliteNum);
+
+        p_data->posGK.phi     = 0.0f;
+        p_data->posGK.psi     = 0.0f;
+        p_data->posGK.rho     = p_data->heading;
 
         // subtract local position offset
         if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
@@ -810,8 +817,7 @@ void GpsNmea::besselBLToGaussKrueger(double b, double ll,
 
     bg  = 180.0 * b / M_PI;
     lng = 180.0 * ll / M_PI;
-    l0  = 9.0;//3.0 * rint((180.0 * ll / M_PI) / 3.0);
-    //l0  = 3.0 * /*rint(*/((180.0 * ll / M_PI)/ 3.0)/*)*/;
+    l0  = 3.0 * rint((180.0 * ll / M_PI) / 3.0);
     l0  = M_PI * l0 / 180.0;
     l   = ll - l0;
     k   = cos(b);
@@ -831,8 +837,7 @@ void GpsNmea::besselBLToGaussKrueger(double b, double ll,
     y   = ng*k*l + ng*(vq - t*t)*k*k*k*l*l*l / 6.0 +
           ng*(5.0 - 18.0*t*t + t*t*t*t)*k*k*k*k*k*l*l*l*l*l / 120.0;
     kk  = 500000.0;
-    rvv = 3;//rint((180.0 * ll / M_PI) / 3.0);
-    //rvv = rint((180.0 * ll / M_PI) / 3.0);
+    rvv = rint((180.0 * ll / M_PI) / 3.0);
     *re =   rvv * 1000000.0 + kk + y;
 }
 
