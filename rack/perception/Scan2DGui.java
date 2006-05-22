@@ -250,7 +250,7 @@ public class Scan2DGui extends RackModuleGui
         for (int i = 0; i < scan2DData.pointNum; i++) 
         {
             ScanPoint point = scan2DData.point[i];
-            int size = 50;
+            int size = 100;
             int dist;            
             
             if((point.type & ScanPoint.TYPE_INVALID) != 0)
