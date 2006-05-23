@@ -92,7 +92,7 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
     bytesPerPixel = dataPackage->data.depth / 8;
 
     count = dataPackage->data.width * dataPackage->data.height * bytesPerPixel;
-    start = (int) (count * (((double ) 1) - ((double) 1) / autoBrightnessSize));
+    start = (int)(count * (((double ) 1) - ((double) 1) / autoBrightnessSize));
 
     start += start % bytesPerPixel;
     start++;
@@ -565,14 +565,14 @@ int CameraDcam::moduleLoop(void)
     int h=0,w=0,p=0;
     int ret;
 
-    starttime = get_rack_time();
+    starttime = rackTime.get();
 
     // get datapointer from databuffer
     p_data = (camera_data_msg *)getDataBufferWorkSpace();
 
-    p_data->data.recordingTime   = get_rack_time();
-    p_data->data.mode            =  mode;
-    p_data->data.colorFilterId   =  format7image.colorFilterId;
+    p_data->data.recordingTime   = rackTime.get();
+    p_data->data.mode            = mode;
+    p_data->data.colorFilterId   = format7image.colorFilterId;
 
     switch (mode){
         case CAMERA_MODE_MONO8:
@@ -653,7 +653,7 @@ int CameraDcam::moduleLoop(void)
 
     //rt_sleep(timeCount1s/fps);//## zeitverwaltung zentral erledigt
 
-    RackTask::sleep((1000000000llu/fps) - (get_rack_time() - starttime));
+    RackTask::sleep((1000000000llu/fps) - (rackTime.get() - starttime));
 
     return 0;
 }

@@ -16,44 +16,24 @@
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <linux/list.h>
 #include <linux/delay.h>
-#include <linux/bitops.h>
-#include <linux/mm.h>
 #include <linux/highmem.h>
 
-#include <rtdm/rtdm_driver.h>
 #include <native/pipe.h>
 
-#include <main/tims/tims.h>
-#include <main/tims/router/tims_msg_router.h>
-
-#include <rack_config.h>    // CONFIG_TIMS_USE_RTNET
+#include <main/tims/driver/tims_driver.h>
+#include <main/tims/driver/tims_debug.h>
 
 #define DRIVER_AUTHOR   "Joerg Langenberg - joerg.langenberg@gmx.net"
-#define DRIVER_VERSION  "0.0.4"
+#define DRIVER_VERSION  "0.0.5"
 #define DRIVER_DESC     "Tiny Messaging Service (TIMS)"
-
-MODULE_AUTHOR(DRIVER_AUTHOR);
-MODULE_DESCRIPTION(DRIVER_DESC);
-MODULE_LICENSE("GPL");
-
-#ifdef CONFIG_TIMS_USE_RTNET
-
-#include <net/ip.h>
-#include <rtnet.h>
-#include <rtmac.h>
-
-#define TIMS_MSG_ROUTER_PORT          0x2000
-#define TIME_REFERENCE_DEV            "TDMA0"
-
-#endif   // CONFIG_TIMS_USE_RTNET
 
 //
 // state flags
 //
 #define TIMS_STATE_BIT_STARTING             0
 #define TIMS_STATE_BIT_SHUTDOWN             1
+#define TIMS_STATE_BIT_RTNET_ENABLED        2
 
 //
 // init flags
@@ -63,12 +43,7 @@ MODULE_LICENSE("GPL");
 #define TIMS_INIT_BIT_PIPE_FROM_CLIENT      2
 #define TIMS_INIT_BIT_REGISTERED            3
 #define TIMS_INIT_BIT_MBX_CACHE             4
-
-#ifdef CONFIG_TIMS_USE_RTNET
-#define TIMS_INIT_BIT_RTNET_SOCKET          8
-#define TIMS_INIT_BIT_RTNET_TDMA            9
-#define TIMS_INIT_BIT_RTNET_MBXROUTE        10
-#endif   // CONFIG_TIMS_USE_RTNET
+#define TIMS_INIT_BIT_RTNET                 5
 
 //
 // context flags
@@ -79,197 +54,45 @@ MODULE_LICENSE("GPL");
 #define TIMS_CTX_BIT_CLOSING                3    // Mailbox is closing
 
 //
-// mailbox flags
-//
-#define TIMS_MBX_BIT_EXTERNBUFFER           0
-#define TIMS_MBX_BIT_SLOT                   1
-#define TIMS_MBX_BIT_FIFO                   2
-#define TIMS_MBX_BIT_READERWAIT             3
-#define TIMS_MBX_BIT_USRSPCBUFFER           4
-
-//
 // Module parameter
 //
 
-static int dbglevel = 1;    // default TIMS_LEVEL_ERROR
-
-MODULE_PARM(dbglevel, "0-5i");
-MODULE_PARM_DESC(dbglevel, "TiMS debug level, 0 = silent, 1 = error, 2 = info, "
-                           "3 = warn, 4 = debug info, 5 = debug detail");
-
 static int max_msg_size = 64; // default max message size in kb
 
-MODULE_PARM(max_msg_size, "i");
+module_param(max_msg_size, int, 0400);
 MODULE_PARM_DESC(max_msg_size, "Max message size which can be sent by tims, "
                                "default = 64 (in kb)");
 
 static int max_msg_slots = 2; // max number of message slots (send over tcp/pipe)
 
-MODULE_PARM(max_msg_slots, "i");
+module_param(max_msg_slots, int, 0400);
 MODULE_PARM_DESC(max_msg_slots, "Max number of messgage slots for sendig messages "
                                 "over TCP/Pipe. default = 2");
 
-#ifdef CONFIG_TIMS_USE_RTNET
+//
+// external functions / values
+//
+// --- tims_copy ---
+extern int copy_msg_into_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
+                              const struct msghdr *msg, unsigned long mbxFlags);
 
-static int rtnet_buffers = 200;
-MODULE_PARM(rtnet_buffers, "i");
-MODULE_PARM_DESC(rtnet_buffers, "number of RTnet buffers for incoming "
-                                "and outgoing packets");
+extern int copy_msg_out_slot(rtdm_user_info_t *user_info,
+                             timsMbxSlot *slot, const struct msghdr *msg,
+                             unsigned long mbxFlags);
 
-#endif   /* !CONFIG_TIMS_USE_RTNET */
+// --- tims_rtnet ---
+extern int  rtnet_sendmsg(rtdm_user_info_t *user_info,
+                          const struct msghdr *msg);
+extern int  rtnet_read_config(timsMsgRouter_ConfigMsg *configMsg);
+extern void rtnet_cleanup(void);
+extern int  rtnet_init(void);
+
+// --- tims_debug ---
+extern int dbglevel;
 
 //
-// TIMS debug
+// context cache data structure
 //
-
-#define TIMS_LEVEL_PRINT          0
-#define TIMS_LEVEL_ERROR          1
-#define TIMS_LEVEL_INFO           2
-#define TIMS_LEVEL_WARN           3
-#define TIMS_LEVEL_DBG_INFO       4
-#define TIMS_LEVEL_DBG_DETAIL     5
-
-#define TIMS_LEVEL_MAX            TIMS_LEVEL_DBG_DETAIL
-
-
-#define tims_print(fmt, ... )    \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_PRINT)          \
-                                    rtdm_printk("TIMS: <0x%p>: "fmt,         \
-                                                current, ##__VA_ARGS__);     \
-                                } while(0)
-
-#define tims_print_0(fmt, ... ) \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_PRINT)          \
-                                    rtdm_printk(fmt, ##__VA_ARGS__);         \
-                                } while(0)
-
-#define tims_error(fmt, ... )   \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_ERROR)          \
-                                    rtdm_printk("TIMS: <0x%p>: ERROR: "fmt,  \
-                                                current, ##__VA_ARGS__);     \
-                                } while(0)
-
-#define tims_error_0(fmt, ... ) \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_ERROR)          \
-                                    rtdm_printk(fmt, ##__VA_ARGS__);         \
-                                } while(0)
-
-#define tims_info(fmt, ... )    \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_INFO)           \
-                                    rtdm_printk("TIMS: <0x%p>: INFO:  "fmt,  \
-                                                current, ##__VA_ARGS__);     \
-                                } while(0)
-
-#define tims_info_0(fmt, ... )  \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_INFO)           \
-                                    rtdm_printk(fmt, ##__VA_ARGS__);         \
-                                } while(0)
-
-#define tims_warn(fmt, ... )    \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_WARN)           \
-                                    rtdm_printk("TIMS: <0x%p>: WARN:  "fmt,  \
-                                                current, ##__VA_ARGS__);     \
-                                } while(0)
-
-#define tims_warn_0(fmt, ... )  \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_WARN)           \
-                                    rtdm_printk(fmt, ##__VA_ARGS__);         \
-                                } while(0)
-
-#define tims_dbginfo(fmt, ... ) \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_DBG_INFO)       \
-                                    rtdm_printk("TIMS: <0x%p>: DBG_I: "fmt,  \
-                                                current, ##__VA_ARGS__);     \
-                                } while(0)
-
-#define tims_dbginfo_0(fmt, ... ) \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_DBG_INFO)       \
-                                    rtdm_printk(fmt, ##__VA_ARGS__);         \
-                                } while(0)
-
-#define tims_dbgdetail(fmt, ... ) \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_DBG_DETAIL)     \
-                                    rtdm_printk("TIMS: <0x%p>: DBG_D: "fmt,  \
-                                                current, ##__VA_ARGS__);     \
-                                } while(0)
-
-#define tims_dbgdetail_0(fmt, ... ) \
-                                do {                                         \
-                                  if (dbglevel >= TIMS_LEVEL_DBG_DETAIL)     \
-                                    rtdm_printk(fmt, ##__VA_ARGS__);         \
-                                } while(0)
-
-//
-// context data structures
-//
-typedef struct slot_state {
-    int free;
-    int write;
-    int peek;
-    int read;
-} slot_state_t;
-
-typedef struct tims_map_info {
-    unsigned long virtual;
-    unsigned char mapped;
-} timsMapInfo_t;
-
-typedef struct tims_mbx_slot {
-    timsMsgHead*            p_head;         // message pointers
-    unsigned long           p_head_map;     // mapped virtual kernel address
-    struct list_head        mbx_list;       // to hold it in free|read|writelist
-
-    int                     map_idx;        // start index of page table
-    struct tims_mailbox*    p_mbx;          // pointer to mailbox
-} timsMbxSlot;
-
-typedef struct tims_mailbox {
-    timsMbxSlot*            slot;           // mailbox slots
-    rtdm_sem_t              readSem;        // semaphore for the mbx reader
-                                            // (waiting for the next message)
-
-    rtdm_lock_t             list_lock;      // lock for mbx_lists
-    struct list_head        free_list;      // list of all free mailbox slots
-    struct list_head        write_list;     // list of all mailbox write slots
-    struct list_head        read_list;      // list of all mailbox read slots
-    timsMbxSlot*            p_peek;         // save peek slot
-
-    int64_t                 timeout_ns;     // timeout for peek/receive
-    unsigned long           flags;          // mailbox state
-    unsigned int            address;        // address of this mailbox
-
-    // config values
-    unsigned int            slot_count;     // 0  => FIFO Queueing
-                                            // > 0 => Priority Queueing
-    slot_state_t            slot_state;     // tims slot state
-    unsigned int            msg_size;       // bytes per message
-    void*                   buffer;         // NULL: kernel-located
-    unsigned long           buffer_pages;   // number of buffer pages
-    struct page**           pp_pages;       // pointer to page list
-    timsMapInfo_t*          p_mapInfo;      // virtual addresses of page list
-    size_t                  buffer_size;
-
-} timsMbx;
-
-typedef struct tims_context { // context will be created in rt_tims_socket by RTDM
-    struct list_head        ctx_list;       // list of all registered contextes
-    int                     protocol;       // tims protocol
-    struct tims_sockaddr    sock;           // socket address
-    timsMbx*                p_mbx;          // mailbox
-    int                     use_counter;    // context use counter
-    unsigned long           flags;          // context flags
-} timsCtx;
 
 typedef struct tims_ctx_cache { // fast search for context
     timsCtx*                p_ctx;          // pointer to context
@@ -298,119 +121,20 @@ struct tims_driver {
     RT_PIPE                 pipeFromClient; // Pipe from Client
     int                     terminate;      // terminate signal
     atomic_t                taskCount;      // task counter
-
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    int                     rtnet_fd;
-    timsMsgRouter_MbxRoute* mbxRoute;
-    unsigned int            mbxRouteNum;
-    int                     tdma_disc;
-
-#endif /* CONFIG_TIMS_USE_RTNET */
-
 };
 
+//
+// macro functions
+//
+#define RTNET_INITIALISED   (test_bit(TIMS_INIT_BIT_RTNET, \
+                                      &td.init_flags))
+#define RTNET_ENABLED       (test_bit(TIMS_STATE_BIT_RTNET_ENABLED, \
+                                      &td.state_flags))
+
+//
+// data structures
+//
 static struct tims_driver td;
-
-
-// ****************************************************************************
-//
-//     debug functions
-//
-// ****************************************************************************
-
-/*
-static void print_read_list(timsMbx *p_mbx)
-{
-    timsMbxSlot *slot;
-    timsMsgHead *p_head;
-    timsMsgHead *p_head_map;
-
-    char *p_data;
-    int pos = 1;
-    int i;
-    unsigned long databytes     = 0;
-    unsigned long show_data_max = 10;
-    unsigned long akt_byte      = 0;
-
-    struct list_head *p_list = &p_mbx->read_list;
-
-    rtdm_printk("---=== TIMS READ LIST , MAILBOX %08x ===---\n", p_mbx->address);
-    rtdm_printk(" Entry |   msg_ptr   (mapped)  | type |    dest    |     src    | prio | flags | data ->\n");
-
-    list_for_each_entry(slot, p_list, read_list)
-    {
-        p_head_map = (timsMsgHead *)slot->p_head_map;
-        p_head     = slot->p_head;
-
-        // print head
-        rtdm_printk(" %5d | %10p %10p | %4d | %10x | %10x | %4d | %5x |",
-                    pos, p_head, p_head_map, p_head_map->type, p_head_map->dest, p_head_map->src,
-                    p_head_map->priority, p_head_map->flags);
-
-        // print data
-        databytes = p_head_map->msglen - TIMS_HEADLEN;
-        if (databytes)
-        {
-            akt_byte = databytes > show_data_max ? show_data_max : databytes;
-            p_data = p_head_map->data;
-            for ( i=0; i<akt_byte; i++)
-            {
-                rtdm_printk(" %02x", p_data[i]);
-            }
-        }
-        rtdm_printk("\n");
-        pos++;
-    }
-}
-
-
-static void print_write_list(timsMbx *p_mbx)
-{
-    timsMbxSlot *slot;
-    timsMsgHead *p_head;
-    timsMsgHead *p_head_map;
-
-    unsigned char *p_data;
-    int pos = 1;
-    int i;
-    unsigned long databytes     = 0;
-    unsigned long show_data_max = 10;
-    unsigned long akt_byte      = 0;
-
-    struct list_head *p_list = &p_mbx->write_list;
-
-    rtdm_printk("---=== TIMS WRITE LIST , MAILBOX %08x ===---\n",
-                p_mbx->address);
-    rtdm_printk(" Entry |   msg_ptr   (mapped)  | type |    dest    |"
-                "     src    | prio | flags | data ->\n");
-
-    list_for_each_entry(slot, p_list, write_list)
-    {
-        p_head_map = (timsMsgHead *)slot->p_head_map;
-        p_head     = slot->p_head;
-
-        // print head
-        rtdm_printk(" %5d | %10p %10p | %4d | %10x | %10x | %4d | %5x |",
-                    pos, p_head, p_head_map, p_head_map->type, p_head_map->dest, p_head_map->src,
-                    p_head_map->priority, p_head_map->flags);
-
-        // print data
-        databytes = p_head_map->msglen - TIMS_HEADLEN;
-        if (databytes)
-        {
-            akt_byte = databytes > show_data_max ? show_data_max : databytes;
-            p_data = p_head_map->data;
-            for( i=0; i<akt_byte; i++)
-            {
-                rtdm_printk(" %02x", p_data[i]);
-            }
-        }
-        rtdm_printk("\n");
-        pos++;
-    }
-}
-*/
 
 // ****************************************************************************
 //
@@ -460,9 +184,6 @@ static inline void _ctx_list_remove(timsCtx *p_ctx)
 //    -> all functions have to be called while holding context lock
 //
 // ****************************************************************************
-
-//TODO Context hash table
-
 
 static inline void _cache_add(timsCtx *p_ctx)
 {
@@ -546,7 +267,6 @@ static inline void _cache_remove(timsCtx *p_ctx)
     }
 }
 
-
 // ****************************************************************************
 //
 //     context functions
@@ -577,7 +297,7 @@ static inline void tims_ctx_add(timsCtx *p_ctx)
 }
 
 
-static inline int tims_ctx_put(timsCtx *ctx)
+int tims_ctx_put(timsCtx *ctx)
 {
     rtdm_lockctx_t lock_ctx;
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
@@ -589,7 +309,7 @@ static inline int tims_ctx_put(timsCtx *ctx)
 }
 
 
-static inline timsCtx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
+static timsCtx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
 {
     timsCtx* ctx;
     rtdm_lockctx_t lock_ctx;
@@ -619,7 +339,7 @@ static inline timsCtx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
 }
 
 
-static inline timsCtx* tims_ctx_get(uint32_t mbxaddr)
+timsCtx* tims_ctx_get(uint32_t mbxaddr)
 {
     timsCtx* ctx;
     rtdm_lockctx_t lock_ctx;
@@ -651,7 +371,6 @@ static inline timsCtx* tims_ctx_get(uint32_t mbxaddr)
     rtdm_lock_put_irqrestore(&td.ctx_lock, lock_ctx);
     return ctx;
 }
-
 
 // ****************************************************************************
 //
@@ -786,7 +505,6 @@ static void _move_peek_to_free(timsMbx *p_mbx)
     p_mbx->slot_state.free++;
 }
 
-
 // ****************************************************************************
 //
 //     slot functions
@@ -795,8 +513,7 @@ static void _move_peek_to_free(timsMbx *p_mbx)
 //
 // ****************************************************************************
 
-
-static timsMbxSlot* tims_get_write_slot(timsMbx *p_mbx, __s8 prio_new)
+timsMbxSlot* tims_get_write_slot(timsMbx *p_mbx, __s8 prio_new)
 {
     timsMbxSlot *slot = NULL;
     rtdm_lockctx_t lock_ctx;
@@ -815,7 +532,7 @@ static timsMbxSlot* tims_get_write_slot(timsMbx *p_mbx, __s8 prio_new)
 }
 
 
-static void tims_put_write_slot(timsMbx *p_mbx, timsMbxSlot *slot)
+void tims_put_write_slot(timsMbx *p_mbx, timsMbxSlot *slot)
 {
     rtdm_lockctx_t lock_ctx;
 
@@ -835,7 +552,7 @@ static void tims_put_write_slot(timsMbx *p_mbx, timsMbxSlot *slot)
 }
 
 
-static void tims_put_write_slot_error(timsMbx *p_mbx, timsMbxSlot *slot)
+void tims_put_write_slot_error(timsMbx *p_mbx, timsMbxSlot *slot)
 {
     rtdm_lockctx_t lock_ctx;
 
@@ -872,7 +589,6 @@ static void tims_put_peek_slot(timsMbx *p_mbx)
     rtdm_lock_put_irqrestore(&p_mbx->list_lock, lock_ctx);
 }
 
-
 // ****************************************************************************
 //
 //     internal peek functions
@@ -880,7 +596,6 @@ static void tims_put_peek_slot(timsMbx *p_mbx)
 //    -> !!! realtime context !!!
 //
 // ****************************************************************************
-
 
 static int tims_peek_intern(timsMbx *p_mbx, timsMbxSlot **p_slot,
                             int64_t *p_timeout)
@@ -976,45 +691,15 @@ static int tims_sendmsg_global(rtdm_user_info_t *user_info,
     void*           sendBuffer = NULL;
     timsMsgHead*    p_head = msg->msg_iov[0].iov_base;
 
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    struct msghdr       rtnet_msg;
-    struct sockaddr_in  dest_addr;
-
-    for (i = 0; i < td.mbxRouteNum; i++)
+    if (RTNET_ENABLED)
     {
-        if (td.mbxRoute[i].mbx == p_head->dest)
-        {
-            dest_addr.sin_family          = AF_INET;
-            dest_addr.sin_port            = htons(TIMS_MSG_ROUTER_PORT);
-            dest_addr.sin_addr.s_addr     = td.mbxRoute[i].ip;
-
-            rtnet_msg.msg_name            = &dest_addr;
-            rtnet_msg.msg_namelen         = sizeof(dest_addr);
-            rtnet_msg.msg_iov             = msg->msg_iov;
-            rtnet_msg.msg_iovlen          = msg->msg_iovlen;
-            rtnet_msg.msg_control         = NULL;
-            rtnet_msg.msg_controllen      = 0;
-            rtnet_msg.msg_flags           = 0;
-
-            ret = rtdm_sendmsg(td.rtnet_fd, &rtnet_msg, 0);
-            if (ret < rtnet_msg.msg_namelen + p_head->msglen)
-            {
-                tims_error("%x -> %x: Can't forward message, "
-                           "type %i, msglen %i. "
-                           "rt_socket_sendto(), code = %d\n",
-                           p_head->src, p_head->dest, p_head->type,
-                           p_head->msglen, ret);
-
-                return ret;
-            }
+        ret = rtnet_sendmsg(user_info, msg);
+        if (!ret)    // handled
             return 0;
-        }
     }
 
-#endif
-
     // no real-time route available -> forward to TCP-client
+
     sendMsg = rt_pipe_alloc(&td.pipeToClient, p_head->msglen);
     if (sendMsg == 0)
     {
@@ -1066,6 +751,9 @@ static int tims_sendmsg_global(rtdm_user_info_t *user_info,
                    p_head->src, p_head->dest, p_head->type, p_head->msglen);
         goto send_error;
     }
+
+    tims_dbginfo("%x -> %x, send global message (%d bytes) using TCP/IP\n",
+                 p_head->src, p_head->dest, p_head->msglen);
 
     return p_head->msglen;
 
@@ -1276,56 +964,49 @@ static int init_fifo_mailbox(timsMbx *p_mbx)
   return 0;
 }
 
-static inline int get_max_pages(unsigned long buffersize)
-{
-    return (((buffersize + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
-            >> PAGE_SHIFT) + 1;
-}
-
 // non realtime context (init - linux)
 static int init_slot_mailbox(timsMbx *p_mbx)
 {
-      void*             p_buffer            = NULL;
-      unsigned long     p_buffer_map        = 0;
-      unsigned long     buffer_page         = 0;
-      unsigned long     buffer_offset        = 0;
+    void*             p_buffer            = NULL;
+    unsigned long     p_buffer_map        = 0;
+    unsigned long     buffer_page         = 0;
+    unsigned long     buffer_offset       = 0;
 
-      void*             p_head                 = NULL;
-      unsigned long     p_head_map             = 0;    // mapped
+    void*             p_head              = NULL;
+    unsigned long     p_head_map          = 0;    // mapped
 
-      unsigned long     message_size           = p_mbx->msg_size;
-      unsigned long     free_bytes_in_page    = 0;
-      unsigned long     akt_bytes              = 0;
-      unsigned long     slot_pages             = 0;
+    unsigned long     message_size        = p_mbx->msg_size;
+    unsigned long     free_bytes_in_page  = 0;
+    unsigned long     akt_bytes           = 0;
+    unsigned long     slot_pages          = 0;
 
-      int i       = 0;
-      int si      = 0;   // slot index
-      int pi      = 0;   // page index
-      int ret     = 0;
+    int i       = 0;
+    int si      = 0;   // slot index
+    int pi      = 0;   // page index
+    int ret     = 0;
 
-
-      // allocate memory for message pointers
-      p_mbx->slot = (timsMbxSlot *)rtdm_malloc(p_mbx->slot_count *
-                                               sizeof(timsMbxSlot));
-      if (!p_mbx->slot)
-      {
+    // allocate memory for message pointers
+    p_mbx->slot = (timsMbxSlot *)rtdm_malloc(p_mbx->slot_count *
+                                             sizeof(timsMbxSlot));
+    if (!p_mbx->slot)
+    {
         ret = -ENOMEM;
         goto init_error;
-      }
+    }
 
-      tims_dbgdetail("slot mailbox Entr%s created @ %p "
+    tims_dbgdetail("slot mailbox Entr%s created @ %p "
                    "(%d slots, %d bytes/slot, %d byte) \n",
                    p_mbx->slot_count > 0 ? "ies" : "y", p_mbx->slot,
                    p_mbx->slot_count, sizeof(timsMbxSlot),
-                     p_mbx->slot_count * sizeof(timsMbxSlot));
+                   p_mbx->slot_count * sizeof(timsMbxSlot));
 
-      if (!p_mbx->buffer) // create kernel buffer
-      {
-           p_buffer = rtdm_malloc(p_mbx->slot_count * p_mbx->msg_size);
+    if (!p_mbx->buffer) // create kernel buffer
+    {
+        p_buffer = rtdm_malloc(p_mbx->slot_count * p_mbx->msg_size);
         if (!p_buffer)
         {
-              ret = -ENOMEM;
-              goto init_error;
+            ret = -ENOMEM;
+            goto init_error;
         }
 
         tims_dbgdetail("slot mailbox buffer created @ %p "
@@ -1333,9 +1014,9 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                        p_buffer, p_mbx->slot_count, p_mbx->msg_size,
                        p_mbx->slot_count * p_mbx->msg_size);
 
-      }
-      else // use another buffer
-      {
+    }
+    else // use another buffer
+    {
         p_buffer = p_mbx->buffer; // external kernel or userspace buffer
 
         tims_dbgdetail("use slot mailbox buffer @ %p "
@@ -1344,11 +1025,11 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                        p_mbx->slot_count * p_mbx->msg_size,
                        test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_mbx->flags) ?
                        "userspace" : "kernelspace");
-      }
+    }
 
-      if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_mbx->flags))
-      {
-          //
+    if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_mbx->flags))
+    {
+        //
         // allocate mem for page table and mapInfo
         //
 
@@ -1366,8 +1047,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                                                       p_mbx->buffer_pages);
         if (!p_mbx->pp_pages)
         {
-              ret = -ENOMEM;
-              goto init_error;
+            ret = -ENOMEM;
+            goto init_error;
         }
         tims_dbgdetail("page list created @ %p (%lu entries) \n",
                        p_mbx->pp_pages, p_mbx->buffer_pages);
@@ -1377,8 +1058,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                                                         p_mbx->buffer_pages);
         if (!p_mbx->p_mapInfo)
         {
-              ret = -ENOMEM;
-              goto init_error;
+            ret = -ENOMEM;
+            goto init_error;
         }
         tims_dbgdetail("mapInfo list created @ %p (%lu entries) \n",
                        p_mbx->p_mapInfo, p_mbx->buffer_pages);
@@ -1386,9 +1067,9 @@ static int init_slot_mailbox(timsMbx *p_mbx)
         // init tables
         for (i=0; i< p_mbx->buffer_pages; i++)
         {
-              p_mbx->pp_pages[i]             = NULL;
-              p_mbx->p_mapInfo[i].virtual = 0;
-              p_mbx->p_mapInfo[i].mapped     = 0;
+            p_mbx->pp_pages[i]          = NULL;
+            p_mbx->p_mapInfo[i].virtual = 0;
+            p_mbx->p_mapInfo[i].mapped  = 0;
         }
 
           //
@@ -1416,94 +1097,91 @@ static int init_slot_mailbox(timsMbx *p_mbx)
         up_read(&current->mm->mmap_sem);
         if (!ret)
         {
-              tims_error("ERROR: no page returned :-( \n");
-              ret = -EFAULT;
-              goto init_error;
+            tims_error("ERROR: no page returned :-( \n");
+            ret = -EFAULT;
+            goto init_error;
         }
 
         if (ret < 0)
         {
-              tims_error("ERROR: get_user_pages, code = %d \n", ret);
-              ret = -EFAULT;
-              goto init_error;
+           tims_error("ERROR: get_user_pages, code = %d \n", ret);
+           ret = -EFAULT;
+           goto init_error;
         }
         tims_dbgdetail("%d/%lu pages returned \n", ret, p_mbx->buffer_pages);
 
           // map pages to kernel (kmap)
         for (i=0; i<ret; i++)
         {
-              p_buffer_map = (unsigned long)kmap(p_mbx->pp_pages[i]);
-              if (!p_buffer_map)
-              {
+            p_buffer_map = (unsigned long)kmap(p_mbx->pp_pages[i]);
+            if (!p_buffer_map)
+            {
                 ret = -EFAULT;
                 goto init_error;
-              }
+            }
 
-              p_mbx->p_mapInfo[i].virtual = p_buffer_map;
-              p_mbx->p_mapInfo[i].mapped  = 1;
+            p_mbx->p_mapInfo[i].virtual = p_buffer_map;
+            p_mbx->p_mapInfo[i].mapped  = 1;
 
-              p_mbx->buffer_pages = i + 1;
+            p_mbx->buffer_pages = i + 1;
 
-              tims_dbgdetail("page %03d: index: %lu, flags: %lu, "
-                             "mapped to %lx\n", i, p_mbx->pp_pages[i]->index,
-                             p_mbx->pp_pages[i]->flags, p_buffer_map);
-
+            tims_dbgdetail("page %03d: index: %lu, flags: %lu, "
+                           "mapped to %lx\n", i, p_mbx->pp_pages[i]->index,
+                           p_mbx->pp_pages[i]->flags, p_buffer_map);
         }
 
         // init p_buffer
         p_buffer_map = p_mbx->p_mapInfo[0].virtual + buffer_offset;
     }
 
-      p_head     = p_buffer;
-      p_head_map = p_buffer_map;  // mapped
+    p_head     = p_buffer;
+    p_head_map = p_buffer_map;  // mapped
 
     while (si < p_mbx->slot_count)
-      {
+    {
         p_mbx->slot[si].p_head = p_head;
         p_mbx->slot[si].p_mbx  = p_mbx;
 
         if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_mbx->flags))
         {
-              p_mbx->slot[si].p_head_map = p_head_map;  // start at p_head_map / p_head
-              p_mbx->slot[si].map_idx    = pi;
+            p_mbx->slot[si].p_head_map = p_head_map;  // start at p_head_map / p_head
+            p_mbx->slot[si].map_idx    = pi;
 
-              slot_pages = ((((p_head_map & ~PAGE_MASK) + p_mbx->msg_size) &
-                           PAGE_MASK) >> PAGE_SHIFT);
+            slot_pages = ((((p_head_map & ~PAGE_MASK) + p_mbx->msg_size) &
+                         PAGE_MASK) >> PAGE_SHIFT);
 
-              message_size  = p_mbx->msg_size;
+            message_size  = p_mbx->msg_size;
 
-              if (slot_pages) // more than one page for this message slot
-              {
+            if (slot_pages) // more than one page for this message slot
+            {
                 while (message_size > 0)
                 {
-                      free_bytes_in_page = (p_head_map & PAGE_MASK) +
-                                            PAGE_SIZE - p_head_map;
+                    free_bytes_in_page = (p_head_map & PAGE_MASK) +
+                                          PAGE_SIZE - p_head_map;
 
-                      akt_bytes = message_size > free_bytes_in_page ?
-                                  free_bytes_in_page : message_size;
-                      message_size -= akt_bytes;
-                      memset((void *)p_head_map, 0, akt_bytes);
+                    akt_bytes = message_size > free_bytes_in_page ?
+                                free_bytes_in_page : message_size;
+                    message_size -= akt_bytes;
+                    memset((void *)p_head_map, 0, akt_bytes);
 
-                      if ( ((p_head_map + akt_bytes -1 ) & ~PAGE_MASK) ==
-                           ~PAGE_MASK)   // ending with 0xFFF
-                      {
+                    if ( ((p_head_map + akt_bytes -1 ) & ~PAGE_MASK) ==
+                         ~PAGE_MASK)   // ending with 0xFFF
+                    {
                         pi++;    // next page
                         p_head_map = p_mbx->p_mapInfo[pi].virtual;
                         free_bytes_in_page = PAGE_SIZE -
                                              (message_size - akt_bytes);
-                      }
-                      else
-                      {
+                    }
+                    else
+                    {
                         p_head_map         += akt_bytes;
                         free_bytes_in_page -= akt_bytes;
-                       }
+                    }
 
-                      p_head += akt_bytes;
-
+                    p_head += akt_bytes;
                 }
-
-              }
-              else   // only one page in message slot
+            }
+            else   // only one page in message slot
             {
                 akt_bytes = p_mbx->msg_size;
                 message_size -= akt_bytes;
@@ -1511,28 +1189,26 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                 if (((p_head_map + akt_bytes -1 ) & ~PAGE_MASK) == ~PAGE_MASK)
                 {
                     // ending with 0xFFF
-                      pi++;    // next page
-                      p_head_map = p_mbx->p_mapInfo[pi].virtual;
+                    pi++;    // next page
+                    p_head_map = p_mbx->p_mapInfo[pi].virtual;
                 }
                 else
                 {
-                      p_head_map += akt_bytes;
+                    p_head_map += akt_bytes;
                 }
-
                 p_head += akt_bytes;
-              }
-
+            }
         }
         else // !(TIMS_MBX_BIT_USRSPCBUFFER)
         {
-              p_mbx->slot[si].p_head_map = (unsigned long)p_mbx->slot[si].p_head;
-              p_mbx->slot[si].map_idx    = 0;
+            p_mbx->slot[si].p_head_map = (unsigned long)p_mbx->slot[si].p_head;
+            p_mbx->slot[si].map_idx    = 0;
 
-              akt_bytes = p_mbx->msg_size;
-              message_size -= akt_bytes;
+            akt_bytes = p_mbx->msg_size;
+            message_size -= akt_bytes;
 
-              memset(p_head, 0, akt_bytes);
-              p_head += akt_bytes;
+            memset(p_head, 0, akt_bytes);
+            p_head += akt_bytes;
         }
 
         INIT_LIST_HEAD(&p_mbx->slot[si].mbx_list);
@@ -1544,10 +1220,10 @@ static int init_slot_mailbox(timsMbx *p_mbx)
         // add slot to free_list
         list_add_tail(&p_mbx->slot[si].mbx_list, &p_mbx->free_list);
         si++;
-      }
+    }
 
-      set_bit(TIMS_MBX_BIT_SLOT, &p_mbx->flags);
-      return 0;
+    set_bit(TIMS_MBX_BIT_SLOT, &p_mbx->flags);
+    return 0;
 
 init_error:
 
@@ -1555,24 +1231,24 @@ init_error:
     {
         for (i=0; i<p_mbx->buffer_pages; i++)
         {
-              if (p_mbx->p_mapInfo[i].mapped)
+            if (p_mbx->p_mapInfo[i].mapped)
                 kunmap(p_mbx->pp_pages[i]);
         }
-      }
+    }
 
-      if (p_mbx->p_mapInfo)
+    if (p_mbx->p_mapInfo)
         rtdm_free(p_mbx->p_mapInfo);
 
-      if (p_mbx->pp_pages)
+    if (p_mbx->pp_pages)
         rtdm_free(p_mbx->pp_pages);
 
-      if (!p_mbx->buffer)
+    if (!p_mbx->buffer)
         rtdm_free(p_buffer);
 
-      if (p_mbx->slot)
+    if (p_mbx->slot)
         rtdm_free(p_mbx->slot);
 
-      return ret;
+    return ret;
 }
 
 // non realtime context (init - linux)
@@ -1755,7 +1431,7 @@ static void destroy_mailbox(timsCtx *p_ctx)
 // realtime or non realtime context (xenomai task or linux)
 static void tims_clean_mailbox(timsCtx *p_ctx)
 {
-    timsMbx*              p_mbx  = NULL;
+    timsMbx*            p_mbx  = NULL;
     timsMbxSlot *       read_slot = NULL;
     struct list_head*   p_list = NULL;
     rtdm_lockctx_t      lock_ctx;
@@ -1793,519 +1469,6 @@ static void tims_clean_mailbox(timsCtx *p_ctx)
     return;
 }
 
-
-//
-// copy functions
-//
-
-// realtime context
-static unsigned long tims_copy_userslot_user(rtdm_user_info_t *user_info,
-                                             timsMbxSlot *slot,
-                                             const struct msghdr *msg)
-{
-  unsigned long akt_copy_size = 0;
-  unsigned long copy_bytes    = 0;
-  unsigned long bytes_copied  = 0;
-  unsigned long bytes_in_page = 0;
-  int i;
-
-  unsigned long ret;
-  unsigned long p_src_map     = slot->p_head_map;
-  void*         p_src         = slot->p_head;
-  void*         p_dest        = NULL;
-  unsigned long src_page      = slot->map_idx;
-  timsMsgHead*  p_head        = (timsMsgHead *)slot->p_head_map;
-  unsigned long databytes     = p_head->msglen - TIMS_HEADLEN;
-
-  for (i=0; i<2; i++) {
-
-    if (i==0) {
-      copy_bytes = TIMS_HEADLEN;
-    } else {
-      copy_bytes = databytes;
-    }
-
-    p_dest     = msg->msg_iov[i].iov_base;
-
-    // check destination pointer
-    ret = rtdm_rw_user_ok( user_info, p_dest, copy_bytes);
-    if (!ret) {
-      tims_error("ERROR: userspace destination 0x%p (%lu bytes) NOT OK \n",
-                  p_dest, copy_bytes);
-      return ret;
-    }
-
-    // copy data
-    while (copy_bytes) {
-
-      bytes_in_page = (p_src_map & PAGE_MASK) + PAGE_SIZE - p_src_map;
-      akt_copy_size = copy_bytes > bytes_in_page ? bytes_in_page : copy_bytes ;
-
-//      tims_dbginfo("copy userbuffer (0x%p, page: %lu, map: 0x%lx) --(%lu/%lu bytes)--> user (0x%p)\n",
-//                   p_src, src_page, p_src_map, akt_copy_size, copy_bytes, p_dest);
-
-      ret = rtdm_copy_to_user(user_info,
-                              p_dest,
-                              (void *)p_src_map,
-                              akt_copy_size);
-      if (ret) {
-        if (ret < 0) {
-          tims_error("ERROR while copy userbuffer -> user, code = %lu \n", ret);
-        } else {
-          tims_error("ERROR while copy userbuffer -> user, only %lu/%lu bytes were copied \n",
-                    akt_copy_size - ret, akt_copy_size);
-        }
-        return ret;
-      }
-
-      bytes_in_page -= akt_copy_size;
-      copy_bytes    -= akt_copy_size;
-      p_src_map     += akt_copy_size;
-      p_src         += akt_copy_size;
-      p_dest        += akt_copy_size;
-      bytes_copied  += akt_copy_size;
-
-      if (!bytes_in_page) {
-        src_page++;
-        if (slot->p_mbx->p_mapInfo[src_page].mapped) {
-          p_src_map = slot->p_mbx->p_mapInfo[src_page].virtual;
-        } else {
-          return -EFAULT;
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-// realtime context
-static unsigned long tims_copy_kernelslot_user(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
-                                               const struct msghdr *msg)
-{
-  void*         p_src      = slot->p_head;
-  void*         p_dest     = NULL;
-  int           veclen     = msg->msg_iovlen;
-  unsigned long copy_bytes = 0;
-  int           i          = 0;
-  unsigned long ret        = 0;
-
-  for (i=0; i<veclen; i++) {
-
-    copy_bytes = msg->msg_iov[i].iov_len;
-    p_dest     = msg->msg_iov[i].iov_base;
-
-    // check destination pointer
-    ret = rtdm_rw_user_ok( user_info, p_dest, copy_bytes);
-    if (!ret) {
-      tims_error("ERROR: userspace destination 0x%p (%lu bytes) NOT OK \n",
-                  p_dest, copy_bytes);
-      return ret;
-    }
-
-//    tims_dbginfo("copy kernelbuffer (0x%p) --(%lu bytes)--> user (0x%p)\n",
-//                 p_src, copy_bytes, p_dest);
-
-    // copy data
-    ret = rtdm_copy_to_user(user_info, p_dest, p_src, copy_bytes);
-    if (ret) {
-      if (ret < 0) {
-        tims_error("ERROR while copy kernelbuffer -> user, code = %lu \n", ret);
-      } else {
-        tims_error("ERROR while copy kernelbuffer -> user, only %lu/%lu bytes were copied \n",
-                    copy_bytes - ret, copy_bytes);
-      }
-      return ret;
-    }
-
-    p_src += copy_bytes;
-
-  }
-
-  return 0;
-}
-
-// realtime context
-static unsigned long tims_copy_userslot_kernel(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
-                                               const struct msghdr *msg)
-{
-  unsigned long akt_copy_size = 0;
-  unsigned long copy_bytes    = 0;
-  unsigned long bytes_copied  = 0;
-  unsigned long bytes_in_page = 0;
-  int i;
-
-  unsigned long p_src_map     = slot->p_head_map;
-  void*         p_src         = slot->p_head;
-  void*         p_dest        = NULL;
-  unsigned long src_page      = slot->map_idx;
-
-  int veclen   = msg->msg_iovlen;
-
-  for (i=0; i<veclen; i++) {
-
-    copy_bytes = msg->msg_iov[i].iov_len;
-    p_dest     = msg->msg_iov[i].iov_base;
-
-    // copy data
-    while (copy_bytes) {
-
-      bytes_in_page = (p_src_map & PAGE_MASK) + PAGE_SIZE - p_src_map;
-      akt_copy_size = copy_bytes > bytes_in_page ? bytes_in_page : copy_bytes ;
-
-//      tims_dbginfo("copy userbuffer (0x%p, page: %lu, map: 0x%lx) --(%lu/%lu bytes)--> kernel (0x%p)\n",
-//                   p_src, src_page, p_src_map, akt_copy_size, copy_bytes, p_dest);
-
-      memcpy( p_dest, (void *)p_src_map, akt_copy_size);
-
-      bytes_in_page -= akt_copy_size;
-      copy_bytes    -= akt_copy_size;
-      p_src_map     += akt_copy_size;
-      p_src         += akt_copy_size;
-      p_dest        += akt_copy_size;
-      bytes_copied  += akt_copy_size;
-
-      if (!bytes_in_page) {
-        src_page++;
-        if (slot->p_mbx->p_mapInfo[src_page].mapped) {
-          p_src_map = slot->p_mbx->p_mapInfo[src_page].virtual;
-        } else {
-          return -EFAULT;
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-// realtime context
-static unsigned long tims_copy_kernelslot_kernel(rtdm_user_info_t *user_info,
-                                                 timsMbxSlot *slot,
-                                                 const struct msghdr *msg)
-{
-  unsigned long copy_bytes    = 0;
-  int i;
-  void*         p_src         = slot->p_head;
-  void*         p_dest        = NULL;
-
-  int veclen   = msg->msg_iovlen;
-
-  for (i=0; i<veclen; i++) {
-
-    copy_bytes = msg->msg_iov[i].iov_len;
-    p_dest     = msg->msg_iov[i].iov_base;
-
-//    tims_dbginfo("copy kernelbuffer (0x%p) --(%lu bytes)--> kernel (0x%p)\n",
-//                 p_src, copy_bytes, p_dest);
-
-    // copy data
-    memcpy(p_dest, p_src, copy_bytes);
-
-    p_src += copy_bytes;
-
-  }
-  return 0;
-}
-
-
-// realtime or non realtime context (xenomai task or linux)
-static unsigned long tims_copy_user_userslot(rtdm_user_info_t *user_info,
-                                             timsMbxSlot *slot,
-                                             const struct msghdr *msg)
-{
-    unsigned long akt_copy_size = 0;
-    unsigned long copy_bytes    = 0;
-    unsigned long bytes_copied  = 0;
-    unsigned long free_in_page  = 0;
-    int i;
-
-    unsigned long ret;
-    unsigned long p_dest_map    = slot->p_head_map;
-    void*         p_dest        = slot->p_head;
-    void*         p_src         = NULL;
-    unsigned long dest_page     = slot->map_idx;
-
-    int veclen   = msg->msg_iovlen;
-    for (i=0; i<veclen; i++)
-    {
-        copy_bytes = msg->msg_iov[i].iov_len;
-        p_src      = msg->msg_iov[i].iov_base;
-
-        // check source pointer
-        ret = rtdm_read_user_ok(user_info, p_src, copy_bytes);
-        if (!ret)
-        {
-            tims_error("Copy user -> user: user, src %p (%lu bytes) NOT OK \n",
-                        p_src, copy_bytes);
-        return -EINVAL;
-        }
-
-        // copy data
-        while (copy_bytes)
-        {
-            free_in_page  = (p_dest_map & PAGE_MASK) + PAGE_SIZE - p_dest_map;
-            akt_copy_size = free_in_page > copy_bytes ? copy_bytes : free_in_page;
-
-            ret = rtdm_copy_from_user(user_info, (void *)p_dest_map, p_src,
-                                      akt_copy_size);
-            if (ret)
-            {
-                if (ret < 0)
-                {
-                    tims_error("Can't copy user -> user, code = %lu \n", ret);
-                }
-                else
-                {
-                    tims_error("Can't copy user -> user, only %lu/%lu bytes "
-                               " have been copied \n", akt_copy_size - ret,
-                               akt_copy_size);
-                }
-                return ret;
-            }
-
-            free_in_page -= akt_copy_size;
-            copy_bytes   -= akt_copy_size;
-            p_dest_map   += akt_copy_size;
-            p_dest       += akt_copy_size;
-            p_src        += akt_copy_size;
-            bytes_copied += akt_copy_size;
-
-            if (!free_in_page)
-            {
-                dest_page++;
-                if (slot->p_mbx->p_mapInfo[dest_page].mapped)
-                {
-                    p_dest_map = slot->p_mbx->p_mapInfo[dest_page].virtual;
-                }
-                else
-                {
-                    return -EFAULT;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-// realtime or non realtime context (xenomai task or linux)
-static unsigned long tims_copy_kernel_userslot(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
-                                               const struct msghdr *msg)
-{
-    unsigned long akt_copy_size = 0;
-    unsigned long copy_bytes    = 0;
-    unsigned long free_in_page  = 0;
-    int i;
-
-    unsigned long p_dest_map    = slot->p_head_map;
-    void*         p_dest        = slot->p_head;
-    void*         p_src         = NULL;
-    unsigned long dest_page     = slot->map_idx;
-
-    int veclen   = msg->msg_iovlen;
-    for (i=0; i<veclen; i++)
-    {
-        copy_bytes = msg->msg_iov[i].iov_len;
-        p_src      = msg->msg_iov[i].iov_base;
-
-        // copy data
-        while (copy_bytes)
-        {
-            free_in_page  = (p_dest_map & PAGE_MASK) + PAGE_SIZE - p_dest_map;
-            akt_copy_size = free_in_page > copy_bytes ? copy_bytes : free_in_page;
-
-            memcpy((void *)p_dest_map, p_src, akt_copy_size);
-
-            free_in_page -= akt_copy_size;
-            copy_bytes   -= akt_copy_size;
-            p_dest_map   += akt_copy_size;
-            p_dest       += akt_copy_size;
-            p_src        += akt_copy_size;
-
-            if (!free_in_page)
-            {
-                dest_page++;
-                if (slot->p_mbx->p_mapInfo[dest_page].mapped)
-                {
-                    p_dest_map = slot->p_mbx->p_mapInfo[dest_page].virtual;
-                }
-                else
-                {
-                    return -EFAULT;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-// realtime or non realtime context (xenomai task or linux)
-static unsigned long tims_copy_user_kernelslot(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
-                                               const struct msghdr *msg)
-{
-    unsigned long   copy_bytes  = 0;
-    int             i           = 0;
-    unsigned long   ret         = 0;
-    void*           p_dest      = slot->p_head;
-    void*           p_src       = NULL;
-    int             veclen      = msg->msg_iovlen;
-
-    for (i=0; i<veclen; i++)
-    {
-        copy_bytes = msg->msg_iov[i].iov_len;
-        p_src      = msg->msg_iov[i].iov_base;
-
-        // check source pointer
-        ret = rtdm_read_user_ok(user_info, p_src, copy_bytes);
-        if (!ret)
-        {
-            tims_error("Copy user -> kernel: user src %p (%lu bytes) NOT OK \n",
-                       p_src, copy_bytes);
-            return -EINVAL;
-        }
-
-        ret = rtdm_copy_from_user(user_info, p_dest, p_src, copy_bytes);
-        if (ret)
-        {
-            if (ret < 0)
-            {
-                tims_error("Can't copy user -> kernel, code = %lu \n", ret);
-            }
-            else
-            {
-                tims_error("Can't copy user -> kernel, only %lu/%lu bytes "
-                           "have been copied \n", copy_bytes - ret, copy_bytes);
-            }
-            return ret;
-        }
-        p_dest += copy_bytes;
-    }
-    return 0;
-}
-
-// realtime or non realtime context (xenomai task or linux)
-static unsigned long tims_copy_kernel_kernelslot(rtdm_user_info_t *user_info,
-                                                 timsMbxSlot *slot,
-                                                 const struct msghdr *msg)
-{
-    unsigned long   copy_bytes  = 0;
-    int             i           = 0;
-    void*           p_dest      = slot->p_head;
-    void*           p_src       = NULL;
-    int             veclen      = msg->msg_iovlen;
-
-    for (i=0; i<veclen; i++)
-    {
-        copy_bytes = msg->msg_iov[i].iov_len;
-        p_src      = msg->msg_iov[i].iov_base;
-
-        memcpy(p_dest, p_src, copy_bytes);
-
-        p_dest += copy_bytes;
-    }
-    return 0;
-}
-
-// realtime or non realtime context (xenomai task or linux)
-static int copy_msg_into_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
-                              const struct msghdr *msg, unsigned long mbxFlags)
-{
-    int ret = 0;
-
-    if (user_info) // message sender is in userspace
-    {
-        if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &mbxFlags)) // copy user -> user
-        {
-            ret = tims_copy_user_userslot(user_info, slot, msg);
-            if (ret)
-            {
-                return ret;
-            }
-        }
-        else // copy user -> kernel
-        {
-            ret = tims_copy_user_kernelslot(user_info, slot, msg);
-            if (ret)
-            {
-                return ret;
-            }
-        }
-    }
-    else // message sender is in kernelspace
-    {
-        if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &mbxFlags)) // copy kernel -> user
-        {
-            ret = tims_copy_kernel_userslot(user_info, slot, msg);
-            if (ret)
-            {
-                return ret;
-            }
-        }
-        else // copy kernel -> kernel
-        {
-            ret = tims_copy_kernel_kernelslot(user_info, slot, msg);
-            if (ret)
-            {
-                return ret;
-            }
-        }
-    }
-    return 0;
-}
-
-// realtime context
-static int copy_msg_out_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
-                             const struct msghdr *msg, unsigned long mbxFlags)
-{
-  int ret = 0;
-
-  if (user_info) {
-
-//    tims_dbginfo("message receiver is in userspace \n");
-
-    if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &mbxFlags)) {
-
-//      tims_dbginfo("copy userbuffer -> user \n");
-      ret = tims_copy_userslot_user(user_info, slot, msg);
-      if (ret) {
-        return ret;
-      }
-
-    } else {
-
-//      tims_dbginfo("copy kernelbuffer -> user \n");
-      ret = tims_copy_kernelslot_user(user_info, slot, msg);
-      if (ret) {
-        return ret;
-      }
-    }
-
-  } else {
-
-    if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &mbxFlags)) {
-
-//      tims_dbginfo("copy userbuffer -> kernel \n");
-      ret = tims_copy_userslot_kernel(user_info, slot, msg);
-      if (ret) {
-        return ret;
-      }
-
-    } else {
-
-//      tims_dbginfo("copy kernelbuffer -> kernel \n");
-      ret = tims_copy_kernelslot_kernel(user_info, slot, msg);
-      if (ret) {
-        return ret;
-      }
-    }
-  }
-  return 0;
-}
-
 // ****************************************************************************
 //
 //     ioctl, sending and receive functions
@@ -2325,9 +1488,9 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
     struct tims_mbx_cfg*    p_tmc   = NULL;
     int                     ret     = 0;
     timsMsgHead**           p_head  = NULL;
-    timsMbxSlot*             slot    = NULL;
+    timsMbxSlot*            slot    = NULL;
 
-    switch(request)
+    switch (request)
     {
         case _RTIOC_GETSOCKOPT:
         {
@@ -2609,7 +1772,7 @@ ssize_t rt_tims_recvmsg(struct rtdm_dev_context *context,
         goto recvmsg_error;
     }
 
-    tims_dbginfo("Recv %x -> %x, type: %d, prio: %d, %u + %u bytes\n",
+    tims_dbginfo("%x -> %x, read msg, type: %d, prio: %d, %u + %u bytes\n",
                 p_head_map->src, p_head_map->dest,
                 p_head_map->type, p_head_map->priority,
                 TIMS_HEADLEN, p_head_map->msglen - TIMS_HEADLEN );
@@ -2670,13 +1833,13 @@ ssize_t rt_tims_sendmsg(struct rtdm_dev_context *context,
     p_head    = msg->msg_iov[0].iov_base;
     vectorlen = msg->msg_iovlen;
 
-    tims_dbginfo("Send vector: %d entries:", vectorlen);
+    tims_dbgdetail("Send vector: %d entries:", vectorlen);
     for (i=0; i<vectorlen; i++)
     {
-        tims_dbginfo_0(" 0x%p (%lu byte)", msg->msg_iov[i].iov_base,
+        tims_dbgdetail_0(" 0x%p (%lu byte)", msg->msg_iov[i].iov_base,
                       (unsigned long)msg->msg_iov[i].iov_len);
     }
-    tims_dbginfo_0("\n");
+    tims_dbgdetail_0("\n");
 
     // set byteorder before sending the message to another system
     tims_set_head_byteorder(p_head);
@@ -2740,6 +1903,10 @@ ssize_t rt_tims_sendmsg(struct rtdm_dev_context *context,
     tims_put_write_slot(p_dest_mbx, slot);
     tims_ctx_put(p_dest_ctx);
     tims_ctx_put(p_ctx);
+
+    tims_dbginfo("%x -> %x, send local message (%d bytes)\n",
+                 p_head->src, p_head->dest, p_head->msglen);
+
     return msglen;
 
 sendmsg_error:
@@ -2851,180 +2018,6 @@ int rt_tims_close(struct rtdm_dev_context *context,
 
 // ****************************************************************************
 //
-// rtnet receive function
-//
-// Note: This function runs in the context of the RTnet stack manager (prio 1)!
-//
-// ****************************************************************************
-
-#ifdef CONFIG_TIMS_USE_RTNET
-
-static int rtnet_recv_message(timsMbx* p_recv_mbx, timsMsgHead *head)
-{
-    timsMbxSlot*    recv_slot       = NULL;
-    struct iovec    iov[get_max_pages(head->msglen)];
-    struct msghdr   recv_msg;
-    unsigned long   p_recv_map      = 0;
-    void*           p_recv          = NULL;
-    unsigned long   recv_page       = 0;
-    unsigned long   recv_bytes      = head->msglen;
-    int             ret;
-    int             free_in_page    = 0;
-    int             akt_copy_size   = 0;
-
-    // get local mailbox slot
-    recv_slot = tims_get_write_slot(p_recv_mbx, head->priority);
-    if (!recv_slot)
-    {
-        tims_error("[RTnet]: No free write slot in mailbox %08x \n",
-                   p_recv_mbx->address);
-        rtdm_recv(td.rtnet_fd, head, 0, 0); // clean up
-        return -ENOSPC;
-    }
-
-    //
-    // create msg vector
-    //
-    memset(&recv_msg, 0, sizeof(struct msghdr));
-
-    if (test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_recv_mbx->flags))
-    {
-        // receive mailbox is in userpace
-
-        p_recv_map  = recv_slot->p_head_map;
-        p_recv      = recv_slot->p_head;
-        recv_page   = recv_slot->map_idx;
-
-        recv_msg.msg_iov    = iov;
-        recv_msg.msg_iovlen = 0;
-
-        while (recv_bytes)
-        {
-            free_in_page  = (p_recv_map & PAGE_MASK) + PAGE_SIZE - p_recv_map;
-            akt_copy_size = free_in_page > recv_bytes ?
-                            recv_bytes : free_in_page;
-
-            iov[recv_msg.msg_iovlen].iov_base = (void*)p_recv_map;
-            iov[recv_msg.msg_iovlen].iov_len  = akt_copy_size;
-
-            recv_msg.msg_iovlen++;
-
-            free_in_page -= akt_copy_size;
-
-            if (!free_in_page)
-            {
-                recv_page++;
-                if (recv_slot->p_mbx->p_mapInfo[recv_page].mapped)
-                {
-                    p_recv_map = recv_slot->p_mbx->p_mapInfo[recv_page].virtual;
-                }
-                else
-                {
-                    ret = -ENOMEM;
-                    goto recvmsg_error_clean;
-                }
-            }
-        }
-    }
-    else // receive mailbox is in kernelspace
-    {
-        struct iovec iov[1];
-
-        iov[0].iov_base     = recv_slot->p_head;
-        iov[0].iov_len      = recv_bytes;
-
-        recv_msg.msg_iov     = iov;
-        recv_msg.msg_iovlen = 1;
-    }
-
-    // receive complete message
-    ret = rtdm_recvmsg(td.rtnet_fd, &recv_msg, 0);
-    if (ret != head->msglen)
-    {
-        tims_error("[RTnet]: Corrupt message received, code = %d) \n", ret);
-        goto recvmsg_error;
-    }
-
-    tims_put_write_slot(p_recv_mbx, recv_slot);
-    return 0;
-
-recvmsg_error_clean:
-
-    rtdm_recv(td.rtnet_fd, head, 0, 0); // clean up
-
-recvmsg_error:
-
-    tims_put_write_slot_error(p_recv_mbx, recv_slot);
-    tims_error("[RTnet]: %x -> %x, Can't send message, code = %d\n",
-               head->src, head->dest, ret);
-    return ret;
-
-}
-
-static void rtnet_recv_callback(struct rtdm_dev_context *context, void* arg)
-{
-    timsMsgHead     head;
-    timsCtx*        ctx;
-    int             ret;
-    timsMbx*        p_recv_mbx  = NULL;
-
-    // receive message head (only peek)
-    ret = rtdm_recv(td.rtnet_fd, &head, sizeof(timsMsgHead), MSG_PEEK);
-    if (ret < (int)sizeof(timsMsgHead))
-    {
-        tims_error("[RTnet]: Corrupt package received (rtdm_recv(): %d)\n",
-                   ret);
-
-        rtdm_recv(td.rtnet_fd, &head, 0, 0); /* clean up */
-        return;
-    }
-
-    tims_set_head_byteorder(&head);
-
-    tims_dbgdetail("[RTnet] %x -> %x, type %d, msglen %d \n",
-                   head.src, head.dest, head.type, head.msglen);
-
-    // get mailbox context
-    ctx = tims_ctx_get(head.dest);
-    if (!ctx)
-    {
-        tims_error("[RTnet]: %x -> %x, Can't deliver msg, type %d, msglen %d. "
-                   "Mailbox not available.\n", head.src, head.dest, head.type,
-                   head.msglen);
-
-        rtdm_recv(td.rtnet_fd, &head, 0, 0); // clean up
-        return;
-    }
-
-    p_recv_mbx = ctx->p_mbx;
-
-    // return, if buffer is too small
-    if (head.msglen > p_recv_mbx->msg_size)
-    {
-        tims_error("[RTnet]: %x -> %x, Msg is too big for mbx (%d -> %d)\n",
-                   head.src, head.dest, head.msglen, p_recv_mbx->msg_size);
-
-        rtdm_recv(td.rtnet_fd, &head, 0, 0); // clean up
-        tims_ctx_put(ctx);
-        return;
-    }
-
-    // receive complete message
-    ret = rtnet_recv_message(p_recv_mbx, &head);
-    if (ret)
-    {
-        tims_error("[RTnet]:%x -> %x, Can't receive message, code = %d) \n",
-                   head.src, head.dest, ret);
-    }
-
-    tims_ctx_put(ctx);
-    return;
-}
-
-#endif /* CONFIG_TIMS_USE_RTNET */
-
-// ****************************************************************************
-//
 //     pipe receive task and functions
 //
 //    -> kernel realtime task
@@ -3033,21 +2026,9 @@ static void rtnet_recv_callback(struct rtdm_dev_context *context, void* arg)
 
 static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
 {
+    int                           ret;
     timsMsgRouter_ConfigMsg*      configMsg;
-    unsigned int                  configSize;
-    unsigned int                  i;
-    timsMsgRouter_MbxRoute*       entry;
     timsMsgHead*                  p_head;
-
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    struct ifreq                  ifr[8];
-    struct ifconf                 ifc;
-    int                           ips;
-    int                           j;
-    int                           localIp;
-
-#endif  /* CONFIG_TIMS_USE_RTNET */
 
     configMsg = (timsMsgRouter_ConfigMsg *)P_MSGPTR(recvMsg);
     p_head    = &configMsg->head;
@@ -3059,83 +2040,19 @@ static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
         return -EINVAL;
     }
 
-    if (p_head->flags & MESSAGE_FLAG_BODY_ORDER_LE)
-        configMsg->num = __le32_to_cpu(configMsg->num);
-    else
-        configMsg->num = __be32_to_cpu(configMsg->num);
-
-    configSize = configMsg->num * sizeof(timsMsgRouter_MbxRoute);
-
-    if ((p_head->msglen - sizeof(timsMsgRouter_ConfigMsg)) < configSize )
+    if (RTNET_INITIALISED)
     {
-        tims_error("[PIPE]: Corrupt configuration msg in pipeFromClient, "
-                   "configSize too great\n");
-        return -EINVAL;
-    }
-
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    if (td.mbxRoute != NULL)
-    {
-        tims_error("[PIPE]: Duplicate configuration received.\n");
-        return -EINVAL;
-    }
-
-    ifc.ifc_len = sizeof(ifr);
-    ifc.ifc_req = ifr;
-    if (rtdm_ioctl(td.rtnet_fd, SIOCGIFCONF, &ifc) < 0)
-        ips = 0;
-    else
-        ips = ifc.ifc_len / sizeof(struct ifreq);
-
-    td.mbxRoute = kmalloc(configSize, GFP_KERNEL);
-    if (!td.mbxRoute)
-    {
-        tims_error("[PIPE]: Insufficient memory for configuration (%d bytes)\n",
-                   configSize);
-        return -ENOMEM;
-    }
-    set_bit(TIMS_INIT_BIT_RTNET_MBXROUTE, &td.init_flags);
-    tims_info("Buffer for struct maxRoute created\n");
-
-#endif  /* CONFIG_TIMS_USE_RTNET */
-
-    for (i = 0; i < configMsg->num; i++)
-    {
-        entry = &configMsg->mbx_route[i];
-
-#ifdef CONFIG_TIMS_USE_RTNET
-
-        if (p_head->flags & MESSAGE_FLAG_BODY_ORDER_LE)
+        ret = rtnet_read_config(configMsg);
+        if (ret)
         {
-            entry->mbx = __le32_to_cpu(entry->mbx);
-            entry->ip  = __le32_to_cpu(entry->ip);
-        }
-        else
-        {
-            entry->mbx = __be32_to_cpu(entry->mbx);
-            entry->ip  = __be32_to_cpu(entry->ip);
-        }
-
-        localIp = 0;
-        for (j = 0; j < ips; j++)
-        {
-            if (entry->ip ==
-                ((struct sockaddr_in*)&ifr[j].ifr_addr)->sin_addr.s_addr)
+            if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &td.init_flags))
             {
-                localIp = 1;
+                rtnet_cleanup();
+                tims_print("RTnet disabled\n");
             }
         }
-
-        if (!localIp)
-        {
-            memcpy(&td.mbxRoute[td.mbxRouteNum],
-                   &entry, sizeof(timsMsgRouter_MbxRoute));
-            td.mbxRouteNum++;
-        }
-
-#endif  /* CONFIG_TIMS_USE_RTNET */
-
+        set_bit(TIMS_STATE_BIT_RTNET_ENABLED, &td.state_flags);
+        tims_print("RTnet enabled\n");
     }
     return 0;
 }
@@ -3194,8 +2111,6 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
     return 0;
 }
 
-
-
 static void pipe_recv_proc(void *arg)
 {
     timsMsgHead*    p_head  = NULL;
@@ -3246,6 +2161,9 @@ static void pipe_recv_proc(void *arg)
         p_head = (timsMsgHead *)P_MSGPTR(recvMsg);
         tims_parse_head_byteorder(p_head);
 
+        tims_dbginfo("%x -> %x, recv message (%d bytes) over TCP/IP\n",
+                     p_head->src, p_head->dest, p_head->msglen);
+
         // message received -> we have to free it with rt_pipe_free()
 
         if (P_MSGSIZE(recvMsg) != p_head->msglen )
@@ -3257,9 +2175,9 @@ static void pipe_recv_proc(void *arg)
         }
 
         // check message type
-        if (p_head->dest == 0 && p_head->src == 0)
+        if (!p_head->dest && !p_head->src)
         {
-            switch(p_head->type)
+            switch (p_head->type)
             {
                 case TIMS_MSG_ROUTER_CONFIG:
                     pipe_receive_router_config(recvMsg);
@@ -3420,46 +2338,17 @@ static void tims_cleanup(void)
 {
     int     ret;
 
-#ifdef CONFIG_TIMS_USE_RTNET
-    void*     tmp;
-#endif // CONFIG_TIMS_USE_RTNET
-
     // set pipe_task terminate bit
     td.terminate = 1;
 
     // wake up pipe_task
 //TODO
 
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    if (test_and_clear_bit(TIMS_INIT_BIT_RTNET_SOCKET, &td.init_flags))
+    if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &td.init_flags))
     {
-        while (rtdm_close(td.rtnet_fd) == -EAGAIN)
-        {
-            tims_info("RTnet socket busy - waiting...\n");
-            set_current_state(TASK_INTERRUPTIBLE);
-            schedule_timeout(1*HZ); /* wait a second */
-        }
+        rtnet_cleanup();
+        tims_info("Pipe to client has been deleted\n");
     }
-
-    if (test_and_clear_bit(TIMS_INIT_BIT_RTNET_TDMA, &td.init_flags))
-    {
-        rtdm_close(td.tdma_disc);
-          tims_info("RTnet time service closed\n");
-    }
-
-    if (test_and_clear_bit(TIMS_INIT_BIT_RTNET_MBXROUTE, &td.init_flags))
-    {
-        tmp          = td.mbxRoute;
-        td.mbxRoute = NULL;
-        if (tmp != NULL)
-            kfree(tmp);
-
-        tims_info("Buffer for struct maxRoute deleted\n");
-    }
-
-
-#endif  // CONFIG_TIMS_USE_RTNET
 
     if (test_and_clear_bit(TIMS_INIT_BIT_PIPE_TO_CLIENT, &td.init_flags))
     {
@@ -3484,16 +2373,11 @@ static void tims_cleanup(void)
     {
         ret = rtdm_dev_unregister(&tims_rtdmdev, 50); // poll delay 50ms
         if (ret)
-        {
             tims_error("Can't unregister driver, code = %d \n", ret);
-        }
         else
-        {
             tims_info("Driver unregistered \n");
-        }
     }
 }
-
 
 
 static int tims_init(void)
@@ -3501,29 +2385,25 @@ static int tims_init(void)
     int ret;
     timsMsgHead getConfig;
 
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    struct sockaddr_in      bindAddr;
-    int                     nonblock = -1;
-    struct rtnet_callback   callback = {rtnet_recv_callback, NULL};
-
-    td.rtnet_fd    = -1;
-    td.mbxRoute    = NULL;
-    td.mbxRouteNum = 0;
-    td.tdma_disc   = 0;
-
-#endif // CONFIG_TIMS_USE_RTNET
-
     atomic_set(&td.taskCount,0);
     rtdm_lock_init(&td.ctx_lock);        // init context lock
     INIT_LIST_HEAD(&td.ctx_list);
 
-    // init context cache
+    // init rtnet
+    ret = rtnet_init();
+    if (!ret)
+    {
+        set_bit(TIMS_INIT_BIT_RTNET, &td.init_flags);
+        tims_print("RTnet initialised\n");
+    }
+    else
+        tims_print("Can't init RTnet, code = %d. Using TCP-Router\n", ret);
 
+    // init context cache
     tims_ctx_cache_init();
 
     //
-    // creating pipes
+    // creating pipes (for TCP/IP)
     //
 
     ret = rt_pipe_create(&td.pipeToClient, "timsPipeToClient",
@@ -3565,75 +2445,20 @@ static int tims_init(void)
     set_bit(TIMS_INIT_BIT_RECV_TASK, &td.init_flags);
 
     //
-    // init rtnet
+    // Request configuration (if RTnet is available)
     //
 
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    // create socket
-    td.rtnet_fd = rtdm_socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (td.rtnet_fd < 0)
+    if (RTNET_INITIALISED)
     {
-        tims_error("Unable to create RTnet socket.\n");
-        ret = td.rtnet_fd;
-        goto init_error;
-    }
-    tims_info("RTnet socket created \n");
-    set_bit(TIMS_INIT_BIT_RTNET_SOCKET, &td.init_flags);
+        tims_fillhead(&getConfig, TIMS_MSG_ROUTER_GET_CONFIG, 0, 0,
+                      0, 0, 0, TIMS_HEADLEN);
 
-
-    // bind to TIMS_MSG_ROUTER_PORT
-    bindAddr.sin_family      = AF_INET;
-    bindAddr.sin_port        = htons(TIMS_MSG_ROUTER_PORT);
-    bindAddr.sin_addr.s_addr = INADDR_ANY;
-    ret = rtdm_bind(td.rtnet_fd, (struct sockaddr *)&bindAddr, sizeof(bindAddr));
-    if (ret < 0)
-    {
-        tims_error("Unable to bind RTnet socket.\n");
-        goto init_error;
-    }
-    tims_info("RTnet socket has been bound \n");
-
-    // allocate additional buffers
-    ret = rtdm_ioctl(td.rtnet_fd, RTNET_RTIOC_EXTPOOL, &rtnet_buffers);
-    if (ret < 0)
-    {
-        tims_error("Unable to allocate additional RTnet buffers.\n");
-        goto init_error;
-    }
-    rtdm_ioctl(td.rtnet_fd, RTNET_RTIOC_TIMEOUT, &nonblock);
-    rtdm_ioctl(td.rtnet_fd, RTNET_RTIOC_CALLBACK, &callback);
-
-    // open time service
-    if ((td.tdma_disc = rtdm_open(TIME_REFERENCE_DEV, O_RDONLY)) < 0)
-    {
-        tims_error("Unable to initialise time service (RTmac/TDMA is missing)\n");
-        ret = -ENODEV;
-        goto init_error;
-    }
-    tims_info("RTnet socket created \n");
-    set_bit(TIMS_INIT_BIT_RTNET_TDMA, &td.init_flags);
-
-#endif // CONFIG_TIMS_USE_RTNET
-
-    //
-    // Request rtnet configuration
-    //
-
-    tims_fillhead(&getConfig, TIMS_MSG_ROUTER_GET_CONFIG, 0, 0,
-                  0, 0, 0, TIMS_HEADLEN);
-
-    ret = rt_pipe_write(&td.pipeToClient, &getConfig, TIMS_HEADLEN, P_NORMAL);
-    if (ret != TIMS_HEADLEN)
-    {
-
-#ifdef CONFIG_TIMS_USE_RTNET
-        tims_error("Can't request config file -> EXIT \n");
-        goto init_error;
-#else    // ! CONFIG_TIMS_USE_RTNET
-        tims_warn("Can't request config file -> use TCP-Router \n");
-#endif    // ! CONFIG_TIMS_USE_RTNET
-
+        ret = rt_pipe_write(&td.pipeToClient, &getConfig, TIMS_HEADLEN, P_NORMAL);
+        if (ret != TIMS_HEADLEN)
+        {
+            tims_error("Can't request config file\n");
+            goto init_error;
+        }
     }
 
     //
@@ -3657,7 +2482,6 @@ init_error:
 }
 
 
-
 int __init mod_start(void)
 {
     int ret;
@@ -3679,12 +2503,6 @@ int __init mod_start(void)
     rtdm_printk("TIMS: Max message size is %d kB \n", max_msg_size);
     rtdm_printk("TIMS: Max slots for sending over TCP/Pipe %d \n", max_msg_slots);
 
-#ifdef CONFIG_TIMS_USE_RTNET
-
-    rtdm_printk("TIMS: RTnet enabled\n");
-
-#endif // CONFIG_TIMS_USE_RTNET
-
     ret = tims_init();
     clear_bit(TIMS_STATE_BIT_STARTING, &td.state_flags);
     return ret;
@@ -3699,6 +2517,9 @@ void mod_exit(void)
     tims_cleanup();
 }
 
+MODULE_AUTHOR(DRIVER_AUTHOR);
+MODULE_DESCRIPTION(DRIVER_DESC);
+MODULE_LICENSE("GPL");
 
 module_init (mod_start);
 module_exit (mod_exit);

@@ -632,25 +632,6 @@ dnl ======================================================================
 dnl    project modules
 dnl ======================================================================
 
-dnl ======================================================================
-dnl  TiMS
-dnl ======================================================================
-
-AC_MSG_CHECKING([TiMS use RTnet])
-AC_ARG_ENABLE(tims-rtnet,
-    AS_HELP_STRING([--enable-tims-rtnet], [TiMS uses RTnet to send realtime messages]),
-    [case "$enableval" in
-        y | yes) CONFIG_TIMS_USE_RTNET=y ;;
-        *) CONFIG_TIMS_USE_RTNET=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_TIMS_USE_RTNET:-n}])
-
-AM_CONDITIONAL(CONFIG_TIMS_USE_RTNET,[test "$CONFIG_TIMS_USE_RTNET" = "y"])
-if test x"$CONFIG_TIMS_USE_RTNET" = x"y"; then
-    AC_DEFINE(CONFIG_TIMS_USE_RTNET,1,[TiMS uses RTnet to send realtime messages])
-    CONFIG_RACK_RTNET_SUPPORT=y
-fi
-
 dnl -----------------------------------------------------------------
 dnl  drivers - camera dcam
 dnl -----------------------------------------------------------------

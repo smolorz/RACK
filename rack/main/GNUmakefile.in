@@ -62,7 +62,7 @@ am__include_HEADERS_DIST = can_port.h jdatadstmem.h angle_tool.h \
 	argopts.h dxf_map.h image_tool.h pilot_tool.h rack_byteorder.h \
 	rack_defines.h rack_debug.h rack_mailbox.h rack_mutex.h \
 	rack_module.h rack_datamodule.h rack_name.h rack_proxy.h \
-	rack_time.h rack_task.h serial_port.h
+	rack_time.h rack_task.h rack_rtmac.h serial_port.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -168,8 +168,6 @@ CONFIG_RACK_SCAN_2D_SIM_TRUE = @CONFIG_RACK_SCAN_2D_SIM_TRUE@
 CONFIG_RACK_SCAN_2D_TRUE = @CONFIG_RACK_SCAN_2D_TRUE@
 CONFIG_RACK_XENOMAI_SUPPORT_FALSE = @CONFIG_RACK_XENOMAI_SUPPORT_FALSE@
 CONFIG_RACK_XENOMAI_SUPPORT_TRUE = @CONFIG_RACK_XENOMAI_SUPPORT_TRUE@
-CONFIG_TIMS_USE_RTNET_FALSE = @CONFIG_TIMS_USE_RTNET_FALSE@
-CONFIG_TIMS_USE_RTNET_TRUE = @CONFIG_TIMS_USE_RTNET_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CROSS_COMPILE = @CROSS_COMPILE@
@@ -323,6 +321,7 @@ include_HEADERS = \
 	rack_proxy.h \
 	rack_time.h \
 	rack_task.h \
+	rack_rtmac.h \
 	serial_port.h
 
 SUBDIRS = \

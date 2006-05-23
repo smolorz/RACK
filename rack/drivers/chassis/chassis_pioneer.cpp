@@ -688,7 +688,7 @@ int ChassisPioneer::moduleInit(void)
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
     // open serial port
-    ret = serialPort.open(serialDev, &pioneer_serial_config);
+    ret = serialPort.open(serialDev, &pioneer_serial_config, this);
     if (ret)
     {
         printf("Can't open serialDev %i\n", serialDev);

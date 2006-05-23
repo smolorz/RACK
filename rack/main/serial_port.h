@@ -17,6 +17,7 @@
 #define __SERIAL_PORT_H__
 
 #include <main/rack_time.h>
+#include <main/rack_module.h>
 #include <rtdm/rtserial.h>
 
 #define SERPORT_MCR_RTS   RTSER_MCR_RTS
@@ -32,13 +33,14 @@ class SerialPort
     protected:
 
         int fd;
+        Module *module;
 
     public:
 
         SerialPort();
         ~SerialPort();
 
-        int open(int dev, const rtser_config *config);
+        int open(int dev, const rtser_config *config, Module *module);
         int close(void);
 
         int setConfig(const rtser_config *config);

@@ -16,37 +16,119 @@
 #ifndef __RACK_TIME_H__
 #define __RACK_TIME_H__
 
-#define RACK_TIME_MAX 0x7fffffff
+#define RACK_TIME_MAX           0x7fffffff
+#define FACTOR                  1000000
+#define TIME_REFERENCE_DEV      "TDMA0"
 
+#include <main/rack_rtmac.h>
+#include <native/timer.h>
 #include <inttypes.h>
 
-#include <native/timer.h>
 
 // time in ms
 typedef uint32_t RACK_TIME;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+class RackTime {
+    private:
+        int32_t tdma_fd;
 
-static inline RACK_TIME ns_to_rack_time(uint64_t ntime) {
-  return (uint32_t)(ntime / 1000000) ;
-}
+    public:
+        int64_t offset;
+        char    global;
 
-static inline uint64_t rack_time_to_ns(RACK_TIME rtime) {
-  return (uint64_t)(rtime * 1000000) ;
-}
+        RackTime()
+        {
+            tdma_fd = -1;
+            global  = 0;
+            offset  = 0;
+        }
 
-static inline RACK_TIME get_rack_time(void) {
-  return (uint32_t)(rt_timer_read() / 1000000) ;
-}
+        ~RackTime()
+        {
+            cleanup();
+        }
 
-static inline uint64_t get_time_ns(void) {
-  return (uint64_t)(rt_timer_read()) ;
-}
+        void cleanup()
+        {
+            if (tdma_fd)
+                rt_dev_close(tdma_fd);
 
-#ifdef __cplusplus
-}
-#endif
+            tdma_fd = -1;
+            global = 0;
+        }
+
+        int init()
+        {
+            int ret;
+            int64_t offset;
+
+            tdma_fd = rt_dev_open(TIME_REFERENCE_DEV, O_RDONLY);
+            if (tdma_fd > -1)
+            {
+                global = 1;
+
+                ret = getOffset(&offset);
+                if (ret)
+                {
+                    cleanup();
+                    return ret;
+                }
+            }
+            return 0;
+        }
+
+
+        // if you get the time in ns (e.g. by a driver) there is not an offset added
+        RACK_TIME fromNano(uint64_t ntime)
+        {
+            int64_t offset = 0;
+
+            getOffset(&offset);
+            return (uint32_t)((ntime + offset) / FACTOR);
+        }
+
+        uint64_t toNano(RACK_TIME rtime)
+        {
+            return (uint64_t)(rtime * FACTOR) ;
+        }
+
+        RACK_TIME get(void)
+        {
+            int64_t offset;
+
+            getOffset(&offset);
+            return (uint32_t)((rt_timer_read() + offset) / FACTOR);
+        }
+
+        int getNano(uint64_t *time_ns)
+        {
+            int ret;
+            int64_t offset;
+
+            ret = getOffset(&offset);
+            if (ret)
+                return ret;
+
+            return rt_timer_read() + offset;
+        }
+
+        int getOffset(int64_t *offset)
+        {
+            int ret;
+
+            if (global)
+            {
+                ret = rt_dev_ioctl(tdma_fd, RTMAC_RTIOC_TIMEOFFSET, offset);
+                if (ret)
+                    return ret;
+            }
+            else
+            {
+                *offset = 0;
+            }
+
+            return 0;
+        }
+};
 
 #endif // __RACK_TIME_H__

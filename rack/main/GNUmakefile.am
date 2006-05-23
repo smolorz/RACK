@@ -30,6 +30,7 @@ include_HEADERS = \
 	rack_proxy.h \
 	rack_time.h \
 	rack_task.h \
+	rack_rtmac.h \
 	serial_port.h
 
 SUBDIRS = \

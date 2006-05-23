@@ -92,127 +92,69 @@ typedef struct {
     pthread_t           conThread;
     int                 watchdog;
     sem_t               sendSem;
-} CONNECTION;
+} connection_t;
 
 // if MAX_CONNECTIONS > 32 -> look @ sem_flags
 #define MAX_CONNECTIONS 8
-CONNECTION conList[MAX_CONNECTIONS];
+
+connection_t conList[MAX_CONNECTIONS];
 
 typedef struct {
-    int mbx;
-    int conIndex;
-} MBX_DATA;
+    int32_t mbx;
+    int32_t conIndex;
+} mbx_data_t;
 
 #define MAX_MBX 256
-MBX_DATA mbxList[MAX_MBX];
-int      mbxNum = 0;
-sem_t    mbxListSem;
+
+mbx_data_t mbxList[MAX_MBX];
+int        mbxNum = 0;
+sem_t      mbxListSem;
+
 
 //
-// mailbox functions
+// connection functions
 //
+void connection_close(connection_t *con)
+{
+    close(con->socket);
+    con->socket = -1;
+}
 
-// returns the connection index of the mbx, TIMS_MSG_ERROR if the mbx is unknown
-int getMbx(int mbx)
+connection_t* connection_getFree(connection_t* newCon)
 {
     int i;
-    sem_wait(&mbxListSem);
-    for (i = 0; i < mbxNum; i++)
+
+    for (i = 0; i < MAX_CONNECTIONS; i++)
     {
-        if (mbxList[i].mbx == mbx)
+        if (conList[i].socket == -1)    // free socket
         {
-            sem_post(&mbxListSem);
-            return mbxList[i].conIndex;
+            memcpy(&conList[i].addr, &newCon->addr, sizeof(newCon->addr));
+            conList[i].addrLen  = newCon->addrLen;
+            conList[i].socket   = newCon->socket;
+            conList[i].index    = i;
+            conList[i].watchdog = 0;
+            return &conList[i];
         }
     }
-    sem_post(&mbxListSem);
-    return TIMS_MSG_ERROR;
+    return NULL;
 }
 
-// adds the mbx to the mbx list, returns TIMS_MSG_ERROR if the mbx is allready known
-int initMbx(int mbx, int conIndex)
+void mailbox_delete_all(int conIndex);
+
+void connection_delete(connection_t* con)
 {
-    int i, j;
-    sem_wait(&mbxListSem);
+    mailbox_delete_all(con->index);
+    shutdown(con->socket, SHUT_RDWR);
+    connection_close(con);
 
-    if (mbxNum >= MAX_MBX)
-    {
-        sem_post(&mbxListSem);
-        return TIMS_MSG_ERROR;
-    }
-
-    // Find position i to insert the new mbx
-    for (i = 0; i < mbxNum; i++)
-    {
-        if (mbxList[i].mbx > mbx)
-        {
-            break;
-        }
-        else if(mbxList[i].mbx == mbx) // mbx is allready contained in the list
-        {
-            sem_post(&mbxListSem);
-            return TIMS_MSG_ERROR;
-        }
-    }
-
-    // move the rest of the list
-    for (j = mbxNum; j > i; j--)
-    {
-        mbxList[j].mbx      = mbxList[j-1].mbx;
-        mbxList[j].conIndex = mbxList[j-1].conIndex;
-    }
-
-    // add new mbx
-    mbxList[i].mbx      = mbx;
-    mbxList[i].conIndex = conIndex;
-    mbxNum++;
-
-    sem_post(&mbxListSem);
-    return TIMS_MSG_OK;
+    tims_dbgdetail("connection[%i] closed\n", con->index);
 }
-
-// remove the mbx from the mbx list
-void deleteMbx(int mbx)
-{
-    int i, j = 0;
-    sem_wait(&mbxListSem);
-    for (i = 0; i < mbxNum; i++)
-    {
-        if (mbxList[i].mbx != mbx)
-        {
-            mbxList[j].mbx      = mbxList[i].mbx;
-            mbxList[j].conIndex = mbxList[i].conIndex;
-            j++;
-        }
-    }
-    mbxNum = j;
-    sem_post(&mbxListSem);
-}
-
-// remove all mbxs with this connection index
-void deleteAllMbx(int conIndex)
-{
-    int i, j = 0;
-    sem_wait(&mbxListSem);
-    for(i = 0; i < mbxNum; i++)
-    {
-        if (mbxList[i].conIndex != conIndex)
-        {
-            mbxList[j].mbx      = mbxList[i].mbx;
-            mbxList[j].conIndex = mbxList[i].conIndex;
-            j++;
-        }
-    }
-    mbxNum = j;
-    sem_post(&mbxListSem);
-}
-
 
 //
 // TCP send / receive functions
 //
 
-int sndTcpTimsMsg(CONNECTION *con, timsMsgHead* sndMsg)
+int sndTcpTimsMsg(connection_t *con, timsMsgHead* sndMsg)
 {
     int idx = con->index;
     int ret;
@@ -225,9 +167,7 @@ int sndTcpTimsMsg(CONNECTION *con, timsMsgHead* sndMsg)
     ret = send(con->socket, sndMsg, sndMsg->msglen, 0);
     if ( ret == -1)
     {
-        close(con->socket);
-        con->socket = -1;
-
+        connection_close(con);
         sem_post(&con->sendSem);
         tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, (%u bytes), "
                    "send ERROR, code = %d\n", idx, inet_ntoa(con->addr.sin_addr),
@@ -239,7 +179,7 @@ int sndTcpTimsMsg(CONNECTION *con, timsMsgHead* sndMsg)
     return 0;
 }
 
-int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
+int recvTcpTimsMsg(connection_t *con, timsMsgHead* recvMsg)
 {
     int          ret, idx;
     unsigned int len = 0;
@@ -252,35 +192,30 @@ int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
         ret = recv(con->socket, (void*)recvMsg + len, TIMS_HEADLEN - len, 0);
         if (ret < 0)
         {
-            close(con->socket);
-            con->socket = -1;
+            connection_close(con);
             tims_print("con[%02d]: %15s: recv head ERROR, code = %d \n",
                        idx, inet_ntoa(con->addr.sin_addr), ret);
-            return -1;
+            return ret;
         }
 
-        if (ret == 0)
+        if (!ret)
         {
-            close(con->socket);
-            con->socket = -1;
+            connection_close(con);
             tims_print("con[%02d]: %15s: recv head ERROR, socket closed\n",
                        idx, inet_ntoa(con->addr.sin_addr));
             return -1;
         }
-
         len += ret;
 
         if (terminate)
-        {
             return -EINTR;
-        }
     }
+
     tims_parse_head_byteorder(recvMsg);
 
     if (recvMsg->msglen < TIMS_HEADLEN)
     {
-        close(con->socket);
-        con->socket = -1;
+        connection_close(con);
         tims_print("con[%02d]: %15s: recv ERROR, invalid message length: "
                    "%u is smaller than TIMS_HEADLEN\n", idx,
                    inet_ntoa(con->addr.sin_addr), recvMsg->msglen);
@@ -288,8 +223,7 @@ int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
     }
     else if (recvMsg->msglen > maxMsgSize)
     {
-        close(con->socket);
-        con->socket = -1;
+        connection_close(con);
         tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, recv ERROR, message "
                    "(%u bytes) is too big for buffer (%u bytes)\n", idx,
                    inet_ntoa(con->addr.sin_addr), recvMsg->src, recvMsg->type,
@@ -305,8 +239,7 @@ int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
                        recvMsg->msglen - len, 0);
             if (ret < 0)
             {
-                close(con->socket);
-                con->socket = -1;
+                connection_close(con);
                 tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, recv body "
                            "ERROR, code = %d \n", idx,
                            inet_ntoa(con->addr.sin_addr), recvMsg->src,
@@ -314,10 +247,9 @@ int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
                 return -1;
             }
 
-            if (ret == 0)
+            if (!ret)
             {
-                close(con->socket);
-                con->socket = -1;
+                connection_close(con);
                 tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, recv body "
                            "ERROR, socket closed\n", idx,
                            inet_ntoa(con->addr.sin_addr), recvMsg->src,
@@ -327,9 +259,7 @@ int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
             len += ret;
 
             if (terminate)
-            {
                 return -EINTR;
-            }
         }
 
         tims_dbgdetail("con[%02d]: %15s: %8x --(%4d)--> %8x, recv head (%u bytes), "
@@ -349,62 +279,258 @@ int recvTcpTimsMsg(CONNECTION *con, timsMsgHead* recvMsg)
 }
 
 //
+// mailbox functions
+//
+
+// returns the connection index of the mbx, -ENODEV if the mbx is unknown
+int mailbox_get(int mbx)
+{
+    int i;
+    sem_wait(&mbxListSem);
+    for (i = 0; i < mbxNum; i++)
+    {
+        if (mbxList[i].mbx == mbx)
+        {
+            sem_post(&mbxListSem);
+            return mbxList[i].conIndex;
+        }
+    }
+    sem_post(&mbxListSem);
+    return -ENODEV;
+}
+
+// adds the mbx to the mbx list, returns -EBUSY if the mbx is allready known
+int mailbox_create(int32_t mbx, int conIndex)
+{
+    int i, j;
+    sem_wait(&mbxListSem);
+
+    if (mbxNum >= MAX_MBX)
+    {
+        sem_post(&mbxListSem);
+        return -ENODEV;
+    }
+
+    // Find position i to insert the new mbx
+    for (i = 0; i < mbxNum; i++)
+    {
+        if (mbxList[i].mbx > mbx)
+        {
+            break;
+        }
+        else if (mbxList[i].mbx == mbx) // mbx is already contained in the list
+        {
+            sem_post(&mbxListSem);
+            return -EBUSY;
+        }
+    }
+
+    // move the rest of the list
+    for (j = mbxNum; j > i; j--)
+    {
+        mbxList[j].mbx      = mbxList[j-1].mbx;
+        mbxList[j].conIndex = mbxList[j-1].conIndex;
+    }
+
+    // add new mbx
+    mbxList[i].mbx      = mbx;
+    mbxList[i].conIndex = conIndex;
+    mbxNum++;
+
+    sem_post(&mbxListSem);
+    return 0;
+}
+
+// remove the mbx from the mbx list
+void mailbox_delete(int32_t mbx)
+{
+    int i, j = 0;
+    sem_wait(&mbxListSem);
+    for (i = 0; i < mbxNum; i++)
+    {
+        if (mbxList[i].mbx != mbx)
+        {
+            mbxList[j].mbx      = mbxList[i].mbx;
+            mbxList[j].conIndex = mbxList[i].conIndex;
+            j++;
+        }
+    }
+    mbxNum = j;
+    sem_post(&mbxListSem);
+}
+
+// remove all mbxs with this connection index
+void mailbox_delete_all(int conIndex)
+{
+    int i, j = 0;
+    sem_wait(&mbxListSem);
+    for (i = 0; i < mbxNum; i++)
+    {
+        if (mbxList[i].conIndex != conIndex)
+        {
+            mbxList[j].mbx      = mbxList[i].mbx;
+            mbxList[j].conIndex = mbxList[i].conIndex;
+            j++;
+        }
+    }
+    mbxNum = j;
+    sem_post(&mbxListSem);
+}
+
+int mailbox_init(connection_t *con, timsMsgHead* tcpMsg, timsMsgHead *replyMsg)
+{
+    int ret;
+    timsMsgRouter_MbxMsg* mbxMsg = NULL;
+
+    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
+    {
+        tims_print("con[%02d]: %s: init mailbox -> message "
+                   "length invalid, is: %u bytes, must be %u bytes\n",
+                   con->index, inet_ntoa(con->addr.sin_addr),
+                   tcpMsg->msglen, sizeof(timsMsgRouter_MbxMsg));
+        return -EFAULT;
+    }
+
+    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
+
+    ret = mailbox_create(mbxMsg->mbx, con->index);
+    if (ret)
+    {
+        tims_print("con[%02d] %s error: Can't init MBX %x, "
+                   "code = %d\n", con->index, inet_ntoa(con->addr.sin_addr),
+                   mbxMsg->mbx, ret);
+        if (replyMsg)
+        {
+            tims_fillhead(replyMsg, TIMS_MSG_ERROR, tcpMsg->src, tcpMsg->dest,
+                          tcpMsg->priority, tcpMsg->seq_nr, 0, TIMS_HEADLEN);
+        }
+    }
+    else
+    {
+        tims_print("con[%02d]: %s: init MBX %x\n", con->index,
+                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
+
+        if (replyMsg)
+        {
+            tims_fillhead(replyMsg, TIMS_MSG_OK, tcpMsg->src, tcpMsg->dest,
+                          tcpMsg->priority, tcpMsg->seq_nr, 0, TIMS_HEADLEN);
+        }
+
+//TODO: Register mailbox @ next level TCP Router
+
+    }
+
+    if (replyMsg)
+        sndTcpTimsMsg(con, replyMsg);
+
+    return 0;
+}
+
+void mailbox_cleanup(connection_t *con, timsMsgHead* tcpMsg,
+                     timsMsgHead *replyMsg)
+{
+    timsMsgRouter_MbxMsg* mbxMsg = NULL;
+
+    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
+    {
+        tims_print("con[%02d]: %s: delete mailbox -> message length invalid, "
+                   "is: %u bytes, must be %u bytes\n", con->index,
+                   inet_ntoa(con->addr.sin_addr), tcpMsg->msglen,
+                   sizeof(timsMsgRouter_MbxMsg));
+        return;
+    }
+
+    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
+
+    mailbox_delete(mbxMsg->mbx);
+
+    tims_print("con[%02d]: %s: delete MBX %x\n", con->index,
+               inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
+
+    if (replyMsg)
+    {
+        tims_fillhead(replyMsg, TIMS_MSG_OK, tcpMsg->src, tcpMsg->dest,
+                      tcpMsg->priority, tcpMsg->seq_nr, 0, TIMS_HEADLEN);
+
+        sndTcpTimsMsg(con, replyMsg);
+    }
+
+//TODO: delete mailbox @ next level TCP Router
+
+}
+
+void mailbox_purge(connection_t *con)
+{
+    tims_print("con[%02d]: %s: purge\n", con->index,
+               inet_ntoa(conList[con->index].addr.sin_addr));
+
+    mailbox_delete_all(con->index);
+
+//TODO: delete all mailboxes @ next level TCP Router
+
+}
+
+//
 // cleanup and signal_handler
 //
 
 void cleanup(void)
 {
-  int i;
+    int i;
 
-  tims_print("Terminate\n");
+    tims_print("Terminate\n");
 
-  terminate = 1;
+    terminate = 1;
 
-  // close connections
-  for(i = 0; i < MAX_CONNECTIONS; i++) {
-    if (conList[i].socket != -1) {
-      deleteAllMbx(i);
-      shutdown(conList[i].socket, SHUT_RDWR);
-      close(conList[i].socket);
-      conList[i].socket = -1;
-      tims_dbgdetail("close connection[%i]\n",i);
+    // close connection sockets
+    for (i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (conList[i].socket != -1)    // socket opened
+            connection_delete(&conList[i]);
     }
-  }
 
-  // join threads
-  for(i = 0; i < MAX_CONNECTIONS; i++) {
-    if (conList[i].index != -1) {
-      pthread_join(conList[i].conThread, NULL);
-      tims_dbgdetail("join watchdogThread\n");
+    // join watchdog thread
+    if (init_flags & TIMS_ROUTER_WATCHDOG)
+    {
+        pthread_join(watchdogThread, NULL);
+        tims_dbgdetail("watchdogThread joined\n");
+        init_flags &= ~TIMS_ROUTER_WATCHDOG;
     }
-  }
 
-  // destroy semaphore
-  for(i = 0; i < MAX_CONNECTIONS; i++) {
-    if (sem_flags & (1 << i) ) {
-      sem_destroy(&conList[i].sendSem);
-      tims_dbgdetail("destroy sendSem[%i]\n",i);
-      sem_flags &= ~(1 << i);
+    // join connection threads
+    for (i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (conList[i].index != -1)
+        {
+            pthread_join(conList[i].conThread, NULL);
+            tims_dbgdetail("connection thead[%d] joined\n", conList[i].index);
+        }
     }
-  }
 
-  if (init_flags & TIMS_ROUTER_WATCHDOG) {
-    pthread_join(watchdogThread, NULL);
-    tims_dbgdetail("join watchdogThread\n");
-    init_flags &= ~TIMS_ROUTER_WATCHDOG;
-  }
+    // destroy send semaphore
+    for (i = 0; i < MAX_CONNECTIONS; i++)
+    {
+        if (sem_flags & (1 << i) )
+        {
+            sem_destroy(&conList[i].sendSem);
+            tims_dbgdetail("sendSem[%i] destroyed\n",i);
+            sem_flags &= ~(1 << i);
+        }
+    }
 
-  if (init_flags & TIMS_ROUTER_SEM_LIST) {
-    sem_destroy(&mbxListSem);
-    tims_dbgdetail("destroy mbxListSem\n");
-    init_flags &= ~TIMS_ROUTER_SEM_LIST;
-  }
+    if (init_flags & TIMS_ROUTER_SEM_LIST)
+    {
+        sem_destroy(&mbxListSem);
+        tims_dbgdetail("mbxListSem destroyed \n");
+        init_flags &= ~TIMS_ROUTER_SEM_LIST;
+    }
 
-  if (tcpServerSocket != -1 ){
-    close(tcpServerSocket);
-    tcpServerSocket = -1;
-    tims_dbgdetail("close tcpServerSocket\n");
-  }
+    if (tcpServerSocket != -1 )
+    {
+        close(tcpServerSocket);
+        tcpServerSocket = -1;
+        tims_dbgdetail("tcpServerSocket closed\n");
+    }
 }
 
 void signal_handler(int arg)
@@ -416,15 +542,14 @@ void signal_handler(int arg)
 // tasks
 //
 
-// the tcpConnectionTask handles the connection to one client
-void tcpConnectionTask(void *arg)
+// the tcpConnection_task_proc handles the connection to one client
+void tcpConnection_task_proc(void *arg)
 {
-    timsMsgHead           replyMsg;
     timsMsgHead*          tcpMsg;
-    CONNECTION*           con = (CONNECTION*)arg;
+    connection_t*         con = (connection_t*)arg;
+    timsMsgHead           replyMsg;
     int                   forwardConIndex;
     int                   ret, idx;
-    timsMsgRouter_MbxMsg* mbxMsg = NULL;
 
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
@@ -434,37 +559,32 @@ void tcpConnectionTask(void *arg)
     idx = con->index;
 
     tims_dbg("con[%02d]: %s: starting TCP/IP connection task\n",
-             idx,inet_ntoa(con->addr.sin_addr));
+             idx, inet_ntoa(con->addr.sin_addr));
 
     tcpMsg = malloc(maxMsgSize);
     if (!tcpMsg)
     {
         tims_print("con[%02d] %s error: Can't allocate memory for tcpTimsMsg\n",
                    idx, inet_ntoa(con->addr.sin_addr));
-        close(con->socket);
-        con->socket = -1;
+        connection_close(con);
         return;
     }
 
     while (!terminate)
     {
-        if (con->socket < 0)
-        {
+        if (con->socket < 0)    // invalid socket
             break;
-        }
 
-        ret = recvTcpTimsMsg(con, tcpMsg);
+        ret = recvTcpTimsMsg(con, tcpMsg); // waiting for new command
         if (ret < 0)
-        {
             break;
-        }
 
-        if ( !tcpMsg->dest && !tcpMsg->src )
+        if ( !tcpMsg->dest &&
+             !tcpMsg->src )  // handle TiMS command (internal)
         {
-            // handle internal tims message router communication
             switch (tcpMsg->type)
             {
-                case TIMS_MSG_OK:
+                case TIMS_MSG_OK:        // watchdog lifesign reply
                     con->watchdog = 0;
                     break;
 
@@ -472,131 +592,27 @@ void tcpConnectionTask(void *arg)
                     break;
 
                 case TIMS_MSG_ROUTER_MBX_INIT:
-
-                    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
-                    {
-                        tims_print("con[%02d]: %s: init MBX %x -> message "
-                                   "length invalid, is: %u bytes, "
-                                   "must be %u bytes\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx,
-                                   tcpMsg->msglen, sizeof(timsMsgRouter_MbxMsg));
-                        break;
-                    }
-
-                    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
-
-                    if (initMbx(mbxMsg->mbx, con->index) == TIMS_MSG_OK)
-                    {
-                        tims_print("con[%02d]: %s: init MBX %x\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
-
-//TODO: Send Message to higher level TCP Router
-
-                    }
-                    else
-                    {
-                        tims_print("con[%02d] %s error: Can't init MBX %x\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
-                    }
+                    mailbox_init(con, tcpMsg, NULL);
                     break;
 
                 case TIMS_MSG_ROUTER_MBX_DELETE:
-
-                    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
-                    {
-                        tims_print("con[%02d]: %s: init MBX %x -> message "
-                                   "length invalid, is: %u bytes, "
-                                   "must be %u bytes\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx,
-                                   tcpMsg->msglen, sizeof(timsMsgRouter_MbxMsg));
-                        break;
-                    }
-
-                    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
-                    tims_print("con[%02d]: %s: delete MBX %x\n", idx,
-                               inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
-                    deleteMbx(mbxMsg->mbx);
-
-//TODO: Send Message to higher level TCP Router
-
+                    mailbox_cleanup(con, tcpMsg, NULL);
                     break;
 
                 case TIMS_MSG_ROUTER_MBX_INIT_WITH_REPLY:
-
-                    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
-                    {
-                        tims_print("con[%02d]: %s: init MBX %x -> "
-                                   "message length invalid, "
-                                   "is: %u bytes, must be %u bytes\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx,
-                                   tcpMsg->msglen, sizeof(timsMsgRouter_MbxMsg));
-                        break;
-                    }
-
-                    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
-
-                    if (initMbx(mbxMsg->mbx, con->index) == TIMS_MSG_OK)
-                    {
-                        tims_print("con[%02d]: %s: init MBX %x\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
-
-                        tims_fillhead(&replyMsg, TIMS_MSG_OK, tcpMsg->src,
-                                      tcpMsg->dest, tcpMsg->priority,
-                                      tcpMsg->seq_nr, 0, TIMS_HEADLEN);
-                    }
-                    else
-                    {
-                        tims_print("con[%02d] %s: error: can't init MBX %x\n",
-                                   idx, inet_ntoa(con->addr.sin_addr),
-                                   mbxMsg->mbx);
-
-                        tims_fillhead(&replyMsg, TIMS_MSG_ERROR, tcpMsg->src,
-                                      tcpMsg->dest, tcpMsg->priority,
-                                      tcpMsg->seq_nr, 0, TIMS_HEADLEN);
-                    }
-
-//TODO: Send Message to higher level TCP Router
-
-                    sndTcpTimsMsg(con, &replyMsg);
+                    mailbox_init(con, tcpMsg, &replyMsg);
                     break;
 
                 case TIMS_MSG_ROUTER_MBX_DELETE_WITH_REPLY:
-
-                    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
-                    {
-                        tims_print("con[%02d]: %s: init MBX %x -> "
-                                   "message length invalid, "
-                                   "is: %u bytes, must be %u bytes\n", idx,
-                                   inet_ntoa(con->addr.sin_addr), mbxMsg->mbx,
-                                   tcpMsg->msglen, sizeof(timsMsgRouter_MbxMsg));
-                        break;
-                    }
-
-                    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
-
-                    tims_print("con[%02d]: %s: delete MBX %x\n", idx,
-                               inet_ntoa(con->addr.sin_addr), mbxMsg->mbx);
-
-                    deleteMbx(mbxMsg->mbx);
-
-                    tims_fillhead(&replyMsg, TIMS_MSG_OK, tcpMsg->src,
-                                  tcpMsg->dest, tcpMsg->priority, tcpMsg->seq_nr,
-                                  0, TIMS_HEADLEN);
-
-                    sndTcpTimsMsg(con, &replyMsg);
+                    mailbox_cleanup(con, tcpMsg, &replyMsg);
                     break;
 
                 case TIMS_MSG_ROUTER_MBX_PURGE:
-                    tims_print("con[%02d]: %s: purge\n", idx,
-                               inet_ntoa(conList[idx].addr.sin_addr));
-                    deleteAllMbx(con->index);
-
-//TODO: Send Message to higher level TCP Router
-
+                    mailbox_purge(con);
                     break;
 
                 default:
-                    tims_print("con[%02d]: %s: received unexpected Tims "
+                    tims_print("con[%02d]: %s: received unexpected TiMS "
                                "Message %x -> %x type %i msglen %i\n", idx,
                                inet_ntoa(con->addr.sin_addr), tcpMsg->src,
                                tcpMsg->dest, tcpMsg->type, tcpMsg->msglen);
@@ -604,10 +620,11 @@ void tcpConnectionTask(void *arg)
         }
         else // ( tcpMsg->dest || tcpMsg->src )
         {
-            // forward tims message
-            forwardConIndex = getMbx(tcpMsg->dest);
 
-            if (forwardConIndex != TIMS_MSG_ERROR) // mbx is available
+            // forward tims message
+            forwardConIndex = mailbox_get(tcpMsg->dest);
+
+            if (forwardConIndex >= 0) // mbx is available
             {
                 sndTcpTimsMsg(&conList[forwardConIndex], tcpMsg);
             }
@@ -622,16 +639,13 @@ void tcpConnectionTask(void *arg)
                 }
             }
         }
-    } // while (!terminate)
+    }
 
     tims_print("con[%02d]: %s: logout\n", idx, inet_ntoa(con->addr.sin_addr));
-    deleteAllMbx(con->index);
+    mailbox_delete_all(con->index);
 
     if (con->socket != -1)
-    {
-        close(con->socket);
-        con->socket = -1;
-    }
+        connection_close(con);
 
     if (tcpMsg)
     {
@@ -645,30 +659,14 @@ void tcpConnectionTask(void *arg)
     return;
 }
 
-// The tcpServerTask handles new incomming connections and creates new tcpConnectionTasks
-void tcpServerTask(void)
+// The tcpServerTask handles new incomming connections and creates new
+// tcpConnectionTasks
+void tcpServer_task_proc(void *arg)
 {
-    CONNECTION newCon;
-    int index;
+    connection_t newCon;
+    connection_t *freeCon;
     int i;
     int ret;
-
-    tcpServerSocket = socket(PF_INET, SOCK_STREAM, 0);
-    if (tcpServerSocket < 0)
-    {
-        tims_print("ERROR: Can't create tcpServerSocket (%i)\n",
-                   tcpServerSocket);
-        return;
-    }
-
-    ret = bind(tcpServerSocket, (struct sockaddr *)&tcpServerAddr,
-               sizeof(tcpServerAddr));
-    if (ret)
-    {
-        tims_print("ERROR: Can't bind tcpServerSocket ip %s\n",
-                   inet_ntoa(tcpServerAddr.sin_addr));
-        return;
-    }
 
     ret = listen(tcpServerSocket, 1);
     if (ret)
@@ -691,89 +689,76 @@ void tcpServerTask(void)
             return;
         }
 
-        index = -1;
-        for(i = 0; i < MAX_CONNECTIONS; i++)
-        {
-            if (conList[i].socket == -1)
-            {
-                memcpy(&conList[i].addr, &newCon.addr, sizeof(newCon.addr));
-                conList[i].addrLen  = newCon.addrLen;
-                conList[i].socket   = newCon.socket;
-                conList[i].index    = i;
-                conList[i].watchdog = 0;
-                index = i;
-                break;
-            }
-        }
-
-        if (index != -1)
-        {
-            tims_print("con[%02d]: %s: login\n", index,
-                       inet_ntoa(conList[i].addr.sin_addr));
-
-            ret = pthread_create(&conList[index].conThread, NULL,
-                                 (void *)tcpConnectionTask, &conList[index]);
-            if(ret)
-            {
-                tims_print("error: Can't create thread for TCP/IP connection\n");
-                close(conList[index].socket);
-                conList[index].socket = -1;
-            }
-        }
-        else
+        freeCon = connection_getFree(&newCon);
+        if (!freeCon)
         {
             tims_print("ERROR: Can't accept more than %i connections "
                        "(ip %s connection refused)\n",
                        MAX_CONNECTIONS, inet_ntoa(newCon.addr.sin_addr));
-            close(newCon.socket);
+            connection_close(&newCon);
         }
+        else
+        {
+            i = freeCon->index;
+            tims_print("con[%02d]: %s: login\n", i,
+                       inet_ntoa(conList[i].addr.sin_addr));
 
-    } // while(!terminate)
+            // create connection thread
+            ret = pthread_create(&conList[i].conThread, NULL,
+                                 (void *)tcpConnection_task_proc,
+                                 &conList[i]);
+            if (ret)
+            {
+                tims_print("error: Can't create thread for TCP/IP connection\n");
+                connection_close(&conList[i]);
+            }
+        }
+    }
 
-    tims_dbg("exit server task\n");
+    tims_dbg("server task: exit\n");
 }
 
-// the watchdogTask sends a lifesign to every connected client,
-// clients that don't respond will be disconnected
-void watchdogTask(void *arg)
+// The watchdogTask sends a lifesign to every connected client.
+// Clients that don't respond will be disconnected
+void watchdog_task_proc(void *arg)
 {
-  timsMsgHead lifesignMsg;
-  int i;
+    timsMsgHead lifesignMsg;
+    int i;
 
-  signal(SIGHUP,  signal_handler);
-  signal(SIGINT,  signal_handler);
-  signal(SIGTERM, signal_handler);
-  signal(SIGPIPE, signal_handler);
+    signal(SIGHUP,  signal_handler);
+    signal(SIGINT,  signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGPIPE, signal_handler);
 
-  tims_dbg("watchdog task started\n");
+    tims_dbg("watchdog task: start\n");
 
-  tims_fillhead(&lifesignMsg, TIMS_MSG_ROUTER_GET_STATUS, 0, 0, 0, 0, 0, TIMS_HEADLEN);
+    tims_fillhead(&lifesignMsg, TIMS_MSG_ROUTER_GET_STATUS, 0, 0, 0, 0, 0,
+                  TIMS_HEADLEN);
 
-  while (!terminate) {
+    while (!terminate)
+    {
+        for (i = 0; i < MAX_CONNECTIONS; i++)
+        {
+            if (conList[i].socket >= 0)
+            {
+                conList[i].watchdog = 1;
+                sndTcpTimsMsg(&conList[i], &lifesignMsg);
+            }
+        }
+        tims_print("watchdog wait ...\n");
+        sleep(5);
 
-    for (i = 0; i < MAX_CONNECTIONS; i++) {
-      if (conList[i].socket >= 0) {
-          conList[i].watchdog = 1;
-          sndTcpTimsMsg(&conList[i], &lifesignMsg);
-      }
+        for (i = 0; i < MAX_CONNECTIONS; i++)
+        {
+            if ((conList[i].socket >= 0) &&
+                (conList[i].watchdog == 1))
+            {
+                connection_delete(&conList[i]);
+                tims_print("con[%02d]: Connection closed by watchdog\n", i);
+            }
+        }
     }
-
-    sleep(5);
-
-    for(i = 0; i < MAX_CONNECTIONS; i++) {
-      if ((conList[i].socket >= 0) &&
-          (conList[i].watchdog == 1)) {
-        deleteAllMbx(i);
-        shutdown(conList[i].socket, SHUT_RDWR);
-        close(conList[i].socket);
-        conList[i].socket = -1;
-        conList[i].index  = -1;
-        tims_print("con[%02d]: Connection closed by watchdog\n", i);
-      }
-    }
-  }
-
-  tims_dbg("exit watchdog task\n");
+    tims_dbg("watchdog task: exit\n");
 }
 
 
@@ -789,6 +774,7 @@ int init()
     init_flags = 0;
     sem_flags  = 0;
 
+    // init all connections
     for (i = 0; i < MAX_CONNECTIONS; i++)
     {
         if (sem_init(&conList[i].sendSem, 0, 1) < 0)
@@ -799,8 +785,10 @@ int init()
         conList[i].socket = -1;
         conList[i].index  = -1;
         sem_flags |= ( 1 << i);
+        tims_dbgdetail("sendSem[%i] created\n",i);
     }
 
+    // init mailbox list semaphore
     if (sem_init(&mbxListSem, 0, 1) < 0)
     {
         tims_print("error: Can't create mbxListSem\n");
@@ -808,12 +796,32 @@ int init()
     }
     init_flags |= TIMS_ROUTER_SEM_LIST;
 
-    if (pthread_create(&watchdogThread, NULL, (void *)watchdogTask, NULL))
+    // init watchdog task
+    if (pthread_create(&watchdogThread, NULL, (void *)watchdog_task_proc, NULL))
     {
         tims_print("error: Can't create watchdog thread\n");
         goto init_error;
     }
     init_flags |= TIMS_ROUTER_WATCHDOG;
+
+    // open server socket
+    tcpServerSocket = socket(PF_INET, SOCK_STREAM, 0);
+    if (tcpServerSocket < 0)
+    {
+        tims_print("ERROR: Can't create tcpServerSocket, code = %d\n",
+                   tcpServerSocket);
+        ret = tcpServerSocket;
+        goto init_error;
+    }
+
+    ret = bind(tcpServerSocket, (struct sockaddr *)&tcpServerAddr,
+               sizeof(tcpServerAddr));
+    if (ret)
+    {
+        tims_print("ERROR: Can't bind tcpServerSocket ip %s\n",
+                   inet_ntoa(tcpServerAddr.sin_addr));
+        goto init_error;
+    }
 
     return 0;
 
@@ -830,12 +838,12 @@ int main(int argc, char* argv[])
     // read parameter
     strncpy(ip, "\"any\"", 16);
     tcpServerAddr.sin_addr.s_addr = INADDR_ANY;
-    port       = DEFAULT_PORT;
+    port = DEFAULT_PORT;
     maxMsgSize = DEFAULT_MAX * 1024;
 
     while ((opt = getopt(argc, argv, "i:p:m:h:l:")) != -1)
     {
-        switch(opt)
+        switch (opt)
         {
             case 'l':
                 sscanf(optarg, "%i", &loglevel);
@@ -890,7 +898,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    tcpServerAddr.sin_port   = htons((unsigned short)port);
+    tcpServerAddr.sin_port = htons((unsigned short)port);
     tcpServerAddr.sin_family = AF_INET;
     bzero(&(tcpServerAddr.sin_zero), 8);
 
@@ -902,13 +910,11 @@ int main(int argc, char* argv[])
 
     ret = init();
     if (ret)
-    {
         return ret;
-    }
 
     tims_print("TCP Tims Message Router IP %s port %i\n", ip, port);
 
-    tcpServerTask();
+    tcpServer_task_proc(&tcpServerSocket);
 
     cleanup();
     return 0;

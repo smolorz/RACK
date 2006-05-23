@@ -37,7 +37,7 @@ CanPort::~CanPort()
 // PortFunctions
 //
 
-int CanPort::open(int dev, sockaddr_can* scan, int scan_size)
+int CanPort::open(int dev, sockaddr_can* scan, int scan_size, Module *module)
 {
     int             ret;
     struct ifreq    ifr;
@@ -72,6 +72,7 @@ int CanPort::open(int dev, sockaddr_can* scan, int scan_size)
         goto exit_error;
     }
 
+    this->module = module;
     return 0;
 
 exit_error:
@@ -132,9 +133,10 @@ int CanPort::send(rtcan_frame_t* frame)
     return 0;
 }
 
-int CanPort::recv(rtcan_frame_t *recv_frame, uint64_t *timestamp)
+int CanPort::recv(rtcan_frame_t *recv_frame, RACK_TIME *timestamp)
 {
     int ret;
+    uint64_t timestamp_ns = 0;
 
     struct iovec  iov =
     {
@@ -150,7 +152,7 @@ int CanPort::recv(rtcan_frame_t *recv_frame, uint64_t *timestamp)
         msg_iov        : &iov,
         msg_iovlen     : 1,
 
-        msg_control    : (void *)timestamp,
+        msg_control    : (void *)timestamp_ns,
         msg_controllen : timestamp ? sizeof(uint64_t) : 0
     };
 
@@ -159,5 +161,6 @@ int CanPort::recv(rtcan_frame_t *recv_frame, uint64_t *timestamp)
     {
         return ret;
     }
+    *timestamp = module->rackTime.fromNano(timestamp_ns);
     return 0;
 }

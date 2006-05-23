@@ -17,6 +17,7 @@
 #define __CAN_PORT_H__
 
 #include <main/rack_time.h>
+#include <main/rack_module.h>
 #include <rtcan.h>
 
 /* Create a sockaddr_can with specific filterlen
@@ -40,13 +41,14 @@ class CanPort
     protected:
 
         int fd;
+        Module *module;
 
     public:
 
         CanPort();
         ~CanPort();
 
-        int open(int dev, sockaddr_can* scan, int scan_size);
+        int open(int dev, sockaddr_can* scan, int scan_size, Module *module);
         int close(void);
 
         int setTxTimeout(int64_t timeout);
@@ -54,7 +56,7 @@ class CanPort
         int getTimestamps();
 
         int send(rtcan_frame_t* frame);
-        int recv(rtcan_frame_t *recv_frame, uint64_t *timestamp);
+        int recv(rtcan_frame_t *recv_frame, RACK_TIME *timestamp);
 
 };
 

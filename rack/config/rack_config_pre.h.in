@@ -95,9 +95,6 @@
 
 #ifdef __IN_RACK__
 
-/* TiMS uses RTnet to send realtime messages */
-#undef CONFIG_TIMS_USE_RTNET
-
 /* We build for Xenomai 2.1 or newer */
 #undef CONFIG_XENO_21X
 

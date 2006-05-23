@@ -370,7 +370,7 @@ int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* pa
 int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, void* parameter, RACK_TIME* recordingtime)
 {
     rtcan_frame_t canReceive;
-    uint64_t    timestamp = 0;
+    RACK_TIME timestamp = 0;
     int parameterLen;
     int sequenceFlag;
     int packageId;
@@ -761,7 +761,7 @@ int LadarIbeo::moduleInit(void)
     };
 
     // Open can port
-    ret = canPort.open(canDev, (sockaddr_can *)&cscan, sizeof(cscan));
+    ret = canPort.open(canDev, (sockaddr_can *)&cscan, sizeof(cscan), this);
     if (ret)
     {
         GDOS_ERROR("Can't open can port, code = %d\n", ret);

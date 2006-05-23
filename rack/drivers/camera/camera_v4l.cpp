@@ -283,7 +283,7 @@ int CameraV4L::moduleLoop(void)
     // get datapointer from databuffer
     p_data = (camera_data_msg *)getDataBufferWorkSpace();
 
-    p_data->data.recordingTime  = get_rack_time();
+    p_data->data.recordingTime  = rackTime.get();
     p_data->data.width          = camera.vid_window.width;
     p_data->data.height         = camera.vid_window.height;
     p_data->data.depth          = camera.vid_picture.depth;

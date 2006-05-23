@@ -8,6 +8,9 @@ libtims_a_CPPFLAGS = \
 	@RACK_KMOD_CFLAGS@
 
 libtims_a_SOURCES = \
+	tims_copy.c \
+	tims_rtnet.c \
+	tims_debug.c \
 	tims_driver.c
 
 OBJS = tims$(modext)

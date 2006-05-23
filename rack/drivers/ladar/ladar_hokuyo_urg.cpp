@@ -200,7 +200,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
         j += 2;
     }
 
-    p_data->recordingTime = get_rack_time();
+    p_data->recordingTime = rackTime.get();
 
     datalength = sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum; // points
 
@@ -242,7 +242,7 @@ int  LadarHokuyoUrg::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    ret = serialPort.open(serialDev, &urg_serial_config);
+    ret = serialPort.open(serialDev, &urg_serial_config, this);
     if (ret)
     {
         GDOS_ERROR("Can't open serialDev %i, code=%d\n", serialDev, ret);

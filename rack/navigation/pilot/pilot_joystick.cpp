@@ -310,7 +310,7 @@ int  PilotJoystick::moduleLoop(void)
     // get datapointer from rackdatabuffer
     pilotData = (pilot_data *)getDataBufferWorkSpace();
 
-    pilotData->recordingTime = get_rack_time();
+    pilotData->recordingTime = rackTime.get();
     memset(&(pilotData->pos), 0, sizeof(pilotData->pos));
     pilotData->speed     = speed;
     pilotData->curve     = curve;
@@ -318,7 +318,7 @@ int  PilotJoystick::moduleLoop(void)
 
     putDataBufferWorkSpace(sizeof(pilot_data));
 
-    RackTask::sleep(rack_time_to_ns(getDataBufferPeriodTime(0)));
+    RackTask::sleep(rackTime.toNano(getDataBufferPeriodTime(0)));
 
     return 0;
 }

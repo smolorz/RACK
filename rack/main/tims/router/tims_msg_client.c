@@ -93,7 +93,6 @@ static int                pipeTimsToClientFd  = -1;
 static int                pipeClientToTimsFd  = -1;
 static sem_t              pipeSendSem;
 
-#define                   MAX_CONFIG_NUM 512
 static timsMsgRouter_ConfigMsg* configMsg = NULL;
 
 static pthread_t          watchdogThread;
@@ -104,14 +103,10 @@ static timsMsgHead*       tcpRecvMsg;
 static timsMsgHead*       pipeRecvMsg;
 
 static int                loglevel = 0;
+static char               filename[80];
 
-
-void cleanup(void)
+void cleanup_tcpRecv_task()
 {
-    terminate = 1;
-
-    tims_dbg("[CLEANUP] Terminate\n");
-
     if (init_flags & TIMS_CLIENT_TCP_CONNECT)
     {
         close(tcpSocket);
@@ -120,27 +115,65 @@ void cleanup(void)
         init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
     }
 
-    if (init_flags & TIMS_CLIENT_PIPE_RECV_MSG)
+    if (init_flags & TIMS_CLIENT_SEM_TCP_SEND)
     {
-        free(pipeRecvMsg);
-        pipeRecvMsg = NULL;
-        tims_dbgdetail("[CLEANUP] free pipe receive buffer\n");
-        init_flags &= ~TIMS_CLIENT_PIPE_RECV_MSG;
+        sem_destroy(&tcpSendSem);
+        tims_dbgdetail("[CLEANUP] tcpSendSem destroyed\n");
+        init_flags &= ~TIMS_CLIENT_SEM_TCP_SEND;
     }
 
     if (init_flags & TIMS_CLIENT_THREAD_TCPRECV)
     {
         pthread_join(tcpRecvThread, NULL);
-        tims_dbgdetail("[CLEANUP] join tcpRecvThread\n");
+        tims_dbgdetail("[CLEANUP] tcpRecvThread joined\n");
         init_flags &= ~TIMS_CLIENT_THREAD_TCPRECV;
+    }
+}
+
+void cleanup_pipeRecv_task()
+{
+    if (init_flags & TIMS_CLIENT_SEM_PIPE_SEND)
+    {
+        sem_destroy(&pipeSendSem);
+        tims_dbgdetail("[CLEANUP] pipeSendSem destroyed\n");
+        init_flags &= ~TIMS_CLIENT_SEM_PIPE_SEND;
+    }
+
+    if (init_flags & TIMS_CLIENT_TCP_RECV_MSG)
+    {
+        free(tcpRecvMsg);
+        tcpRecvMsg = NULL;
+        tims_dbgdetail("[CLEANUP] tcp receive buffer has been given free\n");
+        init_flags &= ~TIMS_CLIENT_TCP_RECV_MSG;
+    }
+}
+
+void cleanup_watchdog_task()
+{
+    if (init_flags & TIMS_CLIENT_SEM_WATCHDOG)
+    {
+        sem_destroy(&watchdogSem);
+        tims_dbgdetail("[CLEANUP] watchdogSem destroyed\n");
+        init_flags &= ~TIMS_CLIENT_SEM_WATCHDOG;
     }
 
     if (init_flags & TIMS_CLIENT_THREAD_WATCHDOG)
     {
         pthread_join(watchdogThread, NULL);
-        tims_dbgdetail("[CLEANUP] join watchdogThread\n");
+        tims_dbgdetail("[CLEANUP] watchdogThread joined\n");
         init_flags &= ~TIMS_CLIENT_THREAD_WATCHDOG;
     }
+}
+
+void cleanup(void)
+{
+    terminate = 1;
+
+    tims_dbg("[CLEANUP] setting terminate bit\n");
+
+    cleanup_watchdog_task();
+    cleanup_tcpRecv_task();
+    cleanup_pipeRecv_task();
 
     if (init_flags & TIMS_CLIENT_PIPE_CLIENT_TIMS)
     {
@@ -158,61 +191,30 @@ void cleanup(void)
         init_flags &= ~TIMS_CLIENT_PIPE_TIMS_CLIENT;
     }
 
-    if (init_flags & TIMS_CLIENT_SEM_WATCHDOG)
-    {
-        sem_destroy(&watchdogSem);
-        tims_dbgdetail("[CLEANUP] destroy watchdogSem\n");
-        init_flags &= ~TIMS_CLIENT_SEM_WATCHDOG;
-    }
-
-    if (init_flags & TIMS_CLIENT_SEM_PIPE_SEND)
-    {
-        sem_destroy(&pipeSendSem);
-        tims_dbgdetail("[CLEANUP] destroy pipeSendSem\n");
-        init_flags &= ~TIMS_CLIENT_SEM_PIPE_SEND;
-    }
-
-    if (init_flags & TIMS_CLIENT_SEM_TCP_SEND)
-    {
-        sem_destroy(&tcpSendSem);
-        tims_dbgdetail("[CLEANUP] destroy tcpSendSem\n");
-        init_flags &= ~TIMS_CLIENT_SEM_TCP_SEND;
-    }
-
     if (init_flags & TIMS_CLIENT_CONFIG_MSG)
     {
         free(configMsg);
         configMsg = NULL;
-        tims_dbgdetail("[CLEANUP] free config message buffer\n");
+        tims_dbgdetail("[CLEANUP] config message buffer has been given free\n");
         init_flags &= ~TIMS_CLIENT_CONFIG_MSG;
     }
 
-    if (init_flags & TIMS_CLIENT_TCP_RECV_MSG)
-    {
-        if (tcpRecvMsg)
-        {
-            free(tcpRecvMsg);
-            tcpRecvMsg = NULL;
-            tims_dbgdetail("[CLEANUP] free tcp receive buffer (cleanup)\n");
-            init_flags &= ~TIMS_CLIENT_TCP_RECV_MSG;
-        }
-    }
-    tims_dbgdetail("[CLEANUP] exit\n");
+    tims_dbgdetail("[CLEANUP] completed\n");
 }
 
 void signal_handler(int arg)
 {
-  cleanup();
+    cleanup();
 }
 
-void *watchdogTask(void *arg)
+void *watchdog_task_proc(void *arg)
 {
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
     signal(SIGTERM, signal_handler);
     signal(SIGPIPE, signal_handler);
 
-    tims_dbg("[WATCHDOG] init\n");
+    tims_dbg("[WATCHDOG] started\n");
 
     while (!terminate)
     {
@@ -231,6 +233,8 @@ void *watchdogTask(void *arg)
         }
         sleep(1);
     }
+
+    tims_dbg("[WATCHDOG] exit\n");
     return NULL;
 }
 
@@ -257,79 +261,83 @@ int sndTcpTimsMsg(timsMsgHead* sndMsg)
 
 int recvTcpTimsMsg(timsMsgHead* recvMsg)
 {
-  int          ret;
-  unsigned int len = 0;
+    int          ret;
+    unsigned int len = 0;
 
-  // receive head
-  while (len < TIMS_HEADLEN) {
-    ret = recv(tcpSocket, (void*)recvMsg + len, TIMS_HEADLEN - len, 0);
-    if (ret < 0) {
-      tims_print("[TCP] recv head ERROR, code = %d \n", ret);
-      return ret;
-    }
-    if (ret == 0) {
-      tims_print("[TCP] recv head ERROR, socket closed\n");
-      return -1;
-    }
-    len += ret;
+    // receive head
+    while (len < TIMS_HEADLEN)
+    {
+        ret = recv(tcpSocket, (void*)recvMsg + len, TIMS_HEADLEN - len, 0);
+        if (ret < 0)
+        {
+            tims_print("[TCP] recv head ERROR, code = %d \n", ret);
+            return ret;
+        }
+        if (!ret)
+        {
+            tims_print("[TCP] recv head ERROR, socket closed\n");
+            return -1;
+        }
+        len += ret;
 
-    if (terminate) {
-      return -EINTR;
-    }
-
-  }
-  tims_parse_head_byteorder(recvMsg);
-
-  if (recvMsg->msglen < TIMS_HEADLEN) {
-
-    tims_print("[TCP] recv ERROR, invalid message length: %u is smaller than TIMS_HEADLEN\n",
-               recvMsg->msglen);
-    return -1;
-
-  } else if (recvMsg->msglen > maxMsgSize) {
-
-    tims_print("[TCP]  %8x --(%04d)--> %8x, recv ERROR, message (%u bytes) is too big for buffer (%u bytes)\n",
-               recvMsg->src, recvMsg->type, recvMsg->dest, recvMsg->msglen, maxMsgSize);
-    return -1;
-
-  }
-
-  if (recvMsg->msglen > TIMS_HEADLEN) {
-
-    // read body
-    while (len < recvMsg->msglen) {
-
-      ret = recv(tcpSocket, (void*)recvMsg + len, recvMsg->msglen - len, 0);
-      if (ret < 0) {
-        tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, code = %d \n",
-                   recvMsg->src, recvMsg->type, recvMsg->dest, ret);
-        return ret;
-      }
-      if (ret == 0) {
-        tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, socket closed, code = %d\n",
-                   recvMsg->src, recvMsg->type, recvMsg->dest, ret);
-        return -1;
-      }
-      len += ret;
-
-      if (terminate) {
-        return -EINTR;
-      }
+        if (terminate)
+            return -EINTR;
 
     }
+    tims_parse_head_byteorder(recvMsg);
 
-    tims_dbgdetail("[TCP]  %8x --(%04d)--> %8x, recv head (%u bytes), data (%u bytes)\n",
-                   recvMsg->src, recvMsg->type, recvMsg->dest, TIMS_HEADLEN,
-                   recvMsg->msglen - TIMS_HEADLEN);
+    if (recvMsg->msglen < TIMS_HEADLEN)
+    {
+        tims_print("[TCP] recv ERROR, invalid message length: %u is smaller "
+                   "than TIMS_HEADLEN\n", recvMsg->msglen);
+        return -EFAULT;
+    }
+    else if (recvMsg->msglen > maxMsgSize)
+    {
+        tims_print("[TCP]  %8x --(%04d)--> %8x, recv ERROR, message (%u bytes) "
+                   "is too big for buffer (%u bytes)\n", recvMsg->src,
+                   recvMsg->type, recvMsg->dest, recvMsg->msglen, maxMsgSize);
+        return -EFAULT;
+    }
 
+    if (recvMsg->msglen > TIMS_HEADLEN)
+    {
+        // read body
+        while (len < recvMsg->msglen)
+        {
+            ret = recv(tcpSocket, (void*)recvMsg + len, recvMsg->msglen - len, 0);
+            if (ret < 0)
+            {
+                tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, "
+                           "code = %d \n", recvMsg->src, recvMsg->type,
+                           recvMsg->dest, ret);
+                return ret;
+            }
+            if (!ret)
+            {
+                tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, socket "
+                           "closed, code = %d\n", recvMsg->src, recvMsg->type,
+                           recvMsg->dest, ret);
+                return -1;
+            }
+            len += ret;
 
-  } else {
+            if (terminate)
+                return -EINTR;
+        }
 
-    tims_dbgdetail("[TCP]  %8x --(%04d)--> %8x, recv head (%u bytes)\n",
-                   recvMsg->src, recvMsg->type, recvMsg->dest, recvMsg->msglen);
-
-  }
-  return 0;
+        tims_dbgdetail("[TCP]  %8x --(%04d)--> %8x, recv head (%u bytes), "
+                       "data (%u bytes)\n", recvMsg->src, recvMsg->type,
+                       recvMsg->dest, TIMS_HEADLEN,
+                       recvMsg->msglen - TIMS_HEADLEN);
+        }
+        else
+        {
+            tims_dbgdetail("[TCP]  %8x --(%04d)--> %8x, recv head (%u bytes)\n",
+                           recvMsg->src, recvMsg->type, recvMsg->dest,
+                           recvMsg->msglen);
+    }
+    return 0;
 }
 
 int sndPipeTimsMsg(timsMsgHead* sndMsg)
@@ -369,6 +377,10 @@ int recvPipeTimsMsg(timsMsgHead* recvMsg)
         tims_print("[PIPE] recv ERROR, code = %d \n", (int)msglen);
         return -1;
     }
+
+    if (terminate)
+        return -EFAULT;
+
     tims_parse_head_byteorder(recvMsg);
 
     if (recvMsg->msglen != msglen) // invalid size
@@ -385,144 +397,122 @@ int recvPipeTimsMsg(timsMsgHead* recvMsg)
     return 0;
 }
 
-void tcpRecvTask(void *arg)
+void tcpRecv_task_proc(void *arg)
 {
-  int ret;
+    int ret;
+    timsMsgHead* tcpRecvMsg = (timsMsgHead*)arg;
+    timsMsgHead  connMsg;
+    timsMsgHead  replyMsg;
 
-  timsMsgHead  connMsg;
-  timsMsgHead  replyMsg;
+    signal(SIGHUP,  signal_handler);
+    signal(SIGINT,  signal_handler);
+    signal(SIGTERM, signal_handler);
+    signal(SIGPIPE, signal_handler);
 
-  signal(SIGHUP,  signal_handler);
-  signal(SIGINT,  signal_handler);
-  signal(SIGTERM, signal_handler);
-  signal(SIGPIPE, signal_handler);
+    tims_dbg("[TCP_TASK] started\n");
 
-  tims_dbg("[TCP_TASK] init\n");
+    while (!terminate)
+    {
+        if (tcpSocket == -1)
+        {
+            // try to connect to TCP Tims Message Router
+            tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
+            if (tcpSocket == -1)
+            {
+                tims_print("[TCP_TASK] ERROR: can't create TCP/IP socket\n");
+                sleep(5);
+            }
+            else if (connect(tcpSocket, (struct sockaddr *)&tcpAddr,
+                             sizeof(tcpAddr)) == -1)
+            {
+                tims_print("[TCP_TASK]: Can't connect to TcpTimsMsgRouter, (%s)\n",
+                           strerror(errno));
+                close(tcpSocket);
+                tcpSocket = -1;
+                sleep(5);
+            }
+            else // connected to TCPTimsMsgRouter
+            {
+                init_flags |= TIMS_CLIENT_TCP_CONNECT;
+                tims_fillhead(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0,
+                              0, 0, TIMS_HEADLEN);
 
-  tcpRecvMsg = malloc(maxMsgSize);
-  if (!tcpRecvMsg) {
-    tims_print("[TCP_TASK] ERROR: can't allocate memory for tcpRecvMsg\n");
-    terminate = 1;
+                if (sndPipeTimsMsg(&connMsg) != 0)
+                {
+                    tims_dbgdetail("[TCP_TASK] ERROR: Can't send connect "
+                                   "message to TIMS\n");
+                    close(tcpSocket);
+                    tcpSocket = -1;
+                    init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
+                    sleep(5);
+                }
+                else
+                {
+                    tims_print("[TCP_TASK] connected to TcpTimsMessageRouter\n");
+                }
+            }
+        }
+        else // tcpSocket != -1
+        {
+            // handle incoming Tims Message from TcpTimsMsgRouter
+            ret = recvTcpTimsMsg(tcpRecvMsg);
+            if (ret)
+            {
+                tims_print("[TCP_TASK] connection to TcpTimsMsgRouter closed\n");
+                close(tcpSocket);
+                tcpSocket = -1;
+                init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
+                if (!terminate)
+                    sleep(5);
+            }
+            else
+            {
+                if ((tcpRecvMsg->dest == 0) &
+                    (tcpRecvMsg->src == 0) &
+                    (tcpRecvMsg->type == TIMS_MSG_ROUTER_GET_STATUS))
+                {
+                    // reply to lifesign
+                    tims_fillhead(&replyMsg, TIMS_MSG_OK, 0, 0,
+                                  tcpRecvMsg->priority,
+                                  0, 0, TIMS_HEADLEN);
+
+                    sndTcpTimsMsg(&replyMsg);
+                }
+                else if (sndPipeTimsMsg(tcpRecvMsg) != 0)
+                {
+                    if (tcpRecvMsg->type > 0) // send reply if connection is not available
+                    {
+                        tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
+                                      tcpRecvMsg->src, tcpRecvMsg->dest,
+                                      tcpRecvMsg->priority, tcpRecvMsg->seq_nr,
+                                      0, TIMS_HEADLEN);
+                        sndTcpTimsMsg(&replyMsg);
+                    }
+                }
+            }
+        }
+        sem_wait(&watchdogSem);
+        watchdog = 0;
+        sem_post(&watchdogSem);
+    }
+
+    tims_dbgdetail("[TCP_TASK] exit \n");
     return;
-  }
-  init_flags |= TIMS_CLIENT_TCP_RECV_MSG;
-
-  while (!terminate) {
-
-    if (tcpSocket == -1) {
-
-      // try to connect to TCP Tims Message Router
-      tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
-      if (tcpSocket == -1) {
-
-        tims_print("[TCP_TASK] ERROR: can't create TCP/IP socket\n");
-        sleep(5);
-
-      } else if (connect(tcpSocket, (struct sockaddr *)&tcpAddr, sizeof(tcpAddr)) == -1) {
-
-        tims_print("[TCP_TASK]: Can't connect to TcpTimsMsgRouter, (%s)\n", strerror(errno));
-        close(tcpSocket);
-        tcpSocket = -1;
-        sleep(5);
-
-      } else {  // connected to TCPTimsMsgRouter
-
-        init_flags |= TIMS_CLIENT_TCP_CONNECT;
-
-        tims_fillhead(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0, 0, 0, TIMS_HEADLEN);
-
-        if (sndPipeTimsMsg(&connMsg) != 0) {
-          tims_dbgdetail("[TCP_TASK] ERROR: Can't send connect message to TIMS\n");
-          close(tcpSocket);
-          tcpSocket = -1;
-          init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
-          sleep(5);
-
-        } else {
-
-          tims_print("[TCP_TASK] connected to TcpTimsMessageRouter\n");
-
-        }
-      }
-
-    } else { // tcpSocket != -1
-
-      // handle incoming Tims Message from TcpTimsMsgRouter
-
-      ret = recvTcpTimsMsg(tcpRecvMsg);
-      if (ret) {
-
-        tims_print("[TCP_TASK] connection to TcpTimsMsgRouter closed\n");
-        close(tcpSocket);
-        tcpSocket = -1;
-        init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
-        sleep(5);
-
-      } else {
-
-        if ((tcpRecvMsg->dest == 0) &
-            (tcpRecvMsg->src == 0) &
-            (tcpRecvMsg->type == TIMS_MSG_ROUTER_GET_STATUS)) {
-
-          // reply to lifesign
-          tims_fillhead(&replyMsg, TIMS_MSG_OK, 0, 0, tcpRecvMsg->priority,
-                         0, 0, TIMS_HEADLEN);
-
-          sndTcpTimsMsg(&replyMsg);
-
-        } else if(sndPipeTimsMsg(tcpRecvMsg) != 0) {
-
-          if (tcpRecvMsg->type > 0) { // send reply if connection is not available
-
-            tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE, tcpRecvMsg->src,
-                           tcpRecvMsg->dest, tcpRecvMsg->priority, tcpRecvMsg->seq_nr,
-                           0, TIMS_HEADLEN);
-
-            sndTcpTimsMsg(&replyMsg);
-          }
-        }
-      }
-    }
-    sem_wait(&watchdogSem);
-    watchdog = 0;
-    sem_post(&watchdogSem);
-  }
-
-  tims_dbgdetail("[TCP_TASK] terminate \n");
-
-  if (init_flags & TIMS_CLIENT_TCP_RECV_MSG) {
-    if (tcpRecvMsg) {
-      free(tcpRecvMsg);
-      tims_dbgdetail("free tcp receive buffer (task)\n");
-      init_flags &= ~TIMS_CLIENT_TCP_RECV_MSG;
-    }
-  }
-  return;
-
 }
 
-void pipeRecvTask(void)
+void pipeRecv_task_proc(timsMsgHead *pipeRecvMsg)
 {
     timsMsgHead  replyMsg;
 
-    tims_dbg("[PIPE_TASK] init\n");
-    tims_dbg("[PIPE_TASK] MaxMsgSize %u kByte\n", maxMsgSize/1024);
-
-    pipeRecvMsg = (timsMsgHead *)malloc(maxMsgSize);
-    if (!pipeRecvMsg)
-    {
-        tims_print("[PIPE_TASK] ERROR: can't allocate memory for pipeRecvMsg\n");
-        return;
-    }
-    init_flags |= TIMS_CLIENT_TCP_RECV_MSG;
+    tims_dbg("[PIPE_TASK] started\n");
 
     while (!terminate) // handle incoming messages from TIMS
     {
-        if (recvPipeTimsMsg(pipeRecvMsg) == 0)
+        if (!recvPipeTimsMsg(pipeRecvMsg))
         {
             if ((pipeRecvMsg->type == TIMS_MSG_ROUTER_GET_CONFIG) &&
-                (pipeRecvMsg->dest == 0) &&
-                (pipeRecvMsg->src  == 0))
+                (!pipeRecvMsg->dest) &&
+                (!pipeRecvMsg->src))
             {
                 if (init_flags & TIMS_CLIENT_CONFIG_MSG)
                 {
@@ -530,9 +520,12 @@ void pipeRecvTask(void)
                 }
                 else
                 {
-                    tims_fillhead(&replyMsg, TIMS_MSG_ROUTER_CONFIG, 0, 0,
-                                  pipeRecvMsg->priority, 0, 0, TIMS_HEADLEN);
-                    sndPipeTimsMsg(&replyMsg);
+                    timsMsgRouter_ConfigMsg cMsg;
+                    tims_fillhead(&cMsg.head, TIMS_MSG_ROUTER_CONFIG, 0, 0,
+                                  pipeRecvMsg->priority, 0, 0,
+                                  sizeof(timsMsgRouter_ConfigMsg));
+                    cMsg.num = 0;
+                    sndPipeTimsMsg((timsMsgHead*)&cMsg);
                 }
             }
             else if (sndTcpTimsMsg(pipeRecvMsg) != 0)
@@ -547,7 +540,7 @@ void pipeRecvTask(void)
                 }
             }
         }
-        else
+        else // receive error
         {
            if (!terminate)
                sleep(5);
@@ -556,17 +549,10 @@ void pipeRecvTask(void)
         }
     }
 
-    if (init_flags & TIMS_CLIENT_PIPE_RECV_MSG)
-    {
-        free(pipeRecvMsg);
-        pipeRecvMsg = NULL;
-        init_flags &= ~TIMS_CLIENT_PIPE_RECV_MSG;
-    }
-
-    tims_dbgdetail("[PIPE_TASK] terminate\n");
+    tims_dbgdetail("[PIPE_TASK] exit\n");
 }
 
-int readConfigFile(char* filename)
+int read_config_file(void)
 {
     FILE* fp;
     int   line = 0;
@@ -575,47 +561,56 @@ int readConfigFile(char* filename)
     char  ip[80];
     unsigned int msglen;
 
-    tims_dbg(NAME ": Read cfg file \"%s\"\n", filename);
-
-    if ((fp = fopen(filename, "r")) == NULL)
+    configMsg = malloc(sizeof(timsMsgRouter_ConfigMsg) +
+                       MAX_RTNET_ROUTE_NUM * sizeof(timsMsgRouter_MbxRoute));
+    if (!configMsg)
     {
-        tims_print("error: Can't open cfg file \"%s\"\n", filename);
-        return -1;
+        tims_print("[INIT] ERROR: can't allocate memory for config message\n");
+        return -ENOMEM;
+    }
+    tims_dbgdetail("[INIT] buffer for config message allocated\n");
+    init_flags |= TIMS_CLIENT_CONFIG_MSG;
+
+    tims_dbg("[INIT] Read config file \"%s\"\n", filename);
+
+    fp = fopen(filename, "r");
+    if (!fp)
+    {
+        tims_print("[INIT] error: Can't open config file \"%s\"\n", filename);
+        return -ENODEV;
     }
 
     configMsg->num = 0;
 
-    while (fgets(buffer, 80, fp) != NULL)
+    while (fgets(buffer, 80, fp))
     {
         line++;
-        if (configMsg->num >= MAX_CONFIG_NUM)
+        if (configMsg->num >= MAX_RTNET_ROUTE_NUM)
         {
-            tims_print("ERROR: Config file has got more than MAX_CONFIG_NUM(%i) "
-                       "entries\n", MAX_CONFIG_NUM);
+            tims_print("ERROR: Config file has got more than MAX_RTNET_ROUTE_NUM(%i) "
+                       "entries\n", MAX_RTNET_ROUTE_NUM);
             fclose(fp);
-            return -1;
+            return -EINVAL;
         }
 
         if (sscanf(buffer, "%i %s", &mbx, ip) != 2)
-        {
             continue;
-        }
 
         if (mbx <= 0)
         {
             tims_print("ERROR: MBX not valid (cfg file line %i)\n", line);
             fclose(fp);
-            return -1;
+            return -EINVAL;
         }
 
         configMsg->mbx_route[configMsg->num].mbx = mbx;
+        configMsg->mbx_route[configMsg->num].ip = inet_addr(ip);
 
-        if ((configMsg->mbx_route[configMsg->num].ip = inet_addr(ip)) ==
-             INADDR_NONE)
+        if (inet_addr(ip) == INADDR_NONE)
         {
-            tims_print("error: IP not valid (cfg file line %i)\n", line);
+            tims_print("error: IP not valid (config file line %i)\n", line);
             fclose(fp);
-            return -1;
+            return -EINVAL;
         }
 
         tims_dbgdetail("Route MBX %X to IP %s\n", mbx, ip);
@@ -623,6 +618,8 @@ int readConfigFile(char* filename)
     }
 
     fclose(fp);
+
+    tims_print("[INIT] config file has been read\n");
 
     // init head
     msglen = sizeof(timsMsgRouter_ConfigMsg) +
@@ -634,55 +631,107 @@ int readConfigFile(char* filename)
     return 0;
 }
 
-int init(char* filename)
+int init_tcpRecv_task(void)
 {
-    int  ret;
-    char pipePathname[20];
+    int ret;
 
-    terminate = 0;
-
-    //
     // init semaphore
-    //
-
     ret = sem_init(&tcpSendSem, 0, 1);
-    if (ret)
+    if (ret < 0)
     {
         tims_print("[INIT] ERROR: can't create tcpSendSem\n");
-        goto init_error;
+        return ret;
     }
     tims_dbgdetail("[INIT] tcpSendSem created\n");
     init_flags |= TIMS_CLIENT_SEM_TCP_SEND;
 
-    if (terminate)
-        goto init_error; // break, if signal handler was called
+    // create buffer
+    tcpRecvMsg = (timsMsgHead *)malloc(maxMsgSize);
+    if (!tcpRecvMsg)
+    {
+        tims_print("[INIT] ERROR: can't allocate memory for tcpRecvMsg\n");
+        return -ENOMEM;
+    }
+    tims_dbgdetail("[INIT] memory for tcpRecvMsg allocated\n");
+    init_flags |= TIMS_CLIENT_TCP_RECV_MSG;
+
+    // init task
+    ret = pthread_create(&tcpRecvThread, NULL, (void *)tcpRecv_task_proc,
+                         (void*)tcpRecvMsg);
+    if (ret)
+    {
+        tims_print("[INIT] ERROR: can't create TCP/IP receive thread\n");
+        return ret;
+    }
+    tims_dbgdetail("[INIT] TCP/IP receive thread created\n");
+    init_flags |= TIMS_CLIENT_THREAD_TCPRECV;
+
+    return 0;
+}
+
+int init_pipeRecv_task(void)
+{
+    int ret;
 
     ret = sem_init(&pipeSendSem, 0, 1);
     if (ret)
     {
         tims_print("[INIT] ERROR: can't create pipeSendSem\n");
-        goto init_error;
+        return ret;
     }
     tims_dbgdetail("[INIT] pipeSendSem created\n");
     init_flags |= TIMS_CLIENT_SEM_PIPE_SEND;
 
-    if (terminate)
-        goto init_error; // break, if signal handler was called
 
-    if (sem_init(&watchdogSem, 0, 1) < 0)
+    pipeRecvMsg = (timsMsgHead *)malloc(maxMsgSize);
+    if (!pipeRecvMsg)
+    {
+        tims_print("[INIT] ERROR: can't allocate memory for pipeRecvMsg\n");
+        return -ENOMEM;
+    }
+    tims_dbgdetail("[INIT] memory for pipeRecvMsg allocated\n");
+    init_flags |= TIMS_CLIENT_PIPE_RECV_MSG;
+
+    return 0;
+}
+
+int init_watchdog_task(void)
+{
+    int ret;
+
+    ret = sem_init(&watchdogSem, 0, 1);
+    if (ret < 0)
     {
         tims_print("[INIT] ERROR: can't create watchdogSem\n");
-        goto init_error;
+        return ret;
     }
     tims_dbgdetail("[INIT] watchdogSem created\n");
     init_flags |= TIMS_CLIENT_SEM_WATCHDOG;
 
-    if (terminate)
-        goto init_error; // break, if signal handler was called
+    ret = pthread_create(&watchdogThread, NULL, watchdog_task_proc, NULL);
+    if (ret)
+    {
+        tims_print("[INIT] ERROR: can't create watchdog thread\n");
+        return ret;
+    }
+    tims_dbgdetail("[INIT] watchdogThread created\n");
+    init_flags |= TIMS_CLIENT_THREAD_WATCHDOG;
+
+    return 0;
+}
+
+int init(char* filename)
+{
+    int  ret = 0;
+    char pipePathname[20];
+
+    terminate = 0;
+
+    tims_dbg("[INIT] MaxMsgSize %u kByte\n", maxMsgSize/1024);
 
     tims_dbgdetail("[INIT] now the Pipes to TIMS will be opened.\n"
                    "                      If the TIMS kernel module isn't loaded into the kernel, \n"
-                   "                      this INIT process will blocking until the module is loaded ...\n");
+                   "                      this INIT process will be blocking until the module is loaded ...\n");
 
     //
     // open PIPESs (blocking)
@@ -696,7 +745,8 @@ int init(char* filename)
         ret = pipeTimsToClientFd;
         goto init_error;
     }
-    tims_dbgdetail("[INIT] pipe from TIMS (/dev/rtp%i) opened\n", PIPE_TIMS_TO_CLIENT);
+    tims_dbgdetail("[INIT] pipe from TIMS (/dev/rtp%i) opened\n",
+                   PIPE_TIMS_TO_CLIENT);
     init_flags |= TIMS_CLIENT_PIPE_TIMS_CLIENT;
 
     if (terminate)
@@ -718,59 +768,36 @@ int init(char* filename)
         goto init_error; // break, if signal handler was called
 
     //
-    // create tasks
+    // init tasks
     //
-
-    ret = pthread_create(&tcpRecvThread, NULL, (void *)tcpRecvTask, NULL);
+    ret = init_tcpRecv_task();
     if (ret)
-    {
-        tims_print("[INIT] ERROR: can't create TCP/IP receive thread\n");
         goto init_error;
-    }
-    tims_dbgdetail("[INIT] TCP/IP receive thread created\n");
-    init_flags |= TIMS_CLIENT_THREAD_TCPRECV;
 
-    if (terminate)
-        goto init_error; // break, if signal handler was called
-
-    ret = pthread_create(&watchdogThread, NULL, watchdogTask, NULL);
+    ret = init_pipeRecv_task();
     if (ret)
-    {
-        tims_print("[INIT] ERROR: can't create watchdog thread\n");
         goto init_error;
-    }
-    tims_dbgdetail("[INIT] watchdogThread created\n");
-    init_flags |= TIMS_CLIENT_THREAD_WATCHDOG;
+
+    ret = init_watchdog_task();
+    if (ret)
+        goto init_error;
 
     //
-    // read rtnet config file
+    // read config file
     //
 
     if (strlen(filename) > 0)
     {
-        // read router configuration file
-        if ((configMsg = malloc(sizeof(timsMsgRouter_ConfigMsg) +
-                         MAX_CONFIG_NUM * sizeof(timsMsgRouter_MbxRoute)))
-                         == NULL) {
-            tims_print("[INIT] ERROR: can't allocate memory for config message\n");
-            ret = -ENOMEM;
+        ret = read_config_file();
+        if (ret)
             goto init_error;
-        }
-        tims_dbgdetail("[INIT] buffer for config message allocated\n");
-        init_flags |= TIMS_CLIENT_CONFIG_MSG;
-
-        if (terminate)
-            goto init_error; // break, if signal handler was called
-
-        if (readConfigFile(filename) != 0)
-        {
-            ret = -1;
-            tims_print("[INIT] ERROR: can't read config file\n");
-            goto init_error;
-        }
-        tims_dbgdetail("[INIT] config file has been read successfully\n");
     }
-    tims_dbgdetail("[INIT] exit\n");
+    else
+    {
+        tims_print("[INIT] no config file has been given\n");
+    }
+
+    tims_dbgdetail("[INIT] completed\n");
     return 0;
 
 init_error:
@@ -780,7 +807,6 @@ init_error:
 
 int main(int argc, char* argv[])
 {
-    char filename[80];
     char ip[16];
     int  port;
     int  opt;
@@ -878,7 +904,15 @@ int main(int argc, char* argv[])
         return ret;
 
     tims_dbg("TcpTimsMsgRouter IP %s port %i\n", ip, port);
-    pipeRecvTask();
-    cleanup();
+    pipeRecv_task_proc(pipeRecvMsg);
+
+    if (init_flags & TIMS_CLIENT_PIPE_RECV_MSG)
+    {
+        free(pipeRecvMsg);
+        pipeRecvMsg = NULL;
+        tims_dbgdetail("[CLEANUP] pipe receive buffer has been given free\n");
+        init_flags &= ~TIMS_CLIENT_PIPE_RECV_MSG;
+    }
+
     return 0;
 }

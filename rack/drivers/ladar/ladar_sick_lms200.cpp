@@ -169,7 +169,7 @@ int  LadarSickLms200::moduleLoop(void)
 
     // read head with timestamp
     ret = serialPort.recv(serialBuffer, 7, &time,
-                          2 * rack_time_to_ns(getDataBufferPeriodTime(0)));
+                          2 * rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
         GDOS_ERROR("loop: ERROR: can't read data head from rtser%d (7 bytes), "
@@ -419,7 +419,7 @@ unsigned int  LadarSickLms200::norm_createLadarData(
 
     // get data
     ret = serialPort.recv(serialBuffer + 7, conf->serial_buffer_size - 7,
-                          NULL, rack_time_to_ns(getDataBufferPeriodTime(0)));
+                          NULL, rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
         GDOS_ERROR("Can't read data body from rtser%d (%d bytes), code = %d\n",
@@ -663,7 +663,7 @@ unsigned int LadarSickLms200::int_createLadarData(
 
             // get data
             ret = serialPort.recv(serialBuffer + 7, 363, NULL,
-                            2 * rack_time_to_ns(getDataBufferPeriodTime(0)));
+                            2 * rackTime.toNano(getDataBufferPeriodTime(0)));
             if (ret)
             {
                 GDOS_ERROR("Can't read data body from rtser%d (%d bytes), "
@@ -717,7 +717,7 @@ unsigned int LadarSickLms200::int_createLadarData(
 
             // get data
             ret = serialPort.recv(serialBuffer + 7, 365, NULL,
-                               2 * rack_time_to_ns(getDataBufferPeriodTime(0)));
+                               2 * rackTime.toNano(getDataBufferPeriodTime(0)));
             if (ret)
             {
                 GDOS_ERROR("Can't read data body from rtser%d (%d bytes), "
@@ -965,7 +965,7 @@ unsigned int LadarSickLms200::fast_createLadarData(
 
     // get data
     ret = serialPort.recv(serialBuffer + 7, conf->serial_buffer_size - 7,
-                            NULL, rack_time_to_ns(getDataBufferPeriodTime(0)));
+                            NULL, rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
         GDOS_ERROR("loop: ERROR: can't read data body from rtser%d (%d bytes), "
@@ -1178,7 +1178,7 @@ int  LadarSickLms200::moduleInit(void)
     GDOS_DBG_DETAIL("LadarSick::moduleInit ... \n");
 
     // open rtserial port
-    ret = serialPort.open(conf->serDev, &ladar_serial_config);
+    ret = serialPort.open(conf->serDev, &ladar_serial_config, this);
     if (ret)
     {
         GDOS_ERROR("Can't open rtser%d, code = %d\n", conf->serDev, ret);

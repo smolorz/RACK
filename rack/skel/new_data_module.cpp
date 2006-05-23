@@ -76,7 +76,7 @@ int  NewDataModule::moduleLoop(void)
 
     // do something and count data bytes ...
 
-    p_data->data.recordingTime = get_rack_time();
+    p_data->data.recordingTime = rackTime.get();
     datalength = sizeof(new_data_msg);
 
     // write data buffer slot (and send it to all listener)

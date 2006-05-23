@@ -22,7 +22,7 @@
 #define TIMS_MSG_GATEWAY_MBX_INIT_WITH_REPLY    13
 
 typedef struct {
-  timsMsgHead                head;
+    timsMsgHead                head;
     int mbx;
 } timsMsgGateway_MbxMsg;
 

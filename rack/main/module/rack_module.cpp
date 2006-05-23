@@ -585,6 +585,25 @@ int       Module::moduleInit(void)
     modBits.setBit(INIT_BIT_GDOSMBX_CREATED);
     GDOS_DBG_INFO("Gdos mailbox created\n");
 
+    // init rack time
+    ret = rackTime.init();
+    if (ret)
+    {
+        GDOS_ERROR("Can't init rack time, code = %d\n", ret);
+        goto exit_error;
+    }
+
+    if (rackTime.global)
+    {
+        GDOS_PRINT("Using global time, offset: %d ms\n",
+                   rackTime.offset / 1000000);
+    }
+    else
+    {
+        GDOS_PRINT("Using local time\n");
+    }
+
+
     // print all start arguments
     gdosAllArgs(module_argDesc, gdos);
 

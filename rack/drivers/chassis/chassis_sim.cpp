@@ -103,7 +103,7 @@ int ChassisSim::moduleLoop(void)
 
     mtx.lock(RACK_INFINITE);
 
-    p_data->recordingTime = get_rack_time();
+    p_data->recordingTime = rackTime.get();
     p_data->vx            = (float)commandData.vx;    // in mm/s
     p_data->vy            = (float)commandData.vy;    // in mm/s
     p_data->omega         = (float)commandData.omega; // in rad/s
@@ -119,8 +119,9 @@ int ChassisSim::moduleLoop(void)
 
     putDataBufferWorkSpace( datalength );
 
-    GDOS_DBG_DETAIL("vx=%f mm/s vx=%f mm/s omega=%a deg/s\n",
-                    p_data->vx, p_data->vy, p_data->omega);
+    GDOS_DBG_DETAIL("vx:%f mm/s, vx:%f mm/s, omega:%a deg/s, timestamp: %d\n",
+                    p_data->vx, p_data->vy, p_data->omega,
+                    p_data->recordingTime);
 
     RackTask::sleep(100000000llu);
 

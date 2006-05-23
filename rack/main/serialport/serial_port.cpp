@@ -39,7 +39,7 @@ SerialPort::~SerialPort()
 // PortFunctions
 //
 
-int SerialPort::open(int dev, const rtser_config *config)
+int SerialPort::open(int dev, const rtser_config *config, Module *module)
 {
     int ret;
     char filename[10];
@@ -54,6 +54,7 @@ int SerialPort::open(int dev, const rtser_config *config)
         return ret;
 
     fd = ret;
+    this->module = module;
 
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONFIG, config);
 }
@@ -79,6 +80,7 @@ int SerialPort::close(void)
     }
     while (ret != -EAGAIN && i--);
 
+    module = NULL;
     return ret;
 }
 
@@ -170,7 +172,7 @@ int SerialPort::recv(void *data, int dataLen, RACK_TIME *timestamp)
         if (ret)
             return ret;
 
-        *timestamp = ns_to_rack_time(rx_event.rxpend_timestamp);
+        *timestamp = module->rackTime.fromNano(rx_event.rxpend_timestamp);
     }
 
     return recv(data, dataLen);

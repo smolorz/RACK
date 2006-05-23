@@ -17,6 +17,7 @@
 #define __TIMS_H__
 
 #include <asm/types.h>
+#include <rtdm/rtdm.h>
 
 #ifdef __KERNEL__
 
@@ -24,16 +25,16 @@
 #include <linux/socket.h>
 #include <linux/net.h>
 #include <linux/errno.h>
-#include <xenomai/rtdm/rtdm.h>
 
 #else  /* !__KERNEL__ */
 
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <errno.h>
-#include <rtdm/rtdm.h>
 
 #endif /* !__KERNEL__ */
+
+#define TIMS_ALLOW_KERNEL_TASKS                0
 
 #define TIMS_INFINITE               (0)
 #define TIMS_NONBLOCK               ((int64_t)-1)

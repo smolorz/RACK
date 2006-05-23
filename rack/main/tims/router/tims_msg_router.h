@@ -13,8 +13,8 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef __TIMS_MSG_ROUTER_H_
-#define __TIMS_MSG_ROUTER_H_
+#ifndef __TIMS_MSG_ROUTER_H__
+#define __TIMS_MSG_ROUTER_H__
 
 /* this header file is used by tims_msg_client, tcp_tims_msg_router
    and tims kernel module
@@ -46,6 +46,8 @@ typedef struct {
     uint32_t                num;
     timsMsgRouter_MbxRoute  mbx_route[0];
 } __attribute__((packed)) timsMsgRouter_ConfigMsg;
+
+#define MAX_RTNET_ROUTE_NUM         512
 
 //######################################################################
 //# TimsMsgRouter_ConfigMsg parsing function

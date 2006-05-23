@@ -220,6 +220,12 @@ class Module {
     void          deleteGdosMbx();
 
 //
+// Rack time
+//
+  public:
+    RackTime rackTime;
+
+//
 // module values
 //
 

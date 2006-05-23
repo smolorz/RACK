@@ -176,7 +176,7 @@ int GpsNmea::moduleLoop(void)
            GDOS_WARNING("Can't read data from serial device %i, code = %d\n",
                      serialDev, ret);
 
-        p_data->recordingTime = get_rack_time();
+        p_data->recordingTime = rackTime.get();
         p_data->mode          = 1;
         p_data->latitude      = 0.0;
         p_data->longitude     = 0.0;
@@ -906,7 +906,7 @@ int GpsNmea::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    ret = serialPort.open(serialDev, &gps_serial_config);
+    ret = serialPort.open(serialDev, &gps_serial_config, this);
     if (ret)
     {
         GDOS_ERROR("Can't open serialDev %i, code=%d\n", serialDev, ret);
