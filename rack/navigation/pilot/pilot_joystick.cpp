@@ -147,6 +147,7 @@ argTable_t argTab[] = {
 
     joystickSpeed = 0;
     joystickCurve = 0.0f;
+    joystickForce = 0;
     joystikDataMissing = 0;
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
@@ -228,7 +229,8 @@ int  PilotJoystick::moduleLoop(void)
             joystickCurve = 0.0f;
         }
 
-           joystikDataMissing = 0;
+        joystickForce = jstkData.buttons;
+        joystikDataMissing = 0;
     }
     else
     {
@@ -286,10 +288,17 @@ int  PilotJoystick::moduleLoop(void)
             return -EFAULT;
         }
 
-        // scan2d data message received
+        // set speed and curve
 
-        speed  = safeSpeed(joystickSpeed, curve2Radius(joystickCurve), NULL,
-                           &scan2dMsg.data, &chasParData);
+        if(joystickForce == 0)
+        {
+            speed  = safeSpeed(joystickSpeed, curve2Radius(joystickCurve), NULL,
+                               &scan2dMsg.data, &chasParData);
+        }
+        else
+        {
+            speed = joystickSpeed;
+        }
         curve  = joystickCurve;
     }
     else // scan2d is not used if id is -1

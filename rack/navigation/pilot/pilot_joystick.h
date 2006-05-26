@@ -58,6 +58,7 @@ class PilotJoystick : public DataModule {
 
         int                 joystickSpeed;
         float               joystickCurve;
+        int                 joystickForce;
 
         // mailboxes
         RackMailbox         joystickMbx;    // joystick data in
