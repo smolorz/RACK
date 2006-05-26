@@ -51,6 +51,7 @@ class PilotJoystick : public DataModule {
         int32_t             chassisInst;
         int32_t             joystickInst;
         int32_t             joystickSys;
+        int32_t             mode;
 
         int                 maxSpeed;
         int                 joystikDataMissing;
@@ -58,6 +59,7 @@ class PilotJoystick : public DataModule {
 
         int                 joystickSpeed;
         float               joystickCurve;
+        float               joystickOmega;
         int                 joystickForce;
 
         // mailboxes

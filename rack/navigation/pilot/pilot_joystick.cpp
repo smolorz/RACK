@@ -49,6 +49,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "maxSpeed", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Maximal Speed, default 4000", { 4000 } },
 
+    { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Control mode (0 = speed-radius; 1 = speed-omega (default 0)", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -147,6 +150,7 @@ argTable_t argTab[] = {
 
     joystickSpeed = 0;
     joystickCurve = 0.0f;
+    joystickOmega = 0.0f;
     joystickForce = 0;
     joystikDataMissing = 0;
 
@@ -177,7 +181,7 @@ void PilotJoystick::moduleOff(void)
 {
     DataModule::moduleOff();        // have to be first command in moduleOff();
 
-    chassis->moveCurve(0,0.0f);
+    chassis->moveCurve(0, joystickCurve);
     joystick->stopContData(&joystickMbx);
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
@@ -190,7 +194,7 @@ void PilotJoystick::moduleOff(void)
 int  PilotJoystick::moduleLoop(void)
 {
     int         speed;
-    float       curve;
+    float       omega;
     int         ret;
     MessageInfo jstkInfo;
     MessageInfo s2dInfo;
@@ -219,14 +223,23 @@ int  PilotJoystick::moduleLoop(void)
         joystickSpeed = (int)rint((float)maxSpeed *
                                   ((float)jstkData.position.x / 100.0f));
 
-        if (jstkData.position.y != 0)
+        switch(mode)
         {
-            joystickCurve = radius2Curve(chasParData.minTurningRadius) *
+        case 1:  // speed-omega
+            joystickOmega = (chasParData.omegaMax) *
                             ((float)jstkData.position.y / 100.0f);
-        }
-        else
-        {
-            joystickCurve = 0.0f;
+            break;
+        case 0:  // speed-radius
+        default:
+            if (jstkData.position.y != 0)
+            {
+                joystickCurve = radius2Curve(chasParData.minTurningRadius) *
+                                ((float)jstkData.position.y / 100.0f);
+            }
+            else
+            {
+                joystickCurve = 0.0f;
+            }
         }
 
         joystickForce = jstkData.buttons;
@@ -299,16 +312,32 @@ int  PilotJoystick::moduleLoop(void)
         {
             speed = joystickSpeed;
         }
-        curve  = joystickCurve;
     }
     else // scan2d is not used if id is -1
     {
         speed  = joystickSpeed;
-        curve  = joystickCurve;
+    }
+
+    // calculate omega
+    switch(mode)
+    {
+    case 1:  // speed-omega
+        if(joystickSpeed != 0)
+        {
+            omega = joystickOmega * ((float)speed / (float)joystickSpeed);
+        }
+        else
+        {
+            omega = joystickOmega;
+        }
+        break;
+    case 0:  // speed-radius
+    default:
+        omega = speed * joystickCurve;
     }
 
     // move chassis
-    ret = chassis->moveCurve(speed, curve);
+    ret = chassis->move(speed, 0, omega);
     if (ret)
     {
         GDOS_ERROR("Can't send chassis_move, code = %d\n", ret);
@@ -322,7 +351,14 @@ int  PilotJoystick::moduleLoop(void)
     pilotData->recordingTime = rackTime.get();
     memset(&(pilotData->pos), 0, sizeof(pilotData->pos));
     pilotData->speed     = speed;
-    pilotData->curve     = curve;
+    if(speed != 0)
+    {
+        pilotData->curve     = omega / (float)speed;
+    }
+    else
+    {
+        pilotData->curve     = 0.0f;
+    }
     pilotData->splineNum = 0;
 
     putDataBufferWorkSpace(sizeof(pilot_data));
@@ -497,6 +533,7 @@ PilotJoystick::PilotJoystick()
     joystickInst = getIntArg("joystickInst", argTab);
     joystickSys  = getIntArg("joystickSys", argTab);
     maxSpeed     = getIntArg("maxSpeed", argTab);
+    mode         = getIntArg("mode", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(pilot_data_msg));
