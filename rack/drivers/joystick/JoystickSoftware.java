@@ -208,11 +208,17 @@ public class JoystickSoftware extends RackDataModule
                     case KeyEvent.VK_NUMPAD5:
                         streight();
                         break;
-                    case KeyEvent.VK_CONTROL:
-                        controlDown();
+                    case KeyEvent.VK_F1:
+                        f1Down();
                         break;
-                    case KeyEvent.VK_ALT:
-                        altDown();
+                    case KeyEvent.VK_F2:
+                        f2Down();
+                        break;
+                    case KeyEvent.VK_F3:
+                        f3Down();
+                        break;
+                    case KeyEvent.VK_F4:
+                        f4Down();
                         break;
                     default:
                         zero();
@@ -223,11 +229,17 @@ public class JoystickSoftware extends RackDataModule
             {
                 switch (e.getKeyCode())
                 {
-                    case KeyEvent.VK_CONTROL:
-                        controlUp();
+                    case KeyEvent.VK_F1:
+                        f1Up();
                         break;
-                    case KeyEvent.VK_ALT:
-                        altUp();
+                    case KeyEvent.VK_F2:
+                        f2Up();
+                        break;
+                    case KeyEvent.VK_F3:
+                        f3Up();
+                        break;
+                    case KeyEvent.VK_F4:
+                        f4Up();
                         break;
                 }
             }
@@ -285,24 +297,44 @@ public class JoystickSoftware extends RackDataModule
         outputData.position.y = 0;
     }
 
-    public synchronized void controlDown()
+    public synchronized void f1Down()
     {
         outputData.buttons |= 0x01;
     }
 
-    public synchronized void controlUp()
+    public synchronized void f1Up()
     {
         outputData.buttons &= ~0x01;
     }
 
-    public synchronized void altDown()
+    public synchronized void f2Down()
     {
         outputData.buttons |= 0x02;
     }
 
-    public synchronized void altUp()
+    public synchronized void f2Up()
     {
         outputData.buttons &= ~0x02;
+    }
+
+    public synchronized void f3Down()
+    {
+        outputData.buttons |= 0x04;
+    }
+
+    public synchronized void f3Up()
+    {
+        outputData.buttons &= ~0x04;
+    }
+
+    public synchronized void f4Down()
+    {
+        outputData.buttons |= 0x08;
+    }
+
+    public synchronized void f4Up()
+    {
+        outputData.buttons &= ~0x08;
     }
 
     /*
