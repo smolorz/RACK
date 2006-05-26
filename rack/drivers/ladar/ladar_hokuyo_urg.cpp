@@ -66,6 +66,16 @@ int  LadarHokuyoUrg::moduleOn(void)
 
     GDOS_DBG_INFO("Connect\n");
 
+    ret = serialPort.clean();
+    if (ret)
+    {
+        GDOS_ERROR("Can't clean serial port, code = %d \n", ret);
+    }
+
+    RackTask::sleep(50000000); // 50 ms
+
+    serialPort.setRxTimeout(200000000llu);
+
     ret = serialPort.send(sCommand115200, 15);
     if (ret)
     {
