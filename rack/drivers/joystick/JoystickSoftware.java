@@ -44,9 +44,11 @@ public class JoystickSoftware extends RackDataModule
 
     protected JLabel xLabel = new JLabel("0%");
     protected JLabel yLabel = new JLabel("0%");
+    protected JLabel buttonsLabel = new JLabel("00000000");
 
     protected JLabel xNameLabel = new JLabel("x", SwingConstants.RIGHT);
     protected JLabel yNameLabel = new JLabel("y", SwingConstants.RIGHT);
+    protected JLabel buttonsNameLabel = new JLabel("buttons", SwingConstants.RIGHT);
 
     protected JPanel steeringPanel;
     protected JButton forwardButton = new JButton("/\\");
@@ -104,17 +106,19 @@ public class JoystickSoftware extends RackDataModule
         labelPanel.add(xLabel);
         labelPanel.add(yNameLabel);
         labelPanel.add(yLabel);
+        labelPanel.add(buttonsNameLabel);
+        labelPanel.add(buttonsLabel);
 
         outputData.position.x = 0;
         outputData.position.y = 0;
-
-        outputData.position.x = 0;
-        outputData.position.y = 0;
+        outputData.buttons    = 0;
 
         xNameLabel.setEnabled(false);
         yNameLabel.setEnabled(false);
+        buttonsNameLabel.setEnabled(false);
         xLabel.setEnabled(false);
         yLabel.setEnabled(false);
+        buttonsLabel.setEnabled(false);
         forwardButton.setEnabled(false);
         backwardButton.setEnabled(false);
         leftButton.setEnabled(false);
@@ -204,6 +208,12 @@ public class JoystickSoftware extends RackDataModule
                     case KeyEvent.VK_NUMPAD5:
                         streight();
                         break;
+                    case KeyEvent.VK_CONTROL:
+                        controlDown();
+                        break;
+                    case KeyEvent.VK_ALT:
+                        altDown();
+                        break;
                     default:
                         zero();
                 }
@@ -211,6 +221,15 @@ public class JoystickSoftware extends RackDataModule
 
             public void keyReleased(KeyEvent e)
             {
+                switch (e.getKeyCode())
+                {
+                    case KeyEvent.VK_CONTROL:
+                        controlUp();
+                        break;
+                    case KeyEvent.VK_ALT:
+                        altUp();
+                        break;
+                }
             }
 
             public void keyTyped(KeyEvent e)
@@ -266,6 +285,26 @@ public class JoystickSoftware extends RackDataModule
         outputData.position.y = 0;
     }
 
+    public synchronized void controlDown()
+    {
+        outputData.buttons |= 0x01;
+    }
+
+    public synchronized void controlUp()
+    {
+        outputData.buttons &= ~0x01;
+    }
+
+    public synchronized void altDown()
+    {
+        outputData.buttons |= 0x02;
+    }
+
+    public synchronized void altUp()
+    {
+        outputData.buttons &= ~0x02;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -275,8 +314,10 @@ public class JoystickSoftware extends RackDataModule
     {
         xNameLabel.setEnabled(true);
         yNameLabel.setEnabled(true);
+        buttonsNameLabel.setEnabled(true);
         xLabel.setEnabled(true);
         yLabel.setEnabled(true);
+        buttonsLabel.setEnabled(true);
         forwardButton.setEnabled(true);
         backwardButton.setEnabled(true);
         leftButton.setEnabled(true);
@@ -297,15 +338,19 @@ public class JoystickSoftware extends RackDataModule
         {
             outputData.position.x = 0;
             outputData.position.y = 0;
+            outputData.buttons = 0;
         }
 
         xLabel.setText("0%");
         yLabel.setText("0%");
+        buttonsLabel.setText("");
 
         xNameLabel.setEnabled(false);
         yNameLabel.setEnabled(false);
+        buttonsNameLabel.setEnabled(false);
         xLabel.setEnabled(false);
         yLabel.setEnabled(false);
+        buttonsLabel.setEnabled(false);
         forwardButton.setEnabled(false);
         backwardButton.setEnabled(false);
         leftButton.setEnabled(false);
@@ -328,6 +373,7 @@ public class JoystickSoftware extends RackDataModule
 
         xLabel.setText(outputData.position.x + "%");
         yLabel.setText(outputData.position.y + "%");
+        buttonsLabel.setText(Integer.toBinaryString(outputData.buttons));
 
         try
         {
