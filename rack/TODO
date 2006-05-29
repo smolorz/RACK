@@ -2,3 +2,6 @@
 - RackName offset
 - argopts -> string, long
 - comments in rtnet.conf
+- compressing of non-realtime messages
+- fifo-mailboxes in TiMS
+-

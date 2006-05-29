@@ -193,8 +193,8 @@ int recvTcpTimsMsg(connection_t *con, timsMsgHead* recvMsg)
         if (ret < 0)
         {
             connection_close(con);
-            tims_print("con[%02d]: %15s: recv head ERROR, code = %d \n",
-                       idx, inet_ntoa(con->addr.sin_addr), ret);
+            tims_print("con[%02d]: %15s: recv head ERROR, (%s)\n",
+                       idx, inet_ntoa(con->addr.sin_addr), strerror(errno));
             return ret;
         }
 
@@ -237,13 +237,13 @@ int recvTcpTimsMsg(connection_t *con, timsMsgHead* recvMsg)
         {
             ret = recv(con->socket, (void*)recvMsg + len,
                        recvMsg->msglen - len, 0);
-            if (ret < 0)
+            if (ret == -1)
             {
                 connection_close(con);
                 tims_print("con[%02d]: %15s: %8x --(%4d)--> %8x, recv body "
-                           "ERROR, code = %d \n", idx,
+                           "ERROR, (%s)\n", idx,
                            inet_ntoa(con->addr.sin_addr), recvMsg->src,
-                           recvMsg->type, recvMsg->dest, ret);
+                           recvMsg->type, recvMsg->dest, strerror(errno));
                 return -1;
             }
 
@@ -745,7 +745,7 @@ void watchdog_task_proc(void *arg)
                 sndTcpTimsMsg(&conList[i], &lifesignMsg);
             }
         }
-        tims_print("watchdog wait ...\n");
+        tims_dbg("watchdog wait ...\n");
         sleep(5);
 
         for (i = 0; i < MAX_CONNECTIONS; i++)

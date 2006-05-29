@@ -66,7 +66,6 @@
 #define TIMS_CLIENT_THREAD_TCPRECV      0x0040
 #define TIMS_CLIENT_THREAD_WATCHDOG     0x0080
 
-#define TIMS_CLIENT_TCP_CONNECT         0x0100
 #define TIMS_CLIENT_TCP_RECV_MSG        0x0200
 #define TIMS_CLIENT_PIPE_RECV_MSG       0x0800
 
@@ -105,15 +104,12 @@ static timsMsgHead*       pipeRecvMsg;
 static int                loglevel = 0;
 static char               filename[80];
 
+void connection_close();
+int connection_create();
+
 void cleanup_tcpRecv_task()
 {
-    if (init_flags & TIMS_CLIENT_TCP_CONNECT)
-    {
-        close(tcpSocket);
-        tcpSocket = -1;
-        tims_dbgdetail("[CLEANUP] socket closed\n");
-        init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
-    }
+    connection_close();
 
     if (init_flags & TIMS_CLIENT_SEM_TCP_SEND)
     {
@@ -209,6 +205,8 @@ void signal_handler(int arg)
 
 void *watchdog_task_proc(void *arg)
 {
+    int ret;
+
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
     signal(SIGTERM, signal_handler);
@@ -219,18 +217,30 @@ void *watchdog_task_proc(void *arg)
     while (!terminate)
     {
         sem_wait(&watchdogSem);
-        watchdog++;
 
-        if (watchdog > 10)
+        if (watchdog++ > 10)
         {
+            tims_print("[WATCHDOG] closing connection\n");
+            connection_close();
+            sleep(3);
+
+            tims_print("[WATCHDOG] creating connection\n");
+            ret = connection_create();
+            if (ret) {
+                sem_post(&watchdogSem);
+                tims_print("[WATCHDOG] call signal handler\n");
+                signal_handler(0);
+            }
+
+            watchdog = 0;
             sem_post(&watchdogSem);
-            tims_print("[WATCHDOG] call signal handler\n");
-            signal_handler(0);
         }
         else
         {
             sem_post(&watchdogSem);
         }
+
+        tims_dbg("watchdog wait ...\n");
         sleep(1);
     }
 
@@ -268,12 +278,12 @@ int recvTcpTimsMsg(timsMsgHead* recvMsg)
     while (len < TIMS_HEADLEN)
     {
         ret = recv(tcpSocket, (void*)recvMsg + len, TIMS_HEADLEN - len, 0);
-        if (ret < 0)
+        if (ret == -1) // error
         {
-            tims_print("[TCP] recv head ERROR, code = %d \n", ret);
-            return ret;
+            tims_print("[TCP] recv head ERROR, (%s)\n", strerror(errno));
+            return errno;
         }
-        if (!ret)
+        if (!ret) // socket closed
         {
             tims_print("[TCP] recv head ERROR, socket closed\n");
             return -1;
@@ -306,14 +316,14 @@ int recvTcpTimsMsg(timsMsgHead* recvMsg)
         while (len < recvMsg->msglen)
         {
             ret = recv(tcpSocket, (void*)recvMsg + len, recvMsg->msglen - len, 0);
-            if (ret < 0)
+            if (ret == -1) // error
             {
-                tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, "
-                           "code = %d \n", recvMsg->src, recvMsg->type,
-                           recvMsg->dest, ret);
+                tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, (%s)\n",
+                           recvMsg->src, recvMsg->type, recvMsg->dest,
+                           strerror(errno));
                 return ret;
             }
-            if (!ret)
+            if (!ret) // socket closed
             {
                 tims_print("[TCP]  %8x --(%04d)--> %8x, recv body ERROR, socket "
                            "closed, code = %d\n", recvMsg->src, recvMsg->type,
@@ -330,12 +340,12 @@ int recvTcpTimsMsg(timsMsgHead* recvMsg)
                        "data (%u bytes)\n", recvMsg->src, recvMsg->type,
                        recvMsg->dest, TIMS_HEADLEN,
                        recvMsg->msglen - TIMS_HEADLEN);
-        }
-        else
-        {
-            tims_dbgdetail("[TCP]  %8x --(%04d)--> %8x, recv head (%u bytes)\n",
-                           recvMsg->src, recvMsg->type, recvMsg->dest,
-                           recvMsg->msglen);
+    }
+    else
+    {
+        tims_dbgdetail("[TCP]  %8x --(%04d)--> %8x, recv head (%u bytes)\n",
+                       recvMsg->src, recvMsg->type, recvMsg->dest,
+                       recvMsg->msglen);
     }
     return 0;
 }
@@ -397,11 +407,63 @@ int recvPipeTimsMsg(timsMsgHead* recvMsg)
     return 0;
 }
 
+void connection_close()
+{
+    if (tcpSocket != -1)
+    {
+        close(tcpSocket);
+        tcpSocket = -1;
+        tims_dbgdetail("[TCP_TASK]: Socket closed\n");
+    }
+}
+
+int connection_create()
+{
+    int ret;
+    timsMsgHead  connMsg;
+
+    // open socket
+    tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (tcpSocket == -1)
+    {
+        tims_print("[TCP_TASK]: ERROR: Can't create socket, (%s)\n",
+                   strerror(errno));
+        sleep(3);
+        return errno;
+    }
+
+    // connect
+    ret = connect(tcpSocket, (struct sockaddr *)&tcpAddr, sizeof(tcpAddr));
+    if (ret)
+    {
+        tims_print("[TCP_TASK]: ERROR: Can't connect to Router, (%s)\n",
+                   strerror(errno));
+        connection_close();
+        sleep(3);
+        return ret;
+    }
+
+    // connected to TCP TimsMsgRouter
+    tims_fillhead(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0, 0, 0,
+                  TIMS_HEADLEN);
+
+    ret = sndPipeTimsMsg(&connMsg);
+    if (ret != 0)
+    {
+        tims_dbgdetail("[TCP_TASK]: ERROR: Can't send connect message to TiMS\n");
+        connection_close();
+        sleep(3);
+        return ret;
+    }
+
+    tims_print("[TCP_TASK]: Connected to TcpTimsMessageRouter\n");
+    return 0;
+}
+
 void tcpRecv_task_proc(void *arg)
 {
     int ret;
     timsMsgHead* tcpRecvMsg = (timsMsgHead*)arg;
-    timsMsgHead  connMsg;
     timsMsgHead  replyMsg;
 
     signal(SIGHUP,  signal_handler);
@@ -413,84 +475,51 @@ void tcpRecv_task_proc(void *arg)
 
     while (!terminate)
     {
-        if (tcpSocket == -1)
+        if (tcpSocket == -1) // Socket is closed
         {
-            // try to connect to TCP Tims Message Router
-            tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
-            if (tcpSocket == -1)
-            {
-                tims_print("[TCP_TASK] ERROR: can't create TCP/IP socket\n");
-                sleep(5);
-            }
-            else if (connect(tcpSocket, (struct sockaddr *)&tcpAddr,
-                             sizeof(tcpAddr)) == -1)
-            {
-                tims_print("[TCP_TASK]: Can't connect to TcpTimsMsgRouter, (%s)\n",
-                           strerror(errno));
-                close(tcpSocket);
-                tcpSocket = -1;
-                sleep(5);
-            }
-            else // connected to TCPTimsMsgRouter
-            {
-                init_flags |= TIMS_CLIENT_TCP_CONNECT;
-                tims_fillhead(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0,
-                              0, 0, TIMS_HEADLEN);
-
-                if (sndPipeTimsMsg(&connMsg) != 0)
-                {
-                    tims_dbgdetail("[TCP_TASK] ERROR: Can't send connect "
-                                   "message to TIMS\n");
-                    close(tcpSocket);
-                    tcpSocket = -1;
-                    init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
-                    sleep(5);
-                }
-                else
-                {
-                    tims_print("[TCP_TASK] connected to TcpTimsMessageRouter\n");
-                }
-            }
-        }
-        else // tcpSocket != -1
-        {
-            // handle incoming Tims Message from TcpTimsMsgRouter
-            ret = recvTcpTimsMsg(tcpRecvMsg);
+            ret = connection_create();
             if (ret)
-            {
-                tims_print("[TCP_TASK] connection to TcpTimsMsgRouter closed\n");
-                close(tcpSocket);
-                tcpSocket = -1;
-                init_flags &= ~TIMS_CLIENT_TCP_CONNECT;
-                if (!terminate)
-                    sleep(5);
-            }
-            else
-            {
-                if ((tcpRecvMsg->dest == 0) &
-                    (tcpRecvMsg->src == 0) &
-                    (tcpRecvMsg->type == TIMS_MSG_ROUTER_GET_STATUS))
-                {
-                    // reply to lifesign
-                    tims_fillhead(&replyMsg, TIMS_MSG_OK, 0, 0,
-                                  tcpRecvMsg->priority,
-                                  0, 0, TIMS_HEADLEN);
+                goto reset_watchdog;
+        }
 
-                    sndTcpTimsMsg(&replyMsg);
-                }
-                else if (sndPipeTimsMsg(tcpRecvMsg) != 0)
-                {
-                    if (tcpRecvMsg->type > 0) // send reply if connection is not available
-                    {
-                        tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
-                                      tcpRecvMsg->src, tcpRecvMsg->dest,
-                                      tcpRecvMsg->priority, tcpRecvMsg->seq_nr,
-                                      0, TIMS_HEADLEN);
-                        sndTcpTimsMsg(&replyMsg);
-                    }
-                }
+        // handle incoming Tims Message from TcpTimsMsgRouter
+        ret = recvTcpTimsMsg(tcpRecvMsg);
+        if (ret)
+        {
+            tims_print("[TCP_TASK] connection to TcpTimsMsgRouter closed\n");
+            connection_close();
+            if (!terminate)
+                sleep(5);
+                goto reset_watchdog;
+        }
+
+        // checking lifesign message from TCP Router
+        if ((tcpRecvMsg->dest == 0) &
+            (tcpRecvMsg->src  == 0) &
+            (tcpRecvMsg->type == TIMS_MSG_ROUTER_GET_STATUS))
+        {
+            // reply to lifesign
+            tims_fillhead(&replyMsg, TIMS_MSG_OK, 0, 0, tcpRecvMsg->priority,
+                          0, 0, TIMS_HEADLEN);
+            sndTcpTimsMsg(&replyMsg);
+            goto reset_watchdog;
+        }
+
+        // forward message to TiMS
+        ret =  sndPipeTimsMsg(tcpRecvMsg);
+        if (ret)
+        {
+            if (tcpRecvMsg->type > 0) // send reply if connection is not available
+            {
+                tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
+                              tcpRecvMsg->src, tcpRecvMsg->dest,
+                              tcpRecvMsg->priority, tcpRecvMsg->seq_nr,
+                              0, TIMS_HEADLEN);
+                sndTcpTimsMsg(&replyMsg);
             }
         }
+
+reset_watchdog:
         sem_wait(&watchdogSem);
         watchdog = 0;
         sem_post(&watchdogSem);
