@@ -1036,10 +1036,6 @@ static int init_slot_mailbox(timsMbx *p_mbx)
         // get number of needed pages
         p_mbx->buffer_pages = get_max_pages(p_mbx->buffer_size);
 
-        p_mbx->buffer_pages = (unsigned long)
-            (((p_mbx->buffer_size + PAGE_SIZE - 1) &
-            ~(PAGE_SIZE - 1)) >> PAGE_SHIFT) + 1;
-
         tims_dbgdetail("need to map %lu pages \n", p_mbx->buffer_pages);
 
         // create table of all page pointers
@@ -1076,7 +1072,7 @@ static int init_slot_mailbox(timsMbx *p_mbx)
         // get mailbox pages and map them to kernel
         //
 
-        buffer_page = ((unsigned long)p_buffer & ~(PAGE_SIZE - 1));
+        buffer_page = ((unsigned long)p_buffer & PAGE_MASK);
         buffer_offset = (unsigned long)p_buffer - buffer_page;
 
         tims_dbgdetail("buffer: 0x%p, buffer_page: 0x%lx, buffer_offset: 0x%lx, "
@@ -1159,8 +1155,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                     free_bytes_in_page = (p_head_map & PAGE_MASK) +
                                           PAGE_SIZE - p_head_map;
 
-                    akt_bytes = message_size > free_bytes_in_page ?
-                                free_bytes_in_page : message_size;
+                    akt_bytes = min_t(unsigned long, message_size,
+                                                     free_bytes_in_page);
                     message_size -= akt_bytes;
                     memset((void *)p_head_map, 0, akt_bytes);
 

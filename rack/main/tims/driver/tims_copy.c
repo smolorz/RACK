@@ -67,8 +67,7 @@ static unsigned long tims_copy_userslot_user(rtdm_user_info_t *user_info,
         while (copy_bytes)
         {
             bytes_in_page = get_remain_bytes_in_page(p_src_map);
-            akt_copy_size = copy_bytes > bytes_in_page ?
-                            bytes_in_page : copy_bytes;
+            akt_copy_size = min_t(unsigned long, bytes_in_page, copy_bytes);
 
             ret = rtdm_copy_to_user(user_info, p_dest, (void *)p_src_map,
                                     akt_copy_size);
@@ -223,8 +222,7 @@ static unsigned long tims_copy_user_userslot(rtdm_user_info_t *user_info,
         while (copy_bytes)
         {
             free_in_page  = get_remain_bytes_in_page(p_dest_map);
-            akt_copy_size = free_in_page > copy_bytes ?
-                            copy_bytes : free_in_page;
+            akt_copy_size = min_t(unsigned long, free_in_page, copy_bytes);
 
             ret = rtdm_copy_from_user(user_info, (void *)p_dest_map, p_src,
                                       akt_copy_size);
@@ -339,8 +337,7 @@ static unsigned long tims_copy_kernel_userslot(rtdm_user_info_t *user_info,
         while (copy_bytes)
         {
             free_in_page  = get_remain_bytes_in_page(p_dest_map);
-            akt_copy_size = free_in_page > copy_bytes ?
-                            copy_bytes : free_in_page;
+            akt_copy_size = min_t(unsigned long, free_in_page, copy_bytes);
 
             memcpy((void *)p_dest_map, p_src, akt_copy_size);
 

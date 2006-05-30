@@ -115,7 +115,7 @@ typedef struct tims_context
 //
 static inline int get_max_pages(unsigned long buffersize)
 {
-    return (((buffersize + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
+    return (((buffersize + PAGE_SIZE - 1) & PAGE_MASK)
             >> PAGE_SHIFT) + 1;
 }
 
