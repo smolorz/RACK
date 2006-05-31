@@ -136,7 +136,7 @@ int CanPort::send(rtcan_frame_t* frame)
 int CanPort::recv(rtcan_frame_t *recv_frame, RACK_TIME *timestamp)
 {
     int ret;
-    uint64_t timestamp_ns = 0;
+    uint64_t timestamp_ns;
 
     struct iovec  iov =
     {
@@ -151,16 +151,29 @@ int CanPort::recv(rtcan_frame_t *recv_frame, RACK_TIME *timestamp)
 
         msg_iov        : &iov,
         msg_iovlen     : 1,
-
-        msg_control    : (void *)timestamp_ns,
-        msg_controllen : timestamp ? sizeof(uint64_t) : 0
     };
 
+    if(timestamp != NULL)
+    {
+        msg.msg_control    = &timestamp_ns;
+        msg.msg_controllen = sizeof(uint64_t);
+    }
+    else
+    {
+        msg.msg_control    = NULL;
+        msg.msg_controllen = 0;
+    }
+    
     ret = rt_dev_recvmsg(fd, &msg, 0);
     if (ret != sizeof(rtcan_frame_t))
     {
         return ret;
     }
-    *timestamp = module->rackTime.fromNano(timestamp_ns);
+
+    if(timestamp != NULL)
+    {
+        *timestamp = module->rackTime.fromNano(timestamp_ns);
+    }
+    
     return 0;
 }
