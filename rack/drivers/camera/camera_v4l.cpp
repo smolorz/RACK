@@ -453,7 +453,7 @@ CameraV4L::CameraV4L()
     setDataBufferMaxDataSize(sizeof(camera_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(5000); // hardcoded in loop!!!
+    setDataBufferPeriodTime(500); // hardcoded in loop!!!
     //500000000llu
 }
 
