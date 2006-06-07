@@ -96,7 +96,7 @@ public class ChassisGui extends RackModuleGui
         {
             public void actionPerformed(ActionEvent e)
             {
-                chassis.setActivePilot(-1);
+                chassis.setActivePilot(ChassisProxy.INVAL_PILOT);
             }
         });
 

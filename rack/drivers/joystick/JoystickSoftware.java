@@ -204,7 +204,7 @@ public class JoystickSoftware extends RackDataModule
         {
             public void actionPerformed(ActionEvent e)
             {
-                pilot(-1);
+                pilot(ChassisProxy.INVAL_PILOT);
             }
         });
 

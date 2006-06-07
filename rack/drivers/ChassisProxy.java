@@ -38,6 +38,8 @@ public class ChassisProxy extends RackDataProxy
     public static final byte MSG_CHASSIS_PARAMETER =
         RackMsgType.RACK_PROXY_MSG_NEG_OFFSET - 1;
 
+    public static final byte INVAL_PILOT = -1;
+
     public ChassisProxy(int id, int replyMbx)
     {
         super(RackName.create(RackName.CHASSIS, id), replyMbx, 5000, 1000, 1000);
