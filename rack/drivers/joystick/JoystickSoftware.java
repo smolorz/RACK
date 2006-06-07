@@ -18,13 +18,16 @@ package rack.drivers.joystick;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import rack.main.debug.GDOS;
+import rack.main.gui.RackModuleGui;
 import rack.main.module.*;
 import rack.main.naming.*;
 import rack.main.proxy.*;
 import rack.main.tims.msg.*;
+import rack.navigation.PilotProxy;
 import rack.drivers.*;
 
 /**
@@ -42,6 +45,8 @@ public class JoystickSoftware extends RackDataModule
     protected JButton onButton;
     protected JButton offButton;
 
+    protected JPanel centerPanel;
+
     protected JLabel xLabel = new JLabel("0%");
     protected JLabel yLabel = new JLabel("0%");
     protected JLabel buttonsLabel = new JLabel("00000000");
@@ -58,14 +63,22 @@ public class JoystickSoftware extends RackDataModule
     protected JButton stopButton = new JButton("stop");
     protected JoystickDataMsg outputData = new JoystickDataMsg();
 
+    protected JPanel pilotPanel;
+    protected JButton pilot0Button = new JButton("Pilot(0)");
+    protected JButton pilot1Button = new JButton("Pilot(1)");
+    protected JButton pilot2Button = new JButton("Pilot(2)");
+    protected JButton noPilotButton = new JButton("No Pilot");
+
+    protected RackProxy[] rackProxyList;
+
     /**
      * @param commandMbx
      */
-    public JoystickSoftware(final JoystickProxy joystickProxy)
+    public JoystickSoftware(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
     {
-
-        super(RackName.create(RackName.JOYSTICK, joystickProxy.getInstanceId()));
-        this.joystickProxy = joystickProxy;
+        super(RackName.create(RackName.JOYSTICK, proxyList[moduleIndex.intValue()].getInstanceId()));
+        this.joystickProxy = (JoystickProxy)proxyList[moduleIndex.intValue()];
+        this.rackProxyList = proxyList;
         this.periodTime = 100;
 
         panel = new JPanel(new BorderLayout(2, 2));
@@ -113,17 +126,7 @@ public class JoystickSoftware extends RackDataModule
         outputData.position.y = 0;
         outputData.buttons    = 0;
 
-        xNameLabel.setEnabled(false);
-        yNameLabel.setEnabled(false);
-        buttonsNameLabel.setEnabled(false);
-        xLabel.setEnabled(false);
-        yLabel.setEnabled(false);
-        buttonsLabel.setEnabled(false);
-        forwardButton.setEnabled(false);
-        backwardButton.setEnabled(false);
-        leftButton.setEnabled(false);
-        rightButton.setEnabled(false);
-        stopButton.setEnabled(false);
+        setEnabled(false);
 
         forwardButton.addActionListener(new ActionListener()
         {
@@ -173,10 +176,52 @@ public class JoystickSoftware extends RackDataModule
         steeringPanel.add(new JLabel());
         // steeringPanel.setMaximumSize(new Dimension(200,200));
 
+        pilot0Button.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                pilot(0);
+            }
+        });
+
+        pilot1Button.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                pilot(1);
+            }
+        });
+
+        pilot2Button.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                pilot(2);
+            }
+        });
+
+        noPilotButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                pilot(-1);
+            }
+        });
+
+        pilotPanel = new JPanel(new GridLayout(0, 1, 2, 2));
+        pilotPanel.add(pilot0Button);
+        pilotPanel.add(pilot1Button);
+        pilotPanel.add(pilot2Button);
+        pilotPanel.add(noPilotButton);
+        
+        centerPanel = new JPanel(new BorderLayout(2, 2));
+        centerPanel.add(labelPanel, BorderLayout.NORTH);
+        centerPanel.add(steeringPanel, BorderLayout.CENTER);
+
         // panel.add(Box.createRigidArea(new Dimension(0,20)));
         panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(labelPanel, BorderLayout.CENTER);
-        panel.add(steeringPanel, BorderLayout.SOUTH);
+        panel.add(centerPanel, BorderLayout.CENTER);
+        panel.add(pilotPanel, BorderLayout.SOUTH);
 
         KeyListener keyListener = new KeyListener()
         {
@@ -251,11 +296,17 @@ public class JoystickSoftware extends RackDataModule
 
         onButton.addKeyListener(keyListener);
         offButton.addKeyListener(keyListener);
+
         forwardButton.addKeyListener(keyListener);
         backwardButton.addKeyListener(keyListener);
         leftButton.addKeyListener(keyListener);
         rightButton.addKeyListener(keyListener);
         stopButton.addKeyListener(keyListener);
+
+        pilot0Button.addKeyListener(keyListener);
+        pilot1Button.addKeyListener(keyListener);
+        pilot2Button.addKeyListener(keyListener);
+        noPilotButton.addKeyListener(keyListener);
     }
 
     public synchronized void forward()
@@ -305,6 +356,8 @@ public class JoystickSoftware extends RackDataModule
     public synchronized void f1Up()
     {
         outputData.buttons &= ~0x01;
+        outputData.position.x = 0;
+        outputData.position.y = 0;
     }
 
     public synchronized void f2Down()
@@ -315,6 +368,8 @@ public class JoystickSoftware extends RackDataModule
     public synchronized void f2Up()
     {
         outputData.buttons &= ~0x02;
+        outputData.position.x = 0;
+        outputData.position.y = 0;
     }
 
     public synchronized void f3Down()
@@ -325,6 +380,8 @@ public class JoystickSoftware extends RackDataModule
     public synchronized void f3Up()
     {
         outputData.buttons &= ~0x04;
+        outputData.position.x = 0;
+        outputData.position.y = 0;
     }
 
     public synchronized void f4Down()
@@ -335,6 +392,58 @@ public class JoystickSoftware extends RackDataModule
     public synchronized void f4Up()
     {
         outputData.buttons &= ~0x08;
+        outputData.position.x = 0;
+        outputData.position.y = 0;
+    }
+
+    public synchronized void pilot(int pilot)
+    {
+        outputData.position.x = 0;
+        outputData.position.y = 0;
+
+        // turn off pilots
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < rackProxyList.length; j++)
+            {
+                if(rackProxyList[j].getCommandMbx() == RackName.create(RackName.PILOT, i))
+                {
+                    PilotProxy pilotProxy = (PilotProxy)rackProxyList[j];
+                    if(i != pilot)
+                        pilotProxy.off();
+                }
+            }
+        }
+
+        // set active pilot
+        for(int j = 0; j < rackProxyList.length; j++)
+        {
+            if(rackProxyList[j].getCommandMbx() == RackName.create(RackName.CHASSIS, 0))
+            {
+                ChassisProxy chassisProxy = (ChassisProxy)rackProxyList[j];
+                if(pilot >= 0)
+                {
+                    chassisProxy.setActivePilot(RackName.create(RackName.PILOT, pilot));
+                }
+                else
+                {
+                    chassisProxy.setActivePilot(ChassisProxy.INVAL_PILOT);
+                }
+            }
+        }
+        
+        // turn on pilot
+        if(pilot >= 0)
+        {
+            for(int j = 0; j < rackProxyList.length; j++)
+            {
+                if(rackProxyList[j].getCommandMbx() == RackName.create(RackName.PILOT, pilot))
+                {
+                    PilotProxy pilotProxy = (PilotProxy)rackProxyList[j];
+                    pilotProxy.on();
+                }
+            }
+        }
     }
 
     /*
@@ -344,17 +453,7 @@ public class JoystickSoftware extends RackDataModule
      */
     public boolean moduleOn()
     {
-        xNameLabel.setEnabled(true);
-        yNameLabel.setEnabled(true);
-        buttonsNameLabel.setEnabled(true);
-        xLabel.setEnabled(true);
-        yLabel.setEnabled(true);
-        buttonsLabel.setEnabled(true);
-        forwardButton.setEnabled(true);
-        backwardButton.setEnabled(true);
-        leftButton.setEnabled(true);
-        rightButton.setEnabled(true);
-        stopButton.setEnabled(true);
+        setEnabled(true);
 
         return true;
     }
@@ -377,17 +476,7 @@ public class JoystickSoftware extends RackDataModule
         yLabel.setText("0%");
         buttonsLabel.setText("");
 
-        xNameLabel.setEnabled(false);
-        yNameLabel.setEnabled(false);
-        buttonsNameLabel.setEnabled(false);
-        xLabel.setEnabled(false);
-        yLabel.setEnabled(false);
-        buttonsLabel.setEnabled(false);
-        forwardButton.setEnabled(false);
-        backwardButton.setEnabled(false);
-        leftButton.setEnabled(false);
-        rightButton.setEnabled(false);
-        stopButton.setEnabled(false);
+        setEnabled(false);
     }
 
     /*
@@ -439,5 +528,26 @@ public class JoystickSoftware extends RackDataModule
     public RackProxy getProxy()
     {
         return (joystickProxy);
+    }
+
+    public void setEnabled(boolean enabled)
+    {
+        xNameLabel.setEnabled(enabled);
+        yNameLabel.setEnabled(enabled);
+        buttonsNameLabel.setEnabled(enabled);
+        xLabel.setEnabled(enabled);
+        yLabel.setEnabled(enabled);
+
+        buttonsLabel.setEnabled(enabled);
+        forwardButton.setEnabled(enabled);
+        backwardButton.setEnabled(enabled);
+        leftButton.setEnabled(enabled);
+        rightButton.setEnabled(enabled);
+        stopButton.setEnabled(enabled);
+
+        pilot0Button.setEnabled(enabled);
+        pilot1Button.setEnabled(enabled);
+        pilot2Button.setEnabled(enabled);
+        noPilotButton.setEnabled(enabled);
     }
 }
