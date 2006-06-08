@@ -21,6 +21,8 @@ import java.awt.*;
 
 public interface MapViewDrawContext
 {
+    public Graphics2D getFrameGraphics();
+
     public Graphics2D getWorldGraphics();
 
     public Graphics2D getRobotGraphics();

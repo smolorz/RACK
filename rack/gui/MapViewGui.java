@@ -355,6 +355,11 @@ public class MapViewGui extends Thread
             drawGrid();
         }
 
+        public Graphics2D getFrameGraphics()
+        {
+            return (Graphics2D)this.getGraphics();
+        }
+
         public Graphics2D getWorldGraphics()
         {
             return worldGraph;
@@ -1158,6 +1163,11 @@ public class MapViewGui extends Thread
 
             robotCursorPosition = actionCursor.translateRobotCursorPosition(
                     worldCursorPosition, robotPosition);
+        }
+
+        public Graphics2D getFrameGraphics()
+        {
+            return null;
         }
 
         public Graphics2D getWorldGraphics()

@@ -25,8 +25,11 @@ import rack.main.naming.*;
 
 public class ChassisGui extends RackModuleGui
 {
-
     protected boolean terminate = false;
+    
+    protected ChassisDataMsg chassisData;
+    protected boolean mapViewIsShowing;
+    
     protected JButton onButton = new JButton("On");
     protected JButton offButton = new JButton("Off");
 
@@ -232,6 +235,10 @@ public class ChassisGui extends RackModuleGui
             if(panel.isShowing())
             {
                 data = chassis.getData();
+                synchronized(this)
+                {
+                    chassisData = data;
+                }
 
                 if(data != null)
                 {
@@ -332,7 +339,7 @@ public class ChassisGui extends RackModuleGui
             }
             try
             {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             }
             catch(InterruptedException e)
             {
@@ -340,6 +347,59 @@ public class ChassisGui extends RackModuleGui
         }
     }
 
+    public void paintMapView(MapViewDrawContext drawContext) 
+    {
+        mapViewIsShowing = true;
+        
+        synchronized(this)
+        {
+            if (chassisData == null) return;
+    
+            Graphics2D graphics = drawContext.getFrameGraphics();
+    
+            graphics.setColor(Color.LIGHT_GRAY);
+            graphics.fillRect(10,30,10,200);
+            graphics.fillRect(30,10,200,10);
+    
+            graphics.setColor(Color.RED);
+            int vx = (int)(chassisData.vx / 10.0f);
+
+            if(vx > 100)
+                vx = 100;
+            if(vx < -100)
+                vx = -100;
+            
+            if(vx > 0)
+            {
+                graphics.fillRect(10, 130 - vx, 10, vx);
+            }
+            if(vx < 0)
+            {
+                graphics.fillRect(10, 130, 10, -vx);
+            }
+            
+            graphics.setColor(Color.RED);
+            int omega = (int)(Math.toDegrees((double)chassisData.omega) * 5.0);
+
+            if(omega > 100)
+                omega = 100;
+            if(omega < -100)
+                omega = -100;
+            
+            if(omega > 0)
+            {
+                graphics.fillRect(130, 10, omega, 10);
+            }
+            if(omega < 0)
+            {
+                graphics.fillRect(130 + omega, 10, -omega, 10);
+            }
+    
+            graphics.setColor(Color.BLACK);
+            graphics.drawLine(10,130,19,130);
+            graphics.drawLine(130,10,130,19);
+        }
+    }
 
     public void terminate()
     {
