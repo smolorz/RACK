@@ -90,7 +90,8 @@ public class MapViewGui extends Thread
         chassisProxy  = new ChassisProxy(0, workMbx);
 
         // get chassis parameter message
-        chassisParam = chassisProxy.getParam();
+        if (chassisProxy != null)
+            chassisParam = chassisProxy.getParam();
 
         // create MapView components
         menuBar = new JMenu();
@@ -101,7 +102,7 @@ public class MapViewGui extends Thread
 
         // set MapView layout
         panel = new JPanel(new BorderLayout(2,2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        panel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
         panel.add(mapNavigator,BorderLayout.NORTH);
         panel.add(viewPanel,BorderLayout.CENTER);;
 
@@ -195,7 +196,10 @@ public class MapViewGui extends Thread
     {
         try
         {
-            PositionDataMsg position = positionProxy.getData();
+        	PositionDataMsg position = new PositionDataMsg();
+        	
+        	if (positionProxy != null)
+        	    position = positionProxy.getData();
 
             robotPosition = new Position2D(position.pos.x, position.pos.y,
                                            position.pos.rho);
@@ -525,8 +529,8 @@ public class MapViewGui extends Thread
 
         public MapNavigator()
         {
-            this.setLayout(new BorderLayout(2,2));
-            this.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+            this.setLayout(new BorderLayout(0,0));
+//            this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
          //   viewPanel.addMouseWheelListener(this);
             viewPanel.addMouseListener(this);
@@ -536,7 +540,7 @@ public class MapViewGui extends Thread
            // command
             westPanel = new JPanel();
             westPanel.setLayout(new BorderLayout(2,2));
-            westPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+            westPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
             JMenuBar menu = new JMenuBar();
             menu.add(new CommandMenu());
@@ -545,7 +549,7 @@ public class MapViewGui extends Thread
             // coordinates
             centerPanel = new JPanel();
             centerPanel.setLayout(new BorderLayout(2, 2));
-            centerPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+            centerPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
             coordinateLabel = new JLabel("X: 0 mm , Y: 0 mm");
             centerPanel.add(coordinateLabel, BorderLayout.CENTER);
@@ -553,7 +557,7 @@ public class MapViewGui extends Thread
             // view
             eastPanel = new JPanel();
             eastPanel.setLayout(new BorderLayout(2, 2));
-            eastPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+            eastPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
             viewOriginButton = new JButton("Origin");
             viewOriginButton.setActionCommand("origin");
@@ -869,9 +873,6 @@ public class MapViewGui extends Thread
 
         private void drawDefaultCursor(Graphics2D cursorGraphics)
         {
-            cursorGraphics.setColor(new Color(0, 0, 255, 180));
-            cursorGraphics.fillArc(-200, -200, 400, 400, 30, 300);
-
             int chassisWidth = chassisParam.boundaryLeft +
                chassisParam.boundaryRight;
             int chassisLength = chassisParam.boundaryBack +
@@ -958,7 +959,6 @@ public class MapViewGui extends Thread
 
         public void mouseWheelMoved(MouseWheelEvent event)
         {
-            System.out.println(event.getWheelRotation());
             worldCursorPosition.phi = normalizePhi(
                                       worldCursorPosition.phi +
                                       event.getWheelRotation() * dPhiPerClick);
