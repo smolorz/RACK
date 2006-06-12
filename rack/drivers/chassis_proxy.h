@@ -415,4 +415,4 @@ class ChassisProxy : public RackDataProxy {
 
 };
 
-#endif // __ODOMETRY_PROXY_H__
+#endif // __CHASSIS_PROXY_H__
