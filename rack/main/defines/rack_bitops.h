@@ -16,39 +16,98 @@
 #ifndef __RACK_BITSOPS_H__
 #define __RACK_BITSOPS_H__
 
+ /*!
+ * @ingroup rack
+ * @defgroup bitops Bit Operations
+ * @{
+ */
+
 //######################################################################
 //# class RackBits
 //######################################################################
 
 class RackBits
 {
-
     private:
         uint32_t bits;   // 32 bits
 
     public:
 
+/**
+ * @brief Set a bit
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         void setBit(int bit)
         {
-        bits |= (1 << bit);
+            bits |= (1 << bit);
         }
 
+/**
+ * @brief Clear a bit
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         void clearBit(int bit)
         {
             bits &= ~(1 << bit);
         }
 
+/**
+ * @brief Clear all bits
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         void clearAllBits(void)
         {
             bits = 0;
         }
 
+/**
+ * @brief Test a bit
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         int testBit(int bit)
         {
             return bits & (1 << bit);
         }
 
-        // testAndClearBit - Del a bit and return its old value
+/**
+ * @brief Clear a bit and return its old value
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         int testAndClearBit(int bit)
         {
             int oldBit = testBit(bit);
@@ -57,7 +116,17 @@ class RackBits
             return oldBit;
         }
 
-        // testAndSetBit - Set a bit and return its old value
+/**
+ * @brief Set a bit and return its old value
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         int testAndSetBit(int bit)
         {
             int oldBit = testBit(bit);
@@ -66,10 +135,23 @@ class RackBits
             return oldBit;
         }
 
+/**
+ * @brief Get all bits
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: never.
+ */
         uint32_t getBits()
         {
             return bits;
         }
 };
 
-#endif /*RACK_BITSOPS_H_*/
+/*@}*/
+
+#endif // __RACK_BITSOPS_H__

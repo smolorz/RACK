@@ -13,11 +13,23 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
+
 #ifndef __RACK_TIME_H__
 #define __RACK_TIME_H__
 
+ /*!
+ * @ingroup rack
+ * @defgroup time Time Services
+ * @{
+ */
+
+/** Maximum RACK time value */
 #define RACK_TIME_MAX           0x7fffffff
+
+/** RACK time factor (1 ms) */
 #define FACTOR                  1000000
+
+/** RTnet time reference device*/
 #define TIME_REFERENCE_DEV      "TDMA0"
 
 #include <main/rack_rtmac.h>
@@ -25,17 +37,34 @@
 #include <inttypes.h>
 
 
-// time in ms
+/** RACK time (32 Bit) */
 typedef uint32_t RACK_TIME;
 
 class RackTime {
     private:
+
+/** TDMA file decriptor */
         int32_t tdma_fd;
 
     public:
+
+/** Global time offset */
         int64_t offset;
+
+/** Global time flag */
         char    global;
 
+/**
+ * @brief RackTime constructor.
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT)
+ *
+ * Rescheduling: never.
+ */
         RackTime()
         {
             tdma_fd = -1;
@@ -43,11 +72,34 @@ class RackTime {
             offset  = 0;
         }
 
+/**
+ * @brief RackTime destructor.
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT)
+ *
+ * Rescheduling: never.
+ */
         ~RackTime()
         {
             cleanup();
         }
 
+/**
+ * @brief Cleanup the RackTime class. If the RTnet TDMA device has been opened
+ * the device is closed.
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         void cleanup()
         {
             if (tdma_fd)
@@ -57,6 +109,21 @@ class RackTime {
             global = 0;
         }
 
+/**
+ * @brief Initializing the RackTime class. The function tries to open the
+ * RTnet TDMA device. On success the global offset is fetched and the
+ * global flag is set.
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         int init()
         {
             int ret;
@@ -78,7 +145,22 @@ class RackTime {
         }
 
 
-        // if you get the time in ns (e.g. by a driver) there is not an offset added
+/**
+ * @brief Converting nanoseconds into RACK_TIME. If a global time offset is
+ * given the offset is added to the nanoseconds.
+ *
+ * @param[in] ntime Time in nanoseconds
+ *
+ * @return RACK_TIME
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         RACK_TIME fromNano(uint64_t ntime)
         {
             int64_t offset = 0;
@@ -87,11 +169,40 @@ class RackTime {
             return (uint32_t)((ntime + offset) / FACTOR);
         }
 
+/**
+ * @brief Converting a given RACK_TIME value into nanoseconds.
+ *
+ * @param[in] rtime RACK_TIME value
+ *
+ * @return Given RACK_TIME in nanoseconds
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         uint64_t toNano(RACK_TIME rtime)
         {
             return (uint64_t)(rtime * FACTOR) ;
         }
 
+/**
+ * @brief Gets the current RACK time. If a global time offset is given the
+ * offset is added.
+ *
+ * @return Current RACK_TIME
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         RACK_TIME get(void)
         {
             int64_t offset;
@@ -100,6 +211,22 @@ class RackTime {
             return (uint32_t)((rt_timer_read() + offset) / FACTOR);
         }
 
+/**
+ * @brief Gets the current time in nanoseconds. If a global time offset is
+ * given the offset is added.
+ *
+ * @param[in,out] time_ns Pointer to the nanoseconds value
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         int getNano(uint64_t *time_ns)
         {
             int ret;
@@ -112,6 +239,21 @@ class RackTime {
             return rt_timer_read() + offset;
         }
 
+/**
+ * @brief Gets the global offset in nanoseconds.
+ *
+ * @param[in,out] offset Pointer to the offset value
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
         int getOffset(int64_t *offset)
         {
             int ret;
@@ -130,5 +272,7 @@ class RackTime {
             return 0;
         }
 };
+
+/** @} */
 
 #endif // __RACK_TIME_H__

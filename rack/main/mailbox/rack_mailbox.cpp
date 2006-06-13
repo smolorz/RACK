@@ -13,6 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
+
 #include <stdarg.h>
 #include <string.h> // memset
 
@@ -45,13 +46,20 @@ void RackMailbox::fillMessagePeekInfo(MessageInfo *msgInfo)
     msgInfo->usedMbx  = this;
 }
 
+int RackMailbox::mbxOK(void)
+{
+    return mbxBits.testBit(INIT_BIT_TIMS_MBX_CREATED);
+}
+
+ /*!
+ * @ingroup mailbox
+ *
+ *@{*/
+
 int RackMailbox::setDataByteorder(MessageInfo *msgInfo)
 {
-    if (!msgInfo || !msgInfo->p_data)
-    {
-        // no data
+    if (!msgInfo || !msgInfo->p_data) // no data
         return 0;
-    }
 
     // check peek pointer (change flags in mailbox slot, tims does it)
     if (p_peek_head &&
@@ -63,26 +71,28 @@ int RackMailbox::setDataByteorder(MessageInfo *msgInfo)
 
     // message received (change flags in message info struct)
     if (tims_cpu_is_le())
-    {
         msgInfo->flags |= MSGINFO_DATA_LE;
-    }
     else
-    {
         msgInfo->flags &= ~MSGINFO_DATA_LE;
-    }
 
     return 0;
-}
-
-int RackMailbox::mbxOK(void)
-{
-    return mbxBits.testBit(INIT_BIT_TIMS_MBX_CREATED);
 }
 
 //
 // create, destroy and clean
 //
 
+/**
+ * @brief Mailbox constructor
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT)
+ *
+ * Rescheduling: never.
+ */
 RackMailbox::RackMailbox()
 {
     fildes      = -1;
@@ -92,6 +102,35 @@ RackMailbox::RackMailbox()
     mbxBits.clearAllBits();
 }
 
+/**
+ * @brief Create a mailbox
+ *
+ * This function creates a mailbox to send and receive messages.
+ * Using this function a unique mailbox address have to be given.
+ * The class Module privides an additional function createMailbox() to
+ * set this mailbox address automatically.
+ *
+ * @param address Mailbox address of the mailbox.
+ * @param messageSlots Number of message slots. If this value is 0 a FIFO
+ *                     mailbox is created (but not supported yet).
+ * @param messageDataSize Number of maximum data bytes in one slot.
+ * @param buffer Pointer to an own created mailbox buffer. If the pointer
+ *               is NULL Rack creates the needed buffer with the given
+ *               @a buffer_size.
+ * @param buffer_size Size of the mailbox buffer (in bytes). This value is
+ *                    only needed if the buffer pointer is not NULL.
+ * @param sendPriority Message priority of all sent messages.
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (switches to primary mode)
+ *
+ * Rescheduling: possible.
+ */
 int RackMailbox::create(uint32_t address, int messageSlots,
                         ssize_t messageDataSize, void *buffer,
                         ssize_t buffer_size, int8_t sendPriority)
@@ -101,9 +140,7 @@ int RackMailbox::create(uint32_t address, int messageSlots,
     fd = tims_mbx_create(address, messageSlots, msglen,
                          buffer, buffer_size);
     if (fd < 0)
-    {
         return fd;
-    }
 
     fildes        = fd;
     adr           = address;
@@ -114,6 +151,22 @@ int RackMailbox::create(uint32_t address, int messageSlots,
     return 0;
 }
 
+/**
+ * @brief Delete a mailbox
+ *
+ * RackMailbox::remove(void) deletes this mailbox which was created
+ * with RackMailbox::create().
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task
+ *
+ * Rescheduling: never
+ */
 int RackMailbox::remove(void)
 {
     int ret;
@@ -122,9 +175,8 @@ int RackMailbox::remove(void)
     {
         ret = tims_mbx_remove(fildes);
         if (ret)
-        {
             return ret;
-        }
+
         fildes = -1;
         adr    = 0;
 
@@ -133,6 +185,21 @@ int RackMailbox::remove(void)
     return -ENODEV;
 }
 
+/**
+ * @brief Clean a mailbox
+ *
+ * This function removes all messages in this mailbox.
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task
+ *
+ * Rescheduling: never
+ */
 int RackMailbox::clean(void)
 {
     if (!mbxOK())
@@ -145,6 +212,25 @@ int RackMailbox::clean(void)
 // send
 //
 
+/**
+ * @brief Send a message (without data)
+ *
+ * This function sends a message without any data.
+ *
+ * @param type Message type
+ * @param dest Destination mailbox address
+ * @param seq_nr Sequence number
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: possible
+ */
 int RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seq_nr)
 {
     int ret;
@@ -154,13 +240,30 @@ int RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seq_nr)
 
     ret = (int)tims_sendmsg_0(fildes, type, dest, adr, send_prio, seq_nr, 0, 0);
     if (ret != TIMS_HEADLEN)
-    {
         return ret;
-    }
+
     return 0;
 }
 
-int     RackMailbox::sendMsgReply(int8_t type, MessageInfo* msgInfo)
+/**
+ * @brief Send a reply message (without data)
+ *
+ * This function sends a reply message without any data.
+ *
+ * @param type Message type
+ * @param msgInfo Message info of the previously received message
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::sendMsgReply(int8_t type, MessageInfo* msgInfo)
 {
     int ret;
 
@@ -173,15 +276,38 @@ int     RackMailbox::sendMsgReply(int8_t type, MessageInfo* msgInfo)
     ret = (int)tims_sendmsg_0(fildes, type, msgInfo->src, msgInfo->dest,
                               msgInfo->priority, msgInfo->seq_nr, 0, 0);
     if (ret != TIMS_HEADLEN)
-    {
         return ret;
-    }
+
     return 0;
 }
 
-int     RackMailbox::sendDataMsg(int8_t type, uint32_t dest,
-                                 uint8_t seq_nr, int dataPointers,
-                                 void* data1, uint32_t datalen1, ...)
+/**
+ * @brief Send a data message
+ *
+ * This function sends a data message.
+ *
+ * @param type Message type
+ * @param dest Destination mailbox address
+ * @param seq_nr Sequence number
+ * @param dataPointers Number of data pointers to data buffers which
+ *                     have to send.
+ * @param data1 Pointer to first data buffer
+ * @param datalen1 Length of first data buffer
+ * @param ... Next Buffer pointer with next buffer size, ...
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seq_nr,
+                             int dataPointers, void* data1, uint32_t datalen1,
+                             ...)
 {
     int i = 1;
     uint32_t msglen;
@@ -220,8 +346,30 @@ int     RackMailbox::sendDataMsg(int8_t type, uint32_t dest,
     return 0;
 }
 
-int     RackMailbox::sendDataMsg(timsMsgHead *p_head, int dataPointers,
-                                 void* data1, uint32_t datalen1, ...)
+/**
+ * @brief Send a data message (using timsMsgHead)
+ *
+ * This function sends a data message (using timsMsgHead).
+ *
+ * @param p_head Pointer to a filled struct timsMsgHead.
+ * @param dataPointers Number of data pointers to data buffers which
+ *                     have to send.
+ * @param data1 Pointer to first data buffer
+ * @param datalen1 Length of first data buffer
+ * @param ... Next Buffer pointer with next buffer size, ...
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::sendDataMsg(timsMsgHead *p_head, int dataPointers, void* data1,
+                             uint32_t datalen1, ...)
 {
     int i = 1;
     uint32_t msglen;
@@ -259,9 +407,32 @@ int     RackMailbox::sendDataMsg(timsMsgHead *p_head, int dataPointers,
     return 0;
 }
 
-int     RackMailbox::sendDataMsgReply(int8_t type, MessageInfo* msgInfo,
-                                      int dataPointers,
-                                      void* data1, uint32_t datalen1, ...)
+/**
+ * @brief Send a reply data message
+ *
+ * This function sends a reply message muit attached data.
+ *
+ * @param type Message type
+ * @param msgInfo Message info of the previously received message
+ * @param dataPointers Number of data pointers to data buffers which
+ *                     have to send.
+ * @param data1 Pointer to first data buffer
+ * @param datalen1 Length of first data buffer
+ * @param ... Next Buffer pointer with next buffer size, ...
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT, RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::sendDataMsgReply(int8_t type, MessageInfo* msgInfo,
+                                  int dataPointers, void* data1,
+                                  uint32_t datalen1, ...)
 {
     int         i = 1;
     uint32_t    msglen;
@@ -308,46 +479,40 @@ int     RackMailbox::sendDataMsgReply(int8_t type, MessageInfo* msgInfo,
 // peek
 //
 
-int     RackMailbox::peekEnd(void)
-{
-    int ret;
-
-    if (!mbxOK())
-        return -ENODEV;
-
-    if (!p_peek_head)
-        return -EFAULT;
-
-    ret = tims_peek_end(fildes);
-    if (ret)
-    {
-        return ret;
-    }
-    p_peek_head = NULL;
-    return 0;
-}
-
-int     RackMailbox::peekTimed(uint64_t timeout_ns, MessageInfo *msgInfo)
-{
-    int ret;
-
-    if (!mbxOK())
-        return -ENODEV;
-
-    if (p_peek_head)
-        return -EINVAL;
-
-    ret = tims_peek_timed(fildes, &p_peek_head, timeout_ns);
-    if (ret)
-    {
-        p_peek_head = NULL;
-        return ret;
-    }
-    fillMessagePeekInfo(msgInfo);
-    return 0;
-}
-
-int     RackMailbox::peek(MessageInfo *msgInfo)
+/**
+ * @brief Receive message (without copying data - infinite blocking)
+ *
+ * This function receives the newest message with the highest priority
+ * without copying data. RACK gets only the pointer to the message and
+ * fills in the message information data structure.
+ * Using the @a peek() function the receiver can manipulate the message data
+ * in the mailbox directly.
+ *
+ * This function can only be called if the mailbox is created in userspace.
+ * Userspace tasks can't access kernel mailboxes using @a peek().
+ *
+ * If no message is inside the mailbox @a peek() is blocking until
+ * a message is received.
+ *
+ * After the return of this function the mailbox slot is locked until the
+ * caller executes the @a peek_end() function.
+ *
+ * The @a peek() function can be called once a time. The next @a peek() call
+ * have to occur after the mailbox is unlocked again.
+ *
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: possible
+ */
+ int RackMailbox::peek(MessageInfo *msgInfo)
 {
     int ret;
 
@@ -367,7 +532,92 @@ int     RackMailbox::peek(MessageInfo *msgInfo)
     return 0;
 }
 
-int     RackMailbox::peekIf(MessageInfo *msgInfo)
+/**
+ * @brief Receive message with given timeout
+ * (without copying data - timeout blocking)
+ *
+ * This function receives the newest message with the highest priority
+ * without copying data. RACK gets only the pointer to the message and
+ * fills in the message information data structure.
+ *
+ * This function can only be called if the mailbox is created in userspace.
+ * Userspace tasks can't access kernel mailboxes using @a peek().
+ *
+ * If no message is inside the mailbox @a peekTimed() is blocking until
+ * a message is received or the timeout is expired.
+ *
+ * After the return of this function the mailbox slot is locked until the
+ * caller executes the @a peek_end() function.
+ *
+ * The @a peek() function can be called once a time. The next @a peek() call
+ * have to occur after the mailbox is unlocked again.
+ *
+ * @param timeout_ns Receive timeout in nanoceconds
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::peekTimed(uint64_t timeout_ns, MessageInfo *msgInfo)
+{
+    int ret;
+
+    if (!mbxOK())
+        return -ENODEV;
+
+    if (p_peek_head)
+        return -EINVAL;
+
+    ret = tims_peek_timed(fildes, &p_peek_head, timeout_ns);
+    if (ret)
+    {
+        p_peek_head = NULL;
+        return ret;
+    }
+    fillMessagePeekInfo(msgInfo);
+    return 0;
+}
+
+/**
+ * @brief Receive message if a message is available
+ * (without copying data - non-blocking)
+ *
+ * This function receives the newest message with the highest priority
+ * without copying data. RACK gets only the pointer to the message and
+ * fills in the message information data structure.
+ *
+ * This function can only be called if the mailbox is created in userspace.
+ * Userspace tasks can't access kernel mailboxes using @a peek().
+ *
+ * If no message is inside the mailbox @a peekIf() returns immediately
+ * with the returncode -EWOULDBLOCK.
+ *
+ * After the return of this function the mailbox slot is locked until the
+ * caller executes the @a peek_end() function.
+ *
+ * The @a peek() function can be called once a time. The next @a peek() call
+ * have to occur after the mailbox is unlocked again.
+ *
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: none
+ */
+int RackMailbox::peekIf(MessageInfo *msgInfo)
 {
     int ret;
 
@@ -387,28 +637,70 @@ int     RackMailbox::peekIf(MessageInfo *msgInfo)
     return 0;
 }
 
-
-//
-// receive
-//
-
-int     RackMailbox::recvMsgTimed(uint64_t timeout_ns, MessageInfo *msgInfo)
+/**
+ * @brief Unlocking the mailbox after receiving a message.
+ *
+ * This function unlocks the mailbox after a message is received with @a peek(),
+ * @a peek_timed() or @a peek_if().
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: none
+ */
+int RackMailbox::peekEnd(void)
 {
     int ret;
 
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg_timed(fildes, (timsMsgHead *)msgInfo, NULL, 0, timeout_ns, 0);
+    if (!p_peek_head)
+        return -EFAULT;
+
+    ret = tims_peek_end(fildes);
     if (ret)
-    {
         return ret;
-    }
-    fillMessageRecvInfo(msgInfo, NULL);
+
+    p_peek_head = NULL;
     return 0;
 }
 
-int     RackMailbox::recvMsg(MessageInfo *msgInfo)
+//
+// receive
+//
+
+/**
+ * @brief Receive message (no data - infinite blocking)
+ *
+ * This function receives the newest message with the highest priority.
+ * The received message (without data) is written into the message info
+ * data structure @a MessageInfo.
+ *
+ * This function can be called if the mailbox is created in userspace or in
+ * kernelspace.
+ *
+ * If no message is inside the mailbox @a recvMsg() is blocking until
+ * a message is received.
+ *
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::recvMsg(MessageInfo *msgInfo)
 {
     int ret;
 
@@ -417,14 +709,78 @@ int     RackMailbox::recvMsg(MessageInfo *msgInfo)
 
     ret = tims_recvmsg(fildes, (timsMsgHead *)msgInfo, NULL, 0, 0);
     if (ret)
-    {
         return ret;
-    }
 
     fillMessageRecvInfo(msgInfo, NULL);
     return 0;
 }
 
+/**
+ * @brief Receive message (no data - timeout blocking)
+ *
+ * This function receives the newest message with the highest priority.
+ * The received message (without data) is written into the message info
+ * data structure @a MessageInfo.
+ *
+ * This function can be called if the mailbox is created in userspace or in
+ * kernelspace.
+ *
+ * If no message is inside the mailbox @a recvMsgTimed() is blocking until
+ * a message is received or the timeout is expired.
+ *
+ * @param timeout_ns Receive timeout in nanoceconds
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: possible
+ */
+int RackMailbox::recvMsgTimed(uint64_t timeout_ns, MessageInfo *msgInfo)
+{
+    int ret;
+
+    if (!mbxOK())
+        return -ENODEV;
+
+    ret = tims_recvmsg_timed(fildes, (timsMsgHead *)msgInfo, NULL, 0, timeout_ns, 0);
+    if (ret)
+        return ret;
+
+    fillMessageRecvInfo(msgInfo, NULL);
+    return 0;
+}
+
+/**
+ * @brief Receive message (no data - non-blocking)
+ *
+ * This function receives the newest message with the highest priority.
+ * The received message (without data) is written into the message info
+ * data structure @a MessageInfo.
+ *
+ * This function can be called if the mailbox is created in userspace or in
+ * kernelspace.
+ *
+ * If no message is inside the mailbox @a recvMsgIf() returns immediately
+ * with the returncode -EWOULDBLOCK.
+ *
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: none
+ */
 int     RackMailbox::recvMsgIf(MessageInfo *msgInfo)
 {
     int ret;
@@ -434,15 +790,83 @@ int     RackMailbox::recvMsgIf(MessageInfo *msgInfo)
 
     ret = tims_recvmsg_if(fildes, (timsMsgHead *)msgInfo, NULL, 0, 0);
     if (ret)
-    {
         return ret;
-    }
 
     fillMessageRecvInfo(msgInfo, NULL);
     return 0;
 }
 
+/**
+ * @brief Receive message (with data - infinite blocking)
+ *
+ * This function receives the newest message with the highest priority.
+ * The received message head is written into the message info
+ * data structure @a MessageInfo and all data into the given data buffer.
+ *
+ * This function can be called if the mailbox is created in userspace or in
+ * kernelspace.
+ *
+ * If no message is inside the mailbox @a recvDataMsg() is blocking until
+ * a message is received.
+ *
+ * @param p_data Pointer to the receive data buffer
+ * @param maxdatalen Size of the receive data buffer
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: possible
+ */
+int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxdatalen,
+                                 MessageInfo *msgInfo)
+{
+    int ret;
 
+    if (!mbxOK())
+        return -ENODEV;
+
+    ret = tims_recvmsg(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen, 0);
+    if (ret)
+        return ret;
+
+    fillMessageRecvInfo(msgInfo, p_data);
+    return 0;
+}
+
+/**
+ * @brief Receive message (with data - timeout blocking)
+ *
+ * This function receives the newest message with the highest priority.
+ * The received message head is written into the message info
+ * data structure @a MessageInfo and all data into the given data buffer.
+ *
+ * This function can be called if the mailbox is created in userspace or in
+ * kernelspace.
+ *
+ * If no message is inside the mailbox @a recvDataMsgTimed() is blocking until
+ * a message is received or the timeout is expired.
+ *
+ * @param timeout_ns Receive timeout in nanoceconds
+ * @param p_data Pointer to the receive data buffer
+ * @param maxdatalen Size of the receive data buffer
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: possible
+ */
 int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data,
                                       uint32_t maxdatalen, MessageInfo *msgInfo)
 {
@@ -454,30 +878,39 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data,
     ret = tims_recvmsg_timed(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen,
                              timeout_ns, 0);
     if (ret)
-    {
         return ret;
-    }
+
     fillMessageRecvInfo(msgInfo, p_data);
     return 0;
 }
 
-int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxdatalen,
-                                 MessageInfo *msgInfo)
-{
-    int ret;
-
-    if (!mbxOK())
-        return -ENODEV;
-
-    ret = tims_recvmsg(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen, 0);
-    if (ret)
-    {
-        return ret;
-    }
-    fillMessageRecvInfo(msgInfo, p_data);
-    return 0;
-}
-
+/**
+ * @brief Receive message (no data - non-blocking)
+ *
+ * This function receives the newest message with the highest priority.
+ * The received message head is written into the message info
+ * data structure @a MessageInfo and all data into the given data buffer.
+ *
+ * This function can be called if the mailbox is created in userspace or in
+ * kernelspace.
+ *
+ * If no message is inside the mailbox @a recvDataMsgIf() returns immediately
+ * with the returncode -EWOULDBLOCK.
+ *
+ * @param p_data Pointer to the receive data buffer
+ * @param maxdatalen Size of the receive data buffer
+ * @param msgInfo Pointer to a @a MessageInfo
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT)
+ *
+ * Rescheduling: none
+ */
 int     RackMailbox::recvDataMsgIf(void *p_data, uint32_t maxdatalen,
                                    MessageInfo *msgInfo)
 {
@@ -487,10 +920,11 @@ int     RackMailbox::recvDataMsgIf(void *p_data, uint32_t maxdatalen,
         return -ENODEV;
 
     ret = tims_recvmsg_if(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen, 0);
-    if (ret) {
+    if (ret)
         return ret;
-    }
+
     fillMessageRecvInfo(msgInfo, p_data);
     return 0;
 }
 
+/*@}*/

@@ -42,12 +42,6 @@ config RACK_DOC_DOX
     help
     Help text.
 
-config RACK_DOC_LATEX_NONSTOP
-    depends on RACK_DOC_DOX
-    bool "Using LaTeX non-stop mode"
-    help
-    Help text.
-
 endmenu
 
 source "drivers/Kconfig"

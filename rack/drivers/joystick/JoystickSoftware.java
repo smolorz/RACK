@@ -213,7 +213,7 @@ public class JoystickSoftware extends RackDataModule
         pilotPanel.add(pilot1Button);
         pilotPanel.add(pilot2Button);
         pilotPanel.add(noPilotButton);
-        
+
         centerPanel = new JPanel(new BorderLayout(2, 2));
         centerPanel.add(labelPanel, BorderLayout.NORTH);
         centerPanel.add(steeringPanel, BorderLayout.CENTER);
@@ -431,7 +431,7 @@ public class JoystickSoftware extends RackDataModule
                 }
             }
         }
-        
+
         // turn on pilot
         if(pilot >= 0)
         {

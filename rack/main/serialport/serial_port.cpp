@@ -13,6 +13,23 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
+
+/*!
+ * @ingroup rack
+ * @defgroup driverapi Driver API
+ *
+ * This is the low level device driver API of RACK provided to application
+ * programs in userspace.
+ */
+
+/*!
+ * @ingroup driverapi
+ * @defgroup rtserial Serial Support
+ *
+ * This is the Serial Port interface of RACK provided to application programs
+ * in userspace.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 

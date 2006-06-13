@@ -1436,31 +1436,6 @@ AC_SUBST(DOXYGEN_HAVE_DOT)
 AC_SUBST(DOXYGEN)
 
 dnl ======================================================================
-dnl             latex documentation
-dnl ======================================================================
-
-AC_MSG_CHECKING(whether using LaTeX non-stop mode)
-AC_ARG_ENABLE(verbose-latex,
-        AS_HELP_STRING([--enable-verbose-latex], [Uses LaTeX non-stop mode]),
-        [case "$enableval" in
-        y | yes) CONFIG_RACK_DOC_LATEX_NONSTOP=y ;;
-        *) unset CONFIG_RACK_DOC_LATEX_NONSTOP ;;
-        esac])
-AC_MSG_RESULT(${CONFIG_RACK_DOC_LATEX_NONSTOP:-no})
-
-if test x${CONFIG_RACK_DOC_LATEX_NONSTOP} = xy; then
-   LATEX_BATCHMODE=NO
-   LATEX_MODE=nonstopmode
-else
-   LATEX_BATCHMODE=YES
-   LATEX_MODE=batchmode
-fi
-
-AC_SUBST(LATEX_BATCHMODE)
-AC_SUBST(LATEX_MODE)
-
-
-dnl ======================================================================
 dnl             crosscompiling
 dnl ======================================================================
 

@@ -13,8 +13,17 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef _RACKMAILBOX_H_
-#define _RACKMAILBOX_H_
+#ifndef __RACK_MAILBOX_H__
+#define __RACK_MAILBOX_H__
+
+/*!
+ * @ingroup rack
+ * @defgroup mailbox Mailbox services
+ *
+ * This is the mailbox interface of RACK provided to application programs
+ * in userspace.
+ *
+ *@{*/
 
 #include <string.h>
 #include <main/tims/tims.h>
@@ -27,7 +36,6 @@
 // dataformat is little endian
 #define MSGINFO_HEAD_LE         MESSAGE_FLAG_HEAD_ORDER_LE
 #define MSGINFO_DATA_LE         MESSAGE_FLAG_BODY_ORDER_LE
-
 
 class RackMailbox;
 
@@ -42,18 +50,38 @@ class RackMailbox;
     __u8          data[0];   // 0 Byte: following data
 */
 
+/** Message information */
 typedef struct message_info {
-    uint8_t         flags;    // data flags
-    int8_t          type;     // Message Type
-    int8_t          priority; // Priority
-    uint8_t         seq_nr;   // Sequence Number
-    uint32_t        dest;     // Destination Address
-    uint32_t        src;      // Source Address
-    uint32_t        datalen;  // datalen
-    void*           p_data;   // Pointer to the following data
-    RackMailbox*    usedMbx;  // used Mailbox (needed by proxy parsing)
+/** data flags */
+    uint8_t         flags;
+
+/** message type */
+    int8_t          type;
+
+/** message priority */
+    int8_t          priority;
+
+/** sequence number */
+    uint8_t         seq_nr;
+
+/** destination address */
+    uint32_t        dest;
+
+/** source address */
+    uint32_t        src;
+
+/** data length (bytes)*/
+    uint32_t        datalen;
+
+/** data pointer */
+    void*           p_data;
+
+/** used mailbox */
+    RackMailbox*    usedMbx;
+
 } __attribute__((packed)) MessageInfo;
 
+/** Clear a message info*/
 static inline void clearMsgInfo(MessageInfo* msgInfo)
 {
     memset(msgInfo, 0, sizeof(MessageInfo));
@@ -64,6 +92,7 @@ static inline void clearMsgInfo(MessageInfo* msgInfo)
 //######################################################################
 
 class RackMailbox {
+
     private:
         RackBits        mbxBits;
         int             fildes;
@@ -81,14 +110,24 @@ class RackMailbox {
     public:
         RackMailbox();
 
+/** Get length of message overhead */
         static uint32_t getMsgOverhead(void)  { return TIMS_HEADLEN; }
 
+/** Get address of the mailbox */
         uint32_t        getAdr(void)          { return adr; }
+
+/** Get maximum data length supported by the mailbox */
         uint32_t        maxDataLen(void)      { return max_data_len; }
+
+/** Get mailbox priority */
         int8_t          getPriority(void)     { return send_prio; }
+
+/** Get mailbox file descriptor */
         int             getFildes(void)       { return fildes; }
 
+/** Set byteorder of received mailbox data */
         int             setDataByteorder(MessageInfo *msgInfo);
+
 
 //
 // create, destroy and clean
@@ -153,4 +192,6 @@ class RackMailbox {
                               MessageInfo *msgInfo);
 };
 
-#endif
+/*@}*/
+
+#endif // __RACK_MAILBOX_H__

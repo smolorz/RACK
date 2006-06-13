@@ -185,7 +185,7 @@ EXTRACT_ALL            = NO
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
 
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 
 # If the EXTRACT_STATIC tag is set to YES all static members of a file
 # will be included in the documentation.
@@ -330,7 +330,7 @@ WARNINGS               = YES
 # for undocumented members. If EXTRACT_ALL is set to YES then this flag will
 # automatically be disabled.
 
-WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_UNDOCUMENTED   = NO
 
 # If WARN_IF_DOC_ERROR is set to YES, doxygen will generate warnings for
 # potential errors in the documentation, such as not documenting some
@@ -364,9 +364,9 @@ WARN_LOGFILE           =
 INPUT                  = \
         @top_srcdir@/drivers \
         @top_srcdir@/main \
+        @top_srcdir@/navigation \
         @top_srcdir@/perception \
         @top_srcdir@/skel \
-        @top_srcdir@/tools \
         @top_srcdir@/doc/doxygen
 
 # If the value of the INPUT tag contains directories, you can use the
@@ -394,6 +394,7 @@ RECURSIVE              = YES
 EXCLUDE                = \
         @top_srcdir@/autom4te.cache \
         @top_srcdir@/config \
+        @top_srcdir@/examples \
         @top_srcdir@/gui \
         @top_srcdir@/tools \
         *.~ \
@@ -691,7 +692,7 @@ USE_PDFLATEX           = YES
 # running if errors occur, instead of asking the user for help.
 # This option is also used when generating formulas in HTML.
 
-LATEX_BATCHMODE        = @LATEX_BATCHMODE@
+LATEX_BATCHMODE        = NO
 
 # If LATEX_HIDE_INDICES is set to YES then doxygen will not
 # include the index chapters (such as File Index, Compound Index, etc.)
@@ -883,7 +884,9 @@ INCLUDE_PATH           = \
     @top_srcdir@/drivers \
     @top_srcdir@/main \
     @top_srcdir@/perception \
-    @top_srcdir@/skel
+    @top_srcdir@/navigation \
+    @top_srcdir@/skel \
+    @top_srcdir@/tools
 
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
@@ -1032,7 +1035,7 @@ INCLUDED_BY_GRAPH      = YES
 # So in most cases it will be better to enable call graphs for selected
 # functions only using the \callgraph command.
 
-CALL_GRAPH             = NO
+CALL_GRAPH             = YES
 
 # If the GRAPHICAL_HIERARCHY and HAVE_DOT tags are set to YES then doxygen
 # will graphical hierarchy of all classes instead of a textual one.

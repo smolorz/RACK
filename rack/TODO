@@ -1,3 +1,6 @@
+
+- !!! REMOVE JAVA COMPILING BUG !!!
+
 - Strings over GDOS
 - RackName offset
 - argopts -> string, long

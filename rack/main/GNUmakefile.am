@@ -50,4 +50,5 @@ SUBDIRS = \
 
 
 EXTRA_DIST = \
-	Kconfig
+	Kconfig \
+	doxygen.h

@@ -13,6 +13,19 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
+
+ /*!
+ * @defgroup rack Robotics Application Construction Kit
+ *
+ * RACK aims at providing a framework for building robotics applications,
+ * specifically for mobile service robots. It supports the development of
+ * hard real-time as well as non-real-time components, it defines component
+ * classes for sensor and actuator drivers (e.g. robot chassis, laser
+ * scanners, cameras, odometry, GPS, or joysticks) as well as data
+ * processing components (e.g. laser scan post-processors, navigators, or
+ * localisation modules), and it specifies the interfaces between them.
+ */
+
 #include <sys/mman.h>
 #include <typeinfo>
 #include <string>
@@ -25,10 +38,10 @@
 //
 // Mailbox stuff
 //
-#define MODULE_MAX_MBX                ( 1 << LOCAL_ID_RANGE )
+#define MODULE_MAX_MBX                  ( 1 << LOCAL_ID_RANGE )
 
 // Mailbox flags
-#define RACKMBX_CREATED               0x0001
+#define RACKMBX_CREATED                 0x0001
 
 // initStatus bits
 #define INIT_BIT_CMDMBX_CREATED         0
@@ -287,15 +300,38 @@ void data_task_proc(void *arg)
     p_mod->dataTaskRunning = 0;
 }
 
-//######################################################################
+ /*!
+ * @ingroup module
+ *
+ *@{*/
+
+ //######################################################################
 //# class Module
 //######################################################################
 
-//
-// Constructor & Destuctor
-//
-
-// non realtime context
+/**
+ * @brief Module constructor
+ *
+ * This function creates a Module with all needed mailboxes and tasks.
+ *
+ * @param class_id
+ * @param cmdTaskErrorTime_ns
+ * @param dataTaskErrorTime_ns
+ * @param dataTaskDisableTime_ns
+ * @param cmdMbxMsgSlots
+ * @param cmdMbxMsgDataSize
+ * @param cmdMbxFlags
+ *
+ * @return 0 on success, otherwise negative error code
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (non-RT)
+ *
+ * Rescheduling: never.
+ */
 Module::Module( uint32_t class_id,
                 uint64_t cmdTaskErrorTime_ns,
                 uint64_t dataTaskErrorTime_ns,
@@ -693,7 +729,7 @@ void      Module::moduleCleanup(void)
 }
 
 // realtime context
-int       Module::moduleCommand(MessageInfo *msgInfo)
+int Module::moduleCommand(MessageInfo *msgInfo)
 {
   int ret;
 
@@ -787,7 +823,7 @@ int       Module::moduleCommand(MessageInfo *msgInfo)
   }
 }
 
-void      Module::run(void)
+void  Module::run(void)
 {
     int ret;
 
@@ -834,6 +870,8 @@ exit_error:
     moduleCleanup();
     return;
 }
+
+/*@}*/
 
 //
 // save argument table and name of module
