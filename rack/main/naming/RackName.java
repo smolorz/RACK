@@ -41,6 +41,7 @@ public class RackName
     public static final int SERVO_DRIVE         = 0x16;
     public static final int MCL                 = 0x33;
     public static final int TEST                = 0x70;
+    public static final int MODEL3D             = 0x46;
 
 /* OLD IDS
     public static final int SYSTEM              = 0x00;
@@ -69,8 +70,6 @@ public class RackName
     public static final int CHASSIS_PROTECTION  = 0x36;
     public static final int EXPLORATION         = 0x37;
     public static final int SEGMENTATION        = 0x38;
-
-    public static final int MODEL_3D            = 0x46;
 
     public static final int ELECTROHAND         = 0x48;
     public static final int ROBOTARM            = 0x49;
@@ -142,6 +141,8 @@ public class RackName
             return("MCL");
         case TEST:
             return("Test");
+        case MODEL3D:
+            return("Model3D");
 
 
  /*
@@ -196,8 +197,6 @@ public class RackName
             return("Exploration");
         case SEGMENTATION:
             return("Segmentation");
-        case MODEL_3D:
-            return("Model3D");
         case ELECTROHAND:
             return("Electrohand");
         case ROBOTARM:

@@ -46,7 +46,7 @@
 
 // RACK_RTS
 #define GYRO                    0x12
-#define MODEL_3D                0x46
+#define MODEL3D                 0x46
 #define OBJECT_RECOGNITION      0x4B
 #define SCAN3D                  0x45
 #define SERVO_DRIVE             0x16
