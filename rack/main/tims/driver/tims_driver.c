@@ -18,6 +18,7 @@
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/highmem.h>
+#include <linux/pagemap.h>
 
 #include <native/pipe.h>
 
@@ -930,7 +931,7 @@ static void init_context(timsCtx *p_ctx)
 static int init_fifo_mailbox(timsMbx *p_mbx)
 {
   // allocate memory for fifo slots
-  p_mbx->slot = (timsMbxSlot *)rtdm_malloc( sizeof(timsMbxSlot) );
+  p_mbx->slot = (timsMbxSlot *)kmalloc(sizeof(timsMbxSlot), GFP_KERNEL);
   if (!p_mbx->slot) {
     return -ENOMEM;
   }
@@ -940,9 +941,10 @@ static int init_fifo_mailbox(timsMbx *p_mbx)
   // create message buffer
   if (!p_mbx->buffer) { // create kernel buffer
 
-    p_mbx->slot->p_head = (timsMsgHead *)rtdm_malloc(TIMS_STD_FIFOMBX_SIZE);
+    p_mbx->slot->p_head =
+        (timsMsgHead *)kmalloc(TIMS_STD_FIFOMBX_SIZE, GFP_KERNEL);
     if (!p_mbx->slot->p_head) {
-      rtdm_free(p_mbx->slot);
+      kfree(p_mbx->slot);
       return -ENOMEM;
     }
 
@@ -986,8 +988,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
     int ret     = 0;
 
     // allocate memory for message pointers
-    p_mbx->slot = (timsMbxSlot *)rtdm_malloc(p_mbx->slot_count *
-                                             sizeof(timsMbxSlot));
+    p_mbx->slot = (timsMbxSlot *)kmalloc(
+        p_mbx->slot_count * sizeof(timsMbxSlot), GFP_KERNEL);
     if (!p_mbx->slot)
     {
         ret = -ENOMEM;
@@ -1002,7 +1004,7 @@ static int init_slot_mailbox(timsMbx *p_mbx)
 
     if (!p_mbx->buffer) // create kernel buffer
     {
-        p_buffer = rtdm_malloc(p_mbx->slot_count * p_mbx->msg_size);
+        p_buffer = kmalloc(p_mbx->slot_count * p_mbx->msg_size, GFP_KERNEL);
         if (!p_buffer)
         {
             ret = -ENOMEM;
@@ -1039,8 +1041,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
         tims_dbgdetail("need to map %lu pages \n", p_mbx->buffer_pages);
 
         // create table of all page pointers
-        p_mbx->pp_pages = (struct page **)rtdm_malloc(sizeof(struct page*) *
-                                                      p_mbx->buffer_pages);
+        p_mbx->pp_pages = (struct page **)kmalloc(
+            sizeof(struct page *) * p_mbx->buffer_pages, GFP_KERNEL);
         if (!p_mbx->pp_pages)
         {
             ret = -ENOMEM;
@@ -1050,8 +1052,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                        p_mbx->pp_pages, p_mbx->buffer_pages);
 
         // create list of all mapInfo
-        p_mbx->p_mapInfo = (timsMapInfo_t *)rtdm_malloc(sizeof(timsMapInfo_t) *
-                                                        p_mbx->buffer_pages);
+        p_mbx->p_mapInfo = (timsMapInfo_t *)kmalloc(
+            sizeof(timsMapInfo_t) * p_mbx->buffer_pages, GFP_KERNEL);
         if (!p_mbx->p_mapInfo)
         {
             ret = -ENOMEM;
@@ -1229,20 +1231,21 @@ init_error:
         {
             if (p_mbx->p_mapInfo[i].mapped)
                 kunmap(p_mbx->pp_pages[i]);
+            page_cache_release(p_mbx->pp_pages[i]);
         }
     }
 
     if (p_mbx->p_mapInfo)
-        rtdm_free(p_mbx->p_mapInfo);
+        kfree(p_mbx->p_mapInfo);
 
     if (p_mbx->pp_pages)
-        rtdm_free(p_mbx->pp_pages);
+        kfree(p_mbx->pp_pages);
 
     if (!p_mbx->buffer)
-        rtdm_free(p_buffer);
+        kfree(p_buffer);
 
     if (p_mbx->slot)
-        rtdm_free(p_mbx->slot);
+        kfree(p_mbx->slot);
 
     return ret;
 }
@@ -1282,7 +1285,7 @@ static int init_mailbox(timsCtx *p_ctx, struct tims_mbx_cfg *p_cfg,
   set_bit(TIMS_CTX_BIT_INITMBX, &p_ctx->flags);
 
   // create tims mailbox
-  p_mbx = (timsMbx *)rtdm_malloc(sizeof(timsMbx));
+  p_mbx = (timsMbx *)kmalloc(sizeof(timsMbx), GFP_KERNEL);
   if (!p_mbx) {
     ret = -ENOMEM;
     goto init_error;
@@ -1350,9 +1353,8 @@ static int init_mailbox(timsCtx *p_ctx, struct tims_mbx_cfg *p_cfg,
 
 init_error:
 
-  if (p_mbx) {
-    rtdm_free(p_mbx);
-  }
+  if (p_mbx)
+    kfree(p_mbx);
 
   clear_bit(TIMS_CTX_BIT_INITMBX, &p_ctx->flags);
 
@@ -1378,7 +1380,7 @@ static void destroy_mailbox(timsCtx *p_ctx)
 
   if (!test_bit(TIMS_MBX_BIT_EXTERNBUFFER, &p_mbx->flags)) {
     tims_dbgdetail("delete mailbox buffer @ 0x%p\n", p_mbx->slot[0].p_head);
-    rtdm_free(p_mbx->slot[0].p_head);
+    kfree(p_mbx->slot[0].p_head);
   } else {
     tims_dbgdetail("no mailbox buffer available to free\n");
   }
@@ -1393,24 +1395,25 @@ static void destroy_mailbox(timsCtx *p_ctx)
                       i, p_mbx->p_mapInfo[i].virtual);
           kunmap(p_mbx->pp_pages[i]);
         }
+        page_cache_release(p_mbx->pp_pages[i]);
       }
     }
 
     tims_dbgdetail("Delete page table @ 0x%p\n", p_mbx->pp_pages);
-    rtdm_free(p_mbx->pp_pages);
+    kfree(p_mbx->pp_pages);
 
     tims_dbgdetail("Delete timsMapInfo(s) @ 0x%p\n", p_mbx->p_mapInfo);
-    rtdm_free(p_mbx->p_mapInfo);
+    kfree(p_mbx->p_mapInfo);
   }
 
   tims_dbgdetail("Delete msg pointer(s) @ 0x%p\n", p_mbx->slot);
-  rtdm_free(p_mbx->slot);
+  kfree(p_mbx->slot);
 
   tims_dbgdetail("Delete semaphore \n");
   rtdm_sem_destroy(&p_mbx->readSem);
 
   tims_dbgdetail("Delete tims-mailbox @ 0x%p\n", p_mbx);
-  rtdm_free(p_mbx);
+  kfree(p_mbx);
 
   td.mbx_num--;
 
