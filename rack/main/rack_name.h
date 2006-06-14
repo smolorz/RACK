@@ -135,7 +135,7 @@ class RackName {
                 case TEST:                  return("Test");
 
                 case GYRO:                  return("Gyro");
-                case MODEL_3D:              return("Model3D");
+                case MODEL3D:               return("Model3D");
                 case OBJECT_RECOGNITION:    return("ObjectRecognition");
                 case PATH:                  return("Path");
                 case SCAN3D:                return("Scan3D");
