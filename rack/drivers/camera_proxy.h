@@ -34,7 +34,7 @@
 #define CAMERA_MAX_WIDTH  1280 //1280
 #define CAMERA_MAX_HEIGHT  960 //960
 #define CAMERA_MAX_DEPTH    24 //max bit per pixel(YUV Mode) //actual max of tims = 16 * 1280 * 960
-#define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * CAMERA_MAX_DEPTH / 8)
+#define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * 2)
 
 #define CAMERA_MODE_MONO8  01
 #define CAMERA_MODE_MONO12 02
@@ -141,21 +141,24 @@ typedef struct {
 
 typedef struct
 {
-  int32_t   calibration_width;
-  int32_t   calibration_height;
-  float32_t    f;
-  float32_t    fx;
-  float32_t    fy;
-  float32_t    sx;
-  float32_t    sy;
-  float32_t    dx;
-  float32_t    dy;
-  float32_t    k1;
-  float32_t    k2;
-  float32_t    p1;
-  float32_t    p2;
-  float32_t    e0;
-  float32_t    n0;
+  int32_t   calibration_width;  //#pixel x
+  int32_t   calibration_height; //#pixel y
+  float32_t    f;  //focus of lens [mm]
+  float32_t    fx; //f in pixel = 4.8 mm [pix]
+  float32_t    fy; 
+  float32_t    sx; //scaling factor
+  float32_t    sy; //scaling factor
+  float32_t    dx; //size of sensor element[mm]
+  float32_t    dy; //size of sensor element in [mm]
+  float32_t    k1; //1. radial coeffizient  [1/mm^2]
+  float32_t    k2; //2. radial coeffizient  
+  float32_t    p1; //1. tangential coeffizient [1/mm]
+  float32_t    p2; //2. tangential coeffizient [1/mm]
+  float32_t    e0; //Z axis intercept of camera coordinate system x-axis [pix]
+  float32_t    n0; //Z axis intercept of camera coordinate system y-axis [pix]
+                   //coordinates of center of radial lens distortion
+                   //(also used as the piercing point of the camera coordinate
+                   //frame's Z axis with the camera's sensor plane)
 
 } __attribute__((packed)) camera_param_data;
 
