@@ -102,9 +102,9 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
     if (abs(maxCount-minCount) > (count / 60))
             brightness -= gainMult * (maxCount - minCount)* 4 * autoBrightnessSize / count;//as only every 4.th pixel is used
 
-    if(brightness > 65536)
+    if(brightness > 65535)
     {
-        brightness = 65536;
+        brightness = 65535;
     }
     else if(brightness < 0)
     {
@@ -318,7 +318,7 @@ int CameraV4L::moduleLoop(void)
     datalength = sizeof(camera_data) + camera.grab_size;
     putDataBufferWorkSpace(datalength);
 
-    RackTask::sleep(500000000llu);
+    RackTask::sleep(200000000llu);
 
     autoBrightness(p_data);
 
@@ -436,7 +436,7 @@ CameraV4L::CameraV4L()
                       16,                   // command mailbox slots
                       48,                   // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags //## it should be user space
-                      20,                    // max buffer entries
+                      20,                   // max buffer entries
                       10)                   // data buffer listener
 {
     width              = getIntArg("width", argTab);
@@ -453,8 +453,7 @@ CameraV4L::CameraV4L()
     setDataBufferMaxDataSize(sizeof(camera_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(500); // hardcoded in loop!!!
-    //500000000llu
+    setDataBufferPeriodTime(200); // hardcoded in loop!!!
 }
 
 int main(int argc, char *argv[])
