@@ -85,7 +85,6 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
     int     vMax, vMaxX, vMaxY;
     float   rotationSpeed;
 
-
     // set parameters for forward movement
 
     if (speed > 0)  // set hysteresis boundaries
@@ -223,7 +222,12 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
         }
     }
 
-      // set new move status
+
+    // set min speed
+    if ((speed != 0) && (speed < param->vxMin))
+        speed = param->vxMin;
+
+    // set new move status
     if (moveStatus != NULL)
     {
         if (speed != 0)
