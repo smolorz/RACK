@@ -257,7 +257,7 @@ OdometryChassis::OdometryChassis()
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
-                    100,              // max buffer entries
+                    1000,              // max buffer entries
                     10)               // data buffer listener
 {
     // get value(s) out of your argument table
