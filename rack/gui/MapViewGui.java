@@ -913,12 +913,18 @@ public class MapViewGui extends Thread
         public Position2D translateRobotCursorPosition(
                 Position2D worldCursorPosition, Position2D robotPosition)
         {
-            Position2D robotCursorPosition;
-            robotCursorPosition = worldCursorPosition.coordTrafo(0,
-                    -robotPosition.x, -robotPosition.y);
-            robotCursorPosition.phi = worldCursorPosition.phi
-                    - robotPosition.phi;
-            robotCursorPosition.phi = normalizePhi(robotCursorPosition.phi);
+            Position2D robotCursorPosition = new Position2D();
+            double sinRho = Math.sin(robotPosition.phi);
+            double cosRho = Math.cos(robotPosition.phi);
+            double x      = (double)(worldCursorPosition.x - 
+                                      robotPosition.x);
+            double y      = (double)(worldCursorPosition.y - 
+                                      robotPosition.y);            
+
+            robotCursorPosition.x   = (int)(  x * cosRho + y * sinRho);
+            robotCursorPosition.y   = (int)(- x * sinRho + y * cosRho);
+            robotCursorPosition.phi = normalizePhi(worldCursorPosition.phi - 
+                                      robotPosition.phi);
             return robotCursorPosition;
         }
 
