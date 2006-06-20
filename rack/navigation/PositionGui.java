@@ -206,8 +206,6 @@ public class PositionGui extends RackModuleGui implements ActionListener
     public void paintMapView(MapViewDrawContext drawContext)
     {
         Graphics2D robotGraphics = drawContext.getRobotGraphics();
-        robotGraphics.setColor(Color.MAGENTA);
-        robotGraphics.fillArc(-250, -250, 500, 500, 30, 300);
 
         if (drawPositionPath)
         {
