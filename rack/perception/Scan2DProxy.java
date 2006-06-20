@@ -36,7 +36,7 @@ public class Scan2DProxy extends RackDataProxy
 
   public Scan2DProxy(int id, int replyMbx)
   {
-    super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 1000);
+    super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 5000);
     this.id = id;
   }
 
