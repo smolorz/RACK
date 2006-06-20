@@ -49,23 +49,26 @@ public class CameraComponent extends JComponent
         zoomDataMsg = switchRotatedDataMsg;// zoom(zoomRate,
                                                     // switchRotatedDataMsg);
 
-        img = createImage(new MemoryImageSource(zoomDataMsg.width,
-                zoomDataMsg.height, zoomDataMsg.imageRawData, 0,
-                zoomDataMsg.width));
-
-        if (zoomRate > 0)
+        synchronized(this)
         {
-            zoomDataMsg.width = zoomDataMsg.width * zoomRate;
-            zoomDataMsg.height = zoomDataMsg.height * zoomRate;
-            img = img.getScaledInstance(zoomDataMsg.width,
-                    zoomDataMsg.height, Image.SCALE_FAST);
-        }
-        if (zoomRate < 0)
-        {
-            zoomDataMsg.width = zoomDataMsg.width / -zoomRate;
-            zoomDataMsg.height = zoomDataMsg.height / -zoomRate;
-            img = img.getScaledInstance(zoomDataMsg.width,
-                    zoomDataMsg.height, Image.SCALE_FAST);
+            img = createImage(new MemoryImageSource(zoomDataMsg.width,
+                    zoomDataMsg.height, zoomDataMsg.imageRawData, 0,
+                    zoomDataMsg.width));
+    
+            if (zoomRate > 0)
+            {
+                zoomDataMsg.width = zoomDataMsg.width * zoomRate;
+                zoomDataMsg.height = zoomDataMsg.height * zoomRate;
+                img = img.getScaledInstance(zoomDataMsg.width,
+                        zoomDataMsg.height, Image.SCALE_FAST);
+            }
+            if (zoomRate < 0)
+            {
+                zoomDataMsg.width = zoomDataMsg.width / -zoomRate;
+                zoomDataMsg.height = zoomDataMsg.height / -zoomRate;
+                img = img.getScaledInstance(zoomDataMsg.width,
+                        zoomDataMsg.height, Image.SCALE_FAST);
+            }
         }
 
         this.setPreferredSize(new Dimension(zoomDataMsg.width,
@@ -241,16 +244,19 @@ public class CameraComponent extends JComponent
     {
     	Graphics2D g2 = (Graphics2D)g;
     	
-        if (img != null)
+        synchronized(this)
         {
-            g2.drawImage(img, 0, 0, this);
-
-            g2.setColor(Color.GREEN);
-            g2.setStroke(new BasicStroke(5));
-            for (int a = 0; a < rectNumber; a++)
+            if (img != null)
             {
-                g2.drawRect(rects[a].x, rects[a].y,
-                            rects[a].width, rects[a].height);
+                g2.drawImage(img, 0, 0, this);
+    
+                g2.setColor(Color.GREEN);
+                g2.setStroke(new BasicStroke(5));
+                for (int a = 0; a < rectNumber; a++)
+                {
+                    g2.drawRect(rects[a].x, rects[a].y,
+                                rects[a].width, rects[a].height);
+                }
             }
         }
     }
