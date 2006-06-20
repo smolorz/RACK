@@ -232,7 +232,7 @@ public class ChassisGui extends RackModuleGui
 
         while(terminate==false)
         {
-            if(panel.isShowing())
+            if(panel.isShowing() | (mapViewIsShowing))
             {
                 data = chassis.getData();
                 synchronized(this)
@@ -336,6 +336,8 @@ public class ChassisGui extends RackModuleGui
                     otherPilot.setEnabled(false);
                     disablePilot.setEnabled(false);
                 }
+                
+                mapViewIsShowing = false;                
             }
             try
             {
