@@ -323,7 +323,7 @@ LadarHokuyoUrg::LadarHokuyoUrg()
     setDataBufferMaxDataSize(sizeof(ladar_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(10);
+    setDataBufferPeriodTime(100);
 }
 
 int  main(int argc, char *argv[])
