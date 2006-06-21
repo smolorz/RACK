@@ -183,7 +183,7 @@ int  Scan2d::moduleLoop(void)
 
             if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0))
             {
-                dataLadar->distance[i]  = maxRange;
+                dataLadar->distance[i]  = data2D->maxRange;
                 data2D->point[j].type  |= TYPE_MAX_RANGE;
                 data2D->point[j].type  |= TYPE_INVALID;
             }
