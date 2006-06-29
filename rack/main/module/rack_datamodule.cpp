@@ -150,8 +150,6 @@ void        DataModule::removeListener(uint32_t destMbxAdr)
 
     GDOS_DBG_INFO("Remove listener %n\n", destMbxAdr);
 
-    listenerMtx.lock(RACK_INFINITE);
-
     for(; read < listenerNum; read++)
     {
         if (listener[read].msgInfo.src != destMbxAdr)
@@ -165,7 +163,6 @@ void        DataModule::removeListener(uint32_t destMbxAdr)
     }
 
     listenerNum = write;
-    listenerMtx.unlock();
 }
 
 // realtime context
@@ -173,7 +170,6 @@ void        DataModule::removeAllListener(void)
 {
     uint32_t i;
 
-    listenerMtx.lock(RACK_INFINITE);
     for (i = 0; i < listenerNum; i++)
     {
         GDOS_DBG_INFO("Remove listener %n\n", listener[i].msgInfo.src);
@@ -181,7 +177,6 @@ void        DataModule::removeAllListener(void)
     }
 
     listenerNum = 0;
-    listenerMtx.unlock();
 }
 
 // realtime context (cmdTask)
@@ -393,9 +388,7 @@ void        DataModule::putDataBufferWorkSpace(uint32_t datalength)
                            "to listener %n, code = %d\n",
                            listener[i].msgInfo.src, ret);
 
-                listenerMtx.unlock();
                 removeListener(listener[i].msgInfo.src);
-                listenerMtx.lock(RACK_INFINITE);
             }
         }
     }
@@ -580,8 +573,13 @@ int         DataModule::moduleOn(void)
 // realtime context (dataTask)
 void        DataModule::moduleOff(void)
 {
-  Module::moduleOff();          // have to be first command
-  removeAllListener();
+    Module::moduleOff();          // have to be first command
+
+    listenerMtx.lock(RACK_INFINITE);
+
+    removeAllListener();
+
+    listenerMtx.unlock();
 }
 
 // realtime context (cmdTask)
@@ -685,7 +683,11 @@ int         DataModule::moduleCommand(MessageInfo *msgInfo)
             GDOS_DBG_DETAIL("CmdTask: STOP_CONT_DATA: from %n, to %n, dataMbx: %x\n",
                             msgInfo->src, msgInfo->dest, p_data->dataMbxAdr);
 
+            listenerMtx.lock(RACK_INFINITE);
+            
             removeListener(p_data->dataMbxAdr);
+            
+            listenerMtx.unlock();
 
             ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             if (ret)
