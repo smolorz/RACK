@@ -27,10 +27,13 @@ public class RackName
     public static final int GDOS                = 0xf0;
     public static final int GPS                 = 0x11;
     public static final int GUI                 = 0x50;
+    public static final int GRID_MAP			= 0x67;
     public static final int GYRO                = 0x12;
     public static final int JOYSTICK            = 0x20;
     public static final int LADAR               = 0x14;
-    public static final int MAP_VIEW            = 0x44;    
+    public static final int MAP_VIEW            = 0x44;
+    public static final int MCL                 = 0x33;
+    public static final int MODEL3D             = 0x46;    
     public static final int OBJECT_RECOGNITION  = 0x4B;
     public static final int ODOMETRY            = 0x18;
     public static final int PATH                = 0x34;
@@ -39,9 +42,7 @@ public class RackName
     public static final int SCAN2D              = 0x30;
     public static final int SCAN3D              = 0x45;    
     public static final int SERVO_DRIVE         = 0x16;
-    public static final int MCL                 = 0x33;
     public static final int TEST                = 0x70;
-    public static final int MODEL3D             = 0x46;
 
 /* OLD IDS
     public static final int SYSTEM              = 0x00;
@@ -113,6 +114,8 @@ public class RackName
             return("Gps");
         case GUI:
             return("GUI");
+        case GRID_MAP:
+            return("GridMap");            
         case GYRO:
             return("Gyro");
         case JOYSTICK:
@@ -120,7 +123,11 @@ public class RackName
         case LADAR:
             return("Ladar");
         case MAP_VIEW:
-            return("MapView");            
+            return("MapView");
+        case MCL:
+            return("MCL");
+        case MODEL3D:
+            return("Model3D");            
         case OBJECT_RECOGNITION:
             return("ObjectRecognition");
         case ODOMETRY:
@@ -137,12 +144,9 @@ public class RackName
             return("Scan3D");
         case SERVO_DRIVE:
             return("ServoDrive");
-        case MCL:
-            return("MCL");
         case TEST:
             return("Test");
-        case MODEL3D:
-            return("Model3D");
+
 
 
  /*
