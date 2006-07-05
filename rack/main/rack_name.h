@@ -45,13 +45,15 @@
 #define TEST                    0x70    // skel
 
 // RACK_RTS
+#define GRID_MAP                0x67
 #define GYRO                    0x12
+#define MCL                     0x33
 #define MODEL3D                 0x46
 #define OBJECT_RECOGNITION      0x4B
+#define PATH                    0x34
 #define SCAN3D                  0x45
 #define SERVO_DRIVE             0x16
-#define PATH                    0x34
-#define MCL                     0x33
+
 
 
 // old ids ...
@@ -134,7 +136,9 @@ class RackName {
 
                 case TEST:                  return("Test");
 
+                case GRID_MAP:              return("GridMap");
                 case GYRO:                  return("Gyro");
+                case MCL:                   return("MCL");
                 case MODEL3D:               return("Model3D");
                 case OBJECT_RECOGNITION:    return("ObjectRecognition");
                 case PATH:                  return("Path");
