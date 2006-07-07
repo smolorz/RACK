@@ -244,7 +244,6 @@ public class Scan2DGui extends RackModuleGui
         
         if (scan2DData == null) return;
         
-//        Graphics2D robotGraphics = drawContext.getRobotGraphics();
         Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2DData.recordingtime);
 
         for (int i = 0; i < scan2DData.pointNum; i++) 
@@ -267,7 +266,36 @@ public class Scan2DGui extends RackModuleGui
             }
             else
             {
-            	robotGraphics.setColor(Color.RED);
+                if (point.segment == 0)
+                {
+                    robotGraphics.setColor(Color.RED);
+                }
+
+                // draw segmentation
+                else
+                {
+                    switch ((point.segment - 1) % 6)
+                    {
+                        case 0:
+                            robotGraphics.setColor(Color.BLACK);
+                            break;
+                        case 1:
+                            robotGraphics.setColor(Color.GREEN);
+                            break;
+                        case 2:
+                            robotGraphics.setColor(Color.ORANGE);
+                            break;
+                        case 3:
+                            robotGraphics.setColor(Color.MAGENTA);                    
+                            break;
+                        case 4:
+                            robotGraphics.setColor(Color.CYAN);
+                            break;
+                        case 5:
+                            robotGraphics.setColor(Color.PINK);
+                            break;
+                    }
+                }
             }
 
             // draw scanpoints in mm
