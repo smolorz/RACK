@@ -16,7 +16,7 @@
 
   /*!
  * @ingroup driverapi
- * @defgroup rtcan CAN Support
+ * @defgroup rtcan CAN Port API
  *
  * This is the CAN Port interface of RACK provided to application programs
  * in userspace.

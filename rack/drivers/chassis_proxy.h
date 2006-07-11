@@ -17,6 +17,15 @@
 #ifndef __CHASSIS_PROXY_H__
 #define __CHASSIS_PROXY_H__
 
+/*!
+ * @ingroup drivers
+ * @defgroup chassis Chassis
+ *
+ * Hardware abstraction for mobile robot chassis.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 
 #define CHASSIS_INVAL_PILOT            0xFFFFFFFF
@@ -168,7 +177,7 @@ typedef struct
   int32_t   comfortMargin;    // mm
 
   int32_t   boundaryFront;    // mm
-  int32_t   boundaryBack;
+  int32_t   boundaryBack;     /**< Boundary in front of the robot. sdgfsdg fgdfg see position_3d.h */
   int32_t   boundaryLeft;
   int32_t   boundaryRight;
 
@@ -414,5 +423,7 @@ class ChassisProxy : public RackDataProxy {
     int setActivePilot(uint pilotMbxAdr, uint64_t reply_timeout_ns);
 
 };
+
+/*@}*/
 
 #endif // __CHASSIS_PROXY_H__

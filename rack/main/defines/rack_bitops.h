@@ -17,7 +17,7 @@
 #define __RACK_BITSOPS_H__
 
  /*!
- * @ingroup rack
+ * @ingroup rackos
  * @defgroup bitops Bit Operations
  * @{
  */

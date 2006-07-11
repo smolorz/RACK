@@ -17,8 +17,8 @@
 #define __RACK_MAILBOX_H__
 
 /*!
- * @ingroup rack
- * @defgroup mailbox Mailbox services
+ * @ingroup rackservices
+ * @defgroup mailbox Rack Mailbox
  *
  * This is the mailbox interface of RACK provided to application programs
  * in userspace.

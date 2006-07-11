@@ -16,6 +16,16 @@
 #ifndef __SCAN_2D_PROXY_H__
 #define __SCAN_2D_PROXY_H__
 
+/*!
+ * @ingroup perception
+ * @defgroup scan2d Scan2d
+ *
+ * Common data structure for 2D range scans. E.g. from laser, sonar, ...
+ * 2D scans are given in the robot coordinate frame.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 
 #include <main/defines/scan_point.h>
@@ -138,5 +148,7 @@ class Scan2DProxy : public RackDataProxy {
                     MessageInfo *msgInfo);
 
 };
+
+/*@}*/
 
 #endif // __SCAN_2D_H__

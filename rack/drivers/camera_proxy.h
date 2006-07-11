@@ -18,6 +18,15 @@
 #ifndef __CAMERA_PROXY_H__
 #define __CAMERA_PROXY_H__
 
+/*!
+ * @ingroup drivers
+ * @defgroup camera Camera
+ *
+ * Hardware abstraction for still cameras.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -327,5 +336,7 @@ class CameraProxy : public RackDataProxy {
                  uint64_t reply_timeout_ns, MessageInfo *msgInfo);
 
 };
+
+/*@}*/
 
 #endif // __CAMERA_PROXY_H__

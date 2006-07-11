@@ -1,0 +1,51 @@
+/*!
+ * @defgroup rackservices Rack Services
+ *
+ */
+
+/*!
+ * @defgroup rackos OS Abstraction
+ *
+ * RACK provides an OS abstraction layer. By this means the programmed modules
+ * are independent of the specific operating system.
+ *
+ * In this moment the only supported OS is the Linux real time extension Xenomai.
+ */
+
+/*!
+ * @defgroup driverapi Driver API
+ *
+ * This is the low level device driver API of RACK provided to application
+ * programs in userspace.
+ */
+
+/*!
+ * @defgroup interfaces Module Interfaces
+ *
+ */
+
+/*!
+ * @ingroup interfaces
+ * @defgroup drivers Drivers
+ *
+ * Hardware abstraction for sensors and actuators
+ *
+ */
+
+/*!
+ * @ingroup interfaces
+ * @defgroup navigation Navigation
+ *
+ * Algorithms for mobile robot navigation.
+ * Including: localization, mapping, pathplanning, control, ...
+ *
+ */
+
+/*!
+ * @ingroup interfaces
+ * @defgroup perception Perception
+ *
+ * Algorithms for sensor data processing.
+ * Including: filtering, sensorfusion, object recognition, ...
+ *
+ */

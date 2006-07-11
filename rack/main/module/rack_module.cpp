@@ -14,18 +14,6 @@
  *
  */
 
- /*!
- * @defgroup rack Robotics Application Construction Kit
- *
- * RACK aims at providing a framework for building robotics applications,
- * specifically for mobile service robots. It supports the development of
- * hard real-time as well as non-real-time components, it defines component
- * classes for sensor and actuator drivers (e.g. robot chassis, laser
- * scanners, cameras, odometry, GPS, or joysticks) as well as data
- * processing components (e.g. laser scan post-processors, navigators, or
- * localisation modules), and it specifies the interfaces between them.
- */
-
 #include <sys/mman.h>
 #include <typeinfo>
 #include <string>

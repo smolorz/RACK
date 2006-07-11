@@ -15,19 +15,12 @@
  */
 
 /*!
- * @ingroup rack
- * @defgroup driverapi Driver API
- *
- * This is the low level device driver API of RACK provided to application
- * programs in userspace.
- */
-
-/*!
  * @ingroup driverapi
- * @defgroup rtserial Serial Support
+ * @defgroup rtserial Serial Port API
  *
  * This is the Serial Port interface of RACK provided to application programs
  * in userspace.
+ * @{
  */
 
 #include <stdio.h>
@@ -225,3 +218,5 @@ int SerialPort::clean(void)
     return rt_dev_ioctl(fd, RTIOC_PURGE, RTDM_PURGE_RX_BUFFER |
                                          RTDM_PURGE_TX_BUFFER);
 }
+
+/*@}*/

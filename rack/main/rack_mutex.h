@@ -19,8 +19,8 @@
 #include <native/mutex.h>
 
 /*!
- * \ingroup rack
- * \defgroup mutex Mutex services.
+ * \ingroup rackos
+ * \defgroup mutex Rack Mutex
  *
  * Mutex services.
  *

@@ -16,6 +16,15 @@
 #ifndef __PILOT_PROXY_H__
 #define __PILOT_PROXY_H__
 
+/*!
+ * @ingroup navigation
+ * @defgroup pilot Pilot
+ *
+ * Mobile robot motion controller.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
@@ -140,5 +149,7 @@ class PilotProxy : public RackDataProxy
                     MessageInfo *msgInfo);
 
 };
+
+/*@}*/
 
 #endif // __PILOT_PROXY_H__

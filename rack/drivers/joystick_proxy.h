@@ -16,6 +16,15 @@
 #ifndef __JOYSTICK_PROXY_H__
 #define __JOYSTICK_PROXY_H__
 
+/*!
+ * @ingroup drivers
+ * @defgroup joystick Joystick
+ *
+ * Hardware abstraction for joysticks.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
@@ -124,5 +133,7 @@ class JoystickProxy : public RackDataProxy
         }
 
 };
+
+/*@}*/
 
 #endif //_JOYSTICK_PROXY_H_

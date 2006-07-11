@@ -18,8 +18,8 @@
 #define __RACK_TIME_H__
 
  /*!
- * @ingroup rack
- * @defgroup time Time Services
+ * @ingroup rackos
+ * @defgroup time Rack Time
  * @{
  */
 

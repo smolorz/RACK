@@ -17,8 +17,8 @@
 #define __RACK_TASK_H__
 
  /*!
- * @ingroup rack
- * @defgroup task Task Services
+ * @ingroup rackos
+ * @defgroup task Rack Task
  * @{
  */
 

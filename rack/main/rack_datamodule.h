@@ -16,6 +16,11 @@
 #ifndef __RACK_DATAMODULE_H__
 #define __RACK_DATAMODULE_H__
 
+/*!
+ * \ingroup module
+ *
+ * @{*/
+
 #include <main/rack_module.h>
 
 #include <math.h>
@@ -140,5 +145,7 @@ class DataModule : public Module {
     int   moduleLoop(void) { return 0; };
     int   moduleCommand(MessageInfo* p_msginfo);
 };
+
+/*@}*/
 
 #endif // __RACK_DATAMODULE_H_

@@ -78,8 +78,8 @@ static inline int timer_is_running(void)
 }
 
 /*!
- * \ingroup rack
- * \defgroup module Module services.
+ * \ingroup rackservices
+ * \defgroup module Rack Module
  *
  * Module services.
  *

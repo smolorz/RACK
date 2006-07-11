@@ -16,6 +16,15 @@
 #ifndef __POSITION_PROXY_H__
 #define __POSITION_PROXY_H__
 
+/*!
+ * @ingroup navigation
+ * @defgroup position Position
+ *
+ * The global position of the mobile robot.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 #include <navigation/position_proxy.h>
 #include <main/defines/position3d.h>
@@ -108,5 +117,7 @@ class PositionProxy : public RackDataProxy {
             return update(pos, recordingTime, dataTimeout);
         }
 };
+
+/*@}*/
 
 #endif // __POSITION_PROXY_H__
