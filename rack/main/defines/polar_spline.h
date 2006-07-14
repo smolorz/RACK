@@ -107,8 +107,8 @@ class PolarSpline
             if (spline->radius != 0)
             {
                 // calculate longitudinal position
-                result->x = (int)rint(fabs(spline->radius * 
-                                      point_2d_polar_angle(point)) * lengthSign);
+                result->x = (int)rint(fabs(spline->radius *
+                                     point_2d_polar_angle(point)) * lengthSign);
 
                 // calculate transversal deviation
                 a = (double)result->x / (double)spline->radius;
@@ -117,12 +117,14 @@ class PolarSpline
                 a3 = a2 * a;
                 a4 = a3 * a;
                 b2 = b  * b;
-                r = (int)rint(spline->radius * (1.0 + a2/2.0 - a3/b + a4/(2.0*b2)));
+                r = (int)rint(spline->radius *
+                              (1.0 + a2/2.0 - a3/b + a4/(2.0*b2)));
                 result->y = r - point_2d_polar_distance(point) * radiusSign;
 
                 // calculate angle error
-                result->phi = normaliseAngleSym0(position->phi - spline->startPos.phi -
-                                                (result->x / (float)spline->radius));
+                result->phi = normaliseAngleSym0(position->phi -
+                                            spline->startPos.phi -
+                                           (result->x / (float)spline->radius));
             }
 
               // process direct line
@@ -131,10 +133,78 @@ class PolarSpline
                 // calculate longitudinal, transversal and angle values
                 result->x    = point.x;
                 result->y    = point.y;
-                result->phi  = normaliseAngleSym0(position->phi - spline->startPos.phi);
+                result->phi  = normaliseAngleSym0(position->phi -
+                                                  spline->startPos.phi);
+            }
+        }
+
+
+        /**********************************************************************
+         * Converts the relative spline coordinates "splinePos" into a global *
+         * "position"                                                         *
+         **********************************************************************/
+        static void spline2position(position_2d *splinePos,
+                                    polar_spline *spline, position_2d *result)
+        {
+            point_2d        point;
+            double          cosRho, sinRho;
+            double          a, a2, a3, a4, b, b2;
+            int             r, radius;
+            int             radiusSign;
+
+
+            // set radius sign
+            if (spline->radius > 0)
+                radiusSign = 1;
+            else
+                radiusSign = -1;
+
+
+            // process curved spline
+            if (spline->radius != 0)
+            {
+                // calculate splinePos-radius in spline coordinate system
+                a = (double)splinePos->x / (double)spline->radius;
+                b = (double)spline->length / (double)spline->radius;
+                a2 = a  * a;
+                a3 = a2 * a;
+                a4 = a3 * a;
+                b2 = b  * b;
+                r = (int)rint(spline->radius *
+                             (1.0 + a2/2.0 - a3/b + a4/(2.0*b2)));
+                radius = r - splinePos->y;
+
+                // transform spline position into global coordinate system
+                sinRho  = sin(-spline->centerPos.phi - a);
+                cosRho  = cos(-spline->centerPos.phi - a);
+                point.x = (int)( radius * radiusSign * cosRho);
+                point.y = (int)(-radius * radiusSign * sinRho);
+
+                // calculate global position and angle values
+                result->x    = spline->centerPos.x + point.x;
+                result->y    = spline->centerPos.y + point.y;
+                result->phi  = normaliseAngle(spline->startPos.phi +
+                                              splinePos->phi + (float)a);
+            }
+
+            // process direct line
+            else
+            {
+                // transform spline position into global coordinate system
+                sinRho  = sin(-spline->centerPos.phi);
+                cosRho  = cos(-spline->centerPos.phi);
+                point.x = (int)( splinePos->x * cosRho + splinePos->y * sinRho);
+                point.y = (int)(-splinePos->x * sinRho + splinePos->y * cosRho);
+
+                // calculate global position and angle values
+                result->x    = spline->centerPos.x + point.x;
+                result->y    = spline->centerPos.y + point.y;
+                result->phi  = normaliseAngle(spline->startPos.phi +
+                                              splinePos->phi);
             }
         }
 };
+
 
 
 #endif /*__POLAR_SPLINE_H__*/
