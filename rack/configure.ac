@@ -220,7 +220,7 @@ AC_MSG_CHECKING([for Xenomai version])
 XENO_VERSION_PRE="`${XENO_USER_CONFIG} --version`"
 
 case "$XENO_VERSION_PRE" in
-  2.1* | 2.0.9*)
+  2.1* | 2.0.9* | 2.2*)
     XENO_VERSION=xeno-21x
     ;;
   *)
