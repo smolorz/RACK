@@ -31,7 +31,8 @@ class Scan2DSim : public DataModule {
     private:
         uint32_t    odometryInst;
         uint32_t    maxRange;
-
+        int         mapOffsetX;
+        int         mapOffsetY;
         DxfMap      dxfMap;
 
         // additional mailboxes
