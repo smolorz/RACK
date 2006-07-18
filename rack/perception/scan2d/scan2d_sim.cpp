@@ -42,6 +42,12 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum laser range", { 10000 } },
 
+    { ARGOPT_OPT, "mapOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "mapOffsetX for DXF maps in GK coordinates", { 0 } },
+
+    { ARGOPT_OPT, "mapOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "mapOffsetY for DXF maps in GK coordinates", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -274,7 +280,7 @@ int Scan2DSim::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
-    ret = dxfMap.load("map.dxf");
+   ret = dxfMap.load("map.dxf", mapOffsetX, mapOffsetY);
     if (ret)
     {
         GDOS_ERROR("Can't load DXF map. (%i)\n", ret);
@@ -327,13 +333,16 @@ Scan2DSim::Scan2DSim(void)
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
-      , dxfMap(100)
+      , dxfMap(200)
 {
     //
     // get values
     //
     odometryInst = getIntArg("odometryInst", argTab);
     maxRange     = getIntArg("maxRange", argTab);
+    mapOffsetX   = getIntArg("mapOffsetX", argTab);
+    mapOffsetY   = getIntArg("mapOffsetY", argTab);
+
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(scan2d_msg));
