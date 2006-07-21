@@ -360,6 +360,9 @@ void        DataModule::putDataBufferWorkSpace(uint32_t datalength)
     index = (index + 1) % dataBufferMaxEntries;
     globalDataCount += 1;
 
+    if(globalDataCount == 0)  // handle uint32 overflow
+        globalDataCount = 1;
+
 /*
     GDOS_PRINT("Put DataBuffer: buffer[%d/%d] @ %p, time %d, size %d \n",
                index, dataBufferMaxEntries, entry[index].p_data,
@@ -556,6 +559,8 @@ void        DataModule::moduleCleanup(void)
 // realtime context (dataTask)
 int         DataModule::moduleOn(void)
 {
+    int ret;
+    
     if (!dataBufferPeriodTime)
     {
         GDOS_ERROR("Local dataBuffer period time was not set \n");
@@ -567,6 +572,17 @@ int         DataModule::moduleOn(void)
     globalDataCount = 0;
     index           = 0;
 
+    // do moduleLoop until first dataMsg is available
+    while(globalDataCount == 0)
+    {
+        GDOS_DBG_DETAIL("looping for first dataMsg\n");
+        ret = moduleLoop();
+        if(ret)
+        {
+            return ret;
+        }
+    }
+        
     return Module::moduleOn();
 }
 
