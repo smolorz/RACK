@@ -378,37 +378,40 @@ int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, voi
     int code;
     int pid;
     int i, ret;
+    int packageCounter = 0;
 
     do  // synchronize on first frame package with correct response code
     {
+        packageCounter++;
+        if (packageCounter > 100)
+        {
+            GDOS_WARNING("Can't synchronize on first frame package\n");
+            return -1;
+        }
+
         ret = canPort.recv(&canReceive, &timestamp);
         if (ret)
         {
             GDOS_ERROR("Can't read CAN data, code = %d\n", ret);
             return ret;
         }
-
-//      packageId = __be16_to_cpu(*((uint16_t*)(&canReceive.data[0])));
         packageId = byteorder_read_be_u16(canReceive.data);
-        if(packageId == 0xffff)  // receive 1st package of multi package frame
+        if (packageId == 0xffff)  // receive 1st package of multi package frame
         {
             GDOS_DBG_DETAIL("Multi package frame ... \n");
             sequenceFlag = 0xffff;
-//          packageId = __be16_to_cpu(*((uint16_t*)(&canReceive.data[2])));
             packageId    = byteorder_read_be_u16(&canReceive.data[2]);
-//          code         = __be16_to_cpu(*((uint16_t*)(&canReceive.data[6])));
             code         = byteorder_read_be_u16(&canReceive.data[6]);
             did          = canReceive.data[5];
             parameterLen = 0;
             if(recordingtime != NULL)
                 *recordingtime = timestamp;
         }
-        else  // receive singel package frame
+        else  // receive single package frame
         {
             sequenceFlag = 0;
-//          code = __be16_to_cpu(*((uint16_t*)(&canReceive.data[4])));
             code = byteorder_read_be_u16(&canReceive.data[4]);
-             did  = canReceive.data[3];
+            did  = canReceive.data[3];
             for(parameterLen = 0; parameterLen < 2; parameterLen++)
             {
                 if(parameterLen >= maxParameterLen)
@@ -422,7 +425,7 @@ int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, voi
     }
     while(((packageId != 0) & (sequenceFlag != 0xffff)) | (code != responseCode) | (did != hostId));
 
-    if(sequenceFlag == 0xffff)  // receive multi package frame
+    if (sequenceFlag == 0xffff)  // receive multi package frame
     {
          for(pid = (packageId - 1); pid > 0; pid--)  // receive all expected following packages
         {
@@ -433,8 +436,6 @@ int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, voi
                 return ret;
             }
             packageId = __be16_to_cpu(*((uint16_t*)(&canReceive.data[0])));
-
-            //packageId = byteorder_read_be_u16(canReceive.data);
 
             if(packageId != pid)  // check if this package is expected
             {
@@ -454,12 +455,10 @@ int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, voi
                 }
             }
         }
-//        GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
         return(parameterLen);
     }
     else
     {
-//        GDOS_DBG_DETAIL("received sensor response %x parameterLen %i\n", code, parameterLen);
         return(parameterLen);
     }
 }
@@ -538,7 +537,6 @@ int LadarIbeo::decodeSensorStatus(unsigned int senstat)
     }
     else
     {
-//        return(workingMode);
         return 0;
     }
 }
@@ -873,7 +871,6 @@ int  main(int argc, char *argv[])
     }
 
     // init
-
     ret = p_inst->moduleInit();
     if (ret)
         goto exit_error;
