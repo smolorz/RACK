@@ -185,9 +185,8 @@ void data_task_proc(void *arg)
                     {
                         GDOS_ERROR("Error in moduleLoop()\n");
                         p_mod->status = MODULE_STATE_ERROR;
-                        GDOS_PRINT("Turning off ... \n");
                         p_mod->moduleOff();
-                        GDOS_PRINT("Module off \n");
+                        GDOS_DBG_INFO("Module off \n");
                         notify(MSG_ERROR, p_mod);
                     }
                     else
@@ -198,7 +197,7 @@ void data_task_proc(void *arg)
                 else
                 {
                     p_mod->status = MODULE_STATE_DISABLED;
-                    GDOS_PRINT("Turning off ... \n");
+                    GDOS_DBG_INFO("Turning off module ... \n");
                     p_mod->moduleOff();
                     GDOS_PRINT("Module off \n");
                 }
@@ -208,7 +207,7 @@ void data_task_proc(void *arg)
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                    GDOS_PRINT("Turning on ... \n");
+                    GDOS_PRINT("Turning on module ... \n");
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
@@ -228,9 +227,8 @@ void data_task_proc(void *arg)
                         {
                             GDOS_ERROR("Error in moduleLoop()\n");
                             p_mod->status = MODULE_STATE_ERROR;
-                            GDOS_PRINT("Turning off ... \n");
                             p_mod->moduleOff();
-                            GDOS_PRINT("Module off \n");
+                            GDOS_DBG_INFO("Module off \n");
                             notify(MSG_ERROR, p_mod);
                         }
                         else
@@ -251,14 +249,13 @@ void data_task_proc(void *arg)
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                    GDOS_PRINT("Turning on ... \n");
+                    GDOS_DBG_INFO("Turning on module ... \n");
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
-                        GDOS_ERROR("Can't turn on module\n");
-                        GDOS_PRINT("Turning off ... \n");
+                        GDOS_WARNING("Can't turn on module\n");
                         p_mod->moduleOff();
-                        GDOS_PRINT("Module off \n");
+                        GDOS_DBG_INFO("Module off \n");
                         notify(MSG_ERROR,p_mod);
                     }
                     else
@@ -278,9 +275,9 @@ void data_task_proc(void *arg)
             default:
                 GDOS_ERROR("Unknown module status %d\n", p_mod->status);
                 p_mod->status = MODULE_STATE_ERROR;
-                GDOS_PRINT("Turning off ... \n");
+                GDOS_DBG_INFO("Turning off ... \n");
                 p_mod->moduleOff();
-                GDOS_PRINT("Module off\n");
+                GDOS_DBG_INFO("Module off\n");
         }
     }
 
