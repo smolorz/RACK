@@ -20,7 +20,6 @@ import javax.swing.*;
 
 public class LadarComponent extends JComponent
 {
-
     protected LadarDataMsg ladarData = null;
     protected int maxDistance;
 
@@ -29,6 +28,8 @@ public class LadarComponent extends JComponent
     public double mmToPixel = 1;
     public int xWindowCenter = 0;
     public int yWindowCenter = 0;
+
+    private static final long serialVersionUID = 1L;
 
     /** Creates a new instance of LadarComponent */
     public LadarComponent(int maxDistance)

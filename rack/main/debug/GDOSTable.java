@@ -32,6 +32,8 @@ public class GDOSTable extends AbstractTableModel
   protected Vector messageList = new Vector(maxMessages);
   protected Vector filteredMessageList = new Vector(maxMessages);
 
+  private static final long serialVersionUID = 1L;
+
   /* (non-Javadoc)
    * @see javax.swing.table.TableModel#getRowCount()
    */

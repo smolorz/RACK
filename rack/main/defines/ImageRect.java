@@ -28,6 +28,8 @@ public class ImageRect implements Serializable
     public int width  = 0;
     public int height = 0;
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Data-length ImageRect.
      */

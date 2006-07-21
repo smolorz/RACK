@@ -46,6 +46,8 @@ public class GDOSMessageRenderer extends JLabel implements TableCellRenderer
     protected Border selectedBorder = null;
     protected boolean isBordered = true;
 
+    private static final long serialVersionUID = 1L;
+
     public GDOSMessageRenderer(boolean isBordered)
     {
         this.isBordered = isBordered;

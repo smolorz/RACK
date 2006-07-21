@@ -32,6 +32,8 @@ public class Scan2DComponent extends JComponent
   public int xWindowCenter = 0;
   public int yWindowCenter = 0;
 
+  private static final long serialVersionUID = 1L;
+
   /** Creates a new instance of LadarScan2DComponent */
   public Scan2DComponent(int maxDistance)
   {

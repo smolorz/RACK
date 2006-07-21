@@ -17,6 +17,8 @@ package rack.main.tims.exceptions;
 
 public class MsgTimeoutException extends MsgException
 {
+    private static final long serialVersionUID = 1L;
+
     public MsgTimeoutException(String s)
     {
       super(s);

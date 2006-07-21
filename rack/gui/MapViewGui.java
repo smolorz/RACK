@@ -472,6 +472,8 @@ public class MapViewGui extends Thread
     {
         private DrawContext drawContext = null;
 
+        private static final long serialVersionUID = 1L;
+
         public ViewPanel()
         {
             this.setDoubleBuffered(false);
@@ -526,6 +528,8 @@ public class MapViewGui extends Thread
         private JButton     viewOriginButton;
         private JLabel      coordinateLabel;
         private ModuleActionEvent actionEvent = null;
+
+        private static final long serialVersionUID = 1L;
 
         public MapNavigator()
         {
@@ -727,6 +731,7 @@ public class MapViewGui extends Thread
 
         private class CommandMenu extends JMenu implements MenuListener
         {
+            private static final long serialVersionUID = 1L;
 
             public CommandMenu()
             {
@@ -801,6 +806,8 @@ public class MapViewGui extends Thread
         public boolean active = false;
         private ModuleActionEvent actionEvent = null;
         private float dPhiPerClick = (float)Math.toRadians(10.0);
+
+        private static final long serialVersionUID = 1L;
 
         public ActionCursor()
         {
@@ -999,6 +1006,7 @@ public class MapViewGui extends Thread
 
         private class ActionMenu extends JMenu implements MenuListener
         {
+            private static final long serialVersionUID = 1L;
 
             public ActionMenu()
             {
@@ -1073,6 +1081,8 @@ public class MapViewGui extends Thread
         public Position2D robotPosition;
         public Position2D worldCursorPosition;
         public Position2D robotCursorPosition;
+
+        private static final long serialVersionUID = 1L;
 
         public ModuleActionEvent(ModuleGuiProp n_moduleGuiProp,
                 MapViewActionList.MapViewActionListItem listItem)
@@ -1234,6 +1244,8 @@ public class MapViewGui extends Thread
         private JMenuItem paintItem;
         private int moduleGuiIndex;
 
+        private static final long serialVersionUID = 1L;
+
         public ModuleGuiProp(int n_moduleGuiIndex)
         {
             super();
@@ -1286,6 +1298,8 @@ public class MapViewGui extends Thread
 
         private GuiListMenu guiListMenu;
 
+        private static final long serialVersionUID = 1L;
+
         public ModuleGuiList()
         {
             super(moduleGui.length);
@@ -1302,6 +1316,7 @@ public class MapViewGui extends Thread
 
         private class GuiListMenu extends JMenu implements MenuListener
         {
+            private static final long serialVersionUID = 1L;
 
             public GuiListMenu()
             {

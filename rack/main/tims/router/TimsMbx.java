@@ -19,6 +19,8 @@ import java.util.*;
 
 class TimsMbx extends Vector
 {
+  private static final long serialVersionUID = 1L;
+
   public int name = 0;
 
   /**

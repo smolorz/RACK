@@ -264,4 +264,6 @@ public class CameraComponent extends JComponent
     protected Image img;
     protected ImageRect[] rects;
     protected int rectNumber = 0;
+
+    private static final long serialVersionUID = 1L;
 }

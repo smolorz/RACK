@@ -42,6 +42,8 @@ public class PilotComponent extends JComponent
     public int chassisWidth = 500;
     public boolean RectangleDraw = false;
 
+    private static final long serialVersionUID = 1L;
+
     /** Creates a new instance of ScanComponent */
     public PilotComponent(int maxDistance)
     {

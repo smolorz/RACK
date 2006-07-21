@@ -29,6 +29,7 @@ public class Position2D implements Serializable, Cloneable
     public int   y   = 0;
     public float phi = 0.0f;
 
+    private static final long serialVersionUID = 1L;
     
     static public int getDataLen()
     {

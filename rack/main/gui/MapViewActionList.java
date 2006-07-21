@@ -21,6 +21,8 @@ public class MapViewActionList extends ArrayList
 {
     public String title;
 
+    private static final long serialVersionUID = 1L;
+
     public MapViewActionList(String n_title)
     {
         title = n_title;

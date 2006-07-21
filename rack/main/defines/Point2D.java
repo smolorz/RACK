@@ -26,6 +26,8 @@ public class Point2D implements Serializable
     public int x = 0;
     public int y = 0;
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Data-length Point2D.
      */

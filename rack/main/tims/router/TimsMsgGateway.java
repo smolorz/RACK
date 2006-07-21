@@ -212,6 +212,7 @@ public class TimsMsgGateway extends Thread
           return "Use right-mouse-click to kill connection.";
         }
       }
+      private static final long serialVersionUID = 1L;
     };
     connectionList.setToolTipText("");
     connectionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
