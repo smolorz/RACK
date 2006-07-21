@@ -15,16 +15,11 @@
  */
 package rack.perception;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.imageio.ImageIO;
-
-import rack.drivers.CameraDataMsg;
 import rack.main.naming.*;
 import rack.main.proxy.*;
 import rack.main.tims.msg.*;

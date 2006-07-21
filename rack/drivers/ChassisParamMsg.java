@@ -17,7 +17,6 @@ package rack.drivers;
 
 import java.io.*;
 import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
 import rack.main.tims.streams.*;
 

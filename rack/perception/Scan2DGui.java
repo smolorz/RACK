@@ -17,15 +17,9 @@ package rack.perception;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.swing.*;
 
-import rack.drivers.CameraComponent;
 import rack.main.gui.*;
 import rack.main.defines.*;
 import rack.main.proxy.*;
