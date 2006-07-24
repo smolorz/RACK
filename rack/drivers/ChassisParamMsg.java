@@ -32,7 +32,6 @@ public class ChassisParamMsg extends TimsMsg
     public int ayMax = 0;
 
     public float omegaMax = 0.0f;
-    public float omegaDotMax = 0.0f;
     public int minTurningRadius = 0;
     
     public float breakConstant = 0.0f;
@@ -51,6 +50,7 @@ public class ChassisParamMsg extends TimsMsg
 
     public float pilotParameterA = 0;
     public float pilotParameterB = 0;
+    public int   pilotVTransMax  = 0;
 
     
     public int getDataLen()
@@ -101,7 +101,6 @@ public class ChassisParamMsg extends TimsMsg
         axMax = dataIn.readInt();
         ayMax = dataIn.readInt();
         omegaMax = dataIn.readFloat();
-        omegaDotMax = dataIn.readFloat();
         minTurningRadius = dataIn.readInt();
         breakConstant = dataIn.readFloat();
         safetyMargin = dataIn.readInt();
@@ -116,6 +115,7 @@ public class ChassisParamMsg extends TimsMsg
         trackWidth = dataIn.readInt();
         pilotParameterA = dataIn.readFloat();
         pilotParameterB = dataIn.readFloat();
+        pilotVTransMax  = dataIn.readInt();        
 
         bodyByteorder = BIG_ENDIAN;
     }
@@ -131,7 +131,6 @@ public class ChassisParamMsg extends TimsMsg
         dataOut.writeInt(axMax);
         dataOut.writeInt(ayMax);
         dataOut.writeFloat(omegaMax);
-        dataOut.writeFloat(omegaDotMax);
         dataOut.writeInt(minTurningRadius);
         dataOut.writeFloat(breakConstant);
         dataOut.writeInt(safetyMargin);
@@ -146,6 +145,7 @@ public class ChassisParamMsg extends TimsMsg
         dataOut.writeInt(trackWidth);
         dataOut.writeFloat(pilotParameterA);
         dataOut.writeFloat(pilotParameterB);
+        dataOut.writeInt(pilotVTransMax);        
     }
 
 }
