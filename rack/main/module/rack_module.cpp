@@ -147,10 +147,11 @@ cmd_task_exit:
 // realtime context
 inline void notify(int8_t type, Module *p_mod)
 {
-  if (p_mod->replyMsgInfo.dest > 0) {
-    p_mod->cmdMbx.sendMsgReply(type, &p_mod->replyMsgInfo);
-    clearMsgInfo(&p_mod->replyMsgInfo);
-  }
+    if (p_mod->replyMsgInfo.dest > 0)
+    {
+        p_mod->cmdMbx.sendMsgReply(type, &p_mod->replyMsgInfo);
+        clearMsgInfo(&p_mod->replyMsgInfo);
+    }
 }
 
 // realtime context
@@ -183,8 +184,15 @@ void data_task_proc(void *arg)
                     ret = p_mod->moduleLoop();
                     if (ret)
                     {
-                        GDOS_ERROR("Error in moduleLoop()\n");
-                        p_mod->status = MODULE_STATE_ERROR;
+                        if(p_mod->targetStatus == MODULE_TSTATE_ON)
+                        {
+                            GDOS_ERROR("Error in moduleLoop()\n");
+                            p_mod->status = MODULE_STATE_ERROR;
+                        }
+                        else
+                        {
+                            p_mod->status = MODULE_STATE_DISABLED;
+                        }
                         p_mod->moduleOff();
                         GDOS_DBG_INFO("Module off \n");
                         notify(MSG_ERROR, p_mod);
@@ -213,28 +221,15 @@ void data_task_proc(void *arg)
                     {
                         GDOS_ERROR("Can't turn on module\n");
                         p_mod->targetStatus = MODULE_TSTATE_OFF;
+                        p_mod->moduleOff();
+                        GDOS_DBG_INFO("Module off \n");
                         notify(MSG_ERROR, p_mod);
                     }
                     else    // module is on now
                     {
                         GDOS_PRINT("Module on\n");
                         p_mod->status = MODULE_STATE_ENABLED;
-
-                        // calling loop first time
-
-                        ret = p_mod->moduleLoop();
-                        if (ret)
-                        {
-                            GDOS_ERROR("Error in moduleLoop()\n");
-                            p_mod->status = MODULE_STATE_ERROR;
-                            p_mod->moduleOff();
-                            GDOS_DBG_INFO("Module off \n");
-                            notify(MSG_ERROR, p_mod);
-                        }
-                        else
-                        {
-                            notify(MSG_OK, p_mod);
-                        }
+                        notify(MSG_OK, p_mod);
                     }
                 }
                 else
