@@ -236,7 +236,8 @@ class RackTime {
             if (ret)
                 return ret;
 
-            return rt_timer_read() + offset;
+            *time_ns = rt_timer_read() + offset;
+            return 0;
         }
 
 /**
