@@ -168,7 +168,6 @@ typedef struct
   int32_t   ayMax;
 
   float32_t omegaMax;         // rad/s
-  float32_t omegaDotMax;      // rad/s
   int32_t   minTurningRadius; // mm
 
   float32_t breakConstant;    // mm/mm/s
@@ -177,7 +176,7 @@ typedef struct
   int32_t   comfortMargin;    // mm
 
   int32_t   boundaryFront;    // mm
-  int32_t   boundaryBack;     /**< Boundary in front of the robot. sdgfsdg fgdfg see position_3d.h */
+  int32_t   boundaryBack;     /**< Boundary in front of the robot*/
   int32_t   boundaryLeft;
   int32_t   boundaryRight;
 
@@ -187,6 +186,7 @@ typedef struct
 
   float32_t pilotParameterA;
   float32_t pilotParameterB;
+  int32_t   pilotVTransMax;   /**< Maximal transversal velocity in mm /s */
 
 } __attribute__((packed)) chassis_param_data;
 
@@ -203,7 +203,6 @@ class ChassisParamData
             data->ayMax             = __le32_to_cpu(data->ayMax);
 
             data->omegaMax          = __le32_float_to_cpu(data->omegaMax);
-            data->omegaDotMax       = __le32_float_to_cpu(data->omegaDotMax);
             data->minTurningRadius  = __le32_to_cpu(data->minTurningRadius);
 
             data->breakConstant     = __le32_float_to_cpu(data->breakConstant);
@@ -222,6 +221,7 @@ class ChassisParamData
 
             data->pilotParameterA   = __le32_float_to_cpu(data->pilotParameterA);
             data->pilotParameterB   = __le32_float_to_cpu(data->pilotParameterB);
+            data->pilotVTransMax    = __le32_to_cpu(data->pilotVTransMax);
         }
 
         static void be_to_cpu(chassis_param_data *data)
@@ -234,7 +234,6 @@ class ChassisParamData
             data->ayMax             = __be32_to_cpu(data->ayMax);
 
             data->omegaMax          = __be32_float_to_cpu(data->omegaMax);
-            data->omegaDotMax       = __be32_float_to_cpu(data->omegaDotMax);
             data->minTurningRadius  = __be32_to_cpu(data->minTurningRadius);
 
             data->breakConstant     = __be32_float_to_cpu(data->breakConstant);
@@ -253,6 +252,7 @@ class ChassisParamData
 
             data->pilotParameterA   = __be32_float_to_cpu(data->pilotParameterA);
             data->pilotParameterB   = __be32_float_to_cpu(data->pilotParameterB);
+            data->pilotVTransMax    = __be32_to_cpu(data->pilotVTransMax);
         }
 
         static chassis_param_data *parse(MessageInfo *msgInfo)
