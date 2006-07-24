@@ -39,12 +39,11 @@
 //######################################################################
 
 typedef struct {
-    int16_t x;       
-    int16_t y;
+    int32_t x;
+    int32_t y;
     /** z coordinate is used to store range information in case of 2d scans */
-    int16_t z;
-    /** type bits are defined in scan_point.h */
-    int16_t type;
+    int32_t z;
+    int32_t type;
     int16_t segment;
     int16_t intensity;
 } __attribute__((packed)) scan_point;
@@ -55,20 +54,20 @@ class ScanPoint {
 
         static void le_to_cpu(scan_point *data)
         {
-            data->x         = __le16_to_cpu(data->x);
-            data->y         = __le16_to_cpu(data->y);
-            data->z         = __le16_to_cpu(data->z);
-            data->type      = __le16_to_cpu(data->type);
+            data->x         = __le32_to_cpu(data->x);
+            data->y         = __le32_to_cpu(data->y);
+            data->z         = __le32_to_cpu(data->z);
+            data->type      = __le32_to_cpu(data->type);
             data->segment   = __le16_to_cpu(data->segment);
             data->intensity = __le16_to_cpu(data->intensity);
         }
 
         static void be_to_cpu(scan_point *data)
         {
-            data->x         = __be16_to_cpu(data->x);
-            data->y         = __be16_to_cpu(data->y);
-            data->z         = __be16_to_cpu(data->z);
-            data->type      = __be16_to_cpu(data->type);
+            data->x         = __be32_to_cpu(data->x);
+            data->y         = __be32_to_cpu(data->y);
+            data->z         = __be32_to_cpu(data->z);
+            data->type      = __be32_to_cpu(data->type);
             data->segment   = __be16_to_cpu(data->segment);
             data->intensity = __be16_to_cpu(data->intensity);
         }
