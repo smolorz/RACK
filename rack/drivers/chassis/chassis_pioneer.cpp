@@ -92,7 +92,6 @@ chassis_param_data param = {
     axMax:            500,                  // mm/s
     ayMax:            0,
     omegaMax:         (20.0 * M_PI / 180.0),// rad/s
-    omegaDotMax:      (30.0 * M_PI / 180.0),// rad/s
     minTurningRadius: 200,                  // mm
 
     breakConstant:    1.0f,                 // mm/mm/s
@@ -111,6 +110,7 @@ chassis_param_data param = {
 
     pilotParameterA:  0.001f,
     pilotParameterB:  2.0f,
+    pilotVTransMax:   200,                  // mm/s
 };
 
 /*******************************************************************************
