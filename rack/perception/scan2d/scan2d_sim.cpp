@@ -199,9 +199,9 @@ int  Scan2DSim::moduleLoop(void)
         data2D->point[i].x = (int)x1;
         data2D->point[i].y = (int)y1;
         data2D->point[i].z = (int)distance;
-           data2D->point[i].type      = TYPE_UNKNOWN;
-           data2D->point[i].segment   = 0;
-           data2D->point[i].intensity = 0;
+        data2D->point[i].type      = TYPE_UNKNOWN;
+        data2D->point[i].segment   = 0;
+        data2D->point[i].intensity = 0;
 
         if(distance >= maxRange)
         {
