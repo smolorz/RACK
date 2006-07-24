@@ -132,14 +132,13 @@ void Scan2DMerge::moduleOff(void)
 
     DataModule::moduleOff();        // has to be first command in moduleOff();
 
-
-    odometry->stopContData(&workMbx);
+    odometry->stopContData(&dataMbx);
 
     for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
     {
         if (scan2dInst[k] >= 0)
         {
-            scan2d[k]->stopContData(&workMbx);
+            scan2d[k]->stopContData(&dataMbx);
         }
     }
 }
