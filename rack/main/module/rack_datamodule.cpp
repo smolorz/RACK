@@ -88,6 +88,8 @@ int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
 
     listenerMtx.lock(RACK_INFINITE);
 
+    GDOS_DBG_INFO("Add listener %n (datambx: %x)\n", destMbxAdr, destMbxAdr);
+
     idx = listenerNum;
 
     // check if listener is in table yet
@@ -95,8 +97,8 @@ int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
     {
         if (destMbxAdr == listener[i].msgInfo.src) // in table
         {
-            GDOS_WARNING("Listener %n (datambx: %x) is in list yet \n",
-                         msgInfo->src, destMbxAdr);
+            GDOS_WARNING("Listener %n (datambx: %x) is already in list\n",
+                         destMbxAdr, destMbxAdr);
             idx = i;
             break;
         }
@@ -120,8 +122,8 @@ int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
         if (listenerNum >= dataBufferMaxListener)
         {
             listenerMtx.unlock();
-            GDOS_ERROR("Can't add listener %n. To many listener are "
-                       "registered (max %d)\n", msgInfo->src,
+            GDOS_ERROR("Can't add listener %n (datambx: %x). To many listener are "
+                       "registered (max %d)\n", destMbxAdr, destMbxAdr,
                        dataBufferMaxListener);
 
             return -EBUSY;
@@ -130,10 +132,6 @@ int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
         memcpy(&listener[idx].msgInfo, msgInfo, sizeof(MessageInfo));
         listener[idx].msgInfo.src = destMbxAdr;
         listenerNum++;
-
-        GDOS_DBG_INFO("Listener %n (datambx: %x) has been added into "
-                      "list (%d/%d)\n", msgInfo->src, destMbxAdr,
-                      listenerNum - 1, dataBufferMaxListener);
     }
 
     listener[idx].reduction = reduction;
@@ -148,7 +146,7 @@ void        DataModule::removeListener(uint32_t destMbxAdr)
     uint32_t read = 0;
     uint32_t write = 0;
 
-    GDOS_DBG_INFO("Remove listener %n\n", destMbxAdr);
+    GDOS_DBG_INFO("Remove listener %n (datambx: %x)\n", destMbxAdr, destMbxAdr);
 
     for(; read < listenerNum; read++)
     {
@@ -172,7 +170,7 @@ void        DataModule::removeAllListener(void)
 
     for (i = 0; i < listenerNum; i++)
     {
-        GDOS_DBG_INFO("Remove listener %n\n", listener[i].msgInfo.src);
+        GDOS_DBG_INFO("Remove listener %n (datambx: %x)\n", listener[i].msgInfo.src, listener[i].msgInfo.src);
         dataBufferSendMbx->sendMsgReply(MSG_ERROR, &listener[i].msgInfo);
     }
 
@@ -719,4 +717,3 @@ int         DataModule::moduleCommand(MessageInfo *msgInfo)
             return Module::moduleCommand(msgInfo);
     }
 }
-
