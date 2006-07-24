@@ -39,16 +39,16 @@ public class ScanPoint {
     public static final int TYPE_LANDMARK         = 0x0001;  // 2d scan
     public static final int TYPE_OBSTACLE         = 0x0002;  // 2d scan
 
-    public short x              = 0;    // 2 Bytes
-    public short y              = 0;    // 2 Bytes
-    public short z              = 0;    // 2 Bytes
-    public short type           = 0;    // 2 Bytes
-    public short segment        = 0;    // 2 Bytes
-    public short intensity      = 0;    // 2 Bytes --> 12 Bytes completely
+    public int x              = 0;    // 4 Bytes
+    public int y              = 0;    // 4 Bytes
+    public int z              = 0;    // 4 Bytes
+    public int type           = 0;    // 4 Bytes
+    public short segment      = 0;    // 2 Bytes
+    public short intensity    = 0;    // 2 Bytes --> 20 Bytes completely
     
     static public int getDataLen()
     {
-        return 12;
+        return 20;
     }
 
     /**
@@ -56,10 +56,10 @@ public class ScanPoint {
      */
     public ScanPoint(EndianDataInputStream dataIn) throws IOException
     {
-        x              = dataIn.readShort();
-        y              = dataIn.readShort();
-        z              = dataIn.readShort();
-        type           = dataIn.readShort();
+        x              = dataIn.readInt();
+        y              = dataIn.readInt();
+        z              = dataIn.readInt();
+        type           = dataIn.readInt();
         segment        = dataIn.readShort();
         intensity      = dataIn.readShort();
     }
@@ -69,10 +69,10 @@ public class ScanPoint {
      */
     public void writeDataOut(DataOutputStream dataOut) throws IOException
     {
-        dataOut.writeShort(x);
-        dataOut.writeShort(y);
-        dataOut.writeShort(z);
-        dataOut.writeShort(type);
+        dataOut.writeInt(x);
+        dataOut.writeInt(y);
+        dataOut.writeInt(z);
+        dataOut.writeInt(type);
         dataOut.writeShort(segment);
         dataOut.writeShort(intensity);
     }
