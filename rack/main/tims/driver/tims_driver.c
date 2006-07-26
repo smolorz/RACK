@@ -1932,7 +1932,7 @@ int rt_tims_socket(struct rtdm_dev_context *context,
 {
     timsCtx *p_ctx;
 
-    if (protocol != RTDM_PF_TIMS)
+    if (protocol != 0)
     {
         tims_error("Unsupported protocol %d \n",protocol);
         return -EINVAL;
@@ -2275,7 +2275,7 @@ static struct rtdm_device tims_rtdmdev = {
     context_size:       sizeof(timsCtx),
     device_name:        "",
 
-    protocol_family:    RTDM_PF_TIMS,
+    protocol_family:    PF_TIMS,
     socket_type:        SOCK_RAW,
 
     open_rt:            NULL,

@@ -70,7 +70,9 @@ typedef struct tims_message_head {
 //
 
 // socket protocol family
-#define RTDM_PF_TIMS                0
+#ifndef PF_TIMS
+#define PF_TIMS                     27
+#endif
 
 struct tims_sockaddr {
   sa_family_t sa_family;
@@ -122,7 +124,7 @@ extern "C" {
 
 static inline int       tims_socket(void)
 {
-    return rt_dev_socket(RTDM_PF_TIMS, SOCK_RAW, 0);
+    return rt_dev_socket(PF_TIMS, SOCK_RAW, 0);
 }
 
 static inline int tims_close(int fd)
@@ -133,7 +135,7 @@ static inline int tims_close(int fd)
 static inline int tims_bind(int fd, unsigned int address)
 {
     struct tims_sockaddr tsock = {
-        sa_family:  RTDM_PF_TIMS,
+        sa_family:  PF_TIMS,
         id:         address
     };
 
