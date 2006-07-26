@@ -31,16 +31,64 @@
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_CAN_OPEN                   1
 
-typedef struct {
-    ladar_data    data;
-    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
-} __attribute__((packed)) ladar_data_msg;
+
+#define PROFILEFORMAT_PROFILESENT  (1 << 0)
+#define PROFILEFORMAT_PROFILECOUNT (1 << 1)
+#define PROFILEFORMAT_LAYERNUM     (1 << 2)
+#define PROFILEFORMAT_SECTORNUM    (1 << 3)
+#define PROFILEFORMAT_DIRSTEP      (1 << 4)
+#define PROFILEFORMAT_POINTNUM     (1 << 5)
+#define PROFILEFORMAT_TSTART       (1 << 6)
+#define PROFILEFORMAT_STARTDIR     (1 << 7)
+#define PROFILEFORMAT_DISTANCE     (1 << 8)
+#define PROFILEFORMAT_TEND         (1 << 11)
+#define PROFILEFORMAT_ENDDIR       (1 << 12)
+#define PROFILEFORMAT_SENSTAT      (1 << 13)
+
+#define IDLE_MODE    0x1
+#define ROTATE_MODE  0x2
+#define MEASURE_MODE 0x3
+
+LadarIbeo *p_inst;
 
 //
 // data structures
 //
+typedef struct {
+    unsigned int senstat;
+} status_response;
 
-LadarIbeo *p_inst;
+typedef struct {
+    unsigned short rev;
+} trans_rot_request;
+
+struct _trans_measure_response{
+    unsigned int   senstat;
+    unsigned short errorcode;
+} __attribute__ ((packed));
+typedef struct _trans_measure_response trans_measure_response;
+
+typedef struct {
+    unsigned short syncabs;
+} set_time_abs;
+
+typedef struct {
+    unsigned short synctime;
+} set_time_abs_responce;
+
+typedef struct {
+    unsigned short profilenum;
+    unsigned short profileformat;
+} get_profile_request;
+
+typedef struct {
+    uint16_t word[4];
+} uint16_package;
+
+typedef struct {
+    ladar_data    data;
+    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
+} __attribute__((packed)) ladar_data_msg;
 
 struct ladar_sockaddr_can {
     struct sockaddr_can  scan;
@@ -272,7 +320,7 @@ int  LadarIbeo::moduleCommand(MessageInfo *p_msginfo)
 int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* parameter)
 {
     rtcan_frame_t canSend;
-    UINT16_PACKAGE canPackage;
+    uint16_package canPackage;
     int packageId;
     int parameterCount;
     int i, ret;
@@ -543,7 +591,7 @@ int LadarIbeo::decodeSensorStatus(unsigned int senstat)
 
 int LadarIbeo::getSensorStatus(void)
 {
-    STATUS_RESPONSE response;
+    status_response response;
 
     if(sendRequestPackage(0x0102, 0, NULL) != 0)
     {
@@ -552,7 +600,7 @@ int LadarIbeo::getSensorStatus(void)
     }
     GDOS_DBG_DETAIL("receiveResponsePackage ... \n");
 
-    if(receiveResponsePackage(0x8102, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    if(receiveResponsePackage(0x8102, sizeof(status_response), &response, NULL) != sizeof(status_response))
     {
         GDOS_ERROR("Can't receive response on getStatus request\n");
         return -1;
@@ -563,7 +611,7 @@ int LadarIbeo::getSensorStatus(void)
 
 int LadarIbeo::transIdle(void)
 {
-    STATUS_RESPONSE response;
+    status_response response;
 
     GDOS_DBG_INFO("transIdle\n");
 
@@ -573,7 +621,7 @@ int LadarIbeo::transIdle(void)
         return -1;
     }
 
-    if(receiveResponsePackage(0x8402, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    if(receiveResponsePackage(0x8402, sizeof(status_response), &response, NULL) != sizeof(status_response))
     {
         GDOS_ERROR("Can't receive response on transIdle request\n");
         return -1;
@@ -584,19 +632,19 @@ int LadarIbeo::transIdle(void)
 
 int LadarIbeo::transRot(void)
 {
-    TRANS_ROT_REQUEST request;
-    STATUS_RESPONSE response;
+    trans_rot_request request;
+    status_response response;
 
     GDOS_DBG_INFO("transRot\n");
 
     request.rev = 0;  // Scanning frequency corresponds to the configuration parameter
-    if(sendRequestPackage(0x0403, sizeof(TRANS_ROT_REQUEST), &request) != 0)
+    if(sendRequestPackage(0x0403, sizeof(trans_rot_request), &request) != 0)
     {
         GDOS_ERROR("Can't send transRot request to sensor\n");
         return -1;
     }
 
-    if(receiveResponsePackage(0x8403, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    if(receiveResponsePackage(0x8403, sizeof(status_response), &response, NULL) != sizeof(status_response))
     {
         GDOS_ERROR("Can't receive response on transRot request\n");
         return -1;
@@ -607,7 +655,7 @@ int LadarIbeo::transRot(void)
 
 int LadarIbeo::transMeasure(void)
 {
-    TRANS_MEASURE_RESPONSE response;
+    trans_measure_response response;
 
     GDOS_DBG_INFO("transMeasure\n");
 
@@ -617,7 +665,7 @@ int LadarIbeo::transMeasure(void)
         return -1;
     }
 
-    if(receiveResponsePackage(0x8404, sizeof(TRANS_MEASURE_RESPONSE), &response, NULL) != sizeof(TRANS_MEASURE_RESPONSE))
+    if(receiveResponsePackage(0x8404, sizeof(trans_measure_response), &response, NULL) != sizeof(trans_measure_response))
     {
         GDOS_ERROR("Can't receive response on transMeasure request\n");
         return -1;
@@ -648,7 +696,7 @@ int LadarIbeo::transMeasure(void)
 
 int LadarIbeo::getProfile(void)
 {
-    GET_PROFILE_REQUEST request;
+    get_profile_request request;
     int profilenum    = 0;  // request continuous data
     int profileformat = PROFILEFORMAT_DIRSTEP | PROFILEFORMAT_POINTNUM | PROFILEFORMAT_TSTART | PROFILEFORMAT_STARTDIR |
                         PROFILEFORMAT_DISTANCE |
@@ -659,7 +707,7 @@ int LadarIbeo::getProfile(void)
     request.profilenum      = __cpu_to_be16(profilenum);
     request.profileformat   = __cpu_to_be16(profileformat);
 
-    if(sendRequestPackage(0x0301, sizeof(GET_PROFILE_REQUEST), &request) != 0)
+    if(sendRequestPackage(0x0301, sizeof(get_profile_request), &request) != 0)
     {
         GDOS_ERROR("Can't send getProfile request to sensor\n");
         return -1;
@@ -669,7 +717,7 @@ int LadarIbeo::getProfile(void)
 
 int LadarIbeo::cancelProfile(void)
 {
-    STATUS_RESPONSE response;
+    status_response response;
 
     if(sendRequestPackage(0x0302, 0, NULL) != 0)
     {
@@ -677,7 +725,7 @@ int LadarIbeo::cancelProfile(void)
         return -1;
     }
 
-    if(receiveResponsePackage(0x8302, sizeof(STATUS_RESPONSE), &response, NULL) != sizeof(STATUS_RESPONSE))
+    if(receiveResponsePackage(0x8302, sizeof(status_response), &response, NULL) != sizeof(status_response))
     {
         GDOS_ERROR("Can't receive response on cancelProfile request\n");
         return -1;
@@ -688,19 +736,19 @@ int LadarIbeo::cancelProfile(void)
 
 int LadarIbeo::setTimeAbs(void)
 {
-    SET_TIME_ABS send;
-    SET_TIME_ABS_RESPONSE response;
+    set_time_abs send;
+    set_time_abs_responce response;
     RACK_TIME recordingtime;
 
     send.syncabs = 0;
 
-    if(sendRequestPackage(0x0203, sizeof(SET_TIME_ABS), &send) != 0)
+    if(sendRequestPackage(0x0203, sizeof(set_time_abs), &send) != 0)
     {
         GDOS_ERROR("Can't send setTimeAbs request to sensor\n");
         return-1;
     }
 
-    if(receiveResponsePackage(0x8203, sizeof(SET_TIME_ABS_RESPONSE), &response, &recordingtime) != sizeof(SET_TIME_ABS_RESPONSE))
+    if(receiveResponsePackage(0x8203, sizeof(set_time_abs_responce), &response, &recordingtime) != sizeof(set_time_abs_responce))
     {
         GDOS_ERROR("Can't receive response on setTimeAbs request\n");
         return -1;
