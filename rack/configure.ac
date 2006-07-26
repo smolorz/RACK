@@ -807,6 +807,25 @@ if test "$CONFIG_RACK_LADAR_SICK_LMS200" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - ladar sick cms3000
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ladar sick cms3000 driver])
+AC_ARG_ENABLE(ladar-sick-cms3000,
+    AS_HELP_STRING([--enable-ladar-sick-cms3000], [building ladar sick cms3000 laser scanner 
+driver]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_SICK_CMS3000=y ;;
+        *) CONFIG_RACK_LADAR_SICK_CMS3000=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_CMS3000:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_CMS3000,[test "$CONFIG_RACK_LADAR_SICK_CMS3000" = "y"])
+if test "$CONFIG_RACK_LADAR_SICK_CMS3000" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_SICK_CMS3000,1,[building ladar sick cms3000 laser scanner 
+driver])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - Odometry
 dnl -----------------------------------------------------------------
 

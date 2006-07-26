@@ -14,6 +14,10 @@ if CONFIG_RACK_LADAR_SICK_LMS200
 bin_PROGRAMS +=	LadarSickLms200
 endif
 
+if CONFIG_RACK_LADAR_SICK_CMS3000
+bin_PROGRAMS +=	LadarSickCms3000
+endif
+
 
 LadarIbeo_SOURCES = \
 	ladar_ibeo.h \
@@ -34,6 +38,12 @@ LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.cpp
 
 LadarSickLms200_LDFLAGS = @RACK_LIBS@
+
+LadarSickCms3000_SOURCES = \
+	ladar_sick_cms3000.h \
+	ladar_sick_cms3000.cpp
+
+LadarSickCms3000_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

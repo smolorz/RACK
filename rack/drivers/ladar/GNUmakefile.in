@@ -36,10 +36,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
+	$(am__EXEEXT_4)
 @CONFIG_RACK_LADAR_IBEO_TRUE@am__append_1 = LadarIbeo
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@am__append_2 = LadarHokuyoUrg
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__append_3 = LadarSickLms200
+@CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@am__append_4 = LadarSickCms3000
 subdir = drivers/ladar
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -55,6 +57,7 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@	LadarHokuyoUrg$(EXEEXT)
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__EXEEXT_3 =  \
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@	LadarSickLms200$(EXEEXT)
+@CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@am__EXEEXT_4 = LadarSickCms3000$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -64,6 +67,9 @@ LadarHokuyoUrg_LDADD = $(LDADD)
 am_LadarIbeo_OBJECTS = LadarIbeo-ladar_ibeo.$(OBJEXT)
 LadarIbeo_OBJECTS = $(am_LadarIbeo_OBJECTS)
 LadarIbeo_LDADD = $(LDADD)
+am_LadarSickCms3000_OBJECTS = ladar_sick_cms3000.$(OBJEXT)
+LadarSickCms3000_OBJECTS = $(am_LadarSickCms3000_OBJECTS)
+LadarSickCms3000_LDADD = $(LDADD)
 am_LadarSickLms200_OBJECTS = ladar_sick_lms200.$(OBJEXT)
 LadarSickLms200_OBJECTS = $(am_LadarSickLms200_OBJECTS)
 LadarSickLms200_LDADD = $(LDADD)
@@ -87,9 +93,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
-	$(LadarSickLms200_SOURCES)
+	$(LadarSickCms3000_SOURCES) $(LadarSickLms200_SOURCES)
 DIST_SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
-	$(LadarSickLms200_SOURCES)
+	$(LadarSickCms3000_SOURCES) $(LadarSickLms200_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -146,6 +152,8 @@ CONFIG_RACK_LADAR_IBEO_FALSE = @CONFIG_RACK_LADAR_IBEO_FALSE@
 CONFIG_RACK_LADAR_IBEO_TRUE = @CONFIG_RACK_LADAR_IBEO_TRUE@
 CONFIG_RACK_LADAR_JAVA_GUI_FALSE = @CONFIG_RACK_LADAR_JAVA_GUI_FALSE@
 CONFIG_RACK_LADAR_JAVA_GUI_TRUE = @CONFIG_RACK_LADAR_JAVA_GUI_TRUE@
+CONFIG_RACK_LADAR_SICK_CMS3000_FALSE = @CONFIG_RACK_LADAR_SICK_CMS3000_FALSE@
+CONFIG_RACK_LADAR_SICK_CMS3000_TRUE = @CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@
 CONFIG_RACK_LADAR_SICK_LMS200_FALSE = @CONFIG_RACK_LADAR_SICK_LMS200_FALSE@
 CONFIG_RACK_LADAR_SICK_LMS200_TRUE = @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@
 CONFIG_RACK_LIBDC1394_SUPPORT_FALSE = @CONFIG_RACK_LIBDC1394_SUPPORT_FALSE@
@@ -331,6 +339,11 @@ LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.cpp
 
 LadarSickLms200_LDFLAGS = @RACK_LIBS@
+LadarSickCms3000_SOURCES = \
+	ladar_sick_cms3000.h \
+	ladar_sick_cms3000.cpp
+
+LadarSickCms3000_LDFLAGS = @RACK_LIBS@
 EXTRA_DIST = \
 	Kconfig
 
@@ -401,6 +414,9 @@ LadarHokuyoUrg$(EXEEXT): $(LadarHokuyoUrg_OBJECTS) $(LadarHokuyoUrg_DEPENDENCIES
 LadarIbeo$(EXEEXT): $(LadarIbeo_OBJECTS) $(LadarIbeo_DEPENDENCIES) 
 	@rm -f LadarIbeo$(EXEEXT)
 	$(CXXLINK) $(LadarIbeo_LDFLAGS) $(LadarIbeo_OBJECTS) $(LadarIbeo_LDADD) $(LIBS)
+LadarSickCms3000$(EXEEXT): $(LadarSickCms3000_OBJECTS) $(LadarSickCms3000_DEPENDENCIES) 
+	@rm -f LadarSickCms3000$(EXEEXT)
+	$(CXXLINK) $(LadarSickCms3000_LDFLAGS) $(LadarSickCms3000_OBJECTS) $(LadarSickCms3000_LDADD) $(LIBS)
 LadarSickLms200$(EXEEXT): $(LadarSickLms200_OBJECTS) $(LadarSickLms200_DEPENDENCIES) 
 	@rm -f LadarSickLms200$(EXEEXT)
 	$(CXXLINK) $(LadarSickLms200_LDFLAGS) $(LadarSickLms200_OBJECTS) $(LadarSickLms200_LDADD) $(LIBS)
@@ -413,6 +429,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LadarIbeo-ladar_ibeo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_hokuyo_urg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_cms3000.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_lms200.Po@am__quote@
 
 .cpp.o:

@@ -60,6 +60,9 @@
 /* building ladar java gui */
 #undef CONFIG_RACK_LADAR_JAVA_GUI
 
+/* building ladar sick cms3000 laser scanner driver */
+#undef CONFIG_RACK_LADAR_SICK_CMS3000
+
 /* building ladar sick lms200 laser scanner driver */
 #undef CONFIG_RACK_LADAR_SICK_LMS200
 

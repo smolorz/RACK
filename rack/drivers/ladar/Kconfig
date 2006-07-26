@@ -14,3 +14,9 @@ config RACK_LADAR_SICK_LMS200
     bool "Ladar Sick LMS200"
     default y
     ---help---
+
+config RACK_LADAR_SICK_CMS3000
+    bool "Ladar Sick CMS3000"
+    default y
+    ---help---
+
