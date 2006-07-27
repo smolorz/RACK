@@ -140,14 +140,17 @@ int  LadarSickCms3000::moduleLoop(void)
 
     for(i = 0; i < 10; i++)
     {
-        GDOS_DBG_INFO("Reading char %i, serial dev %i\n", i, serialDev);
-
-        ret = serialPort.recv(serialBuffer, 1, &time,
+        ret = serialPort.recv(&serialBuffer[i], 1, &time,
                           2 * rackTime.toNano(getDataBufferPeriodTime(0)));
         if (ret)
         {
             GDOS_ERROR("Can't read from serial dev %i\n", serialDev);
             return ret;
+        }
+        if(totalCount > 4 * 1024)
+        {
+            GDOS_ERROR("Can´t synchronise on package head\n");
+            return EAGAIN;
         }
 
         switch(i)
