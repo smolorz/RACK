@@ -108,12 +108,14 @@ const struct rtser_config ladar_serial_config =
 int  LadarSickCms3000::moduleOn(void)
 {
     int ret;
-
+ 
     ret = serialPort.clean();
     if (ret)
     {
         return ret;
     }
+    GDOS_DBG_INFO("Serial buffer cleaned, serial dev %i\n", serialDev);
+
     return DataModule::moduleOn();  // have to be last command in moduleOn();
 }
 
@@ -138,6 +140,8 @@ int  LadarSickCms3000::moduleLoop(void)
 
     for(i = 0; i < 10; i++)
     {
+        GDOS_DBG_INFO("Reading char %i, serial dev %i\n", i, serialDev);
+
         ret = serialPort.recv(serialBuffer, 1, &time,
                           2 * rackTime.toNano(getDataBufferPeriodTime(0)));
         if (ret)
@@ -285,8 +289,14 @@ int  LadarSickCms3000::moduleInit(void)
         goto init_error;
     }
     GDOS_DBG_INFO("rtser%d has been opened \n", serialDev);
-    initBits.setBit(INIT_BIT_RTSERIAL_OPENED);
-
+    initBits.setBit(INIT_BIT_RTSERIAL_OPENED);    
+    
+    ret = serialPort.setBaudrate(500000);
+    if (ret)
+    {
+        GDOS_ERROR("Can't set baudrate to 500kBaud, code = %d\n", ret);
+        goto init_error;
+    }
     return 0;
 
 init_error:
