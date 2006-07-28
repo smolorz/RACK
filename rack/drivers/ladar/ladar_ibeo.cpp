@@ -745,7 +745,7 @@ int LadarIbeo::setTimeAbs(void)
     if(sendRequestPackage(0x0203, sizeof(set_time_abs), &send) != 0)
     {
         GDOS_ERROR("Can't send setTimeAbs request to sensor\n");
-        return-1;
+        return -1;
     }
 
     if(receiveResponsePackage(0x8203, sizeof(set_time_abs_responce), &response, &recordingtime) != sizeof(set_time_abs_responce))
@@ -754,11 +754,11 @@ int LadarIbeo::setTimeAbs(void)
         return -1;
     }
 
-    timeOffset = recordingtime - (RACK_TIME)(response.synctime)*10;
+    timeOffset = recordingtime - (RACK_TIME)response.synctime;
 
-    GDOS_DBG_DETAIL("getSyncTime synctime %i recordingtime %i timeOffset %i\n", (int)(response.synctime), recordingtime, timeOffset);
+    GDOS_DBG_DETAIL("getSyncTime synctime %i recordingtime %i timeOffset %i\n", (int)response.synctime, recordingtime, timeOffset);
 
-    return(0);
+    return 0;
 }
 
 int LadarIbeo::byteorder_read_be_u16(void* u16)

@@ -210,8 +210,6 @@ int  LadarHokuyoUrg::moduleLoop(void)
         j += 2;
     }
 
-    p_data->recordingTime = rackTime.get();
-
     datalength = sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum; // points
 
     // write data buffer slot (and send it to all listener)
