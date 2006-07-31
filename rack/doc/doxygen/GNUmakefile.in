@@ -486,6 +486,7 @@ uninstall-am: uninstall-info-am uninstall-local
 @CONFIG_RACK_DOC_DOX_TRUE@	        esac; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    done; cd $$abs_builddir; \
 @CONFIG_RACK_DOC_DOX_TRUE@	done
+@CONFIG_RACK_DOC_DOX_TRUE@	$(INSTALL_DATA) rack_doc.tag $(DESTDIR)$(docdir)/html/rack_doc.tag
 
 @CONFIG_RACK_DOC_DOX_TRUE@install-docs-local: install-htmldocs
 

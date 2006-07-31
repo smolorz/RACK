@@ -45,6 +45,7 @@ install-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
 	        esac; \
 	    done; cd $$abs_builddir; \
 	done
+	$(INSTALL_DATA) rack_doc.tag $(DESTDIR)$(docdir)/html/rack_doc.tag
 
 install-docs-local: install-htmldocs
 
