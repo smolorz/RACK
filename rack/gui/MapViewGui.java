@@ -527,7 +527,6 @@ public class MapViewGui extends Thread
         private JButton     viewRobotButton;
         private JButton     viewOriginButton;
         private JLabel      coordinateLabel;
-        private ModuleActionEvent actionEvent = null;
 
         private static final long serialVersionUID = 1L;
 
@@ -1002,70 +1001,6 @@ public class MapViewGui extends Thread
         public void mouseMoved(MouseEvent arg0)
         {
         }
-
-
-        private class ActionMenu extends JMenu implements MenuListener
-        {
-            private static final long serialVersionUID = 1L;
-
-            public ActionMenu()
-            {
-                super("   Action   ");
-                addMenuListener(this);
-                setToolTipText("Aktion auswaehlen");
-            }
-
-            public void menuCanceled(MenuEvent arg0)
-            {
-            }
-
-            public void menuDeselected(MenuEvent arg0)
-            {
-            }
-
-            public void menuSelected(MenuEvent arg0)
-            {
-                this.removeAll();
-
-                ListIterator moduleGuiIterator = moduleGuiList.listIterator();
-                while (moduleGuiIterator.hasNext())
-                {
-                    ModuleGuiProp moduleGuiProp = (ModuleGuiProp) moduleGuiIterator
-                            .next();
-                    if (!moduleGuiProp.isOn())
-                        continue;
-
-                    MapViewActionList actionList = moduleGuiProp.getModuleGui()
-                            .getMapViewActionList();
-                    if (actionList == null)
-                        continue;
-
-                    JMenu newSubmenu = new JMenu(actionList.title);
-                    this.add(newSubmenu);
-
-                    ListIterator actionListIterator = actionList.listIterator();
-                    while (actionListIterator.hasNext())
-                    {
-                        newSubmenu
-                                .add(new ModuleActionEvent(
-                                        moduleGuiProp,
-                                        (MapViewActionList.MapViewActionListItem) actionListIterator
-                                                .next()));
-                    }
-                }
-
-                if (this.getComponentCount() > 0)
-                    this.addSeparator();
-                JMenuItem newMenuItem = new JMenuItem("Cursor");
-                newMenuItem.setActionCommand("selectCursor");
-                newMenuItem.addActionListener(actionCursor);
-                this.add(newMenuItem);
-
-                this.validate();
-            }
-        } // actionMenu
-
-
     }
 
     // **********************************************************
