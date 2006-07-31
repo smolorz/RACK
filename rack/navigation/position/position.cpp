@@ -80,6 +80,7 @@ void Position::moduleOff(void)
     odometry->stopContData(&odometryMbx);
 }
 
+
 int  Position::moduleLoop(void)
 {
     int             ret;
@@ -113,7 +114,7 @@ int  Position::moduleLoop(void)
         relPos.z   = odometryData.pos.z   - refOdo.z;
         relPos.rho = odometryData.pos.rho - refOdo.rho;
 
-        GDOS_DBG_DETAIL("Relative position %i x %i y %i z %i rho %a\n",
+        GDOS_DBG_DETAIL("Relative position x %i y %i z %i rho %a\n",
                         relPos.x, relPos.y, relPos.z, relPos.rho);
 
         // calcualte absolute position
@@ -127,6 +128,7 @@ int  Position::moduleLoop(void)
         pPosition->recordingTime = odometryData.recordingTime;
 
         GDOS_DBG_DETAIL("recordingTime %i x %i y %i z %i phi %a psi %a rho %a\n",
+                        pPosition->recordingTime,
                         pPosition->pos.x, pPosition->pos.y, pPosition->pos.z,
                         pPosition->pos.phi, pPosition->pos.psi, pPosition->pos.rho);
 
@@ -192,6 +194,9 @@ int  Position::moduleCommand(MessageInfo *msgInfo)
             refTime    = pUpdate->recordingTime;
 
             refPosMtx.unlock();
+            GDOS_DBG_INFO("recordingTime %i x %i y %i z %i phi %a psi %a rho %a\n",
+                           refTime, refPos.x, refPos.y, refPos.z, 
+                           refPos.phi, refPos.psi, refPos.rho);
 
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
