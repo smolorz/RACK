@@ -18,19 +18,10 @@ package rack.drivers;
 import rack.main.naming.*;
 import rack.main.proxy.*;
 import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 public class JoystickProxy extends RackDataProxy
 {
-    public static final byte MSG_SET_POSITION =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
-
-    public static final int MAX = 8;
-    public static final int MAX_BUTTON = 8;
-    public static final int MAX_LED = 8;
-
     public JoystickProxy(int id, int replyMbx)
     {
         super(RackName.create(RackName.JOYSTICK, id), replyMbx, 2000, 1000,
@@ -63,34 +54,6 @@ public class JoystickProxy extends RackDataProxy
     public synchronized JoystickDataMsg getData()
     {
         return (getData(0));
-    }
-
-    public synchronized void setLed(boolean[] leds)
-    {
-    }
-
-    public synchronized void setData(JoystickDataMsg data)
-    {
-        currentSequenceNo++;
-        try
-        {
-            TimsMsgRouter.send(MSG_SET_POSITION, commandMbx, replyMbx,
-                    (byte) 0, (byte) currentSequenceNo, data);
-            TimsDataMsg reply;
-            do
-            {
-                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
-            }
-            while (reply.seq_nr != currentSequenceNo);
-
-            System.out.println(RackName.nameString(replyMbx)
-                    + ": joystick.setData");
-        }
-        catch (MsgException e)
-        {
-            System.out.println(RackName.nameString(replyMbx)
-                    + ": joystick.setData " + e);
-        }
     }
 
     public int getCommandMbx()

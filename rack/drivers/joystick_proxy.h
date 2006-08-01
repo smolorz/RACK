@@ -28,14 +28,6 @@
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
-#define JOYSTICK_MAX_LED    8
-
-//######################################################################
-//# Joystick Message Types
-//######################################################################
-
-#define MSG_SET_POSITION        (RACK_PROXY_MSG_POS_OFFSET + 1)
-
 //######################################################################
 //# Joystick Data (static size - MESSAGE)
 //######################################################################
@@ -114,22 +106,6 @@ class JoystickProxy : public RackDataProxy
 
         int getData(joystick_data *recv_data, ssize_t recv_datalen,
                     RACK_TIME timeStamp, uint64_t reply_timeout_ns);
-
-//
-// set data
-//
-
-        int setData(joystick_data *p_data)
-        {
-            return setData(p_data, dataTimeout);
-        }
-
-        int setData(joystick_data *p_data, uint64_t reply_timeout_ns)
-        {
-            return proxySendDataCmd(MSG_SET_POSITION, &p_data,
-                                    sizeof(joystick_data), reply_timeout_ns);
-        }
-
 };
 
 /*@}*/
