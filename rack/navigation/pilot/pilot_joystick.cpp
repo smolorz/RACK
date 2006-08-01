@@ -69,7 +69,6 @@ argTable_t argTab[] = {
  int  PilotJoystick::moduleOn(void)
 {
     int ret;
-    MessageInfo info;
 
     ret = chassis->on();
     if (ret)
@@ -80,14 +79,12 @@ argTable_t argTab[] = {
 
     // get chassis parameter data
 
-    ret = chassis->getParam(&chasParData, sizeof(chassis_param_data), &info);
+    ret = chassis->getParam(&chasParData, sizeof(chassis_param_data));
     if (ret)
     {
         GDOS_ERROR("Can't get chassis parameter, code = %d\n", ret);
         return ret;
     }
-
-    ChassisParamData::parse(&info);
 
     if (maxSpeed > chasParData.vxMax)
     {
@@ -106,15 +103,13 @@ argTable_t argTab[] = {
 
     // get joystick data
 
-    ret = joystick->getData(&jstkData, sizeof(joystick_data), 0, &info);
+    ret = joystick->getData(&jstkData, sizeof(joystick_data), 0);
     if (ret)
     {
         GDOS_ERROR("Can't get data from Joystick(%i), code  %d\n",
                    joystickInst, ret);
         return ret;
     }
-
-    JoystickData::parse(&info);
 
     if ((jstkData.position.x != 0) ||
         (jstkData.position.y != 0))

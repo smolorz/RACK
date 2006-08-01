@@ -20,17 +20,18 @@
 //
 
 int ChassisProxy::getData(chassis_data *recv_data, ssize_t recv_datalen,
-                          RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-                          MessageInfo *msgInfo)
+                          RACK_TIME timeStamp, uint64_t reply_timeout_ns)
 {
+    MessageInfo msgInfo;
+    
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
-                                    reply_timeout_ns, msgInfo);
+                                    reply_timeout_ns, &msgInfo);
     if (ret)
     {
         return ret;
     }
 
-    recv_data = ChassisData::parse(msgInfo);
+    recv_data = ChassisData::parse(&msgInfo);
     return 0;
 }
 
@@ -46,17 +47,19 @@ int ChassisProxy::move(int vx, int vy, float omega, uint64_t reply_timeout_ns)
 }
 
 int ChassisProxy::getParam(chassis_param_data *recv_data, ssize_t recv_datalen,
-                           uint64_t reply_timeout_ns, MessageInfo *msgInfo)
+                           uint64_t reply_timeout_ns)
 {
+    MessageInfo msgInfo;
+
     int ret = proxyRecvDataCmd(MSG_CHASSIS_GET_PARAMETER, MSG_CHASSIS_PARAMETER,
                               (void *)recv_data, recv_datalen,
-                              reply_timeout_ns, msgInfo);
+                              reply_timeout_ns, &msgInfo);
     if (ret)
     {
         return ret;
     }
 
-    recv_data = ChassisParamData::parse(msgInfo);
+    recv_data = ChassisParamData::parse(&msgInfo);
     return 0;
 }
 

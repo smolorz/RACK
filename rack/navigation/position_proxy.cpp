@@ -16,17 +16,18 @@
  #include <navigation/position_proxy.h>
 
 int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
-                           RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-                           MessageInfo *msgInfo)
+                           RACK_TIME timeStamp, uint64_t reply_timeout_ns)
 {
+    MessageInfo msgInfo;
+    
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
-                                     reply_timeout_ns, msgInfo);
+                                     reply_timeout_ns, &msgInfo);
     if (ret)
     {
         return ret;
     }
 
-    recv_data = PositionData::parse(msgInfo);
+    recv_data = PositionData::parse(&msgInfo);
     return 0;
 }
 

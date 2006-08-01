@@ -313,27 +313,25 @@ class CameraProxy : public RackDataProxy {
 // (includes parsing and type conversion)
 //
 
-    int getData(camera_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
-                MessageInfo *msgInfo)
+    int getData(camera_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
     {
-        return getData(recv_data, recv_datalen, timeStamp, dataTimeout, msgInfo);
+        return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
     int getData(camera_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
-                uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                uint64_t reply_timeout_ns);
 
 
 // getParam
 
 
-    int getParam(camera_param_data *recv_data, ssize_t recv_datalen,
-                 MessageInfo *msgInfo)
+    int getParam(camera_param_data *recv_data, ssize_t recv_datalen)
     {
-        return getParam(recv_data, recv_datalen, dataTimeout, msgInfo);
+        return getParam(recv_data, recv_datalen, dataTimeout);
     }
 
     int getParam(camera_param_data *recv_data, ssize_t recv_datalen,
-                 uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                 uint64_t reply_timeout_ns);
 
 };
 

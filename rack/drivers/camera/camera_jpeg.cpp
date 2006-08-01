@@ -52,7 +52,6 @@ argTable_t argTab[] = {
 
  int CameraJpeg::moduleOn(void)
 {
-    MessageInfo msgInfo;
     RACK_TIME cameraPeriodTime = 0;
     int ret;
 
@@ -77,7 +76,7 @@ argTable_t argTab[] = {
 
     //get one image to get all needed parameter
     GDOS_DBG_DETAIL("Request data from Camera(%d)\n", cameraInst);
-    ret = camera->getData(&cameraInputMsg.data, sizeof(cameraInputMsg), 0, &msgInfo);
+    ret = camera->getData(&cameraInputMsg.data, sizeof(cameraInputMsg), 0);
     if (ret)
     {
         GDOS_ERROR("Can't get single data from Camera(%d), "
@@ -224,10 +223,9 @@ int CameraJpeg::moduleCommand(MessageInfo *msgInfo)
     {
     case MSG_CAMERA_GET_PARAMETER:
         //weiterleitung an ursprungskamera
-        MessageInfo msgForewardInfo;
         camera_param_data param;
 
-        camera->getParam(&param, sizeof(camera_param_data), &msgForewardInfo);
+        camera->getParam(&param, sizeof(camera_param_data));
 
         cmdMbx.sendDataMsgReply(MSG_CAMERA_PARAMETER, msgInfo, 1, &param,
                                 sizeof(camera_param_data));

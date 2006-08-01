@@ -107,15 +107,13 @@ class JoystickProxy : public RackDataProxy
 //
 
         int getData(joystick_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, MessageInfo *msgInfo)
+                    RACK_TIME timeStamp)
         {
-            return getData(recv_data, recv_datalen, timeStamp,
-                           dataTimeout, msgInfo);
+            return getData(recv_data, recv_datalen, timeStamp);
         }
 
         int getData(joystick_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-                    MessageInfo *msgInfo);
+                    RACK_TIME timeStamp, uint64_t reply_timeout_ns);
 
 //
 // set data

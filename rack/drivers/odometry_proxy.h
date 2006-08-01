@@ -102,14 +102,13 @@ class OdometryProxy : public RackDataProxy {
 //
 
     int getData(odometry_data *recv_data, ssize_t recv_datalen,
-                RACK_TIME timeStamp, MessageInfo *msgInfo)
+                RACK_TIME timeStamp)
     {
-      return getData(recv_data, recv_datalen, timeStamp, dataTimeout, msgInfo);
+      return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
     int getData(odometry_data *recv_data, ssize_t recv_datalen,
-                RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-                MessageInfo *msgInfo);
+                RACK_TIME timeStamp, uint64_t reply_timeout_ns);
 
     int reset(void)
     {

@@ -17,16 +17,17 @@
  #include <drivers/gps_proxy.h>
 
  int GpsProxy::getData(gps_data *recv_data, ssize_t recv_datalen,
-                        RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-                        MessageInfo *msgInfo)
+                        RACK_TIME timeStamp, uint64_t reply_timeout_ns)
 {
+    MessageInfo msgInfo;
+
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen,
-                                     timeStamp, reply_timeout_ns, msgInfo);
+                                     timeStamp, reply_timeout_ns, &msgInfo);
     if (ret)
     {
         return ret;
     }
 
-    recv_data = GpsData::parse(msgInfo);
+    recv_data = GpsData::parse(&msgInfo);
     return 0;
 }

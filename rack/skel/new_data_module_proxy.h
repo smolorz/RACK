@@ -194,14 +194,13 @@ class NewDataModuleProxy : public RackDataProxy {
 // (includes parsing and type conversion)
 //
 
-    int getData(new_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
-                MessageInfo *msgInfo)
+    int getData(new_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
     {
-        return getData(recv_data, recv_datalen, timeStamp, dataTimeout, msgInfo);
+        return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
     int getData(new_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
-                uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                uint64_t reply_timeout_ns);
 
 //
 // sendCmd
@@ -232,30 +231,28 @@ class NewDataModuleProxy : public RackDataProxy {
 // recvDataCmd
 //
 
-    int recvDataCmd(new_data *recv_data, ssize_t recv_datalen,
-                        MessageInfo *msgInfo) // use default timeout
+    int recvDataCmd(new_data *recv_data, ssize_t recv_datalen) // use default timeout
     {
-        return recvDataCmd(recv_data, recv_datalen, dataTimeout, msgInfo);
+        return recvDataCmd(recv_data, recv_datalen, dataTimeout);
     }
 
     int recvDataCmd(new_data* recv_data, ssize_t recv_datalen,
-                        uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                        uint64_t reply_timeout_ns);
 
 //
 // sendRecvDataCmd
 //
 
     int sendRecvDataCmd(void *send_data, size_t send_datalen,
-                            new_data *recv_data, size_t recv_datalen,
-                            MessageInfo *msgInfo) // use default timeout
+                            new_data *recv_data, size_t recv_datalen) // use default timeout
     {
         return sendRecvDataCmd(send_data, send_datalen, recv_data, recv_datalen,
-                               dataTimeout, msgInfo);
+                               dataTimeout);
     }
 
     int sendRecvDataCmd(void *send_data, size_t send_datalen,
                         new_data *recv_data, size_t recv_datalen,
-                        uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                        uint64_t reply_timeout_ns);
 
 };
 

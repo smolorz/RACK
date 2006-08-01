@@ -348,12 +348,11 @@ class ChassisProxy : public RackDataProxy {
 //
 
     int getData(chassis_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
-                uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                uint64_t reply_timeout_ns);
 
-    int getData(chassis_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
-                              MessageInfo *msgInfo)
+    int getData(chassis_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
     {
-        return getData(recv_data, recv_datalen, timeStamp, dataTimeout, msgInfo);
+        return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
 
@@ -402,14 +401,13 @@ class ChassisProxy : public RackDataProxy {
 // getParam
 
 
-    int getParam(chassis_param_data *recv_data, ssize_t recv_datalen,
-                 MessageInfo *msgInfo)
+    int getParam(chassis_param_data *recv_data, ssize_t recv_datalen)
     {
-        return getParam(recv_data, recv_datalen, dataTimeout, msgInfo);
+        return getParam(recv_data, recv_datalen, dataTimeout);
     }
 
     int getParam(chassis_param_data *recv_data, ssize_t recv_datalen,
-                 uint64_t reply_timeout_ns, MessageInfo *msgInfo);
+                 uint64_t reply_timeout_ns);
 
 
 // setActivePilot

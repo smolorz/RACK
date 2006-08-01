@@ -147,7 +147,6 @@ void Scan2DMerge::moduleOff(void)
 // realtime context
 int  Scan2DMerge::moduleLoop(void)
 {
-    MessageInfo     odoInfo;
     MessageInfo     dataInfo;
     odometry_data   *odoData   = NULL;
     scan2d_data     *scanData  = NULL;
@@ -183,10 +182,7 @@ int  Scan2DMerge::moduleLoop(void)
 
                     ret = odometry->getData(&odometryBuffer[k],
                                             sizeof(odometry_data),
-                                            scanData->recordingTime,
-                                            &odoInfo);
-                    // message parsing
-                    OdometryData::parse(&odoInfo);
+                                            scanData->recordingTime);
 
                     sinRho = sin(odometryBuffer[k].pos.rho);
                     cosRho = cos(odometryBuffer[k].pos.rho);

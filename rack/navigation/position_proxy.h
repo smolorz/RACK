@@ -101,13 +101,12 @@ class PositionProxy : public RackDataProxy {
         //
 
         int getData(position_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, uint64_t reply_timeout_ns,
-                    MessageInfo *msgInfo);
+                    RACK_TIME timeStamp, uint64_t reply_timeout_ns);
 
         int getData(position_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, MessageInfo *msgInfo)
+                    RACK_TIME timeStamp)
         {
-            return getData(recv_data, recv_datalen, timeStamp, dataTimeout, msgInfo);
+            return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
         }
 
         int update(position_3d *pos, RACK_TIME recordingTime, uint64_t reply_timeout_ns);

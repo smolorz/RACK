@@ -154,7 +154,6 @@ int  Position::moduleCommand(MessageInfo *msgInfo)
 {
     position_data *pUpdate;
     odometry_data odometryData;
-    MessageInfo   odometryInfo;
     int ret;
 
     switch(msgInfo->type)
@@ -164,8 +163,7 @@ int  Position::moduleCommand(MessageInfo *msgInfo)
 
             ret = odometry->getData(&odometryData,
                                     sizeof(odometry_data),
-                                    pUpdate->recordingTime,
-                                    &odometryInfo);
+                                    pUpdate->recordingTime);
             if (ret)
             {
                 cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
