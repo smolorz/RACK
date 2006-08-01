@@ -53,11 +53,12 @@ RackProxy::~RackProxy()
 // send functions
 //
 
-// sendProxyCmd
-// Sends a message with a given type and waits <timeout> ns for a reply.
-// The send and the reply message doesn't contain any data
+/** Remote procedure calling with no data in command msg and reply msg.
+ *  Sends a message with a given type and waits timeout ns for a reply.
+ */
 int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
 {
+    MessageInfo msgInfo;
     int ret;
 
     if (!workMbx)
@@ -77,7 +78,7 @@ int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
 
     while (1)
     {   // waiting for reply (without data)
-        ret = workMbx->recvMsgTimed(timeout, &info);
+        ret = workMbx->recvMsgTimed(timeout, &msgInfo);
         if (ret)
         {
             GDOS_WARNING("Proxy cmd to %n: Can't receive reply of "
@@ -86,9 +87,9 @@ int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
             return ret;
         }
 
-        if (info.src == destMbxAdr)
+        if (msgInfo.src == destMbxAdr)
         {
-            switch(info.type)
+            switch(msgInfo.type)
             {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
@@ -113,13 +114,14 @@ int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
     return -EINVAL;
 }
 
-// sendProxyDataCmd
-// Sends a data message with a given type, a send-pointer and the send-datasize
-// and waits <timeout> ns for a reply.
-// The reply message doesn't contain any data
+/** Remote procedure calling with data in command msg and no data in reply msg.
+ *  Sends a data message with a given type, a send-pointer and the send-datasize
+ *  and waits timeout ns for a reply.
+ */
 int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
                                 size_t send_datalen, uint64_t timeout)
 {
+    MessageInfo msgInfo;
     int ret;
 
     if (!workMbx)
@@ -137,7 +139,7 @@ int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
 
     while (1)
     {   // waiting for reply (without data)
-        ret = workMbx->recvMsgTimed(timeout, &info);
+        ret = workMbx->recvMsgTimed(timeout, &msgInfo);
         if (ret)
         {
             GDOS_WARNING("Proxy cmd to %n: Can't receive reply of "
@@ -146,9 +148,9 @@ int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
             return ret;
         }
 
-        if (info.src == destMbxAdr)
+        if (msgInfo.src == destMbxAdr)
         {
-            switch(info.type) {
+            switch(msgInfo.type) {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
                                  send_msgtype, destMbxAdr);
@@ -172,10 +174,10 @@ int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
     return -EINVAL;
 }
 
-// sendProxyDataCmd
-// Sends a data message with a given type, a send-pointer and the send-datasize
-// and waits <timeout> ns for a reply.
-// Only the reply message contains data
+/** Remote procedure calling with no data in command msg and data in reply msg.
+ *  Sends a data message with a given type, a send-pointer and the send-datasize
+ *  and waits timeout ns for a reply.
+ */
 int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
                                 void *recv_data, size_t recv_datalen,
                                 uint64_t timeout, MessageInfo *msgInfo)
@@ -234,10 +236,10 @@ int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
     return -EINVAL;
 }
 
-// sendProxyDataCmd
-// Sends a data message with a given type, a send-pointer and the send-datasize
-// and waits <timeout> ns for a reply.
-// The send and the reply message contain data
+/** Remote procedure calling with data in command msg and reply msg.
+ *  Sends a data message with a given type, a send-pointer and the send-datasize
+ *  and waits timeout ns for a reply.
+ */
 int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
                                     size_t send_datalen, const int8_t recv_msgtype,
                                     void *recv_data, size_t recv_datalen,
@@ -298,6 +300,7 @@ int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
 
 int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
 {
+    MessageInfo msgInfo;
     int ret;
 
     if (!workMbx)
@@ -317,7 +320,7 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
 
     while (1)
     {   // waiting for reply (without data)
-        ret = workMbx->recvMsgTimed(reply_timeout_ns, &info);
+        ret = workMbx->recvMsgTimed(reply_timeout_ns, &msgInfo);
         if (ret)
         {
             GDOS_WARNING("Proxy cmd to %n: Can't receive reply of "
@@ -326,9 +329,9 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
             return ret;
         }
 
-        if (info.src == destMbxAdr)
+        if (msgInfo.src == destMbxAdr)
         {
-            switch(info.type)
+            switch(msgInfo.type)
             {
                 case MSG_TIMEOUT:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - timeout -\n",
@@ -343,7 +346,7 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
                 case MSG_ENABLED:
                 case MSG_DISABLED:
                 case MSG_ERROR:
-                    return info.type;
+                    return msgInfo.type;
             }
         }
     } // while-loop
@@ -393,7 +396,7 @@ int RackDataProxy::getContData(RACK_TIME requestPeriodTime, RackMailbox *dataMbx
                                RACK_TIME *realPeriodTime, uint64_t reply_timeout_ns)
 {
     int ret;
-    MessageInfo        info;
+    MessageInfo        msgInfo;
     rack_get_cont_data send_data;
     rack_cont_data     recv_data;
 
@@ -403,11 +406,11 @@ int RackDataProxy::getContData(RACK_TIME requestPeriodTime, RackMailbox *dataMbx
     ret = proxySendRecvDataCmd(MSG_GET_CONT_DATA, &send_data,
                                sizeof(rack_get_cont_data),
                                MSG_CONT_DATA, &recv_data,
-                               sizeof(rack_cont_data), reply_timeout_ns, &info);
+                               sizeof(rack_cont_data), reply_timeout_ns, &msgInfo);
     if (ret)
         return ret;
 
-    RackContData::parse(&info);
+    RackContData::parse(&msgInfo);
 
     if (realPeriodTime)
     {

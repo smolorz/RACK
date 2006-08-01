@@ -247,24 +247,14 @@ class RackProxy {
     uint64_t        dataTimeout;
 
     uint32_t        destMbxAdr;
-    MessageInfo     info;
 
     // only for debugging:
     GdosMailbox*    gdos;
 
-  public:
-
-//
-// additional inline functions
-//
-    unsigned int getDestAdr(void)
-    {
-        return destMbxAdr;
-    }
-
 //
 // constructor and destructor
 //
+
     RackProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t class_id,
               uint32_t instance);
     ~RackProxy();
@@ -284,24 +274,7 @@ class RackProxy {
                              void *recv_data, size_t recv_datalen,
                              uint64_t timeout, MessageInfo *p_msginfo);
 
-//
-// timeouts
-//
-
-    void setOnTimeout(uint64_t onTimeout_ns)
-    {
-        onTimeout = onTimeout_ns;
-    }
-
-    void setOffTimeout(uint64_t offTimeout_ns)
-    {
-        offTimeout = offTimeout_ns;
-    }
-
-    void setDataTimeout(uint64_t dataTimeout_ns)
-    {
-        dataTimeout = dataTimeout_ns;
-    }
+  public:
 
 //
 // on
@@ -343,6 +316,32 @@ class RackProxy {
 
     int getStatus(uint64_t reply_timeout_ns); // use special timeout
 
+//
+// additional inline functions
+//
+    unsigned int getDestAdr(void)
+    {
+        return destMbxAdr;
+    }
+
+//
+// timeouts
+//
+
+    void setOnTimeout(uint64_t onTimeout_ns)
+    {
+        onTimeout = onTimeout_ns;
+    }
+
+    void setOffTimeout(uint64_t offTimeout_ns)
+    {
+        offTimeout = offTimeout_ns;
+    }
+
+    void setDataTimeout(uint64_t dataTimeout_ns)
+    {
+        dataTimeout = dataTimeout_ns;
+    }
 
 };
 
@@ -351,22 +350,25 @@ class RackProxy {
 //######################################################################
 
 class RackDataProxy : public RackProxy {
-  public:
+
+    protected:
 
 //
 // constructor and destructor
 //
 
-  RackDataProxy(RackMailbox *sendMbx, uint32_t sys_id, uint32_t class_id,
-                uint32_t instance);
-  ~RackDataProxy();
+    RackDataProxy(RackMailbox *sendMbx, uint32_t sys_id, uint32_t class_id,
+                  uint32_t instance);
+    ~RackDataProxy();
 
 //
 // get data
 //
 
-  int getData(void *recv_data, ssize_t recv_max_len, RACK_TIME timeStamp,
-              uint64_t reply_timeout_ns, MessageInfo *p_msginfo);
+    int getData(void *recv_data, ssize_t recv_max_len, RACK_TIME timeStamp,
+                uint64_t reply_timeout_ns, MessageInfo *p_msginfo);
+
+    public:
 
 //
 // get continuous data
