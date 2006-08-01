@@ -13,15 +13,15 @@
  *      YourName <YourMailAddress>
  *
  */
-#include <skel/new_data_module_proxy.h>
+#include <skel/dummy_data_module_proxy.h>
 
 //
 // proxy functions
 //
 
 
-int NewDataModuleProxy::getData(new_data *recv_data, ssize_t recv_datalen,
-                                RACK_TIME timeStamp, uint64_t reply_timeout_ns)
+int DummyProxy::getData(dummy_data *recv_data, ssize_t recv_datalen,
+                        RACK_TIME timeStamp, uint64_t reply_timeout_ns)
 {
     MessageInfo msgInfo;
     
@@ -32,44 +32,44 @@ int NewDataModuleProxy::getData(new_data *recv_data, ssize_t recv_datalen,
         return ret;
     }
 
-    recv_data = NewData::parse(&msgInfo);
+    recv_data = DummyData::parse(&msgInfo);
     return 0;
 }
 
-int NewDataModuleProxy::sendDataCmd(uint64_t reply_timeout_ns)
+int DummyProxy::sendDataCmd(uint64_t reply_timeout_ns)
 {
     send_data data;
     data.val_X = 20.3;
     data.val_Y = 12;
 
-    return proxySendDataCmd(MSG_SEND_DATA_CMD, &send_data, sizeof(send_data),
+    return proxySendDataCmd(DUMMY_SEND_DATA_CMD, &send_data, sizeof(send_data),
                             reply_timeout_ns);
 }
 
-int NewDataModuleProxy::recvDataCmd(new_data* recv_data, ssize_t recv_datalen,
+int DummyProxy::recvDataCmd(dummy_data* recv_data, ssize_t recv_datalen,
                                     uint64_t reply_timeout_ns)
 {
     MessageInfo msgInfo;
     
-    int ret = proxyRecvDataCmd(MSG_RECV_DATA_CMD, MSG_DATA, recv_data,
+    int ret = proxyRecvDataCmd(DUMMY_RECV_DATA_CMD, DUMMY_DATA, recv_data,
                                 recv_datalen, reply_timeout_ns, &msgInfo);
     if (ret)
     {
         return ret;
     }
 
-    recv_data = NewData::parse(&msgInfo);
+    recv_data = DummyData::parse(&msgInfo);
     return 0;
 }
 
 int sendRecvDataCmd(void *send_data, size_t send_datalen,
-                    new_data *recv_data, size_t recv_datalen,
+                    dummy_data *recv_data, size_t recv_datalen,
                     uint64_t reply_timeout_ns)
 {
     MessageInfo msgInfo;
     
-    int ret = proxySendRecvDataCmd(MSG_SEND_RECV_DATA_CMD, &send_data,
-                                   sizeof(send_data), MSG_DATA,
+    int ret = proxySendRecvDataCmd(DUMMY_SEND_RECV_DATA_CMD, &send_data,
+                                   sizeof(send_data), DUMMY_DATA,
                                    (void *)recv_data, recv_datalen,
                                    reply_timeout_ns, &msgInfo);
 
@@ -78,6 +78,6 @@ int sendRecvDataCmd(void *send_data, size_t send_datalen,
         return ret;
     }
 
-    recv_data = NewData::parse(&msgInfo);
+    recv_data = DummyData::parse(&msgInfo);
     return 0;
 }

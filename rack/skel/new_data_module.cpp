@@ -15,7 +15,6 @@
  */
 #include <iostream>
 
-// include own header file
 #include "new_data_module.h"
 
 // init_flags (for init and cleanup)
@@ -26,7 +25,7 @@
 // data structures
 //
 
-NewDataModule *p_inst;
+DummyAbc *p_inst;
 
 argTable_t argTab[] = {
 
@@ -51,67 +50,71 @@ argTable_t argTab[] = {
  *   own realtime user functions
  ******************************************************************************/
 
-int  NewDataModule::moduleOn(void)
+int  DummyAbc::moduleOn(void)
 {
     // do something ...
 
-    return DataModule::moduleOn();   // have to be last command in moduleOn();
+    return DataModule::moduleOn();   // has to be last command in moduleOn();
 }
 
-void NewDataModule::moduleOff(void)
+void DummyAbc::moduleOff(void)
 {
-    DataModule::moduleOff();         // have to be first command in moduleOff();
+    DataModule::moduleOff();         // has to be first command in moduleOff();
 
     // do something ...
 }
 
-int  NewDataModule::moduleLoop(void)
+int  DummyAbc::moduleLoop(void)
 {
-    new_data_msg  *p_data     = NULL;
-    uint32_t      datalength = 0;
+    dummy_data    *pData;
+    uint32_t      datalength;
 
-    // get datapointer from rackdatabuffer
-    // you don't need check this pointer
-    p_data = (new_data_msg *)getDataBufferWorkSpace();
+    // get datapointer from rackDataBuffer
+    pData = (dummy_data*)getDataBufferWorkSpace();
 
     // do something and count data bytes ...
 
-    p_data->data.recordingTime = rackTime.get();
-    datalength = sizeof(new_data_msg);
+    pData->recordingTime = rackTime.get();
+    pData->valA          = 0.1f;
+    pData->valB          = 5;
+    pData->value[0]      = 123;
+    pData->value[1]      = 456;
+    pData->valueNum      = 2;
 
     // write data buffer slot (and send it to all listener)
-    if (datalength > 0 && datalength <= getDataBufferMaxDataSize() )
-    {
-        putDataBufferWorkSpace( datalength );
-        return 0;
-    }
-    return -ENOSPC;
+    datalength = sizeof(dummy_data) + pData->valueNum * sizeof(int32_t);
+    putDataBufferWorkSpace(datalength);
+
+    RackTask::sleep(1000000000ull);  // 1000ms = 1Hz
+    
+    return 0;
 }
 
-int  NewDataModule::moduleCommand(MessageInfo *msgInfo)
+int  DummyAbc::moduleCommand(MessageInfo *msgInfo)
 {
-    send_data *p_data;
+    dummy_send_data *data;
+
     switch (msgInfo->type)
     {
-        case MSG_SEND_CMD:
-            GDOS_PRINT("NewDataModule: handle MSG_SEND_CMD\n");
+        case DUMMY_SEND_CMD:
+            GDOS_PRINT("handle MSG_SEND_CMD\n");
             // ...
             break;
 
-        case MSG_SEND_DATA_CMD:
-            GDOS_PRINT("NewDataModule: handle MSG_SEND_DATA_CMD\n");
-            p_data = SendData::parse(msgInfo);
+        case DUMMY_SEND_DATA_CMD:
+            data = DummySendData::parse(msgInfo);
+            GDOS_PRINT("handle MSG_SEND_DATA_CMD valueX %f valueY %i\n", data->valX, data->valY);
             // ...
             break;
 
-        case MSG_RECV_DATA_CMD:
-            GDOS_PRINT("NewDataModule: handle MSG_RECV_DATA_CMD\n");
+        case DUMMY_RECV_DATA_CMD:
+            GDOS_PRINT("handle MSG_RECV_DATA_CMD\n");
             // ...
             break;
 
-        case MSG_SEND_RECV_DATA_CMD:
-            GDOS_PRINT("NewDataModule: handle MSG_SEND_RECV_DATA_CMD\n");
-            p_data = SendData::parse(msgInfo);
+        case DUMMY_SEND_RECV_DATA_CMD:
+            data = DummySendData::parse(msgInfo);
+            GDOS_PRINT("handle MSG_SEND_RECV_DATA_CMD valueX %f valueY %i\n", data->valX, data->valY);
             // ...
             break;
 
@@ -134,7 +137,7 @@ int  NewDataModule::moduleCommand(MessageInfo *msgInfo)
  *   own non realtime user functions
  ******************************************************************************/
 
-int  NewDataModule::moduleInit(void)
+int  DummyAbc::moduleInit(void)
 {
     int ret;
 
@@ -170,12 +173,12 @@ int  NewDataModule::moduleInit(void)
 init_error:
 
     // !!! call local cleanup function !!!
-    NewDataModule::moduleCleanup();
+    DummyAbc::moduleCleanup();
     return ret;
 }
 
 // non realtime context
-void NewDataModule::moduleCleanup(void)
+void DummyAbc::moduleCleanup(void)
 {
     // free own stuff
     // ...
@@ -199,7 +202,7 @@ void NewDataModule::moduleCleanup(void)
     }
 }
 
-NewDataModule::NewDataModule()
+DummyAbc::DummyAbc()
       : DataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
@@ -215,10 +218,10 @@ NewDataModule::NewDataModule()
   reqVal        = getIntArg("reqVal", argTab);
 
   // set dataBuffer size
-  setDataBufferMaxDataSize(sizeof(new_data_msg));
+  setDataBufferMaxDataSize(sizeof(dummy_data_msg));
 
   // set databuffer period time
-  setDataBufferPeriodTime(10);
+  setDataBufferPeriodTime(1000);  // 1000ms = 1Hz
 }
 
 int  main(int argc, char *argv[])
@@ -226,19 +229,19 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "NewDataModule");
+    ret = Module::getArgs(argc, argv, argTab, "DummyAbc");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new NewDataModule
+    // create new DummyAbc
 
-    p_inst = new NewDataModule();
+    p_inst = new DummyAbc();
     if (!p_inst)
     {
-        printf("Can't create new NewDataModule -> EXIT\n");
+        printf("Can't create new DummyAbc -> EXIT\n");
         return -ENOMEM;
     }
 

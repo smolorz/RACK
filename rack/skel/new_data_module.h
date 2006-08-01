@@ -13,25 +13,25 @@
  *      YourName <YourMailAddress>
  *
  */
-#ifndef __NEW_DATA_MODULE_H__
-#define __NEW_DATA_MODULE_H__
+#ifndef __DUMMY_ABC_H__
+#define __DUMMY_ABC_H__
 
 #include <main/rack_datamodule.h>
-#include "new_data_module_proxy.h"   // own Proxy header file
+#include "skel/new_data_module_proxy.h"
 
 // define module class
 #define MODULE_CLASS_ID     TEST
 
 typedef struct {
-    new_data    data;
-    int32_t     value[NEWDATAMODULE_VALUE_MAX];
-} __attribute__((packed)) new_data_msg;
+    dummy_data  data;
+    int32_t     value[DUMMY_MAX_VALUE_NUM];
+} __attribute__((packed)) dummy_data_msg;
 
 //######################################################################
 //# class NewDataModule
 //######################################################################
 
-class NewDataModule : public DataModule{
+class DummyAbc : public DataModule{
   private:
 
     // your values
@@ -57,12 +57,12 @@ class NewDataModule : public DataModule{
   public:
 
     // constructor und destructor
-    NewDataModule();
-    ~NewDataModule() {};
+    DummyAbc();
+    ~DummyAbc() {};
 
     // -> non realtime context
     int  moduleInit(void);
 
 };
 
-#endif // __NEW_DATA_MODULE_H__
+#endif // __DUMMY_ABC_H__
