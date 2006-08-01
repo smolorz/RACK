@@ -47,5 +47,6 @@ endmenu
 source "drivers/Kconfig"
 source "navigation/Kconfig"
 source "perception/Kconfig"
+source "skel/Kconfig"
 
 source "main/Kconfig"

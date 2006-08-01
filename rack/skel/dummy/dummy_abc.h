@@ -17,7 +17,7 @@
 #define __DUMMY_ABC_H__
 
 #include <main/rack_datamodule.h>
-#include "skel/new_data_module_proxy.h"
+#include "skel/dummy_proxy.h"
 
 // define module class
 #define MODULE_CLASS_ID     TEST

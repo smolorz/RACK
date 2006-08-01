@@ -16,6 +16,15 @@
 #ifndef __DUMMY_PROXY_H__
 #define __DUMMY_PROXY_H__
 
+/*!
+ * @ingroup skel
+ * @defgroup dummy Dummy
+ *
+ * Example for a new module class.
+ *
+ * @{
+ */
+
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -23,9 +32,11 @@
 //######################################################################
 
 #define DUMMY_SEND_CMD                (RACK_PROXY_MSG_POS_OFFSET + 1)
-#define DUMMY_SEND_DATA_CMD           (RACK_PROXY_MSG_POS_OFFSET + 2)
-#define DUMMY_RECV_DATA_CMD           (RACK_PROXY_MSG_POS_OFFSET + 3)
-#define DUMMY_SEND_RECV_DATA_CMD      (RACK_PROXY_MSG_POS_OFFSET + 4)
+#define DUMMY_SEND_PARAM              (RACK_PROXY_MSG_POS_OFFSET + 2)
+#define DUMMY_RECV_PARAM              (RACK_PROXY_MSG_POS_OFFSET + 3)
+#define DUMMY_SEND_RECV_PARAM         (RACK_PROXY_MSG_POS_OFFSET + 4)
+
+#define DUMMY_PARAM                   (RACK_PROXY_MSG_NEG_OFFSET - 1)
 
 //######################################################################
 //# New Data Module Data (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -122,36 +133,36 @@ class DummyData
 //# New Data Module Data ( static size - MESSAGE )
 //######################################################################
 
-// dummy_send_data_t will be sent to a recipient (Proxy-Function):
+// dummy_param_t will be sent to a recipient (Proxy-Function):
 // -> DUMMY_SEND_DATA_CMD
 // -> DUMMY_SEND_RECV_DATA_CMD
 
 typedef struct {
     float   valX;
     int32_t valY;
-} __attribute__((packed)) dummy_send_data;
+} __attribute__((packed)) dummy_param;
 
-class DummySendData
+class DummyParam
 {
     public:
-        static void le_to_cpu(dummy_send_data *data)
+        static void le_to_cpu(dummy_param *data)
         {
             data->valX = __le32_float_to_cpu(data->valX);
             data->valY = __le32_to_cpu(data->valY);
         }
 
-        static void be_to_cpu(dummy_send_data *data)
+        static void be_to_cpu(dummy_param *data)
         {
             data->valX = __be32_float_to_cpu(data->valX);
             data->valY = __be32_to_cpu(data->valY);
         }
 
-        static dummy_send_data *parse(MessageInfo *msgInfo)
+        static dummy_param *parse(MessageInfo *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            dummy_send_data *pData = (dummy_send_data *)msgInfo->p_data;
+            dummy_param *pData = (dummy_param *)msgInfo->p_data;
 
             if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
             {
@@ -220,39 +231,37 @@ class DummyProxy : public RackDataProxy {
 // sendDataCmd
 //
 
-    int sendDataCmd(void) // use default timeout
+    int sendParam(dummy_param *send_data, size_t send_datalen) // use default timeout
     {
-        return sendDataCmd(dataTimeout);
+        return sendParam(send_data, send_datalen, dataTimeout);
     }
 
-    int sendDataCmd(uint64_t reply_timeout_ns);
+    int sendParam(dummy_param *send_data, size_t send_datalen, uint64_t reply_timeout_ns);
 
 //
 // recvDataCmd
 //
 
-    int recvDataCmd(dummy_data *recv_data, ssize_t recv_datalen) // use default timeout
+    int recvParam(dummy_data *recv_data, ssize_t recv_datalen) // use default timeout
     {
-        return recvDataCmd(recv_data, recv_datalen, dataTimeout);
+        return recvParam(recv_data, recv_datalen, dataTimeout);
     }
 
-    int recvDataCmd(dummy_data* recv_data, ssize_t recv_datalen,
-                        uint64_t reply_timeout_ns);
+    int recvParam(dummy_data* recv_data, ssize_t recv_datalen, uint64_t reply_timeout_ns);
 
 //
 // sendRecvDataCmd
 //
 
-    int sendRecvDataCmd(void *dummy_send_data, size_t dummy_send_datalen,
-                            dummy_data *recv_data, size_t recv_datalen) // use default timeout
+    int sendRecvParam(dummy_param *send_data, size_t send_datalen,
+                      dummy_param *recv_data, size_t recv_datalen) // use default timeout
     {
-        return sendRecvDataCmd(dummy_send_data, dummy_send_datalen, recv_data, recv_datalen,
-                               dataTimeout);
+        return sendRecvParam(send_data, send_datalen, recv_data, recv_datalen, dataTimeout);
     }
 
-    int sendRecvDataCmd(void *dummy_send_data, size_t dummy_send_datalen,
-                        dummy_data *recv_data, size_t recv_datalen,
-                        uint64_t reply_timeout_ns);
+    int sendRecvParam(dummy_param *send_data, size_t send_datalen,
+                      dummy_param *recv_data, size_t recv_datalen,
+                      uint64_t reply_timeout_ns);
 
 };
 

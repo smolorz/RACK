@@ -33,6 +33,12 @@
 /* Compiler */
 #undef CONFIG_RACK_COMPILER
 
+/* building Dummy Abc */
+#undef CONFIG_RACK_DUMMY_ABC
+
+/* building dummy java gui */
+#undef CONFIG_RACK_DUMMY_JAVA_GUI
+
 /* building gps java gui */
 #undef CONFIG_RACK_GPS_JAVA_GUI
 

@@ -49,3 +49,11 @@
  * Including: filtering, sensorfusion, object recognition, ...
  *
  */
+
+/*!
+ * @ingroup interfaces
+ * @defgroup skel Skeleton
+ *
+ * Skeletons and dummies for new modules and components
+ *
+ */

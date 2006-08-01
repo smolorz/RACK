@@ -15,7 +15,7 @@
  */
 #include <iostream>
 
-#include "new_data_module.h"
+#include "dummy_abc.h"
 
 // init_flags (for init and cleanup)
 #define INIT_BIT_DATA_MODULE                0
@@ -92,30 +92,37 @@ int  DummyAbc::moduleLoop(void)
 
 int  DummyAbc::moduleCommand(MessageInfo *msgInfo)
 {
-    dummy_send_data *data;
+    dummy_param *param;
+    dummy_param replyParam;
 
     switch (msgInfo->type)
     {
         case DUMMY_SEND_CMD:
-            GDOS_PRINT("handle MSG_SEND_CMD\n");
+            GDOS_PRINT("handle DUMMY_SEND_CMD\n");
             // ...
+            cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
 
-        case DUMMY_SEND_DATA_CMD:
-            data = DummySendData::parse(msgInfo);
-            GDOS_PRINT("handle MSG_SEND_DATA_CMD valueX %f valueY %i\n", data->valX, data->valY);
+        case DUMMY_SEND_PARAM:
+            param = DummyParam::parse(msgInfo);
+            GDOS_PRINT("handle DUMMY_SEND_PARAM valueX %f valueY %i\n", param->valX, param->valY);
             // ...
+            cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
 
-        case DUMMY_RECV_DATA_CMD:
-            GDOS_PRINT("handle MSG_RECV_DATA_CMD\n");
+        case DUMMY_RECV_PARAM:
+            GDOS_PRINT("handle DUMMY_RECV_PARAM\n");
             // ...
+            cmdMbx.sendDataMsgReply(DUMMY_PARAM, msgInfo, 1, &replyParam,
+                                    sizeof(replyParam));
             break;
 
-        case DUMMY_SEND_RECV_DATA_CMD:
-            data = DummySendData::parse(msgInfo);
-            GDOS_PRINT("handle MSG_SEND_RECV_DATA_CMD valueX %f valueY %i\n", data->valX, data->valY);
+        case DUMMY_SEND_RECV_PARAM:
+            param = DummyParam::parse(msgInfo);
+            GDOS_PRINT("handle DUMMY_SEND_RECV_PARAM valueX %f valueY %i\n", param->valX, param->valY);
             // ...
+            cmdMbx.sendDataMsgReply(DUMMY_PARAM, msgInfo, 1, &replyParam,
+                                    sizeof(replyParam));
             break;
 
         default:

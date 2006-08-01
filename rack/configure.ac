@@ -625,6 +625,23 @@ if test "$CONFIG_RACK_SCAN_2D_JAVA_GUI" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  skel - dummy gui
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build dummy java gui])
+AC_ARG_ENABLE(dummy-java-gui,
+    AS_HELP_STRING([--enable-dummy-java-gui], [building dummy java gui]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_DUMMY_JAVA_GUI=y ;;
+        *) CONFIG_RACK_DUMMY_JAVA_GUI=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_DUMMY_JAVA_GUI:-n}])
+AM_CONDITIONAL(CONFIG_RACK_DUMMY_JAVA_GUI,[test "$CONFIG_RACK_DUMMY_JAVA_GUI" = "y"])
+if test "$CONFIG_RACK_DUMMY_JAVA_GUI" = "y"; then
+    AC_DEFINE(CONFIG_RACK_DUMMY_JAVA_GUI,1,[building dummy java gui])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  ...
 dnl -----------------------------------------------------------------
 
@@ -925,6 +942,23 @@ AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_SIM:-n}])
 AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_SIM,[test "$CONFIG_RACK_SCAN_2D_SIM" = "y"])
 if test "$CONFIG_RACK_SCAN_2D_SIM" = "y"; then
     AC_DEFINE(CONFIG_RACK_SCAN_2D_SIM,1,[building Scan2D Sim])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  skel - dummy abc
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Dummy Abc])
+AC_ARG_ENABLE(dummy-abc,
+    AS_HELP_STRING([--enable-dummy-abc], [building Dummy Abc]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_DUMMY_ABC=y ;;
+        *) CONFIG_RACK_DUMMY_ABC=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_DUMMY_ABC:-n}])
+AM_CONDITIONAL(CONFIG_RACK_DUMMY_ABC,[test "$CONFIG_RACK_DUMMY_ABC" = "y"])
+if test "$CONFIG_RACK_DUMMY_ABC" = "y"; then
+    AC_DEFINE(CONFIG_RACK_DUMMY_ABC,1,[building Dummy Abc])
 fi
 
 dnl -----------------------------------------------------------------
@@ -1650,7 +1684,8 @@ AC_CONFIG_FILES([GNUmakefile \
     scripts/rack-config \
     scripts/GNUmakefile \
     \
-    skel/GNUmakefile
+    skel/GNUmakefile \
+    skel/dummy/GNUmakefile
 ])
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then

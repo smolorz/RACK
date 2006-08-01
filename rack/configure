@@ -464,7 +464,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROJNAME build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL CCAS CCASFLAGS LD JAR XENO_USER_PREFIX XENO_LIBRARIES RACK_TARGET_ARCH RACK_JAVA_JARDIR CONFIG_RACK_JAVA_GUI_TRUE CONFIG_RACK_JAVA_GUI_FALSE CONFIG_RACK_JAVA_GUI CONFIG_RACK_CAMERA_JAVA_GUI_TRUE CONFIG_RACK_CAMERA_JAVA_GUI_FALSE CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE CONFIG_RACK_GPS_JAVA_GUI_TRUE CONFIG_RACK_GPS_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE CONFIG_RACK_LADAR_JAVA_GUI_TRUE CONFIG_RACK_LADAR_JAVA_GUI_FALSE CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE CONFIG_RACK_PILOT_JAVA_GUI_TRUE CONFIG_RACK_PILOT_JAVA_GUI_FALSE CONFIG_RACK_POSITION_JAVA_GUI_TRUE CONFIG_RACK_POSITION_JAVA_GUI_FALSE CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE CONFIG_RACK_CAMERA_DCAM_TRUE CONFIG_RACK_CAMERA_DCAM_FALSE CONFIG_RACK_CAMERA_FILE_TRUE CONFIG_RACK_CAMERA_FILE_FALSE CONFIG_RACK_CAMERA_JPEG_TRUE CONFIG_RACK_CAMERA_JPEG_FALSE CONFIG_RACK_CAMERA_V4L_TRUE CONFIG_RACK_CAMERA_V4L_FALSE CONFIG_RACK_CHASSIS_PIONEER_TRUE CONFIG_RACK_CHASSIS_PIONEER_FALSE CONFIG_RACK_CHASSIS_SIM_TRUE CONFIG_RACK_CHASSIS_SIM_FALSE CONFIG_RACK_GPS_NMEA_TRUE CONFIG_RACK_GPS_NMEA_FALSE CONFIG_RACK_LADAR_HOKUYO_URG_TRUE CONFIG_RACK_LADAR_HOKUYO_URG_FALSE CONFIG_RACK_LADAR_IBEO_TRUE CONFIG_RACK_LADAR_IBEO_FALSE CONFIG_RACK_LADAR_SICK_LMS200_TRUE CONFIG_RACK_LADAR_SICK_LMS200_FALSE CONFIG_RACK_LADAR_SICK_CMS3000_TRUE CONFIG_RACK_LADAR_SICK_CMS3000_FALSE CONFIG_RACK_ODOMETRY_CHASSIS_TRUE CONFIG_RACK_ODOMETRY_CHASSIS_FALSE CONFIG_RACK_PILOT_JOYSTICK_TRUE CONFIG_RACK_PILOT_JOYSTICK_FALSE CONFIG_RACK_POSITION_TRUE CONFIG_RACK_POSITION_FALSE CONFIG_RACK_SCAN_2D_TRUE CONFIG_RACK_SCAN_2D_FALSE CONFIG_RACK_SCAN_2D_MERGE_TRUE CONFIG_RACK_SCAN_2D_MERGE_FALSE CONFIG_RACK_SCAN_2D_SIM_TRUE CONFIG_RACK_SCAN_2D_SIM_FALSE XENOMAI_CPPFLAGS XENOMAI_LDFLAGS XENOMAI_LIBS CONFIG_RACK_XENOMAI_SUPPORT_TRUE CONFIG_RACK_XENOMAI_SUPPORT_FALSE RTNET_CPPFLAGS CONFIG_RACK_RTNET_SUPPORT_TRUE CONFIG_RACK_RTNET_SUPPORT_FALSE RTCAN_CPPFLAGS CONFIG_RACK_RTCAN_SUPPORT_TRUE CONFIG_RACK_RTCAN_SUPPORT_FALSE LIBRAW1394_CPPFLAGS LIBRAW1394_LDFLAGS LIBRAW1394_LIBS CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE LIBDC1394_CPPFLAGS LIBDC1394_LDFLAGS LIBDC1394_LIBS CONFIG_RACK_LIBDC1394_SUPPORT_TRUE CONFIG_RACK_LIBDC1394_SUPPORT_FALSE LIBJPEG_CPPFLAGS LIBJPEG_LDFLAGS LIBJPEG_LIBS CONFIG_RACK_LIBJPEG_SUPPORT_TRUE CONFIG_RACK_LIBJPEG_SUPPORT_FALSE LIBPNG_CPPFLAGS LIBPNG_LDFLAGS LIBPNG_LIBS CONFIG_LIBPNG_TRUE CONFIG_LIBPNG_FALSE CONFIG_RACK_LIBPNG_SUPPORT_TRUE CONFIG_RACK_LIBPNG_SUPPORT_FALSE OPENCV_CPPFLAGS OPENCV_LDFLAGS OPENCV_LIBS CONFIG_OPENCV_TRUE CONFIG_OPENCV_FALSE CONFIG_RACK_OPENCV_SUPPORT_TRUE CONFIG_RACK_OPENCV_SUPPORT_FALSE RACK_SUPPORTS RACK_LIBS RACK_GLOBAL_CPPFLAGS RACK_GLOBAL_LDFLAGS RACK_MAYBE_DOCDIR DOXYGEN DOXYGEN_HAVE_DOT CONFIG_RACK_DOC_DOX_TRUE CONFIG_RACK_DOC_DOX_FALSE DOXYGEN_SHOW_INCLUDE_FILES CROSS_COMPILE RACK_MODULE_EXT RACK_KBUILD_ENV RACK_KBUILD_CMD RACK_KBUILD_CLEAN RACK_KBUILD_DISTCLEAN RACK_MODULE_DIR RACK_KMOD_CFLAGS RACK_USER_CFLAGS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROJNAME build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL CCAS CCASFLAGS LD JAR XENO_USER_PREFIX XENO_LIBRARIES RACK_TARGET_ARCH RACK_JAVA_JARDIR CONFIG_RACK_JAVA_GUI_TRUE CONFIG_RACK_JAVA_GUI_FALSE CONFIG_RACK_JAVA_GUI CONFIG_RACK_CAMERA_JAVA_GUI_TRUE CONFIG_RACK_CAMERA_JAVA_GUI_FALSE CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE CONFIG_RACK_GPS_JAVA_GUI_TRUE CONFIG_RACK_GPS_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE CONFIG_RACK_LADAR_JAVA_GUI_TRUE CONFIG_RACK_LADAR_JAVA_GUI_FALSE CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE CONFIG_RACK_PILOT_JAVA_GUI_TRUE CONFIG_RACK_PILOT_JAVA_GUI_FALSE CONFIG_RACK_POSITION_JAVA_GUI_TRUE CONFIG_RACK_POSITION_JAVA_GUI_FALSE CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE CONFIG_RACK_DUMMY_JAVA_GUI_TRUE CONFIG_RACK_DUMMY_JAVA_GUI_FALSE CONFIG_RACK_CAMERA_DCAM_TRUE CONFIG_RACK_CAMERA_DCAM_FALSE CONFIG_RACK_CAMERA_FILE_TRUE CONFIG_RACK_CAMERA_FILE_FALSE CONFIG_RACK_CAMERA_JPEG_TRUE CONFIG_RACK_CAMERA_JPEG_FALSE CONFIG_RACK_CAMERA_V4L_TRUE CONFIG_RACK_CAMERA_V4L_FALSE CONFIG_RACK_CHASSIS_PIONEER_TRUE CONFIG_RACK_CHASSIS_PIONEER_FALSE CONFIG_RACK_CHASSIS_SIM_TRUE CONFIG_RACK_CHASSIS_SIM_FALSE CONFIG_RACK_GPS_NMEA_TRUE CONFIG_RACK_GPS_NMEA_FALSE CONFIG_RACK_LADAR_HOKUYO_URG_TRUE CONFIG_RACK_LADAR_HOKUYO_URG_FALSE CONFIG_RACK_LADAR_IBEO_TRUE CONFIG_RACK_LADAR_IBEO_FALSE CONFIG_RACK_LADAR_SICK_LMS200_TRUE CONFIG_RACK_LADAR_SICK_LMS200_FALSE CONFIG_RACK_LADAR_SICK_CMS3000_TRUE CONFIG_RACK_LADAR_SICK_CMS3000_FALSE CONFIG_RACK_ODOMETRY_CHASSIS_TRUE CONFIG_RACK_ODOMETRY_CHASSIS_FALSE CONFIG_RACK_PILOT_JOYSTICK_TRUE CONFIG_RACK_PILOT_JOYSTICK_FALSE CONFIG_RACK_POSITION_TRUE CONFIG_RACK_POSITION_FALSE CONFIG_RACK_SCAN_2D_TRUE CONFIG_RACK_SCAN_2D_FALSE CONFIG_RACK_SCAN_2D_MERGE_TRUE CONFIG_RACK_SCAN_2D_MERGE_FALSE CONFIG_RACK_SCAN_2D_SIM_TRUE CONFIG_RACK_SCAN_2D_SIM_FALSE CONFIG_RACK_DUMMY_ABC_TRUE CONFIG_RACK_DUMMY_ABC_FALSE XENOMAI_CPPFLAGS XENOMAI_LDFLAGS XENOMAI_LIBS CONFIG_RACK_XENOMAI_SUPPORT_TRUE CONFIG_RACK_XENOMAI_SUPPORT_FALSE RTNET_CPPFLAGS CONFIG_RACK_RTNET_SUPPORT_TRUE CONFIG_RACK_RTNET_SUPPORT_FALSE RTCAN_CPPFLAGS CONFIG_RACK_RTCAN_SUPPORT_TRUE CONFIG_RACK_RTCAN_SUPPORT_FALSE LIBRAW1394_CPPFLAGS LIBRAW1394_LDFLAGS LIBRAW1394_LIBS CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE LIBDC1394_CPPFLAGS LIBDC1394_LDFLAGS LIBDC1394_LIBS CONFIG_RACK_LIBDC1394_SUPPORT_TRUE CONFIG_RACK_LIBDC1394_SUPPORT_FALSE LIBJPEG_CPPFLAGS LIBJPEG_LDFLAGS LIBJPEG_LIBS CONFIG_RACK_LIBJPEG_SUPPORT_TRUE CONFIG_RACK_LIBJPEG_SUPPORT_FALSE LIBPNG_CPPFLAGS LIBPNG_LDFLAGS LIBPNG_LIBS CONFIG_LIBPNG_TRUE CONFIG_LIBPNG_FALSE CONFIG_RACK_LIBPNG_SUPPORT_TRUE CONFIG_RACK_LIBPNG_SUPPORT_FALSE OPENCV_CPPFLAGS OPENCV_LDFLAGS OPENCV_LIBS CONFIG_OPENCV_TRUE CONFIG_OPENCV_FALSE CONFIG_RACK_OPENCV_SUPPORT_TRUE CONFIG_RACK_OPENCV_SUPPORT_FALSE RACK_SUPPORTS RACK_LIBS RACK_GLOBAL_CPPFLAGS RACK_GLOBAL_LDFLAGS RACK_MAYBE_DOCDIR DOXYGEN DOXYGEN_HAVE_DOT CONFIG_RACK_DOC_DOX_TRUE CONFIG_RACK_DOC_DOX_FALSE DOXYGEN_SHOW_INCLUDE_FILES CROSS_COMPILE RACK_MODULE_EXT RACK_KBUILD_ENV RACK_KBUILD_CMD RACK_KBUILD_CLEAN RACK_KBUILD_DISTCLEAN RACK_MODULE_DIR RACK_KMOD_CFLAGS RACK_USER_CFLAGS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1073,6 +1073,7 @@ Optional Features:
                           building position java gui
   --enable-scan-2d-java-gui
                           building scan 2d java gui
+  --enable-dummy-java-gui building dummy java gui
   --enable-camera-dcam    building camera dcam
   --enable-camera-file    building camera file
   --enable-camera-jpeg    building camera jpeg
@@ -1095,6 +1096,7 @@ Optional Features:
   --enable-scan-2d        building Scan2D
   --enable-scan-2d-merge  building Scan2D Merge
   --enable-scan-2d-sim    building Scan2D Sim
+  --enable-dummy-abc      building Dummy Abc
   --enable-dox-doc        Build Doxygen documentation
 
 Optional Packages:
@@ -3838,7 +3840,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3841 "configure"' > conftest.$ac_ext
+  echo '#line 3843 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5437,7 +5439,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5440:" \
+echo "$as_me:5442:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6500,11 +6502,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6503: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6505: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6507: \$? = $ac_status" >&5
+   echo "$as_me:6509: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6768,11 +6770,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6771: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6773: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6775: \$? = $ac_status" >&5
+   echo "$as_me:6777: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6872,11 +6874,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6875: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6877: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6879: \$? = $ac_status" >&5
+   echo "$as_me:6881: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9217,7 +9219,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9220 "configure"
+#line 9222 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9317,7 +9319,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9320 "configure"
+#line 9322 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11657,11 +11659,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11660: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11662: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11664: \$? = $ac_status" >&5
+   echo "$as_me:11666: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -11761,11 +11763,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11764: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11766: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11768: \$? = $ac_status" >&5
+   echo "$as_me:11770: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13331,11 +13333,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13334: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13336: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13338: \$? = $ac_status" >&5
+   echo "$as_me:13340: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13435,11 +13437,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13438: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13440: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13442: \$? = $ac_status" >&5
+   echo "$as_me:13444: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15638,11 +15640,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15641: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15643: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15645: \$? = $ac_status" >&5
+   echo "$as_me:15647: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15906,11 +15908,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15909: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15911: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15913: \$? = $ac_status" >&5
+   echo "$as_me:15915: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16010,11 +16012,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16013: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16015: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16017: \$? = $ac_status" >&5
+   echo "$as_me:16019: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19749,6 +19751,37 @@ _ACEOF
 fi
 
 
+echo "$as_me:$LINENO: checking build dummy java gui" >&5
+echo $ECHO_N "checking build dummy java gui... $ECHO_C" >&6
+# Check whether --enable-dummy-java-gui or --disable-dummy-java-gui was given.
+if test "${enable_dummy_java_gui+set}" = set; then
+  enableval="$enable_dummy_java_gui"
+  case "$enableval" in
+        y | yes) CONFIG_RACK_DUMMY_JAVA_GUI=y ;;
+        *) CONFIG_RACK_DUMMY_JAVA_GUI=n ;;
+    esac
+fi;
+echo "$as_me:$LINENO: result: ${CONFIG_RACK_DUMMY_JAVA_GUI:-n}" >&5
+echo "${ECHO_T}${CONFIG_RACK_DUMMY_JAVA_GUI:-n}" >&6
+
+
+if test "$CONFIG_RACK_DUMMY_JAVA_GUI" = "y"; then
+  CONFIG_RACK_DUMMY_JAVA_GUI_TRUE=
+  CONFIG_RACK_DUMMY_JAVA_GUI_FALSE='#'
+else
+  CONFIG_RACK_DUMMY_JAVA_GUI_TRUE='#'
+  CONFIG_RACK_DUMMY_JAVA_GUI_FALSE=
+fi
+
+if test "$CONFIG_RACK_DUMMY_JAVA_GUI" = "y"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define CONFIG_RACK_DUMMY_JAVA_GUI 1
+_ACEOF
+
+fi
+
+
 
 
 echo "$as_me:$LINENO: checking build camera dcam" >&5
@@ -20277,6 +20310,37 @@ if test "$CONFIG_RACK_SCAN_2D_SIM" = "y"; then
 
 cat >>confdefs.h <<\_ACEOF
 #define CONFIG_RACK_SCAN_2D_SIM 1
+_ACEOF
+
+fi
+
+
+echo "$as_me:$LINENO: checking build Dummy Abc" >&5
+echo $ECHO_N "checking build Dummy Abc... $ECHO_C" >&6
+# Check whether --enable-dummy-abc or --disable-dummy-abc was given.
+if test "${enable_dummy_abc+set}" = set; then
+  enableval="$enable_dummy_abc"
+  case "$enableval" in
+        y | yes) CONFIG_RACK_DUMMY_ABC=y ;;
+        *) CONFIG_RACK_DUMMY_ABC=n ;;
+    esac
+fi;
+echo "$as_me:$LINENO: result: ${CONFIG_RACK_DUMMY_ABC:-n}" >&5
+echo "${ECHO_T}${CONFIG_RACK_DUMMY_ABC:-n}" >&6
+
+
+if test "$CONFIG_RACK_DUMMY_ABC" = "y"; then
+  CONFIG_RACK_DUMMY_ABC_TRUE=
+  CONFIG_RACK_DUMMY_ABC_FALSE='#'
+else
+  CONFIG_RACK_DUMMY_ABC_TRUE='#'
+  CONFIG_RACK_DUMMY_ABC_FALSE=
+fi
+
+if test "$CONFIG_RACK_DUMMY_ABC" = "y"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define CONFIG_RACK_DUMMY_ABC 1
 _ACEOF
 
 fi
@@ -22697,7 +22761,7 @@ for DIR in \
 done
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                    ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/gui/GNUmakefile main/dxfmap/GNUmakefile main/naming/GNUmakefile main/lib/GNUmakefile main/debug/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/exceptions/GNUmakefile main/tims/msg/GNUmakefile main/tims/msgtypes/GNUmakefile main/tims/streams/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/gps/GNUmakefile drivers/joystick/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile gui/GNUmakefile tools/GNUmakefile examples/GNUmakefile scripts/rack-config scripts/GNUmakefile skel/GNUmakefile"
+                                                                                                                                                                                                                                                                                                                                                                                                                                              ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/gui/GNUmakefile main/dxfmap/GNUmakefile main/naming/GNUmakefile main/lib/GNUmakefile main/debug/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/exceptions/GNUmakefile main/tims/msg/GNUmakefile main/tims/msgtypes/GNUmakefile main/tims/streams/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/gps/GNUmakefile drivers/joystick/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile gui/GNUmakefile tools/GNUmakefile examples/GNUmakefile scripts/rack-config scripts/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile"
 
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
@@ -22911,6 +22975,13 @@ echo "$as_me: error: conditional \"CONFIG_RACK_SCAN_2D_JAVA_GUI\" was never defi
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${CONFIG_RACK_DUMMY_JAVA_GUI_TRUE}" && test -z "${CONFIG_RACK_DUMMY_JAVA_GUI_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_DUMMY_JAVA_GUI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_DUMMY_JAVA_GUI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${CONFIG_RACK_CAMERA_DCAM_TRUE}" && test -z "${CONFIG_RACK_CAMERA_DCAM_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_CAMERA_DCAM\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -23027,6 +23098,13 @@ if test -z "${CONFIG_RACK_SCAN_2D_SIM_TRUE}" && test -z "${CONFIG_RACK_SCAN_2D_S
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_SCAN_2D_SIM\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"CONFIG_RACK_SCAN_2D_SIM\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_RACK_DUMMY_ABC_TRUE}" && test -z "${CONFIG_RACK_DUMMY_ABC_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_DUMMY_ABC\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_DUMMY_ABC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -23597,6 +23675,7 @@ do
   "scripts/rack-config" ) CONFIG_FILES="$CONFIG_FILES scripts/rack-config" ;;
   "scripts/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES scripts/GNUmakefile" ;;
   "skel/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES skel/GNUmakefile" ;;
+  "skel/dummy/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES skel/dummy/GNUmakefile" ;;
   "doc/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES doc/GNUmakefile" ;;
   "doc/doxygen/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES doc/doxygen/GNUmakefile" ;;
   "doc/doxygen/Doxyfile" ) CONFIG_FILES="$CONFIG_FILES doc/doxygen/Doxyfile" ;;
@@ -23791,6 +23870,8 @@ s,@CONFIG_RACK_POSITION_JAVA_GUI_TRUE@,$CONFIG_RACK_POSITION_JAVA_GUI_TRUE,;t t
 s,@CONFIG_RACK_POSITION_JAVA_GUI_FALSE@,$CONFIG_RACK_POSITION_JAVA_GUI_FALSE,;t t
 s,@CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE@,$CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE,;t t
 s,@CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE@,$CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE,;t t
+s,@CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@,$CONFIG_RACK_DUMMY_JAVA_GUI_TRUE,;t t
+s,@CONFIG_RACK_DUMMY_JAVA_GUI_FALSE@,$CONFIG_RACK_DUMMY_JAVA_GUI_FALSE,;t t
 s,@CONFIG_RACK_CAMERA_DCAM_TRUE@,$CONFIG_RACK_CAMERA_DCAM_TRUE,;t t
 s,@CONFIG_RACK_CAMERA_DCAM_FALSE@,$CONFIG_RACK_CAMERA_DCAM_FALSE,;t t
 s,@CONFIG_RACK_CAMERA_FILE_TRUE@,$CONFIG_RACK_CAMERA_FILE_TRUE,;t t
@@ -23825,6 +23906,8 @@ s,@CONFIG_RACK_SCAN_2D_MERGE_TRUE@,$CONFIG_RACK_SCAN_2D_MERGE_TRUE,;t t
 s,@CONFIG_RACK_SCAN_2D_MERGE_FALSE@,$CONFIG_RACK_SCAN_2D_MERGE_FALSE,;t t
 s,@CONFIG_RACK_SCAN_2D_SIM_TRUE@,$CONFIG_RACK_SCAN_2D_SIM_TRUE,;t t
 s,@CONFIG_RACK_SCAN_2D_SIM_FALSE@,$CONFIG_RACK_SCAN_2D_SIM_FALSE,;t t
+s,@CONFIG_RACK_DUMMY_ABC_TRUE@,$CONFIG_RACK_DUMMY_ABC_TRUE,;t t
+s,@CONFIG_RACK_DUMMY_ABC_FALSE@,$CONFIG_RACK_DUMMY_ABC_FALSE,;t t
 s,@XENOMAI_CPPFLAGS@,$XENOMAI_CPPFLAGS,;t t
 s,@XENOMAI_LDFLAGS@,$XENOMAI_LDFLAGS,;t t
 s,@XENOMAI_LIBS@,$XENOMAI_LIBS,;t t
