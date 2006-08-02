@@ -47,13 +47,13 @@ class ChassisPioneer : public DataModule{
     RackMutex       hwMtx;
 
     int             leftEncoderOld, rightEncoderOld;
-    RACK_TIME       oldTimestamp;
+    rack_time_t       oldTimestamp;
 
     float           battery;
     uint32_t        activePilot;
 
     int  calculate_checksum(unsigned char *ptr);
-    int  receivePackage(unsigned char *sipBuffer, RACK_TIME *timestamp);
+    int  receivePackage(unsigned char *sipBuffer, rack_time_t *timestamp);
     int  sendPackage(const unsigned char *package, int packageSize);
     int  sendMovePackage(int vx, float omega);
 

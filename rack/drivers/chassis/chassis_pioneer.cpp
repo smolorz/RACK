@@ -314,7 +314,7 @@ int ChassisPioneer::moduleLoop(void)
     chassis_data*   p_data = NULL;
     ssize_t         datalength = 0;
     unsigned char   buffer[MAX_SIP_PACKAGE_SIZE];
-    RACK_TIME       time;
+    rack_time_t       time;
     float           deltaT, vL, vR;
     int             ret, leftEncoderNew, rightEncoderNew;
 
@@ -531,7 +531,7 @@ int ChassisPioneer::calculate_checksum(unsigned char *ptr)
     return c;
 }
 
-int ChassisPioneer::receivePackage(unsigned char *sipBuffer, RACK_TIME *timestamp)
+int ChassisPioneer::receivePackage(unsigned char *sipBuffer, rack_time_t *timestamp)
 {
     int totalCount = 0;
     int ret;

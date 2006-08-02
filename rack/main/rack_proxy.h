@@ -62,7 +62,7 @@
 
 typedef struct
 {
-    RACK_TIME   recordingTime;  // have to be first element
+    rack_time_t   recordingTime;  // have to be first element
 } __attribute__((packed)) rack_get_data;
 
 class RackGetData
@@ -105,7 +105,7 @@ class RackGetData
 
 typedef struct
 {
-    RACK_TIME   periodTime;
+    rack_time_t   periodTime;
     uint32_t    dataMbxAdr;
 } __attribute__((packed)) rack_get_cont_data;
 
@@ -151,7 +151,7 @@ class RackGetContData
 
 typedef struct
 {
-    RACK_TIME   periodTime;
+    rack_time_t   periodTime;
 } __attribute__((packed)) rack_cont_data;
 
 class RackContData
@@ -365,7 +365,7 @@ class RackDataProxy : public RackProxy {
 // get data
 //
 
-    int getData(void *recv_data, ssize_t recv_max_len, RACK_TIME timeStamp,
+    int getData(void *recv_data, ssize_t recv_max_len, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns, MessageInfo *p_msginfo);
 
     public:
@@ -374,14 +374,14 @@ class RackDataProxy : public RackProxy {
 // get continuous data
 //
 
-    int getContData(RACK_TIME requestPeriodTime, RackMailbox *dataMbx,
-                    RACK_TIME *realPeriodTime)
+    int getContData(rack_time_t requestPeriodTime, RackMailbox *dataMbx,
+                    rack_time_t *realPeriodTime)
     {
         return getContData(requestPeriodTime, dataMbx, realPeriodTime, dataTimeout);
     }
 
-    int getContData(RACK_TIME requestPeriodTime, RackMailbox *dataMbx,
-                    RACK_TIME *realPeriodTime, uint64_t reply_timeout_ns);
+    int getContData(rack_time_t requestPeriodTime, RackMailbox *dataMbx,
+                    rack_time_t *realPeriodTime, uint64_t reply_timeout_ns);
 
 
 //

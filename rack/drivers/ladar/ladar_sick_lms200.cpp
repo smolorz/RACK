@@ -151,7 +151,7 @@ int  LadarSickLms200::moduleLoop(void)
     int         ret           = 0;
     int         dataFormat    = 0;
     int         distanceUnit  = 0;
-    RACK_TIME   time          = 0;
+    rack_time_t   time          = 0;
     uint32_t    bytes         = 0;
     ladar_data  *p_data       = NULL;
 
@@ -402,7 +402,7 @@ int  LadarSickLms200::norm_loopCheckHead(unsigned char* serialBuffer)
 unsigned int  LadarSickLms200::norm_createLadarData(
                                               unsigned char* serialBuffer,
                                               ladar_data *p_data,
-                                              int distanceUnit, RACK_TIME time)
+                                              int distanceUnit, rack_time_t time)
 {
     int n         = 0;
     int reflector = 0;
@@ -641,7 +641,7 @@ int  LadarSickLms200::int_loopCheckHead(unsigned char* serialBuffer)
 unsigned int LadarSickLms200::int_createLadarData(
                                             unsigned char* serialBuffer,
                                             ladar_data *p_data,
-                                            int distanceUnit, RACK_TIME time)
+                                            int distanceUnit, rack_time_t time)
 {
     int n         = 0;
     int reflector = 0;
@@ -951,7 +951,7 @@ int  LadarSickLms200::fast_loopCheckHead(unsigned char* serialBuffer)
 unsigned int LadarSickLms200::fast_createLadarData(
                                              unsigned char* serialBuffer,
                                              ladar_data *p_data,
-                                             int distanceUnit, RACK_TIME time)
+                                             int distanceUnit, rack_time_t time)
 {
     int n         = 0;
     int ret       = 0;
@@ -1027,7 +1027,7 @@ int LadarSickLms200::loopCheckHead(unsigned char* serialBuffer)
 
 unsigned int LadarSickLms200::createLadarData(unsigned char* serialBuffer,
                                         ladar_data *p_data,
-                                        int distanceUnit, RACK_TIME time)
+                                        int distanceUnit, rack_time_t time)
 {
   switch(conf->protocol) {
     case normal:

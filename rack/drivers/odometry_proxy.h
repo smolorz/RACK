@@ -41,7 +41,7 @@
 //######################################################################
 
 typedef struct{
-    RACK_TIME    recordingTime; // have to be first element
+    rack_time_t    recordingTime; // have to be first element
     position_3d  pos;
 } __attribute__((packed)) odometry_data;
 
@@ -102,13 +102,13 @@ class OdometryProxy : public RackDataProxy {
 //
 
     int getData(odometry_data *recv_data, ssize_t recv_datalen,
-                RACK_TIME timeStamp)
+                rack_time_t timeStamp)
     {
       return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
     int getData(odometry_data *recv_data, ssize_t recv_datalen,
-                RACK_TIME timeStamp, uint64_t reply_timeout_ns);
+                rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
     int reset(void)
     {

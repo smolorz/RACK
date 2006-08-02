@@ -52,7 +52,7 @@ argTable_t argTab[] = {
 
  int CameraJpeg::moduleOn(void)
 {
-    RACK_TIME cameraPeriodTime = 0;
+    rack_time_t cameraPeriodTime = 0;
     int ret;
 
     GDOS_DBG_DETAIL("Initialising static compression structs \n");
@@ -123,7 +123,7 @@ int CameraJpeg::moduleLoop(void)
     camera_data_msg*   p_data = NULL;
     camera_data_msg*   dataCameraInput = NULL;
     ssize_t            datalength = 0;
-//    RACK_TIME          starttime;
+//    rack_time_t          starttime;
     MessageInfo        msgInfo;
     int                ret;
 

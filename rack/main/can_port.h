@@ -56,7 +56,7 @@ class CanPort
         int getTimestamps();
 
         int send(rtcan_frame_t* frame);
-        int recv(rtcan_frame_t *recv_frame, RACK_TIME *timestamp);
+        int recv(rtcan_frame_t *recv_frame, rack_time_t *timestamp);
 
 };
 

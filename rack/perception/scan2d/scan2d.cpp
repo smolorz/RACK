@@ -82,7 +82,7 @@ argTable_t argTab[] = {
  int  Scan2d::moduleOn(void)
 {
     int ret;
-    RACK_TIME realPeriodTime = 0;
+    rack_time_t realPeriodTime = 0;
 
     GDOS_DBG_DETAIL("Turning on Ladar(%d)\n", ladarInst);
     ret = ladar->on();

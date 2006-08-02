@@ -68,7 +68,7 @@ ACCESS: msg.data.value[...] OR msg.value[...];
 // ...
 
 typedef struct {
-    RACK_TIME   recordingTime; // !!! HAS TO BE FIRST ELEMENT !!!
+    rack_time_t   recordingTime; // !!! HAS TO BE FIRST ELEMENT !!!
     float32_t   valA;
     uint32_t    valB;
     int32_t     valueNum;
@@ -205,12 +205,12 @@ class DummyProxy : public RackDataProxy {
 // (includes parsing and type conversion)
 //
 
-    int getData(dummy_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
+    int getData(dummy_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp)
     {
         return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
-    int getData(dummy_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
+    int getData(dummy_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns);
 
 //

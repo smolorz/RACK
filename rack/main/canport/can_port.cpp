@@ -245,7 +245,7 @@ int CanPort::send(rtcan_frame_t* frame)
  * with @a setRxTimeout().
  *
  * If timestamp support is enabled the pointer to the timestamp buffer have
- * to be set. The format of the returned timestamp is @a RACK_TIME, thus
+ * to be set. The format of the returned timestamp is @a rack_time_t, thus
  * it is a global time value.
  *
  * @param recv_frame Pointer to a CAN frame
@@ -261,7 +261,7 @@ int CanPort::send(rtcan_frame_t* frame)
  *
  * Rescheduling: possible.
  */
-int CanPort::recv(rtcan_frame_t *recv_frame, RACK_TIME *timestamp)
+int CanPort::recv(rtcan_frame_t *recv_frame, rack_time_t *timestamp)
 {
     int ret;
     uint64_t timestamp_ns;

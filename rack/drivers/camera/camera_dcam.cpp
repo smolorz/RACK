@@ -561,7 +561,7 @@ int CameraDcam::moduleLoop(void)
 {
     camera_data_msg*   p_data = NULL;
     ssize_t            datalength = 0;
-    RACK_TIME          starttime;
+    rack_time_t          starttime;
     int h=0,w=0,p=0;
     int ret;
 

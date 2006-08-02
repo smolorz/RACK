@@ -40,7 +40,7 @@
 //######################################################################
 
 typedef struct{
-    RACK_TIME    recordingTime; // have to be first element
+    rack_time_t    recordingTime; // have to be first element
     position_3d  pos;
 } __attribute__((packed)) position_data;
 
@@ -101,17 +101,17 @@ class PositionProxy : public RackDataProxy {
         //
 
         int getData(position_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, uint64_t reply_timeout_ns);
+                    rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
         int getData(position_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp)
+                    rack_time_t timeStamp)
         {
             return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
         }
 
-        int update(position_3d *pos, RACK_TIME recordingTime, uint64_t reply_timeout_ns);
+        int update(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns);
 
-        int update(position_3d *pos, RACK_TIME recordingTime)
+        int update(position_3d *pos, rack_time_t recordingTime)
         {
             return update(pos, recordingTime, dataTimeout);
         }

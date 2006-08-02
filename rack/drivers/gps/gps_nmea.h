@@ -41,7 +41,7 @@ typedef struct
 
 typedef struct
 {
-    RACK_TIME        recordingTime;
+    rack_time_t        recordingTime;
     char             data[1024];
 } nmea_data;
 

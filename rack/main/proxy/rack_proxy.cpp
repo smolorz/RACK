@@ -377,7 +377,7 @@ RackDataProxy::~RackDataProxy()
 //
 
 int RackDataProxy::getData(void *recv_data, ssize_t recv_datalen,
-                           RACK_TIME timeStamp, uint64_t reply_timeout_ns,
+                           rack_time_t timeStamp, uint64_t reply_timeout_ns,
                            MessageInfo *msgInfo)
 {
     rack_get_data send_data;
@@ -392,8 +392,8 @@ int RackDataProxy::getData(void *recv_data, ssize_t recv_datalen,
 // get continuous data
 //
 
-int RackDataProxy::getContData(RACK_TIME requestPeriodTime, RackMailbox *dataMbx,
-                               RACK_TIME *realPeriodTime, uint64_t reply_timeout_ns)
+int RackDataProxy::getContData(rack_time_t requestPeriodTime, RackMailbox *dataMbx,
+                               rack_time_t *realPeriodTime, uint64_t reply_timeout_ns)
 {
     int ret;
     MessageInfo        msgInfo;

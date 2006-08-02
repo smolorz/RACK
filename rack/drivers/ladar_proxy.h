@@ -47,8 +47,8 @@ ACCESS: msg.data.distance[...] OR msg.distance[...];
 #define LADAR_DATA_MAX_DISTANCE_NUM 720
 
 typedef struct {
-    RACK_TIME   recordingTime;    // have to be first element !!!
-    RACK_TIME   duration;
+    rack_time_t   recordingTime;    // have to be first element !!!
+    rack_time_t   duration;
     int32_t     maxRange;
     float32_t   startAngle;
     float32_t   angleResolution;
@@ -138,12 +138,12 @@ class LadarProxy : public RackDataProxy {
 // (includes parsing and type conversion)
 //
 
-    int getData(ladar_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
+    int getData(ladar_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp)
     {
         return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
-    int getData(ladar_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
+    int getData(ladar_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns);
 
 };

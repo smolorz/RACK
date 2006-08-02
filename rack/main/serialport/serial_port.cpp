@@ -170,7 +170,7 @@ int SerialPort::recv(void *data, int dataLen)
 }
 
 // receive data with timestamp and the default timeout
-int SerialPort::recv(void *data, int dataLen, RACK_TIME *timestamp)
+int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp)
 {
     int ret;
     rtser_event_t rx_event;
@@ -189,7 +189,7 @@ int SerialPort::recv(void *data, int dataLen, RACK_TIME *timestamp)
 }
 
 // receive data with timestamp and a specific timeout
-int SerialPort::recv(void *data, int dataLen, RACK_TIME *timestamp,
+int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp,
                      int64_t timeout_ns)
 {
     int ret;

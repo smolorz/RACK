@@ -20,7 +20,7 @@
 //
 
 int LadarProxy::getData(ladar_data *recv_data, ssize_t recv_datalen,
-                        RACK_TIME timeStamp,
+                        rack_time_t timeStamp,
                         uint64_t reply_timeout_ns)
 {
     MessageInfo msgInfo;

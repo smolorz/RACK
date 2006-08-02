@@ -51,7 +51,7 @@ argTable_t argTab[] = {
 int  Position::moduleOn(void)
 {
     int       ret = 0;
-    RACK_TIME realPeriodTime = 0;
+    rack_time_t realPeriodTime = 0;
 
     ret = odometry->on();
     if (ret)

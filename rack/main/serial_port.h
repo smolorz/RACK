@@ -54,8 +54,8 @@ class SerialPort
         int send(const void* data, int dataLen);
 
         int recv(void *data, int dataLen);
-        int recv(void *data, int dataLen, RACK_TIME *timestamp);
-        int recv(void *data, int dataLen, RACK_TIME *timestamp,
+        int recv(void *data, int dataLen, rack_time_t *timestamp);
+        int recv(void *data, int dataLen, rack_time_t *timestamp,
                  int64_t timeout_ns);
 
         int recv_pending(void *data, int maxdataLen);

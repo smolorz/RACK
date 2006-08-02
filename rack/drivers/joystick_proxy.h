@@ -33,7 +33,7 @@
 //######################################################################
 
 typedef struct {
-    RACK_TIME    recordingTime; // have to be first element
+    rack_time_t    recordingTime; // have to be first element
     position_3d position;       // joystick-position in percent -100<x<100 ...
     int32_t     buttons;        // binary button information bit0->button0, ...
 } __attribute__((packed)) joystick_data;
@@ -99,13 +99,13 @@ class JoystickProxy : public RackDataProxy
 //
 
         int getData(joystick_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp)
+                    rack_time_t timeStamp)
         {
             return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
         }
 
         int getData(joystick_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, uint64_t reply_timeout_ns);
+                    rack_time_t timeStamp, uint64_t reply_timeout_ns);
 };
 
 /*@}*/

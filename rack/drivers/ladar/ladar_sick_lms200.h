@@ -63,7 +63,7 @@ typedef int     (*ladar_loopCheckHead_t)(unsigned char* serialBuffer);
 typedef unsigned int (*ladar_createLadarData_t)(unsigned char* serialBuffer,
                                                 ladar_data *p_data,
                                                 int distanceUnit,
-                                                RACK_TIME time,
+                                                rack_time_t time,
                                                 int64_t buffer_period_time_ns);
 
 
@@ -123,25 +123,25 @@ class LadarSickLms200 : public DataModule {
         int norm_loopCheckHead(unsigned char* serialBuffer);
         unsigned int norm_createLadarData(unsigned char* serialBuffer,
                                           ladar_data *p_data, int distanceUnit,
-                                          RACK_TIME time);
+                                          rack_time_t time);
 
         int int_exchangeCommand(char* command, int commandLen);
         int int_loopCheckHead(unsigned char* serialBuffer);
         unsigned int int_createLadarData(unsigned char* serialBuffer,
                                          ladar_data *p_data, int distanceUnit,
-                                         RACK_TIME time);
+                                         rack_time_t time);
 
         int fast_exchangeCommand(char* command, int commandLen);
         int fast_loopCheckHead(unsigned char* serialBuffer);
         unsigned int fast_createLadarData(unsigned char* serialBuffer,
                                           ladar_data *p_data, int distanceUnit,
-                                          RACK_TIME time);
+                                          rack_time_t time);
 
         int exchangeCommand(char* command, int commandLen);
         int loopCheckHead(unsigned char* serialBuffer);
         unsigned int createLadarData(unsigned char* serialBuffer,
                                      ladar_data *p_data, int distanceUnit,
-                                     RACK_TIME time);
+                                     rack_time_t time);
 
     protected:
         // -> realtime context

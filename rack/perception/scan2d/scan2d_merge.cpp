@@ -66,7 +66,7 @@ argTable_t argTab[] = {
 int  Scan2DMerge::moduleOn(void)
 {
     int     ret, k;
-    RACK_TIME odometryPeriodTime;
+    rack_time_t odometryPeriodTime;
 
     // turn on odometry
     GDOS_DBG_DETAIL("Turn on odometry(%d)\n", odometryInst);

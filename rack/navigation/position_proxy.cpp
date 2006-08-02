@@ -16,7 +16,7 @@
  #include <navigation/position_proxy.h>
 
 int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
-                           RACK_TIME timeStamp, uint64_t reply_timeout_ns)
+                           rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     MessageInfo msgInfo;
     
@@ -31,7 +31,7 @@ int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
-int PositionProxy::update(position_3d *pos, RACK_TIME recordingTime, uint64_t reply_timeout_ns)
+int PositionProxy::update(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns)
 {
     position_data sendData;
 

@@ -50,8 +50,8 @@ ACCESS: msg.data.point[...] OR msg.point[...];
 */
 
 typedef struct {
-    RACK_TIME       recordingTime;  // have to be first element !!!
-    RACK_TIME       duration;
+    rack_time_t       recordingTime;  // have to be first element !!!
+    rack_time_t       duration;
     int32_t         maxRange;
     int32_t         pointNum;
     scan_point      point[0];
@@ -137,13 +137,13 @@ class Scan2DProxy : public RackDataProxy {
 
 
         int getData(scan2d_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp)
+                    rack_time_t timeStamp)
         {
             return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
         }
 
         int getData(scan2d_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, uint64_t reply_timeout_ns);
+                    rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
 };
 

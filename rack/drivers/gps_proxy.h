@@ -39,7 +39,7 @@
 //######################################################################
 
 typedef struct {
-    RACK_TIME   recordingTime;  // has to be first element
+    rack_time_t   recordingTime;  // has to be first element
     int32_t     mode;
     float64_t   latitude;       // rad
     float64_t   longitude;      // rad
@@ -128,12 +128,12 @@ class GpsProxy : public RackDataProxy {
 // gps data
 //
 
-    int getData(gps_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
+    int getData(gps_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp)
     {
           return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
-    int getData(gps_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
+    int getData(gps_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns);
 
 };

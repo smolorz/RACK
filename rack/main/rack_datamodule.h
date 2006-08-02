@@ -94,16 +94,16 @@ class DataModule : public Module {
         uint32_t            dataBufferMaxListener;
         int16_t             dataBufferSendType;
         RackMailbox*        dataBufferSendMbx;
-        RACK_TIME           dataBufferPeriodTime;
+        rack_time_t           dataBufferPeriodTime;
 
         friend void         cmd_task_proc(void* arg);
 
-        RACK_TIME           getRecTime(void *p_data);
-        int                 addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
+        rack_time_t           getRecTime(void *p_data);
+        int                 addListener(rack_time_t periodTime, uint32_t destMbxAdr,
                                         MessageInfo* msgInfo);
         void                removeListener(uint32_t destMbxAdr);
         void                removeAllListener(void);
-        int                 sendDataReply(RACK_TIME time, MessageInfo *msgInfo);
+        int                 sendDataReply(rack_time_t time, MessageInfo *msgInfo);
 
 
   public:
@@ -126,8 +126,8 @@ class DataModule : public Module {
 //    float     getDataBufferSampleRate(void);
 //    int       setDataBufferSampleRate(float sampleRate);
 
-    RACK_TIME getDataBufferPeriodTime(uint32_t dataMbx);
-    void      setDataBufferPeriodTime(RACK_TIME periodTime);
+    rack_time_t getDataBufferPeriodTime(uint32_t dataMbx);
+    void      setDataBufferPeriodTime(rack_time_t periodTime);
 
     void*     getDataBufferWorkSpace(void);
     void      putDataBufferWorkSpace(uint32_t datalength);

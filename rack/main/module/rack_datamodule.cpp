@@ -74,13 +74,13 @@ DataModule::~DataModule()
 
 // the time is the first data element afer the message head !
 // realtime context
-RACK_TIME   DataModule::getRecTime(void *p_data)
+rack_time_t   DataModule::getRecTime(void *p_data)
 {
-  return *(RACK_TIME *)p_data;
+  return *(rack_time_t *)p_data;
 }
 
 // realtime context (cmdTask)
-int         DataModule::addListener(RACK_TIME periodTime, uint32_t destMbxAdr,
+int         DataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
                                     MessageInfo* msgInfo)
 {
     unsigned int i, idx;
@@ -178,18 +178,18 @@ void        DataModule::removeAllListener(void)
 }
 
 // realtime context (cmdTask)
-int         DataModule::sendDataReply(RACK_TIME time, MessageInfo *msgInfo)
+int         DataModule::sendDataReply(rack_time_t time, MessageInfo *msgInfo)
 {
     uint32_t    n;
     int         ret;
-    RACK_TIME   difference;
-    RACK_TIME   minDifference = RACK_TIME_MAX;
+    rack_time_t   difference;
+    rack_time_t   minDifference = RACK_TIME_MAX;
 
     uint32_t    old_index;
     uint32_t    new_index;
 
-    RACK_TIME   new_rectime;
-    RACK_TIME   old_rectime;
+    rack_time_t   new_rectime;
+    rack_time_t   old_rectime;
 
     void*       new_data    = NULL;
     void*       old_data    = NULL;
@@ -309,7 +309,7 @@ void        DataModule::setDataBufferMaxDataSize(uint32_t dataSize)
     dataBufferMaxDataSize = dataSize;
 }
 
-RACK_TIME   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
+rack_time_t   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
 {
     uint32_t i;
 
@@ -331,7 +331,7 @@ RACK_TIME   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
     return 0;
 }
 
-void DataModule::setDataBufferPeriodTime(RACK_TIME periodTime)
+void DataModule::setDataBufferPeriodTime(rack_time_t periodTime)
 {
     GDOS_PRINT("Setting local period time to %d ms \n", periodTime);
     dataBufferPeriodTime = periodTime;

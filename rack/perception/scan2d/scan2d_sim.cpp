@@ -65,7 +65,7 @@ argTable_t argTab[] = {
  int  Scan2DSim::moduleOn(void)
 {
     int ret;
-    RACK_TIME realPeriodTime;
+    rack_time_t realPeriodTime;
 
     GDOS_DBG_DETAIL("Turning on Odometry(%d) \n", odometryInst);
     ret = odometry->on();

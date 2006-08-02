@@ -259,7 +259,7 @@ int GpsNmea::readNMEAMessage()
     int             i, ret;
     int             msgSize;
     unsigned char   currChar;
-    RACK_TIME       recordingTime;
+    rack_time_t       recordingTime;
 
 
     // Initalisation of local variables

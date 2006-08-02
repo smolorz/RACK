@@ -33,7 +33,7 @@ class Position : public DataModule {
         double              sinRefPos, cosRefPos;
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;
-        RACK_TIME           refTime;
+        rack_time_t           refTime;
         RackMutex           refPosMtx;
 
         uint32_t            odometryInst;

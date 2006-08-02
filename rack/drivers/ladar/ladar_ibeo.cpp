@@ -224,7 +224,7 @@ int  LadarIbeo::moduleLoop(void)
     uint16_t tend;
     int distanceIndex;
 
-    RACK_TIME recordingtime;
+    rack_time_t recordingtime;
 
     // get datapointer from rackdatabuffer
     // you don't need check this pointer
@@ -288,7 +288,7 @@ int  LadarIbeo::moduleLoop(void)
         }
         else
         {
-            p_data->recordingTime = ((((RACK_TIME)tstart) + ((RACK_TIME)tend))/2) + timeOffset;
+            p_data->recordingTime = ((((rack_time_t)tstart) + ((rack_time_t)tend))/2) + timeOffset;
             timeOffsetSector[sector] = p_data->recordingTime - recordingtime;
         }
 
@@ -415,10 +415,10 @@ int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* pa
     return 0;
 }
 
-int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, void* parameter, RACK_TIME* recordingtime)
+int LadarIbeo::receiveResponsePackage(int responseCode, int maxParameterLen, void* parameter, rack_time_t* recordingtime)
 {
     rtcan_frame_t canReceive;
-    RACK_TIME timestamp = 0;
+    rack_time_t timestamp = 0;
     int parameterLen;
     int sequenceFlag;
     int packageId;
@@ -738,7 +738,7 @@ int LadarIbeo::setTimeAbs(void)
 {
     set_time_abs send;
     set_time_abs_responce response;
-    RACK_TIME recordingtime;
+    rack_time_t recordingtime;
 
     send.syncabs = 0;
 
@@ -754,7 +754,7 @@ int LadarIbeo::setTimeAbs(void)
         return -1;
     }
 
-    timeOffset = recordingtime - (RACK_TIME)response.synctime;
+    timeOffset = recordingtime - (rack_time_t)response.synctime;
 
     GDOS_DBG_DETAIL("getSyncTime synctime %i recordingtime %i timeOffset %i\n", (int)response.synctime, recordingtime, timeOffset);
 

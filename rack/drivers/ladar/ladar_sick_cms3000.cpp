@@ -127,7 +127,7 @@ void LadarSickCms3000::moduleOff(void)
 int  LadarSickCms3000::moduleLoop(void)
 {
     ladar_data  *p_data = NULL;
-    RACK_TIME time = 0;
+    rack_time_t time = 0;
     int ret = 0;
     int i;
     int totalCount = 0;

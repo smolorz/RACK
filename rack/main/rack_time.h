@@ -27,10 +27,10 @@
 #define RACK_TIME_MAX           0x7fffffff
 
 /** RACK time factor (1 ms) */
-#define FACTOR                  1000000
+#define RACK_TIME_FACTOR          1000000
 
 /** RTnet time reference device*/
-#define TIME_REFERENCE_DEV      "TDMA0"
+#define RACK_TIME_REF_DEV      "TDMA0"
 
 #include <main/rack_rtmac.h>
 #include <native/timer.h>
@@ -38,7 +38,7 @@
 
 
 /** RACK time (32 Bit) */
-typedef uint32_t RACK_TIME;
+typedef uint32_t rack_time_t;
 
 class RackTime {
     private:
@@ -129,7 +129,7 @@ class RackTime {
             int ret;
             int64_t offset;
 
-            tdma_fd = rt_dev_open(TIME_REFERENCE_DEV, O_RDONLY);
+            tdma_fd = rt_dev_open(RACK_TIME_REF_DEV, O_RDONLY);
             if (tdma_fd > -1)
             {
                 global = 1;
@@ -146,12 +146,12 @@ class RackTime {
 
 
 /**
- * @brief Converting nanoseconds into RACK_TIME. If a global time offset is
+ * @brief Converting nanoseconds into rack_time_t. If a global time offset is
  * given the offset is added to the nanoseconds.
  *
  * @param[in] ntime Time in nanoseconds
  *
- * @return RACK_TIME
+ * @return rack_time_t
  *
  * Environments:
  *
@@ -161,20 +161,20 @@ class RackTime {
  *
  * Rescheduling: never.
  */
-        RACK_TIME fromNano(uint64_t ntime)
+        rack_time_t fromNano(uint64_t ntime)
         {
             int64_t offset = 0;
 
             getOffset(&offset);
-            return (uint32_t)((ntime + offset) / FACTOR);
+            return (rack_time_t)((ntime + offset) / RACK_TIME_FACTOR);
         }
 
 /**
- * @brief Converting a given RACK_TIME value into nanoseconds.
+ * @brief Converting a given rack_time_t value into nanoseconds.
  *
- * @param[in] rtime RACK_TIME value
+ * @param[in] rtime rack_time_t value
  *
- * @return Given RACK_TIME in nanoseconds
+ * @return Given rack_time_t in nanoseconds
  *
  * Environments:
  *
@@ -184,16 +184,16 @@ class RackTime {
  *
  * Rescheduling: never.
  */
-        uint64_t toNano(RACK_TIME rtime)
+        uint64_t toNano(rack_time_t rtime)
         {
-            return (uint64_t)(rtime * FACTOR) ;
+            return (uint64_t)(rtime * RACK_TIME_FACTOR) ;
         }
 
 /**
  * @brief Gets the current RACK time. If a global time offset is given the
  * offset is added.
  *
- * @return Current RACK_TIME
+ * @return Current rack_time_t
  *
  * Environments:
  *
@@ -203,12 +203,12 @@ class RackTime {
  *
  * Rescheduling: never.
  */
-        RACK_TIME get(void)
+        rack_time_t get(void)
         {
             int64_t offset;
 
             getOffset(&offset);
-            return (uint32_t)((rt_timer_read() + offset) / FACTOR);
+            return (uint32_t)((rt_timer_read() + offset) / RACK_TIME_FACTOR);
         }
 
 /**

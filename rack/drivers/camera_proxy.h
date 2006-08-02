@@ -66,7 +66,7 @@
 //######################################################################
 
 typedef struct {
-    RACK_TIME recordingTime;  // have to be first element
+    rack_time_t recordingTime;  // have to be first element
     uint16_t   width;
     uint16_t   height;
     uint16_t   depth;
@@ -313,12 +313,12 @@ class CameraProxy : public RackDataProxy {
 // (includes parsing and type conversion)
 //
 
-    int getData(camera_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
+    int getData(camera_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp)
     {
         return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }
 
-    int getData(camera_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
+    int getData(camera_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns);
 
 

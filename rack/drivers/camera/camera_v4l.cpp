@@ -276,7 +276,7 @@ int CameraV4L::moduleLoop(void)
 {
     camera_data_msg*   p_data = NULL;
     ssize_t            datalength = 0;
-//    RACK_TIME          starttime;
+//    rack_time_t          starttime;
 
     GDOS_DBG_DETAIL("camera_v4l looping\n");
 

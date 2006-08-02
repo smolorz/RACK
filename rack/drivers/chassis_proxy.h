@@ -45,7 +45,7 @@
 //######################################################################
 
 typedef struct {
-    RACK_TIME recordingTime;  // have to be first element
+    rack_time_t recordingTime;  // have to be first element
     float32_t deltaX;
     float32_t deltaY;
     float32_t deltaRho;
@@ -347,10 +347,10 @@ class ChassisProxy : public RackDataProxy {
 // (includes parsing and type conversion)
 //
 
-    int getData(chassis_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp,
+    int getData(chassis_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns);
 
-    int getData(chassis_data *recv_data, ssize_t recv_datalen, RACK_TIME timeStamp)
+    int getData(chassis_data *recv_data, ssize_t recv_datalen, rack_time_t timeStamp)
     {
         return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
     }

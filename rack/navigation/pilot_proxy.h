@@ -55,7 +55,7 @@ ACCESS: msg.data.spline[...] OR msg.spline[...];
 */
 
 typedef struct{
-    RACK_TIME       recordingTime;
+    rack_time_t       recordingTime;
     position_3d     pos;
     int32_t         speed;
     float32_t       curve;
@@ -138,13 +138,13 @@ class PilotProxy : public RackDataProxy
 //
 
         int getData(pilot_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp)
+                    rack_time_t timeStamp)
         {
               return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
         }
 
         int getData(pilot_data *recv_data, ssize_t recv_datalen,
-                    RACK_TIME timeStamp, uint64_t reply_timeout_ns);
+                    rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
 };
 
