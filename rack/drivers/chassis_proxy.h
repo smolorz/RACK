@@ -85,7 +85,7 @@ class ChassisData
             data->activePilot   = __be32_to_cpu(data->activePilot);
         }
 
-        static chassis_data* parse(MessageInfo *msgInfo)
+        static chassis_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
@@ -133,7 +133,7 @@ class ChassisMoveData
             data->omega   = __be32_float_to_cpu(data->omega);
         }
 
-        static chassis_move_data* parse(MessageInfo *msgInfo)
+        static chassis_move_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
@@ -255,7 +255,7 @@ class ChassisParamData
             data->pilotVTransMax    = __be32_to_cpu(data->pilotVTransMax);
         }
 
-        static chassis_param_data *parse(MessageInfo *msgInfo)
+        static chassis_param_data *parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
@@ -297,7 +297,7 @@ class ChassisSetActivePilotData
             data->activePilot   = __be32_to_cpu(data->activePilot);
         }
 
-        static chassis_set_active_pilot_data* parse(MessageInfo *msgInfo)
+        static chassis_set_active_pilot_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

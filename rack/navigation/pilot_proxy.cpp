@@ -18,7 +18,7 @@
 int PilotProxy::getData(pilot_data *recv_data, ssize_t recv_datalen,
                         rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen,
                                      timeStamp, reply_timeout_ns, &msgInfo);

@@ -85,7 +85,7 @@ void OdometryChassis::moduleOff(void)
 int  OdometryChassis::moduleLoop(void)
 {
     int             ret;
-    MessageInfo     info;
+    message_info     info;
     odometry_data*  p_odo;
     float           positionX, positionY, positionRho;
     float           sinOldRho, cosOldRho;
@@ -145,7 +145,7 @@ int  OdometryChassis::moduleLoop(void)
     return 0;
 }
 
-int  OdometryChassis::moduleCommand(MessageInfo *msgInfo)
+int  OdometryChassis::moduleCommand(message_info *msgInfo)
 {
     switch(msgInfo->type)
     {

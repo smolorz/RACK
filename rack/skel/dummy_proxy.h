@@ -108,7 +108,7 @@ class DummyData
             }
         }
 
-        static dummy_data *parse(MessageInfo *msgInfo)
+        static dummy_data *parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
@@ -157,7 +157,7 @@ class DummyParam
             data->valY = __be32_to_cpu(data->valY);
         }
 
-        static dummy_param *parse(MessageInfo *msgInfo)
+        static dummy_param *parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

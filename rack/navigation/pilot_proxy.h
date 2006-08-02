@@ -94,7 +94,7 @@ class PilotData
             }
         }
 
-        static pilot_data* parse(MessageInfo *msgInfo)
+        static pilot_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

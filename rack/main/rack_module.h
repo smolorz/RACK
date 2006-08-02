@@ -167,7 +167,7 @@ class Module {
 
     protected:
         /** Message info to reply a message */
-        MessageInfo  replyMsgInfo;
+        message_info  replyMsgInfo;
 
         /** Module state */
         int status;
@@ -321,7 +321,7 @@ class Module {
         }
 
         /** The moduleCommand function of the module */
-        virtual int   moduleCommand(MessageInfo* p_msginfo);
+        virtual int   moduleCommand(message_info* p_msginfo);
 
 //
 // signal handler shutdown function

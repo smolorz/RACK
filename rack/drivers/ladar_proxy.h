@@ -91,7 +91,7 @@ class LadarData
             }
         }
 
-        static ladar_data *parse(MessageInfo *msgInfo)
+        static ladar_data *parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

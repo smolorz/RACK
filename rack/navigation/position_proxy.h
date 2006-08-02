@@ -59,7 +59,7 @@ class PositionData
             Position3D::be_to_cpu(&data->pos);
         }
 
-        static position_data* parse(MessageInfo *msgInfo)
+        static position_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

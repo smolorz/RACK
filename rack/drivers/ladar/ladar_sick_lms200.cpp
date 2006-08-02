@@ -212,7 +212,7 @@ int  LadarSickLms200::moduleLoop(void)
     return -ENOSPC;
 }
 
-int  LadarSickLms200::moduleCommand(MessageInfo *p_msginfo)
+int  LadarSickLms200::moduleCommand(message_info *p_msginfo)
 {
   // not for me -> ask DataModule
   return DataModule::moduleCommand(p_msginfo);

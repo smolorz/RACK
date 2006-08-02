@@ -147,7 +147,7 @@ void Scan2DMerge::moduleOff(void)
 // realtime context
 int  Scan2DMerge::moduleLoop(void)
 {
-    MessageInfo     dataInfo;
+    message_info     dataInfo;
     odometry_data   *odoData   = NULL;
     scan2d_data     *scanData  = NULL;
     scan2d_data     *mergeData = NULL;
@@ -299,7 +299,7 @@ int  Scan2DMerge::moduleLoop(void)
     return 0;
 }
 
-int  Scan2DMerge::moduleCommand(MessageInfo *msgInfo)
+int  Scan2DMerge::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

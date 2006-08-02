@@ -50,7 +50,7 @@ typedef struct rack_logger {
 
 rack_log_t *rlt = NULL;
 
-int printMessage(MessageInfo *msgInfo)
+int printMessage(message_info *msgInfo)
 {
     char* inputString;
     char* outptr = rlt->outputString;
@@ -218,7 +218,7 @@ int printMessage(MessageInfo *msgInfo)
 void log_function(void *arg)
 {
     int ret;
-    MessageInfo msgInfo;
+    message_info msgInfo;
 
     while (!rlt->terminate)
     {

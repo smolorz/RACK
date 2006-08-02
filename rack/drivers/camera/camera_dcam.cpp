@@ -663,7 +663,7 @@ int CameraDcam::moduleLoop(void)
 //
 // Command handling
 //
-int CameraDcam::moduleCommand(MessageInfo *msgInfo)
+int CameraDcam::moduleCommand(message_info *msgInfo)
 {
     camera_format_data      *p_format;
 

@@ -55,7 +55,7 @@ class JoystickData
             data->buttons       = __be32_to_cpu(data->buttons);
         }
 
-        static joystick_data* parse(MessageInfo *msgInfo)
+        static joystick_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

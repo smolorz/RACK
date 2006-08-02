@@ -82,7 +82,7 @@ class PilotJoystick : public DataModule {
         int      moduleOn(void);
         int      moduleLoop(void);
         void     moduleOff(void);
-        int      moduleCommand(MessageInfo *msgInfo);
+        int      moduleCommand(message_info *msgInfo);
 
         // -> non realtime context
         void     moduleCleanup(void);

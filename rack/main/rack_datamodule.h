@@ -55,13 +55,13 @@ class DataBufferEntry {
 class ListenerEntry {
     public:
         uint32_t        reduction;
-        MessageInfo     msgInfo;
+        message_info     msgInfo;
 
         // Konstruktor
         ListenerEntry()
         {
             reduction = 0;
-            memset(&msgInfo, 0, sizeof(MessageInfo));
+            memset(&msgInfo, 0, sizeof(message_info));
         };
 
         // Destruktor
@@ -100,10 +100,10 @@ class DataModule : public Module {
 
         rack_time_t           getRecTime(void *p_data);
         int                 addListener(rack_time_t periodTime, uint32_t destMbxAdr,
-                                        MessageInfo* msgInfo);
+                                        message_info* msgInfo);
         void                removeListener(uint32_t destMbxAdr);
         void                removeAllListener(void);
-        int                 sendDataReply(rack_time_t time, MessageInfo *msgInfo);
+        int                 sendDataReply(rack_time_t time, message_info *msgInfo);
 
 
   public:
@@ -143,7 +143,7 @@ class DataModule : public Module {
     void  moduleOff(void);
 
     int   moduleLoop(void) { return 0; };
-    int   moduleCommand(MessageInfo* p_msginfo);
+    int   moduleCommand(message_info* p_msginfo);
 };
 
 /*@}*/

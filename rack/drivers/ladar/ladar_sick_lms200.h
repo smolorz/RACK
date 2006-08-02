@@ -148,7 +148,7 @@ class LadarSickLms200 : public DataModule {
         int      moduleOn(void);
         void     moduleOff(void);
         int      moduleLoop(void);
-        int      moduleCommand(MessageInfo *p_msginfo);
+        int      moduleCommand(message_info *p_msginfo);
 
         // -> non realtime context
         void     moduleCleanup(void);

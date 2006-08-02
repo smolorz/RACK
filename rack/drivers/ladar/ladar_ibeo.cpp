@@ -311,7 +311,7 @@ int  LadarIbeo::moduleLoop(void)
     }
 }
 
-int  LadarIbeo::moduleCommand(MessageInfo *p_msginfo)
+int  LadarIbeo::moduleCommand(message_info *p_msginfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(p_msginfo);

@@ -22,7 +22,7 @@
 int ChassisProxy::getData(chassis_data *recv_data, ssize_t recv_datalen,
                           rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, &msgInfo);
@@ -49,7 +49,7 @@ int ChassisProxy::move(int vx, int vy, float omega, uint64_t reply_timeout_ns)
 int ChassisProxy::getParam(chassis_param_data *recv_data, ssize_t recv_datalen,
                            uint64_t reply_timeout_ns)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
 
     int ret = proxyRecvDataCmd(MSG_CHASSIS_GET_PARAMETER, MSG_CHASSIS_PARAMETER,
                               (void *)recv_data, recv_datalen,

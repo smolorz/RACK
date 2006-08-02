@@ -37,7 +37,7 @@ class ChassisSim : public DataModule{
     int  moduleOn(void);
     void moduleOff(void);
     int  moduleLoop(void);
-    int  moduleCommand(MessageInfo *msgInfo);
+    int  moduleCommand(message_info *msgInfo);
 
     // -> non realtime context
     void moduleCleanup(void);

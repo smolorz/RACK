@@ -90,7 +90,7 @@ int  DummyAbc::moduleLoop(void)
     return 0;
 }
 
-int  DummyAbc::moduleCommand(MessageInfo *msgInfo)
+int  DummyAbc::moduleCommand(message_info *msgInfo)
 {
     dummy_param *param;
     dummy_param replyParam;

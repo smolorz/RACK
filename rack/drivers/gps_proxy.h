@@ -86,7 +86,7 @@ class GpsData
             Position3D::be_to_cpu(&data->posGK);
         }
 
-        static gps_data* parse(MessageInfo *msgInfo)
+        static gps_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

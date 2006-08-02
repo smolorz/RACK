@@ -58,7 +58,7 @@ RackProxy::~RackProxy()
  */
 int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     int ret;
 
     if (!workMbx)
@@ -121,7 +121,7 @@ int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
 int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
                                 size_t send_datalen, uint64_t timeout)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     int ret;
 
     if (!workMbx)
@@ -180,7 +180,7 @@ int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
  */
 int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
                                 void *recv_data, size_t recv_datalen,
-                                uint64_t timeout, MessageInfo *msgInfo)
+                                uint64_t timeout, message_info *msgInfo)
 {
     int ret;
 
@@ -243,7 +243,7 @@ int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
 int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
                                     size_t send_datalen, const int8_t recv_msgtype,
                                     void *recv_data, size_t recv_datalen,
-                                    uint64_t timeout, MessageInfo *msgInfo)
+                                    uint64_t timeout, message_info *msgInfo)
 {
     int ret;
 
@@ -300,7 +300,7 @@ int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
 
 int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     int ret;
 
     if (!workMbx)
@@ -378,7 +378,7 @@ RackDataProxy::~RackDataProxy()
 
 int RackDataProxy::getData(void *recv_data, ssize_t recv_datalen,
                            rack_time_t timeStamp, uint64_t reply_timeout_ns,
-                           MessageInfo *msgInfo)
+                           message_info *msgInfo)
 {
     rack_get_data send_data;
     send_data.recordingTime = timeStamp;
@@ -396,7 +396,7 @@ int RackDataProxy::getContData(rack_time_t requestPeriodTime, RackMailbox *dataM
                                rack_time_t *realPeriodTime, uint64_t reply_timeout_ns)
 {
     int ret;
-    MessageInfo        msgInfo;
+    message_info        msgInfo;
     rack_get_cont_data send_data;
     rack_cont_data     recv_data;
 

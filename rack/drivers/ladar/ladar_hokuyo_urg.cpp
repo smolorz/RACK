@@ -221,7 +221,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
     return -ENOSPC;
 }
 
-int  LadarHokuyoUrg::moduleCommand(MessageInfo *msgInfo)
+int  LadarHokuyoUrg::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

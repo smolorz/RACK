@@ -60,7 +60,7 @@ class OdometryData
             Position3D::be_to_cpu(&data->pos);
         }
 
-        static odometry_data* parse(MessageInfo *msgInfo)
+        static odometry_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

@@ -128,7 +128,7 @@ int ChassisSim::moduleLoop(void)
     return 0;
 }
 
-int ChassisSim::moduleCommand(MessageInfo *msgInfo)
+int ChassisSim::moduleCommand(message_info *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask()   |
                               RackName::getClassMask() |

@@ -441,7 +441,7 @@ int ChassisPioneer::moduleLoop(void)
 }
 
 // realtime context
-int ChassisPioneer::moduleCommand(MessageInfo *msgInfo)
+int ChassisPioneer::moduleCommand(message_info *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask() |
                               RackName::getClassMask() |

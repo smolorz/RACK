@@ -117,7 +117,7 @@ class CameraData
             }
         }
 
-        static camera_data* parse(MessageInfo *msgInfo)
+        static camera_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
@@ -212,7 +212,7 @@ class CameraParamData
             data->n0    = __be32_float_to_cpu(data->n0);
         }
 
-        static camera_param_data *parse(MessageInfo *msgInfo)
+        static camera_param_data *parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
@@ -266,7 +266,7 @@ class CameraFormatData
             data->mode              = __be32_to_cpu(data->mode);
         }
 
-        static camera_format_data *parse(MessageInfo *msgInfo)
+        static camera_format_data *parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

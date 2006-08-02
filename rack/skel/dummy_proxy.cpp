@@ -23,7 +23,7 @@
 int DummyProxy::getData(dummy_data *recv_data, ssize_t recv_datalen,
                         rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, &msgInfo);
@@ -43,7 +43,7 @@ int DummyProxy::sendParam(dummy_param *send_data, size_t send_datalen, uint64_t 
 
 int DummyProxy::recvParam(dummy_data* recv_data, ssize_t recv_datalen, uint64_t reply_timeout_ns)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     
     int ret = proxyRecvDataCmd(DUMMY_RECV_PARAM, DUMMY_PARAM, recv_data,
                                 recv_datalen, reply_timeout_ns, &msgInfo);
@@ -60,7 +60,7 @@ int sendRecvParam(dummy_param *send_data, size_t send_datalen,
                   dummy_param *recv_data, size_t recv_datalen,
                   uint64_t reply_timeout_ns)
 {
-    MessageInfo msgInfo;
+    message_info msgInfo;
     
     int ret = proxySendRecvDataCmd(DUMMY_SEND_RECV_PARAM, send_data,
                                    send_datalen, DUMMY_PARAM,

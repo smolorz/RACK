@@ -86,7 +86,7 @@ class Scan2DData
             }
         }
 
-        static scan2d_data* parse(MessageInfo *msgInfo)
+        static scan2d_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;

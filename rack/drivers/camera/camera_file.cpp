@@ -116,7 +116,7 @@ int  CameraFile::moduleLoop(void)
     return -ENOSPC;
 }
 
-int  CameraFile::moduleCommand(MessageInfo *msgInfo)
+int  CameraFile::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

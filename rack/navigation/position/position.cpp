@@ -86,7 +86,7 @@ int  Position::moduleLoop(void)
     int             ret;
     position_data*  pPosition;
     odometry_data   odometryData;
-    MessageInfo     msgInfo;
+    message_info     msgInfo;
     position_3d     relPos;
 
     pPosition = (position_data *)getDataBufferWorkSpace();
@@ -150,7 +150,7 @@ int  Position::moduleLoop(void)
     return 0;
 }
 
-int  Position::moduleCommand(MessageInfo *msgInfo)
+int  Position::moduleCommand(message_info *msgInfo)
 {
     position_data *pUpdate;
     odometry_data odometryData;

@@ -240,7 +240,7 @@ int GpsNmea::moduleLoop(void)
     return 0;
 }
 
-int GpsNmea::moduleCommand(MessageInfo *msgInfo)
+int GpsNmea::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

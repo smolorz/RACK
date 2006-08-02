@@ -241,7 +241,7 @@ int  LadarSickCms3000::moduleLoop(void)
     return -ENOSPC;
 }
 
-int  LadarSickCms3000::moduleCommand(MessageInfo *p_msginfo)
+int  LadarSickCms3000::moduleCommand(message_info *p_msginfo)
 {
   // not for me -> ask DataModule
   return DataModule::moduleCommand(p_msginfo);

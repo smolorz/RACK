@@ -117,7 +117,7 @@ int  Scan2d::moduleLoop(void)
 {
     scan2d_data*    data2D    = NULL;
     ladar_data*     dataLadar = NULL;
-    MessageInfo     msgInfo;
+    message_info     msgInfo;
     ssize_t         datalength = 0;
     double          angle, x, y;
     int             i, j, ret;
@@ -213,7 +213,7 @@ int  Scan2d::moduleLoop(void)
     return 0;
 }
 
-int  Scan2d::moduleCommand(MessageInfo *msgInfo)
+int  Scan2d::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

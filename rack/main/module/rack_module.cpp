@@ -95,7 +95,7 @@ void cmd_task_proc(void *arg)
 {
     Module*      p_mod     = (Module *)arg;
     GdosMailbox* gdos      = p_mod->gdos;
-    MessageInfo  msgInfo;
+    message_info  msgInfo;
     char recv_data[p_mod->cmdMbxMsgDataSize];
     int ret;
 
@@ -709,7 +709,7 @@ void      Module::moduleCleanup(void)
 }
 
 // realtime context
-int Module::moduleCommand(MessageInfo *msgInfo)
+int Module::moduleCommand(message_info *msgInfo)
 {
   int ret;
 
@@ -739,7 +739,7 @@ int Module::moduleCommand(MessageInfo *msgInfo)
           case MODULE_TSTATE_OFF: {
 
               targetStatus = MODULE_TSTATE_ON;
-              memcpy(&replyMsgInfo, msgInfo, sizeof(MessageInfo));
+              memcpy(&replyMsgInfo, msgInfo, sizeof(message_info));
               return 0;
           }
 

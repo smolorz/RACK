@@ -191,8 +191,8 @@ int  PilotJoystick::moduleLoop(void)
     int         speed;
     float       omega;
     int         ret;
-    MessageInfo jstkInfo;
-    MessageInfo s2dInfo;
+    message_info jstkInfo;
+    message_info s2dInfo;
     pilot_data*    pilotData = NULL;
     // get all joystick messages
 
@@ -363,7 +363,7 @@ int  PilotJoystick::moduleLoop(void)
     return 0;
 }
 
-int  PilotJoystick::moduleCommand(MessageInfo *msgInfo)
+int  PilotJoystick::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

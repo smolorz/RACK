@@ -101,7 +101,7 @@ int  Scan2DSim::moduleLoop(void)
 {
     scan2d_data*    data2D       = NULL;
     odometry_data*  dataOdometry = NULL;
-    MessageInfo     msgInfo;
+    message_info     msgInfo;
     ssize_t         datalength = 0;
     double          angle, angleResolution, distance;
     double          cosPhi, sinPhi, featureDistance, a;
@@ -222,7 +222,7 @@ int  Scan2DSim::moduleLoop(void)
     return 0;
 }
 
-int  Scan2DSim::moduleCommand(MessageInfo *msgInfo)
+int  Scan2DSim::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask DataModule
     return DataModule::moduleCommand(msgInfo);

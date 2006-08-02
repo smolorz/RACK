@@ -124,7 +124,7 @@ int CameraJpeg::moduleLoop(void)
     camera_data_msg*   dataCameraInput = NULL;
     ssize_t            datalength = 0;
 //    rack_time_t          starttime;
-    MessageInfo        msgInfo;
+    message_info        msgInfo;
     int                ret;
 
     GDOS_DBG_INFO("starting loop\n");
@@ -216,7 +216,7 @@ int CameraJpeg::moduleLoop(void)
 //
 // Command handling
 //
-int CameraJpeg::moduleCommand(MessageInfo *msgInfo)
+int CameraJpeg::moduleCommand(message_info *msgInfo)
 {
 
     switch (msgInfo->type)

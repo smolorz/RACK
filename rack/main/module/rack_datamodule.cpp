@@ -81,7 +81,7 @@ rack_time_t   DataModule::getRecTime(void *p_data)
 
 // realtime context (cmdTask)
 int         DataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
-                                    MessageInfo* msgInfo)
+                                    message_info* msgInfo)
 {
     unsigned int i, idx;
     unsigned int reduction;
@@ -129,7 +129,7 @@ int         DataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
             return -EBUSY;
         }
 
-        memcpy(&listener[idx].msgInfo, msgInfo, sizeof(MessageInfo));
+        memcpy(&listener[idx].msgInfo, msgInfo, sizeof(message_info));
         listener[idx].msgInfo.src = destMbxAdr;
         listenerNum++;
     }
@@ -178,7 +178,7 @@ void        DataModule::removeAllListener(void)
 }
 
 // realtime context (cmdTask)
-int         DataModule::sendDataReply(rack_time_t time, MessageInfo *msgInfo)
+int         DataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
 {
     uint32_t    n;
     int         ret;
@@ -597,7 +597,7 @@ void        DataModule::moduleOff(void)
 }
 
 // realtime context (cmdTask)
-int         DataModule::moduleCommand(MessageInfo *msgInfo)
+int         DataModule::moduleCommand(message_info *msgInfo)
 {
     int ret = 0;
 

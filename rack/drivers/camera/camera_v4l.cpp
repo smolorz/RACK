@@ -342,7 +342,7 @@ int CameraV4L::moduleLoop(void)
 //
 // Command handling
 //
-int CameraV4L::moduleCommand(MessageInfo *msgInfo)
+int CameraV4L::moduleCommand(message_info *msgInfo)
 {
     camera_format_data      *p_format;
 
