@@ -49,7 +49,7 @@ SerialPort::~SerialPort()
 // PortFunctions
 //
 
-int SerialPort::open(int dev, const rtser_config *config, Module *module)
+int SerialPort::open(int dev, const rtser_config *config, RackModule *module)
 {
     int ret;
     char filename[10];

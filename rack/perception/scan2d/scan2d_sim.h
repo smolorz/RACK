@@ -27,7 +27,7 @@
 //# class Scan2DSim
 //######################################################################
 
-class Scan2DSim : public DataModule {
+class Scan2DSim : public RackDataModule {
     private:
         uint32_t    odometryInst;
         uint32_t    maxRange;

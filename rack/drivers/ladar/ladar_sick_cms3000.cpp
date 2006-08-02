@@ -116,12 +116,12 @@ int  LadarSickCms3000::moduleOn(void)
     }
     GDOS_DBG_INFO("Serial buffer cleaned, serial dev %i\n", serialDev);
 
-    return DataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
 }
 
 void LadarSickCms3000::moduleOff(void)
 {
-  DataModule::moduleOff();          // have to be first command in moduleOff();
+  RackDataModule::moduleOff();          // have to be first command in moduleOff();
 }
 
 int  LadarSickCms3000::moduleLoop(void)
@@ -243,8 +243,8 @@ int  LadarSickCms3000::moduleLoop(void)
 
 int  LadarSickCms3000::moduleCommand(message_info *p_msginfo)
 {
-  // not for me -> ask DataModule
-  return DataModule::moduleCommand(p_msginfo);
+  // not for me -> ask RackDataModule
+  return RackDataModule::moduleCommand(p_msginfo);
 }
 
 unsigned short LadarSickCms3000::crc_check(unsigned char* data, int len)
@@ -274,8 +274,8 @@ int  LadarSickCms3000::moduleInit(void)
 {
     int ret;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -325,15 +325,15 @@ void LadarSickCms3000::moduleCleanup(void)
                       serialDev, ret);
     }
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 LadarSickCms3000::LadarSickCms3000(void)
-      : DataModule( MODULE_CLASS_ID,
+      : RackDataModule( MODULE_CLASS_ID,
                     1000000000llu,    // 1s cmdtask error sleep time
                     1000000000llu,    // 1s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
@@ -360,7 +360,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "LadarSickCms3000");
+    ret = RackModule::getArgs(argc, argv, argTab, "LadarSickCms3000");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

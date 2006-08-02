@@ -49,7 +49,7 @@ typedef struct
 //# class GpsNmea
 //######################################################################
 
-class GpsNmea : public DataModule{
+class GpsNmea : public RackDataModule {
     private:
         int         serialDev;
         int         periodTime;

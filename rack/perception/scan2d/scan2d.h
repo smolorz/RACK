@@ -26,7 +26,7 @@
 //# class Scan2d
 //######################################################################
 
-class Scan2d : public DataModule {
+class Scan2d : public RackDataModule {
     private:
 
         // own vars

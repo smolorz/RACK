@@ -26,7 +26,7 @@
 //# class ChassisSimModule
 //######################################################################
 
-class ChassisSim : public DataModule{
+class ChassisSim : public RackDataModule {
   private:
     chassis_move_data   commandData;
     uint32_t            activePilot;

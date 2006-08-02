@@ -123,14 +123,14 @@ int  Scan2DMerge::moduleOn(void)
         scan2dTimeout[k]            = 0;
     }
 
-    return DataModule::moduleOn();  // has to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 void Scan2DMerge::moduleOff(void)
 {
     int     k;
 
-    DataModule::moduleOff();        // has to be first command in moduleOff();
+    RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     odometry->stopContData(&dataMbx);
 
@@ -301,8 +301,8 @@ int  Scan2DMerge::moduleLoop(void)
 
 int  Scan2DMerge::moduleCommand(message_info *msgInfo)
 {
-    // not for me -> ask DataModule
-    return DataModule::moduleCommand(msgInfo);
+    // not for me -> ask RackDataModule
+    return RackDataModule::moduleCommand(msgInfo);
 }
 
 /*******************************************************************************
@@ -320,8 +320,8 @@ int Scan2DMerge::moduleInit(void)
 {
     int     ret, k;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -427,15 +427,15 @@ void Scan2DMerge::moduleCleanup(void)
         destroyMbx(&workMbx);
     }
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 Scan2DMerge::Scan2DMerge(void)
-      : DataModule( MODULE_CLASS_ID,
+      : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
@@ -461,7 +461,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "Scan2DMerge");
+    ret = RackModule::getArgs(argc, argv, argTab, "Scan2DMerge");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

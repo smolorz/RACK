@@ -34,7 +34,7 @@ typedef struct {
 //# class Scan2DMerge
 //######################################################################
 
-class Scan2DMerge : public DataModule {
+class Scan2DMerge : public RackDataModule {
     private:
         int32_t             odometryInst;
         int32_t             scan2dInst[SCAN_2D_SENSOR_NUM_MAX];

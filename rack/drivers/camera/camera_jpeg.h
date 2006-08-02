@@ -31,7 +31,7 @@
 //# class ChassisPioneerModule
 //######################################################################
 
-class CameraJpeg : public DataModule{
+class CameraJpeg : public RackDataModule {
   private:
 
     // your values

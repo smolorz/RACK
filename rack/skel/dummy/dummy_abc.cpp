@@ -54,12 +54,12 @@ int  DummyAbc::moduleOn(void)
 {
     // do something ...
 
-    return DataModule::moduleOn();   // has to be last command in moduleOn();
+    return RackDataModule::moduleOn();   // has to be last command in moduleOn();
 }
 
 void DummyAbc::moduleOff(void)
 {
-    DataModule::moduleOff();         // has to be first command in moduleOff();
+    RackDataModule::moduleOff();         // has to be first command in moduleOff();
 
     // do something ...
 }
@@ -126,8 +126,8 @@ int  DummyAbc::moduleCommand(message_info *msgInfo)
             break;
 
         default:
-            // not for me -> ask DataModule
-            return DataModule::moduleCommand(msgInfo);
+            // not for me -> ask RackDataModule
+            return RackDataModule::moduleCommand(msgInfo);
     }
     return 0;
 }
@@ -148,8 +148,8 @@ int  DummyAbc::moduleInit(void)
 {
     int ret;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -202,15 +202,15 @@ void DummyAbc::moduleCleanup(void)
         // free something
     }
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 DummyAbc::DummyAbc()
-      : DataModule( MODULE_CLASS_ID,
+      : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
@@ -236,7 +236,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "DummyAbc");
+    ret = RackModule::getArgs(argc, argv, argTab, "DummyAbc");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

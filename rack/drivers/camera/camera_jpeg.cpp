@@ -104,13 +104,13 @@ argTable_t argTab[] = {
 
     setDataBufferPeriodTime(cameraPeriodTime);
 
-    return DataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
 }
 
 
 void CameraJpeg::moduleOff(void)
 {
-   DataModule::moduleOff();        // have to be first command in moduleOff();
+   RackDataModule::moduleOff();        // have to be first command in moduleOff();
 
    jpeg_destroy_compress(&cinfo);
 
@@ -232,8 +232,8 @@ int CameraJpeg::moduleCommand(message_info *msgInfo)
         break;
 
     default:
-        // not for me -> ask DataModule
-        return DataModule::moduleCommand(msgInfo);
+        // not for me -> ask RackDataModule
+        return RackDataModule::moduleCommand(msgInfo);
     }
     return 0;
 }
@@ -255,8 +255,8 @@ int CameraJpeg::moduleInit(void)
 {
     int ret;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -340,16 +340,16 @@ void CameraJpeg::moduleCleanup(void)
         destroyMbx(&workMbx);
     }
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 
 CameraJpeg::CameraJpeg()
-        : DataModule( MODULE_CLASS_ID,
+        : RackDataModule( MODULE_CLASS_ID,
                       5000000000llu,        // 5s cmdtask error sleep time
                       5000000000llu,        // 5s datatask error sleep time
                       100000000llu,         // 100ms datatask disable sleep time
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
 
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "CameraJpeg");
+    ret = RackModule::getArgs(argc, argv, argTab, "CameraJpeg");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

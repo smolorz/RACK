@@ -41,14 +41,14 @@ class CanPort
     protected:
 
         int fd;
-        Module *module;
+        RackModule *module;
 
     public:
 
         CanPort();
         ~CanPort();
 
-        int open(int dev, sockaddr_can* scan, int scan_size, Module *module);
+        int open(int dev, sockaddr_can* scan, int scan_size, RackModule *module);
         int close(void);
 
         int setTxTimeout(int64_t timeout);

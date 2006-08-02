@@ -44,7 +44,7 @@ typedef struct {
 //# class PilotJoystick
 //######################################################################
 
-class PilotJoystick : public DataModule {
+class PilotJoystick : public RackDataModule {
       private:
 
         int32_t             scan2dInst;

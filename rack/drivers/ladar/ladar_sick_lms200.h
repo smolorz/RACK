@@ -108,7 +108,7 @@ static char ladar_cmd_hardreset[] = {0x02,0x00,0x01,0x00,0x10,0x34,0x12};
 //# class LadarSick
 //######################################################################
 
-class LadarSickLms200 : public DataModule {
+class LadarSickLms200 : public RackDataModule {
     private:
 
         SerialPort  serialPort;

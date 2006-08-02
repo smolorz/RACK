@@ -29,7 +29,7 @@
 //# class LadarSick
 //######################################################################
 
-class LadarSickCms3000 : public DataModule {
+class LadarSickCms3000 : public RackDataModule {
     private:
 
         SerialPort  serialPort;

@@ -70,7 +70,7 @@ CanPort::~CanPort()
  *
  * Rescheduling: possible.
  */
-int CanPort::open(int dev, sockaddr_can* scan, int scan_size, Module *module)
+int CanPort::open(int dev, sockaddr_can* scan, int scan_size, RackModule *module)
 {
     int             ret;
     struct ifreq    ifr;

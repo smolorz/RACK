@@ -50,7 +50,7 @@ typedef struct
 //# class ChassisPioneerModule
 //######################################################################
 
-class CameraV4L : public DataModule{
+class CameraV4L : public RackDataModule {
   private:
 
     //variables for common control

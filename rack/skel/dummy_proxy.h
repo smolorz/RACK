@@ -28,7 +28,7 @@
 #include <main/rack_proxy.h>
 
 //######################################################################
-//# NewDataModule Message Types
+//# NewRackDataModule Message Types
 //######################################################################
 
 #define DUMMY_SEND_CMD                (RACK_PROXY_MSG_POS_OFFSET + 1)
@@ -179,7 +179,7 @@ class DummyParam
 };
 
 //######################################################################
-//# NewDataModule Proxy Functions
+//# NewRackDataModule Proxy Functions
 //######################################################################
 
 class DummyProxy : public RackDataProxy {

@@ -31,7 +31,7 @@ const unsigned char turnTemplate[]     = {0xFA, 0xFB, 6, 21, 0, 0, 0, 0, 0};
 //# class ChassisPioneerModule
 //######################################################################
 
-class ChassisPioneer : public DataModule{
+class ChassisPioneer : public RackDataModule {
   private:
 
     // your values

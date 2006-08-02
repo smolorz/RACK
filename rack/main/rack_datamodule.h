@@ -70,10 +70,10 @@ class ListenerEntry {
 };
 
 //######################################################################
-//# class DataModule
+//# class RackDataModule
 //######################################################################
 
-class DataModule : public Module {
+class RackDataModule : public RackModule {
     private:
         RackBits            dataModBits;   // rack datamodule init bits
         uint32_t            index;
@@ -98,7 +98,7 @@ class DataModule : public Module {
 
         friend void         cmd_task_proc(void* arg);
 
-        rack_time_t           getRecTime(void *p_data);
+        rack_time_t         getRecTime(void *p_data);
         int                 addListener(rack_time_t periodTime, uint32_t destMbxAdr,
                                         message_info* msgInfo);
         void                removeListener(uint32_t destMbxAdr);
@@ -108,7 +108,7 @@ class DataModule : public Module {
 
   public:
 
-    DataModule(uint32_t class_id,               // class ID
+    RackDataModule(uint32_t class_id,               // class ID
                uint64_t cmdTaskErrorTime_ns,    // cmdtask error sleep time
                uint64_t dataTaskErrorTime_ns,   // datatask error sleep time
                uint64_t dataTaskDisableTime_ns, // datatask disable sleep time
@@ -118,7 +118,7 @@ class DataModule : public Module {
                uint32_t maxDataBufferEntries,   // max buffer entries
                uint32_t maxDataBufferListener); // data buffer listener
 
-    ~DataModule();
+    ~RackDataModule();
 
     uint32_t  getDataBufferMaxDataSize(void);
     void      setDataBufferMaxDataSize(uint32_t dataSize);

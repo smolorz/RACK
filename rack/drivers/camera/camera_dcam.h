@@ -49,7 +49,7 @@ typedef struct {
 //# class ChassisPioneerModule
 //######################################################################
 
-class CameraDcam : public DataModule{
+class CameraDcam : public RackDataModule {
   private:
 
     // your values

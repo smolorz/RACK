@@ -50,10 +50,10 @@ static char sCommand115200[] = {'S','1','1','5','2','0','0','5','5','5','5','5',
 static unsigned char serialBuffer[2048];
 
 //######################################################################
-//# class NewDataModule
+//# class NewRackDataModule
 //######################################################################
 
-class LadarHokuyoUrg : public DataModule{
+class LadarHokuyoUrg : public RackDataModule {
   private:
     SerialPort  serialPort;
     int serialDev;

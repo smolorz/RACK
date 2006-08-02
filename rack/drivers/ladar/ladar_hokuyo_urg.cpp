@@ -110,12 +110,12 @@ int  LadarHokuyoUrg::moduleOn(void)
         return ret;
     }
 
-    return DataModule::moduleOn();   // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();   // have to be last command in moduleOn();
 }
 
 void LadarHokuyoUrg::moduleOff(void)
 {
-    DataModule::moduleOff();         // have to be first command in moduleOff();
+    RackDataModule::moduleOff();         // have to be first command in moduleOff();
 
     GDOS_DBG_INFO("Disconnect\n");
 
@@ -223,8 +223,8 @@ int  LadarHokuyoUrg::moduleLoop(void)
 
 int  LadarHokuyoUrg::moduleCommand(message_info *msgInfo)
 {
-    // not for me -> ask DataModule
-    return DataModule::moduleCommand(msgInfo);
+    // not for me -> ask RackDataModule
+    return RackDataModule::moduleCommand(msgInfo);
 }
 
 /*******************************************************************************
@@ -243,7 +243,7 @@ int  LadarHokuyoUrg::moduleInit(void)
 {
     int ret;
 
-    ret = DataModule::moduleInit();
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -281,15 +281,15 @@ void LadarHokuyoUrg::moduleCleanup(void)
         else
             GDOS_ERROR("Can't close serial port, code = %d \n", ret);
     }
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 LadarHokuyoUrg::LadarHokuyoUrg()
-      : DataModule( MODULE_CLASS_ID,
+      : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
@@ -329,7 +329,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "LadarHokuyoUrg");
+    ret = RackModule::getArgs(argc, argv, argTab, "LadarHokuyoUrg");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

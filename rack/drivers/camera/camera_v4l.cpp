@@ -253,13 +253,13 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
         GDOS_WARNING("Not enough memory map buffers %i < 2. Using read\n", camera.m_buf.frames);
     }
 
-    return DataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
 }
 
 
 void CameraV4L::moduleOff(void)
 {
-   DataModule::moduleOff();        // have to be first command in moduleOff();
+   RackDataModule::moduleOff();        // have to be first command in moduleOff();
 
     GDOS_DBG_INFO("camera_v4l off\n");
 
@@ -381,8 +381,8 @@ int CameraV4L::moduleCommand(message_info *msgInfo)
         break;
 
     default:
-        // not for me -> ask DataModule
-        return DataModule::moduleCommand(msgInfo);
+        // not for me -> ask RackDataModule
+        return RackDataModule::moduleCommand(msgInfo);
     }
     return 0;
 }
@@ -404,8 +404,8 @@ int CameraV4L::moduleInit(void)
 {
     int ret;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -420,16 +420,16 @@ int CameraV4L::moduleInit(void)
 void CameraV4L::moduleCleanup(void)
 {
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 
 CameraV4L::CameraV4L()
-        : DataModule( MODULE_CLASS_ID,
+        : RackDataModule( MODULE_CLASS_ID,
                       5000000000llu,        // 5s cmdtask error sleep time
                       5000000000llu,        // 5s datatask error sleep time
                       100000000llu,         // 100ms datatask disable sleep time
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
 
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "CameraV4L");
+    ret = RackModule::getArgs(argc, argv, argTab, "CameraV4L");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

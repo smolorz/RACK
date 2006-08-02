@@ -28,10 +28,10 @@
 
 
 //######################################################################
-//# class NewDataModule
+//# class NewRackDataModule
 //######################################################################
 
-class LadarIbeo : public DataModule{
+class LadarIbeo : public RackDataModule {
     private:
 
         CanPort canPort;

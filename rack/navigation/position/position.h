@@ -27,7 +27,7 @@
 //# class Position
 //######################################################################
 
-class Position : public DataModule {
+class Position : public RackDataModule {
     private:
         position_3d         refPos;
         double              sinRefPos, cosRefPos;

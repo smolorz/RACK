@@ -81,9 +81,9 @@ static inline int timer_is_running(void)
  * \ingroup rackservices
  * \defgroup module Rack Module
  *
- * Module services.
+ * RackModule services.
  *
- * The class Module is the higest class of RACK components. All
+ * The class RackModule is the higest class of RACK components. All
  * public or protected Module functions can be used by any component which
  * inherits data structures or functions of this class.
  *
@@ -99,10 +99,10 @@ static inline int timer_is_running(void)
 #define MBX_FIFO                        0x0008
 
 //######################################################################
-//# class Module
+//# class RackModule
 //######################################################################
 
-class Module {
+class RackModule {
 
 //
 // init bits
@@ -155,7 +155,7 @@ class Module {
         }
 
     friend void   data_task_proc(void *arg);
-    friend void   notify(int8_t type, Module *p_mod);
+    friend void   notify(int8_t type, RackModule *p_mod);
 
 //
 // common task values
@@ -282,15 +282,15 @@ class Module {
             return name;
         }
 
-        Module(uint32_t class_id,
-               uint64_t cmdTaskErrorTime_ns,
-               uint64_t dataTaskErrorTime_ns,
-               uint64_t dataTaskDisableTime_ns,
-               int32_t  cmdMbxMsgSlots,         // command mailbox slots
-               uint32_t cmdMbxMsgDataSize,      // command mailbox data size
-               uint32_t cmdMbxFlags);           // command mailbox create flags
+        RackModule(uint32_t class_id,
+                   uint64_t cmdTaskErrorTime_ns,
+                   uint64_t dataTaskErrorTime_ns,
+                   uint64_t dataTaskDisableTime_ns,
+                   int32_t  cmdMbxMsgSlots,         // command mailbox slots
+                   uint32_t cmdMbxMsgDataSize,      // command mailbox data size
+                   uint32_t cmdMbxFlags);           // command mailbox create flags
 
-        virtual ~Module();
+        virtual ~RackModule();
 
 //
 // virtual module functions
@@ -360,7 +360,7 @@ class Module {
     public:
         void run(void);
 
-}; // class Module
+}; // class RackModule
 
 /*@}*/
 
@@ -369,6 +369,6 @@ class Module {
 //
 
 void signal_handler(int sig);
-int init_signal_handler(Module *p_mod);
+int init_signal_handler(RackModule *p_mod);
 
 #endif // __RACK_MODULE_H__

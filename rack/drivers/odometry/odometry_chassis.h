@@ -27,7 +27,7 @@
 //# class OdometryChassis
 //######################################################################
 
-class OdometryChassis : public DataModule {
+class OdometryChassis : public RackDataModule {
     private:
         float               oldPositionX;
         float               oldPositionY;

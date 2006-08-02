@@ -93,7 +93,7 @@ static char classname[50];
 // realtime context
 void cmd_task_proc(void *arg)
 {
-    Module*      p_mod     = (Module *)arg;
+    RackModule*  p_mod     = (RackModule *)arg;
     GdosMailbox* gdos      = p_mod->gdos;
     message_info  msgInfo;
     char recv_data[p_mod->cmdMbxMsgDataSize];
@@ -145,7 +145,7 @@ cmd_task_exit:
 //
 
 // realtime context
-inline void notify(int8_t type, Module *p_mod)
+inline void notify(int8_t type, RackModule *p_mod)
 {
     if (p_mod->replyMsgInfo.dest > 0)
     {
@@ -158,7 +158,7 @@ inline void notify(int8_t type, Module *p_mod)
 void data_task_proc(void *arg)
 {
     int ret;
-    DataModule*   p_mod = (DataModule *)arg;
+    RackDataModule*   p_mod = (RackDataModule *)arg;
     GdosMailbox*  gdos  = p_mod->gdos;
 
     if (timer_is_running() != 1)
@@ -286,13 +286,13 @@ void data_task_proc(void *arg)
  *@{*/
 
  //######################################################################
-//# class Module
+//# class RackModule
 //######################################################################
 
 /**
- * @brief Module constructor
+ * @brief RackModule constructor
  *
- * This function creates a Module with all needed mailboxes and tasks.
+ * This function creates a RackModule with all needed mailboxes and tasks.
  *
  * @param class_id
  * @param cmdTaskErrorTime_ns
@@ -312,7 +312,7 @@ void data_task_proc(void *arg)
  *
  * Rescheduling: never.
  */
-Module::Module( uint32_t class_id,
+RackModule::RackModule( uint32_t class_id,
                 uint64_t cmdTaskErrorTime_ns,
                 uint64_t dataTaskErrorTime_ns,
                 uint64_t dataTaskDisableTime_ns,
@@ -357,7 +357,7 @@ Module::Module( uint32_t class_id,
     dataTaskRunning = 0;
 }
 
-Module::~Module()
+RackModule::~RackModule()
 {
 }
 
@@ -366,7 +366,7 @@ Module::~Module()
 //
 
 // non realtime context
-void      Module::mailboxList(void)
+void      RackModule::mailboxList(void)
 {
   MbxListHead *p_list = (MbxListHead *)mbxList.next;
   printf("**** RACK MAILBOX-LIST @ 0x%p *** \n", &mbxList );
@@ -381,17 +381,17 @@ void      Module::mailboxList(void)
   printf("--------------------------------------------------\n");
 }
 
-uint32_t  Module::mailbox_getNextFreeAdr(void)
+uint32_t  RackModule::mailbox_getNextFreeAdr(void)
 {
   return mailboxFreeAdr++;
 }
 
-int       Module::mailbox_putLastAdr(void)
+int       RackModule::mailbox_putLastAdr(void)
 {
   return mailboxFreeAdr--;
 }
 
-int       Module::mailboxCreate(RackMailbox *p_mbx, uint32_t adr, int slots,
+int       RackModule::mailboxCreate(RackMailbox *p_mbx, uint32_t adr, int slots,
                                 size_t data_size, uint32_t flags, int8_t prio)
 {
     int ret;
@@ -474,13 +474,13 @@ create_error:
     return ret;
 }
 
-int       Module::createMbx(RackMailbox *p_mbx, int slots, size_t data_size,
+int       RackModule::createMbx(RackMailbox *p_mbx, int slots, size_t data_size,
                             uint32_t flags)
 {
     return mailboxCreate(p_mbx, mailbox_getNextFreeAdr(), slots, data_size, flags, getDataTaskPrio() );
 }
 
-void      Module::destroyMbx(RackMailbox *p_mbx)
+void      RackModule::destroyMbx(RackMailbox *p_mbx)
 {
     MbxListHead *p_list  = NULL;
     MbxListHead *p_entry = NULL;
@@ -535,18 +535,18 @@ void      Module::destroyMbx(RackMailbox *p_mbx)
 
 }
 
-int       Module::createCmdMbx(void)
+int       RackModule::createCmdMbx(void)
 {
     return mailboxCreate(&cmdMbx, name, cmdMbxMsgSlots, cmdMbxMsgDataSize,
                          cmdMbxFlags, getDataTaskPrio() );
 }
 
 //
-// Module init and cleanup
+// RackModule init and cleanup
 //
 
 // non realtime context (linux)
-void      Module::deleteGdosMbx()
+void      RackModule::deleteGdosMbx()
 {
     // delete gdos mailbox -> messages now on local console
     if (modBits.testAndClearBit(INIT_BIT_GDOSMBX_CREATED))
@@ -558,7 +558,7 @@ void      Module::deleteGdosMbx()
 }
 
 // non realtime context
-int       Module::moduleInit(void)
+int       RackModule::moduleInit(void)
 {
     int ret;
 
@@ -568,7 +568,7 @@ int       Module::moduleInit(void)
           {NULL}
     };
 
-    GDOS_DBG_DETAIL("Module::moduleInit ... \n");
+    GDOS_DBG_DETAIL("RackModule::moduleInit ... \n");
 
     // disable memory swapping for this program
     mlockall(MCL_CURRENT | MCL_FUTURE);
@@ -650,15 +650,15 @@ exit_error:
                modBits.getBits());
 
     // !!! call local cleanup function !!!
-    Module::moduleCleanup();
+    RackModule::moduleCleanup();
 
     return ret;
 }
 
 // non realtime context
-void      Module::moduleCleanup(void)
+void      RackModule::moduleCleanup(void)
 {
-    GDOS_DBG_DETAIL("Module::moduleCleanup ... \n");
+    GDOS_DBG_DETAIL("RackModule::moduleCleanup ... \n");
 
     deleteGdosMbx();
 
@@ -709,7 +709,7 @@ void      Module::moduleCleanup(void)
 }
 
 // realtime context
-int Module::moduleCommand(message_info *msgInfo)
+int RackModule::moduleCommand(message_info *msgInfo)
 {
   int ret;
 
@@ -803,7 +803,7 @@ int Module::moduleCommand(message_info *msgInfo)
   }
 }
 
-void  Module::run(void)
+void  RackModule::run(void)
 {
     int ret;
 
@@ -872,7 +872,7 @@ void save_argTab(argTable_t* p_tab, const char* name)
 // instance. Else the signal handler calls the wrong function.
 // !!!!! WARNING !!!!!
 
-static Module *p_signal_module = NULL;
+static RackModule *p_signal_module = NULL;
 static int signal_flags = 0;
 
 #define DISABLE_SIGXCPU         0x0001
@@ -947,7 +947,7 @@ void signal_handler(int sig)
 
             printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
             printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
-            printf(" -> calling cleanup function of Module class %p\n",
+            printf(" -> calling cleanup function of RackModule class %p\n",
                    p_signal_module);
 
             // shutdown module
@@ -965,7 +965,7 @@ void signal_handler(int sig)
     }
 }
 
-int init_signal_handler(Module *p_mod)
+int init_signal_handler(RackModule *p_mod)
 {
     if (!p_mod)
     {

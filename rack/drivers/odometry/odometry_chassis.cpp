@@ -72,12 +72,12 @@ int  OdometryChassis::moduleOn(void)
 
     setDataBufferPeriodTime(realPeriodTime);
 
-    return DataModule::moduleOn();    // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();    // have to be last command in moduleOn();
 }
 
 void OdometryChassis::moduleOff(void)
 {
-    DataModule::moduleOff();          // have to be first command in moduleOff();
+    RackDataModule::moduleOff();          // have to be first command in moduleOff();
 
     chassis->stopContData(&chassisMbx);
 }
@@ -159,8 +159,8 @@ int  OdometryChassis::moduleCommand(message_info *msgInfo)
               break;
 
         default:
-              // not for me -> ask DataModule
-              return DataModule::moduleCommand(msgInfo);
+              // not for me -> ask RackDataModule
+              return RackDataModule::moduleCommand(msgInfo);
       }
       return 0;
 }
@@ -181,8 +181,8 @@ int  OdometryChassis::moduleInit(void)
 {
     int ret;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -242,15 +242,15 @@ void OdometryChassis::moduleCleanup(void)
         destroyMbx(&workMbx);
     }
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 OdometryChassis::OdometryChassis()
-      : DataModule( MODULE_CLASS_ID,
+      : RackDataModule( MODULE_CLASS_ID,
                     2000000000llu,    // 2s cmdtask error sleep time
                     2000000000llu,    // 2s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
@@ -278,7 +278,7 @@ int  main(int argc, char *argv[])
 
       // get args
 
-      ret = Module::getArgs(argc, argv, argTab, "OdometryChassis");
+      ret = RackModule::getArgs(argc, argv, argTab, "OdometryChassis");
       if (ret)
       {
         printf("Invalid arguments -> EXIT \n");

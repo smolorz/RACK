@@ -178,13 +178,13 @@ int LadarIbeo::moduleOn(void)
         return ret;
     }
 
-    return DataModule::moduleOn();   // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();   // have to be last command in moduleOn();
 }
 
 void LadarIbeo::moduleOff(void)
 {
     int ret;
-    DataModule::moduleOff();         // have to be first command in moduleOff();
+    RackDataModule::moduleOff();         // have to be first command in moduleOff();
 
     ret = cancelProfile();
     if (ret)
@@ -313,8 +313,8 @@ int  LadarIbeo::moduleLoop(void)
 
 int  LadarIbeo::moduleCommand(message_info *p_msginfo)
 {
-    // not for me -> ask DataModule
-    return DataModule::moduleCommand(p_msginfo);
+    // not for me -> ask RackDataModule
+    return RackDataModule::moduleCommand(p_msginfo);
 }
 
 int LadarIbeo::sendRequestPackage(int requestCommand, int parameterLen, void* parameter)
@@ -785,8 +785,8 @@ int LadarIbeo::moduleInit(void)
 
     GDOS_PRINT("Ladar Ibeo version '01 canDev=%i sensorId=%i\n", canDev, sensorId);
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -865,15 +865,15 @@ void LadarIbeo::moduleCleanup(void)
         else
             GDOS_ERROR("Can't close CAN port \n");
     }
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 LadarIbeo::LadarIbeo()
-      : DataModule( MODULE_CLASS_ID,
+      : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
@@ -903,14 +903,14 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "LadarIbeo");
+    ret = RackModule::getArgs(argc, argv, argTab, "LadarIbeo");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new NewDataModule
+    // create new NewRackDataModule
     p_inst = new LadarIbeo();
     if (!p_inst)
     {

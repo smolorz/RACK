@@ -36,7 +36,7 @@ using namespace std;
 //# class CameraFileModule
 //######################################################################
 
-class CameraFile : public DataModule{
+class CameraFile : public RackDataModule {
   private:
 
     // your values

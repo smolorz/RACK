@@ -28,10 +28,10 @@ typedef struct {
 } __attribute__((packed)) dummy_data_msg;
 
 //######################################################################
-//# class NewDataModule
+//# class NewRackDataModule
 //######################################################################
 
-class DummyAbc : public DataModule{
+class DummyAbc : public RackDataModule {
   private:
 
     // your values

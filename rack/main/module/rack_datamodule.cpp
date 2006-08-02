@@ -25,11 +25,11 @@
 #define INIT_BIT_LISTENER_MTX_CREATED       5
 
 //######################################################################
-//# class DataModule
+//# class RackDataModule
 //######################################################################
 
 // non realtime context
-DataModule::DataModule( uint32_t class_id,                // class ID
+RackDataModule::RackDataModule( uint32_t class_id,                // class ID
                         uint64_t cmdTaskErrorTime_ns,     // cmdtask error sleep time
                         uint64_t dataTaskErrorTime_ns,    // datatask error sleep time
                         uint64_t dataTaskDisableTime_ns,  // datatask disable sleep time
@@ -38,13 +38,13 @@ DataModule::DataModule( uint32_t class_id,                // class ID
                         uint32_t cmdMbxFlags,             // command mailbox create flags
                         uint32_t maxDataBufferEntries,    // max buffer entries
                         uint32_t maxDataBufferListener)   // data buffer listener
-                        : Module(class_id,
-                                 cmdTaskErrorTime_ns,
-                                 dataTaskErrorTime_ns,
-                                 dataTaskDisableTime_ns,
-                                 cmdMbxMsgSlots,
-                                 cmdMbxMsgDataSize,
-                                 cmdMbxFlags)
+                        : RackModule(class_id,
+                                     cmdTaskErrorTime_ns,
+                                     dataTaskErrorTime_ns,
+                                     dataTaskDisableTime_ns,
+                                     cmdMbxMsgSlots,
+                                     cmdMbxMsgDataSize,
+                                     cmdMbxFlags)
 {
     dataBufferMaxEntries    = maxDataBufferEntries;
     dataBufferMaxListener   = maxDataBufferListener;
@@ -64,23 +64,23 @@ DataModule::DataModule( uint32_t class_id,                // class ID
     dataModBits.clearAllBits();
 }
 
-DataModule::~DataModule()
+RackDataModule::~RackDataModule()
 {
 }
 
 //
-// private DataModule functions
+// private RackDataModule functions
 //
 
 // the time is the first data element afer the message head !
 // realtime context
-rack_time_t   DataModule::getRecTime(void *p_data)
+rack_time_t   RackDataModule::getRecTime(void *p_data)
 {
   return *(rack_time_t *)p_data;
 }
 
 // realtime context (cmdTask)
-int         DataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
+int         RackDataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
                                     message_info* msgInfo)
 {
     unsigned int i, idx;
@@ -141,7 +141,7 @@ int         DataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
 }
 
 // realtime context (cmdTask)
-void        DataModule::removeListener(uint32_t destMbxAdr)
+void        RackDataModule::removeListener(uint32_t destMbxAdr)
 {
     uint32_t read = 0;
     uint32_t write = 0;
@@ -164,7 +164,7 @@ void        DataModule::removeListener(uint32_t destMbxAdr)
 }
 
 // realtime context
-void        DataModule::removeAllListener(void)
+void        RackDataModule::removeAllListener(void)
 {
     uint32_t i;
 
@@ -178,7 +178,7 @@ void        DataModule::removeAllListener(void)
 }
 
 // realtime context (cmdTask)
-int         DataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
+int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
 {
     uint32_t    n;
     int         ret;
@@ -292,15 +292,15 @@ int         DataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
 }
 
 //
-// public DataModule functions
+// public RackDataModule functions
 //
 
-uint32_t    DataModule::getDataBufferMaxDataSize(void)
+uint32_t    RackDataModule::getDataBufferMaxDataSize(void)
 {
     return dataBufferMaxDataSize;
 }
 
-void        DataModule::setDataBufferMaxDataSize(uint32_t dataSize)
+void        RackDataModule::setDataBufferMaxDataSize(uint32_t dataSize)
 {
     if (dataModBits.testBit(INIT_BIT_BUFFER_CREATED))
     {
@@ -309,7 +309,7 @@ void        DataModule::setDataBufferMaxDataSize(uint32_t dataSize)
     dataBufferMaxDataSize = dataSize;
 }
 
-rack_time_t   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
+rack_time_t   RackDataModule::getDataBufferPeriodTime(uint32_t dataMbx)
 {
     uint32_t i;
 
@@ -331,20 +331,20 @@ rack_time_t   DataModule::getDataBufferPeriodTime(uint32_t dataMbx)
     return 0;
 }
 
-void DataModule::setDataBufferPeriodTime(rack_time_t periodTime)
+void RackDataModule::setDataBufferPeriodTime(rack_time_t periodTime)
 {
     GDOS_PRINT("Setting local period time to %d ms \n", periodTime);
     dataBufferPeriodTime = periodTime;
 }
 
 // realtime context (dataTask)
-void*       DataModule::getDataBufferWorkSpace(void)
+void*       RackDataModule::getDataBufferWorkSpace(void)
 {
     return entry[(index+1) % dataBufferMaxEntries].p_data;
 }
 
 // realtime context (dataTask)
-void        DataModule::putDataBufferWorkSpace(uint32_t datalength)
+void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
 {
     uint32_t        i;
     int             ret;
@@ -403,13 +403,13 @@ void        DataModule::putDataBufferWorkSpace(uint32_t datalength)
 //
 
 // non realtime context (linux)
-int         DataModule::moduleInit(void)
+int         RackDataModule::moduleInit(void)
 {
     int ret;
     unsigned int i, k;
 
     // first init module
-    ret = Module::moduleInit();
+    ret = RackModule::moduleInit();
     if (ret)
     {
           return ret;
@@ -419,20 +419,20 @@ int         DataModule::moduleInit(void)
     // now the command mailbox exists
     dataBufferSendMbx = getCmdMbx();
 
-    GDOS_DBG_DETAIL("DataModule::moduleInit ... \n");
+    GDOS_DBG_DETAIL("RackDataModule::moduleInit ... \n");
 
     // check needed databuffer values
     if (!dataBufferMaxEntries  ||
         !dataBufferMaxDataSize ||
         !dataBufferMaxListener )
     {
-        GDOS_ERROR("DataModule: Invalid init values\n");
+        GDOS_ERROR("RackDataModule: Invalid init values\n");
         goto init_error;
     }
 
     if (entry || listener)
     {
-        GDOS_ERROR("DataModule: DataBuffer exists !\n");
+        GDOS_ERROR("RackDataModule: DataBuffer exists !\n");
         return -EBUSY;
     }
 
@@ -441,7 +441,7 @@ int         DataModule::moduleInit(void)
     entry = new DataBufferEntry[dataBufferMaxEntries];
     if (!entry)
     {
-        GDOS_ERROR("DataModule: DataBuffer entries not created !\n");
+        GDOS_ERROR("RackDataModule: DataBuffer entries not created !\n");
         goto init_error;
     }
     dataModBits.setBit(INIT_BIT_ENTRIES_CREATED);
@@ -475,7 +475,7 @@ int         DataModule::moduleInit(void)
     listener = new ListenerEntry[dataBufferMaxListener];
     if (!listener)
     {
-        GDOS_ERROR("DataModule: listener table not created !\n");
+        GDOS_ERROR("RackDataModule: listener table not created !\n");
         goto init_error;
     }
     dataModBits.setBit(INIT_BIT_LISTENER_CREATED);
@@ -502,17 +502,17 @@ int         DataModule::moduleInit(void)
 
 init_error:
     // !!! call local cleanup function !!!
-    DataModule::moduleCleanup();
+    RackDataModule::moduleCleanup();
 
     return ret;
 }
 
 // non realtime context (linux)
-void        DataModule::moduleCleanup(void)
+void        RackDataModule::moduleCleanup(void)
 {
     uint32_t i;
 
-    GDOS_DBG_DETAIL("DataModule::moduleCleanup ... \n");
+    GDOS_DBG_DETAIL("RackDataModule::moduleCleanup ... \n");
 
     if (dataModBits.testAndClearBit(INIT_BIT_LISTENER_MTX_CREATED))
     {
@@ -551,18 +551,18 @@ void        DataModule::moduleCleanup(void)
     }
 
     // cleanunp module (last command)
-    Module::moduleCleanup();
+    RackModule::moduleCleanup();
 }
 
 // realtime context (dataTask)
-int         DataModule::moduleOn(void)
+int         RackDataModule::moduleOn(void)
 {
     int ret;
     
     if (!dataBufferPeriodTime)
     {
         GDOS_ERROR("Local dataBuffer period time was not set \n");
-        GDOS_ERROR("You have to set this value before calling DataModule::moduleOn()\n");
+        GDOS_ERROR("You have to set this value before calling RackDataModule::moduleOn()\n");
         return -EINVAL;
     }
 
@@ -581,13 +581,13 @@ int         DataModule::moduleOn(void)
         }
     }
         
-    return Module::moduleOn();
+    return RackModule::moduleOn();
 }
 
 // realtime context (dataTask)
-void        DataModule::moduleOff(void)
+void        RackDataModule::moduleOff(void)
 {
-    Module::moduleOff();          // have to be first command
+    RackModule::moduleOff();          // have to be first command
 
     listenerMtx.lock(RACK_INFINITE);
 
@@ -597,7 +597,7 @@ void        DataModule::moduleOff(void)
 }
 
 // realtime context (cmdTask)
-int         DataModule::moduleCommand(message_info *msgInfo)
+int         RackDataModule::moduleCommand(message_info *msgInfo)
 {
     int ret = 0;
 
@@ -714,6 +714,6 @@ int         DataModule::moduleCommand(message_info *msgInfo)
 
         default:
             // not for me -> ask Module
-            return Module::moduleCommand(msgInfo);
+            return RackModule::moduleCommand(msgInfo);
     }
 }

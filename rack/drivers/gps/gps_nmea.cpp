@@ -86,13 +86,13 @@ int GpsNmea::moduleOn(void)
     msgCounter = -1;
     msgNum     = -1;
 
-    return DataModule::moduleOn(); // has to be last command in moduleOn();
+    return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
 
 // realtime context
 void GpsNmea::moduleOff(void)
 {
-    DataModule::moduleOff();       // has to be first command in moduleOff();
+    RackDataModule::moduleOff();       // has to be first command in moduleOff();
 }
 
 // realtime context
@@ -242,8 +242,8 @@ int GpsNmea::moduleLoop(void)
 
 int GpsNmea::moduleCommand(message_info *msgInfo)
 {
-    // not for me -> ask DataModule
-    return DataModule::moduleCommand(msgInfo);
+    // not for me -> ask RackDataModule
+    return RackDataModule::moduleCommand(msgInfo);
 }
 
 
@@ -898,8 +898,8 @@ int GpsNmea::moduleInit(void)
 {
     int ret;
 
-    // call DataModule init function (first command in init)
-    ret = DataModule::moduleInit();
+    // call RackDataModule init function (first command in init)
+    ret = RackDataModule::moduleInit();
     if (ret)
     {
         return ret;
@@ -934,15 +934,15 @@ void GpsNmea::moduleCleanup(void)
         }
     }
 
-    // call DataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
-        DataModule::moduleCleanup();
+        RackDataModule::moduleCleanup();
     }
 }
 
 GpsNmea::GpsNmea()
-        : DataModule( MODULE_CLASS_ID,
+        : RackDataModule( MODULE_CLASS_ID,
                       5000000000llu,    // 5s cmdtask error sleep time
                       5000000000llu,    // 5s datatask error sleep time
                       100000000llu,     // 100ms datatask disable sleep time
@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = Module::getArgs(argc, argv, argTab, "GpsNmea");
+    ret = RackModule::getArgs(argc, argv, argTab, "GpsNmea");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

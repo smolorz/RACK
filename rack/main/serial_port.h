@@ -33,14 +33,14 @@ class SerialPort
     protected:
 
         int fd;
-        Module *module;
+        RackModule *module;
 
     public:
 
         SerialPort();
         ~SerialPort();
 
-        int open(int dev, const rtser_config *config, Module *module);
+        int open(int dev, const rtser_config *config, RackModule *module);
         int close(void);
 
         int setConfig(const rtser_config *config);
