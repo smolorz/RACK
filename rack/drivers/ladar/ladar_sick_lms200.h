@@ -50,7 +50,7 @@ typedef struct {
     uint64_t    wait_for_modechange;
     uint64_t    wait_after_modechange;
 
-} ladar_config_t;
+} ladar_sick_lms200_config;
 
 // realtime context
 #define MKSHORT(a,b) ((unsigned short)(a)|((unsigned short)(b)<<8))
@@ -155,7 +155,7 @@ class LadarSickLms200 : public DataModule {
 
     public:
         // ladar configuration struct
-        ladar_config_t*    conf;
+        ladar_sick_lms200_config*    conf;
 
         // constructor und destructor
         LadarSickLms200();

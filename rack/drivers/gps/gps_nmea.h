@@ -37,13 +37,13 @@ typedef struct
     double    x;
     double    y;
     double    z;
-} pos_3d;
+} gps_nmea_pos_3d;
 
 typedef struct
 {
     rack_time_t        recordingTime;
     char             data[1024];
-} nmea_data;
+} gps_nmea;
 
 //######################################################################
 //# class GpsNmea
@@ -59,7 +59,8 @@ class GpsNmea : public DataModule{
         int         msgCounter;
         int         msgNum;
         SerialPort  serialPort;
-        nmea_data   nmeaMsg;
+
+        gps_nmea    nmea;
 
         // -> realtime context
         int readNMEAMessage();
@@ -70,7 +71,7 @@ class GpsNmea : public DataModule{
         double degHMStoRad(double degHMS);
         long    toCalendarTime(float time, int date);
 
-        void    posWGS84ToGK(pos_3d *posLla, pos_3d *posGk);
+        void    posWGS84ToGK(gps_nmea_pos_3d *posLla, gps_nmea_pos_3d *posGk);
         void    helmertTransformation(double x, double y, double z,
                                       double *xo, double *yo, double *zo);
         void    besselBLToGaussKrueger(double b, double ll,

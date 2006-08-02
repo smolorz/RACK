@@ -43,7 +43,7 @@ typedef struct
     struct video_mbuf m_buf;
     unsigned char *grab_data;
     int grab_size;
-} CAMERA_V4L;
+} camera_v4l_config;
 
 
 //######################################################################
@@ -54,7 +54,7 @@ class CameraV4L : public DataModule{
   private:
 
     //variables for common control
-    CAMERA_V4L camera;
+    camera_v4l_config camera;
 
     //variables for parameter
     int      width;

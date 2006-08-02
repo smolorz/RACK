@@ -58,7 +58,7 @@ const struct rtser_config ladar_serial_config =
     event_mask        : RTSER_EVENT_RXPEND
 };
 
-static ladar_config_t config_sick_norm =
+static ladar_sick_lms200_config config_sick_norm =
 {
     serDev:                 1,
     cmd_baudrate:           NULL,
@@ -77,7 +77,7 @@ static ladar_config_t config_sick_norm =
     wait_after_modechange:    30000000ll    // 30ms
 };
 
-static ladar_config_t config_sick_interlaced =
+static ladar_sick_lms200_config config_sick_interlaced =
 {
     serDev:                 -1,
     cmd_baudrate:           NULL,
@@ -96,7 +96,7 @@ static ladar_config_t config_sick_interlaced =
     wait_after_modechange:    30000000ll
 };
 
-static ladar_config_t config_sick_fast =
+static ladar_sick_lms200_config config_sick_fast =
 {
     serDev:                 -1,
     cmd_baudrate:           NULL,

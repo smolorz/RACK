@@ -36,7 +36,7 @@ typedef struct {
     unsigned int colorFilterId;
     short mode;
     short colorCodingId; // rggb=0; gbrg=1; grbg=2; bggr=3;
-} iidc_format7_image_t;
+} camera_dcam_format7;
 
 // define module class
 #define MODULE_CLASS_ID     CAMERA
@@ -87,7 +87,7 @@ class CameraDcam : public DataModule{
     unsigned int            frameRate;
     unsigned int            speed;
     char*                   device;
-    iidc_format7_image_t    format7image;
+    camera_dcam_format7     format7image;
 
     int autoBrightness(camera_data_msg *dataPackage);
     int getFirewirePortnum(void);

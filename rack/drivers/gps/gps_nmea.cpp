@@ -98,9 +98,9 @@ void GpsNmea::moduleOff(void)
 // realtime context
 int GpsNmea::moduleLoop(void)
 {
-    gps_data*   p_data = NULL;
-    pos_3d      posLLA, posGK;
-    int         ret;
+    gps_data*       p_data;
+    gps_nmea_pos_3d posLLA, posGK;
+    int ret;
 
 
     // get datapointer from rackdatabuffer
@@ -113,7 +113,7 @@ int GpsNmea::moduleLoop(void)
     if (!ret)
     {
         // RMC - Message
-        if (strstr(&nmeaMsg.data[0], "GPRMC") != NULL)
+        if (strstr(&nmea.data[0], "GPRMC") != NULL)
         {
             if (trigMsg == RMC_MESSAGE)
             {
@@ -126,7 +126,7 @@ int GpsNmea::moduleLoop(void)
 
             if ((analyseRMC(p_data) == 0) && (msgCounter >= 0))
             {
-                p_data->recordingTime = nmeaMsg.recordingTime;
+                p_data->recordingTime = nmea.recordingTime;
 
                 msgCounter++;
                 GDOS_DBG_DETAIL("received RMC message, counter=%i\n", msgCounter);
@@ -135,7 +135,7 @@ int GpsNmea::moduleLoop(void)
         }
 
         // GGA - Message
-        else if (strstr(&nmeaMsg.data[0], "GPGGA") != NULL)
+        else if (strstr(&nmea.data[0], "GPGGA") != NULL)
         {
             if (trigMsg == GGA_MESSAGE)
             {
@@ -154,7 +154,7 @@ int GpsNmea::moduleLoop(void)
         }
 
         // GSA - Message
-        else if (strstr(&nmeaMsg.data[0], "GPGSA") != NULL)
+        else if (strstr(&nmea.data[0], "GPGSA") != NULL)
         {
             if (trigMsg == GSA_MESSAGE)
             {
@@ -265,7 +265,7 @@ int GpsNmea::readNMEAMessage()
     // Initalisation of local variables
     recordingTime   = 0;
     currChar        = 0;
-    msgSize         = sizeof(nmeaMsg.data);
+    msgSize         = sizeof(nmea.data);
     i               = 0;
 
     // Synchronize to message head, timeout after 200 attempts
@@ -293,7 +293,7 @@ int GpsNmea::readNMEAMessage()
     else
     {
         i = 0;
-        nmeaMsg.recordingTime = recordingTime;
+        nmea.recordingTime = recordingTime;
     }
 
 
@@ -311,7 +311,7 @@ int GpsNmea::readNMEAMessage()
         }
 
         // Store last character
-        nmeaMsg.data[i] = currChar;
+        nmea.data[i] = currChar;
         i++;
     }
 
@@ -370,7 +370,7 @@ int GpsNmea::analyseRMC(gps_data *data)
           for (j = 0; j < 20; j++)
           {
             // read next char
-            currChar = nmeaMsg.data[pos];
+            currChar = nmea.data[pos];
             pos++;
 
             // calc new checksum until checksum delimiter is reached
@@ -446,7 +446,7 @@ int GpsNmea::analyseRMC(gps_data *data)
     // compare checksum
     if (currChar == '*')
     {
-        if (strtol(&nmeaMsg.data[pos], NULL, 16) == checksum)
+        if (strtol(&nmea.data[pos], NULL, 16) == checksum)
             return 0;
         else
           {
@@ -508,7 +508,7 @@ int GpsNmea::analyseGGA(gps_data *data)
          for (j = 0; j < 20; j++)
           {
             // read next char
-            currChar = nmeaMsg.data[pos];
+            currChar = nmea.data[pos];
             pos++;
 
             // calc new checksum until checksum delimiter is reached
@@ -578,7 +578,7 @@ int GpsNmea::analyseGGA(gps_data *data)
     // compare checksum
     if (currChar == '*')
     {
-        if (strtol(&nmeaMsg.data[pos], NULL, 16) == checksum)
+        if (strtol(&nmea.data[pos], NULL, 16) == checksum)
             return 0;
         else
           {
@@ -640,7 +640,7 @@ int GpsNmea::analyseGSA(gps_data *data)
          for (j = 0; j < 20; j++)
           {
             // read next char
-            currChar = nmeaMsg.data[pos];
+            currChar = nmea.data[pos];
             pos++;
 
             // calc new checksum until checksum delimiter is reached
@@ -679,7 +679,7 @@ int GpsNmea::analyseGSA(gps_data *data)
     // compare checksum
     if (currChar == '*')
     {
-        if (strtol(&nmeaMsg.data[pos], NULL, 16) == checksum)
+        if (strtol(&nmea.data[pos], NULL, 16) == checksum)
             return 0;
         else
           {
@@ -746,7 +746,7 @@ long GpsNmea::toCalendarTime(float time, int date)
 * WGS84 coordinates is transformed into Gauss-Krueger coordinates "posGk".   *
 * Unit of the Gauss-Krueger coordinates is meter.                            *
 ******************************************************************************/
-void GpsNmea::posWGS84ToGK(pos_3d *posLLA, pos_3d *posGK)
+void GpsNmea::posWGS84ToGK(gps_nmea_pos_3d *posLLA, gps_nmea_pos_3d *posGK)
 {
     double l1, l2, b1, b2, h1, h2;
     double r, h, a, b, eq, n;
