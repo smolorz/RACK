@@ -1,0 +1,14 @@
+menu "Skeleton"
+
+menu "Dummy"
+config RACK_DUMMY_JAVA_GUI
+    bool "Dummy Java GUI"
+    depends on RACK_JAVA_GUI
+    default n
+    ---help---
+    Help text.
+
+source "skel/dummy/Kconfig"
+endmenu
+
+endmenu

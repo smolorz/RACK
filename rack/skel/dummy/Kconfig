@@ -1,0 +1,6 @@
+
+config RACK_DUMMY_ABC
+    bool "Dummy Abc"
+    default n
+    ---help---
+    Help text.
