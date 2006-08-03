@@ -20,8 +20,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
+import rack.main.tims.Tims;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 
 public class GDOSGui extends Thread {
@@ -158,7 +158,7 @@ public class GDOSGui extends Thread {
     try {
       while(!terminate) {
         try {
-          data = new GDOSDataMsg(TimsMsgRouter.receive(GDOSMbx,500));
+          data = new GDOSDataMsg(Tims.receive(GDOSMbx,500));
         } catch (MsgTimeoutException e) {
           data = null;
         }

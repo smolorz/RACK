@@ -18,7 +18,7 @@ package rack.gui;
 import rack.main.gui.*;
 import rack.main.defines.*;
 import rack.main.naming.*;
-import rack.main.tims.router.*;
+import rack.main.tims.Tims;
 import rack.main.tims.exceptions.*;
 
 import java.awt.*;
@@ -78,7 +78,7 @@ public class MapViewGui extends Thread
         int workMbx = RackName.create(RackName.MAP_VIEW, 0, 10);
         try
         {
-            TimsMsgRouter.mbxInit(workMbx);
+            Tims.mbxInit(workMbx);
         }
         catch (MsgException e)
         {

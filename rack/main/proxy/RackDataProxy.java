@@ -16,10 +16,10 @@
 package rack.main.proxy;
 
 import rack.main.naming.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 public abstract class RackDataProxy extends RackProxy
 {
@@ -44,7 +44,7 @@ public abstract class RackDataProxy extends RackProxy
             GetDataMsg p = new GetDataMsg();
             p.recordingtime = recordingtime;
 
-            TimsMsgRouter.send(RackMsgType.MSG_GET_DATA, commandMbx, replyMbx,
+            Tims.send(RackMsgType.MSG_GET_DATA, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo, p);
 
             TimsDataMsg reply;
@@ -52,7 +52,7 @@ public abstract class RackDataProxy extends RackProxy
             do
             {
 
-                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
+                reply = Tims.receive(replyMbx, dataTimeout);
 
             }
             while (reply.seq_nr != currentSequenceNo);
@@ -96,13 +96,13 @@ public abstract class RackDataProxy extends RackProxy
             p.periodTime = periodTime;
             p.dataMbx = dataMbx;
 
-            TimsMsgRouter.send(RackMsgType.MSG_GET_CONT_DATA, commandMbx,
+            Tims.send(RackMsgType.MSG_GET_CONT_DATA, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo, p);
 
             TimsDataMsg reply;
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
+                reply = Tims.receive(replyMbx, dataTimeout);
             }
             while (reply.seq_nr != currentSequenceNo);
 
@@ -134,13 +134,13 @@ public abstract class RackDataProxy extends RackProxy
             StopContDataMsg p = new StopContDataMsg();
             p.dataMbx = dataMbx;
 
-            TimsMsgRouter.send(RackMsgType.MSG_STOP_CONT_DATA, commandMbx,
+            Tims.send(RackMsgType.MSG_STOP_CONT_DATA, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo, p);
 
             TimsDataMsg reply;
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
+                reply = Tims.receive(replyMbx, dataTimeout);
             }
             while (reply.seq_nr != currentSequenceNo);
 

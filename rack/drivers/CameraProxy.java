@@ -26,9 +26,9 @@ import javax.imageio.*;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
-import rack.main.tims.router.*;
 import rack.main.tims.exceptions.*;
 
 public class CameraProxy extends RackDataProxy {
@@ -109,7 +109,7 @@ public class CameraProxy extends RackDataProxy {
         System.out.println(format);
 
         try {
-            TimsMsgRouter.send(
+            Tims.send(
                 MSG_CAMERA_SET_FORMAT,
                 commandMbx,
                 replyMbx,
@@ -120,7 +120,7 @@ public class CameraProxy extends RackDataProxy {
             TimsDataMsg reply;
 
             do {
-                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
+                reply = Tims.receive(replyMbx, dataTimeout);
             } while (reply.seq_nr != currentSequenceNo);
 
             if (reply.type == RackMsgType.MSG_OK) {

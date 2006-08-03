@@ -18,9 +18,9 @@ package rack.main.debug;
 
 import rack.main.proxy.*;
 import rack.main.naming.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
-import rack.main.tims.router.*;
 import rack.main.tims.exceptions.*;
 
 /**
@@ -79,7 +79,7 @@ public class GDOSProxy extends RackDataProxy {
         try {
             // xxx Vorlaeufige Loesung. sollte spaeter noch ueber
             // echtes GetCont Paket laufen.
-            TimsMsgRouter.send0(
+            Tims.send0(
                 RackMsgType.MSG_GET_CONT_DATA,
                 GDOSTarget,
                 GDOSMbx,
@@ -105,7 +105,7 @@ public class GDOSProxy extends RackDataProxy {
     /** stoppt das forwarden von Nachrichten */
     public synchronized void stopForward(int GDOSTarget) {
         try {
-            TimsMsgRouter.send0(
+            Tims.send0(
                 RackMsgType.MSG_STOP_CONT_DATA,
                 GDOSTarget,
                 GDOSMbx,
@@ -123,7 +123,7 @@ public class GDOSProxy extends RackDataProxy {
             msg.src  = sender;
             msg.type = (byte)GDOS_PRINT;
             msg.message = message;
-            TimsMsgRouter.send((TimsMsg) msg);
+            Tims.send((TimsMsg) msg);
         } catch (MsgException e) {
             System.out.println(e.toString());
         }

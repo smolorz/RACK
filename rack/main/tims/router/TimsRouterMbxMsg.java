@@ -21,7 +21,7 @@ import rack.main.tims.streams.*;
 
 import java.io.*;
 
-class GatewayMbxMsg extends TimsMsg
+public class TimsRouterMbxMsg extends TimsMsg
 {
     public int mbx = 0;   // 4 Bytes
 
@@ -30,17 +30,17 @@ class GatewayMbxMsg extends TimsMsg
       return 4;
     }
 
-    protected GatewayMbxMsg()
+    public TimsRouterMbxMsg()
     {
       msglen = headLen + getDataLen();
     }
 
-    protected GatewayMbxMsg(TimsDataMsg p) throws MsgException
+    public TimsRouterMbxMsg(TimsDataMsg p) throws MsgException
     {
       readTimsDataMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
       if ((msglen == (headLen + getDataLen() )) &&
          ((type == TimsMsgGateway.MBX_INIT) |
@@ -53,7 +53,7 @@ class GatewayMbxMsg extends TimsMsg
           return(false);
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
       if (bodyByteorder == BIG_ENDIAN) {
 
@@ -68,7 +68,7 @@ class GatewayMbxMsg extends TimsMsg
       bodyByteorder = BIG_ENDIAN;
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
       DataOutputStream dataOut = new DataOutputStream(out);
       dataOut.writeInt(mbx);

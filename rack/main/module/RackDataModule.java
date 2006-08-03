@@ -24,10 +24,10 @@ import rack.main.naming.*;
 import rack.main.debug.*;
 import rack.main.proxy.*;
 import rack.main.gui.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 /**
  *
@@ -94,11 +94,11 @@ public abstract class RackDataModule extends RackModuleGui
         terminate = true;
         try
         {
-            TimsMsgRouter.mbxDelete(commandMbx);
+            Tims.mbxDelete(commandMbx);
             if (dataMbx > 0)
-                TimsMsgRouter.mbxDelete(dataMbx);
+                Tims.mbxDelete(dataMbx);
             if (workMbx > 0)
-                TimsMsgRouter.mbxDelete(workMbx);
+                Tims.mbxDelete(workMbx);
         }
         catch (MsgException e)
         {
@@ -126,9 +126,9 @@ public abstract class RackDataModule extends RackModuleGui
         this.workMbx = commandMbx + 2;
         try
         {
-            TimsMsgRouter.mbxInit(commandMbx);
-            TimsMsgRouter.mbxInit(dataMbx);
-            TimsMsgRouter.mbxInit(workMbx);
+            Tims.mbxInit(commandMbx);
+            Tims.mbxInit(dataMbx);
+            Tims.mbxInit(workMbx);
 
             DataThread dt = new DataThread();
             dt.setDaemon(true); // Thread beendet sich wenn Programm sich
@@ -153,9 +153,9 @@ public abstract class RackDataModule extends RackModuleGui
         this.workMbx = commandMbx + 2;
         try
         {
-            TimsMsgRouter.mbxInit(commandMbx);
-            TimsMsgRouter.mbxInit(dataMbx);
-            TimsMsgRouter.mbxInit(workMbx);
+            Tims.mbxInit(commandMbx);
+            Tims.mbxInit(dataMbx);
+            Tims.mbxInit(workMbx);
 
             DataThread dt = new DataThread();
             dt.setDaemon(true); // Thread beendet sich wenn Programm sich
@@ -184,7 +184,7 @@ public abstract class RackDataModule extends RackModuleGui
                     // System.out.println("Sende Karte to
                     // Listener:"+((Integer)listener.elementAt(i)).intValue());
                     msg.dest = ((Integer) dataListener.elementAt(i)).intValue();
-                    TimsMsgRouter.send(msg);
+                    Tims.send(msg);
                 }
                 catch (MsgException e)
                 {
@@ -206,7 +206,7 @@ public abstract class RackDataModule extends RackModuleGui
             // Paket der Kommandomailbox empfangen
             try
             {
-                cmdMsg = TimsMsgRouter.receive(commandMbx, 0);
+                cmdMsg = Tims.receive(commandMbx, 0);
             }
             catch (MsgException e1)
             {
@@ -227,7 +227,7 @@ public abstract class RackDataModule extends RackModuleGui
                             {
                                 try
                                 {
-                                    TimsMsgRouter.sendReply0(
+                                    Tims.sendReply0(
                                             RackMsgType.MSG_OK, cmdMsg);
                                 }
                                 catch (MsgException e)
@@ -239,7 +239,7 @@ public abstract class RackDataModule extends RackModuleGui
                             {
                                 try
                                 {
-                                    TimsMsgRouter.sendReply0(
+                                    Tims.sendReply0(
                                             RackMsgType.MSG_ERROR, cmdMsg);
                                 }
                                 catch (MsgException e)
@@ -258,7 +258,7 @@ public abstract class RackDataModule extends RackModuleGui
                         default:
                             try
                             {
-                                TimsMsgRouter.sendReply0(RackMsgType.MSG_ERROR,
+                                Tims.sendReply0(RackMsgType.MSG_ERROR,
                                         cmdMsg);
                             }
                             catch (MsgException e2)
@@ -272,7 +272,7 @@ public abstract class RackDataModule extends RackModuleGui
                     moduleTargetStatus = RackMsgType.MSG_DISABLED;
                     try
                     {
-                        TimsMsgRouter.sendReply0(RackMsgType.MSG_OK, cmdMsg);
+                        Tims.sendReply0(RackMsgType.MSG_OK, cmdMsg);
                     }
                     catch (MsgException e3)
                     {
@@ -282,7 +282,7 @@ public abstract class RackDataModule extends RackModuleGui
                     {
                         try
                         {
-                            TimsMsgRouter.send0(RackMsgType.MSG_ERROR,
+                            Tims.send0(RackMsgType.MSG_ERROR,
                                     notifyIfOn, commandMbx, (byte) 0,
                                     (byte) notifyIfOnId);
                         }
@@ -297,7 +297,7 @@ public abstract class RackDataModule extends RackModuleGui
                 case RackMsgType.MSG_GET_STATUS:
                     try
                     {
-                        TimsMsgRouter.sendReply0(moduleStatus, cmdMsg);
+                        Tims.sendReply0(moduleStatus, cmdMsg);
                     }
                     catch (MsgException e)
                     {
@@ -310,7 +310,7 @@ public abstract class RackDataModule extends RackModuleGui
                     {
                         if (dataMsg != null)
                         {
-                            TimsMsgRouter.sendReply(RackMsgType.MSG_DATA,
+                            Tims.sendReply(RackMsgType.MSG_DATA,
                                     cmdMsg, dataMsg);
                         }
                         else
@@ -318,7 +318,7 @@ public abstract class RackDataModule extends RackModuleGui
                             System.out
                                     .println(RackName.nameString(commandMbx)
                                             + ": Im Java-Modul ist das Datenpacket nicht angelegt! (dataPackage == null)");
-                            TimsMsgRouter.sendReply0(RackMsgType.MSG_ERROR,
+                            Tims.sendReply0(RackMsgType.MSG_ERROR,
                                     cmdMsg);
                         }
                     }
@@ -357,7 +357,7 @@ public abstract class RackDataModule extends RackModuleGui
                             ContDataMsg contData = new ContDataMsg();
                             contData.periodTime = periodTime;
 
-                            TimsMsgRouter.sendReply(RackMsgType.MSG_CONT_DATA,
+                            Tims.sendReply(RackMsgType.MSG_CONT_DATA,
                                                     cmdMsg,
                                                     contData);
                         }
@@ -383,7 +383,7 @@ public abstract class RackDataModule extends RackModuleGui
                                     dataListener.removeElementAt(i);
                                 }
                             }
-                            TimsMsgRouter.sendReply0(RackMsgType.MSG_OK, cmdMsg);
+                            Tims.sendReply0(RackMsgType.MSG_OK, cmdMsg);
                         }
                     }
                     catch (MsgException e5)
@@ -424,7 +424,7 @@ public abstract class RackDataModule extends RackModuleGui
                             {
                                 try
                                 {
-                                    TimsMsgRouter.send0(RackMsgType.MSG_OK,
+                                    Tims.send0(RackMsgType.MSG_OK,
                                             notifyIfOn, commandMbx, (byte) 0,
                                             notifyIfOnId);
                                 }
@@ -460,7 +460,7 @@ public abstract class RackDataModule extends RackModuleGui
                                 {
                                     try
                                     {
-                                        TimsMsgRouter.send0(RackMsgType.MSG_OK,
+                                        Tims.send0(RackMsgType.MSG_OK,
                                                 notifyIfOn, commandMbx,
                                                 (byte) 0, notifyIfOnId);
                                     }
@@ -481,7 +481,7 @@ public abstract class RackDataModule extends RackModuleGui
                                 {
                                     try
                                     {
-                                        TimsMsgRouter.send0(
+                                        Tims.send0(
                                                 RackMsgType.MSG_ERROR,
                                                 notifyIfOn, commandMbx,
                                                 (byte) 0, notifyIfOnId);
@@ -533,7 +533,7 @@ public abstract class RackDataModule extends RackModuleGui
                                 {
                                     try
                                     {
-                                        TimsMsgRouter.send0(RackMsgType.MSG_OK,
+                                        Tims.send0(RackMsgType.MSG_OK,
                                                 notifyIfOn, commandMbx,
                                                 (byte) 0, notifyIfOnId);
                                     }
@@ -553,7 +553,7 @@ public abstract class RackDataModule extends RackModuleGui
                                 {
                                     try
                                     {
-                                        TimsMsgRouter.send0(
+                                        Tims.send0(
                                                 RackMsgType.MSG_ERROR,
                                                 notifyIfOn, commandMbx,
                                                 (byte) 0, notifyIfOnId);

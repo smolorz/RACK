@@ -17,11 +17,6 @@
 package rack.gui;
 
 import java.awt.*;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -60,9 +55,10 @@ import rack.main.naming.*;
 import rack.main.debug.*;
 import rack.main.gui.*;
 import rack.main.proxy.*;
+import rack.main.tims.Tims;
+import rack.main.tims.TimsTcp;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
-import rack.main.tims.router.*;
 import rack.main.tims.exceptions.*;
 
 
@@ -243,7 +239,7 @@ public class Gui extends Thread
             System.out.println("Connect to TcpTimsMsgGateway "
                     + gwAddress.getHostAddress() + ":" + gwPort);
 
-            new TcpTimsMsgRouter(gwAddress, gwPort);
+            new TimsTcp(gwAddress, gwPort);
         }
         catch (MsgException e)
         {
@@ -856,16 +852,16 @@ public class Gui extends Thread
             {
                 replyMbx[i] = RackName.create(RackName.GUI, 0, i);
                 System.out.println("Creating mailbox " + replyMbx[i] + " ...");
-                TimsMsgRouter.mbxInit(replyMbx[i]);
+                Tims.mbxInit(replyMbx[i]);
             }
 
             getStatusReplyMbx = RackName.create(RackName.GUI, 0, MODULE_NUM);
             System.out.println("Creating mailbox " + getStatusReplyMbx + " ...");
-            TimsMsgRouter.mbxInit(getStatusReplyMbx);
+            Tims.mbxInit(getStatusReplyMbx);
 
             GDOSMbx = RackName.create(RackName.GDOS, 0);
             System.out.println("Creating mailbox " + GDOSMbx + " ...");
-            TimsMsgRouter.mbxInit(GDOSMbx);
+            Tims.mbxInit(GDOSMbx);
 
         }
         catch (NumberFormatException e)
@@ -1341,7 +1337,7 @@ public class Gui extends Thread
             {
                 // alle moduleProxy sind bei initModuleProxy schon vorhand.
 
-                TimsMsgRouter.send0(RackMsgType.MSG_GET_STATUS, moduleProxy[i]
+                Tims.send0(RackMsgType.MSG_GET_STATUS, moduleProxy[i]
                         .getCommandMbx(), getStatusReplyMbx, (byte) 0,
                         (byte) getStatusSeqNo);
                 // ein bischen warten, um nicht stossweise last zu erzeugen.
@@ -1361,7 +1357,7 @@ public class Gui extends Thread
             while (notAllReplies)
             {
                 // receive reply
-                reply = TimsMsgRouter.receive(getStatusReplyMbx, 1000);
+                reply = Tims.receive(getStatusReplyMbx, 1000);
                 if (reply.seq_nr == getStatusSeqNo)
                 {
                     // update module status array

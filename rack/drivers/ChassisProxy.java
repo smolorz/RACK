@@ -18,10 +18,10 @@ package rack.drivers;
 import rack.main.naming.*;
 
 import rack.main.proxy.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 
 public class ChassisProxy extends RackDataProxy
@@ -78,13 +78,13 @@ public class ChassisProxy extends RackDataProxy
         currentSequenceNo++;
         try
         {
-            TimsMsgRouter.send0(MSG_CHASSIS_GET_PARAMETER, commandMbx, replyMbx,
+            Tims.send0(MSG_CHASSIS_GET_PARAMETER, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo);
 
             TimsDataMsg reply;
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, 1000);
+                reply = Tims.receive(replyMbx, 1000);
             }
             while ((reply.seq_nr != currentSequenceNo)
                     & (reply.type == MSG_CHASSIS_PARAMETER));
@@ -107,13 +107,13 @@ public class ChassisProxy extends RackDataProxy
             ChassisSetActivePilotMsg cmdMsg = new ChassisSetActivePilotMsg(
                     pilotMbx);
 
-            TimsMsgRouter.send(MSG_CHASSIS_SET_ACTIVE_PILOT, commandMbx,
+            Tims.send(MSG_CHASSIS_SET_ACTIVE_PILOT, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo, cmdMsg);
 
             TimsDataMsg reply;
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, onTimeout);
+                reply = Tims.receive(replyMbx, onTimeout);
             }
             while (reply.seq_nr != currentSequenceNo);
 

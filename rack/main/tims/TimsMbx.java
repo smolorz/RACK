@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.router;
+package rack.main.tims;
 
 import java.util.*;
 

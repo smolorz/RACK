@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.router;
+package rack.main.tims;
 
 import java.net.*;
 import java.io.*;
@@ -22,9 +22,11 @@ import java.util.*;
 import rack.main.naming.*;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
+import rack.main.tims.router.TimsMsgGateway;
+import rack.main.tims.router.TimsRouterMbxMsg;
 import rack.main.tims.exceptions.*;
 
-public class TcpTimsMsgRouter extends TimsMsgRouter
+public class TimsTcp extends Tims
 {
     protected Socket                socket = null;
     protected InputStream           tcpIn = null;
@@ -37,7 +39,7 @@ public class TcpTimsMsgRouter extends TimsMsgRouter
     protected long                  dataCountTime;
 
 
-    public TcpTimsMsgRouter(InetAddress addr, int port) throws MsgException
+    public TimsTcp(InetAddress addr, int port) throws MsgException
     {
       this.addr = addr;
       this.port = port;
@@ -188,7 +190,7 @@ public class TcpTimsMsgRouter extends TimsMsgRouter
               tcpOut = new BufferedOutputStream(socket.getOutputStream());
               tcpIn  = socket.getInputStream();
 
-              GatewayMbxMsg initMbxM = new GatewayMbxMsg();
+              TimsRouterMbxMsg initMbxM = new TimsRouterMbxMsg();
 
               for(int i = 0; i < mbxList.size(); i++) {
                 initMbxM.mbx = ((TimsMbx)mbxList.elementAt(i)).name;
@@ -228,7 +230,7 @@ public class TcpTimsMsgRouter extends TimsMsgRouter
     public synchronized void init(int mbxName) throws MsgException
     {
       TimsMbx mbx;
-      GatewayMbxMsg p = new GatewayMbxMsg();
+      TimsRouterMbxMsg p = new TimsRouterMbxMsg();
       TimsDataMsg reply;
 
       mbx = getMbx(mbxName);
@@ -267,7 +269,7 @@ public class TcpTimsMsgRouter extends TimsMsgRouter
     public synchronized void delete(int mbxName) throws MsgException
     {
       TimsMbx mbx;
-      GatewayMbxMsg p = new GatewayMbxMsg();
+      TimsRouterMbxMsg p = new TimsRouterMbxMsg();
       TimsDataMsg reply;
 
       mbx = getMbx(mbxName);

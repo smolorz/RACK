@@ -17,10 +17,10 @@ package rack.drivers;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 public class OdometryProxy extends RackDataProxy
 {
@@ -60,11 +60,11 @@ public class OdometryProxy extends RackDataProxy
     {
       currentSequenceNo++;
       try {
-        TimsMsgRouter.send0(MSG_ODOMETRY_RESET, commandMbx, replyMbx,
+        Tims.send0(MSG_ODOMETRY_RESET, commandMbx, replyMbx,
                             (byte)0, currentSequenceNo);
         TimsDataMsg reply;
         do {
-          reply = TimsMsgRouter.receive(replyMbx, onTimeout);
+          reply = Tims.receive(replyMbx, onTimeout);
         } while (reply.seq_nr != currentSequenceNo);
 
         if (reply.type == RackMsgType.MSG_OK) {

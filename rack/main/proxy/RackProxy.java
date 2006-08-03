@@ -16,10 +16,10 @@
 package rack.main.proxy;
 
 import rack.main.naming.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 
 public abstract class RackProxy
 {
@@ -63,13 +63,13 @@ public abstract class RackProxy
         currentSequenceNo++;
         try
         {
-            TimsMsgRouter.send0(RackMsgType.MSG_ON, commandMbx, replyMbx,
+            Tims.send0(RackMsgType.MSG_ON, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo);
             TimsMsg reply;
 
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, onTimeout);
+                reply = Tims.receive(replyMbx, onTimeout);
             }
             while (reply.seq_nr != currentSequenceNo);
 
@@ -88,13 +88,13 @@ public abstract class RackProxy
         currentSequenceNo++;
         try
         {
-            TimsMsgRouter.send0(RackMsgType.MSG_OFF, commandMbx, replyMbx,
+            Tims.send0(RackMsgType.MSG_OFF, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo);
             TimsMsg reply;
 
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, offTimeout);
+                reply = Tims.receive(replyMbx, offTimeout);
             }
             while (reply.seq_nr != currentSequenceNo);
 
@@ -113,13 +113,13 @@ public abstract class RackProxy
         currentSequenceNo++;
         try
         {
-            TimsMsgRouter.send0(RackMsgType.MSG_GET_STATUS, commandMbx,
+            Tims.send0(RackMsgType.MSG_GET_STATUS, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo);
             TimsMsg reply;
 
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, dataTimeout);
+                reply = Tims.receive(replyMbx, dataTimeout);
             }
             while (reply.seq_nr != currentSequenceNo);
 

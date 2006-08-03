@@ -16,7 +16,7 @@
 package rack.main.debug;
 
 import rack.main.naming.*;
-import rack.main.tims.router.*;
+import rack.main.tims.Tims;
 import rack.main.tims.exceptions.*;
 
 public class GDOS {
@@ -26,7 +26,7 @@ public class GDOS {
         GDOSDataMsg msg = new GDOSDataMsg(message);
 
         try {
-            TimsMsgRouter.send(GDOSProxy.GDOS_PRINT,
+            Tims.send(GDOSProxy.GDOS_PRINT,
                                RackName.create(RackName.GDOS, 0),
                                module,
                                (byte)0,
@@ -43,7 +43,7 @@ public class GDOS {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                TimsMsgRouter.send(GDOSProxy.GDOS_ERROR,
+                Tims.send(GDOSProxy.GDOS_ERROR,
                                    RackName.create(RackName.GDOS, 0),
                                    module,
                                    (byte)0,
@@ -61,7 +61,7 @@ public class GDOS {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                TimsMsgRouter.send(GDOSProxy.GDOS_WARNING,
+                Tims.send(GDOSProxy.GDOS_WARNING,
                                     RackName.create(RackName.GDOS, 0),
                                     module,
                                     (byte)0,
@@ -79,7 +79,7 @@ public class GDOS {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                TimsMsgRouter.send(GDOSProxy.GDOS_DBG_INFO,
+                Tims.send(GDOSProxy.GDOS_DBG_INFO,
                                    RackName.create(RackName.GDOS, 0),
                                    module,
                                    (byte)0,
@@ -97,7 +97,7 @@ public class GDOS {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                TimsMsgRouter.send(GDOSProxy.GDOS_DBG_DETAIL,
+                Tims.send(GDOSProxy.GDOS_DBG_DETAIL,
                                    RackName.create(RackName.GDOS, 0),
                                    module,
                                    (byte)0,

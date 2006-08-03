@@ -13,17 +13,17 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.router;
+package rack.main.tims;
 
 import rack.main.tims.msg.*;
 import rack.main.tims.exceptions.*;
 
-public abstract class TimsMsgRouter extends Thread
+public abstract class Tims extends Thread
 {
 
-    protected static TimsMsgRouter thisRouter = null;
+    protected static Tims thisRouter = null;
 
-    public TimsMsgRouter()
+    public Tims()
     {
         thisRouter = this;
     }

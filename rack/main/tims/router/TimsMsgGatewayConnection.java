@@ -110,7 +110,7 @@ class TimsMsgGatewayConnection extends Thread {
             case TimsMsgGateway.MBX_INIT :
               try {
                 synchronized (mbxList) {
-                  GatewayMbxMsg initM = new GatewayMbxMsg(p);
+                  TimsRouterMbxMsg initM = new TimsRouterMbxMsg(p);
 
                   if (mbxList.get(new Integer(initM.mbx)) == null) {
                     mbxList.put( new Integer(initM.mbx), this);
@@ -130,7 +130,7 @@ class TimsMsgGatewayConnection extends Thread {
             case TimsMsgGateway.MBX_INIT_WITH_REPLY :
               try {
                 synchronized (mbxList) {
-                  GatewayMbxMsg initM = new GatewayMbxMsg(p);
+                  TimsRouterMbxMsg initM = new TimsRouterMbxMsg(p);
 
                   TimsMsg0 reply  = new TimsMsg0();
                   reply.dest      = p.src;
@@ -162,7 +162,7 @@ class TimsMsgGatewayConnection extends Thread {
             case TimsMsgGateway.MBX_DELETE_WITH_REPLY :
               try {
                 synchronized (mbxList) {
-                  GatewayMbxMsg delM = new GatewayMbxMsg(p);
+                  TimsRouterMbxMsg delM = new TimsRouterMbxMsg(p);
                   Integer key = new Integer(delM.mbx);
 
                   TimsMsg0 reply = new TimsMsg0();
@@ -195,7 +195,7 @@ class TimsMsgGatewayConnection extends Thread {
             case TimsMsgGateway.MBX_DELETE :
               try {
                 synchronized (mbxList) {
-                  GatewayMbxMsg delM = new GatewayMbxMsg(p);
+                  TimsRouterMbxMsg delM = new TimsRouterMbxMsg(p);
                   Integer key = new Integer(delM.mbx);
 
                   if (mbxList.get(key) == this) {
@@ -221,7 +221,7 @@ class TimsMsgGatewayConnection extends Thread {
                 // ich aber kein neues time-packet erstellen
                 // will, lese ich die eine int ueber das mbx-packet.
                 p.type = TimsMsgGateway.MBX_INIT;
-                GatewayMbxMsg initM = new GatewayMbxMsg(p);
+                TimsRouterMbxMsg initM = new TimsRouterMbxMsg(p);
                 long time = initM.mbx;
 
                 TimsMsgGateway.setTimeMillis(time);
@@ -241,7 +241,7 @@ class TimsMsgGatewayConnection extends Thread {
             break;
 
             case TimsMsgGateway.GET_TIME :
-              GatewayMbxMsg reply = new GatewayMbxMsg();
+              TimsRouterMbxMsg reply = new TimsRouterMbxMsg();
               reply.dest     = p.src;
               reply.src      = p.dest;
               reply.priority = p.priority;

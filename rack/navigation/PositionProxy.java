@@ -17,10 +17,10 @@ package rack.navigation;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
+import rack.main.tims.Tims;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.RackMsgType;
 import rack.main.tims.exceptions.*;
-import rack.main.tims.router.*;
 import rack.main.defines.Position3D;;
 
 public class PositionProxy extends RackDataProxy
@@ -72,7 +72,7 @@ public class PositionProxy extends RackDataProxy
             PositionDataMsg updateMsg = new PositionDataMsg();
             updateMsg.recordingTime = recordingTime;
             updateMsg.pos = pos;
-            TimsMsgRouter.send(MSG_POSITION_UPDATE,
+            Tims.send(MSG_POSITION_UPDATE,
                                commandMbx,
                                replyMbx,
                                (byte)0,
@@ -83,7 +83,7 @@ public class PositionProxy extends RackDataProxy
 
             do
             {
-                reply = TimsMsgRouter.receive(replyMbx, 1000);
+                reply = Tims.receive(replyMbx, 1000);
                 System.out.println(RackName.nameString(replyMbx) + ": " + reply.type + " " + reply.seq_nr);
             }
             while(reply.seq_nr != currentSequenceNo);
@@ -101,7 +101,7 @@ public class PositionProxy extends RackDataProxy
         }
         try
         {
-            TimsDataMsg data = TimsMsgRouter.receive(dataMbx, timeOut);
+            TimsDataMsg data = Tims.receive(dataMbx, timeOut);
             PositionDataMsg locData = new PositionDataMsg(data);
             System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
             return(locData);
