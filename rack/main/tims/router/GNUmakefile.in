@@ -39,13 +39,8 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = tims_client$(EXEEXT) tims_router_tcp$(EXEEXT)
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
-@CONFIG_RACK_JAVA_GUI_TRUE@	TimsMbx.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	TimsMsgRouter.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	TcpTimsMsgRouter.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	TimsMsgGateway.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	TimsMsgGatewayConnection.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	TimsMsgGatewayServer.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GatewayMbxMsg.java
+@CONFIG_RACK_JAVA_GUI_TRUE@	TimsRouter.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	TimsRouterMbxMsg.java
 
 subdir = main/tims/router
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(etc_HEADERS) \
@@ -82,10 +77,7 @@ LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(tims_client_SOURCES) $(tims_router_tcp_SOURCES)
 DIST_SOURCES = $(tims_client_SOURCES) $(tims_router_tcp_SOURCES)
-am__dist_java_JAVA_DIST = TimsMbx.java TimsMsgRouter.java \
-	TcpTimsMsgRouter.java TimsMsgGateway.java \
-	TimsMsgGatewayConnection.java TimsMsgGatewayServer.java \
-	GatewayMbxMsg.java
+am__dist_java_JAVA_DIST = TimsRouter.java TimsRouterMbxMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

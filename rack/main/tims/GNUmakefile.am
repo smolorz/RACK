@@ -14,5 +14,23 @@ SUBDIRS = \
 	msg \
 	router
 
+### JAVA  #######################################
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	Tims.java \
+	TimsTcp.java \
+	TimsMbx.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+### JAVA END #######################################
+
+
 EXTRA_DIST = \
 	Kconfig

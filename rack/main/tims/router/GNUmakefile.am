@@ -46,13 +46,8 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
-	TimsMbx.java \
-	TimsMsgRouter.java \
-	TcpTimsMsgRouter.java \
-	TimsMsgGateway.java \
-	TimsMsgGatewayConnection.java \
-	TimsMsgGatewayServer.java \
-	GatewayMbxMsg.java
+	TimsRouter.java \
+	TimsRouterMbxMsg.java
 
 endif
 
