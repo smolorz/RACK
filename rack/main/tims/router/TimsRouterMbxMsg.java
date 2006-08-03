@@ -43,10 +43,10 @@ public class TimsRouterMbxMsg extends TimsMsg
     public boolean checkTimsMsgHead()
     {
       if ((msglen == (headLen + getDataLen() )) &&
-         ((type == TimsMsgGateway.MBX_INIT) |
-          (type == TimsMsgGateway.MBX_DELETE) |
-          (type == TimsMsgGateway.MBX_INIT_WITH_REPLY)|
-          (type == TimsMsgGateway.MBX_DELETE_WITH_REPLY))) {
+         ((type == TimsRouter.MBX_INIT) |
+          (type == TimsRouter.MBX_DELETE) |
+          (type == TimsRouter.MBX_INIT_WITH_REPLY)|
+          (type == TimsRouter.MBX_DELETE_WITH_REPLY))) {
           return(true);
       }
       else

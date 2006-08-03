@@ -22,7 +22,7 @@ import java.util.*;
 import rack.main.naming.*;
 import rack.main.tims.msg.*;
 import rack.main.tims.msgtypes.*;
-import rack.main.tims.router.TimsMsgGateway;
+import rack.main.tims.router.TimsRouter;
 import rack.main.tims.router.TimsRouterMbxMsg;
 import rack.main.tims.exceptions.*;
 
@@ -72,7 +72,7 @@ public class TimsTcp extends Tims
 
           socket = null;
         }
-        throw(new MsgIOException("Can't connect to TimsMsgGateway. " + e.toString()));
+        throw(new MsgIOException("Can't connect to TimsRouter. " + e.toString()));
       }
     }
 
@@ -89,7 +89,7 @@ public class TimsTcp extends Tims
       try {
         p.writeTimsMsg(out);
       } catch(IOException e) {
-        throw(new MsgIOException("Can't send message to TimsMsgGateway. " + e.toString()));
+        throw(new MsgIOException("Can't send message to TimsRouter. " + e.toString()));
       }
     }
 
@@ -139,7 +139,7 @@ public class TimsTcp extends Tims
             p = new TimsDataMsg(in);
 
             if ((p.dest == 0) && (p.src == 0) &&
-                (p.type == TimsMsgGateway.GET_STATUS)) {
+                (p.type == TimsRouter.GET_STATUS)) {
 
               // reply to lifesign
               try {
@@ -195,7 +195,7 @@ public class TimsTcp extends Tims
               for(int i = 0; i < mbxList.size(); i++) {
                 initMbxM.mbx = ((TimsMbx)mbxList.elementAt(i)).name;
 
-                send(TimsMsgGateway.MBX_INIT, 0, 0, (byte)0, (byte)0, initMbxM);
+                send(TimsRouter.MBX_INIT, 0, 0, (byte)0, (byte)0, initMbxM);
               }
 
               System.out.println("TimsMsgRouter reconnected to " + addr.getHostAddress() + ":" + port);
@@ -239,7 +239,7 @@ public class TimsTcp extends Tims
         p.mbx = mbxName;
         mbxClean(0);
 
-        send(TimsMsgGateway.MBX_INIT_WITH_REPLY, 0, 0, (byte)0, (byte)0, p);
+        send(TimsRouter.MBX_INIT_WITH_REPLY, 0, 0, (byte)0, (byte)0, p);
 
         reply = receive(0, 1000);
 
@@ -277,7 +277,7 @@ public class TimsTcp extends Tims
         p.mbx = mbxName;
         mbxClean(0);
 
-        send(TimsMsgGateway.MBX_DELETE_WITH_REPLY, 0, 0, (byte)0, (byte)0, p);
+        send(TimsRouter.MBX_DELETE_WITH_REPLY, 0, 0, (byte)0, (byte)0, p);
         reply = receive(0, 1000);
 
         if ((reply != null) && (reply.type == RackMsgType.MSG_OK)) {
