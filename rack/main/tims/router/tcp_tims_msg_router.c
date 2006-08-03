@@ -154,7 +154,7 @@ void connection_delete(connection_t* con)
 // TCP send / receive functions
 //
 
-int sndTcpTimsMsg(connection_t *con, timsMsgHead* sndMsg)
+int sndTcpTimsMsg(connection_t *con, tims_msg_head* sndMsg)
 {
     int idx = con->index;
     int ret;
@@ -179,7 +179,7 @@ int sndTcpTimsMsg(connection_t *con, timsMsgHead* sndMsg)
     return 0;
 }
 
-int recvTcpTimsMsg(connection_t *con, timsMsgHead* recvMsg)
+int recvTcpTimsMsg(connection_t *con, tims_msg_head* recvMsg)
 {
     int          ret, idx;
     unsigned int len = 0;
@@ -377,7 +377,7 @@ void mailbox_delete_all(int conIndex)
     sem_post(&mbxListSem);
 }
 
-int mailbox_init(connection_t *con, timsMsgHead* tcpMsg, timsMsgHead *replyMsg)
+int mailbox_init(connection_t *con, tims_msg_head* tcpMsg, tims_msg_head *replyMsg)
 {
     int ret;
     timsMsgRouter_MbxMsg* mbxMsg = NULL;
@@ -426,8 +426,8 @@ int mailbox_init(connection_t *con, timsMsgHead* tcpMsg, timsMsgHead *replyMsg)
     return 0;
 }
 
-void mailbox_cleanup(connection_t *con, timsMsgHead* tcpMsg,
-                     timsMsgHead *replyMsg)
+void mailbox_cleanup(connection_t *con, tims_msg_head* tcpMsg,
+                     tims_msg_head *replyMsg)
 {
     timsMsgRouter_MbxMsg* mbxMsg = NULL;
 
@@ -545,9 +545,9 @@ void signal_handler(int arg)
 // the tcpConnection_task_proc handles the connection to one client
 void tcpConnection_task_proc(void *arg)
 {
-    timsMsgHead*          tcpMsg;
+    tims_msg_head*        tcpMsg;
     connection_t*         con = (connection_t*)arg;
-    timsMsgHead           replyMsg;
+    tims_msg_head         replyMsg;
     int                   forwardConIndex;
     int                   ret, idx;
 
@@ -722,7 +722,7 @@ void tcpServer_task_proc(void *arg)
 // Clients that don't respond will be disconnected
 void watchdog_task_proc(void *arg)
 {
-    timsMsgHead lifesignMsg;
+    tims_msg_head lifesignMsg;
     int i;
 
     signal(SIGHUP,  signal_handler);

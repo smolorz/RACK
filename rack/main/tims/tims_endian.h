@@ -38,7 +38,7 @@ static inline int tims_cpu_is_le(void)
   #endif
 }
 
-static inline void tims_set_head_byteorder(timsMsgHead* p)
+static inline void tims_set_head_byteorder(tims_msg_head* p)
 {
   #if defined __BIG_ENDIAN_BITFIELD
       p->flags &= ~MESSAGE_FLAG_HEAD_ORDER_LE;
@@ -49,7 +49,7 @@ static inline void tims_set_head_byteorder(timsMsgHead* p)
   #endif
 }
 
-static inline void tims_set_body_byteorder(timsMsgHead* p)
+static inline void tims_set_body_byteorder(tims_msg_head* p)
 {
   #if defined __BIG_ENDIAN_BITFIELD
       p->flags &= ~MESSAGE_FLAG_BODY_ORDER_LE;
@@ -60,7 +60,7 @@ static inline void tims_set_body_byteorder(timsMsgHead* p)
   #endif
 }
 
-static inline void tims_set_byteorder(timsMsgHead* p)
+static inline void tims_set_byteorder(tims_msg_head* p)
 {
   if (!p) {
     return;
@@ -73,7 +73,7 @@ static inline void tims_set_byteorder(timsMsgHead* p)
   }
 }
 
-static inline void tims_parse_head_byteorder(timsMsgHead* p)
+static inline void tims_parse_head_byteorder(tims_msg_head* p)
 {
   if (p->flags & MESSAGE_FLAG_HEAD_ORDER_LE) { /* head is little endian */
     p->src     = __le32_to_cpu(p->src);

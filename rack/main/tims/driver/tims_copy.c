@@ -28,7 +28,7 @@ inline unsigned long get_remain_bytes_in_page(unsigned long ptr)
 
 // userpace task receives data from userspace mailbox
 static unsigned long tims_copy_userslot_user(rtdm_user_info_t *user_info,
-                                             timsMbxSlot *slot,
+                                             tims_mbx_slot *slot,
                                              const struct msghdr *msg)
 {
     unsigned long akt_copy_size = 0;
@@ -42,7 +42,7 @@ static unsigned long tims_copy_userslot_user(rtdm_user_info_t *user_info,
     void          *p_src        = slot->p_head;
     void          *p_dest       = NULL;
     unsigned long  src_page     = slot->map_idx;
-    timsMsgHead*   p_head       = (timsMsgHead *)slot->p_head_map;
+    tims_msg_head *p_head       = (tims_msg_head *)slot->p_head_map;
     unsigned long  databytes    = p_head->msglen - TIMS_HEADLEN;
 
     for (i=0; i<2; i++)
@@ -113,7 +113,7 @@ static unsigned long tims_copy_userslot_user(rtdm_user_info_t *user_info,
 
 // userpace task receives data from kernelspace mailbox
 static unsigned long tims_copy_kernelslot_user(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
+                                               tims_mbx_slot *slot,
                                                const struct msghdr *msg)
 {
     void          *p_src      = slot->p_head;
@@ -163,7 +163,7 @@ static unsigned long tims_copy_kernelslot_user(rtdm_user_info_t *user_info,
 
 // kernelspace task receives data from kernelspace mailbox
 static unsigned long tims_copy_kernelslot_kernel(rtdm_user_info_t *user_info,
-                                                 timsMbxSlot *slot,
+                                                 tims_mbx_slot *slot,
                                                  const struct msghdr *msg)
 {
     unsigned long  copy_bytes = 0;
@@ -188,7 +188,7 @@ static unsigned long tims_copy_kernelslot_kernel(rtdm_user_info_t *user_info,
 
 // userspace task sends data to userspace mailbox
 static unsigned long tims_copy_user_userslot(rtdm_user_info_t *user_info,
-                                             timsMbxSlot *slot,
+                                             tims_mbx_slot *slot,
                                              const struct msghdr *msg)
 {
     unsigned long akt_copy_size = 0;
@@ -267,7 +267,7 @@ static unsigned long tims_copy_user_userslot(rtdm_user_info_t *user_info,
 
 // realtime or non realtime context (xenomai task or linux)
 static unsigned long tims_copy_user_kernelslot(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
+                                               tims_mbx_slot *slot,
                                                const struct msghdr *msg)
 {
     unsigned long   copy_bytes  = 0;
@@ -314,7 +314,7 @@ static unsigned long tims_copy_user_kernelslot(rtdm_user_info_t *user_info,
 
 // kernelspace task sends data to userspace mailbox
 static unsigned long tims_copy_kernel_userslot(rtdm_user_info_t *user_info,
-                                               timsMbxSlot *slot,
+                                               tims_mbx_slot *slot,
                                                const struct msghdr *msg)
 {
     unsigned long  akt_copy_size = 0;
@@ -366,7 +366,7 @@ static unsigned long tims_copy_kernel_userslot(rtdm_user_info_t *user_info,
 
 // kernelspace task sends data to kernelspace mailbox
 static unsigned long tims_copy_kernel_kernelslot(rtdm_user_info_t *user_info,
-                                                 timsMbxSlot *slot,
+                                                 tims_mbx_slot *slot,
                                                  const struct msghdr *msg)
 {
     unsigned long   copy_bytes  = 0;
@@ -390,7 +390,7 @@ static unsigned long tims_copy_kernel_kernelslot(rtdm_user_info_t *user_info,
 #endif // TIMS_ALLOW_KERNEL_TASKS
 
 // copy function used by sending tasks
- int copy_msg_into_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
+ int copy_msg_into_slot(rtdm_user_info_t *user_info, tims_mbx_slot *slot,
                         const struct msghdr *msg, unsigned long mbxFlags)
 {
     int ret = 0;
@@ -429,7 +429,7 @@ static unsigned long tims_copy_kernel_kernelslot(rtdm_user_info_t *user_info,
 }
 
 // copy functions used by receiving tasks
-int copy_msg_out_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
+int copy_msg_out_slot(rtdm_user_info_t *user_info, tims_mbx_slot *slot,
                       const struct msghdr *msg, unsigned long mbxFlags)
 {
     int ret = 0;

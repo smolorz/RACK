@@ -74,11 +74,11 @@ MODULE_PARM_DESC(max_msg_slots, "Max number of messgage slots for sendig message
 // external functions / values
 //
 // --- tims_copy ---
-extern int copy_msg_into_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
+extern int copy_msg_into_slot(rtdm_user_info_t *user_info, tims_mbx_slot *slot,
                               const struct msghdr *msg, unsigned long mbxFlags);
 
 extern int copy_msg_out_slot(rtdm_user_info_t *user_info,
-                             timsMbxSlot *slot, const struct msghdr *msg,
+                             tims_mbx_slot *slot, const struct msghdr *msg,
                              unsigned long mbxFlags);
 
 // --- tims_rtnet ---
@@ -96,7 +96,7 @@ extern int dbglevel;
 //
 
 typedef struct tims_ctx_cache { // fast search for context
-    timsCtx*                p_ctx;          // pointer to context
+    tims_ctx*               p_ctx;          // pointer to context
     unsigned int            mbxAdr;         // mbx address
     uint64_t                timestamp;      // last access time
 } timsCtxCache;
@@ -146,22 +146,22 @@ static struct tims_driver td;
 // ****************************************************************************
 
 
-static inline void _ctx_list_add(timsCtx *p_ctx)
+static inline void _ctx_list_add(tims_ctx *p_ctx)
 {
     list_add_tail(&p_ctx->ctx_list, &td.ctx_list);
 }
 
 
-static inline timsCtx* _ctx_list_get(unsigned int mbxAddress)
+static inline tims_ctx* _ctx_list_get(unsigned int mbxAddress)
 {
-    timsCtx*            p_ctx  = NULL;
+    tims_ctx*            p_ctx  = NULL;
     struct list_head*    p_list = NULL;
 
     p_list = td.ctx_list.next; // first element
 
     while (p_list != &td.ctx_list)
     {
-        p_ctx = list_entry(p_list, timsCtx, ctx_list);
+        p_ctx = list_entry(p_list, tims_ctx, ctx_list);
 
         if (p_ctx->sock.id == mbxAddress)
             return p_ctx;
@@ -172,7 +172,7 @@ static inline timsCtx* _ctx_list_get(unsigned int mbxAddress)
 }
 
 
-static inline void _ctx_list_remove(timsCtx *p_ctx)
+static inline void _ctx_list_remove(tims_ctx *p_ctx)
 {
     list_del_init(&p_ctx->ctx_list);
 }
@@ -186,7 +186,7 @@ static inline void _ctx_list_remove(timsCtx *p_ctx)
 //
 // ****************************************************************************
 
-static inline void _cache_add(timsCtx *p_ctx)
+static inline void _cache_add(tims_ctx *p_ctx)
 {
     int               i, old_idx  = 0;
     unsigned int    old_adr     = 0;
@@ -227,10 +227,10 @@ static inline void _cache_add(timsCtx *p_ctx)
 }
 
 
-static inline timsCtx* _cache_get(unsigned int mbxAdr)
+static inline tims_ctx* _cache_get(unsigned int mbxAdr)
 {
     int         i = 0;
-    timsCtx*    p_ctx = NULL;
+    tims_ctx*   p_ctx = NULL;
 
     for (i=0; i< CONFIG_TIMS_CTX_CACHE_SIZE; i++)
     {
@@ -252,7 +252,7 @@ static inline timsCtx* _cache_get(unsigned int mbxAdr)
 }
 
 
-static inline void _cache_remove(timsCtx *p_ctx)
+static inline void _cache_remove(tims_ctx *p_ctx)
 {
     int i;
 
@@ -275,7 +275,7 @@ static inline void _cache_remove(timsCtx *p_ctx)
 // ****************************************************************************
 
 
-static inline void tims_ctx_remove(timsCtx *p_ctx)
+static inline void tims_ctx_remove(tims_ctx *p_ctx)
 {
     rtdm_lockctx_t lock_ctx;
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
@@ -287,7 +287,7 @@ static inline void tims_ctx_remove(timsCtx *p_ctx)
 }
 
 
-static inline void tims_ctx_add(timsCtx *p_ctx)
+static inline void tims_ctx_add(tims_ctx *p_ctx)
 {
     rtdm_lockctx_t lock_ctx;
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
@@ -298,7 +298,7 @@ static inline void tims_ctx_add(timsCtx *p_ctx)
 }
 
 
-int tims_ctx_put(timsCtx *ctx)
+int tims_ctx_put(tims_ctx *ctx)
 {
     rtdm_lockctx_t lock_ctx;
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
@@ -310,9 +310,9 @@ int tims_ctx_put(timsCtx *ctx)
 }
 
 
-static timsCtx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
+static tims_ctx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
 {
-    timsCtx* ctx;
+    tims_ctx* ctx;
     rtdm_lockctx_t lock_ctx;
 
     // don't return context while module shutdown
@@ -331,7 +331,7 @@ static timsCtx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
 
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
 
-    ctx = (timsCtx*)context->dev_private;
+    ctx = (tims_ctx*)context->dev_private;
     ctx->use_counter++;
 
     rtdm_lock_put_irqrestore(&td.ctx_lock, lock_ctx);
@@ -340,9 +340,9 @@ static timsCtx* tims_ctx_get_rtdm(struct rtdm_dev_context *context)
 }
 
 
-timsCtx* tims_ctx_get(uint32_t mbxaddr)
+tims_ctx* tims_ctx_get(uint32_t mbxaddr)
 {
-    timsCtx* ctx;
+    tims_ctx* ctx;
     rtdm_lockctx_t lock_ctx;
 
     // don't return context while module shutdown
@@ -383,17 +383,17 @@ timsCtx* tims_ctx_get(uint32_t mbxaddr)
 // add slot in read list (ordered by priority)
 // messages with the same priority ordered by the receive time
 // (newest message at the end !!!)
-static void _move_write_to_read(timsMbx *p_mbx, timsMbxSlot *write_slot)
+static void _move_write_to_read(tims_mbx *p_mbx, tims_mbx_slot *write_slot)
 {
-    timsMbxSlot*    p_slot     = NULL;
-    timsMsgHead*    p_head     = NULL;
-    timsMsgHead*    p_head_new = (timsMsgHead *)write_slot->p_head_map;
+    tims_mbx_slot*  p_slot     = NULL;
+    tims_msg_head*  p_head     = NULL;
+    tims_msg_head*  p_head_new = (tims_msg_head *)write_slot->p_head_map;
     int             pos        = 1;
     struct list_head* p_list   = p_mbx->read_list.next; // first element
 
     while (p_list != &p_mbx->read_list)
     {
-        p_slot = list_entry(p_list, timsMbxSlot, mbx_list);
+        p_slot = list_entry(p_list, tims_mbx_slot, mbx_list);
         p_head = (void *)p_slot->p_head_map;
 
         if (p_head->priority < p_head_new->priority)
@@ -410,7 +410,7 @@ static void _move_write_to_read(timsMbx *p_mbx, timsMbxSlot *write_slot)
 }
 
 
-static void _move_write_to_free(timsMbx *p_mbx, timsMbxSlot *write_slot)
+static void _move_write_to_free(tims_mbx *p_mbx, tims_mbx_slot *write_slot)
 {
     list_move_tail(&write_slot->mbx_list, &p_mbx->free_list);
     p_mbx->slot_state.write--;
@@ -418,7 +418,7 @@ static void _move_write_to_free(timsMbx *p_mbx, timsMbxSlot *write_slot)
 }
 
 
-static void _move_read_to_free(timsMbx *p_mbx, timsMbxSlot *read_slot)
+static void _move_read_to_free(tims_mbx *p_mbx, tims_mbx_slot *read_slot)
 {
     if (list_empty(&p_mbx->read_list))
         return;
@@ -433,11 +433,11 @@ static void _move_read_to_free(timsMbx *p_mbx, timsMbxSlot *read_slot)
 }
 
 
-static timsMbxSlot * _move_free_to_write(timsMbx *p_mbx, __s8 prio_new)
+static tims_mbx_slot * _move_free_to_write(tims_mbx *p_mbx, __s8 prio_new)
 {
-    timsMbxSlot         *free_slot = NULL;
+    tims_mbx_slot       *free_slot = NULL;
     __s8                prio_old;
-    timsMbxSlot         *read_slot;
+    tims_mbx_slot       *read_slot;
 
     if (list_empty(&p_mbx->free_list)) {
         /* Check if a message with lower or equal priority can be dropped. */
@@ -446,17 +446,17 @@ static timsMbxSlot * _move_free_to_write(timsMbx *p_mbx, __s8 prio_new)
             /* No msg in read list */
             return NULL;
 
-        free_slot = list_entry(p_mbx->read_list.prev, timsMbxSlot, mbx_list);
-        prio_old = ((timsMsgHead *)free_slot->p_head_map)->priority;
+        free_slot = list_entry(p_mbx->read_list.prev, tims_mbx_slot, mbx_list);
+        prio_old = ((tims_msg_head *)free_slot->p_head_map)->priority;
         if (prio_old > prio_new)
             /* Prio of new msg ist lower than lowest in read list -> drop */
             return NULL;
 
         /* Get oldest slot with lowest priority. */
         while (free_slot->mbx_list.prev != &p_mbx->read_list) {
-            read_slot = list_entry(free_slot->mbx_list.prev, timsMbxSlot,
+            read_slot = list_entry(free_slot->mbx_list.prev, tims_mbx_slot,
                                                              mbx_list);
-            if (((timsMsgHead *)read_slot->p_head_map)->priority != prio_old)
+            if (((tims_msg_head *)read_slot->p_head_map)->priority != prio_old)
                 break;
             free_slot = read_slot;
         }
@@ -465,7 +465,7 @@ static timsMbxSlot * _move_free_to_write(timsMbx *p_mbx, __s8 prio_new)
         tims_info("Oldest msg with prio %d dropped in favour of new msg "
                   "with prio %d.\n", prio_old, prio_new);
     } else
-        free_slot = list_entry(p_mbx->free_list.next, timsMbxSlot, mbx_list);
+        free_slot = list_entry(p_mbx->free_list.next, tims_mbx_slot, mbx_list);
 
     list_move_tail(&free_slot->mbx_list, &p_mbx->write_list);
     p_mbx->slot_state.free--;
@@ -474,9 +474,9 @@ static timsMbxSlot * _move_free_to_write(timsMbx *p_mbx, __s8 prio_new)
     return free_slot;
 }
 
-static timsMbxSlot* _move_read_to_peek(timsMbx *p_mbx)
+static tims_mbx_slot* _move_read_to_peek(tims_mbx *p_mbx)
 {
-    timsMbxSlot *read_slot = NULL;
+    tims_mbx_slot *read_slot = NULL;
 
     if (list_empty(&p_mbx->read_list))
         return NULL;
@@ -485,7 +485,7 @@ static timsMbxSlot* _move_read_to_peek(timsMbx *p_mbx)
           return NULL;
 
     // get slot with highest priority (first entry)
-    read_slot = list_entry(p_mbx->read_list.next, timsMbxSlot, mbx_list);
+    read_slot = list_entry(p_mbx->read_list.next, tims_mbx_slot, mbx_list);
 
     p_mbx->p_peek = read_slot;
 
@@ -497,7 +497,7 @@ static timsMbxSlot* _move_read_to_peek(timsMbx *p_mbx)
 }
 
 
-static void _move_peek_to_free(timsMbx *p_mbx)
+static void _move_peek_to_free(tims_mbx *p_mbx)
 {
     list_add_tail(&p_mbx->p_peek->mbx_list, &p_mbx->free_list);
     p_mbx->p_peek = NULL;
@@ -514,9 +514,9 @@ static void _move_peek_to_free(timsMbx *p_mbx)
 //
 // ****************************************************************************
 
-timsMbxSlot* tims_get_write_slot(timsMbx *p_mbx, __s8 prio_new)
+tims_mbx_slot* tims_get_write_slot(tims_mbx *p_mbx, __s8 prio_new)
 {
-    timsMbxSlot *slot = NULL;
+    tims_mbx_slot   *slot = NULL;
     rtdm_lockctx_t lock_ctx;
 
     rtdm_lock_get_irqsave(&p_mbx->list_lock, lock_ctx);
@@ -533,7 +533,7 @@ timsMbxSlot* tims_get_write_slot(timsMbx *p_mbx, __s8 prio_new)
 }
 
 
-void tims_put_write_slot(timsMbx *p_mbx, timsMbxSlot *slot)
+void tims_put_write_slot(tims_mbx *p_mbx, tims_mbx_slot *slot)
 {
     rtdm_lockctx_t lock_ctx;
 
@@ -553,7 +553,7 @@ void tims_put_write_slot(timsMbx *p_mbx, timsMbxSlot *slot)
 }
 
 
-void tims_put_write_slot_error(timsMbx *p_mbx, timsMbxSlot *slot)
+void tims_put_write_slot_error(tims_mbx *p_mbx, tims_mbx_slot *slot)
 {
     rtdm_lockctx_t lock_ctx;
 
@@ -569,9 +569,9 @@ void tims_put_write_slot_error(timsMbx *p_mbx, timsMbxSlot *slot)
 }
 
 
-static timsMbxSlot* tims_get_peek_slot(timsMbx *p_mbx)
+static tims_mbx_slot* tims_get_peek_slot(tims_mbx *p_mbx)
 {
-    timsMbxSlot *slot = NULL;
+    tims_mbx_slot   *slot = NULL;
     rtdm_lockctx_t lock_ctx;
 
     rtdm_lock_get_irqsave(&p_mbx->list_lock, lock_ctx);
@@ -582,7 +582,7 @@ static timsMbxSlot* tims_get_peek_slot(timsMbx *p_mbx)
 }
 
 
-static void tims_put_peek_slot(timsMbx *p_mbx)
+static void tims_put_peek_slot(tims_mbx *p_mbx)
 {
     rtdm_lockctx_t lock_ctx;
     rtdm_lock_get_irqsave(&p_mbx->list_lock, lock_ctx);
@@ -598,11 +598,11 @@ static void tims_put_peek_slot(timsMbx *p_mbx)
 //
 // ****************************************************************************
 
-static int tims_peek_intern(timsMbx *p_mbx, timsMbxSlot **p_slot,
+static int tims_peek_intern(tims_mbx *p_mbx, tims_mbx_slot **p_slot,
                             int64_t *p_timeout)
 {
     int             ret  = 0;
-    timsMbxSlot*    slot = NULL;
+    tims_mbx_slot*  slot = NULL;
 
     // calculating timeout
     int64_t timeout_ns = p_mbx->timeout_ns; // from ioctl TIMS_RTIOC_TIMEOUT
@@ -669,7 +669,7 @@ static int tims_peek_intern(timsMbx *p_mbx, timsMbxSlot **p_slot,
 }
 
 
-static void tims_peek_end_intern(timsMbx *p_mbx)
+static void tims_peek_end_intern(tims_mbx *p_mbx)
 {
     tims_dbgdetail("Put peek slot 0x%p (0x%lx) in mailbox %08x\n",
                    p_mbx->p_peek->p_head, p_mbx->p_peek->p_head_map,
@@ -690,7 +690,7 @@ static int tims_sendmsg_global(rtdm_user_info_t *user_info,
     int             ret;
     RT_PIPE_MSG*    sendMsg;
     void*           sendBuffer = NULL;
-    timsMsgHead*    p_head = msg->msg_iov[0].iov_base;
+    tims_msg_head*  p_head = msg->msg_iov[0].iov_base;
 
     if (RTNET_ENABLED)
     {
@@ -810,12 +810,12 @@ static int unregister_mbx_tcp(unsigned int mbxAdr)
 //
 
 // realtime or non realtime context (xenomai task or linux)
-static inline int tims_wait_for_writers(timsCtx *p_ctx)
+static inline int tims_wait_for_writers(tims_ctx *p_ctx)
 {
     int             listempty = 0;
     int             try = 100;
     rtdm_lockctx_t  lock_ctx;
-    timsMbx*        p_mbx = p_ctx->p_mbx;
+    tims_mbx*       p_mbx = p_ctx->p_mbx;
 
     while (!listempty)
     {
@@ -854,13 +854,13 @@ static inline int tims_wait_for_writers(timsCtx *p_ctx)
 }
 
 // realtime or non realtime context (xenomai task or linux)
-static inline int tims_wake_up_reader(timsCtx *p_ctx)
+static inline int tims_wake_up_reader(tims_ctx *p_ctx)
 {
     int             loops = 10;
     int             peek = 1;
     int             loop = loops;
     rtdm_lockctx_t  lock_ctx;
-    timsMbx*        p_mbx = p_ctx->p_mbx;
+    tims_mbx*       p_mbx = p_ctx->p_mbx;
 
     // wake up reader, if he is still waiting for a new message
 
@@ -922,27 +922,27 @@ static inline int tims_wake_up_reader(timsCtx *p_ctx)
 //
 
 // non realtime context (init - linux)
-static void init_context(timsCtx *p_ctx)
+static void init_context(tims_ctx *p_ctx)
 {
-    memset(p_ctx, 0, sizeof(timsCtx) );
+    memset(p_ctx, 0, sizeof(tims_ctx) );
 }
 
 // non realtime context (init - linux)
-static int init_fifo_mailbox(timsMbx *p_mbx)
+static int init_fifo_mailbox(tims_mbx *p_mbx)
 {
   // allocate memory for fifo slots
-  p_mbx->slot = (timsMbxSlot *)kmalloc(sizeof(timsMbxSlot), GFP_KERNEL);
+  p_mbx->slot = (tims_mbx_slot *)kmalloc(sizeof(tims_mbx_slot), GFP_KERNEL);
   if (!p_mbx->slot) {
     return -ENOMEM;
   }
   tims_dbgdetail("Fifo mbx msg pointer created @ %p (%d byte) \n",
-                p_mbx->slot, sizeof(timsMbxSlot));
+                p_mbx->slot, sizeof(tims_mbx_slot));
 
   // create message buffer
   if (!p_mbx->buffer) { // create kernel buffer
 
     p_mbx->slot->p_head =
-        (timsMsgHead *)kmalloc(TIMS_STD_FIFOMBX_SIZE, GFP_KERNEL);
+        (tims_msg_head *)kmalloc(TIMS_STD_FIFOMBX_SIZE, GFP_KERNEL);
     if (!p_mbx->slot->p_head) {
       kfree(p_mbx->slot);
       return -ENOMEM;
@@ -967,7 +967,7 @@ static int init_fifo_mailbox(timsMbx *p_mbx)
 }
 
 // non realtime context (init - linux)
-static int init_slot_mailbox(timsMbx *p_mbx)
+static int init_slot_mailbox(tims_mbx *p_mbx)
 {
     void*             p_buffer            = NULL;
     unsigned long     p_buffer_map        = 0;
@@ -988,8 +988,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
     int ret     = 0;
 
     // allocate memory for message pointers
-    p_mbx->slot = (timsMbxSlot *)kmalloc(
-        p_mbx->slot_count * sizeof(timsMbxSlot), GFP_KERNEL);
+    p_mbx->slot = (tims_mbx_slot *)kmalloc(
+        p_mbx->slot_count * sizeof(tims_mbx_slot), GFP_KERNEL);
     if (!p_mbx->slot)
     {
         ret = -ENOMEM;
@@ -999,8 +999,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
     tims_dbgdetail("slot mailbox Entr%s created @ %p "
                    "(%d slots, %d bytes/slot, %d byte) \n",
                    p_mbx->slot_count > 0 ? "ies" : "y", p_mbx->slot,
-                   p_mbx->slot_count, sizeof(timsMbxSlot),
-                   p_mbx->slot_count * sizeof(timsMbxSlot));
+                   p_mbx->slot_count, sizeof(tims_mbx_slot),
+                   p_mbx->slot_count * sizeof(tims_mbx_slot));
 
     if (!p_mbx->buffer) // create kernel buffer
     {
@@ -1052,8 +1052,8 @@ static int init_slot_mailbox(timsMbx *p_mbx)
                        p_mbx->pp_pages, p_mbx->buffer_pages);
 
         // create list of all mapInfo
-        p_mbx->p_mapInfo = (timsMapInfo_t *)kmalloc(
-            sizeof(timsMapInfo_t) * p_mbx->buffer_pages, GFP_KERNEL);
+        p_mbx->p_mapInfo = (tims_map_info *)kmalloc(
+            sizeof(tims_map_info) * p_mbx->buffer_pages, GFP_KERNEL);
         if (!p_mbx->p_mapInfo)
         {
             ret = -ENOMEM;
@@ -1251,11 +1251,11 @@ init_error:
 }
 
 // non realtime context (init - linux)
-static int init_mailbox(timsCtx *p_ctx, struct tims_mbx_cfg *p_cfg,
+static int init_mailbox(tims_ctx *p_ctx, tims_mbx_cfg *p_cfg,
                         rtdm_user_info_t *user_info)
 {
   int ret = 0;
-  timsMbx *p_mbx = NULL;
+  tims_mbx *p_mbx = NULL;
 
   // check values
   if (p_cfg->msg_size == 0) { // no message size
@@ -1285,16 +1285,16 @@ static int init_mailbox(timsCtx *p_ctx, struct tims_mbx_cfg *p_cfg,
   set_bit(TIMS_CTX_BIT_INITMBX, &p_ctx->flags);
 
   // create tims mailbox
-  p_mbx = (timsMbx *)kmalloc(sizeof(timsMbx), GFP_KERNEL);
+  p_mbx = (tims_mbx *)kmalloc(sizeof(tims_mbx), GFP_KERNEL);
   if (!p_mbx) {
     ret = -ENOMEM;
     goto init_error;
   }
   p_ctx->p_mbx = p_mbx;
   tims_dbgdetail("mailbox created @ %p (%d byte) \n",
-              p_mbx, sizeof(timsMbx));
+              p_mbx, sizeof(tims_mbx));
 
-  memset(p_mbx, 0, sizeof(timsMbx));
+  memset(p_mbx, 0, sizeof(tims_mbx));
 
   // save config values
   p_mbx->slot_count    = p_cfg->slot_count;
@@ -1362,9 +1362,9 @@ init_error:
 }
 
 // non realtime context (init - linux)
-static void destroy_mailbox(timsCtx *p_ctx)
+static void destroy_mailbox(tims_ctx *p_ctx)
 {
-  timsMbx *p_mbx = NULL;
+  tims_mbx *p_mbx = NULL;
   if (!p_ctx) {
     return;
   }
@@ -1428,10 +1428,10 @@ static void destroy_mailbox(timsCtx *p_ctx)
 }
 
 // realtime or non realtime context (xenomai task or linux)
-static void tims_clean_mailbox(timsCtx *p_ctx)
+static void tims_clean_mailbox(tims_ctx *p_ctx)
 {
-    timsMbx*            p_mbx  = NULL;
-    timsMbxSlot *       read_slot = NULL;
+    tims_mbx*           p_mbx  = NULL;
+    tims_mbx_slot *     read_slot = NULL;
     struct list_head*   p_list = NULL;
     rtdm_lockctx_t      lock_ctx;
     int                 cleaned = 0;
@@ -1453,7 +1453,7 @@ static void tims_clean_mailbox(timsCtx *p_ctx)
     p_list = p_mbx->read_list.next;
     while (p_list != &p_mbx->read_list)
     {
-        read_slot = list_entry(p_list, timsMbxSlot, mbx_list);
+        read_slot = list_entry(p_list, tims_mbx_slot, mbx_list);
         _move_read_to_free(p_mbx, read_slot);
         cleaned++;
 
@@ -1482,12 +1482,12 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
                   int request,
                   void *arg)
 {
-    timsCtx*                p_ctx   = NULL;
-    timsCtx*                p_ctx2  = NULL;
-    struct tims_mbx_cfg*    p_tmc   = NULL;
+    tims_ctx*               p_ctx   = NULL;
+    tims_ctx*               p_ctx2  = NULL;
+    tims_mbx_cfg*           p_tmc   = NULL;
     int                     ret     = 0;
-    timsMsgHead**           p_head  = NULL;
-    timsMbxSlot*            slot    = NULL;
+    tims_msg_head**         p_head  = NULL;
+    tims_mbx_slot*          slot    = NULL;
 
     switch (request)
     {
@@ -1511,8 +1511,7 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
         {
             struct _rtdm_setsockaddr_args *p_rtdmadr =
                                           (struct _rtdm_setsockaddr_args *)arg;
-            struct tims_sockaddr *p_tsock =
-                                       (struct tims_sockaddr *)p_rtdmadr->addr;
+            tims_sockaddr *p_tsock = (tims_sockaddr *)p_rtdmadr->addr;
 
             if (!arg)
                 return -EINVAL;
@@ -1575,7 +1574,7 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
                 return -EEXIST;
             }
 
-            p_tmc = (struct tims_mbx_cfg *)arg;
+            p_tmc = (tims_mbx_cfg *)arg;
             ret = init_mailbox(p_ctx, p_tmc, user_info);
             tims_ctx_put(p_ctx);
             return ret;
@@ -1612,7 +1611,7 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
             if (!arg)
               return -EINVAL;
 
-            p_head = (timsMsgHead **)arg;
+            p_head = (tims_msg_head **)arg;
 
               // get context
             p_ctx = tims_ctx_get_rtdm(context);
@@ -1659,7 +1658,7 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
             }
 
             // don't inc use counter (done in TIMS_RTIOC_RECVBEGIN)
-            p_ctx = (timsCtx*) context->dev_private;
+            p_ctx = (tims_ctx*) context->dev_private;
 
             if (!test_bit(TIMS_CTX_BIT_BOUND, &p_ctx->flags) ||
                 !test_bit(TIMS_CTX_BIT_MBX_CREATED, &p_ctx->flags))
@@ -1722,10 +1721,10 @@ ssize_t rt_tims_recvmsg(struct rtdm_dev_context *context,
                         int flags)
 {
     int ret = 0;
-    timsMbxSlot*    slot       = NULL;
-    timsMsgHead*    p_head     = NULL;
-    timsMsgHead*    p_head_map = NULL;
-    timsCtx*        p_ctx      = NULL;
+    tims_mbx_slot*  slot       = NULL;
+    tims_msg_head*  p_head     = NULL;
+    tims_msg_head*  p_head_map = NULL;
+    tims_ctx*       p_ctx      = NULL;
 
     // get context
     p_ctx = tims_ctx_get_rtdm(context);
@@ -1755,7 +1754,7 @@ ssize_t rt_tims_recvmsg(struct rtdm_dev_context *context,
     }
 
     p_head     = slot->p_head;
-    p_head_map = (timsMsgHead *)slot->p_head_map;
+    p_head_map = (tims_msg_head *)slot->p_head_map;
 
     // return, if destination buffer is too small
     if ((msg->msg_iov[0].iov_len < TIMS_HEADLEN) ||
@@ -1804,11 +1803,11 @@ ssize_t rt_tims_sendmsg(struct rtdm_dev_context *context,
     int             i           = 0;
     unsigned char   vectorlen   = 0;
     int             msglen      = 0;
-    timsCtx*        p_dest_ctx  = NULL;
-    timsCtx*        p_ctx       = NULL;
-    timsMbx*        p_dest_mbx  = NULL;
-    timsMsgHead*    p_head      = NULL;
-    timsMbxSlot*    slot        = NULL;
+    tims_ctx*       p_dest_ctx  = NULL;
+    tims_ctx*       p_ctx       = NULL;
+    tims_mbx*       p_dest_mbx  = NULL;
+    tims_msg_head*  p_head      = NULL;
+    tims_mbx_slot*  slot        = NULL;
 
     // get context
     p_ctx = tims_ctx_get_rtdm(context);
@@ -1930,7 +1929,7 @@ int rt_tims_socket(struct rtdm_dev_context *context,
                    rtdm_user_info_t *user_info,
                    int protocol)
 {
-    timsCtx *p_ctx;
+    tims_ctx *p_ctx;
 
     if (protocol != 0)
     {
@@ -1946,7 +1945,7 @@ int rt_tims_socket(struct rtdm_dev_context *context,
         return -ENODEV;
     }
 
-    p_ctx = (timsCtx *)context->dev_private;
+    p_ctx = (tims_ctx *)context->dev_private;
 
     // init context
     init_context(p_ctx);
@@ -1957,7 +1956,7 @@ int rt_tims_socket(struct rtdm_dev_context *context,
 
     tims_dbginfo("Open socket, protocol %d \n",protocol);
     tims_dbginfo("Tims context created @ %p (%d byte)\n",
-                 p_ctx, sizeof(timsCtx) );
+                 p_ctx, sizeof(tims_ctx) );
 
     // inc module use counter
     try_module_get(THIS_MODULE);
@@ -1971,7 +1970,7 @@ int rt_tims_close(struct rtdm_dev_context *context,
     int ret = 0;
 
     // rtdm has been set the RTDM_CLOSING flag
-    timsCtx*    p_ctx = (timsCtx *)context->dev_private;
+    tims_ctx*    p_ctx = (tims_ctx *)context->dev_private;
 
     // setting close bit for functions which wouldn't get the
     // rtdm context (pipe-task, rtnet)
@@ -2027,7 +2026,7 @@ static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
 {
     int                           ret;
     timsMsgRouter_ConfigMsg*      configMsg;
-    timsMsgHead*                  p_head;
+    tims_msg_head*                p_head;
 
     configMsg = (timsMsgRouter_ConfigMsg *)P_MSGPTR(recvMsg);
     p_head    = &configMsg->head;
@@ -2060,12 +2059,12 @@ static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
 static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
 {
     timsMsgRouter_MbxMsg    mbxMsg;
-    timsMsgHead*            p_head;
+    tims_msg_head*          p_head;
     int                     ret;
-    timsCtx*                  p_ctx;
+    tims_ctx*               p_ctx;
     rtdm_lockctx_t          lock_ctx;
 
-    p_head = (timsMsgHead *)P_MSGPTR(recvMsg);
+    p_head = (tims_msg_head *)P_MSGPTR(recvMsg);
 
     tims_info("Registering %d mailboxes.\n", td.mbx_num);
 
@@ -2112,10 +2111,10 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
 
 static void pipe_recv_proc(void *arg)
 {
-    timsMsgHead*    p_head  = NULL;
-    timsCtx*        p_ctx   = NULL;
-    timsMbx*        p_mbx   = NULL;
-    timsMbxSlot*    slot    = NULL;
+    tims_msg_head*  p_head  = NULL;
+    tims_ctx*       p_ctx   = NULL;
+    tims_mbx*       p_mbx   = NULL;
+    tims_mbx_slot*  slot    = NULL;
     RT_PIPE_MSG*    recvMsg = NULL;
     struct iovec    iov[2];
     struct msghdr   msg     = { NULL, 0, iov, 2, NULL, 0, 0 };
@@ -2142,7 +2141,7 @@ static void pipe_recv_proc(void *arg)
                 goto task_exit;
             }
         }
-        else if (ret > 1 && ret < TIMS_HEADLEN) // smaller than timsMsgHead
+        else if (ret > 1 && ret < TIMS_HEADLEN) // smaller than tims_msg_head
         {
             rt_pipe_free(&td.pipeToClient, recvMsg);
             tims_warn("[PIPE]: Recv msg with %d bytes only, skip\n", ret);
@@ -2157,7 +2156,7 @@ static void pipe_recv_proc(void *arg)
                 goto task_exit;
             }
         }
-        p_head = (timsMsgHead *)P_MSGPTR(recvMsg);
+        p_head = (tims_msg_head *)P_MSGPTR(recvMsg);
         tims_parse_head_byteorder(p_head);
 
         tims_dbginfo("%x -> %x, recv message (%d bytes) over TCP/IP\n",
@@ -2272,7 +2271,7 @@ static struct rtdm_device tims_rtdmdev = {
     struct_version:     RTDM_DEVICE_STRUCT_VER,
 
     device_flags:       RTDM_PROTOCOL_DEVICE,
-    context_size:       sizeof(timsCtx),
+    context_size:       sizeof(tims_ctx),
     device_name:        "",
 
     protocol_family:    PF_TIMS,
@@ -2382,7 +2381,7 @@ static void tims_cleanup(void)
 static int tims_init(void)
 {
     int ret;
-    timsMsgHead getConfig;
+    tims_msg_head getConfig;
 
     atomic_set(&td.taskCount,0);
     rtdm_lock_init(&td.ctx_lock);        // init context lock

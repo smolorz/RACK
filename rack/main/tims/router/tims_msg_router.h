@@ -28,7 +28,7 @@
 //######################################################################
 
 typedef struct {
-    timsMsgHead head;
+    tims_msg_head head;
     uint32_t      mbx;
 } __attribute__((packed)) timsMsgRouter_MbxMsg;
 
@@ -42,7 +42,7 @@ typedef struct {
 } __attribute__((packed)) timsMsgRouter_MbxRoute;
 
 typedef struct {
-    timsMsgHead             head;
+    tims_msg_head           head;
     uint32_t                num;
     timsMsgRouter_MbxRoute  mbx_route[0];
 } __attribute__((packed)) timsMsgRouter_ConfigMsg;
@@ -53,7 +53,7 @@ typedef struct {
 //# TimsMsgRouter_ConfigMsg parsing function
 //######################################################################
 
-static inline timsMsgRouter_MbxMsg* timsMsgRouter_parse_mbxMsg(timsMsgHead* p)
+static inline timsMsgRouter_MbxMsg* timsMsgRouter_parse_mbxMsg(tims_msg_head* p)
 {
     timsMsgRouter_MbxMsg *returnP = (timsMsgRouter_MbxMsg*)p;
 

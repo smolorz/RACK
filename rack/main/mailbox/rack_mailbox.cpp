@@ -312,7 +312,7 @@ int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seq_nr,
     int i = 1;
     uint32_t msglen;
     int32_t  ret;
-    timsMsgHead head;
+    tims_msg_head head;
     struct iovec iov[dataPointers];
 
     if (!mbxOK())
@@ -347,11 +347,11 @@ int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seq_nr,
 }
 
 /**
- * @brief Send a data message (using timsMsgHead)
+ * @brief Send a data message (using tims_msg_head)
  *
- * This function sends a data message (using timsMsgHead).
+ * This function sends a data message (using tims_msg_head).
  *
- * @param p_head Pointer to a filled struct timsMsgHead.
+ * @param p_head Pointer to a filled struct tims_msg_head.
  * @param dataPointers Number of data pointers to data buffers which
  *                     have to send.
  * @param data1 Pointer to first data buffer
@@ -368,7 +368,7 @@ int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seq_nr,
  *
  * Rescheduling: possible
  */
-int RackMailbox::sendDataMsg(timsMsgHead *p_head, int dataPointers, void* data1,
+int RackMailbox::sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data1,
                              uint32_t datalen1, ...)
 {
     int i = 1;
@@ -434,11 +434,11 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
                                   int dataPointers, void* data1,
                                   uint32_t datalen1, ...)
 {
-    int         i = 1;
-    uint32_t    msglen;
-    int32_t     ret;
-    timsMsgHead head;
-    struct iovec iov[dataPointers];
+    int             i = 1;
+    uint32_t        msglen;
+    int32_t         ret;
+    tims_msg_head   head;
+    struct iovec    iov[dataPointers];
 
     if (!mbxOK())
         return -ENODEV;
@@ -707,7 +707,7 @@ int RackMailbox::recvMsg(message_info *msgInfo)
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg(fildes, (timsMsgHead *)msgInfo, NULL, 0, 0);
+    ret = tims_recvmsg(fildes, (tims_msg_head *)msgInfo, NULL, 0, 0);
     if (ret)
         return ret;
 
@@ -748,7 +748,7 @@ int RackMailbox::recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo)
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg_timed(fildes, (timsMsgHead *)msgInfo, NULL, 0, timeout_ns, 0);
+    ret = tims_recvmsg_timed(fildes, (tims_msg_head *)msgInfo, NULL, 0, timeout_ns, 0);
     if (ret)
         return ret;
 
@@ -788,7 +788,7 @@ int     RackMailbox::recvMsgIf(message_info *msgInfo)
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg_if(fildes, (timsMsgHead *)msgInfo, NULL, 0, 0);
+    ret = tims_recvmsg_if(fildes, (tims_msg_head *)msgInfo, NULL, 0, 0);
     if (ret)
         return ret;
 
@@ -831,7 +831,7 @@ int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxdatalen,
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen, 0);
+    ret = tims_recvmsg(fildes, (tims_msg_head *)msgInfo, p_data, maxdatalen, 0);
     if (ret)
         return ret;
 
@@ -875,7 +875,7 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data,
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg_timed(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen,
+    ret = tims_recvmsg_timed(fildes, (tims_msg_head *)msgInfo, p_data, maxdatalen,
                              timeout_ns, 0);
     if (ret)
         return ret;
@@ -919,7 +919,7 @@ int     RackMailbox::recvDataMsgIf(void *p_data, uint32_t maxdatalen,
     if (!mbxOK())
         return -ENODEV;
 
-    ret = tims_recvmsg_if(fildes, (timsMsgHead *)msgInfo, p_data, maxdatalen, 0);
+    ret = tims_recvmsg_if(fildes, (tims_msg_head *)msgInfo, p_data, maxdatalen, 0);
     if (ret)
         return ret;
 

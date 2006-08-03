@@ -98,7 +98,7 @@ class RackMailbox {
         int             fildes;
         uint32_t        adr;
 
-        timsMsgHead*    p_peek_head;
+        tims_msg_head*  p_peek_head;
 
         int8_t          send_prio;
         uint32_t        max_data_len;
@@ -149,7 +149,7 @@ class RackMailbox {
 
         int     sendMsgReply(int8_t type, message_info *msgInfo);
 
-        int     sendDataMsg(timsMsgHead *p_head, int dataPointers, void* data1,
+        int     sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data1,
                             uint32_t datalen1, ...);
 
         int     sendDataMsg(int8_t type, uint32_t dest, uint8_t seq_nr,

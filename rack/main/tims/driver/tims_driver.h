@@ -27,42 +27,42 @@
 //
 // map info
 //
-typedef struct tims_map_info
+typedef struct
 {
     unsigned long virtual;
     unsigned char mapped;
-} timsMapInfo_t;
+} tims_map_info;
 
 //
 // mailbox slot state
 //
-typedef struct slot_state
+typedef struct
 {
     int free;
     int write;
     int peek;
     int read;
-} slot_state_t;
+} tims_slot_state;
 
 //
 // mailbox slot
 //
-typedef struct tims_mbx_slot
+typedef struct
 {
-    timsMsgHead*            p_head;         // message pointers
+    tims_msg_head*          p_head;         // message pointers
     unsigned long           p_head_map;     // mapped virtual kernel address
     struct list_head        mbx_list;       // to hold it in free|read|writelist
 
     int                     map_idx;        // start index of page table
-    struct tims_mailbox*    p_mbx;          // pointer to mailbox
-} timsMbxSlot;
+    struct tims_mbx*        p_mbx;          // pointer to mailbox
+} tims_mbx_slot;
 
 //
 // mailbox
 //
-typedef struct tims_mailbox
+typedef struct tims_mbx
 {
-    timsMbxSlot*            slot;           // mailbox slots
+    tims_mbx_slot*          slot;           // mailbox slots
     rtdm_sem_t              readSem;        // semaphore for the mbx reader
                                             // (waiting for the next message)
 
@@ -70,7 +70,7 @@ typedef struct tims_mailbox
     struct list_head        free_list;      // list of all free mailbox slots
     struct list_head        write_list;     // list of all mailbox write slots
     struct list_head        read_list;      // list of all mailbox read slots
-    timsMbxSlot*            p_peek;         // save peek slot
+    tims_mbx_slot*          p_peek;         // save peek slot
 
     int64_t                 timeout_ns;     // timeout for peek/receive
     unsigned long           flags;          // mailbox state
@@ -79,14 +79,14 @@ typedef struct tims_mailbox
     // config values
     unsigned int            slot_count;     // 0  => FIFO Queueing
                                             // > 0 => Priority Queueing
-    slot_state_t            slot_state;     // tims slot state
+    tims_slot_state         slot_state;     // tims slot state
     unsigned int            msg_size;       // bytes per message
     void*                   buffer;         // NULL: kernel-located
     unsigned long           buffer_pages;   // number of buffer pages
     struct page**           pp_pages;       // pointer to page list
-    timsMapInfo_t*          p_mapInfo;      // virtual addresses of page list
+    tims_map_info*          p_mapInfo;      // virtual addresses of page list
     size_t                  buffer_size;
-} timsMbx;
+} tims_mbx;
 
 //
 // mailbox flags
@@ -100,15 +100,15 @@ typedef struct tims_mailbox
 //
 // tims context
 //
-typedef struct tims_context
+typedef struct
 {
     struct list_head        ctx_list;       // list of all registered contextes
     int                     protocol;       // tims protocol
-    struct tims_sockaddr    sock;           // socket address
-    timsMbx*                p_mbx;          // mailbox
+    tims_sockaddr           sock;           // socket address
+    tims_mbx*               p_mbx;          // mailbox
     int                     use_counter;    // context use counter
     unsigned long           flags;          // context flags
-} timsCtx;
+} tims_ctx;
 
 //
 // help functions

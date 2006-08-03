@@ -98,8 +98,8 @@ static pthread_t          watchdogThread;
 static int                watchdog = 0;
 static sem_t              watchdogSem;
 
-static timsMsgHead*       tcpRecvMsg;
-static timsMsgHead*       pipeRecvMsg;
+static tims_msg_head*     tcpRecvMsg;
+static tims_msg_head*     pipeRecvMsg;
 
 static int                loglevel = 0;
 static char               filename[80];
@@ -248,7 +248,7 @@ void *watchdog_task_proc(void *arg)
     return NULL;
 }
 
-int sndTcpTimsMsg(timsMsgHead* sndMsg)
+int sndTcpTimsMsg(tims_msg_head* sndMsg)
 {
     sem_wait(&tcpSendSem);
     int ret;
@@ -269,7 +269,7 @@ int sndTcpTimsMsg(timsMsgHead* sndMsg)
     return 0;
 }
 
-int recvTcpTimsMsg(timsMsgHead* recvMsg)
+int recvTcpTimsMsg(tims_msg_head* recvMsg)
 {
     int          ret;
     unsigned int len = 0;
@@ -350,7 +350,7 @@ int recvTcpTimsMsg(timsMsgHead* recvMsg)
     return 0;
 }
 
-int sndPipeTimsMsg(timsMsgHead* sndMsg)
+int sndPipeTimsMsg(tims_msg_head* sndMsg)
 {
     int ret;
     sem_wait(&pipeSendSem);
@@ -371,7 +371,7 @@ int sndPipeTimsMsg(timsMsgHead* sndMsg)
     return 0;
 }
 
-int recvPipeTimsMsg(timsMsgHead* recvMsg)
+int recvPipeTimsMsg(tims_msg_head* recvMsg)
 {
     int msglen;
     int cpybytes = maxMsgSize;
@@ -420,7 +420,7 @@ void connection_close()
 int connection_create()
 {
     int ret;
-    timsMsgHead  connMsg;
+    tims_msg_head  connMsg;
 
     // open socket
     tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -463,8 +463,8 @@ int connection_create()
 void tcpRecv_task_proc(void *arg)
 {
     int ret;
-    timsMsgHead* tcpRecvMsg = (timsMsgHead*)arg;
-    timsMsgHead  replyMsg;
+    tims_msg_head* tcpRecvMsg = (tims_msg_head*)arg;
+    tims_msg_head  replyMsg;
 
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
@@ -529,9 +529,9 @@ reset_watchdog:
     return;
 }
 
-void pipeRecv_task_proc(timsMsgHead *pipeRecvMsg)
+void pipeRecv_task_proc(tims_msg_head *pipeRecvMsg)
 {
-    timsMsgHead  replyMsg;
+    tims_msg_head  replyMsg;
 
     tims_dbg("[PIPE_TASK] started\n");
 
@@ -545,7 +545,7 @@ void pipeRecv_task_proc(timsMsgHead *pipeRecvMsg)
             {
                 if (init_flags & TIMS_CLIENT_CONFIG_MSG)
                 {
-                    sndPipeTimsMsg((timsMsgHead*)configMsg);
+                    sndPipeTimsMsg((tims_msg_head*)configMsg);
                 }
                 else
                 {
@@ -554,7 +554,7 @@ void pipeRecv_task_proc(timsMsgHead *pipeRecvMsg)
                                   pipeRecvMsg->priority, 0, 0,
                                   sizeof(timsMsgRouter_ConfigMsg));
                     cMsg.num = 0;
-                    sndPipeTimsMsg((timsMsgHead*)&cMsg);
+                    sndPipeTimsMsg((tims_msg_head*)&cMsg);
                 }
             }
             else if (sndTcpTimsMsg(pipeRecvMsg) != 0)
@@ -654,7 +654,7 @@ int read_config_file(void)
     msglen = sizeof(timsMsgRouter_ConfigMsg) +
                     configMsg->num * sizeof(timsMsgRouter_MbxRoute);
 
-    tims_fillhead((timsMsgHead*)configMsg, TIMS_MSG_ROUTER_CONFIG,
+    tims_fillhead((tims_msg_head*)configMsg, TIMS_MSG_ROUTER_CONFIG,
                   0, 0, 0, 0, 0, msglen);
 
     return 0;
@@ -675,7 +675,7 @@ int init_tcpRecv_task(void)
     init_flags |= TIMS_CLIENT_SEM_TCP_SEND;
 
     // create buffer
-    tcpRecvMsg = (timsMsgHead *)malloc(maxMsgSize);
+    tcpRecvMsg = (tims_msg_head *)malloc(maxMsgSize);
     if (!tcpRecvMsg)
     {
         tims_print("[INIT] ERROR: can't allocate memory for tcpRecvMsg\n");
@@ -712,7 +712,7 @@ int init_pipeRecv_task(void)
     init_flags |= TIMS_CLIENT_SEM_PIPE_SEND;
 
 
-    pipeRecvMsg = (timsMsgHead *)malloc(maxMsgSize);
+    pipeRecvMsg = (tims_msg_head *)malloc(maxMsgSize);
     if (!pipeRecvMsg)
     {
         tims_print("[INIT] ERROR: can't allocate memory for pipeRecvMsg\n");

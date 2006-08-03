@@ -135,14 +135,14 @@ class GdosMailbox
 
         void print(int level, char* format, ...)
         {
-            timsMsgHead head;
-            char        buffer[GDOS_MAX_MSG_SIZE];
-            int         percent = 0;
-            char*       src;
-            char*       dst;
-            va_list     args;
-            int         datasize = 0;
-            int         valuesize = 0;
+            tims_msg_head   head;
+            char            buffer[GDOS_MAX_MSG_SIZE];
+            int             percent = 0;
+            char*           src;
+            char*           dst;
+            va_list         args;
+            int             datasize = 0;
+            int             valuesize = 0;
 
             if (!sendMbx)
             {

@@ -48,7 +48,8 @@
 // TIMS message head
 //
 
-typedef struct tims_message_head {
+typedef struct
+{
   __u8          flags;     // 1 Byte: flags
   __s8          type;      // 1 Byte: Message Type
   __s8          priority;  // 1 Byte: Priority
@@ -58,9 +59,9 @@ typedef struct tims_message_head {
   __u32         msglen;    // 4 Byte: length of complete message
   __u8          data[0];   // 0 Byte: following data
                            //---> 16 Byte
-} __attribute__((packed)) timsMsgHead;
+} __attribute__((packed)) tims_msg_head;
 
-#define TIMS_HEADLEN        sizeof(timsMsgHead)
+#define TIMS_HEADLEN        sizeof(tims_msg_head)
 
 #include <main/tims/tims_byteorder.h>
 #include <main/tims/tims_endian.h>
@@ -74,10 +75,11 @@ typedef struct tims_message_head {
 #define PF_TIMS                     27
 #endif
 
-struct tims_sockaddr {
+typedef struct
+{
   sa_family_t sa_family;
   __u32   id;
-};
+} tims_sockaddr;
 
 #define RTDM_SUBCLASS_TIMS          0
 
@@ -89,24 +91,25 @@ struct tims_sockaddr {
 // ioctl requests and structs
 //
 
-struct tims_mbx_cfg {
+typedef struct
+{
     unsigned int msg_size;        // max size per message
     unsigned int slot_count;      // 0  => FIFO Queuing
                                   // >0 => Priority Queuing
     void         *buffer;         // NULL: kernel-located
     unsigned int buffer_size;
-};
+} tims_mbx_cfg;
 
 #define RTIOC_TYPE_TIMS             RTDM_CLASS_NETWORK
 
 #define TIMS_RTIOC_MBXCFG          _IOW(RTIOC_TYPE_TIMS, 0x00,        \
-                                        struct tims_mbx_cfg)
+                                        tims_mbx_cfg)
 
 #define TIMS_RTIOC_MBXCLEAN        _IOW(RTIOC_TYPE_TIMS, 0x01,        \
                                         int)
 
 #define TIMS_RTIOC_RECVBEGIN       _IOW(RTIOC_TYPE_TIMS, 0x02,        \
-                                        timsMsgHead)
+                                        tims_msg_head)
 
 #define TIMS_RTIOC_RECVEND         _IOW(RTIOC_TYPE_TIMS, 0x03,        \
                                         int)
@@ -122,7 +125,7 @@ struct tims_mbx_cfg {
 extern "C" {
 #endif
 
-static inline int       tims_socket(void)
+static inline int tims_socket(void)
 {
     return rt_dev_socket(PF_TIMS, SOCK_RAW, 0);
 }
@@ -134,14 +137,14 @@ static inline int tims_close(int fd)
 
 static inline int tims_bind(int fd, unsigned int address)
 {
-    struct tims_sockaddr tsock = {
+    tims_sockaddr tsock = {
         sa_family:  PF_TIMS,
         id:         address
     };
 
     struct _rtdm_setsockaddr_args args = {
         addr:       (struct sockaddr *)&tsock,
-        addrlen:    sizeof(struct tims_sockaddr)
+        addrlen:    sizeof(tims_sockaddr)
     };
 
     return rt_dev_ioctl(fd, _RTIOC_BIND, &args);
@@ -152,7 +155,7 @@ static inline int tims_set_timeout(int fd, int64_t timeout_ns)
     return rt_dev_ioctl(fd, TIMS_RTIOC_TIMEOUT, &timeout_ns);
 }
 
-static inline void tims_fillhead(timsMsgHead *p_head, char type, __u32 dest,
+static inline void tims_fillhead(tims_msg_head *p_head, char type, __u32 dest,
                                  __u32  src, char priority,
                                  unsigned char seq_nr, unsigned char flags,
                                  __u32 msglen)
@@ -168,7 +171,7 @@ static inline void tims_fillhead(timsMsgHead *p_head, char type, __u32 dest,
     tims_set_byteorder(p_head);
 }
 
-static inline ssize_t tims_sendmsg(int fd, timsMsgHead *p_head,
+static inline ssize_t tims_sendmsg(int fd, tims_msg_head *p_head,
                                    struct iovec *vec, unsigned char veclen,
                                    int timsflags)
 {
@@ -192,9 +195,9 @@ static inline ssize_t tims_sendmsg(int fd, timsMsgHead *p_head,
 }
 
 // sends a reply message with(out) data
-static inline ssize_t tims_sendmsg_reply(int fd, char type, timsMsgHead* p_send,
+static inline ssize_t tims_sendmsg_reply(int fd, char type, tims_msg_head* p_send,
                                          struct iovec *vec, unsigned char veclen,
-                                         timsMsgHead* p_src, int timsflags)
+                                         tims_msg_head* p_src, int timsflags)
 {
     uint32_t msglen = p_send->msglen;
 
@@ -211,21 +214,21 @@ static inline ssize_t   tims_sendmsg_0(int fd, char type, unsigned int dest,
                                        unsigned char seq_nr, int msgflags,
                                        int timsflags)
 {
-    timsMsgHead head;
+    tims_msg_head head;
     tims_fillhead(&head, type, dest, src, priority, seq_nr, msgflags,
                   TIMS_HEADLEN);
 
     return tims_sendmsg(fd, &head, NULL, 0, timsflags);
 }
 
-static inline ssize_t tims_sendmsg_reply_0(int fd, char type, timsMsgHead *p_src,
+static inline ssize_t tims_sendmsg_reply_0(int fd, char type, tims_msg_head *p_src,
                                            int timsflags)
 {
     return tims_sendmsg_0(fd, type, p_src->src, p_src->dest,
                           p_src->priority, p_src->seq_nr, 0, timsflags);
 }
 
-static inline int tims_recvmsg_timed(int fd, timsMsgHead *p_head, void *p_data,
+static inline int tims_recvmsg_timed(int fd, tims_msg_head *p_head, void *p_data,
                                      ssize_t maxdatalen, int64_t timeout_ns,
                                      int timsflags)
 {
@@ -244,14 +247,14 @@ static inline int tims_recvmsg_timed(int fd, timsMsgHead *p_head, void *p_data,
     return rt_dev_recvmsg(fd, &msg, timsflags);
 }
 
-static inline int tims_recvmsg(int fd, timsMsgHead *p_head, void *p_data,
+static inline int tims_recvmsg(int fd, tims_msg_head *p_head, void *p_data,
                                ssize_t maxdatalen, int timsflags)
 {
     return tims_recvmsg_timed(fd, p_head, p_data, maxdatalen, TIMS_INFINITE,
                               timsflags);
 }
 
-static inline int tims_recvmsg_if(int fd, timsMsgHead *p_head,void *p_data,
+static inline int tims_recvmsg_if(int fd, tims_msg_head *p_head,void *p_data,
                                   ssize_t maxdatalen, int timsflags)
 {
     return tims_recvmsg_timed(fd, p_head, p_data, maxdatalen , TIMS_NONBLOCK,
@@ -266,7 +269,7 @@ static inline int tims_mbx_create(unsigned int address, int messageSlots,
     int ret = 0;
     int fd  = -1;
 
-    struct tims_mbx_cfg tmc = {
+    tims_mbx_cfg tmc = {
         msg_size:       messageSize,
         slot_count:     messageSlots,
         buffer:         buffer,
@@ -330,9 +333,9 @@ static inline int tims_mbx_clean(int fd)
 }
 
 // waiting a specific time for a new message
-// -> returns a pointer to a timsMsgHead if successful
+// -> returns a pointer to a tims_msg_head if successful
 // -> locks the message
-static inline int tims_peek_timed(int fd, timsMsgHead **pp_head,
+static inline int tims_peek_timed(int fd, tims_msg_head **pp_head,
                                   int64_t timeout_ns)
 {
     // set timeout
@@ -344,15 +347,15 @@ static inline int tims_peek_timed(int fd, timsMsgHead **pp_head,
 }
 
 // waiting for a new message (BLOCKING)
-// -> returns a pointer to a timsMsgHead if successful
-static inline int tims_peek(int fd, timsMsgHead **pp_head)
+// -> returns a pointer to a tims_msg_head if successful
+static inline int tims_peek(int fd, tims_msg_head **pp_head)
 {
     return tims_peek_timed(fd, pp_head, TIMS_INFINITE);
 }
 
 // ask mailbox for a new message (NON BLOCKING)
-// -> returns a pointer to a timsMsgHead if successful
-static inline int tims_peek_if(int fd, timsMsgHead **pp_head)
+// -> returns a pointer to a tims_msg_head if successful
+static inline int tims_peek_if(int fd, tims_msg_head **pp_head)
 {
     return tims_peek_timed(fd, pp_head, TIMS_NONBLOCK);
 }

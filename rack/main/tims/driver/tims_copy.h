@@ -18,10 +18,10 @@
 
 #include <main/tims/driver/tims_driver.h>
 
-int copy_msg_into_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
+int copy_msg_into_slot(rtdm_user_info_t *user_info, tims_mbx_slot *slot,
                        const struct msghdr *msg, unsigned long mbxFlags);
 
-int copy_msg_out_slot(rtdm_user_info_t *user_info, timsMbxSlot *slot,
+int copy_msg_out_slot(rtdm_user_info_t *user_info, tims_mbx_slot *slot,
                       const struct msghdr *msg, unsigned long mbxFlags);
 
 #endif // __TIMS_COPY_H__

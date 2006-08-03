@@ -24,11 +24,11 @@
 //
 
 // --- tims_driver ---
-extern timsCtx*     tims_ctx_get(uint32_t mbxaddr);
-extern int          tims_ctx_put(timsCtx *ctx);
-extern timsMbxSlot* tims_get_write_slot(timsMbx *p_mbx, __s8 prio_new);
-extern void         tims_put_write_slot(timsMbx *p_mbx, timsMbxSlot *slot);
-extern void         tims_put_write_slot_error(timsMbx *p_mbx, timsMbxSlot *slot);
+extern tims_ctx*        tims_ctx_get(uint32_t mbxaddr);
+extern int              tims_ctx_put(tims_ctx *ctx);
+extern tims_mbx_slot*   tims_get_write_slot(tims_mbx *p_mbx, __s8 prio_new);
+extern void             tims_put_write_slot(tims_mbx *p_mbx, tims_mbx_slot *slot);
+extern void             tims_put_write_slot_error(tims_mbx *p_mbx, tims_mbx_slot *slot);
 
 // --- tims_debug ---
 extern int dbglevel;
@@ -55,7 +55,7 @@ int rtnet_sendmsg(rtdm_user_info_t *user_info, const struct msghdr *msg)
 {
     int                 i;
     int                 ret;
-    timsMsgHead*        p_head = msg->msg_iov[0].iov_base;
+    tims_msg_head*      p_head = msg->msg_iov[0].iov_base;
     struct msghdr       rtnet_msg;
     struct sockaddr_in  dest_addr;
 
@@ -95,10 +95,10 @@ int rtnet_sendmsg(rtdm_user_info_t *user_info, const struct msghdr *msg)
     return -ENODEV;    // destination address not found in table
 }
 
-static int rtnet_recv_message(timsMbx* p_recv_mbx, timsMsgHead *head)
+static int rtnet_recv_message(tims_mbx* p_recv_mbx, tims_msg_head *head)
 {
-    timsMbxSlot*    recv_slot       = NULL;
-    timsMsgHead*    head_part       = NULL;
+    tims_mbx_slot*  recv_slot       = NULL;
+    tims_msg_head*  head_part       = NULL;
     struct iovec    iov[get_max_pages(head->msglen)];
     struct msghdr   recv_msg;
     unsigned long   p_recv_map      = 0;
@@ -183,19 +183,19 @@ static int rtnet_recv_message(timsMbx* p_recv_mbx, timsMsgHead *head)
     }
 
     // parse message head
-    if (unlikely(iov[0].iov_len < sizeof(timsMsgHead))) // head on two pages
+    if (unlikely(iov[0].iov_len < sizeof(tims_msg_head))) // head on two pages
     {
         // data sizes in head : 1, 1, 1, 1,  4, 4, 4
 
         free_in_page = ((unsigned long)iov[0].iov_base & PAGE_MASK) +
                         PAGE_SIZE - (unsigned long)iov[0].iov_base;
 
-        head_part = (timsMsgHead*)iov[0].iov_base;
+        head_part = (tims_msg_head*)iov[0].iov_base;
 // TODO -> parsing
     }
     else
     {
-        tims_parse_head_byteorder((timsMsgHead*)iov[0].iov_base);
+        tims_parse_head_byteorder((tims_msg_head*)iov[0].iov_base);
     }
 
 
@@ -218,14 +218,14 @@ recvmsg_error:
 
 static void rtnet_recv_callback(struct rtdm_dev_context *context, void* arg)
 {
-    timsMsgHead     head;
-    timsCtx*        ctx;
+    tims_msg_head   head;
+    tims_ctx*       ctx;
     int             ret;
-    timsMbx*        p_recv_mbx  = NULL;
+    tims_mbx*       p_recv_mbx  = NULL;
 
     // receive message head (only peek)
-    ret = rtdm_recv(rtnet.fd, &head, sizeof(timsMsgHead), MSG_PEEK);
-    if (ret < (int)sizeof(timsMsgHead))
+    ret = rtdm_recv(rtnet.fd, &head, sizeof(tims_msg_head), MSG_PEEK);
+    if (ret < (int)sizeof(tims_msg_head))
     {
         tims_error("[RTnet]: Corrupt package received (rtdm_recv(): %d)\n",
                    ret);
@@ -285,7 +285,7 @@ int rtnet_read_config(timsMsgRouter_ConfigMsg *configMsg)
     int                           localIp;
     timsMsgRouter_MbxRoute*       entry;
     unsigned int                  i;
-    timsMsgHead*                  p_head;
+    tims_msg_head*                p_head;
     unsigned int                  configSize;
 
     if (rtnet.mbxRouteNum) // routing table was filled
