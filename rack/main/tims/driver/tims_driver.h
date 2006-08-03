@@ -22,7 +22,7 @@
 #include <linux/mm.h>
 #include <rtdm/rtdm_driver.h>
 #include <main/tims/tims.h>
-#include <main/tims/router/tims_msg_router.h>
+#include <main/tims/router/tims_router.h>
 
 //
 // map info
