@@ -1,7 +1,5 @@
 #! /bin/sh
 
-cd ..
-
 svn revert `find . -name GNUmakefile.in` \
 	configure \
 	aclocal.m4 \
