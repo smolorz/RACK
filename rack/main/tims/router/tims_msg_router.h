@@ -16,7 +16,7 @@
 #ifndef __TIMS_MSG_ROUTER_H__
 #define __TIMS_MSG_ROUTER_H__
 
-/* this header file is used by tims_msg_client, tcp_tims_msg_router
+/* this header file is used by tims_msg_client, tims_msg_router_tcp
    and tims kernel module
 */
 
@@ -30,7 +30,7 @@
 typedef struct {
     tims_msg_head head;
     uint32_t      mbx;
-} __attribute__((packed)) timsMsgRouter_MbxMsg;
+} __attribute__((packed)) tims_router_mbx_msg;
 
 //######################################################################
 //# TimsMsgRouter_ConfigMsg
@@ -39,13 +39,13 @@ typedef struct {
 typedef struct {
     uint32_t     mbx;
     uint32_t     ip;
-} __attribute__((packed)) timsMsgRouter_MbxRoute;
+} __attribute__((packed)) tims_router_mbx_route;
 
 typedef struct {
     tims_msg_head           head;
     uint32_t                num;
-    timsMsgRouter_MbxRoute  mbx_route[0];
-} __attribute__((packed)) timsMsgRouter_ConfigMsg;
+    tims_router_mbx_route   mbx_route[0];
+} __attribute__((packed)) tims_router_config_msg;
 
 #define MAX_RTNET_ROUTE_NUM         512
 
@@ -53,9 +53,9 @@ typedef struct {
 //# TimsMsgRouter_ConfigMsg parsing function
 //######################################################################
 
-static inline timsMsgRouter_MbxMsg* timsMsgRouter_parse_mbxMsg(tims_msg_head* p)
+static inline tims_router_mbx_msg* timsMsgRouter_parse_mbxMsg(tims_msg_head* p)
 {
-    timsMsgRouter_MbxMsg *returnP = (timsMsgRouter_MbxMsg*)p;
+    tims_router_mbx_msg *returnP = (tims_router_mbx_msg*)p;
 
     if (returnP->head.flags & MESSAGE_FLAG_BODY_ORDER_LE)  // body is little endian
     {

@@ -84,7 +84,7 @@ extern int copy_msg_out_slot(rtdm_user_info_t *user_info,
 // --- tims_rtnet ---
 extern int  rtnet_sendmsg(rtdm_user_info_t *user_info,
                           const struct msghdr *msg);
-extern int  rtnet_read_config(timsMsgRouter_ConfigMsg *configMsg);
+extern int  rtnet_read_config(tims_router_config_msg *configMsg);
 extern void rtnet_cleanup(void);
 extern int  rtnet_init(void);
 
@@ -767,8 +767,8 @@ send_error:
 static int register_mbx_tcp(unsigned int mbxAdr)
 {
     int ret = 0;
-    unsigned int cpysize = sizeof(timsMsgRouter_MbxMsg);
-    timsMsgRouter_MbxMsg mbxMsg;
+    unsigned int cpysize = sizeof(tims_router_mbx_msg);
+    tims_router_mbx_msg mbxMsg;
 
     tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_INIT,
                   0, 0, 0, 0, 0, cpysize);
@@ -788,8 +788,8 @@ static int register_mbx_tcp(unsigned int mbxAdr)
 static int unregister_mbx_tcp(unsigned int mbxAdr)
 {
     int ret = 0;
-    unsigned int cpysize = sizeof(timsMsgRouter_MbxMsg);
-    timsMsgRouter_MbxMsg mbxMsg;
+    unsigned int cpysize = sizeof(tims_router_mbx_msg);
+    tims_router_mbx_msg mbxMsg;
 
     tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_DELETE,
                   0, 0, 0, 0, 0, cpysize);
@@ -2025,16 +2025,16 @@ int rt_tims_close(struct rtdm_dev_context *context,
 static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
 {
     int                           ret;
-    timsMsgRouter_ConfigMsg*      configMsg;
+    tims_router_config_msg*       configMsg;
     tims_msg_head*                p_head;
 
-    configMsg = (timsMsgRouter_ConfigMsg *)P_MSGPTR(recvMsg);
+    configMsg = (tims_router_config_msg *)P_MSGPTR(recvMsg);
     p_head    = &configMsg->head;
 
-    if (p_head->msglen < sizeof(timsMsgRouter_ConfigMsg) )
+    if (p_head->msglen < sizeof(tims_router_config_msg) )
     {
         tims_error("[PIPE]: Corrupt configuration msg in pipeFromClient, "
-                   "p_head->msglen < len(timsMsgRouter_ConfigMsg)\n");
+                   "p_head->msglen < len(tims_router_config_msg)\n");
         return -EINVAL;
     }
 
@@ -2058,7 +2058,7 @@ static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
 
 static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
 {
-    timsMsgRouter_MbxMsg    mbxMsg;
+    tims_router_mbx_msg     mbxMsg;
     tims_msg_head*          p_head;
     int                     ret;
     tims_ctx*               p_ctx;
@@ -2078,7 +2078,7 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
     }
 
     tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_INIT, 0, 0, 0, 0, 0,
-                  sizeof(timsMsgRouter_MbxMsg));
+                  sizeof(tims_router_mbx_msg));
 
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
 
@@ -2091,8 +2091,8 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
                     mbxMsg.head.msglen);
 
         ret = rt_pipe_write(&td.pipeToClient, &mbxMsg,
-                            sizeof(timsMsgRouter_MbxMsg), P_NORMAL);
-        if (ret != sizeof(timsMsgRouter_MbxMsg))
+                            sizeof(tims_router_mbx_msg), P_NORMAL);
+        if (ret != sizeof(tims_router_mbx_msg))
         {
             tims_error("[PIPE]: Can't send mbx msg %x, code = %d\n",
                        mbxMsg.mbx, ret);
@@ -2102,7 +2102,7 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
         else
         {
             tims_info("[PIPE]: Registering mbx %x @ TcpTimsMsgRouter "
-                      "(%d bytes)\n", mbxMsg.mbx, sizeof(timsMsgRouter_MbxMsg));
+                      "(%d bytes)\n", mbxMsg.mbx, sizeof(tims_router_mbx_msg));
         }
     }
     rtdm_lock_put_irqrestore(&td.ctx_lock, lock_ctx);

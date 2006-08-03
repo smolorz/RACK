@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <semaphore.h>
 
-#define NAME "TcpTimsMsgRouter"
+#define NAME "TimsMsgRouterTcp"
 
 #define DEBUG
 //#define DEBUG_DETAIL
@@ -380,14 +380,14 @@ void mailbox_delete_all(int conIndex)
 int mailbox_init(connection_t *con, tims_msg_head* tcpMsg, tims_msg_head *replyMsg)
 {
     int ret;
-    timsMsgRouter_MbxMsg* mbxMsg = NULL;
+    tims_router_mbx_msg* mbxMsg = NULL;
 
-    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
+    if (tcpMsg->msglen < sizeof(tims_router_mbx_msg))
     {
         tims_print("con[%02d]: %s: init mailbox -> message "
                    "length invalid, is: %u bytes, must be %u bytes\n",
                    con->index, inet_ntoa(con->addr.sin_addr),
-                   tcpMsg->msglen, sizeof(timsMsgRouter_MbxMsg));
+                   tcpMsg->msglen, sizeof(tims_router_mbx_msg));
         return -EFAULT;
     }
 
@@ -429,14 +429,14 @@ int mailbox_init(connection_t *con, tims_msg_head* tcpMsg, tims_msg_head *replyM
 void mailbox_cleanup(connection_t *con, tims_msg_head* tcpMsg,
                      tims_msg_head *replyMsg)
 {
-    timsMsgRouter_MbxMsg* mbxMsg = NULL;
+    tims_router_mbx_msg* mbxMsg = NULL;
 
-    if (tcpMsg->msglen < sizeof(timsMsgRouter_MbxMsg))
+    if (tcpMsg->msglen < sizeof(tims_router_mbx_msg))
     {
         tims_print("con[%02d]: %s: delete mailbox -> message length invalid, "
                    "is: %u bytes, must be %u bytes\n", con->index,
                    inet_ntoa(con->addr.sin_addr), tcpMsg->msglen,
-                   sizeof(timsMsgRouter_MbxMsg));
+                   sizeof(tims_router_mbx_msg));
         return;
     }
 

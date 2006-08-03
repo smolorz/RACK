@@ -9,7 +9,7 @@ etc_HEADERS = \
 
 bin_PROGRAMS = \
 	tims_msg_client \
-	tcp_tims_msg_router
+	tims_msg_router_tcp
 
 ### tims_msg_client ########################################
 
@@ -29,14 +29,14 @@ tims_msg_client_LDADD = \
 
 ### tcp_tims_msg_router ####################################
 
-tcp_tims_msg_router_SOURCES = \
-	tcp_tims_msg_router.c
+tims_msg_router_tcp_SOURCES = \
+	tims_msg_router_tcp.c
 
-tcp_tims_msg_router_CFLAGS = \
+tims_msg_router_tcp_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(xeno_dir)/include
 
-tcp_tims_msg_router_LDADD = \
+tims_msg_router_tcp_LDADD = \
 	-lpthread
 
 ### JAVA  #######################################

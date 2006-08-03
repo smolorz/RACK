@@ -46,7 +46,7 @@ MODULE_PARM_DESC(rtnet_buffers, "number of RTnet buffers for incoming "
 //
 // data structures
 //
-struct rtnet_extension  rtnet;
+tims_rtnet_extension  rtnet;
 
 //
 // rtnet functions
@@ -276,14 +276,14 @@ static void rtnet_recv_callback(struct rtdm_dev_context *context, void* arg)
     return;
 }
 
-int rtnet_read_config(timsMsgRouter_ConfigMsg *configMsg)
+int rtnet_read_config(tims_router_config_msg *configMsg)
 {
     struct ifreq                  ifr[8];
     struct ifconf                 ifc;
     int                           ips;
     int                           j;
     int                           localIp;
-    timsMsgRouter_MbxRoute*       entry;
+    tims_router_mbx_route*        entry;
     unsigned int                  i;
     tims_msg_head*                p_head;
     unsigned int                  configSize;
@@ -304,9 +304,9 @@ int rtnet_read_config(timsMsgRouter_ConfigMsg *configMsg)
         return -ENODEV;
     }
 
-    configSize = configMsg->num * sizeof(timsMsgRouter_MbxRoute);
+    configSize = configMsg->num * sizeof(tims_router_mbx_route);
 
-    if ((p_head->msglen - sizeof(timsMsgRouter_ConfigMsg)) < configSize )
+    if ((p_head->msglen - sizeof(tims_router_config_msg)) < configSize )
     {
         tims_error("[RTnet]: Corrupt configuration msg in pipeFromClient, "
                    "configSize too great\n");
@@ -348,7 +348,7 @@ int rtnet_read_config(timsMsgRouter_ConfigMsg *configMsg)
         if (!localIp)
         {
             memcpy(&rtnet.mbxRoute[rtnet.mbxRouteNum],
-                   &entry, sizeof(timsMsgRouter_MbxRoute));
+                   &entry, sizeof(tims_router_mbx_route));
 
             tims_info("[RTnet]: add route [%02d]: mbx: %08x - ip: %08x \n",
                       rtnet.mbxRouteNum, entry->mbx, entry->ip);
@@ -389,7 +389,7 @@ int rtnet_init(void)
     int                     ret;
     struct sockaddr_in      bindAddr;
     int                     nonblock = -1;
-    struct rtnet_callback   callback = {rtnet_recv_callback, NULL};
+    tims_rtnet_callback     callback = {rtnet_recv_callback, NULL};
 
     rtnet.init_flags  = 0;
     rtnet.fd          = -1;
@@ -432,7 +432,7 @@ int rtnet_init(void)
 
     // allocate mem for routing table
     rtnet.mbxRoute = kmalloc(MAX_RTNET_ROUTE_NUM, GFP_KERNEL *
-                             sizeof(timsMsgRouter_MbxRoute));
+                             sizeof(tims_router_mbx_route));
     if (!rtnet.mbxRoute)
     {
         tims_error("[RTnet]: Insufficient memory for routing table\n");

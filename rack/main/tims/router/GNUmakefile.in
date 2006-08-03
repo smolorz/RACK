@@ -37,7 +37,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = tims_msg_client$(EXEEXT) tcp_tims_msg_router$(EXEEXT)
+bin_PROGRAMS = tims_msg_client$(EXEEXT) tims_msg_router_tcp$(EXEEXT)
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	TimsMbx.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	TimsMsgRouter.java \
@@ -62,14 +62,14 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(javadir)" \
 	"$(DESTDIR)$(etcdir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_tcp_tims_msg_router_OBJECTS =  \
-	tcp_tims_msg_router-tcp_tims_msg_router.$(OBJEXT)
-tcp_tims_msg_router_OBJECTS = $(am_tcp_tims_msg_router_OBJECTS)
-tcp_tims_msg_router_DEPENDENCIES =
 am_tims_msg_client_OBJECTS =  \
 	tims_msg_client-tims_msg_client.$(OBJEXT)
 tims_msg_client_OBJECTS = $(am_tims_msg_client_OBJECTS)
 tims_msg_client_DEPENDENCIES =
+am_tims_msg_router_tcp_OBJECTS =  \
+	tims_msg_router_tcp-tims_msg_router_tcp.$(OBJEXT)
+tims_msg_router_tcp_OBJECTS = $(am_tims_msg_router_tcp_OBJECTS)
+tims_msg_router_tcp_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -81,9 +81,9 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(tcp_tims_msg_router_SOURCES) $(tims_msg_client_SOURCES)
-DIST_SOURCES = $(tcp_tims_msg_router_SOURCES) \
-	$(tims_msg_client_SOURCES)
+SOURCES = $(tims_msg_client_SOURCES) $(tims_msg_router_tcp_SOURCES)
+DIST_SOURCES = $(tims_msg_client_SOURCES) \
+	$(tims_msg_router_tcp_SOURCES)
 am__dist_java_JAVA_DIST = TimsMbx.java TimsMsgRouter.java \
 	TcpTimsMsgRouter.java TimsMsgGateway.java \
 	TimsMsgGatewayConnection.java TimsMsgGatewayServer.java \
@@ -354,14 +354,14 @@ tims_msg_client_LDADD = \
 
 
 ### tcp_tims_msg_router ####################################
-tcp_tims_msg_router_SOURCES = \
-	tcp_tims_msg_router.c
+tims_msg_router_tcp_SOURCES = \
+	tims_msg_router_tcp.c
 
-tcp_tims_msg_router_CFLAGS = \
+tims_msg_router_tcp_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(xeno_dir)/include
 
-tcp_tims_msg_router_LDADD = \
+tims_msg_router_tcp_LDADD = \
 	-lpthread
 
 
@@ -434,12 +434,12 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-tcp_tims_msg_router$(EXEEXT): $(tcp_tims_msg_router_OBJECTS) $(tcp_tims_msg_router_DEPENDENCIES) 
-	@rm -f tcp_tims_msg_router$(EXEEXT)
-	$(LINK) $(tcp_tims_msg_router_LDFLAGS) $(tcp_tims_msg_router_OBJECTS) $(tcp_tims_msg_router_LDADD) $(LIBS)
 tims_msg_client$(EXEEXT): $(tims_msg_client_OBJECTS) $(tims_msg_client_DEPENDENCIES) 
 	@rm -f tims_msg_client$(EXEEXT)
 	$(LINK) $(tims_msg_client_LDFLAGS) $(tims_msg_client_OBJECTS) $(tims_msg_client_LDADD) $(LIBS)
+tims_msg_router_tcp$(EXEEXT): $(tims_msg_router_tcp_OBJECTS) $(tims_msg_router_tcp_DEPENDENCIES) 
+	@rm -f tims_msg_router_tcp$(EXEEXT)
+	$(LINK) $(tims_msg_router_tcp_LDFLAGS) $(tims_msg_router_tcp_OBJECTS) $(tims_msg_router_tcp_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -447,8 +447,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_msg_client-tims_msg_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -471,20 +471,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-tcp_tims_msg_router-tcp_tims_msg_router.o: tcp_tims_msg_router.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tcp_tims_msg_router_CFLAGS) $(CFLAGS) -MT tcp_tims_msg_router-tcp_tims_msg_router.o -MD -MP -MF "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Tpo" -c -o tcp_tims_msg_router-tcp_tims_msg_router.o `test -f 'tcp_tims_msg_router.c' || echo '$(srcdir)/'`tcp_tims_msg_router.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Tpo" "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Po"; else rm -f "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tcp_tims_msg_router.c' object='tcp_tims_msg_router-tcp_tims_msg_router.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tcp_tims_msg_router_CFLAGS) $(CFLAGS) -c -o tcp_tims_msg_router-tcp_tims_msg_router.o `test -f 'tcp_tims_msg_router.c' || echo '$(srcdir)/'`tcp_tims_msg_router.c
-
-tcp_tims_msg_router-tcp_tims_msg_router.obj: tcp_tims_msg_router.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tcp_tims_msg_router_CFLAGS) $(CFLAGS) -MT tcp_tims_msg_router-tcp_tims_msg_router.obj -MD -MP -MF "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Tpo" -c -o tcp_tims_msg_router-tcp_tims_msg_router.obj `if test -f 'tcp_tims_msg_router.c'; then $(CYGPATH_W) 'tcp_tims_msg_router.c'; else $(CYGPATH_W) '$(srcdir)/tcp_tims_msg_router.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Tpo" "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Po"; else rm -f "$(DEPDIR)/tcp_tims_msg_router-tcp_tims_msg_router.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tcp_tims_msg_router.c' object='tcp_tims_msg_router-tcp_tims_msg_router.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tcp_tims_msg_router_CFLAGS) $(CFLAGS) -c -o tcp_tims_msg_router-tcp_tims_msg_router.obj `if test -f 'tcp_tims_msg_router.c'; then $(CYGPATH_W) 'tcp_tims_msg_router.c'; else $(CYGPATH_W) '$(srcdir)/tcp_tims_msg_router.c'; fi`
-
 tims_msg_client-tims_msg_client.o: tims_msg_client.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_msg_client_CFLAGS) $(CFLAGS) -MT tims_msg_client-tims_msg_client.o -MD -MP -MF "$(DEPDIR)/tims_msg_client-tims_msg_client.Tpo" -c -o tims_msg_client-tims_msg_client.o `test -f 'tims_msg_client.c' || echo '$(srcdir)/'`tims_msg_client.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_msg_client-tims_msg_client.Tpo" "$(DEPDIR)/tims_msg_client-tims_msg_client.Po"; else rm -f "$(DEPDIR)/tims_msg_client-tims_msg_client.Tpo"; exit 1; fi
@@ -498,6 +484,20 @@ tims_msg_client-tims_msg_client.obj: tims_msg_client.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_msg_client.c' object='tims_msg_client-tims_msg_client.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_msg_client_CFLAGS) $(CFLAGS) -c -o tims_msg_client-tims_msg_client.obj `if test -f 'tims_msg_client.c'; then $(CYGPATH_W) 'tims_msg_client.c'; else $(CYGPATH_W) '$(srcdir)/tims_msg_client.c'; fi`
+
+tims_msg_router_tcp-tims_msg_router_tcp.o: tims_msg_router_tcp.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_msg_router_tcp_CFLAGS) $(CFLAGS) -MT tims_msg_router_tcp-tims_msg_router_tcp.o -MD -MP -MF "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Tpo" -c -o tims_msg_router_tcp-tims_msg_router_tcp.o `test -f 'tims_msg_router_tcp.c' || echo '$(srcdir)/'`tims_msg_router_tcp.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Tpo" "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Po"; else rm -f "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_msg_router_tcp.c' object='tims_msg_router_tcp-tims_msg_router_tcp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_msg_router_tcp_CFLAGS) $(CFLAGS) -c -o tims_msg_router_tcp-tims_msg_router_tcp.o `test -f 'tims_msg_router_tcp.c' || echo '$(srcdir)/'`tims_msg_router_tcp.c
+
+tims_msg_router_tcp-tims_msg_router_tcp.obj: tims_msg_router_tcp.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_msg_router_tcp_CFLAGS) $(CFLAGS) -MT tims_msg_router_tcp-tims_msg_router_tcp.obj -MD -MP -MF "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Tpo" -c -o tims_msg_router_tcp-tims_msg_router_tcp.obj `if test -f 'tims_msg_router_tcp.c'; then $(CYGPATH_W) 'tims_msg_router_tcp.c'; else $(CYGPATH_W) '$(srcdir)/tims_msg_router_tcp.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Tpo" "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Po"; else rm -f "$(DEPDIR)/tims_msg_router_tcp-tims_msg_router_tcp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_msg_router_tcp.c' object='tims_msg_router_tcp-tims_msg_router_tcp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_msg_router_tcp_CFLAGS) $(CFLAGS) -c -o tims_msg_router_tcp-tims_msg_router_tcp.obj `if test -f 'tims_msg_router_tcp.c'; then $(CYGPATH_W) 'tims_msg_router_tcp.c'; else $(CYGPATH_W) '$(srcdir)/tims_msg_router_tcp.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

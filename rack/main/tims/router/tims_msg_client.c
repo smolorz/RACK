@@ -92,7 +92,7 @@ static int                pipeTimsToClientFd  = -1;
 static int                pipeClientToTimsFd  = -1;
 static sem_t              pipeSendSem;
 
-static timsMsgRouter_ConfigMsg* configMsg = NULL;
+static tims_router_config_msg* configMsg = NULL;
 
 static pthread_t          watchdogThread;
 static int                watchdog = 0;
@@ -549,10 +549,10 @@ void pipeRecv_task_proc(tims_msg_head *pipeRecvMsg)
                 }
                 else
                 {
-                    timsMsgRouter_ConfigMsg cMsg;
+                    tims_router_config_msg cMsg;
                     tims_fillhead(&cMsg.head, TIMS_MSG_ROUTER_CONFIG, 0, 0,
                                   pipeRecvMsg->priority, 0, 0,
-                                  sizeof(timsMsgRouter_ConfigMsg));
+                                  sizeof(tims_router_config_msg));
                     cMsg.num = 0;
                     sndPipeTimsMsg((tims_msg_head*)&cMsg);
                 }
@@ -590,8 +590,8 @@ int read_config_file(void)
     char  ip[80];
     unsigned int msglen;
 
-    configMsg = malloc(sizeof(timsMsgRouter_ConfigMsg) +
-                       MAX_RTNET_ROUTE_NUM * sizeof(timsMsgRouter_MbxRoute));
+    configMsg = malloc(sizeof(tims_router_config_msg) +
+                       MAX_RTNET_ROUTE_NUM * sizeof(tims_router_mbx_route));
     if (!configMsg)
     {
         tims_print("[INIT] ERROR: can't allocate memory for config message\n");
@@ -651,8 +651,8 @@ int read_config_file(void)
     tims_print("[INIT] config file has been read\n");
 
     // init head
-    msglen = sizeof(timsMsgRouter_ConfigMsg) +
-                    configMsg->num * sizeof(timsMsgRouter_MbxRoute);
+    msglen = sizeof(tims_router_config_msg) +
+                    configMsg->num * sizeof(tims_router_mbx_route);
 
     tims_fillhead((tims_msg_head*)configMsg, TIMS_MSG_ROUTER_CONFIG,
                   0, 0, 0, 0, 0, msglen);
