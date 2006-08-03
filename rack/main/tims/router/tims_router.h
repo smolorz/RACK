@@ -13,10 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef __TIMS_MSG_ROUTER_H__
-#define __TIMS_MSG_ROUTER_H__
+#ifndef __TIMS_ROUTER_H__
+#define __TIMS_ROUTER_H__
 
-/* this header file is used by tims_msg_client, tims_msg_router_tcp
+/* this header file is used by tims_client, tims_router_tcp
    and tims kernel module
 */
 
@@ -24,7 +24,7 @@
 #define PIPE_CLIENT_TO_TIMS                     7
 
 //######################################################################
-//# TimsMsgRouter_MbxMsg
+//# tims_router_mbx_msg
 //######################################################################
 
 typedef struct {
@@ -33,7 +33,7 @@ typedef struct {
 } __attribute__((packed)) tims_router_mbx_msg;
 
 //######################################################################
-//# TimsMsgRouter_ConfigMsg
+//# tims_router_config_msg
 //######################################################################
 
 typedef struct {
@@ -50,10 +50,10 @@ typedef struct {
 #define MAX_RTNET_ROUTE_NUM         512
 
 //######################################################################
-//# TimsMsgRouter_ConfigMsg parsing function
+//# tims_router_config_msg parsing function
 //######################################################################
 
-static inline tims_router_mbx_msg* timsMsgRouter_parse_mbxMsg(tims_msg_head* p)
+static inline tims_router_mbx_msg* tims_router_parse_mbx_msg(tims_msg_head* p)
 {
     tims_router_mbx_msg *returnP = (tims_router_mbx_msg*)p;
 
@@ -70,4 +70,4 @@ static inline tims_router_mbx_msg* timsMsgRouter_parse_mbxMsg(tims_msg_head* p)
       return returnP;
 }
 
-#endif // __TIMS_MSG_ROUTER_H_
+#endif // __TIMS_ROUTER_H_

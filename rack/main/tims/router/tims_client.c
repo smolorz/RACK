@@ -28,11 +28,11 @@
 #include <errno.h>
 #include <semaphore.h>
 
-#define NAME "TimsMsgClient"
+#define NAME "TimsClient"
 
 #include <main/tims/tims.h>
 #include <main/tims/msgtypes/tims_msg_types.h>
-#include <main/tims/router/tims_msg_router.h>
+#include <main/tims/router/tims_router.h>
 
 #define TIMS_LEVEL_PRINT          0
 #define TIMS_LEVEL_DBG            1
@@ -443,7 +443,7 @@ int connection_create()
         return ret;
     }
 
-    // connected to TCP TimsMsgRouter
+    // connected to TCP TimsRouter
     tims_fillhead(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0, 0, 0,
                   TIMS_HEADLEN);
 
@@ -482,11 +482,11 @@ void tcpRecv_task_proc(void *arg)
                 goto reset_watchdog;
         }
 
-        // handle incoming Tims Message from TcpTimsMsgRouter
+        // handle incoming Tims Message from TimsRouterTcp
         ret = recvTcpTimsMsg(tcpRecvMsg);
         if (ret)
         {
-            tims_print("[TCP_TASK] connection to TcpTimsMsgRouter closed\n");
+            tims_print("[TCP_TASK] connection to TimsRouterTcp closed\n");
             connection_close();
             if (!terminate)
                 sleep(5);
@@ -888,12 +888,12 @@ int main(int argc, char* argv[])
 
             default:
                 printf("\n"
-                "The TimsMsg is a Linux usermode programm that transferes Tims Messages\n"
-                "between the TIMS kernel module tims.o and the TcpTimsMsgRouter (former TimsMsgGateway)\n"
+                "The TimsClient is a Linux usermode programm that transferes Tims Messages\n"
+                "between the TIMS kernel module tims.o and the TimsRouterTcp\n"
                 "\n"
-                "-i IP address of the TcpTimsMsgRouter\n"
+                "-i IP address of the TimsRouterTcp\n"
                 "   (default 127.0.0.1 localhost)\n"
-                "-p port of the TcpTimsMsgRouter\n"
+                "-p port of the TimsRouterTcp\n"
                 "   (default 2000)\n"
                 "-m maxMessageSize in kBytes\n"
                 "   (default 256 kByte)\n"
@@ -932,7 +932,7 @@ int main(int argc, char* argv[])
     if (ret)
         return ret;
 
-    tims_dbg("TcpTimsMsgRouter IP %s port %i\n", ip, port);
+    tims_dbg("TimsRouterTcp IP %s port %i\n", ip, port);
     pipeRecv_task_proc(pipeRecvMsg);
 
     if (init_flags & TIMS_CLIENT_PIPE_RECV_MSG)

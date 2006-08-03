@@ -28,14 +28,14 @@
 #include <errno.h>
 #include <semaphore.h>
 
-#define NAME "TimsMsgRouterTcp"
+#define NAME "TimsRouterTcp"
 
 #define DEBUG
 //#define DEBUG_DETAIL
 
 #include <main/tims/tims.h>
 #include <main/tims/msgtypes/tims_msg_types.h>
-#include <main/tims/router/tims_msg_router.h>
+#include <main/tims/router/tims_router.h>
 
 #define TIMS_LEVEL_PRINT          0
 #define TIMS_LEVEL_DBG            1
@@ -391,7 +391,7 @@ int mailbox_init(connection_t *con, tims_msg_head* tcpMsg, tims_msg_head *replyM
         return -EFAULT;
     }
 
-    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
+    mbxMsg = tims_router_parse_mbx_msg(tcpMsg);
 
     ret = mailbox_create(mbxMsg->mbx, con->index);
     if (ret)
@@ -440,7 +440,7 @@ void mailbox_cleanup(connection_t *con, tims_msg_head* tcpMsg,
         return;
     }
 
-    mbxMsg = timsMsgRouter_parse_mbxMsg(tcpMsg);
+    mbxMsg = tims_router_parse_mbx_msg(tcpMsg);
 
     mailbox_delete(mbxMsg->mbx);
 
@@ -870,12 +870,12 @@ int main(int argc, char* argv[])
             case 'h':
             default:
                 printf( "\n"
-                "The tcp_tims_msg_router is a Linux server that transferes "
+                "The tims router TCP is a Linux server that transferes "
                 "tims messages between different RACK subsystems\n"
                 "\n"
-                "-i IP address of the TCP Tims message router\n"
+                "-i IP address of the tims router TCP\n"
                 "   (default 127.0.0.1 localhost)\n"
-                "-p port of the Tims message router\n"
+                "-p port of the tims router TCP\n"
                 "   (default 2000)\n"
                 "-m maxMessageSize in kBytes\n"
                 "   (default 256 kByte)\n"
@@ -912,7 +912,7 @@ int main(int argc, char* argv[])
     if (ret)
         return ret;
 
-    tims_print("TCP Tims Message Router IP %s port %i\n", ip, port);
+    tims_print("Tims Router TCP (IP %s port %i)\n", ip, port);
 
     tcpServer_task_proc(&tcpServerSocket);
 

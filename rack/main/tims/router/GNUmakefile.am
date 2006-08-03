@@ -8,35 +8,35 @@ etc_HEADERS = \
 	tims_rtnet_example.conf
 
 bin_PROGRAMS = \
-	tims_msg_client \
-	tims_msg_router_tcp
+	tims_client \
+	tims_router_tcp
 
-### tims_msg_client ########################################
+### tims_client ########################################
 
-tims_msg_client_SOURCES = \
-	tims_msg_client.c
+tims_client_SOURCES = \
+	tims_client.c
 
-tims_msg_client_CFLAGS = \
+tims_client_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(xeno_dir)/include
 
-#tims_msg_client_LDFLAGS =
+#tims_client_LDFLAGS =
 
-tims_msg_client_LDADD = \
+tims_client_LDADD = \
 	-L$(xeno_lib_dir) \
 	-lrtdm -lnative \
 	-lpthread
 
-### tcp_tims_msg_router ####################################
+### tims_router_tcp ####################################
 
-tims_msg_router_tcp_SOURCES = \
-	tims_msg_router_tcp.c
+tims_router_tcp_SOURCES = \
+	tims_router_tcp.c
 
-tims_msg_router_tcp_CFLAGS = \
+tims_router_tcp_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(xeno_dir)/include
 
-tims_msg_router_tcp_LDADD = \
+tims_router_tcp_LDADD = \
 	-lpthread
 
 ### JAVA  #######################################
@@ -61,5 +61,4 @@ install-dist_javaJAVA: classdist_java.stamp
 ### JAVA END #######################################
 
 EXTRA_DIST = \
-	tims_msg_gateway.h \
-	tims_msg_router.h
+	tims_router.h
