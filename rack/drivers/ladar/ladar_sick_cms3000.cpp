@@ -149,7 +149,7 @@ int  LadarSickCms3000::moduleLoop(void)
         }
         if(totalCount > 4 * 1024)
         {
-            GDOS_ERROR("Can´t synchronise on package head\n");
+            GDOS_ERROR("Cant synchronise on package head\n");
             return EAGAIN;
         }
 
@@ -208,9 +208,9 @@ int  LadarSickCms3000::moduleLoop(void)
     p_data->startAngle      = 95.0 * M_PI/180.0;
     p_data->angleResolution = -0.5 * M_PI/180.0;
     p_data->distanceNum     = 2 * 190 + 1;
-    p_data->duration        = 300;
-    p_data->maxRange        = 20000;
-    p_data->recordingTime   = p_data->recordingTime - 300;
+    p_data->duration        = 30;
+    p_data->maxRange        = 30000;
+    p_data->recordingTime   = p_data->recordingTime - p_data->duration;
 
     for(i = 0; i < p_data->distanceNum; i++)
     {
@@ -292,8 +292,8 @@ int  LadarSickCms3000::moduleInit(void)
         goto init_error;
     }
     GDOS_DBG_INFO("rtser%d has been opened \n", serialDev);
-    initBits.setBit(INIT_BIT_RTSERIAL_OPENED);    
-    
+    initBits.setBit(INIT_BIT_RTSERIAL_OPENED);
+
     ret = serialPort.setBaudrate(500000);
     if (ret)
     {
