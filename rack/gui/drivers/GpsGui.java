@@ -13,13 +13,15 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import rack.main.gui.*;
+import rack.drivers.GpsDataMsg;
+import rack.drivers.GpsProxy;
+import rack.gui.main.RackModuleGui;
 import rack.main.proxy.*;
 
 public class GpsGui extends RackModuleGui

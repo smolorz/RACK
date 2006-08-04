@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.gui;
+package rack.gui.main;
 
 import java.util.ArrayList;
 

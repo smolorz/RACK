@@ -13,23 +13,14 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.gui;
+package rack.gui.main;
 
-import rack.main.defines.Position2D;
+import java.awt.Graphics2D;
 
-import java.awt.*;
-
-public interface MapViewDrawContext
+public interface MapViewCursorDrawContext extends MapViewDrawContext,
+        MapViewActionEvent
 {
-    public Graphics2D getFrameGraphics();
 
-    public Graphics2D getWorldGraphics();
+    public Graphics2D getCursorGraphics();
 
-    public Graphics2D getRobotGraphics();
-
-    public Graphics2D getRobotGraphics(int time);
-
-    public Position2D getRobotPosition();
-
-    public Position2D getRobotPosition(int time);
 }

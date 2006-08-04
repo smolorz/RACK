@@ -13,14 +13,16 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.navigation;
+package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import rack.main.gui.*;
+import rack.gui.main.RackModuleGui;
 import rack.main.proxy.*;
+import rack.navigation.PilotInfoMsg;
+import rack.navigation.PilotProxy;
 
 public class PilotGui extends RackModuleGui
 {

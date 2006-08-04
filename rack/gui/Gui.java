@@ -51,9 +51,8 @@ import javax.swing.UIManager;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
+import rack.gui.main.RackModuleGui;
 import rack.main.naming.*;
-import rack.main.debug.*;
-import rack.main.gui.*;
 import rack.main.proxy.*;
 import rack.main.tims.Tims;
 import rack.main.tims.TimsTcp;

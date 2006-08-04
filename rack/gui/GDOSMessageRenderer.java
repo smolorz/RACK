@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.debug;
+package rack.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -25,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
+import rack.main.debug.GDOSDataMsg;
 import rack.main.naming.*;
 
 /**

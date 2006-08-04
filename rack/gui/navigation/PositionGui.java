@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.navigation;
+package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -23,12 +23,17 @@ import javax.swing.*;
 
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
-import rack.main.gui.*;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewActionList;
+import rack.gui.main.MapViewDrawContext;
+import rack.gui.main.RackModuleGui;
 import rack.main.naming.RackName;
 import rack.main.proxy.*;
 
 import rack.main.defines.Position3D;
 import rack.main.defines.Position2D;
+import rack.navigation.PositionDataMsg;
+import rack.navigation.PositionProxy;
 
 public class PositionGui extends RackModuleGui implements ActionListener
 {

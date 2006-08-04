@@ -13,13 +13,16 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import rack.main.gui.*;
+import rack.drivers.ChassisDataMsg;
+import rack.drivers.ChassisProxy;
+import rack.gui.main.MapViewDrawContext;
+import rack.gui.main.RackModuleGui;
 import rack.main.proxy.*;
 import rack.main.naming.*;
 

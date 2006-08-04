@@ -14,7 +14,7 @@
  *      Joerg Langenberg    <joerg.langenberg@gmx.net>
  *
  */
-package rack.navigation;
+package rack.gui.navigation;
 
 import java.awt.*;
 
@@ -22,6 +22,7 @@ import javax.swing.*;
 
 import rack.main.defines.Point2D;
 import rack.main.defines.PolarSpline;
+import rack.navigation.PilotInfoMsg;
 
 public class PilotComponent extends JComponent
 {

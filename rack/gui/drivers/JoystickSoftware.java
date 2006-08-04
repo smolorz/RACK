@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers.joystick;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,13 +22,13 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rack.main.debug.GDOS;
-import rack.main.gui.RackModuleGui;
 import rack.main.module.*;
 import rack.main.naming.*;
 import rack.main.proxy.*;
 import rack.main.tims.msg.*;
 import rack.navigation.PilotProxy;
 import rack.drivers.*;
+import rack.gui.main.RackModuleGui;
 
 /**
  * To change the template for this generated type comment go to

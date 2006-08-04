@@ -14,12 +14,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.image.MemoryImageSource;
 import javax.swing.*;
 
+import rack.drivers.CameraDataMsg;
 import rack.main.defines.ImageRect;
 import rack.main.defines.RackMouseListener;
 

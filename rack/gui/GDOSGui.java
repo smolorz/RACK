@@ -13,13 +13,14 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.debug;
+package rack.gui;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
+import rack.main.debug.GDOSDataMsg;
 import rack.main.tims.Tims;
 import rack.main.tims.exceptions.*;
 

@@ -13,13 +13,14 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.perception;
+package rack.gui.perception;
 
 import java.awt.*;
 
 import javax.swing.*;
 
 import rack.main.defines.ScanPoint;
+import rack.perception.Scan2DDataMsg;
 
 public class Scan2DComponent extends JComponent
 {

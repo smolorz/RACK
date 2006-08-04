@@ -15,7 +15,6 @@
  */
 package rack.gui;
 
-import rack.main.gui.*;
 import rack.main.defines.*;
 import rack.main.naming.*;
 import rack.main.tims.Tims;
@@ -33,6 +32,11 @@ import javax.imageio.*;
 
 import java.util.*;
 import rack.drivers.*;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewActionList;
+import rack.gui.main.MapViewCursorDrawContext;
+import rack.gui.main.MapViewDrawContext;
+import rack.gui.main.RackModuleGui;
 import rack.navigation.*;
 
 public class MapViewGui extends Thread

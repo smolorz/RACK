@@ -13,10 +13,12 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import javax.swing.*;
+
+import rack.drivers.LadarDataMsg;
 
 public class LadarComponent extends JComponent
 {

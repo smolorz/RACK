@@ -13,16 +13,19 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.perception;
+package rack.gui.perception;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import rack.main.gui.*;
+import rack.gui.main.MapViewDrawContext;
+import rack.gui.main.RackModuleGui;
 import rack.main.defines.*;
 import rack.main.proxy.*;
+import rack.perception.Scan2DDataMsg;
+import rack.perception.Scan2DProxy;
 
 
 public class Scan2DGui extends RackModuleGui
