@@ -26,7 +26,7 @@
 #include <main/tims/driver/tims_debug.h>
 
 #define DRIVER_AUTHOR   "Joerg Langenberg - joerg.langenberg@gmx.net"
-#define DRIVER_VERSION  "0.0.5"
+#define DRIVER_VERSION  "0.0.6"
 #define DRIVER_DESC     "Tiny Messaging Service (TIMS)"
 
 //
@@ -778,7 +778,7 @@ static int register_mbx_tcp(unsigned int mbxAdr)
     ret = rt_pipe_write(&td.pipeToClient, &mbxMsg, cpysize, P_NORMAL);
     if ( ret != cpysize)
     {
-        tims_error("ERROR: can't register mailbox %x @ TcpTimsMsgRouter, "
+        tims_error("ERROR: can't register mailbox %x @ TimsRouterTcp, "
                    "code = %d\n",mbxAdr, ret);
         return ret;
     }
@@ -799,7 +799,7 @@ static int unregister_mbx_tcp(unsigned int mbxAdr)
     ret = rt_pipe_write(&td.pipeToClient, &mbxMsg, cpysize, P_NORMAL);
     if ( ret != cpysize)
     {
-        tims_error("ERROR: can't unregister mailbox %x @ TcpTimsMsgRouter, code = %d\n",mbxAdr, ret);
+        tims_error("ERROR: can't unregister mailbox %x @ TimsRouterTcp, code = %d\n",mbxAdr, ret);
         return ret;
     }
     return 0;
@@ -2101,7 +2101,7 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
         }
         else
         {
-            tims_info("[PIPE]: Registering mbx %x @ TcpTimsMsgRouter "
+            tims_info("[PIPE]: Registering mbx %x @ TimsRouterTcp "
                       "(%d bytes)\n", mbxMsg.mbx, sizeof(tims_router_mbx_msg));
         }
     }
@@ -2185,7 +2185,7 @@ static void pipe_recv_proc(void *arg)
 
                 case TIMS_MSG_ROUTER_CONNECTED:
                     pipe_register_mbx_list(recvMsg);
-                    tims_print("[PIPE]: Connected to TcpTimsMsgRouter ...\n");
+                    tims_print("[PIPE]: Connected to TimsRouterTcp ...\n");
                     rt_pipe_free(&td.pipeFromClient, recvMsg);
                     continue;
 
@@ -2395,7 +2395,7 @@ static int tims_init(void)
         tims_print("RTnet initialised\n");
     }
     else
-        tims_print("Can't init RTnet, code = %d. Using TCP-Router\n", ret);
+        tims_print("Can't init RTnet, code = %d. Using TimsRouterTcp\n", ret);
 
     // init context cache
     tims_ctx_cache_init();
