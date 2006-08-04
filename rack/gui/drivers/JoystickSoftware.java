@@ -28,6 +28,7 @@ import rack.main.proxy.*;
 import rack.main.tims.msg.*;
 import rack.navigation.PilotProxy;
 import rack.drivers.*;
+import rack.gui.main.RackDataModule;
 import rack.gui.main.RackModuleGui;
 
 /**

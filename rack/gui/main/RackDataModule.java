@@ -13,14 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.module;
+package rack.gui.main;
 
 import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import rack.gui.main.RackModuleGui;
 import rack.main.naming.*;
 import rack.main.debug.*;
 import rack.main.proxy.*;
