@@ -456,7 +456,7 @@ int connection_create()
         return ret;
     }
 
-    tims_print("[TCP_TASK]: Connected to TcpTimsMessageRouter\n");
+    tims_print("[TCP_TASK]: Connected to TimsRouterTcp\n");
     return 0;
 }
 
