@@ -51,7 +51,7 @@ public class TimsTcp extends Tims
         tcpOut = new BufferedOutputStream(socket.getOutputStream());
         tcpIn  = socket.getInputStream();
 
-        // init MBX 0 for communication between TimsMsgRouter and TimsMsgGateway
+        // init MBX 0 for communication between Tims and TimsRouter
         TimsMbx mbx = new TimsMbx();
         mbx.name = 0;
         mbxList.addElement(mbx);
@@ -78,12 +78,12 @@ public class TimsTcp extends Tims
 
     public synchronized void snd(TimsMsg p) throws MsgException
     {
-//    System.out.println(/*"TimsMsgRouter " + */p);
+//    System.out.println(/*"TimsRouter " + */p);
 
       BufferedOutputStream out = tcpOut;
 
       if (out == null) {
-        throw(new MsgIOException("No connection to TimsMsgGateway"));
+        throw(new MsgIOException("No connection to TimsRouter"));
       }
 
       try {
@@ -158,14 +158,14 @@ public class TimsTcp extends Tims
                   mbx.notifyAll();
                 }
               } else {
-                System.out.println("TimsMsgRouter received message for unknown mbx " + p.dest);
+                System.out.println("Tims received message for unknown mbx " + p.dest);
               }
             }
             in   = tcpIn;
             sock = socket;
           }
         }  catch(IOException e) {
-          System.out.println("TimsMsgRouter " + e.getMessage());
+          System.out.println("Tims " + e.getMessage());
 
           try {
             if (sock != null)
@@ -176,11 +176,11 @@ public class TimsTcp extends Tims
           } catch (IOException e1) {}
 
         } catch (Throwable t) {
-          System.out.println("TcpTimsMsgRouter: " + t);
+          System.out.println("Tims " + t);
           t.printStackTrace();
         }
 
-        // try to reconnect to TcpTimsMsgRouter
+        // try to reconnect to TimsRouterTcp
         if (tcpIn == null) {
           synchronized(mbxList) {
             try {
@@ -198,11 +198,11 @@ public class TimsTcp extends Tims
                 send(TimsRouter.MBX_INIT, 0, 0, (byte)0, (byte)0, initMbxM);
               }
 
-              System.out.println("TimsMsgRouter reconnected to " + addr.getHostAddress() + ":" + port);
+              System.out.println("Tims reconnected to " + addr.getHostAddress() + ":" + port);
 
             } catch(Exception e) {
 
-              System.out.println("TimsMsgRouter " + e.getMessage());
+              System.out.println("Tims " + e.getMessage());
 
               tcpOut = null;
               tcpIn  = null;
