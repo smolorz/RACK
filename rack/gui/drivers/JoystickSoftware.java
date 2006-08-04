@@ -22,7 +22,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rack.main.debug.GDOS;
-import rack.main.module.*;
 import rack.main.naming.*;
 import rack.main.proxy.*;
 import rack.main.tims.msg.*;

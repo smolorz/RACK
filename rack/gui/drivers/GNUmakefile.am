@@ -9,6 +9,7 @@ dist_java_JAVA += \
 	ChassisGui.java \
 	GpsGui.java \
 	JoystickGui.java \
+	JoystickSoftware.java \
 	LadarGui.java \
 	LadarComponent.java \
 	OdometryGui.java
