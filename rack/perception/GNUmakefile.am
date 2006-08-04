@@ -9,12 +9,10 @@ SUBDIRS = \
 
 dist_java_JAVA =
 
-if CONFIG_RACK_SCAN_2D_JAVA_GUI
+if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	Scan2DProxy.java \
-	Scan2DGui.java \
-	Scan2DComponent.java \
 	Scan2DDataMsg.java
 
 endif

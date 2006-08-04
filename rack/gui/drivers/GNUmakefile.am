@@ -1,0 +1,20 @@
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA += \
+	CameraComponent.java \
+	CameraGui.java \
+	ChassisGui.java \
+	GpsGui.java \
+	JoystickGui.java \
+	LadarGui.java \
+	LadarComponent.java \
+	OdometryGui.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST =

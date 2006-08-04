@@ -415,7 +415,26 @@ RACK_JAVA_JARDIR="/gui"
 AC_SUBST(RACK_JAVA_JARDIR)
 
 dnl -----------------------------------------------------------------
-dnl  java gui
+dnl  rack java
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build java])
+AC_ARG_ENABLE(java,
+    AS_HELP_STRING([--enable-java], [building java]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_JAVA=y ;;
+        *) CONFIG_RACK_JAVA=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_JAVA:-n}])
+AM_CONDITIONAL(CONFIG_RACK_JAVA,[test "$CONFIG_RACK_JAVA" = "y"])
+if test x"$CONFIG_RACK_JAVA" = "xy"; then
+    AC_DEFINE(CONFIG_RACK_JAVA,1,[building java])
+fi
+
+AC_SUBST(CONFIG_RACK_JAVA_GUI)
+
+dnl -----------------------------------------------------------------
+dnl  rack java gui
 dnl -----------------------------------------------------------------
 
 AC_MSG_CHECKING([build java gui])
@@ -437,7 +456,7 @@ dnl -----------------------------------------------------------------
 dnl  javac & jar
 dnl -----------------------------------------------------------------
 
-if test x"$CONFIG_RACK_JAVA_GUI" = "xy"; then
+if test x"$CONFIG_RACK_JAVA" = "xy"; then
 
     AC_MSG_CHECKING([javac])
     JAVAC="`which javac`"
@@ -454,191 +473,6 @@ if test x"$CONFIG_RACK_JAVA_GUI" = "xy"; then
     else
         AC_MSG_RESULT([${JAR}])
     fi
-fi
-
-dnl -----------------------------------------------------------------
-dnl  drivers - camera java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build camera java gui])
-AC_ARG_ENABLE(camera-java-gui,
-    AS_HELP_STRING([--enable-camera-java-gui], [building camera java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_CAMERA_JAVA_GUI=y ;;
-        *) CONFIG_RACK_CAMERA_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_CAMERA_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_CAMERA_JAVA_GUI,[test "$CONFIG_RACK_CAMERA_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_CAMERA_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CAMERA_JAVA_GUI,1,[building camera java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  drivers - chassis java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build chassis java gui])
-AC_ARG_ENABLE(chassis-java-gui,
-    AS_HELP_STRING([--enable-chassis-java-gui], [building chassis java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_CHASSIS_JAVA_GUI=y ;;
-        *) CONFIG_RACK_CHASSIS_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_CHASSIS_JAVA_GUI,[test "$CONFIG_RACK_CHASSIS_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_CHASSIS_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CHASSIS_JAVA_GUI,1,[building chassis java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  drivers - gps java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build gps java gui])
-AC_ARG_ENABLE(gps-java-gui,
-    AS_HELP_STRING([--enable-gps-java-gui], [building gps java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_GPS_JAVA_GUI=y ;;
-        *) CONFIG_RACK_GPS_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_GPS_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_GPS_JAVA_GUI,[test "$CONFIG_RACK_GPS_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_GPS_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_GPS_JAVA_GUI,1,[building gps java gui])
-fi
-dnl -----------------------------------------------------------------
-dnl  drivers - joystick java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build joystick java gui])
-AC_ARG_ENABLE(joystick-java-gui,
-    AS_HELP_STRING([--enable-joystick-java-gui], [building joystick java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_JOYSTICK_JAVA_GUI=y ;;
-        *) CONFIG_RACK_JOYSTICK_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_JOYSTICK_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_JOYSTICK_JAVA_GUI,[test "$CONFIG_RACK_JOYSTICK_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_JOYSTICK_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_JOYSTICK_JAVA_GUI,1,[building joystick java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  drivers - joystick software
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build joystick software])
-AC_ARG_ENABLE(joystick-software,
-    AS_HELP_STRING([--enable-joystick-software], [building joystick software]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_JOYSTICK_SOFTWARE=y ;;
-        *) CONFIG_RACK_JOYSTICK_SOFTWARE=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_JOYSTICK_SOFTWARE:-n}])
-AM_CONDITIONAL(CONFIG_RACK_JOYSTICK_SOFTWARE,[test "$CONFIG_RACK_JOYSTICK_SOFTWARE" = "y"])
-if test "$CONFIG_RACK_JOYSTICK_SOFTWARE" = "y"; then
-    AC_DEFINE(CONFIG_RACK_JOYSTICK_SOFTWARE,1,[building joystick software])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  drivers - ladar java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build ladar java gui])
-AC_ARG_ENABLE(ladar-java-gui,
-    AS_HELP_STRING([--enable-ladar-java-gui], [building ladar java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_LADAR_JAVA_GUI=y ;;
-        *) CONFIG_RACK_LADAR_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_LADAR_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_LADAR_JAVA_GUI,[test "$CONFIG_RACK_LADAR_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_LADAR_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_LADAR_JAVA_GUI,1,[building ladar java gui])
-fi
-dnl -----------------------------------------------------------------
-dnl  drivers - Odometry java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build odometry java gui])
-AC_ARG_ENABLE(odometry-java-gui,
-    AS_HELP_STRING([--enable-odometry-java-gui], [building odometry java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_ODOMETRY_JAVA_GUI=y ;;
-        *) CONFIG_RACK_ODOMETRY_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_ODOMETRY_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_ODOMETRY_JAVA_GUI,[test "$CONFIG_RACK_ODOMETRY_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_ODOMETRY_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_ODOMETRY_JAVA_GUI,1,[building odometry java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  navigation - Pilot java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build pilot java gui])
-AC_ARG_ENABLE(pilot-java-gui,
-    AS_HELP_STRING([--enable-pilot-java-gui], [building pilot java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_PILOT_JAVA_GUI=y ;;
-        *) CONFIG_RACK_PILOT_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_PILOT_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_PILOT_JAVA_GUI,[test "$CONFIG_RACK_PILOT_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_PILOT_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_PILOT_JAVA_GUI,1,[building pilot java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  navigation - Position java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build position java gui])
-AC_ARG_ENABLE(position-java-gui,
-    AS_HELP_STRING([--enable-position-java-gui], [building position java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_POSITION_JAVA_GUI=y ;;
-        *) CONFIG_RACK_POSITION_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_POSITION_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_POSITION_JAVA_GUI,[test "$CONFIG_RACK_POSITION_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_POSITION_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_POSITION_JAVA_GUI,1,[building position java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  perception - scan 2d java gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build scan 2d java gui])
-AC_ARG_ENABLE(scan-2d-java-gui,
-    AS_HELP_STRING([--enable-scan-2d-java-gui], [building scan 2d java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_SCAN_2D_JAVA_GUI=y ;;
-        *) CONFIG_RACK_SCAN_2D_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_JAVA_GUI,[test "$CONFIG_RACK_SCAN_2D_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_SCAN_2D_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_SCAN_2D_JAVA_GUI,1,[building scan 2d java gui])
-fi
-
-dnl -----------------------------------------------------------------
-dnl  skel - dummy gui
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build dummy java gui])
-AC_ARG_ENABLE(dummy-java-gui,
-    AS_HELP_STRING([--enable-dummy-java-gui], [building dummy java gui]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_DUMMY_JAVA_GUI=y ;;
-        *) CONFIG_RACK_DUMMY_JAVA_GUI=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_DUMMY_JAVA_GUI:-n}])
-AM_CONDITIONAL(CONFIG_RACK_DUMMY_JAVA_GUI,[test "$CONFIG_RACK_DUMMY_JAVA_GUI" = "y"])
-if test "$CONFIG_RACK_DUMMY_JAVA_GUI" = "y"; then
-    AC_DEFINE(CONFIG_RACK_DUMMY_JAVA_GUI,1,[building dummy java gui])
 fi
 
 dnl -----------------------------------------------------------------
@@ -1642,7 +1476,6 @@ AC_CONFIG_FILES([GNUmakefile \
     main/GNUmakefile \
     main/argopts/GNUmakefile \
     main/defines/GNUmakefile \
-    main/gui/GNUmakefile \
     main/dxfmap/GNUmakefile \
     main/naming/GNUmakefile \
     main/lib/GNUmakefile \
@@ -1664,7 +1497,6 @@ AC_CONFIG_FILES([GNUmakefile \
     drivers/camera/GNUmakefile \
     drivers/chassis/GNUmakefile \
     drivers/gps/GNUmakefile \
-    drivers/joystick/GNUmakefile \
     drivers/ladar/GNUmakefile \
     drivers/odometry/GNUmakefile \
     \
@@ -1675,17 +1507,21 @@ AC_CONFIG_FILES([GNUmakefile \
     perception/GNUmakefile \
     perception/scan2d/GNUmakefile \
     \
+    skel/GNUmakefile \
+    skel/dummy/GNUmakefile \
+    \
     gui/GNUmakefile \
+    gui/main/GNUmakefile \
+    gui/drivers/GNUmakefile \
+    gui/navigation/GNUmakefile \
+    gui/perception/GNUmakefile \
     \
     tools/GNUmakefile \
     \
     examples/GNUmakefile \
     \
     scripts/rack-config \
-    scripts/GNUmakefile \
-    \
-    skel/GNUmakefile \
-    skel/dummy/GNUmakefile
+    scripts/GNUmakefile
 ])
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then

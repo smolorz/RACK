@@ -43,7 +43,7 @@ tims_router_tcp_LDADD = \
 
 dist_java_JAVA =
 
-if CONFIG_RACK_JAVA_GUI
+if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	TimsRouter.java \

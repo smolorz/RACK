@@ -12,17 +12,11 @@
 /* building camera file */
 #undef CONFIG_RACK_CAMERA_FILE
 
-/* building camera java gui */
-#undef CONFIG_RACK_CAMERA_JAVA_GUI
-
 /* building camera jpeg */
 #undef CONFIG_RACK_CAMERA_JPEG
 
 /* building camera v4l */
 #undef CONFIG_RACK_CAMERA_V4L
-
-/* building chassis java gui */
-#undef CONFIG_RACK_CHASSIS_JAVA_GUI
 
 /* building chassis pioneer */
 #undef CONFIG_RACK_CHASSIS_PIONEER
@@ -36,35 +30,23 @@
 /* building Dummy Abc */
 #undef CONFIG_RACK_DUMMY_ABC
 
-/* building dummy java gui */
-#undef CONFIG_RACK_DUMMY_JAVA_GUI
-
-/* building gps java gui */
-#undef CONFIG_RACK_GPS_JAVA_GUI
-
 /* building gps nmea */
 #undef CONFIG_RACK_GPS_NMEA
 
 /* Host system alias */
 #undef CONFIG_RACK_HOST_STRING
 
+/* building java */
+#undef CONFIG_RACK_JAVA
+
 /* building java gui */
 #undef CONFIG_RACK_JAVA_GUI
-
-/* building joystick java gui */
-#undef CONFIG_RACK_JOYSTICK_JAVA_GUI
-
-/* building joystick software */
-#undef CONFIG_RACK_JOYSTICK_SOFTWARE
 
 /* building ladar hokuyo urg */
 #undef CONFIG_RACK_LADAR_HOKUYO_URG
 
 /* building ladar ibeo */
 #undef CONFIG_RACK_LADAR_IBEO
-
-/* building ladar java gui */
-#undef CONFIG_RACK_LADAR_JAVA_GUI
 
 /* building ladar sick cms3000 laser scanner driver */
 #undef CONFIG_RACK_LADAR_SICK_CMS3000
@@ -75,26 +57,14 @@
 /* building odometry chassis */
 #undef CONFIG_RACK_ODOMETRY_CHASSIS
 
-/* building odometry java gui */
-#undef CONFIG_RACK_ODOMETRY_JAVA_GUI
-
-/* building pilot java gui */
-#undef CONFIG_RACK_PILOT_JAVA_GUI
-
 /* building pilot joystick */
 #undef CONFIG_RACK_PILOT_JOYSTICK
 
 /* building position */
 #undef CONFIG_RACK_POSITION
 
-/* building position java gui */
-#undef CONFIG_RACK_POSITION_JAVA_GUI
-
 /* building Scan2D */
 #undef CONFIG_RACK_SCAN_2D
-
-/* building scan 2d java gui */
-#undef CONFIG_RACK_SCAN_2D_JAVA_GUI
 
 /* building Scan2D Merge */
 #undef CONFIG_RACK_SCAN_2D_MERGE

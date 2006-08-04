@@ -19,7 +19,7 @@ VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ../../..
+top_builddir = ../..
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = @INSTALL@
 install_sh_DATA = $(install_sh) -c -m 644
@@ -35,12 +35,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_JAVA_TRUE@am__append_1 = \
-@CONFIG_RACK_JAVA_TRUE@	EndianDataInputStream.java \
-@CONFIG_RACK_JAVA_TRUE@	BigEndianDataInputStream.java \
-@CONFIG_RACK_JAVA_TRUE@	LittleEndianDataInputStream.java
+@CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
+@CONFIG_RACK_JAVA_GUI_TRUE@	PilotGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	PilotComponent.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	PositionGui.java
 
-subdir = main/tims/streams
+subdir = gui/navigation
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
 	$(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -53,8 +53,8 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = EndianDataInputStream.java \
-	BigEndianDataInputStream.java LittleEndianDataInputStream.java
+am__dist_java_JAVA_DIST = PilotGui.java PilotComponent.java \
+	PositionGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -269,6 +269,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 dist_java_JAVA = $(am__append_1)
+EXTRA_DIST = 
 all: all-am
 
 .SUFFIXES:
@@ -281,9 +282,9 @@ $(srcdir)/GNUmakefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/GNUmakefile.am  $(am_
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  main/tims/streams/GNUmakefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  gui/navigation/GNUmakefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  main/tims/streams/GNUmakefile
+	  $(AUTOMAKE) --foreign  gui/navigation/GNUmakefile
 .PRECIOUS: GNUmakefile
 GNUmakefile: $(srcdir)/GNUmakefile.in $(top_builddir)/config.status
 	@case '$?' in \

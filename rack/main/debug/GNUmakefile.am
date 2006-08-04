@@ -1,15 +1,12 @@
 
 dist_java_JAVA =
 
-if CONFIG_RACK_JAVA_GUI
+if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
-	GDOSDataMsg.java \
-	GDOSGui.java \
 	GDOS.java \
-	GDOSMessageRenderer.java \
 	GDOSProxy.java \
-	GDOSTable.java
+	GDOSDataMsg.java
 
 endif
 

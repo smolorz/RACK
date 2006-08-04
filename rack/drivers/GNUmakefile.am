@@ -6,7 +6,6 @@ SUBDIRS = \
 	camera \
 	chassis \
 	gps \
-	joystick \
 	ladar \
 	odometry
 
@@ -20,61 +19,23 @@ include_HEADERS = \
 
 dist_java_JAVA =
 
-if CONFIG_RACK_CAMERA_JAVA_GUI
+if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
-	CameraComponent.java \
 	CameraProxy.java \
-	CameraGui.java \
 	CameraDataMsg.java \
 	CameraFormatMsg.java \
-	Camera2PngConverter.java
-
-endif
-
-if CONFIG_RACK_CHASSIS_JAVA_GUI
-
-dist_java_JAVA += \
+	Camera2PngConverter.java \
 	ChassisProxy.java \
-	ChassisGui.java \
 	ChassisParamMsg.java \
 	ChassisDataMsg.java \
-	ChassisSetActivePilotMsg.java
-
-endif
-
-if CONFIG_RACK_GPS_JAVA_GUI
-
-dist_java_JAVA += \
-	GpsGui.java \
+	ChassisSetActivePilotMsg.java \
 	GpsProxy.java \
-	GpsDataMsg.java
-
-endif
-
-if CONFIG_RACK_JOYSTICK_JAVA_GUI
-
-dist_java_JAVA += \
-	JoystickGui.java \
+	GpsDataMsg.java \
 	JoystickProxy.java \
-	JoystickDataMsg.java
-
-endif
-
-if CONFIG_RACK_LADAR_JAVA_GUI
-
-dist_java_JAVA += \
+	JoystickDataMsg.java \
 	LadarProxy.java \
-	LadarGui.java \
-	LadarComponent.java \
-	LadarDataMsg.java
-
-endif
-
-if CONFIG_RACK_ODOMETRY_JAVA_GUI
-
-dist_java_JAVA += \
-	OdometryGui.java \
+	LadarDataMsg.java \
 	OdometryProxy.java \
 	OdometryDataMsg.java
 

@@ -37,7 +37,10 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	Gui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSMessageRenderer.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java
 
 subdir = gui
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
@@ -52,11 +55,21 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = Gui.java MapViewGui.java
+RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
+	html-recursive info-recursive install-data-recursive \
+	install-exec-recursive install-info-recursive \
+	install-recursive installcheck-recursive installdirs-recursive \
+	pdf-recursive ps-recursive uninstall-info-recursive \
+	uninstall-recursive
+am__dist_java_JAVA_DIST = Gui.java MapViewGui.java GDOSGui.java \
+	GDOSMessageRenderer.java GDOSTable.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
 am__installdirs = "$(DESTDIR)$(javadir)"
+ETAGS = etags
+CTAGS = ctags
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -80,14 +93,10 @@ CONFIG_RACK_CAMERA_DCAM_FALSE = @CONFIG_RACK_CAMERA_DCAM_FALSE@
 CONFIG_RACK_CAMERA_DCAM_TRUE = @CONFIG_RACK_CAMERA_DCAM_TRUE@
 CONFIG_RACK_CAMERA_FILE_FALSE = @CONFIG_RACK_CAMERA_FILE_FALSE@
 CONFIG_RACK_CAMERA_FILE_TRUE = @CONFIG_RACK_CAMERA_FILE_TRUE@
-CONFIG_RACK_CAMERA_JAVA_GUI_FALSE = @CONFIG_RACK_CAMERA_JAVA_GUI_FALSE@
-CONFIG_RACK_CAMERA_JAVA_GUI_TRUE = @CONFIG_RACK_CAMERA_JAVA_GUI_TRUE@
 CONFIG_RACK_CAMERA_JPEG_FALSE = @CONFIG_RACK_CAMERA_JPEG_FALSE@
 CONFIG_RACK_CAMERA_JPEG_TRUE = @CONFIG_RACK_CAMERA_JPEG_TRUE@
 CONFIG_RACK_CAMERA_V4L_FALSE = @CONFIG_RACK_CAMERA_V4L_FALSE@
 CONFIG_RACK_CAMERA_V4L_TRUE = @CONFIG_RACK_CAMERA_V4L_TRUE@
-CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE = @CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE@
-CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE = @CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE@
 CONFIG_RACK_CHASSIS_PIONEER_FALSE = @CONFIG_RACK_CHASSIS_PIONEER_FALSE@
 CONFIG_RACK_CHASSIS_PIONEER_TRUE = @CONFIG_RACK_CHASSIS_PIONEER_TRUE@
 CONFIG_RACK_CHASSIS_SIM_FALSE = @CONFIG_RACK_CHASSIS_SIM_FALSE@
@@ -96,25 +105,17 @@ CONFIG_RACK_DOC_DOX_FALSE = @CONFIG_RACK_DOC_DOX_FALSE@
 CONFIG_RACK_DOC_DOX_TRUE = @CONFIG_RACK_DOC_DOX_TRUE@
 CONFIG_RACK_DUMMY_ABC_FALSE = @CONFIG_RACK_DUMMY_ABC_FALSE@
 CONFIG_RACK_DUMMY_ABC_TRUE = @CONFIG_RACK_DUMMY_ABC_TRUE@
-CONFIG_RACK_DUMMY_JAVA_GUI_FALSE = @CONFIG_RACK_DUMMY_JAVA_GUI_FALSE@
-CONFIG_RACK_DUMMY_JAVA_GUI_TRUE = @CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@
-CONFIG_RACK_GPS_JAVA_GUI_FALSE = @CONFIG_RACK_GPS_JAVA_GUI_FALSE@
-CONFIG_RACK_GPS_JAVA_GUI_TRUE = @CONFIG_RACK_GPS_JAVA_GUI_TRUE@
 CONFIG_RACK_GPS_NMEA_FALSE = @CONFIG_RACK_GPS_NMEA_FALSE@
 CONFIG_RACK_GPS_NMEA_TRUE = @CONFIG_RACK_GPS_NMEA_TRUE@
+CONFIG_RACK_JAVA_FALSE = @CONFIG_RACK_JAVA_FALSE@
 CONFIG_RACK_JAVA_GUI = @CONFIG_RACK_JAVA_GUI@
 CONFIG_RACK_JAVA_GUI_FALSE = @CONFIG_RACK_JAVA_GUI_FALSE@
 CONFIG_RACK_JAVA_GUI_TRUE = @CONFIG_RACK_JAVA_GUI_TRUE@
-CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE = @CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE@
-CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE = @CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE@
-CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE = @CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE@
-CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE = @CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE@
+CONFIG_RACK_JAVA_TRUE = @CONFIG_RACK_JAVA_TRUE@
 CONFIG_RACK_LADAR_HOKUYO_URG_FALSE = @CONFIG_RACK_LADAR_HOKUYO_URG_FALSE@
 CONFIG_RACK_LADAR_HOKUYO_URG_TRUE = @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@
 CONFIG_RACK_LADAR_IBEO_FALSE = @CONFIG_RACK_LADAR_IBEO_FALSE@
 CONFIG_RACK_LADAR_IBEO_TRUE = @CONFIG_RACK_LADAR_IBEO_TRUE@
-CONFIG_RACK_LADAR_JAVA_GUI_FALSE = @CONFIG_RACK_LADAR_JAVA_GUI_FALSE@
-CONFIG_RACK_LADAR_JAVA_GUI_TRUE = @CONFIG_RACK_LADAR_JAVA_GUI_TRUE@
 CONFIG_RACK_LADAR_SICK_CMS3000_FALSE = @CONFIG_RACK_LADAR_SICK_CMS3000_FALSE@
 CONFIG_RACK_LADAR_SICK_CMS3000_TRUE = @CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@
 CONFIG_RACK_LADAR_SICK_LMS200_FALSE = @CONFIG_RACK_LADAR_SICK_LMS200_FALSE@
@@ -129,25 +130,17 @@ CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE = @CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE@
 CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE = @CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE@
 CONFIG_RACK_ODOMETRY_CHASSIS_FALSE = @CONFIG_RACK_ODOMETRY_CHASSIS_FALSE@
 CONFIG_RACK_ODOMETRY_CHASSIS_TRUE = @CONFIG_RACK_ODOMETRY_CHASSIS_TRUE@
-CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE = @CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE@
-CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE = @CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE@
 CONFIG_RACK_OPENCV_SUPPORT_FALSE = @CONFIG_RACK_OPENCV_SUPPORT_FALSE@
 CONFIG_RACK_OPENCV_SUPPORT_TRUE = @CONFIG_RACK_OPENCV_SUPPORT_TRUE@
-CONFIG_RACK_PILOT_JAVA_GUI_FALSE = @CONFIG_RACK_PILOT_JAVA_GUI_FALSE@
-CONFIG_RACK_PILOT_JAVA_GUI_TRUE = @CONFIG_RACK_PILOT_JAVA_GUI_TRUE@
 CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
-CONFIG_RACK_POSITION_JAVA_GUI_FALSE = @CONFIG_RACK_POSITION_JAVA_GUI_FALSE@
-CONFIG_RACK_POSITION_JAVA_GUI_TRUE = @CONFIG_RACK_POSITION_JAVA_GUI_TRUE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
 CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
 CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
 CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
-CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE = @CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE@
-CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE = @CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE@
 CONFIG_RACK_SCAN_2D_MERGE_FALSE = @CONFIG_RACK_SCAN_2D_MERGE_FALSE@
 CONFIG_RACK_SCAN_2D_MERGE_TRUE = @CONFIG_RACK_SCAN_2D_MERGE_TRUE@
 CONFIG_RACK_SCAN_2D_SIM_FALSE = @CONFIG_RACK_SCAN_2D_SIM_FALSE@
@@ -286,13 +279,19 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
+SUBDIRS = \
+	main \
+	drivers \
+	navigation \
+	perception
+
 dist_java_JAVA = $(am__append_1)
 @CONFIG_RACK_JAVA_GUI_TRUE@JARFILE = @PROJNAME@.jar
 EXTRA_DIST = \
 	gui.cfg \
 	gui.manifest
 
-all: all-am
+all: all-recursive
 
 .SUFFIXES:
 $(srcdir)/GNUmakefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/GNUmakefile.am  $(am__configure_deps)
@@ -352,12 +351,138 @@ uninstall-dist_javaJAVA:
 
 clean-dist_javaJAVA:
 	-rm -f *.class classdist_java.stamp
+
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run `make' without going through this Makefile.
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
+$(RECURSIVE_TARGETS):
+	@failcom='exit 1'; \
+	for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=* | --[!k]*);; \
+	    *k*) failcom='fail=yes';; \
+	  esac; \
+	done; \
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  || eval $$failcom; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+maintainer-clean-recursive:
+	@failcom='exit 1'; \
+	for f in x $$MAKEFLAGS; do \
+	  case $$f in \
+	    *=* | --[!k]*);; \
+	    *k*) failcom='fail=yes';; \
+	  esac; \
+	done; \
+	dot_seen=no; \
+	case "$@" in \
+	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
+	  *) list='$(SUBDIRS)' ;; \
+	esac; \
+	rev=''; for subdir in $$list; do \
+	  if test "$$subdir" = "."; then :; else \
+	    rev="$$subdir $$rev"; \
+	  fi; \
+	done; \
+	rev="$$rev ."; \
+	target=`echo $@ | sed s/-recursive//`; \
+	for subdir in $$rev; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  || eval $$failcom; \
+	done && test -z "$$fail"
+tags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) tags); \
+	done
+ctags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) ctags); \
+	done
+
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	mkid -fID $$unique
 tags: TAGS
-TAGS:
 
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	if ($(ETAGS) --etags-include --version) >/dev/null 2>&1; then \
+	  include_option=--etags-include; \
+	  empty_fix=.; \
+	else \
+	  include_option=--include; \
+	  empty_fix=; \
+	fi; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  if test "$$subdir" = .; then :; else \
+	    test ! -f $$subdir/TAGS || \
+	      tags="$$tags $$include_option=$$here/$$subdir/TAGS"; \
+	  fi; \
+	done; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	if test -z "$(ETAGS_ARGS)$$tags$$unique"; then :; else \
+	  test -n "$$unique" || unique=$$empty_fix; \
+	  $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
+	    $$tags $$unique; \
+	fi
 ctags: CTAGS
-CTAGS:
+CTAGS: ctags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(CTAGS_ARGS)$$tags$$unique" \
+	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
+	     $$tags $$unique
 
+GTAGS:
+	here=`$(am__cd) $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
@@ -386,22 +511,38 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
+	list='$(DIST_SUBDIRS)'; for subdir in $$list; do \
+	  if test "$$subdir" = .; then :; else \
+	    test -d "$(distdir)/$$subdir" \
+	    || $(mkdir_p) "$(distdir)/$$subdir" \
+	    || exit 1; \
+	    distdir=`$(am__cd) $(distdir) && pwd`; \
+	    top_distdir=`$(am__cd) $(top_distdir) && pwd`; \
+	    (cd $$subdir && \
+	      $(MAKE) $(AM_MAKEFLAGS) \
+	        top_distdir="$$top_distdir" \
+	        distdir="$$distdir/$$subdir" \
+	        distdir) \
+	      || exit 1; \
+	  fi; \
+	done
 check-am: all-am
-check: check-am
+check: check-recursive
 all-am: GNUmakefile classdist_java.stamp
-installdirs:
+installdirs: installdirs-recursive
+installdirs-am:
 	for dir in "$(DESTDIR)$(javadir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: install-am
-install-exec: install-exec-am
-install-data: install-data-am
-uninstall: uninstall-am
+install: install-recursive
+install-exec: install-exec-recursive
+install-data: install-data-recursive
+uninstall: uninstall-recursive
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 
-installcheck: installcheck-am
+installcheck: installcheck-recursive
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
 	  install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
@@ -418,22 +559,23 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 @CONFIG_RACK_JAVA_GUI_FALSE@install-data-local:
-clean: clean-am
+clean: clean-recursive
 
 clean-am: clean-dist_javaJAVA clean-generic clean-libtool clean-local \
 	mostlyclean-am
 
-distclean: distclean-am
+distclean: distclean-recursive
 	-rm -f GNUmakefile
-distclean-am: clean-am distclean-generic distclean-libtool
+distclean-am: clean-am distclean-generic distclean-libtool \
+	distclean-tags
 
-dvi: dvi-am
+dvi: dvi-recursive
 
 dvi-am:
 
-html: html-am
+html: html-recursive
 
-info: info-am
+info: info-recursive
 
 info-am:
 
@@ -441,41 +583,46 @@ install-data-am: install-data-local install-dist_javaJAVA
 
 install-exec-am:
 
-install-info: install-info-am
+install-info: install-info-recursive
 
 install-man:
 
 installcheck-am:
 
-maintainer-clean: maintainer-clean-am
+maintainer-clean: maintainer-clean-recursive
 	-rm -f GNUmakefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
-mostlyclean: mostlyclean-am
+mostlyclean: mostlyclean-recursive
 
 mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
-pdf: pdf-am
+pdf: pdf-recursive
 
 pdf-am:
 
-ps: ps-am
+ps: ps-recursive
 
 ps-am:
 
 uninstall-am: uninstall-dist_javaJAVA uninstall-info-am
 
-.PHONY: all all-am check check-am clean clean-dist_javaJAVA \
-	clean-generic clean-libtool clean-local distclean \
-	distclean-generic distclean-libtool distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-data-local install-dist_javaJAVA \
-	install-exec install-exec-am install-info install-info-am \
-	install-man install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
-	ps ps-am uninstall uninstall-am uninstall-dist_javaJAVA \
-	uninstall-info-am
+uninstall-info: uninstall-info-recursive
+
+.PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am \
+	clean clean-dist_javaJAVA clean-generic clean-libtool \
+	clean-local clean-recursive ctags ctags-recursive distclean \
+	distclean-generic distclean-libtool distclean-recursive \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am \
+	install-data-local install-dist_javaJAVA install-exec \
+	install-exec-am install-info install-info-am install-man \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	maintainer-clean-recursive mostlyclean mostlyclean-generic \
+	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_javaJAVA uninstall-info-am
 
 
 @CONFIG_RACK_JAVA_GUI_TRUE@all: $(JARFILE)

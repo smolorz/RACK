@@ -45,7 +45,6 @@ SUBDIRS = \
 	proxy \
 	debug \
 	argopts \
-	gui \
 	module
 
 

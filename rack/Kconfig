@@ -32,8 +32,16 @@ config RACK_XENOMAIDIR
     /usr/xenomai i.e. the build directory of
     the running Xenomai.
 
+config RACK_JAVA
+    bool "Rack Java"
+    default n
+    help
+    Help text.
+
 config RACK_JAVA_GUI
     bool "Rack Java Gui"
+    depends on RACK_JAVA
+    default n
     help
     Help text.
 

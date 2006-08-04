@@ -1,24 +1,10 @@
 menu "Navigation"
 
 menu "Pilot"
-config RACK_PILOT_JAVA_GUI
-    bool "Pilot Java GUI"
-    depends on RACK_JAVA_GUI
-    default y
-    ---help---
-    Help text.
-
 source "navigation/pilot/Kconfig"
 endmenu
 
 menu "Position"
-config RACK_POSITION_JAVA_GUI
-    bool "Position Java GUI"
-    depends on RACK_JAVA_GUI
-    default y
-    ---help---
-    Help text.
-
 source "navigation/position/Kconfig"
 endmenu
 

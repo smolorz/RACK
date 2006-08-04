@@ -1,11 +1,20 @@
 
+SUBDIRS = \
+	main \
+	drivers \
+	navigation \
+	perception
+
 dist_java_JAVA =
 
 if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
 	Gui.java \
-	MapViewGui.java
+	MapViewGui.java \
+	GDOSGui.java \
+	GDOSMessageRenderer.java \
+	GDOSTable.java
 
 JARFILE = @PROJNAME@.jar
 

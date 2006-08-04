@@ -36,10 +36,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@am__append_1 = 
 subdir = skel
-DIST_COMMON = $(dist_java_JAVA) $(include_HEADERS) \
-	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
+DIST_COMMON = $(include_HEADERS) $(srcdir)/GNUmakefile.am \
+	$(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
 	$(top_srcdir)/configure.ac
@@ -56,16 +55,13 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
-JAVAC = javac
-CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
-JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(includedir)"
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -94,14 +90,10 @@ CONFIG_RACK_CAMERA_DCAM_FALSE = @CONFIG_RACK_CAMERA_DCAM_FALSE@
 CONFIG_RACK_CAMERA_DCAM_TRUE = @CONFIG_RACK_CAMERA_DCAM_TRUE@
 CONFIG_RACK_CAMERA_FILE_FALSE = @CONFIG_RACK_CAMERA_FILE_FALSE@
 CONFIG_RACK_CAMERA_FILE_TRUE = @CONFIG_RACK_CAMERA_FILE_TRUE@
-CONFIG_RACK_CAMERA_JAVA_GUI_FALSE = @CONFIG_RACK_CAMERA_JAVA_GUI_FALSE@
-CONFIG_RACK_CAMERA_JAVA_GUI_TRUE = @CONFIG_RACK_CAMERA_JAVA_GUI_TRUE@
 CONFIG_RACK_CAMERA_JPEG_FALSE = @CONFIG_RACK_CAMERA_JPEG_FALSE@
 CONFIG_RACK_CAMERA_JPEG_TRUE = @CONFIG_RACK_CAMERA_JPEG_TRUE@
 CONFIG_RACK_CAMERA_V4L_FALSE = @CONFIG_RACK_CAMERA_V4L_FALSE@
 CONFIG_RACK_CAMERA_V4L_TRUE = @CONFIG_RACK_CAMERA_V4L_TRUE@
-CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE = @CONFIG_RACK_CHASSIS_JAVA_GUI_FALSE@
-CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE = @CONFIG_RACK_CHASSIS_JAVA_GUI_TRUE@
 CONFIG_RACK_CHASSIS_PIONEER_FALSE = @CONFIG_RACK_CHASSIS_PIONEER_FALSE@
 CONFIG_RACK_CHASSIS_PIONEER_TRUE = @CONFIG_RACK_CHASSIS_PIONEER_TRUE@
 CONFIG_RACK_CHASSIS_SIM_FALSE = @CONFIG_RACK_CHASSIS_SIM_FALSE@
@@ -110,25 +102,17 @@ CONFIG_RACK_DOC_DOX_FALSE = @CONFIG_RACK_DOC_DOX_FALSE@
 CONFIG_RACK_DOC_DOX_TRUE = @CONFIG_RACK_DOC_DOX_TRUE@
 CONFIG_RACK_DUMMY_ABC_FALSE = @CONFIG_RACK_DUMMY_ABC_FALSE@
 CONFIG_RACK_DUMMY_ABC_TRUE = @CONFIG_RACK_DUMMY_ABC_TRUE@
-CONFIG_RACK_DUMMY_JAVA_GUI_FALSE = @CONFIG_RACK_DUMMY_JAVA_GUI_FALSE@
-CONFIG_RACK_DUMMY_JAVA_GUI_TRUE = @CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@
-CONFIG_RACK_GPS_JAVA_GUI_FALSE = @CONFIG_RACK_GPS_JAVA_GUI_FALSE@
-CONFIG_RACK_GPS_JAVA_GUI_TRUE = @CONFIG_RACK_GPS_JAVA_GUI_TRUE@
 CONFIG_RACK_GPS_NMEA_FALSE = @CONFIG_RACK_GPS_NMEA_FALSE@
 CONFIG_RACK_GPS_NMEA_TRUE = @CONFIG_RACK_GPS_NMEA_TRUE@
+CONFIG_RACK_JAVA_FALSE = @CONFIG_RACK_JAVA_FALSE@
 CONFIG_RACK_JAVA_GUI = @CONFIG_RACK_JAVA_GUI@
 CONFIG_RACK_JAVA_GUI_FALSE = @CONFIG_RACK_JAVA_GUI_FALSE@
 CONFIG_RACK_JAVA_GUI_TRUE = @CONFIG_RACK_JAVA_GUI_TRUE@
-CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE = @CONFIG_RACK_JOYSTICK_JAVA_GUI_FALSE@
-CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE = @CONFIG_RACK_JOYSTICK_JAVA_GUI_TRUE@
-CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE = @CONFIG_RACK_JOYSTICK_SOFTWARE_FALSE@
-CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE = @CONFIG_RACK_JOYSTICK_SOFTWARE_TRUE@
+CONFIG_RACK_JAVA_TRUE = @CONFIG_RACK_JAVA_TRUE@
 CONFIG_RACK_LADAR_HOKUYO_URG_FALSE = @CONFIG_RACK_LADAR_HOKUYO_URG_FALSE@
 CONFIG_RACK_LADAR_HOKUYO_URG_TRUE = @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@
 CONFIG_RACK_LADAR_IBEO_FALSE = @CONFIG_RACK_LADAR_IBEO_FALSE@
 CONFIG_RACK_LADAR_IBEO_TRUE = @CONFIG_RACK_LADAR_IBEO_TRUE@
-CONFIG_RACK_LADAR_JAVA_GUI_FALSE = @CONFIG_RACK_LADAR_JAVA_GUI_FALSE@
-CONFIG_RACK_LADAR_JAVA_GUI_TRUE = @CONFIG_RACK_LADAR_JAVA_GUI_TRUE@
 CONFIG_RACK_LADAR_SICK_CMS3000_FALSE = @CONFIG_RACK_LADAR_SICK_CMS3000_FALSE@
 CONFIG_RACK_LADAR_SICK_CMS3000_TRUE = @CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@
 CONFIG_RACK_LADAR_SICK_LMS200_FALSE = @CONFIG_RACK_LADAR_SICK_LMS200_FALSE@
@@ -143,25 +127,17 @@ CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE = @CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE@
 CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE = @CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE@
 CONFIG_RACK_ODOMETRY_CHASSIS_FALSE = @CONFIG_RACK_ODOMETRY_CHASSIS_FALSE@
 CONFIG_RACK_ODOMETRY_CHASSIS_TRUE = @CONFIG_RACK_ODOMETRY_CHASSIS_TRUE@
-CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE = @CONFIG_RACK_ODOMETRY_JAVA_GUI_FALSE@
-CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE = @CONFIG_RACK_ODOMETRY_JAVA_GUI_TRUE@
 CONFIG_RACK_OPENCV_SUPPORT_FALSE = @CONFIG_RACK_OPENCV_SUPPORT_FALSE@
 CONFIG_RACK_OPENCV_SUPPORT_TRUE = @CONFIG_RACK_OPENCV_SUPPORT_TRUE@
-CONFIG_RACK_PILOT_JAVA_GUI_FALSE = @CONFIG_RACK_PILOT_JAVA_GUI_FALSE@
-CONFIG_RACK_PILOT_JAVA_GUI_TRUE = @CONFIG_RACK_PILOT_JAVA_GUI_TRUE@
 CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
-CONFIG_RACK_POSITION_JAVA_GUI_FALSE = @CONFIG_RACK_POSITION_JAVA_GUI_FALSE@
-CONFIG_RACK_POSITION_JAVA_GUI_TRUE = @CONFIG_RACK_POSITION_JAVA_GUI_TRUE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
 CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
 CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
 CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
-CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE = @CONFIG_RACK_SCAN_2D_JAVA_GUI_FALSE@
-CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE = @CONFIG_RACK_SCAN_2D_JAVA_GUI_TRUE@
 CONFIG_RACK_SCAN_2D_MERGE_FALSE = @CONFIG_RACK_SCAN_2D_MERGE_FALSE@
 CONFIG_RACK_SCAN_2D_MERGE_TRUE = @CONFIG_RACK_SCAN_2D_MERGE_TRUE@
 CONFIG_RACK_SCAN_2D_SIM_FALSE = @CONFIG_RACK_SCAN_2D_SIM_FALSE@
@@ -307,7 +283,19 @@ SUBDIRS = \
 include_HEADERS = \
 	dummy_proxy.h
 
-dist_java_JAVA = $(am__append_1)
+
+#dist_java_JAVA =
+#
+#if CONFIG_RACK_DUMMY_JAVA
+#
+#dist_java_JAVA +=
+#	DummyProxy.java \
+#	DummyDataMsg.java \
+#	DummySensMsg.java
+#
+#endif
+#
+#install-dist_javaJAVA: classdist_java.stamp
 EXTRA_DIST = \
 	Kconfig \
 	\
@@ -355,24 +343,6 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-
-classdist_java.stamp: $(dist_java_JAVA)
-	@if test -n "$?"; then \
-	  echo '$(CLASSPATH_ENV) $(JAVAC) -d $(JAVAROOT) $(AM_JAVACFLAGS) $(JAVACFLAGS) $?' ; \
-	  $(CLASSPATH_ENV) $(JAVAC) -d $(JAVAROOT) \
-	    $(AM_JAVACFLAGS) $(JAVACFLAGS) $?; \
-	else :; fi
-	echo timestamp > classdist_java.stamp
-
-uninstall-dist_javaJAVA:
-	@$(NORMAL_UNINSTALL)
-	@test -z "$(dist_java_JAVA)" || for p in *.class; do \
-	  echo " rm -f '$(DESTDIR)$(javadir)/$$p'"; \
-	  rm -f "$(DESTDIR)$(javadir)/$$p"; \
-	done
-
-clean-dist_javaJAVA:
-	-rm -f *.class classdist_java.stamp
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
@@ -570,7 +540,7 @@ check: check-recursive
 all-am: GNUmakefile $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -599,8 +569,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-dist_javaJAVA clean-generic clean-libtool \
-	mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f GNUmakefile
@@ -617,7 +586,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_javaJAVA install-includeHEADERS
+install-data-am: install-includeHEADERS
 
 install-exec-am:
 
@@ -643,33 +612,25 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dist_javaJAVA uninstall-includeHEADERS \
-	uninstall-info-am
+uninstall-am: uninstall-includeHEADERS uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am \
-	clean clean-dist_javaJAVA clean-generic clean-libtool \
-	clean-recursive ctags ctags-recursive distclean \
-	distclean-generic distclean-libtool distclean-recursive \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am \
-	install-dist_javaJAVA install-exec install-exec-am \
+	clean clean-generic clean-libtool clean-recursive ctags \
+	ctags-recursive distclean distclean-generic distclean-libtool \
+	distclean-recursive distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am \
 	install-includeHEADERS install-info install-info-am \
 	install-man install-strip installcheck installcheck-am \
 	installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic maintainer-clean-recursive \
 	mostlyclean mostlyclean-generic mostlyclean-libtool \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-dist_javaJAVA \
-	uninstall-includeHEADERS uninstall-info-am
+	uninstall uninstall-am uninstall-includeHEADERS \
+	uninstall-info-am
 
-@CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@	DummyProxy.java \
-@CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@	DummyGui.java \
-@CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@	DummyDataMsg.java \
-@CONFIG_RACK_DUMMY_JAVA_GUI_TRUE@	DummySensMsg.java
-
-install-dist_javaJAVA: classdist_java.stamp
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

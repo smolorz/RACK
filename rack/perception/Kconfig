@@ -1,12 +1,4 @@
+
 menu "Perception"
-
-config RACK_SCAN_2D_JAVA_GUI
-    bool "Scan 2D Java GUI"
-    depends on RACK_JAVA_GUI
-    default y
-    ---help---
-    Help text.
-
 source "perception/scan2d/Kconfig"
-
 endmenu

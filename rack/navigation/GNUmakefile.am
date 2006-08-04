@@ -11,20 +11,11 @@ SUBDIRS = \
 
 dist_java_JAVA =
 
-if CONFIG_RACK_PILOT_JAVA_GUI
+if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
-	PilotGui.java \
-	PilotComponent.java \
 	PilotProxy.java \
-	PilotInfoMsg.java
-
-endif
-
-if CONFIG_RACK_POSITION_JAVA_GUI
-
-dist_java_JAVA += \
-	PositionGui.java \
+	PilotInfoMsg.java \
 	PositionProxy.java \
 	PositionDataMsg.java
 
