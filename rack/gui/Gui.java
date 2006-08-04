@@ -723,10 +723,6 @@ public class Gui extends Thread
         str = (String) moduleName.get(module); // str enthaelt jetzt die
                                                 // entspr. zeile der gui.cfg
                                                 // -datei.
-        int blank = str.indexOf(' ');
-        // int k = str.indexOf('(');
-        // int id = Integer.parseInt(str.substring(blank + 1 ,k).trim());
-
         // fuer den konstruktor ...(Proxy proxysowiso)
         Class[] guiConstrArgsTypes = new Class[1];
         Object[] guiConstrArgs = new Object[1];
@@ -735,9 +731,19 @@ public class Gui extends Thread
         Class[] guiConstrArgsTypes2 = new Class[3];
         Object[] guiConstrArgs2 = new Object[3];
 
+        int blank = str.indexOf(' ');
+        System.out.println("str " + str);
         moduleGuiName = str.substring(0, blank);
+        System.out.println("Name 1 " + moduleGuiName);
         if (!getModuleParameterStart(module))
-            moduleGuiName += "Gui";
+        {
+            int dot = str.indexOf('.');
+            moduleGuiName = moduleGuiName.substring(0, dot)
+                            + ".gui."
+                            + moduleGuiName.substring(dot + 1, moduleGuiName.length())
+                            + "Gui";
+        }
+        System.out.println("Name 2 " + moduleGuiName);
 
         moduleProxyName = getModuleParameter(module, "-proxy=");
         // -proxy=??? im cfg-file?
