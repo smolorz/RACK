@@ -35,13 +35,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
-@CONFIG_RACK_JAVA_GUI_TRUE@	Gui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSMessageRenderer.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java
-
 subdir = gui
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
 	$(srcdir)/GNUmakefile.in
@@ -107,6 +100,7 @@ CONFIG_RACK_DUMMY_ABC_FALSE = @CONFIG_RACK_DUMMY_ABC_FALSE@
 CONFIG_RACK_DUMMY_ABC_TRUE = @CONFIG_RACK_DUMMY_ABC_TRUE@
 CONFIG_RACK_GPS_NMEA_FALSE = @CONFIG_RACK_GPS_NMEA_FALSE@
 CONFIG_RACK_GPS_NMEA_TRUE = @CONFIG_RACK_GPS_NMEA_TRUE@
+CONFIG_RACK_JAVA = @CONFIG_RACK_JAVA@
 CONFIG_RACK_JAVA_FALSE = @CONFIG_RACK_JAVA_FALSE@
 CONFIG_RACK_JAVA_GUI = @CONFIG_RACK_JAVA_GUI@
 CONFIG_RACK_JAVA_GUI_FALSE = @CONFIG_RACK_JAVA_GUI_FALSE@
@@ -285,8 +279,13 @@ SUBDIRS = \
 	navigation \
 	perception
 
-dist_java_JAVA = $(am__append_1)
-@CONFIG_RACK_JAVA_GUI_TRUE@JARFILE = @PROJNAME@.jar
+@CONFIG_RACK_JAVA_GUI_TRUE@dist_java_JAVA = \
+@CONFIG_RACK_JAVA_GUI_TRUE@	Gui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSMessageRenderer.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java
+
 EXTRA_DIST = \
 	gui.cfg \
 	gui.manifest
@@ -561,7 +560,7 @@ maintainer-clean-generic:
 @CONFIG_RACK_JAVA_GUI_FALSE@install-data-local:
 clean: clean-recursive
 
-clean-am: clean-dist_javaJAVA clean-generic clean-libtool clean-local \
+clean-am: clean-dist_javaJAVA clean-generic clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-recursive
@@ -611,7 +610,7 @@ uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am \
 	clean clean-dist_javaJAVA clean-generic clean-libtool \
-	clean-local clean-recursive ctags ctags-recursive distclean \
+	clean-recursive ctags ctags-recursive distclean \
 	distclean-generic distclean-libtool distclean-recursive \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
@@ -625,22 +624,9 @@ uninstall-info: uninstall-info-recursive
 	uninstall-dist_javaJAVA uninstall-info-am
 
 
-@CONFIG_RACK_JAVA_GUI_TRUE@all: $(JARFILE)
-
-@CONFIG_RACK_JAVA_GUI_TRUE@ @PROJNAME@.jar: classdist_java.stamp $(srcdir)/gui.manifest $(shell find $(top_builddir) -name "*.class")
-@CONFIG_RACK_JAVA_GUI_TRUE@	@echo "creating $@"; \
-@CONFIG_RACK_JAVA_GUI_TRUE@	builddir=`pwd`; \
-@CONFIG_RACK_JAVA_GUI_TRUE@	cd $(top_builddir); \
-@CONFIG_RACK_JAVA_GUI_TRUE@	$(JAR) cmf $(srcdir)/gui.manifest $(JARFILE) `find -H @PROJNAME@/ -name "*.class" 2> /dev/null`
-
 @CONFIG_RACK_JAVA_GUI_TRUE@install-data-local:
 @CONFIG_RACK_JAVA_GUI_TRUE@	install -d -m 755 $(DESTDIR)$(prefix)/gui
 @CONFIG_RACK_JAVA_GUI_TRUE@	install -m 644 $(srcdir)/gui.cfg $(DESTDIR)$(prefix)/gui
-@CONFIG_RACK_JAVA_GUI_TRUE@	install -m 644 $(top_builddir)/$(JARFILE) \
-@CONFIG_RACK_JAVA_GUI_TRUE@	               $(DESTDIR)$(prefix)/gui
-
-clean-local:
-	rm -f $(JARFILE)
 
 install-dist_javaJAVA: classdist_java.stamp
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

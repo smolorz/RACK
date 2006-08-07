@@ -431,7 +431,7 @@ if test x"$CONFIG_RACK_JAVA" = "xy"; then
     AC_DEFINE(CONFIG_RACK_JAVA,1,[building java])
 fi
 
-AC_SUBST(CONFIG_RACK_JAVA_GUI)
+AC_SUBST(CONFIG_RACK_JAVA)
 
 dnl -----------------------------------------------------------------
 dnl  rack java gui
@@ -1534,7 +1534,7 @@ AC_CONFIG_FILES([ \
 
 fi
 
-if test x"$CONFIG_RACK_JAVA_GUI" = x"y"; then
+if test x"$CONFIG_RACK_JAVA" = x"y"; then
 AC_CONFIG_COMMANDS([java-link], [if test ! -e ProjectName; then $LN_S . ProjectName; fi], [LN_S="$LN_S"])
 else
 AC_CONFIG_COMMANDS([java-unlink], [if test -e ProjectName; then rm -rf ProjectName; fi])

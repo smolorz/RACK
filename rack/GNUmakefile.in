@@ -36,6 +36,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@CONFIG_RACK_JAVA_GUI_TRUE@@CONFIG_RACK_JAVA_TRUE@am__append_1 = $(srcdir)/gui/gui.manifest
+@CONFIG_RACK_JAVA_GUI_TRUE@@CONFIG_RACK_JAVA_TRUE@am__append_2 = m
 DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
 	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in \
 	$(top_srcdir)/configure AUTHORS COPYING INSTALL NEWS TODO \
@@ -121,6 +123,7 @@ CONFIG_RACK_DUMMY_ABC_FALSE = @CONFIG_RACK_DUMMY_ABC_FALSE@
 CONFIG_RACK_DUMMY_ABC_TRUE = @CONFIG_RACK_DUMMY_ABC_TRUE@
 CONFIG_RACK_GPS_NMEA_FALSE = @CONFIG_RACK_GPS_NMEA_FALSE@
 CONFIG_RACK_GPS_NMEA_TRUE = @CONFIG_RACK_GPS_NMEA_TRUE@
+CONFIG_RACK_JAVA = @CONFIG_RACK_JAVA@
 CONFIG_RACK_JAVA_FALSE = @CONFIG_RACK_JAVA_FALSE@
 CONFIG_RACK_JAVA_GUI = @CONFIG_RACK_JAVA_GUI@
 CONFIG_RACK_JAVA_GUI_FALSE = @CONFIG_RACK_JAVA_GUI_FALSE@
@@ -312,6 +315,9 @@ SUBDIRS = \
 	examples \
 	scripts
 
+JARFILE = @PROJNAME@.jar
+@CONFIG_RACK_JAVA_TRUE@MANIFEST = $(am__append_1)
+@CONFIG_RACK_JAVA_TRUE@MANIFEST_FLAG = $(am__append_2)
 EXTRA_DIST = \
 	defconfig \
 	makefile \
@@ -697,7 +703,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool clean-local mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -748,9 +754,9 @@ uninstall-am: uninstall-includeHEADERS uninstall-info-am
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am am--refresh check \
-	check-am clean clean-generic clean-libtool clean-recursive \
-	ctags ctags-recursive dist dist-all dist-bzip2 dist-gzip \
-	dist-shar dist-tarZ dist-zip distcheck distclean \
+	check-am clean clean-generic clean-libtool clean-local \
+	clean-recursive ctags ctags-recursive dist dist-all dist-bzip2 \
+	dist-gzip dist-shar dist-tarZ dist-zip distcheck distclean \
 	distclean-generic distclean-libtool distclean-recursive \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
@@ -765,6 +771,17 @@ uninstall-info: uninstall-info-recursive
 	uninstall-info-am
 
 
+@CONFIG_RACK_JAVA_TRUE@all: $(JARFILE)
+
+@CONFIG_RACK_JAVA_TRUE@@PROJNAME@.jar: all-recursive $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
+@CONFIG_RACK_JAVA_TRUE@	@echo "creating $@"; \
+@CONFIG_RACK_JAVA_TRUE@	builddir=`pwd`; \
+@CONFIG_RACK_JAVA_TRUE@	cd $(top_builddir); \
+@CONFIG_RACK_JAVA_TRUE@	$(JAR) cf$(MANIFEST_FLAG) $(JARFILE) $(MANIFEST) `find -H @PROJNAME@/ -name "*.class" 2> /dev/null`
+
+clean-local:
+	rm -f $(JARFILE)
+
 reconfig xconfig gconfig mconfig menuconfig config oldconfig help:
 	@$(MAKE) -f $(srcdir)/makefile $@ \
 	srctree=$(srcdir) ARCH=@RACK_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
@@ -774,6 +791,9 @@ install-data-local:
 	$(LN_S) @abs_top_builddir@ $(DESTDIR)$(prefix)/build
 	rm -f $(DESTDIR)$(prefix)/source
 	$(LN_S) @abs_srcdir@ $(DESTDIR)$(prefix)/source
+	if test x"$(CONFIG_RACK_JAVA)" == "xy" ; then \
+	install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
+	fi;
 
 .PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -21,6 +21,33 @@ SUBDIRS = \
 	examples \
 	scripts
 
+JARFILE = @PROJNAME@.jar
+        
+if CONFIG_RACK_JAVA
+
+all: $(JARFILE)
+
+MANIFEST =
+MANIFEST_FLAG =
+
+if CONFIG_RACK_JAVA_GUI
+
+MANIFEST += $(srcdir)/gui/gui.manifest
+MANIFEST_FLAG += m
+
+endif
+        
+@PROJNAME@.jar: all-recursive $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
+	@echo "creating $@"; \
+	builddir=`pwd`; \
+	cd $(top_builddir); \
+	$(JAR) cf$(MANIFEST_FLAG) $(JARFILE) $(MANIFEST) `find -H @PROJNAME@/ -name "*.class" 2> /dev/null`
+
+endif
+
+clean-local:
+	rm -f $(JARFILE)
+
 EXTRA_DIST = \
 	defconfig \
 	makefile \
@@ -43,5 +70,8 @@ install-data-local:
 	$(LN_S) @abs_top_builddir@ $(DESTDIR)$(prefix)/build
 	rm -f $(DESTDIR)$(prefix)/source
 	$(LN_S) @abs_srcdir@ $(DESTDIR)$(prefix)/source
+	if test x"$(CONFIG_RACK_JAVA)" == "xy" ; then \
+	install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
+	fi;
 
 .PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help
