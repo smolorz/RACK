@@ -45,7 +45,6 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.debug{GDOSProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.router{TimsRouterMbxMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.msgtypes{RackMsgType.java"/>
-<file path="/rack/rack/examples/rack_sim.dxf"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.proxy{StopContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSMessageRenderer.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.msg{TimsMsg0.java"/>
@@ -74,7 +73,6 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionEvent.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotInfoMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position3D.java"/>
-<file path="/rack/rack/gui/gui.cfg"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.proxy{RackProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.exceptions{MsgIOException.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraFormatMsg.java"/>
@@ -87,7 +85,6 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.proxy{ContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{JoystickProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.streams{BigEndianDataInputStream.java"/>
-<file path="/rack/rack/examples/load_rack_sim"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.exceptions{MsgTypeException.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.proxy{GetContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.proxy{GetDataMsg.java"/>
