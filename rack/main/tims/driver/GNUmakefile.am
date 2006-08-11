@@ -9,9 +9,13 @@ libtims_a_CPPFLAGS = \
 
 libtims_a_SOURCES = \
 	tims_copy.c \
+	tims_copy.h \
 	tims_rtnet.c \
+	tims_rtnet.h \
 	tims_debug.c \
-	tims_driver.c
+	tims_debug.h \
+	tims_driver.c \
+	tims_driver.h
 
 OBJS = tims$(modext)
 

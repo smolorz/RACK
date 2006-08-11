@@ -56,4 +56,5 @@ EXTRA_DIST = \
 	Kconfig \
 	\
 	ww_b4_calibration_parameter_lr0.h \
-	ww_b4_calibration_parameter_lr2.h
+	ww_b4_calibration_parameter_lr2.h \
+	creative_calibration_parameter_lr0.h

@@ -316,7 +316,6 @@ TAGS:
 ctags: CTAGS
 CTAGS:
 
-@CONFIG_RACK_DOC_DOX_FALSE@dist-hook:
 
 distdir: $(DISTFILES)
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
@@ -345,9 +344,6 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) \
-	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
-	  dist-hook
 check-am: all-am
 check: check-am
 @CONFIG_RACK_DOC_DOX_FALSE@all-local:
@@ -428,15 +424,15 @@ ps-am:
 uninstall-am: uninstall-info-am uninstall-local
 
 .PHONY: all all-am all-local check check-am clean clean-generic \
-	clean-libtool dist-hook distclean distclean-generic \
-	distclean-libtool distclean-local distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-data-local install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	uninstall uninstall-am uninstall-info-am uninstall-local
+	clean-libtool distclean distclean-generic distclean-libtool \
+	distclean-local distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am \
+	install-data-local install-exec install-exec-am install-info \
+	install-info-am install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
+	uninstall-info-am uninstall-local
 
 
 @CONFIG_RACK_DOC_DOX_TRUE@all-local: api
@@ -453,7 +449,7 @@ uninstall-am: uninstall-info-am uninstall-local
 
 @CONFIG_RACK_DOC_DOX_TRUE@install-data-local: install-docs-local
 
-@CONFIG_RACK_DOC_DOX_TRUE@dist-hook: dist-docs-hook
+#dist-hook: dist-docs-hook
 
 @CONFIG_RACK_DOC_DOX_TRUE@uninstall-local: uninstall-docs
 
@@ -475,31 +471,31 @@ uninstall-am: uninstall-info-am uninstall-local
 
 @CONFIG_RACK_DOC_DOX_TRUE@install-docs-local: install-htmldocs
 
-@CONFIG_RACK_DOC_DOX_TRUE@dist-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
-@CONFIG_RACK_DOC_DOX_TRUE@	docs="$^"; abs_builddir=$$PWD; \
-@CONFIG_RACK_DOC_DOX_TRUE@	for dir in $$docs; do \
-@CONFIG_RACK_DOC_DOX_TRUE@	    dest=$(GEN_DOC_DIST_ROOT)/html/`basename $$dir`; \
-@CONFIG_RACK_DOC_DOX_TRUE@	    $(mkinstalldirs) $$dest && abs_dest=`cd $$dest && pwd` && \
-@CONFIG_RACK_DOC_DOX_TRUE@	    cd $$dir || exit 1; \
-@CONFIG_RACK_DOC_DOX_TRUE@	    for f in * ; do \
-@CONFIG_RACK_DOC_DOX_TRUE@		case $$f in \
-@CONFIG_RACK_DOC_DOX_TRUE@		    *~|CVS|.svn|[mM]akefile*|GNUmakefile*);; \
-@CONFIG_RACK_DOC_DOX_TRUE@		    *) $(INSTALL_DATA) $$f $$abs_dest/$$f;; \
-@CONFIG_RACK_DOC_DOX_TRUE@	        esac; \
-@CONFIG_RACK_DOC_DOX_TRUE@	    done; cd $$abs_builddir; \
-@CONFIG_RACK_DOC_DOX_TRUE@	done
+# dist-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
+# 	docs="$^"; abs_builddir=$$PWD; \
+# 	for dir in $$docs; do \
+# 	    dest=$(GEN_DOC_DIST_ROOT)/html/`basename $$dir`; \
+# 	    $(mkinstalldirs) $$dest && abs_dest=`cd $$dest && pwd` && \
+# 	    cd $$dir || exit 1; \
+# 	    for f in * ; do \
+# 		case $$f in \
+# 		    *~|CVS|.svn|[mM]akefile*|GNUmakefile*);; \
+# 		    *) $(INSTALL_DATA) $$f $$abs_dest/$$f;; \
+# 	        esac; \
+# 	    done; cd $$abs_builddir; \
+# 	done
 
 @CONFIG_RACK_DOC_DOX_TRUE@dist-docs-hook: all-local dist-htmldocs
 
 # To make distcheck happy.
-@CONFIG_RACK_DOC_DOX_TRUE@uninstall-docs:
-@CONFIG_RACK_DOC_DOX_TRUE@	if test -n "$(HTML_DOCS)"; then \
-@CONFIG_RACK_DOC_DOX_TRUE@	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)
-@CONFIG_RACK_DOC_DOX_TRUE@	    for t in $$targets; do \
-@CONFIG_RACK_DOC_DOX_TRUE@		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
-@CONFIG_RACK_DOC_DOX_TRUE@		else $(RM) $$t; fi; \
-@CONFIG_RACK_DOC_DOX_TRUE@	    done; \
-@CONFIG_RACK_DOC_DOX_TRUE@	fi
+# uninstall-docs:
+# 	if test -n "$(HTML_DOCS)"; then \
+# 	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)
+# 	    for t in $$targets; do \
+# 		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
+# 		else $(RM) $$t; fi; \
+# 	    done; \
+# 	fi
 
 @CONFIG_RACK_DOC_DOX_TRUE@.PHONY: doxygen-api
 

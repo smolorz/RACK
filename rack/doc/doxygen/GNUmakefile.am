@@ -21,7 +21,7 @@ distclean-local:
 
 install-data-local: install-docs-local
 
-dist-hook: dist-docs-hook
+#dist-hook: dist-docs-hook
 
 uninstall-local: uninstall-docs
 
@@ -49,31 +49,31 @@ install-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
 
 install-docs-local: install-htmldocs
 
-dist-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
-	docs="$^"; abs_builddir=$$PWD; \
-	for dir in $$docs; do \
-	    dest=$(GEN_DOC_DIST_ROOT)/html/`basename $$dir`; \
-	    $(mkinstalldirs) $$dest && abs_dest=`cd $$dest && pwd` && \
-	    cd $$dir || exit 1; \
-	    for f in * ; do \
-		case $$f in \
-		    *~|CVS|.svn|[mM]akefile*|GNUmakefile*);; \
-		    *) $(INSTALL_DATA) $$f $$abs_dest/$$f;; \
-	        esac; \
-	    done; cd $$abs_builddir; \
-	done
+# dist-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
+# 	docs="$^"; abs_builddir=$$PWD; \
+# 	for dir in $$docs; do \
+# 	    dest=$(GEN_DOC_DIST_ROOT)/html/`basename $$dir`; \
+# 	    $(mkinstalldirs) $$dest && abs_dest=`cd $$dest && pwd` && \
+# 	    cd $$dir || exit 1; \
+# 	    for f in * ; do \
+# 		case $$f in \
+# 		    *~|CVS|.svn|[mM]akefile*|GNUmakefile*);; \
+# 		    *) $(INSTALL_DATA) $$f $$abs_dest/$$f;; \
+# 	        esac; \
+# 	    done; cd $$abs_builddir; \
+# 	done
 
 dist-docs-hook: all-local dist-htmldocs
 
 # To make distcheck happy.
-uninstall-docs:
-	if test -n "$(HTML_DOCS)"; then \
-	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)
-	    for t in $$targets; do \
-		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
-		else $(RM) $$t; fi; \
-	    done; \
-	fi
+# uninstall-docs:
+# 	if test -n "$(HTML_DOCS)"; then \
+# 	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)
+# 	    for t in $$targets; do \
+# 		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
+# 		else $(RM) $$t; fi; \
+# 	    done; \
+# 	fi
 
 .PHONY: doxygen-api
 

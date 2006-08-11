@@ -4,10 +4,6 @@ OPTDIRS =
 
 includedir = $(prefix)/include
 
-include_HEADERS = \
-	@PROJNAME@_config.h \
-	.@PROJNAME@_config
-
 SUBDIRS = \
 	config \
 	doc \
@@ -22,7 +18,7 @@ SUBDIRS = \
 	scripts
 
 JARFILE = @PROJNAME@.jar
-        
+
 if CONFIG_RACK_JAVA
 
 all: $(JARFILE)
@@ -36,7 +32,7 @@ MANIFEST += $(srcdir)/gui/gui.manifest
 MANIFEST_FLAG += m
 
 endif
-        
+
 @PROJNAME@.jar: all-recursive $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
 	@echo "creating $@"; \
 	builddir=`pwd`; \
