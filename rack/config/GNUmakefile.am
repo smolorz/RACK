@@ -4,6 +4,5 @@ SUBDIRS = \
 
 EXTRA_DIST= \
 	arch2host.sh \
-	autogen.sh \
 	version \
 	m4/bs.m4

@@ -1,13 +1,10 @@
 
 config RACK_LADAR_IBEO
     bool "Ladar Ibeo"
-    select RACK_RTCAN_SUPPORT
-    default n
     ---help---
 
 config RACK_LADAR_HOKUYO_URG
     bool "Ladar Hokuyo urg"
-    default n
     ---help---
 
 config RACK_LADAR_SICK_LMS200

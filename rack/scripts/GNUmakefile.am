@@ -3,4 +3,5 @@ bin_SCRIPTS = \
 	rack-config
 
 EXTRA_DIST = \
+	autogen.sh \
 	rack-config.in

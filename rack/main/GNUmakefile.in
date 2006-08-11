@@ -36,9 +36,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_1 = canport
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_2 = can_port.h
-@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_3 = jdatadstmem.h
+@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_1 = jdatadstmem.h
 subdir = main
 DIST_COMMON = $(am__include_HEADERS_DIST) $(srcdir)/GNUmakefile.am \
 	$(srcdir)/GNUmakefile.in
@@ -58,11 +56,11 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
-am__include_HEADERS_DIST = can_port.h jdatadstmem.h angle_tool.h \
-	argopts.h dxf_map.h image_tool.h pilot_tool.h rack_byteorder.h \
+am__include_HEADERS_DIST = jdatadstmem.h angle_tool.h argopts.h \
+	dxf_map.h image_tool.h pilot_tool.h rack_byteorder.h \
 	rack_defines.h rack_debug.h rack_mailbox.h rack_mutex.h \
 	rack_module.h rack_datamodule.h rack_name.h rack_proxy.h \
-	rack_time.h rack_task.h rack_rtmac.h serial_port.h
+	rack_time.h rack_task.h rack_rtmac.h serial_port.h can_port.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -74,8 +72,7 @@ includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = canport serialport naming lib tims defines dxfmap \
-	mailbox proxy debug argopts module
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -143,8 +140,6 @@ CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
-CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
-CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
 CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
@@ -232,7 +227,6 @@ RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
 RACK_USER_CFLAGS = @RACK_USER_CFLAGS@
 RANLIB = @RANLIB@
-RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -286,8 +280,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-OPTDIRS = $(am__append_1)
-OPTHEADERS = $(am__append_2) $(am__append_3)
+OPTHEADERS = $(am__append_1)
 include_HEADERS = \
 	$(OPTHEADERS) \
 	angle_tool.h \
@@ -307,10 +300,11 @@ include_HEADERS = \
 	rack_time.h \
 	rack_task.h \
 	rack_rtmac.h \
-	serial_port.h
+	serial_port.h \
+	can_port.h
 
 SUBDIRS = \
-	$(OPTDIRS) \
+	canport \
 	serialport \
 	naming \
 	lib \

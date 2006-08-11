@@ -36,8 +36,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_1 = $(top_srcdir)/main/canport/can_port.cpp
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_2 = @RTCAN_CPPFLAGS@
 subdir = main/lib
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -58,35 +56,15 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 librack_la_LIBADD =
-am__librack_la_SOURCES_DIST = $(top_srcdir)/main/canport/can_port.cpp \
-	$(top_srcdir)/drivers/camera_proxy.cpp \
-	$(top_srcdir)/drivers/chassis_proxy.cpp \
-	$(top_srcdir)/drivers/gps_proxy.cpp \
-	$(top_srcdir)/drivers/joystick_proxy.cpp \
-	$(top_srcdir)/drivers/ladar_proxy.cpp \
-	$(top_srcdir)/drivers/odometry_proxy.cpp \
-	$(top_srcdir)/perception/scan2d_proxy.cpp \
-	$(top_srcdir)/navigation/pilot_proxy.cpp \
-	$(top_srcdir)/navigation/position_proxy.cpp \
-	$(top_srcdir)/main/argopts/argopts.cpp \
-	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
-	$(top_srcdir)/main/serialport/serial_port.cpp \
-	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
-	$(top_srcdir)/main/module/rack_datamodule.cpp \
-	$(top_srcdir)/main/module/rack_module.cpp \
-	$(top_srcdir)/main/proxy/rack_proxy.cpp
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__objects_1 =  \
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@	librack_la-can_port.lo
-am__objects_2 = $(am__objects_1)
-am_librack_la_OBJECTS = $(am__objects_2) librack_la-camera_proxy.lo \
+am_librack_la_OBJECTS = librack_la-camera_proxy.lo \
 	librack_la-chassis_proxy.lo librack_la-gps_proxy.lo \
 	librack_la-joystick_proxy.lo librack_la-ladar_proxy.lo \
 	librack_la-odometry_proxy.lo librack_la-scan2d_proxy.lo \
 	librack_la-pilot_proxy.lo librack_la-position_proxy.lo \
 	librack_la-argopts.lo librack_la-dxf_map.lo \
-	librack_la-serial_port.lo librack_la-rack_mailbox.lo \
-	librack_la-rack_datamodule.lo librack_la-rack_module.lo \
-	librack_la-rack_proxy.lo
+	librack_la-serial_port.lo librack_la-can_port.lo \
+	librack_la-rack_mailbox.lo librack_la-rack_datamodule.lo \
+	librack_la-rack_module.lo librack_la-rack_proxy.lo
 librack_la_OBJECTS = $(am_librack_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
@@ -100,7 +78,7 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(librack_la_SOURCES)
-DIST_SOURCES = $(am__librack_la_SOURCES_DIST)
+DIST_SOURCES = $(librack_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -170,8 +148,6 @@ CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
-CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
-CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
 CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
@@ -259,7 +235,6 @@ RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
 RACK_USER_CFLAGS = @RACK_USER_CFLAGS@
 RANLIB = @RANLIB@
-RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -313,13 +288,10 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-OPTSOURCES = $(am__append_1)
 lib_LTLIBRARIES = \
 	librack.la
 
 librack_la_SOURCES = \
-	$(OPTSOURCES) \
-	\
 	$(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
 	$(top_srcdir)/drivers/gps_proxy.cpp \
@@ -335,13 +307,14 @@ librack_la_SOURCES = \
 	$(top_srcdir)/main/argopts/argopts.cpp \
 	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
 	$(top_srcdir)/main/serialport/serial_port.cpp \
+	$(top_srcdir)/main/canport/can_port.cpp \
 	\
 	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
 	$(top_srcdir)/main/module/rack_datamodule.cpp \
 	$(top_srcdir)/main/module/rack_module.cpp \
 	$(top_srcdir)/main/proxy/rack_proxy.cpp
 
-librack_la_CPPFLAGS = $(am__append_2)
+librack_la_CPPFLAGS = 
 librack_la_LDFLAGS = -version-info 0:0:0
 all: all-am
 
@@ -451,13 +424,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
-librack_la-can_port.lo: $(top_srcdir)/main/canport/can_port.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-can_port.lo -MD -MP -MF "$(DEPDIR)/librack_la-can_port.Tpo" -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/librack_la-can_port.Tpo" "$(DEPDIR)/librack_la-can_port.Plo"; else rm -f "$(DEPDIR)/librack_la-can_port.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/canport/can_port.cpp' object='librack_la-can_port.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp
-
 librack_la-camera_proxy.lo: $(top_srcdir)/drivers/camera_proxy.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-camera_proxy.lo -MD -MP -MF "$(DEPDIR)/librack_la-camera_proxy.Tpo" -c -o librack_la-camera_proxy.lo `test -f '$(top_srcdir)/drivers/camera_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/camera_proxy.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/librack_la-camera_proxy.Tpo" "$(DEPDIR)/librack_la-camera_proxy.Plo"; else rm -f "$(DEPDIR)/librack_la-camera_proxy.Tpo"; exit 1; fi
@@ -541,6 +507,13 @@ librack_la-serial_port.lo: $(top_srcdir)/main/serialport/serial_port.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/serialport/serial_port.cpp' object='librack_la-serial_port.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-serial_port.lo `test -f '$(top_srcdir)/main/serialport/serial_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/serialport/serial_port.cpp
+
+librack_la-can_port.lo: $(top_srcdir)/main/canport/can_port.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-can_port.lo -MD -MP -MF "$(DEPDIR)/librack_la-can_port.Tpo" -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/librack_la-can_port.Tpo" "$(DEPDIR)/librack_la-can_port.Plo"; else rm -f "$(DEPDIR)/librack_la-can_port.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/canport/can_port.cpp' object='librack_la-can_port.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp
 
 librack_la-rack_mailbox.lo: $(top_srcdir)/main/mailbox/rack_mailbox.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_mailbox.lo -MD -MP -MF "$(DEPDIR)/librack_la-rack_mailbox.Tpo" -c -o librack_la-rack_mailbox.lo `test -f '$(top_srcdir)/main/mailbox/rack_mailbox.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/mailbox/rack_mailbox.cpp; \

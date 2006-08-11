@@ -75,9 +75,7 @@ config.status: .rack_config
 	fi
 
 #eval `grep ^CONFIG_RACK_XENOMAIDIR $<`;
-#eval `grep ^CONFIG_RACK_RTCANDIR $<`;
 #--with-xeno-dir=$$CONFIG_RACK_XENOMAIDIR
-#--with-rtcan-dir=$$CONFIG_RACK_RTCANDIR
 
 qconf: $(KCONFIG_DIR)
 	@$(MAKE) -C $(KCONFIG_DIR) \
@@ -102,6 +100,11 @@ conf: $(KCONFIG_DIR)
 oldconf: $(KCONFIG_DIR)
 	@$(MAKE) -C $(KCONFIG_DIR) \
 	-f $(srctree)/$(KCONFIG_DIR)/Makefile.kconfig oldconfig \
+	srctree=$(srctree) ARCH=$(ARCH)
+
+defconfig: $(KCONFIG_DIR)
+	@$(MAKE) -C $(KCONFIG_DIR) \
+	-f $(srctree)/$(KCONFIG_DIR)/Makefile.kconfig defconfig \
 	srctree=$(srctree) ARCH=$(ARCH)
 
 $(KCONFIG_DIR):
