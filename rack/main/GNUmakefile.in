@@ -324,8 +324,7 @@ SUBDIRS = \
 	module
 
 EXTRA_DIST = \
-	Kconfig \
-	doxygen.h
+	Kconfig
 
 all: all-recursive
 
