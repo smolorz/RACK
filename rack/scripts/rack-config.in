@@ -35,6 +35,8 @@ XENOMAI_LIBS="@XENOMAI_LIBS@"
 
 RTNET_CPPFLAGS="@RTNET_CPPFLAGS@"
 
+RTCAN_CPPFLAGS="@RTCAN_CPPFLAGS@"
+
 LIBRAW1394_CPPFLAGS="@LIBRAW1394_CPPFLAGS@"
 LIBRAW1394_LDFLAGS="@LIBRAW1394_LDFLAGS@"
 LIBRAW1394_LIBS="@LIBRAW1394_LIBS@"
@@ -120,6 +122,7 @@ while test $# -gt 0; do
                 rack)       echo $RACK_CPPFLAGS       ;;
                 xenomai)    echo $XENOMAI_CPPFLAGS    ;;
                 rtnet)      echo $RTNET_CPPFLAGS      ;;
+                rtcan)      echo $RTCAN_CPPFLAGS      ;;
                 libraw1394) echo $LIBRAW1394_CPPFLAGS ;;
                 libdc1394)  echo $LIBDC1394_CPPFLAGS  ;;
                 libjpeg)    echo $LIBJPEG_CPPFLAGS    ;;

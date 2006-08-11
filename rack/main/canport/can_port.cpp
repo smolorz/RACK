@@ -70,41 +70,40 @@ CanPort::~CanPort()
  *
  * Rescheduling: possible.
  */
-int CanPort::open(int dev, can_filter_t *filter_list, int nr_filters, RackModule *module)
+int CanPort::open(int dev, sockaddr_can* scan, int scan_size, RackModule *module)
 {
-    int                 ret;
-    struct ifreq        ifr;
-    struct sockaddr_can scan;
+    int             ret;
+    struct ifreq    ifr;
 
     if (fd != -1) // file is open
+    {
         return -EBUSY;
+    }
 
     // Prepare CAN socket and controller
     fd = rt_dev_socket(PF_CAN, SOCK_RAW, 0);
     if (fd < 0)
+    {
         return fd;
+    }
 
     // get interface index
     sprintf(ifr.ifr_name, "rtcan%d", dev);
-    ret = rt_dev_ioctl(fd, SIOCGIFINDEX, &ifr);
+    ret = rt_dev_ioctl(fd, RTCAN_RTIOC_GET_IFINDEX, &ifr);
     if (ret)
+    {
         goto exit_error;
-
-
-    if (nr_filters > 0) {
-        ret = rt_dev_setsockopt(fd, SOL_CAN_RAW, CAN_RAW_FILTER, filter_list,
-                                nr_filters * sizeof(can_filter_t));
-        if (ret)
-            goto exit_error;
     }
 
     // Bind socket to default CAN IDs
-    scan.can_family  = AF_CAN;
-    scan.can_ifindex = ifr.ifr_ifindex;
+    scan->can_family  = AF_CAN;
+    scan->can_ifindex = ifr.ifr_ifindex;
 
-    ret = rt_dev_bind(fd, (struct sockaddr *)&scan, sizeof(scan));
+    ret = rt_dev_bind(fd, (struct sockaddr *)scan, scan_size);
     if (ret)
+    {
         goto exit_error;
+    }
 
     this->module = module;
     return 0;
@@ -145,7 +144,9 @@ int CanPort::close(void)
             return 0;
         }
         else if (ret == -EAGAIN) // try it again (max 5 times)
+        {
             sleep(1); // wait 1s
+        }
     }
     while (ret != -EAGAIN && i--);
 
@@ -225,14 +226,15 @@ int CanPort::getTimestamps()
  *
  * Rescheduling: none.
  */
-int CanPort::send(can_frame_t* frame)
+int CanPort::send(rtcan_frame_t* frame)
 {
     int ret;
 
-    ret = rt_dev_send(fd, frame, sizeof(can_frame_t), 0);
-    if (ret < 0)
+    ret = rt_dev_send(fd, frame, sizeof(rtcan_frame_t), 0);
+    if (ret != sizeof(rtcan_frame_t))
+    {
         return ret;
-
+    }
     return 0;
 }
 
@@ -259,7 +261,7 @@ int CanPort::send(can_frame_t* frame)
  *
  * Rescheduling: possible.
  */
-int CanPort::recv(can_frame_t *recv_frame, rack_time_t *timestamp)
+int CanPort::recv(rtcan_frame_t *recv_frame, rack_time_t *timestamp)
 {
     int ret;
     uint64_t timestamp_ns;
@@ -267,7 +269,7 @@ int CanPort::recv(can_frame_t *recv_frame, rack_time_t *timestamp)
     struct iovec  iov =
     {
         iov_base : recv_frame,
-        iov_len  : sizeof(can_frame_t)
+        iov_len  : sizeof(rtcan_frame_t)
     };
 
     struct msghdr msg =
@@ -291,11 +293,15 @@ int CanPort::recv(can_frame_t *recv_frame, rack_time_t *timestamp)
     }
 
     ret = rt_dev_recvmsg(fd, &msg, 0);
-    if (ret < 0)
+    if (ret != sizeof(rtcan_frame_t))
+    {
         return ret;
+    }
 
     if (timestamp != NULL)
+    {
         *timestamp = module->rackTime.fromNano(timestamp_ns);
+    }
 
     return 0;
 }

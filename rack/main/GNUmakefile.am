@@ -1,6 +1,12 @@
+OPTDIRS =
 OPTHEADERS =
 
 includedir = $(prefix)/include/main
+
+if CONFIG_RACK_RTCAN_SUPPORT
+OPTDIRS += canport
+OPTHEADERS += can_port.h
+endif
 
 if CONFIG_RACK_LIBJPEG_SUPPORT
 OPTHEADERS += jdatadstmem.h
@@ -25,11 +31,10 @@ include_HEADERS = \
 	rack_time.h \
 	rack_task.h \
 	rack_rtmac.h \
-	serial_port.h \
-	can_port.h
+	serial_port.h
 
 SUBDIRS = \
-	canport \
+	$(OPTDIRS) \
 	serialport \
 	naming \
 	lib \

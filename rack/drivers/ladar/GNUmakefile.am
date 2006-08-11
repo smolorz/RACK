@@ -23,6 +23,7 @@ LadarIbeo_SOURCES = \
 	ladar_ibeo.h \
 	ladar_ibeo.cpp
 
+LadarIbeo_CPPFLAGS = @RTCAN_CPPFLAGS@
 LadarIbeo_LDFLAGS = @RACK_LIBS@
 
 

@@ -294,6 +294,25 @@ AC_ARG_WITH(rtnet-dir,
 
 dnl ----------------------------------------------------------------------------
 
+AC_ARG_ENABLE(rtcan-support,
+    AS_HELP_STRING([--enable-rtcan-support], [enable rtcan support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_RTCAN_SUPPORT=y ;;
+        *) CONFIG_RACK_RTCAN_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(rtcan-dir,
+    AS_HELP_STRING([--with-rtcan-dir=<can-dir>], [Source path of rtcan]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-rtcan-dir.])
+      ;;
+    esac
+    CONFIG_RACK_RTCANDIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
 AC_ARG_ENABLE(libraw1394-support,
     AS_HELP_STRING([--enable-libraw1394-support], [enable libraw1394 support]),
     [case "$enableval" in
@@ -618,6 +637,7 @@ AC_MSG_RESULT([${CONFIG_RACK_LADAR_IBEO:-n}])
 AM_CONDITIONAL(CONFIG_RACK_LADAR_IBEO,[test "$CONFIG_RACK_LADAR_IBEO" = "y"])
 if test "$CONFIG_RACK_LADAR_IBEO" = "y"; then
     AC_DEFINE(CONFIG_RACK_LADAR_IBEO,1,[building ladar ibeo])
+    CONFIG_RACK_RTCAN_SUPPORT=y
 fi
 
 dnl -----------------------------------------------------------------
@@ -847,6 +867,48 @@ fi
 AC_SUBST(RTNET_CPPFLAGS)
 AM_CONDITIONAL(CONFIG_RACK_RTNET_SUPPORT,
                [test x"${CONFIG_RACK_RTNET_SUPPORT}" = "xy"])
+
+dnl ----- rt_sja1000 -----------------------------------------------------------
+dnl
+dnl  depends on xenomai
+dnl  provides headers: yes
+dnl  provides libs:    no
+dnl
+
+AC_MSG_CHECKING([rtcan support is needed])
+AC_MSG_RESULT([${CONFIG_RACK_RTCAN_SUPPORT}])
+
+RTCAN_CPPFLAGS=""
+    
+if test x"${CONFIG_RACK_RTCAN_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+
+    if test x${CONFIG_RACK_RTCANDIR} != "x"; then
+        AC_MSG_CHECKING([rtcan directory])
+        if test -d ${CONFIG_RACK_RTCANDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_RTCANDIR}])
+
+            RTCAN_CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include"
+
+            CPPFLAGS="${XENOMAI_CPPFLAGS} ${CPPFLAGS}"
+            CPPFLAGS="${RTCAN_CPPFLAGS} ${CPPFLAGS}"
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_RTCANDIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER(rtcan.h,,
+                    [AC_MSG_ERROR(cannot find rtcan.h)]
+                   )
+
+    RACK_SUPPORTS="rtcan ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+fi
+
+AC_SUBST(RTCAN_CPPFLAGS)
+AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
+               [test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"])
 
 dnl ----- libraw1394 -----------------------------------------------------------
 dnl

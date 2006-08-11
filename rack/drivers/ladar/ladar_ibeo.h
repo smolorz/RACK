@@ -46,8 +46,8 @@ class LadarIbeo : public RackDataModule {
         rack_time_t   timeOffset;
         rack_time_t   timeOffsetSector[8];
 
-        int sendRequestPacket(int requestCommand, int parameterLen, void* parameter);
-        int receiveResponsePacket(int responseCode, int maxParameterLen, void* parameter, rack_time_t* recordingtime);
+        int sendRequestPackage(int requestCommand, int parameterLen, void* parameter);
+        int receiveResponsePackage(int responseCode, int maxParameterLen, void* parameter, rack_time_t* recordingtime);
         int decodeSensorStatus(unsigned int senstat);
         int getSensorStatus(void);
         int transIdle(void);
