@@ -464,7 +464,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROJNAME build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL CCAS CCASFLAGS LD JAR XENO_USER_PREFIX XENO_LIBRARIES RACK_TARGET_ARCH RACK_JAVA_JARDIR CONFIG_RACK_JAVA_TRUE CONFIG_RACK_JAVA_FALSE CONFIG_RACK_JAVA CONFIG_RACK_JAVA_GUI_TRUE CONFIG_RACK_JAVA_GUI_FALSE CONFIG_RACK_JAVA_GUI CONFIG_RACK_CAMERA_DCAM_TRUE CONFIG_RACK_CAMERA_DCAM_FALSE CONFIG_RACK_CAMERA_FILE_TRUE CONFIG_RACK_CAMERA_FILE_FALSE CONFIG_RACK_CAMERA_JPEG_TRUE CONFIG_RACK_CAMERA_JPEG_FALSE CONFIG_RACK_CAMERA_V4L_TRUE CONFIG_RACK_CAMERA_V4L_FALSE CONFIG_RACK_CHASSIS_PIONEER_TRUE CONFIG_RACK_CHASSIS_PIONEER_FALSE CONFIG_RACK_CHASSIS_SIM_TRUE CONFIG_RACK_CHASSIS_SIM_FALSE CONFIG_RACK_GPS_NMEA_TRUE CONFIG_RACK_GPS_NMEA_FALSE CONFIG_RACK_LADAR_HOKUYO_URG_TRUE CONFIG_RACK_LADAR_HOKUYO_URG_FALSE CONFIG_RACK_LADAR_IBEO_TRUE CONFIG_RACK_LADAR_IBEO_FALSE CONFIG_RACK_LADAR_SICK_LMS200_TRUE CONFIG_RACK_LADAR_SICK_LMS200_FALSE CONFIG_RACK_LADAR_SICK_CMS3000_TRUE CONFIG_RACK_LADAR_SICK_CMS3000_FALSE CONFIG_RACK_ODOMETRY_CHASSIS_TRUE CONFIG_RACK_ODOMETRY_CHASSIS_FALSE CONFIG_RACK_PILOT_JOYSTICK_TRUE CONFIG_RACK_PILOT_JOYSTICK_FALSE CONFIG_RACK_POSITION_TRUE CONFIG_RACK_POSITION_FALSE CONFIG_RACK_SCAN_2D_TRUE CONFIG_RACK_SCAN_2D_FALSE CONFIG_RACK_SCAN_2D_MERGE_TRUE CONFIG_RACK_SCAN_2D_MERGE_FALSE CONFIG_RACK_SCAN_2D_SIM_TRUE CONFIG_RACK_SCAN_2D_SIM_FALSE CONFIG_RACK_DUMMY_ABC_TRUE CONFIG_RACK_DUMMY_ABC_FALSE XENOMAI_CPPFLAGS XENOMAI_LDFLAGS XENOMAI_LIBS CONFIG_RACK_XENOMAI_SUPPORT_TRUE CONFIG_RACK_XENOMAI_SUPPORT_FALSE RTNET_CPPFLAGS CONFIG_RACK_RTNET_SUPPORT_TRUE CONFIG_RACK_RTNET_SUPPORT_FALSE RTCAN_CPPFLAGS CONFIG_RACK_RTCAN_SUPPORT_TRUE CONFIG_RACK_RTCAN_SUPPORT_FALSE LIBRAW1394_CPPFLAGS LIBRAW1394_LDFLAGS LIBRAW1394_LIBS CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE LIBDC1394_CPPFLAGS LIBDC1394_LDFLAGS LIBDC1394_LIBS CONFIG_RACK_LIBDC1394_SUPPORT_TRUE CONFIG_RACK_LIBDC1394_SUPPORT_FALSE LIBJPEG_CPPFLAGS LIBJPEG_LDFLAGS LIBJPEG_LIBS CONFIG_RACK_LIBJPEG_SUPPORT_TRUE CONFIG_RACK_LIBJPEG_SUPPORT_FALSE LIBPNG_CPPFLAGS LIBPNG_LDFLAGS LIBPNG_LIBS CONFIG_LIBPNG_TRUE CONFIG_LIBPNG_FALSE CONFIG_RACK_LIBPNG_SUPPORT_TRUE CONFIG_RACK_LIBPNG_SUPPORT_FALSE OPENCV_CPPFLAGS OPENCV_LDFLAGS OPENCV_LIBS CONFIG_OPENCV_TRUE CONFIG_OPENCV_FALSE CONFIG_RACK_OPENCV_SUPPORT_TRUE CONFIG_RACK_OPENCV_SUPPORT_FALSE RACK_SUPPORTS RACK_LIBS RACK_GLOBAL_CPPFLAGS RACK_GLOBAL_LDFLAGS RACK_MAYBE_DOCDIR DOXYGEN DOXYGEN_HAVE_DOT CONFIG_RACK_DOC_DOX_TRUE CONFIG_RACK_DOC_DOX_FALSE DOXYGEN_SHOW_INCLUDE_FILES CROSS_COMPILE RACK_MODULE_EXT RACK_KBUILD_ENV RACK_KBUILD_CMD RACK_KBUILD_CLEAN RACK_KBUILD_DISTCLEAN RACK_MODULE_DIR RACK_KMOD_CFLAGS RACK_USER_CFLAGS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PROJNAME build build_cpu build_vendor build_os host host_cpu host_vendor host_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL CCAS CCASFLAGS LD JAR CONFIG_RACK_BUILD_KMOD_TRUE CONFIG_RACK_BUILD_KMOD_FALSE XENO_USER_PREFIX XENO_LIBRARIES RACK_TARGET_ARCH RACK_JAVA_JARDIR CONFIG_RACK_JAVA_TRUE CONFIG_RACK_JAVA_FALSE CONFIG_RACK_JAVA CONFIG_RACK_JAVA_GUI_TRUE CONFIG_RACK_JAVA_GUI_FALSE CONFIG_RACK_JAVA_GUI CONFIG_RACK_CAMERA_DCAM_TRUE CONFIG_RACK_CAMERA_DCAM_FALSE CONFIG_RACK_CAMERA_FILE_TRUE CONFIG_RACK_CAMERA_FILE_FALSE CONFIG_RACK_CAMERA_JPEG_TRUE CONFIG_RACK_CAMERA_JPEG_FALSE CONFIG_RACK_CAMERA_V4L_TRUE CONFIG_RACK_CAMERA_V4L_FALSE CONFIG_RACK_CHASSIS_PIONEER_TRUE CONFIG_RACK_CHASSIS_PIONEER_FALSE CONFIG_RACK_CHASSIS_SIM_TRUE CONFIG_RACK_CHASSIS_SIM_FALSE CONFIG_RACK_GPS_NMEA_TRUE CONFIG_RACK_GPS_NMEA_FALSE CONFIG_RACK_LADAR_HOKUYO_URG_TRUE CONFIG_RACK_LADAR_HOKUYO_URG_FALSE CONFIG_RACK_LADAR_IBEO_TRUE CONFIG_RACK_LADAR_IBEO_FALSE CONFIG_RACK_LADAR_SICK_LMS200_TRUE CONFIG_RACK_LADAR_SICK_LMS200_FALSE CONFIG_RACK_LADAR_SICK_CMS3000_TRUE CONFIG_RACK_LADAR_SICK_CMS3000_FALSE CONFIG_RACK_ODOMETRY_CHASSIS_TRUE CONFIG_RACK_ODOMETRY_CHASSIS_FALSE CONFIG_RACK_PILOT_JOYSTICK_TRUE CONFIG_RACK_PILOT_JOYSTICK_FALSE CONFIG_RACK_POSITION_TRUE CONFIG_RACK_POSITION_FALSE CONFIG_RACK_SCAN_2D_TRUE CONFIG_RACK_SCAN_2D_FALSE CONFIG_RACK_SCAN_2D_MERGE_TRUE CONFIG_RACK_SCAN_2D_MERGE_FALSE CONFIG_RACK_SCAN_2D_SIM_TRUE CONFIG_RACK_SCAN_2D_SIM_FALSE CONFIG_RACK_DUMMY_ABC_TRUE CONFIG_RACK_DUMMY_ABC_FALSE XENOMAI_CPPFLAGS XENOMAI_LDFLAGS XENOMAI_LIBS CONFIG_RACK_XENOMAI_SUPPORT_TRUE CONFIG_RACK_XENOMAI_SUPPORT_FALSE RTNET_CPPFLAGS CONFIG_RACK_RTNET_SUPPORT_TRUE CONFIG_RACK_RTNET_SUPPORT_FALSE RTCAN_CPPFLAGS CONFIG_RACK_RTCAN_SUPPORT_TRUE CONFIG_RACK_RTCAN_SUPPORT_FALSE LIBRAW1394_CPPFLAGS LIBRAW1394_LDFLAGS LIBRAW1394_LIBS CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE LIBDC1394_CPPFLAGS LIBDC1394_LDFLAGS LIBDC1394_LIBS CONFIG_RACK_LIBDC1394_SUPPORT_TRUE CONFIG_RACK_LIBDC1394_SUPPORT_FALSE LIBJPEG_CPPFLAGS LIBJPEG_LDFLAGS LIBJPEG_LIBS CONFIG_RACK_LIBJPEG_SUPPORT_TRUE CONFIG_RACK_LIBJPEG_SUPPORT_FALSE LIBPNG_CPPFLAGS LIBPNG_LDFLAGS LIBPNG_LIBS CONFIG_LIBPNG_TRUE CONFIG_LIBPNG_FALSE CONFIG_RACK_LIBPNG_SUPPORT_TRUE CONFIG_RACK_LIBPNG_SUPPORT_FALSE OPENCV_CPPFLAGS OPENCV_LDFLAGS OPENCV_LIBS CONFIG_OPENCV_TRUE CONFIG_OPENCV_FALSE CONFIG_RACK_OPENCV_SUPPORT_TRUE CONFIG_RACK_OPENCV_SUPPORT_FALSE RACK_GLOBAL_CPPFLAGS RACK_GLOBAL_LDFLAGS RACK_SUPPORTS RACK_CPPFLAGS RACK_LDFLAGS RACK_LIBS RACK_MAYBE_DOCDIR DOXYGEN DOXYGEN_HAVE_DOT CONFIG_RACK_DOC_DOX_TRUE CONFIG_RACK_DOC_DOX_FALSE DOXYGEN_SHOW_INCLUDE_FILES CROSS_COMPILE RACK_MODULE_EXT RACK_KBUILD_ENV RACK_KBUILD_CMD RACK_KBUILD_CLEAN RACK_KBUILD_DISTCLEAN RACK_MODULE_DIR RACK_KMOD_CFLAGS RACK_USER_CFLAGS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -19006,7 +19006,7 @@ echo "${ECHO_T}$RACK_KCONFIG_FILE ($kconfig_type)" >&6
 if test "${with_linux_dir+set}" = set; then
   withval="$with_linux_dir"
   case "${withval}" in
-        "" | y | ye | yes | n | no)
+        y | ye | yes)
             { { echo "$as_me:$LINENO: error: You must supply an argument to --with-linux-dir." >&5
 echo "$as_me: error: You must supply an argument to --with-linux-dir." >&2;}
    { (exit 1); exit 1; }; }
@@ -19016,70 +19016,83 @@ echo "$as_me: error: You must supply an argument to --with-linux-dir." >&2;}
 
 fi;
 
+if test "${CONFIG_RACK_LINUXDIR}" \!= "" ; then
 
-echo "$as_me:$LINENO: checking for Linux config file" >&5
+    echo "$as_me:$LINENO: checking for Linux config file" >&5
 echo $ECHO_N "checking for Linux config file... $ECHO_C" >&6
-if test \! -f ${CONFIG_RACK_LINUXDIR}/.config ; then
-  { { echo "$as_me:$LINENO: error: *** Please configure your kernel" >&5
+    if test \! -f ${CONFIG_RACK_LINUXDIR}/.config ; then
+    { { echo "$as_me:$LINENO: error: *** Please configure your kernel" >&5
 echo "$as_me: error: *** Please configure your kernel" >&2;}
    { (exit 1); exit 1; }; }
-fi
-echo "$as_me:$LINENO: result: ${CONFIG_RACK_LINUXDIR}/.config" >&5
+    fi
+    echo "$as_me:$LINENO: result: ${CONFIG_RACK_LINUXDIR}/.config" >&5
 echo "${ECHO_T}${CONFIG_RACK_LINUXDIR}/.config" >&6
 
 
-echo "$as_me:$LINENO: checking for Linux version" >&5
+    echo "$as_me:$LINENO: checking for Linux version" >&5
 echo $ECHO_N "checking for Linux version... $ECHO_C" >&6
-LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
-                 grep "# Linux kernel version:" | \
-                 gawk -F ": " '{print $2}'`"
-echo "$as_me:$LINENO: result: ${LINUX_VERSION}" >&5
+    LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
+                    grep "# Linux kernel version:" | \
+                    gawk -F ": " '{print $2}'`"
+    echo "$as_me:$LINENO: result: ${LINUX_VERSION}" >&5
 echo "${ECHO_T}${LINUX_VERSION}" >&6
 
 
-case "${LINUX_VERSION}" in
-    2.6.*)
-        ;;
-    *)
-        { { echo "$as_me:$LINENO: error: *** Unsupported kernel version $LINUX_VERSION" >&5
+    case "${LINUX_VERSION}" in
+        2.6.*)
+            ;;
+        *)
+            { { echo "$as_me:$LINENO: error: *** Unsupported kernel version $LINUX_VERSION" >&5
 echo "$as_me: error: *** Unsupported kernel version $LINUX_VERSION" >&2;}
    { (exit 1); exit 1; }; }
-        ;;
-esac
+            ;;
+    esac
 
 
-. ${CONFIG_RACK_LINUXDIR}/.config
+    . ${CONFIG_RACK_LINUXDIR}/.config
 
 
-echo "$as_me:$LINENO: checking for Xenomai" >&5
+    echo "$as_me:$LINENO: checking for Xenomai" >&5
 echo $ECHO_N "checking for Xenomai... $ECHO_C" >&6
-    case "${CONFIG_XENOMAI}" in
-        y) echo "$as_me:$LINENO: result: ${CONFIG_XENOMAI}" >&5
+        case "${CONFIG_XENOMAI}" in
+            y) echo "$as_me:$LINENO: result: ${CONFIG_XENOMAI}" >&5
 echo "${ECHO_T}${CONFIG_XENOMAI}" >&6 ;;
-        *) { { echo "$as_me:$LINENO: error: *** Please enable Xenomai" >&5
+            *) { { echo "$as_me:$LINENO: error: *** Please enable Xenomai" >&5
 echo "$as_me: error: *** Please enable Xenomai" >&2;}
    { (exit 1); exit 1; }; } ;;
-    esac
+        esac
 
-echo "$as_me:$LINENO: checking for Xenomai native skin" >&5
+    echo "$as_me:$LINENO: checking for Xenomai native skin" >&5
 echo $ECHO_N "checking for Xenomai native skin... $ECHO_C" >&6
-    case "${CONFIG_XENO_SKIN_NATIVE}" in
-        y | m) echo "$as_me:$LINENO: result: ${CONFIG_XENO_SKIN_NATIVE}" >&5
+        case "${CONFIG_XENO_SKIN_NATIVE}" in
+            y | m) echo "$as_me:$LINENO: result: ${CONFIG_XENO_SKIN_NATIVE}" >&5
 echo "${ECHO_T}${CONFIG_XENO_SKIN_NATIVE}" >&6 ;;
-        *) { { echo "$as_me:$LINENO: error: *** Please enable native skin" >&5
+            *) { { echo "$as_me:$LINENO: error: *** Please enable native skin" >&5
 echo "$as_me: error: *** Please enable native skin" >&2;}
    { (exit 1); exit 1; }; } ;;
-    esac
+        esac
 
-echo "$as_me:$LINENO: checking for Xenomai RTDM skin" >&5
+    echo "$as_me:$LINENO: checking for Xenomai RTDM skin" >&5
 echo $ECHO_N "checking for Xenomai RTDM skin... $ECHO_C" >&6
-    case "${CONFIG_XENO_SKIN_RTDM}" in
-        y | m) echo "$as_me:$LINENO: result: ${CONFIG_XENO_SKIN_RTDM}" >&5
+        case "${CONFIG_XENO_SKIN_RTDM}" in
+            y | m) echo "$as_me:$LINENO: result: ${CONFIG_XENO_SKIN_RTDM}" >&5
 echo "${ECHO_T}${CONFIG_XENO_SKIN_RTDM}" >&6 ;;
-        *) { { echo "$as_me:$LINENO: error: *** Please enable RTDM skin" >&5
+            *) { { echo "$as_me:$LINENO: error: *** Please enable RTDM skin" >&5
 echo "$as_me: error: *** Please enable RTDM skin" >&2;}
    { (exit 1); exit 1; }; } ;;
-    esac
+        esac
+fi
+
+
+
+if test "${CONFIG_RACK_LINUXDIR}" \!= ""; then
+  CONFIG_RACK_BUILD_KMOD_TRUE=
+  CONFIG_RACK_BUILD_KMOD_FALSE='#'
+else
+  CONFIG_RACK_BUILD_KMOD_TRUE='#'
+  CONFIG_RACK_BUILD_KMOD_FALSE=
+fi
+
 
 
 
@@ -22133,54 +22146,26 @@ fi
 
 
 
+
+RACK_GLOBAL_CPPFLAGS="-Wall"
+
+
+
+RACK_GLOBAL_LDFLAGS="--export-dynamic"
+
+
+
 RACK_SUPPORTS="${PROJNAME} ${RACK_SUPPORTS}"
 
 
-RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir}"
-RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs"
-RACK_LIBS="-l${PROJNAME}"
+RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir} ${XENOMAI_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
+RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${XENOMAI_LDFLAGS} ${RACK_GLOBAL_LDFLAGS}"
+RACK_LIBS="-l${PROJNAME} ${XENOMAI_LIBS}"
 
 
 
 
 
-RACK_GLOBAL_CPPFLAGS=" -I/usr/include -Wall"
-
-
-CPPFLAGS="\
-${XENOMAI_CPPFLAGS} \
-${RACK_GLOBAL_CPPFLAGS} \
-${RACK_CPPFLAGS} \
-${CPPFLAGS}"
-
-echo "$as_me:$LINENO: checking for cppflags" >&5
-echo $ECHO_N "checking for cppflags... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${CPPFLAGS}" >&5
-echo "${ECHO_T}${CPPFLAGS}" >&6
-
-
-RACK_GLOBAL_LDFLAGS="-L/usr/lib --export-dynamic"
-
-
-LDFLAGS="\
-${XENOMAI_LDFLAGS} \
-${RACK_GLOBAL_LDFLAGS} \
-${RACK_LDFLAGS} \
-${LDFLAGS}"
-
-echo "$as_me:$LINENO: checking for ldflags" >&5
-echo $ECHO_N "checking for ldflags... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${LDFLAGS}" >&5
-echo "${ECHO_T}${LDFLAGS}" >&6
-
-
-LIBS="\
-${XENOMAI_LIBS}"
-
-echo "$as_me:$LINENO: checking for libs" >&5
-echo $ECHO_N "checking for libs... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: ${LIBS}" >&5
-echo "${ECHO_T}${LIBS}" >&6
 
 
 if test \! -d $srcdir/doc; then
@@ -22572,6 +22557,13 @@ if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_RACK_BUILD_KMOD_TRUE}" && test -z "${CONFIG_RACK_BUILD_KMOD_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_BUILD_KMOD\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_BUILD_KMOD\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -23452,6 +23444,8 @@ s,@CCAS@,$CCAS,;t t
 s,@CCASFLAGS@,$CCASFLAGS,;t t
 s,@LD@,$LD,;t t
 s,@JAR@,$JAR,;t t
+s,@CONFIG_RACK_BUILD_KMOD_TRUE@,$CONFIG_RACK_BUILD_KMOD_TRUE,;t t
+s,@CONFIG_RACK_BUILD_KMOD_FALSE@,$CONFIG_RACK_BUILD_KMOD_FALSE,;t t
 s,@XENO_USER_PREFIX@,$XENO_USER_PREFIX,;t t
 s,@XENO_LIBRARIES@,$XENO_LIBRARIES,;t t
 s,@RACK_TARGET_ARCH@,$RACK_TARGET_ARCH,;t t
@@ -23538,10 +23532,12 @@ s,@CONFIG_OPENCV_TRUE@,$CONFIG_OPENCV_TRUE,;t t
 s,@CONFIG_OPENCV_FALSE@,$CONFIG_OPENCV_FALSE,;t t
 s,@CONFIG_RACK_OPENCV_SUPPORT_TRUE@,$CONFIG_RACK_OPENCV_SUPPORT_TRUE,;t t
 s,@CONFIG_RACK_OPENCV_SUPPORT_FALSE@,$CONFIG_RACK_OPENCV_SUPPORT_FALSE,;t t
-s,@RACK_SUPPORTS@,$RACK_SUPPORTS,;t t
-s,@RACK_LIBS@,$RACK_LIBS,;t t
 s,@RACK_GLOBAL_CPPFLAGS@,$RACK_GLOBAL_CPPFLAGS,;t t
 s,@RACK_GLOBAL_LDFLAGS@,$RACK_GLOBAL_LDFLAGS,;t t
+s,@RACK_SUPPORTS@,$RACK_SUPPORTS,;t t
+s,@RACK_CPPFLAGS@,$RACK_CPPFLAGS,;t t
+s,@RACK_LDFLAGS@,$RACK_LDFLAGS,;t t
+s,@RACK_LIBS@,$RACK_LIBS,;t t
 s,@RACK_MAYBE_DOCDIR@,$RACK_MAYBE_DOCDIR,;t t
 s,@DOXYGEN@,$DOXYGEN,;t t
 s,@DOXYGEN_HAVE_DOT@,$DOXYGEN_HAVE_DOT,;t t

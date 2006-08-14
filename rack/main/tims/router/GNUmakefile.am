@@ -11,30 +11,22 @@ bin_PROGRAMS = \
 	tims_client \
 	tims_router_tcp
 
+CFLAGS = \
+	-I$(top_srcdir) \
+	-I$(xeno_dir)/include
+
 ### tims_client ########################################
 
 tims_client_SOURCES = \
 	tims_client.c
 
-tims_client_CFLAGS = \
-	-I$(top_srcdir) \
-	-I$(xeno_dir)/include
-
-#tims_client_LDFLAGS =
-
 tims_client_LDADD = \
-	-L$(xeno_lib_dir) \
-	-lrtdm -lnative \
 	-lpthread
 
 ### tims_router_tcp ####################################
 
 tims_router_tcp_SOURCES = \
 	tims_router_tcp.c
-
-tims_router_tcp_CFLAGS = \
-	-I$(top_srcdir) \
-	-I$(xeno_dir)/include
 
 tims_router_tcp_LDADD = \
 	-lpthread

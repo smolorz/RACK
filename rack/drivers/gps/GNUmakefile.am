@@ -7,11 +7,14 @@ bin_PROGRAMS += GpsNmea
 endif
 
 
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
 GpsNmea_SOURCES = \
 	gps_nmea.h \
 	gps_nmea.cpp
-
-GpsNmea_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

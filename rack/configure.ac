@@ -110,72 +110,76 @@ dnl ======================================================================
 AC_ARG_WITH(linux-dir,
     AS_HELP_STRING([--with-linux-dir=<Linux-Sources>], [Linux source directory]),
     [case "${withval}" in
-        "" | y | ye | yes | n | no)
+        y | ye | yes)
             AC_MSG_ERROR([You must supply an argument to --with-linux-dir.])
       ;;
     esac
     CONFIG_RACK_LINUXDIR="$withval"
     ])
 
-dnl -----------------------------------------------------------------
-dnl check config file
-dnl -----------------------------------------------------------------
+if test "${CONFIG_RACK_LINUXDIR}" \!= "" ; then
+    dnl -----------------------------------------------------------------
+    dnl check config file
+    dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([for Linux config file])
-if test \! -f ${CONFIG_RACK_LINUXDIR}/.config ; then
-  AC_MSG_ERROR([*** Please configure your kernel])
+    AC_MSG_CHECKING([for Linux config file])
+    if test \! -f ${CONFIG_RACK_LINUXDIR}/.config ; then
+    AC_MSG_ERROR([*** Please configure your kernel])
+    fi
+    AC_MSG_RESULT([${CONFIG_RACK_LINUXDIR}/.config])
+
+    dnl -----------------------------------------------------------------
+    dnl get linux version
+    dnl -----------------------------------------------------------------
+
+    AC_MSG_CHECKING([for Linux version])
+    LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
+                    grep "# Linux kernel version:" | \
+                    gawk -F ": " '{print $2}'`"
+    AC_MSG_RESULT([${LINUX_VERSION}])
+
+    dnl -----------------------------------------------------------------
+    dnl check version
+    dnl -----------------------------------------------------------------
+
+    case "${LINUX_VERSION}" in
+        2.6.*)
+            ;;
+        *)
+            AC_MSG_ERROR([*** Unsupported kernel version $LINUX_VERSION])
+            ;;
+    esac
+
+    dnl -----------------------------------------------------------------
+    dnl loading linux config
+    dnl -----------------------------------------------------------------
+
+    . ${CONFIG_RACK_LINUXDIR}/.config
+
+    dnl -----------------------------------------------------------------
+    dnl  checking needed Xenomai and skins in linux config
+    dnl -----------------------------------------------------------------
+
+    AC_MSG_CHECKING([for Xenomai])
+        case "${CONFIG_XENOMAI}" in
+            y) AC_MSG_RESULT([${CONFIG_XENOMAI}]) ;;
+            *) AC_MSG_ERROR([*** Please enable Xenomai]) ;;
+        esac
+
+    AC_MSG_CHECKING([for Xenomai native skin])
+        case "${CONFIG_XENO_SKIN_NATIVE}" in
+            y | m) AC_MSG_RESULT([${CONFIG_XENO_SKIN_NATIVE}]) ;;
+            *) AC_MSG_ERROR([*** Please enable native skin]) ;;
+        esac
+
+    AC_MSG_CHECKING([for Xenomai RTDM skin])
+        case "${CONFIG_XENO_SKIN_RTDM}" in
+            y | m) AC_MSG_RESULT([${CONFIG_XENO_SKIN_RTDM}]) ;;
+            *) AC_MSG_ERROR([*** Please enable RTDM skin]) ;;
+        esac
 fi
-AC_MSG_RESULT([${CONFIG_RACK_LINUXDIR}/.config])
 
-dnl -----------------------------------------------------------------
-dnl get linux version
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([for Linux version])
-LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
-                 grep "# Linux kernel version:" | \
-                 gawk -F ": " '{print $2}'`"
-AC_MSG_RESULT([${LINUX_VERSION}])
-
-dnl -----------------------------------------------------------------
-dnl check version
-dnl -----------------------------------------------------------------
-
-case "${LINUX_VERSION}" in
-    2.6.*)
-        ;;
-    *)
-        AC_MSG_ERROR([*** Unsupported kernel version $LINUX_VERSION])
-        ;;
-esac
-
-dnl -----------------------------------------------------------------
-dnl loading linux config
-dnl -----------------------------------------------------------------
-
-. ${CONFIG_RACK_LINUXDIR}/.config
-
-dnl -----------------------------------------------------------------
-dnl  checking needed Xenomai and skins in linux config
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([for Xenomai])
-    case "${CONFIG_XENOMAI}" in
-        y) AC_MSG_RESULT([${CONFIG_XENOMAI}]) ;;
-        *) AC_MSG_ERROR([*** Please enable Xenomai]) ;;
-    esac
-
-AC_MSG_CHECKING([for Xenomai native skin])
-    case "${CONFIG_XENO_SKIN_NATIVE}" in
-        y | m) AC_MSG_RESULT([${CONFIG_XENO_SKIN_NATIVE}]) ;;
-        *) AC_MSG_ERROR([*** Please enable native skin]) ;;
-    esac
-
-AC_MSG_CHECKING([for Xenomai RTDM skin])
-    case "${CONFIG_XENO_SKIN_RTDM}" in
-        y | m) AC_MSG_RESULT([${CONFIG_XENO_SKIN_RTDM}]) ;;
-        *) AC_MSG_ERROR([*** Please enable RTDM skin]) ;;
-    esac
+AM_CONDITIONAL(CONFIG_RACK_BUILD_KMOD,[test "${CONFIG_RACK_LINUXDIR}" \!= ""])
 
 dnl ======================================================================
 dnl  XENOMAI userspace
@@ -1223,57 +1227,34 @@ AM_CONDITIONAL(CONFIG_RACK_OPENCV_SUPPORT,
                [test x"${CONFIG_RACK_OPENCV_SUPPORT}" = "xy"])
 
 dnl ======================================================================
+dnl  set flags / libs
+dnl ======================================================================
+
+dnl ---- cppflags --------------------------------------------------------------
+
+RACK_GLOBAL_CPPFLAGS="-Wall"
+AC_SUBST(RACK_GLOBAL_CPPFLAGS)
+
+dnl ---- ldflags ---------------------------------------------------------------
+
+RACK_GLOBAL_LDFLAGS="--export-dynamic"
+AC_SUBST(RACK_GLOBAL_LDFLAGS)
+
+dnl ======================================================================
 dnl  current project
 dnl ======================================================================
 
 RACK_SUPPORTS="${PROJNAME} ${RACK_SUPPORTS}"
 AC_SUBST(RACK_SUPPORTS)
 
-RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir}"
-RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs"
-RACK_LIBS="-l${PROJNAME}"
+RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir} ${XENOMAI_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
+RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${XENOMAI_LDFLAGS} ${RACK_GLOBAL_LDFLAGS}"
+RACK_LIBS="-l${PROJNAME} ${XENOMAI_LIBS}"
 
+AC_SUBST(RACK_CPPFLAGS)
+AC_SUBST(RACK_LDFLAGS)
 AC_SUBST(RACK_LIBS)
 
-dnl ======================================================================
-dnl  set flags / libs
-dnl ======================================================================
-
-dnl ---- cppflags --------------------------------------------------------------
-
-RACK_GLOBAL_CPPFLAGS=" -I/usr/include -Wall"
-AC_SUBST(RACK_GLOBAL_CPPFLAGS)
-
-CPPFLAGS="\
-${XENOMAI_CPPFLAGS} \
-${RACK_GLOBAL_CPPFLAGS} \
-${RACK_CPPFLAGS} \
-${CPPFLAGS}"
-
-AC_MSG_CHECKING([for cppflags])
-AC_MSG_RESULT([${CPPFLAGS}])
-
-dnl ---- ldflags ---------------------------------------------------------------
-
-RACK_GLOBAL_LDFLAGS="-L/usr/lib --export-dynamic"
-AC_SUBST(RACK_GLOBAL_LDFLAGS)
-
-LDFLAGS="\
-${XENOMAI_LDFLAGS} \
-${RACK_GLOBAL_LDFLAGS} \
-${RACK_LDFLAGS} \
-${LDFLAGS}"
-
-AC_MSG_CHECKING([for ldflags])
-AC_MSG_RESULT([${LDFLAGS}])
-
-dnl ---- libs ------------------------------------------------------------------
-
-LIBS="\
-${XENOMAI_LIBS}"
-
-AC_MSG_CHECKING([for libs])
-AC_MSG_RESULT([${LIBS}])
 
 dnl ======================================================================
 dnl             doxygen documentation

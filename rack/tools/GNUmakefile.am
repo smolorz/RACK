@@ -4,7 +4,11 @@ bindir = $(prefix)/bin/tools
 bin_PROGRAMS = \
 	RackLogger
 
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
 RackLogger_SOURCES = \
 	racklogger.cpp
-
-RackLogger_LDADD = @RACK_LIBS@

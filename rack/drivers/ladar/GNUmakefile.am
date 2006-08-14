@@ -19,31 +19,29 @@ bin_PROGRAMS +=	LadarSickCms3000
 endif
 
 
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
 LadarIbeo_SOURCES = \
 	ladar_ibeo.h \
 	ladar_ibeo.cpp
 
 LadarIbeo_CPPFLAGS = @RTCAN_CPPFLAGS@
-LadarIbeo_LDFLAGS = @RACK_LIBS@
 
 
 LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp
 
-LadarHokuyoUrg_LDFLAGS = @RACK_LIBS@
-
 LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.h \
 	ladar_sick_lms200.cpp
 
-LadarSickLms200_LDFLAGS = @RACK_LIBS@
-
 LadarSickCms3000_SOURCES = \
 	ladar_sick_cms3000.h \
 	ladar_sick_cms3000.cpp
-
-LadarSickCms3000_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

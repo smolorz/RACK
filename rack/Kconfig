@@ -16,8 +16,13 @@ config RACK_INSTALLDIR
     named "Value". The default installation directory is
     /usr/local/rack.
 
+config RACK_BUILD_KMOD
+    bool "Build kernel modules"
+    default y
+
 config RACK_LINUXDIR
     string "Linux source tree"
+    depends on RACK_BUILD_KMOD
     default "/lib/modules/`uname -r`/build"
     help
     This variable contains the directory where was your Linux source tree.
@@ -34,14 +39,12 @@ config RACK_XENOMAIDIR
 
 config RACK_JAVA
     bool "Rack Java"
-    default n
     help
     Help text.
 
 config RACK_JAVA_GUI
     bool "Rack Java Gui"
     depends on RACK_JAVA
-    default n
     help
     Help text.
 

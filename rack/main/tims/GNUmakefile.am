@@ -7,12 +7,15 @@ include_HEADERS = \
 	tims_endian.h
 
 SUBDIRS = \
-	driver \
 	exceptions \
 	streams \
 	msgtypes \
 	msg \
 	router
+
+if CONFIG_RACK_BUILD_KMOD
+SUBDIRS += driver
+endif
 
 dist_java_JAVA =
 

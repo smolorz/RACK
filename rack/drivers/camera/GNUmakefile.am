@@ -19,37 +19,42 @@ bin_PROGRAMS += CameraV4l
 endif
 
 
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
 CameraDcam_SOURCES = \
 	camera_dcam.h \
 	camera_dcam.cpp
 
 CameraDcam_CPPFLAGS = \
 	@LIBRAW1394_CPPFLAGS@ @LIBDC1394_CPPFLAGS@
+
 CameraDcam_LDFLAGS = \
 	@LIBRAW1394_LDFLAGS@ @LIBDC1394_LDFLAGS@ \
-	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@ @RACK_LIBS@
+	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@
 
 
 CameraFile_SOURCES = \
 	camera_file.h \
 	camera_file.cpp
 
-CameraFile_LDFLAGS = @RACK_LIBS@
-
 
 CameraJpeg_SOURCES = \
 	camera_jpeg.h \
 	camera_jpeg.cpp
 
-CameraJpeg_CPPFLAGS = @LIBJPEG_CPPFLAGS@
-CameraJpeg_LDFLAGS = @LIBJPEG_LDFLAGS@ @LIBJPEG_LIBS@ @RACK_LIBS@
+CameraJpeg_CPPFLAGS = \
+	@LIBJPEG_CPPFLAGS@
+
+CameraJpeg_LDFLAGS = \
+	@LIBJPEG_LDFLAGS@ @LIBJPEG_LIBS@
 
 
 CameraV4l_SOURCES = \
 	camera_v4l.h \
 	camera_v4l.cpp
-
-CameraV4l_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \

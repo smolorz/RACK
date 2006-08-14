@@ -6,11 +6,15 @@ if CONFIG_RACK_DUMMY_ABC
 bin_PROGRAMS += DummyAbc
 endif
 
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
 DummyAbc_SOURCES = \
 	dummy_abc.h \
 	dummy_abc.cpp
-
-DummyAbc_LDFLAGS = @RACK_LIBS@
 
 EXTRA_DIST = \
 	Kconfig

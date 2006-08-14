@@ -57,11 +57,10 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(javadir)" \
 	"$(DESTDIR)$(etcdir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_tims_client_OBJECTS = tims_client-tims_client.$(OBJEXT)
+am_tims_client_OBJECTS = tims_client.$(OBJEXT)
 tims_client_OBJECTS = $(am_tims_client_OBJECTS)
 tims_client_DEPENDENCIES =
-am_tims_router_tcp_OBJECTS =  \
-	tims_router_tcp-tims_router_tcp.$(OBJEXT)
+am_tims_router_tcp_OBJECTS = tims_router_tcp.$(OBJEXT)
 tims_router_tcp_OBJECTS = $(am_tims_router_tcp_OBJECTS)
 tims_router_tcp_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
@@ -105,11 +104,16 @@ CC = @CC@
 CCAS = @CCAS@
 CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
-CFLAGS = @CFLAGS@
+CFLAGS = \
+	-I$(top_srcdir) \
+	-I$(xeno_dir)/include
+
 CONFIG_LIBPNG_FALSE = @CONFIG_LIBPNG_FALSE@
 CONFIG_LIBPNG_TRUE = @CONFIG_LIBPNG_TRUE@
 CONFIG_OPENCV_FALSE = @CONFIG_OPENCV_FALSE@
 CONFIG_OPENCV_TRUE = @CONFIG_OPENCV_TRUE@
+CONFIG_RACK_BUILD_KMOD_FALSE = @CONFIG_RACK_BUILD_KMOD_FALSE@
+CONFIG_RACK_BUILD_KMOD_TRUE = @CONFIG_RACK_BUILD_KMOD_TRUE@
 CONFIG_RACK_CAMERA_DCAM_FALSE = @CONFIG_RACK_CAMERA_DCAM_FALSE@
 CONFIG_RACK_CAMERA_DCAM_TRUE = @CONFIG_RACK_CAMERA_DCAM_TRUE@
 CONFIG_RACK_CAMERA_FILE_FALSE = @CONFIG_RACK_CAMERA_FILE_FALSE@
@@ -231,6 +235,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PROJNAME = @PROJNAME@
+RACK_CPPFLAGS = @RACK_CPPFLAGS@
 RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
 RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
 RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
@@ -239,6 +244,7 @@ RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
 RACK_KBUILD_DISTCLEAN = @RACK_KBUILD_DISTCLEAN@
 RACK_KBUILD_ENV = @RACK_KBUILD_ENV@
 RACK_KMOD_CFLAGS = @RACK_KMOD_CFLAGS@
+RACK_LDFLAGS = @RACK_LDFLAGS@
 RACK_LIBS = @RACK_LIBS@
 RACK_MAYBE_DOCDIR = @RACK_MAYBE_DOCDIR@
 RACK_MODULE_DIR = @RACK_MODULE_DIR@
@@ -312,25 +318,13 @@ etc_HEADERS = \
 tims_client_SOURCES = \
 	tims_client.c
 
-tims_client_CFLAGS = \
-	-I$(top_srcdir) \
-	-I$(xeno_dir)/include
-
-
-#tims_client_LDFLAGS =
 tims_client_LDADD = \
-	-L$(xeno_lib_dir) \
-	-lrtdm -lnative \
 	-lpthread
 
 
 ### tims_router_tcp ####################################
 tims_router_tcp_SOURCES = \
 	tims_router_tcp.c
-
-tims_router_tcp_CFLAGS = \
-	-I$(top_srcdir) \
-	-I$(xeno_dir)/include
 
 tims_router_tcp_LDADD = \
 	-lpthread
@@ -417,8 +411,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_client-tims_client.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_router_tcp-tims_router_tcp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_router_tcp.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -440,34 +434,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-tims_client-tims_client.o: tims_client.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_client_CFLAGS) $(CFLAGS) -MT tims_client-tims_client.o -MD -MP -MF "$(DEPDIR)/tims_client-tims_client.Tpo" -c -o tims_client-tims_client.o `test -f 'tims_client.c' || echo '$(srcdir)/'`tims_client.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_client-tims_client.Tpo" "$(DEPDIR)/tims_client-tims_client.Po"; else rm -f "$(DEPDIR)/tims_client-tims_client.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_client.c' object='tims_client-tims_client.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_client_CFLAGS) $(CFLAGS) -c -o tims_client-tims_client.o `test -f 'tims_client.c' || echo '$(srcdir)/'`tims_client.c
-
-tims_client-tims_client.obj: tims_client.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_client_CFLAGS) $(CFLAGS) -MT tims_client-tims_client.obj -MD -MP -MF "$(DEPDIR)/tims_client-tims_client.Tpo" -c -o tims_client-tims_client.obj `if test -f 'tims_client.c'; then $(CYGPATH_W) 'tims_client.c'; else $(CYGPATH_W) '$(srcdir)/tims_client.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_client-tims_client.Tpo" "$(DEPDIR)/tims_client-tims_client.Po"; else rm -f "$(DEPDIR)/tims_client-tims_client.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_client.c' object='tims_client-tims_client.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_client_CFLAGS) $(CFLAGS) -c -o tims_client-tims_client.obj `if test -f 'tims_client.c'; then $(CYGPATH_W) 'tims_client.c'; else $(CYGPATH_W) '$(srcdir)/tims_client.c'; fi`
-
-tims_router_tcp-tims_router_tcp.o: tims_router_tcp.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_router_tcp_CFLAGS) $(CFLAGS) -MT tims_router_tcp-tims_router_tcp.o -MD -MP -MF "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Tpo" -c -o tims_router_tcp-tims_router_tcp.o `test -f 'tims_router_tcp.c' || echo '$(srcdir)/'`tims_router_tcp.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Tpo" "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Po"; else rm -f "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_router_tcp.c' object='tims_router_tcp-tims_router_tcp.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_router_tcp_CFLAGS) $(CFLAGS) -c -o tims_router_tcp-tims_router_tcp.o `test -f 'tims_router_tcp.c' || echo '$(srcdir)/'`tims_router_tcp.c
-
-tims_router_tcp-tims_router_tcp.obj: tims_router_tcp.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_router_tcp_CFLAGS) $(CFLAGS) -MT tims_router_tcp-tims_router_tcp.obj -MD -MP -MF "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Tpo" -c -o tims_router_tcp-tims_router_tcp.obj `if test -f 'tims_router_tcp.c'; then $(CYGPATH_W) 'tims_router_tcp.c'; else $(CYGPATH_W) '$(srcdir)/tims_router_tcp.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Tpo" "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Po"; else rm -f "$(DEPDIR)/tims_router_tcp-tims_router_tcp.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_router_tcp.c' object='tims_router_tcp-tims_router_tcp.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tims_router_tcp_CFLAGS) $(CFLAGS) -c -o tims_router_tcp-tims_router_tcp.obj `if test -f 'tims_router_tcp.c'; then $(CYGPATH_W) 'tims_router_tcp.c'; else $(CYGPATH_W) '$(srcdir)/tims_router_tcp.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

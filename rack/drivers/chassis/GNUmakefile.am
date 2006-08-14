@@ -11,18 +11,19 @@ bin_PROGRAMS += ChassisPioneer
 endif
 
 
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
 ChassisSim_SOURCES = \
 	chassis_sim.h \
 	chassis_sim.cpp
-
-ChassisSim_LDFLAGS = @RACK_LIBS@
 
 
 ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
-
-ChassisPioneer_LDFLAGS = @RACK_LIBS@
 
 
 EXTRA_DIST = \
