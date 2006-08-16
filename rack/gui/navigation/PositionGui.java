@@ -37,7 +37,6 @@ import rack.navigation.PositionProxy;
 
 public class PositionGui extends RackModuleGui implements ActionListener
 {
-    protected boolean terminate = false;
     protected JButton onButton;
     protected JButton offButton;
     protected JButton manualUpdateButton = new JButton("Manual Update");
@@ -329,10 +328,5 @@ public class PositionGui extends RackModuleGui implements ActionListener
             {
             }
         }
-    }
-
-    public void terminate()
-    {
-        terminate = true;
     }
 }

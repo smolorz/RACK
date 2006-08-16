@@ -26,7 +26,6 @@ import rack.main.proxy.*;
 
 public class GpsGui extends RackModuleGui
 {
-    protected boolean terminate = false;
     protected JButton onButton;
     protected JButton offButton;
 
@@ -282,10 +281,5 @@ public class GpsGui extends RackModuleGui
             {
             }
         }
-    }
-
-    public void terminate()
-    {
-        terminate = true;
     }
 }

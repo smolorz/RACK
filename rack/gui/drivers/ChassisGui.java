@@ -28,8 +28,6 @@ import rack.main.naming.*;
 
 public class ChassisGui extends RackModuleGui
 {
-    protected boolean terminate = false;
-    
     protected ChassisDataMsg chassisData;
     protected boolean mapViewIsShowing;
     
@@ -404,10 +402,5 @@ public class ChassisGui extends RackModuleGui
             graphics.drawLine(10,130,19,130);
             graphics.drawLine(130,10,130,19);
         }
-    }
-
-    public void terminate()
-    {
-        terminate = true;
     }
 }

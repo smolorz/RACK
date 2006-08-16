@@ -26,7 +26,6 @@ import rack.main.proxy.*;
 
 public class OdometryGui extends RackModuleGui
 {
-    protected boolean terminate = false;
     protected JButton onButton;
     protected JButton offButton;
     protected JButton resetButton = new JButton("Data Reset");
@@ -200,10 +199,4 @@ public class OdometryGui extends RackModuleGui
             }
         }
     }
-
-    public void terminate()
-    {
-        terminate = true;
-    }
-
 }

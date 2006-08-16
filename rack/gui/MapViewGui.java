@@ -72,6 +72,8 @@ public class MapViewGui extends Thread
     // Messages
     ChassisParamMsg         chassisParam;
 
+    private boolean         terminate = false;
+    
 
     public MapViewGui(RackModuleGui[] n_moduleGui)
     {
@@ -95,7 +97,17 @@ public class MapViewGui extends Thread
 
         // get chassis parameter message
         if (chassisProxy != null)
+        {
             chassisParam = chassisProxy.getParam();
+        }
+        if(chassisParam == null)
+        {
+            chassisParam = new ChassisParamMsg();
+            chassisParam.boundaryFront = 400;
+            chassisParam.boundaryBack  = 400;
+            chassisParam.boundaryLeft  = 400;
+            chassisParam.boundaryRight = 400;
+        }
 
         // create MapView components
         menuBar = new JMenu();
@@ -132,7 +144,7 @@ public class MapViewGui extends Thread
         }
         catch (Exception exc)
         {
-            System.out.println("No background image found!\n"+exc);
+            System.out.println("Can't read background image\n" + exc);
         }
 
         robotPositionList = new PositionDataMsg[25];
@@ -144,7 +156,19 @@ public class MapViewGui extends Thread
         this.start();
     }
 
+    
+    public void terminate()
+    {
+        terminate = true;
+        try
+        {
+            this.interrupt();
+            this.join(100);
+        }
+        catch (Exception e) {}
+    }
 
+    
     public JComponent getComponent()
     {
         return panel;
@@ -261,7 +285,7 @@ public class MapViewGui extends Thread
         Thread.yield();
         setCenter(new Position2D());
 
-        while (!Gui.terminate)
+        while (terminate == false)
         {
             do
             {
@@ -302,21 +326,14 @@ public class MapViewGui extends Thread
                 } // while
               viewPanel.setDrawContext(drawContext);
             }
-            while (updateNeeded == true);
-            delay(200);
+            while ((updateNeeded == true) && (terminate == false));
+            
+            try {
+                sleep(200);
+            } catch (InterruptedException e) {}
         }
+        System.out.println("MapViewGui terminated");
     } // run()
-
-    private synchronized void delay(long time)
-    {
-        try
-        {
-            this.wait(time);
-        }
-        catch (InterruptedException e)
-        {
-        }
-    }
 
     private synchronized void wakeup()
     {
@@ -358,8 +375,7 @@ public class MapViewGui extends Thread
             robotGraph.translate(robotPosition.x, robotPosition.y);
             robotGraph.rotate(robotPosition.phi);
 
-            drawBackgndImg(backGndImg, backGndResX, backGndResY,
-                           backGndOffset);
+            drawBackgndImg(backGndImg, backGndResX, backGndResY, backGndOffset);
             drawGrid();
         }
 

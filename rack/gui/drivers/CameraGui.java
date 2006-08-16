@@ -241,12 +241,6 @@ public class CameraGui extends RackModuleGui
         }
     }
 
-    public void terminate()
-    {
-        terminate = true;
-    }
-
-    protected boolean terminate = false;
     protected JButton onButton;
     protected JButton offButton;
     protected JButton storeButton;

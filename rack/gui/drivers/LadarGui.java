@@ -26,7 +26,6 @@ import rack.main.proxy.*;
 
 public class LadarGui extends RackModuleGui
 {
-    protected boolean terminate = false;
     public int maxDistance = 10000; // 10m
     public LadarDataMsg ladarData;
     protected LadarProxy ladar;
@@ -211,11 +210,6 @@ public class LadarGui extends RackModuleGui
                 t.printStackTrace();
             }
         }
-    }
-
-    public void terminate()
-    {
-        terminate = true;
     }
 
     class myKeyListener implements KeyListener

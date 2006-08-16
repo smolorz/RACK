@@ -17,39 +17,13 @@
 package rack.gui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.*;
 import java.net.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
+import javax.swing.*;
+import javax.swing.event.*;
 
 import rack.gui.main.RackModuleGui;
 import rack.main.naming.*;
@@ -61,246 +35,194 @@ import rack.main.tims.msgtypes.*;
 import rack.main.tims.exceptions.*;
 
 
-/**
- * Java Gui zum Rack
- *
- * @version $Id: Gui.java,v 1.72 2005/10/24 16:19:43 wiebe Exp $
- */
-
-public class Gui extends Thread
+public final class Gui extends Thread
 {
-    public static int MODULE_NUM;
-    public static int GROUP_NUM;
-    public static int JARFILE_NUM;
-    public static int DRIVERS_NUM;
-    public static int WORKSPACE_NUM;
+    private int moduleNum;
+    private int groupNum;
+    private int jarfileNum;
+    private int workspaceNum;
 
-    /** enable / disable module state polling */
-    private boolean prefPollingOn = true;
-
-    Vector configZeilen = new Vector();
-    Vector moduleName = new Vector();
-    Vector groupName = new Vector();
-    Vector groupSize = new Vector();
-    Vector jarFiles = new Vector();
-    Vector workSpaceName = new Vector();
-    Vector workSpaceSize = new Vector();
-    Vector moduleWorkSpace = new Vector();    
-    int[] groupSizeInt;
-
-    ClassLoader guiCL = this.getContextClassLoader();
-    Class moduleGuiClass;
-    Class moduleProxyClass;
-
-    // menu-stuff
-    JMenuBar menuBar;
-    JMenu preferencesMenu;
-    JCheckBoxMenuItem prefPollingOnCbMenuItem;
-
-    boolean showMapView = false;
-    int mapViewWorkSpace;
+    private Vector cfgLines         = new Vector();
+    private Vector moduleName       = new Vector();
+    private Vector groupName        = new Vector();
+    private Vector groupSize        = new Vector();
+    private Vector jarFiles         = new Vector();
+    private Vector workSpaceName    = new Vector();
+    private Vector moduleWorkSpace  = new Vector();
+    private int[]  groupSizeInt;
 
     // main frame
-    JFrame frame;
+    private Container       mainFrame;
+    private int[]           mainFrameLocationSize;
 
     // navigation panel
-    JPanel navigationPanel, navigationInterPanel;
-    JScrollPane navigationScrollPanel;
+    private JPanel          navigationPanel, navigationInterPanel;
+    private JScrollPane     navigationScrollPanel;
     // Groupe Panel
-    JPanel[] groupPanel, groupInterPanel;
-    JButton[] groupButton;
+    private JPanel[]        groupPanel, groupInterPanel;
+    private JButton[]       groupButton;
     // work panel
-    JTabbedPane jtp;
-//    JDesktopPane jdp;
-//    JDesktopPane jdp2;
-    JDesktopPane [] jdp;
-    // JDesktopPane jdp3;
-    // message internal frame
-    JInternalFrame messageFrame;
-    // mapViewFrame
-    JInternalFrame mapViewFrame;
-    // moduleFrame fr alle Module
-    JInternalFrame[] moduleFrame;
-    Point[] moduleLocation;
-    int[] mainFrameLocationSize;
-    int[][] moduleLocationSize;
-    JButton[] moduleButton;
-    JRadioButton[] statusButton;
-    JPanel[] modulePanel;
+    private JTabbedPane     jtp;
+    private JDesktopPane [] jdp;
 
-    int[] replyMbx;
-    int GDOSMbx;
+    private JInternalFrame[] moduleFrame;
+    private int[][]         moduleLocationSize;
+    private JButton[]       moduleButton;
+    private JRadioButton[]  statusButton;
+    private JPanel[]        modulePanel;
 
-    int[] moduleStatus;
-    RackProxy[] moduleProxy;
-    RackModuleGui[] moduleGui;
+    private ClassLoader     guiCL = this.getContextClassLoader();
+    private Class           moduleGuiClass;
 
-    byte getStatusSeqNo = 100;
-    int getStatusReplyMbx;
+    private GDOSGui         gdosGui = null;
+    private int             GDOSMbx;
+    private JInternalFrame  messageFrame;
+    
+    private boolean         showMapView = false;
+    private MapViewGui      myMapViewGui = null;
+    private int             mapViewWorkSpace;
+    private JInternalFrame  mapViewFrame;
 
-    int[] groupError, groupOn, groupSum;
-    public static boolean terminate = false;
+    private int[]           moduleStatus;
+    private RackProxy[]     moduleProxy;
+    private RackModuleGui[] moduleGui;
+    private int[]           replyMbx;
 
-    String fileName = "";
+    private byte            getStatusSeqNo = 100;
+    private int             getStatusReplyMbx;
 
-    InetAddress gwAddress;
-    int gwPort;
-    int  i;
+    private int[]           groupError, groupOn, groupSum;
 
-    public Gui(String[] args)
+    private TimsTcp         tims;
+    private InetAddress     routerAdr = null;
+    private int             routerPort = 0;
+
+    private boolean         terminate = false;
+
+    public Gui(Container mainFrame, BufferedReader cfgReader,
+               InetAddress routerAdr, int routerPort) throws Exception
     {
-        gwAddress = null;
-        gwPort = 0;
-
-        switch (args.length)
-        {
-            case 0:
-                fileName = loadFile(new Frame(), "Open ...", "./rack/gui", "*.cfg");
-                break;
-            case 1: // only config file
-                fileName = args[0];
-                break;
-            default:
-                JOptionPane.showMessageDialog(frame,
-                        "Starting Gui like 'java -jar rack.jar <config-file>'.",
-                        "Notice", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-        }
-
-        // reading config file
-
-        System.out.println("Load config file \"" + fileName + "\"");
-        readConfig(fileName);
-
-        // checks
-
-        if (gwAddress != null)
-        {
-            System.out.println("Gateway router address : " + gwAddress.toString());
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(frame,
-                    "Add param 'ROUTER_IP W.X.Y.Z' to your GUI config file " + fileName,
-                    "Notice", JOptionPane.ERROR_MESSAGE);
-            System.exit(-1);
-        }
-
-        if (gwPort != 0)
-        {
-            System.out.println("Gateway router port    : " + gwPort);
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(frame,
-                    "Add param 'ROUTER_PORT XYZ' to your GUI config file " + fileName,
-                    "Notice", JOptionPane.ERROR_MESSAGE);
-            System.exit(-1);
-        }
-
-        System.out.println("Found " + MODULE_NUM + " modules");
-        System.out.println("Found " + GROUP_NUM + " groups");
-        System.out.println("Found " + JARFILE_NUM + " jar files");
-
-        // load additional jar files
-          for (i=0; i< JARFILE_NUM; i++)
-          {
-               File jf = new File((String) jarFiles.get(i));
-               if (jf.exists() == true)
-               {
-                   try {
-                       addFile(jf);
-                       System.out.println("File " + (String) jarFiles.get(i) + " has been loaded");
-                   }
-                   catch (IOException ioe)
-                   {
-                       JOptionPane.showMessageDialog(
-                                       frame,
-                                       "The given jar file " + jf.getName() + " could not be found.",
-                                       "I/O error", JOptionPane.ERROR_MESSAGE);
-                       System.exit(0);
-                   }
-               }
-               else
-             {
-                   JOptionPane.showMessageDialog(
-                           frame,
-                           "The given jar file " + jf.getName() + " could not be found.",
-                           "I/O error", JOptionPane.ERROR_MESSAGE);
-                   System.exit(-1);
-            }
-        }
-
-        // connect to router ...
+        this.mainFrame = mainFrame;
 
         try
         {
-            System.out.println("Connect to TcpTimsMsgGateway "
-                    + gwAddress.getHostAddress() + ":" + gwPort);
+            // reading config file
+            readConfig(cfgReader);
 
-            new TimsTcp(gwAddress, gwPort);
+            if (moduleNum <= 0)
+            {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Config file empty.\n" + 
+                        "GUI config file has to contain at least one module",
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw new Exception("Config file empty");
+            }
+    
+            replyMbx           = new int[moduleNum];
+            moduleStatus       = new int[moduleNum];
+            moduleProxy        = new RackProxy[moduleNum];
+            moduleGui          = new RackModuleGui[moduleNum];
+            moduleFrame        = new JInternalFrame[moduleNum];
+            moduleButton       = new JButton[moduleNum];
+            statusButton       = new JRadioButton[moduleNum];
+            modulePanel        = new JPanel[moduleNum];
+            moduleLocationSize = new int[moduleNum][4];
+    
+            // load additional jar files
+            for (int i = 0; i < jarfileNum; i++)
+            {
+                File jarFile = new File((String)jarFiles.get(i));
+                
+                try {
+                    URL urls[] = new URL[ ] { jarFile.toURL() };
+//                    ClassLoader aCL = Thread.currentThread().getContextClassLoader();
+//                    URLClassLoader aUrlCL = new URLClassLoader(urls, guiCL);
+                    guiCL = new URLClassLoader(urls, guiCL);
+//                    Thread.currentThread().setContextClassLoader(aUrlCL);
+
+                     System.out.println("File " + jarFile + " has been loaded");
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(mainFrame,
+                                    "Can't load jar file \"" + jarFile + "\"",
+                                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                    throw e;
+                }
+            }
+    
+            // connect to router ...
+    
+            // constructor parameter overwrites config file
+            if(routerAdr != null)
+            {
+                this.routerAdr = routerAdr;
+            }
+            
+            // constructor parameter overwrites config file
+            if(routerPort > 0)
+            {
+                this.routerPort = routerPort;
+            }
+
+            // set default port
+            if(this.routerPort <= 0)
+            {
+                this.routerPort = 2000;
+            }
+
+            if (this.routerAdr == null)
+            {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "No TimsRouterTcp address\n" + 
+                        "Add param 'ROUTER_IP x.x.x.x' to your GUI config file",
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw new Exception("No TimsRouterTcp address");
+            }
+    
+            try
+            {
+                System.out.println("Connect to TimsRouterTcp "
+                        + this.routerAdr.getHostAddress() + " port " + this.routerPort);
+    
+                tims = new TimsTcp(this.routerAdr, this.routerPort);
+            }
+            catch (MsgException e)
+            {
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Can't connect to TimsRouterTcp.\n" +
+                        "Check service and connection to " +
+                        this.routerAdr.getHostAddress() + " port " + this.routerPort,
+                        "RACK GUI",
+                        JOptionPane.ERROR_MESSAGE);
+                throw e;
+            }
+    
+            System.out.println("Initializing mailboxes ...");
+            initMbx();
+    
+            System.out.println("Initializing GUI ...");
+            initGui();
+    
+            System.out.println("Initializing Proxies ...");
+            initModuleProxy();
+    
+            System.out.println("Initializing last stand ...");
+            lastStand();
+    
+            System.out.println("Starting ...");
+            start();
         }
-        catch (MsgException e)
+        catch(Exception e)
         {
-            JOptionPane.showMessageDialog(frame,
-                    "Cannot connect to TimsMsgGateway. \n"
-                            + "Check service and connection to "
-                            + gwAddress.getHostAddress()
-                            + ".", "Error starting Gui",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(-1);
+            terminate();
+            throw e;
         }
-
-        System.out.println("Initializing mailboxes ...");
-        initMbx();
-
-        System.out.println("Initializing GUI ...");
-        initGui();
-
-        System.out.println("Initializing Proxies ...");
-        initModuleProxy();
-
-        System.out.println("Initializing last stand ...");
-        lastStand();
-
-        System.out.println("Starting ...");
-        start();
     }
 
-    public String loadFile(Frame f, String title, String defDir, String fileType)
+    private void lastStand()
     {
-        FileDialog fd = new FileDialog(f, title, FileDialog.LOAD);
-        fd.setFile(fileType);
-        fd.setDirectory(defDir);
-        fd.setLocation(150, 150);
-        fd.setVisible(true);
-        return fd.getDirectory() + System.getProperty("file.separator").charAt(0) +
-               fd.getFile();
-    }
-
-    public void addFile(String s) throws IOException
-    {
-        File f = new File(s);
-        addFile(f);
-    }
-
-    public void addFile(File f) throws IOException
-    {
-        addURL(f.toURL());
-    }
-
-    public void addURL(URL u) throws IOException
-    {
-        URL urls[] = new URL[ ]{ u };
-//      ClassLoader aCL = Thread.currentThread().getContextClassLoader();
-//      URLClassLoader aUrlCL = new URLClassLoader(urls, guiCL);
-        guiCL = new URLClassLoader(urls, guiCL);
-//      Thread.currentThread().setContextClassLoader(aUrlCL);
-    }
-
-    public void lastStand()
-    {
-        for (int i = 0; i < MODULE_NUM; i++)
+        for (int i = 0; i < moduleNum; i++)
         {
             moduleLocationSize[i] = getModuleLocationSize(i);
             if (moduleLocationSize[i] != null)
@@ -316,25 +238,25 @@ public class Gui extends Thread
         }
     }
 
-    public void readConfig(String fileName)
+    private void readConfig(BufferedReader configReader) throws IOException
     {
-        BufferedReader bfr;
         String string;
         try
         {
-            bfr = new BufferedReader(new FileReader(fileName));
-            string = bfr.readLine().trim();
             int grpElement = 0;
             int readMode = 0; // init
             String currWorkSpace = "workspace";
             workSpaceName.add(currWorkSpace);
             
-            
+            string = configReader.readLine();
+
             while (string != null)
             {
-                configZeilen.add(string);
+                string.trim();
+                cfgLines.add(string);
 
-                System.out.println(string);
+                // Debug output
+                //System.out.println(string);
 
                 if (!string.startsWith("//") && string.length() != 0)
                 {
@@ -352,7 +274,7 @@ public class Gui extends Thread
                         string = string.substring(10);  // cut ROUTER_IP
                         if (string.length() > 0)
                         {
-                            gwAddress = InetAddress.getByName(string.trim());
+                            routerAdr = InetAddress.getByName(string.trim());
                         }
                     }
                     else if (string.startsWith("ROUTER_PORT"))
@@ -361,7 +283,7 @@ public class Gui extends Thread
                         string = string.substring(12);  // cut ROUTER_PORT
                         if (string.length() > 0)
                         {
-                            gwPort = Integer.parseInt(string.trim());
+                            routerPort = Integer.parseInt(string.trim());
                         }
                     }
                     else if (string.startsWith("JAR_FILES"))
@@ -408,35 +330,37 @@ public class Gui extends Thread
                 }
 
                 // read next line
-                string = bfr.readLine();
+                string = configReader.readLine();
             }
             groupSize.add(new Integer(grpElement));
             groupSize.remove(0); // just to remove the first useless element
-            bfr.close();
+            configReader.close();
         }
         catch (IOException ioe)
         {
-            JOptionPane
-                    .showMessageDialog(
-                            frame,
-                            "Die angegebene Konfigurationsdatei konnte nicht gelesen werden.",
-                            "E/A-Fehler", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+            JOptionPane.showMessageDialog(mainFrame,
+                            "Error reading config file",
+                            "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            throw ioe;
         }
-        MODULE_NUM    = moduleName.size();
-        GROUP_NUM     = groupName.size();
-        JARFILE_NUM   = jarFiles.size();
-        WORKSPACE_NUM = workSpaceName.size();        
+        moduleNum    = moduleName.size();
+        groupNum     = groupName.size();
+        jarfileNum   = jarFiles.size();
+        workspaceNum = workSpaceName.size();        
         // System.out.println("module_num=" + MODULE_NUM);
-        groupSizeInt = new int[GROUP_NUM];
+        groupSizeInt = new int[groupNum];
        	
-        for (int i = 0; i < GROUP_NUM; i++)
+        for (int i = 0; i < groupNum; i++)
         {
             groupSizeInt[i] = ((Integer) groupSize.get(i)).intValue();
         }
+
+        System.out.println("Found " + moduleNum + " modules");
+        System.out.println("Found " + groupNum + " groups");
+        System.out.println("Found " + jarfileNum + " jar files");
     }
 
-    public String getModuleName(int id)
+    private String getModuleName(int id)
     {
         // erstmal sehen, ob der parameter "-name=..." in der gui.cfg benutzt
         // wurde
@@ -449,7 +373,7 @@ public class Gui extends Thread
         return name;
     }
 
-    public int[] getModuleLocationSize(int id)
+    private int[] getModuleLocationSize(int id)
     {
         int[] locationSize = new int[4];
         String path = (String) moduleName.elementAt(id);
@@ -489,30 +413,16 @@ public class Gui extends Thread
             }
             catch (NumberFormatException nfe)
             {
-                // if: for the situation "( , ; ,)" whitespace in the clama;
-                // System.out.println(nfe.getMessage()+"="+"For input
-                // string:\"\"");
-                if (!(nfe.getMessage().equals("For input string: \"\"")))
-                {
-
-                    System.out.println(nfe.getMessage());
-                    JOptionPane.showMessageDialog(frame, path
-                            .concat("NumberFormatException: ")
-                            + nfe.getMessage(), "cfg-Fehler",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-                return null;
-
-            }
-            catch (Exception e)
-            {
-
+                JOptionPane.showMessageDialog(mainFrame,
+                        "Error reading module location and size.\n" + 
+                        "\"" + path + "\"",
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
         }
     }
 
-    public String getModuleParameter(int id, String param)
+    private String getModuleParameter(int id, String param)
     {
         String path = (String) moduleName.elementAt(id);
         int a = path.indexOf(param);
@@ -533,11 +443,11 @@ public class Gui extends Thread
     }
 
     /*
-     * public String getModuleParameterProxy(int id) { String path = (String)
+     * private String getModuleParameterProxy(int id) { String path = (String)
      * moduleName.elementAt(id); int a = path.indexOf("-proxy="); if (a < 0)
      * return ""; a += 7; int e = path.indexOf(" ", a); if (e <= a) e =
      * path.length(); //System.out.println("Proxy: " + path.substring(a, e));
-     * return (path.substring(a, e)); } public String getModuleParameterName(int
+     * return (path.substring(a, e)); } private String getModuleParameterName(int
      * id) { String path = (String) moduleName.elementAt(id); int a =
      * path.indexOf("-name="); if (a < 0) return ""; a += 6; char stop = ' '; if
      * (path.charAt(a) == '\"') { // der name steht in anfuehrungszeichen a +=
@@ -545,19 +455,19 @@ public class Gui extends Thread
      * path.length(); //System.out.println("Proxy: " + path.substring(a, e));
      * return (path.substring(a, e)); }
      */
-    public boolean getModuleParameterShow(int id)
+    private boolean getModuleParameterShow(int id)
     {
         String path = (String) moduleName.elementAt(id);
         return (path.indexOf("-show") > -1);
     }
 
-    public boolean getModuleParameterStart(int id)
+    private boolean getModuleParameterStart(int id)
     {
         String path = (String) moduleName.elementAt(id);
         return (path.indexOf("-start") > -1);
     }
 
-    public String getGroupName(int id)
+    private String getGroupName(int id)
     {
         String name = null;
         name = (String) groupName.get(id);
@@ -566,7 +476,7 @@ public class Gui extends Thread
         return name;
     }
 
-    public boolean isInGroup(int groupId, int moduleId)
+    private boolean isInGroup(int groupId, int moduleId)
     {
         int count = 0;
         for (int i = 0; i < groupId; i++)
@@ -584,136 +494,90 @@ public class Gui extends Thread
     }
 
     // alle ModuleFrame Positionen in ConfigurationFile schreiben!
-    void writeConfig(String cfg)
+    private void writeConfig(BufferedWriter cfgWriter) throws IOException
     {
-        System.out.println("fange an config zu schreiben!");
-        BufferedWriter bw;
+        System.out.println("Write config");
         StringBuffer sb;
-        try
+        for (int i = 0; i < moduleNum; i++)
         {
-            bw = new BufferedWriter(new FileWriter(cfg));
+            sb = new StringBuffer(moduleName.get(i).toString());
+            int kAuf = sb.indexOf("(");
+            int kZu = sb.indexOf(")");
 
-            for (int i = 0; i < MODULE_NUM; i++)
+            if (moduleFrame[i] != null)
             {
-                sb = new StringBuffer(moduleName.get(i).toString());
-                int kAuf = sb.indexOf("(");
-                int kZu = sb.indexOf(")");
-
-                if (moduleFrame[i] != null)
+                if (moduleLocationSize[i] == null)
                 {
-                    if (moduleLocationSize[i] == null)
-                    {
-                        moduleLocationSize[i] = new int[4];
-                    }
-                    System.out.println("moduleFrame[" + i + "] ! = null");
-                    System.out.println("moduleLocationSize[" + i + "][0]"
-                            + moduleFrame[i].getLocation().x);
-                    // System.out.println("moduleLocationSize["+i+"].toString="+moduleLocationSize[i].toString());
-                    // hier moduleLocationSize[i][0] NullPointException !
-                    moduleLocationSize[i][0] = moduleFrame[i].getLocation().x;
-                    moduleLocationSize[i][1] = moduleFrame[i].getLocation().y;
-                    moduleLocationSize[i][2] = moduleFrame[i].getSize().width;
-                    moduleLocationSize[i][3] = moduleFrame[i].getSize().height;
-
-                    if (moduleFrame[i].isIcon())
-                    {
-                        moduleLocationSize[i][2] = moduleFrame[i]
-                                .getMinimumSize().width;
-                        moduleLocationSize[i][3] = moduleFrame[i]
-                                .getMinimumSize().height;
-                    }
-                    sb = sb.replace(kAuf, kZu, "(" + moduleLocationSize[i][0]
-                            + "," + moduleLocationSize[i][1] + ";"
-                            + moduleLocationSize[i][2] + ","
-                            + moduleLocationSize[i][3]);
+                    moduleLocationSize[i] = new int[4];
                 }
-                else
+                System.out.println("moduleFrame[" + i + "] ! = null");
+                System.out.println("moduleLocationSize[" + i + "][0]"
+                        + moduleFrame[i].getLocation().x);
+                // System.out.println("moduleLocationSize["+i+"].toString="+moduleLocationSize[i].toString());
+                // hier moduleLocationSize[i][0] NullPointException !
+                moduleLocationSize[i][0] = moduleFrame[i].getLocation().x;
+                moduleLocationSize[i][1] = moduleFrame[i].getLocation().y;
+                moduleLocationSize[i][2] = moduleFrame[i].getSize().width;
+                moduleLocationSize[i][3] = moduleFrame[i].getSize().height;
+
+                if (moduleFrame[i].isIcon())
                 {
-                    System.out.println("moduleFrame[" + i + "] = null");
-                    System.out.println("test " + i);
-                    moduleLocationSize[i] = null;
-                    sb = sb.replace(kAuf, kZu, "(,;,");
+                    moduleLocationSize[i][2] = moduleFrame[i]
+                            .getMinimumSize().width;
+                    moduleLocationSize[i][3] = moduleFrame[i]
+                            .getMinimumSize().height;
                 }
-                for (int z = 0; z < configZeilen.size(); z++)
-                {
-                    if (moduleName.get(i).equals(configZeilen.get(z)))
-                    {
-                        configZeilen.set(z, sb);
-                        System.out.println("moduleName:" + moduleName.get(i));
-                        System.out.println("configZeilen:"
-                                + configZeilen.get(z));
-
-                    }
-                }
-
-            }
-            // um die mainFrameLocationSize abzuspeichen.
-            String str = "//mainFrameLocationSize(" + frame.getLocation().x
-                    + "," + frame.getLocation().y + ";" + frame.getSize().width
-                    + "," + frame.getSize().height + ")";
-
-            if (configZeilen.get(0).toString().startsWith(
-                    "//mainFrameLocationSize"))
-            {
-                configZeilen.set(0, str);
+                sb = sb.replace(kAuf, kZu, "(" + moduleLocationSize[i][0]
+                        + "," + moduleLocationSize[i][1] + ";"
+                        + moduleLocationSize[i][2] + ","
+                        + moduleLocationSize[i][3]);
             }
             else
             {
-                configZeilen.insertElementAt(str, 0);
+                System.out.println("moduleFrame[" + i + "] = null");
+                System.out.println("test " + i);
+                moduleLocationSize[i] = null;
+                sb = sb.replace(kAuf, kZu, "(,;,");
             }
-
-            for (int z = 0; z < configZeilen.size(); z++)
+            for (int z = 0; z < cfgLines.size(); z++)
             {
-                System.out.println(configZeilen.get(z));
-                bw.write(configZeilen.get(z).toString());
-                bw.newLine();
+                if (moduleName.get(i).equals(cfgLines.get(z)))
+                {
+                    cfgLines.set(z, sb);
+                    System.out.println("moduleName:" + moduleName.get(i));
+                    System.out.println("configZeilen:"
+                            + cfgLines.get(z));
+
+                }
             }
 
-            bw.close();
         }
-        catch (Exception e)
+        // um die mainFrameLocationSize abzuspeichen.
+        String str = "//mainFrameLocationSize(" + mainFrame.getLocation().x
+                + "," + mainFrame.getLocation().y + ";" + mainFrame.getSize().width
+                + "," + mainFrame.getSize().height + ")";
+
+        if (cfgLines.get(0).toString().startsWith(
+                "//mainFrameLocationSize"))
         {
-            System.out.println(e.getClass().toString() + "  bei writeConfig");
+            cfgLines.set(0, str);
         }
+        else
+        {
+            cfgLines.insertElementAt(str, 0);
+        }
+
+        for (int z = 0; z < cfgLines.size(); z++)
+        {
+            System.out.println(cfgLines.get(z));
+            cfgWriter.write(cfgLines.get(z).toString());
+            cfgWriter.newLine();
+        }
+
+        cfgWriter.close();
     }
 
-    public RackProxy createModuleProxy(int module)
-    {
-        // moduleProxy werden erzeugt.
-        String str = null;
-        String moduleProxyName = null;
-        str = (String) moduleName.get(module);
-        int blank = str.indexOf(' ');
-        int k = str.indexOf('(');
-        int id = Integer.parseInt(str.substring(blank + 1, k).trim());
-        moduleProxyName = getModuleParameter(module, "-proxy=");
-        // -proxy=??? im cfg-file?
-        if (moduleProxyName == "")
-            moduleProxyName = str.substring(0, blank).concat("Proxy");
-
-        Class[] proxyConstrArgsTypes = new Class[]
-        { int.class, int.class };
-        Object[] proxyConstrArgs = new Object[2];
-        proxyConstrArgs[0] = new Integer(id);
-        proxyConstrArgs[1] = new Integer(replyMbx[module]);
-
-        try
-        {
-            moduleProxy[module] = (RackProxy) guiCL.loadClass(moduleProxyName)
-                                                   .getConstructor(proxyConstrArgsTypes)
-                                                   .newInstance(proxyConstrArgs);
-        }
-        catch (Exception e)
-        {
-            JOptionPane.showMessageDialog(frame, "\"" + str.substring(0, blank)
-                    + "\" ist fehlerhaft", "configuration-error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(-1);
-        }
-        return (moduleProxy[module]);
-    }
-
-    public RackModuleGui createModuleGui(int module)
+    private RackModuleGui createModuleGui(int module)
     {
         // moduleGui werden erzeugt. Bevor moduleGui erzeugt werden, wurde
         // moduleProxy erzeugt.
@@ -753,25 +617,31 @@ public class Gui extends Thread
 
         try
         {
-            guiConstrArgsTypes[0] = guiCL.loadClass(moduleProxyName);
-        }
-        catch (ClassNotFoundException e1)
-        {
-            errorDialog("\""
-                    + moduleProxyName
-                    + "\" class not found! \n Tip: Use parameter \"-proxy=...\" in config-File.");
-            return null;
-        }
-        guiConstrArgs[0] = moduleProxy[module];
-        try
-        {
             moduleGuiClass = guiCL.loadClass(moduleGuiName);
         }
         catch (ClassNotFoundException e1)
         {
-            errorDialog("\"" + moduleGuiName + "\" class not found!");
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Can't load module gui.\n" +
+                    "\"" + moduleGuiName + "\"",
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
             return null;
         }
+
+        try
+        {
+            guiConstrArgsTypes[0] = guiCL.loadClass(moduleProxyName);
+        }
+        catch (ClassNotFoundException e1)
+        {
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Can't load module proxy.\n" + 
+                    "\"" + moduleProxyName + "\" class not found! \n" +
+                    "Tip: Use parameter \"-proxy=...\" in config-File.",
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        guiConstrArgs[0] = moduleProxy[module];
         // try to create RackModuleGui instance with constructor:
         // (Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
         guiConstrArgs2[0] = new Integer(module);
@@ -801,29 +671,34 @@ public class Gui extends Thread
             }
             catch (IllegalArgumentException e)
             {
-                errorDialog("\"" + moduleGuiName + "\" Illegal Argument!");
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(mainFrame,
+                        "\"" + moduleGuiName + "\" Illegal Argument!", 
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
             catch (InstantiationException e)
             {
-                errorDialog("\"" + moduleGuiName
-                        + "\" Instantiation Exception!");
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(mainFrame,
+                        "\"" + moduleGuiName + "\" Instantiation Exception!", 
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
             catch (NoSuchMethodException e)
             {
-                errorDialog("\"" + moduleGuiName
-                        + "\" No Such Method Exception!");
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(mainFrame,
+                        "\"" + moduleGuiName + "\" No Such Method Exception!", 
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
             catch (Exception e)
             {
-                errorDialog("\"" + moduleGuiName
-                        + "\" getConstructor/newInstance Exception!");
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(mainFrame,
+                        "\"" + moduleGuiName + "\" getConstructor/newInstance Exception!", 
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
             }
         }
@@ -832,77 +707,85 @@ public class Gui extends Thread
         return moduleGui[module];
     }
 
-    protected void errorDialog(String msg)
+    private void initMbx() throws MsgException
     {
-        JOptionPane.showMessageDialog(frame, msg, "configuration-error",
-                JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void initMbx()
-    {
-        replyMbx           = new int[MODULE_NUM];
-        moduleStatus       = new int[MODULE_NUM];
-        moduleProxy        = new RackProxy[MODULE_NUM];
-        moduleGui          = new RackModuleGui[MODULE_NUM];
-        moduleFrame        = new JInternalFrame[MODULE_NUM];
-        moduleLocation     = new Point[MODULE_NUM];
-        moduleButton       = new JButton[MODULE_NUM];
-        statusButton       = new JRadioButton[MODULE_NUM];
-        modulePanel        = new JPanel[MODULE_NUM];
-        moduleLocationSize = new int[MODULE_NUM][4];
-
         try
         {
-            for (int i = 0; i < MODULE_NUM; i++)
+            for (int i = 0; i < moduleNum; i++)
             {
                 replyMbx[i] = RackName.create(RackName.GUI, 0, i);
-                System.out.println("Creating mailbox " + replyMbx[i] + " ...");
+                // Debug output
+                //System.out.println("Creating mailbox " + Integer.toHexString(replyMbx[i]) + " ...");
                 Tims.mbxInit(replyMbx[i]);
             }
 
-            getStatusReplyMbx = RackName.create(RackName.GUI, 0, MODULE_NUM);
-            System.out.println("Creating mailbox " + getStatusReplyMbx + " ...");
+            getStatusReplyMbx = RackName.create(RackName.GUI, 0, moduleNum);
+            // Debug output
+            //System.out.println("Creating mailbox " + Integer.toHexString(getStatusReplyMbx) + " ...");
             Tims.mbxInit(getStatusReplyMbx);
 
             GDOSMbx = RackName.create(RackName.GDOS, 0);
-            System.out.println("Creating mailbox " + GDOSMbx + " ...");
+            // Debug output
+            //System.out.println("Creating mailbox " + Integer.toHexString(GDOSMbx) + " ...");
             Tims.mbxInit(GDOSMbx);
-
-        }
-        catch (NumberFormatException e)
-        {
-
-            JOptionPane
-                    .showMessageDialog(
-                            frame,
-                            "Can't start Gui. Use \"Gui [gatewayIp] gatewayPort gui.cfg\"",
-                            "configuration-error", JOptionPane.ERROR_MESSAGE);
-            System.exit(-1);
-
         }
         catch (MsgException e)
         {
-
-            JOptionPane.showMessageDialog(frame,
-                    "Can't start Gui: MsgException " + e.toString()
-                            + "\nConnection to Tims Message Gateway possible?",
-                    "configuration-error", JOptionPane.ERROR_MESSAGE);
-            System.out.println("Can't start Gui: MsgException " + e.toString());
-            System.exit(-1);
-
+            tims.terminate();
+            
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Can't create Mailbox\n" + e.getMessage(),
+                    "Tims Exception", JOptionPane.ERROR_MESSAGE);
+            throw e;
         }
-
     }
 
-    public void initModuleProxy()
+    private void initModuleProxy() throws Exception
     {
-        for (int i = 0; i < MODULE_NUM; i++)
+        for (int i = 0; i < moduleNum; i++)
         {
             moduleProxy[i] = createModuleProxy(i);
         }
     }
 
-    public void initGui()
+    private RackProxy createModuleProxy(int module) throws Exception
+    {
+        // moduleProxy werden erzeugt.
+        String str = null;
+        String moduleProxyName = null;
+        str = (String) moduleName.get(module);
+        int blank = str.indexOf(' ');
+        int k = str.indexOf('(');
+        int id = Integer.parseInt(str.substring(blank + 1, k).trim());
+        moduleProxyName = getModuleParameter(module, "-proxy=");
+        // -proxy=??? im cfg-file?
+        if (moduleProxyName == "")
+            moduleProxyName = str.substring(0, blank).concat("Proxy");
+
+        Class[] proxyConstrArgsTypes = new Class[]
+        { int.class, int.class };
+        Object[] proxyConstrArgs = new Object[2];
+        proxyConstrArgs[0] = new Integer(id);
+        proxyConstrArgs[1] = new Integer(replyMbx[module]);
+
+        try
+        {
+            moduleProxy[module] = (RackProxy) guiCL.loadClass(moduleProxyName)
+                                                   .getConstructor(proxyConstrArgsTypes)
+                                                   .newInstance(proxyConstrArgs);
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Can't load module proxy.\n" +
+                    "\"" + str.substring(0, blank) + "\"",
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            throw e;
+        }
+        return moduleProxy[module];
+    }
+
+    private void initGui() throws Exception
     {
         try
         {
@@ -912,36 +795,11 @@ public class Gui extends Thread
         }
         catch (Exception e)
         {
-            System.out.println(e.toString());
+            JOptionPane.showMessageDialog(mainFrame,
+                    "Can't set LookAndFeel",
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            throw e;
         }
-
-        // create main frame
-        frame = new JFrame("Robot Gui " + gwAddress.getHostAddress());
-        frame.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e)
-            {
-                System.out.println(e.toString());
-
-                terminate();
-                System.out.println("Terminate");
-
-                writeConfig(fileName);
-                System.out.println("writeConfig");
-
-                // System.exit(-2);
-                System.exit(0);
-
-            }
-
-/*
-            public void windowClosed()
-            {
-                System.out.println("frame is closed!");
-                System.exit(-2);
-            }
-*/
-        });
 
         // create navigation panel (Module Monitor on the left border)
 
@@ -957,10 +815,10 @@ public class Gui extends Thread
         navigationScrollPanel.setPreferredSize(new Dimension(160, 10));
 
         // create groupsPanel
-        groupButton = new JButton[GROUP_NUM];
-        groupPanel = new JPanel[GROUP_NUM];
-        groupInterPanel = new JPanel[GROUP_NUM];
-        for (int i = 0; i < GROUP_NUM; i++)
+        groupButton = new JButton[groupNum];
+        groupPanel = new JPanel[groupNum];
+        groupInterPanel = new JPanel[groupNum];
+        for (int i = 0; i < groupNum; i++)
         {
             groupButton[i] = new JButton(getGroupName(i));
             groupPanel[i] = new JPanel();
@@ -972,7 +830,7 @@ public class Gui extends Thread
                 {
                     Object o = ae.getSource();
                     int groupIndex = -1;
-                    for (int j = 0; j < GROUP_NUM; j++)
+                    for (int j = 0; j < groupNum; j++)
                     {
                         if (o == groupButton[j])
                         {
@@ -1010,7 +868,7 @@ public class Gui extends Thread
         {
             public void actionPerformed(ActionEvent ae)
             {
-                for (int i = MODULE_NUM - 1; i >= 0; i--)
+                for (int i = moduleNum - 1; i >= 0; i--)
                 {
 
                     moduleProxy[i].off();
@@ -1030,21 +888,21 @@ public class Gui extends Thread
         allOffInterPanel.add(allOffButton, BorderLayout.NORTH);
         navigationPanel.add(allOffInterPanel);
 
-        frame.getContentPane().add(navigationScrollPanel, BorderLayout.WEST);
+        mainFrame.add(navigationScrollPanel, BorderLayout.WEST);
 
         // create work panel (Tabbed Panel in the center)
         jtp = new JTabbedPane();
-        jdp = new JDesktopPane[WORKSPACE_NUM];
-        for (int i = 0; i < WORKSPACE_NUM; i++)
+        jdp = new JDesktopPane[workspaceNum];
+        for (int i = 0; i < workspaceNum; i++)
         {
         	jdp[i] = new JDesktopPane();
          	jtp.add((String)workSpaceName.get(i),jdp[i]);
         }
-        frame.getContentPane().add(jtp, BorderLayout.CENTER);
+        mainFrame.add(jtp, BorderLayout.CENTER);
 
         // create message frame as an internal frame
         messageFrame = new JInternalFrame("Message", true, false, true, true);
-        GDOSGui gdosGui = new GDOSGui(GDOSMbx);
+        gdosGui = new GDOSGui(GDOSMbx);
         messageFrame.getContentPane().add(gdosGui.getComponent());
         messageFrame.pack();
         messageFrame.setVisible(true);
@@ -1055,35 +913,30 @@ public class Gui extends Thread
         {
             //create mapView panel as a tab
         	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
-            MapViewGui myMapViewGui = new MapViewGui(moduleGui);
+            myMapViewGui = new MapViewGui(moduleGui);
         	mapViewFrame.getContentPane().add(myMapViewGui.getComponent());
         	mapViewFrame.pack();        	
         	mapViewFrame.setVisible(true);
         	jdp[mapViewWorkSpace].add(mapViewFrame);
         	mapViewFrame.setLocation(0, 0);
-        	mapViewFrame.setSize(850, 
-        						 400);
+        	mapViewFrame.setSize(850, 400);
         	
         }
-
-        frame.setJMenuBar(createMenu());
-        if ((mainFrameLocationSize = getMainFrameLocationSize(configZeilen)) != null)
+        
+        mainFrameLocationSize = getMainFrameLocationSize(cfgLines);
+        if (mainFrameLocationSize == null)
         {
-            frame.setLocation(mainFrameLocationSize[0],
-                    mainFrameLocationSize[1]);
-            frame.setSize(mainFrameLocationSize[2], mainFrameLocationSize[3]);
-
-        }
-        else
-        {
-            frame.setSize(800, 600);
-            frame.setLocation(0, 0);
+            mainFrameLocationSize = new int[4];
+            mainFrameLocationSize[0] = 800;
+            mainFrameLocationSize[0] = 600;
+            mainFrameLocationSize[0] = 0;
+            mainFrameLocationSize[0] = 0;
         }
 
-        frame.setVisible(true);
+        mainFrame.setVisible(true);
     }
 
-    public int[] getMainFrameLocationSize(Vector configZeilen)
+    private int[] getMainFrameLocationSize(Vector configZeilen)
     {
         int[] locationSize = new int[4];
         String path = (String) configZeilen.get(0);
@@ -1136,33 +989,7 @@ public class Gui extends Thread
         }
     }
 
-    public JMenuBar createMenu()
-    {
-        // Create the menu bar.
-        menuBar = new JMenuBar();
-        // Build the first menu.
-        preferencesMenu = new JMenu("Preferences");
-        preferencesMenu.setMnemonic(KeyEvent.VK_P);
-        preferencesMenu.getAccessibleContext().setAccessibleDescription(
-                "Setting Preferences");
-        menuBar.add(preferencesMenu);
-
-        prefPollingOnCbMenuItem = new JCheckBoxMenuItem("Enable module polling");
-        prefPollingOnCbMenuItem.setMnemonic(KeyEvent.VK_E);
-        prefPollingOnCbMenuItem.setSelected(prefPollingOn);
-        prefPollingOnCbMenuItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                prefPollingOn = prefPollingOnCbMenuItem.isSelected();
-            }
-        });
-        preferencesMenu.add(prefPollingOnCbMenuItem);
-
-        return (menuBar);
-    }
-
-    public void initModule(int id)
+    private void initModule(int id)
     {
         modulePanel[id] = new JPanel(new BorderLayout());
 
@@ -1208,7 +1035,7 @@ public class Gui extends Thread
 
                     if ((ae.getModifiers() & ActionEvent.CTRL_MASK) == 0)
                     {
-                        openModule(module);
+                        openModule(module, null);
                     }
                     else
                     {
@@ -1232,7 +1059,7 @@ public class Gui extends Thread
         modulePanel[id].add(BorderLayout.CENTER, moduleButton[id]);
         // System.out.println("modulelePanel[" + id + "] is ok");
 
-        for (int i = 0; i < GROUP_NUM; i++)
+        for (int i = 0; i < groupNum; i++)
         {
             if (isInGroup(i, id))
             {
@@ -1245,12 +1072,7 @@ public class Gui extends Thread
 
     }
 
-    public void openModule(int id)
-    {
-        openModule(id, null);
-    }
-
-    public void openModule(int id, int[] moduleLocationSize)
+    private void openModule(int id, int[] moduleLocationSize)
     {
         if (moduleGui[id] == null)
         {
@@ -1269,7 +1091,7 @@ public class Gui extends Thread
                 {
                     Object o = e.getSource();
                     int module = -1;
-                    for (int j = 0; j < MODULE_NUM; j++)
+                    for (int j = 0; j < moduleNum; j++)
                     {
                         if (o == moduleFrame[j])
                         {
@@ -1314,19 +1136,19 @@ public class Gui extends Thread
         }
     }
 
-    protected void updateAllStatus()
+    private void updateAllStatus()
     {
-        groupError = new int[GROUP_NUM];
-        groupOn = new int[GROUP_NUM];
-        groupSum = new int[GROUP_NUM];
+        groupError = new int[groupNum];
+        groupOn = new int[groupNum];
+        groupSum = new int[groupNum];
 
-        for (int i = 0; i < GROUP_NUM; i++)
+        for (int i = 0; i < groupNum; i++)
         {
             groupOn[i] = 0;
             groupError[i] = 0;
             groupSum[i] = 0;
         }
-        for (int i = 0; i < MODULE_NUM; i++)
+        for (int i = 0; i < moduleNum; i++)
         {
             moduleStatus[i] = RackMsgType.MSG_TIMEOUT;
         }
@@ -1338,7 +1160,7 @@ public class Gui extends Thread
             else
                 getStatusSeqNo = -128;
 
-            for (int i = 0; i < MODULE_NUM; i++)
+            for (int i = 0; i < moduleNum; i++)
             {
                 // alle moduleProxy sind bei initModuleProxy schon vorhand.
 
@@ -1366,7 +1188,7 @@ public class Gui extends Thread
                 if (reply.seq_nr == getStatusSeqNo)
                 {
                     // update module status array
-                    for (int i = 0; i < MODULE_NUM; i++)
+                    for (int i = 0; i < moduleNum; i++)
                     {
 
                         if (moduleProxy[i].getCommandMbx() == reply.src)
@@ -1378,7 +1200,7 @@ public class Gui extends Thread
 
                 // test if all replies are received
                 notAllReplies = false;
-                for (int i = 0; i < MODULE_NUM; i++)
+                for (int i = 0; i < moduleNum; i++)
                 {
                     if (moduleStatus[i] == RackMsgType.MSG_TIMEOUT)
                     {
@@ -1393,7 +1215,7 @@ public class Gui extends Thread
             // e.getMessage());
         }
 
-        for (int i = 0; i < MODULE_NUM; i++)
+        for (int i = 0; i < moduleNum; i++)
         {
             // bei paramentern -show und -start soll trotzdem
             // der button angezeigt werden.
@@ -1416,7 +1238,7 @@ public class Gui extends Thread
                     statusButton[i].setForeground(Color.red);
                     moduleButton[i].setEnabled(true);
 
-                    for (int id = 0; id < GROUP_NUM; id++)
+                    for (int id = 0; id < groupNum; id++)
                     {
                         if (isInGroup(id, i))
                         {
@@ -1438,7 +1260,7 @@ public class Gui extends Thread
                     statusButton[i].setForeground(Color.green);
                     moduleButton[i].setEnabled(true);
 
-                    for (int id = 0; id < GROUP_NUM; id++)
+                    for (int id = 0; id < groupNum; id++)
                     {
                         if (isInGroup(id, i))
                         {
@@ -1459,7 +1281,7 @@ public class Gui extends Thread
                     statusButton[i].setSelected(false);
                     moduleButton[i].setEnabled(true);
 
-                    for (int id = 0; id < GROUP_NUM; id++)
+                    for (int id = 0; id < groupNum; id++)
                     {
                         if (isInGroup(id, i))
                         {
@@ -1496,54 +1318,216 @@ public class Gui extends Thread
     {
         while (terminate == false)
         {
-
-            if (prefPollingOn)
+            updateAllStatus();
+            for (int i = 0; i < groupSize.size(); i++)
             {
-                updateAllStatus();
-                for (int i = 0; i < groupSize.size(); i++)
+                if (groupError[i] > 0)
                 {
-                    if (groupError[i] > 0)
-                    {
-                        groupButton[i].setForeground(Color.red);
-                    }
-                    else
-                    {
-                        groupButton[i].setForeground(groupButton[i].getParent()
-                                .getForeground());
-                    }
-                    groupButton[i].setText(getGroupName(i) + " ("
-                            + groupError[i] + " , " + groupOn[i] + " , "
-                            + groupSum[i] + ")");
+                    groupButton[i].setForeground(Color.red);
                 }
+                else
+                {
+                    groupButton[i].setForeground(groupButton[i].getParent()
+                            .getForeground());
+                }
+                groupButton[i].setText(getGroupName(i) + " ("
+                        + groupError[i] + " , " + groupOn[i] + " , "
+                        + groupSum[i] + ")");
             }
             navigationPanel.revalidate();
             try
             {
                 Thread.sleep(2000);
             }
-            catch (InterruptedException e)
-            {
-            }
-
+            catch (InterruptedException e) {}
         }
-
     }
 
     public void terminate()
     {
+        System.out.println("Terminating ...");
+
         terminate = true;
+        mainFrame.setVisible(false);
+        
+        // terminate gui thread
+        try
+        {
+            this.interrupt();
+            this.join(100);
+        }
+        catch (Exception e) {}
+        
+        // terminate MapViewGui
+        if(myMapViewGui != null)
+        {
+            myMapViewGui.terminate();
+        }
+
+        // terminate module guis
+        for (int i = 0; i < moduleNum; i++)
+        {
+            if(moduleGui[i] != null)
+            {
+                moduleGui[i].terminate();
+            }
+        }
+
+        // terminate GDOSGui
+        if(gdosGui != null)
+        {
+            gdosGui.terminate();
+        }
+
+        // terminate connection to TimsRouter
+        if(tims != null)
+        {
+            tims.terminate();
+        }
+
+//        JOptionPane.showMessageDialog(frame,
+//                "GUI Terminated",
+//                "RACK GUI", JOptionPane.INFORMATION_MESSAGE);
+        System.out.println("GUI terminated");
     }
+
+    //
+    // Starting RACK GUI as an application
+    //
+    
+    private static File mainSaveConfigFile;
+    private static Gui mainGui;
 
     public static void main(String[] args)
     {
+        System.out.println("RACK GUI");
+        
+        mainSaveConfigFile = null;
+        mainGui = null;
+
         try
         {
-            new Gui(args);
+            
+            // create main frame
+            JFrame frame = new JFrame("Robot Gui");
+            frame.addWindowListener(new WindowAdapter()
+            {
+                public void windowClosing(WindowEvent event)
+                {
+                    // write GUI configuration
+                    if((mainSaveConfigFile != null) &&
+                       (mainGui != null))
+                    {
+                        try
+                        {
+                            mainGui.writeConfig(new BufferedWriter(new FileWriter(mainSaveConfigFile)));
+                        }
+                        catch (IOException e)
+                        {
+                            JOptionPane.showMessageDialog(null,
+                                    "Can't write config file",
+                                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                            System.out.println("Can't write config file");
+                        }
+                    }
+
+                    mainSaveConfigFile = null;
+                    mainGui = null;
+                    
+                    System.exit(0);
+                }
+            });
+
+            // reading config file
+
+            String      fileName    = "";
+            InetAddress routerAdr   = null;
+            int         routerPort  = 0;
+
+            try
+            {
+                switch (args.length)
+                {
+                    case 0:
+                        FileDialog fd = new FileDialog(frame, "RACK GUI config", FileDialog.LOAD);
+                        fd.setFile("*.cfg");
+                        fd.setDirectory(".");
+                        fd.setLocation(150, 150);
+                        fd.setVisible(true);
+                        fileName = fd.getDirectory() + System.getProperty("file.separator").charAt(0) + fd.getFile();
+                        break;
+                    case 1: // only config file
+                        fileName = args[0];
+                        break;
+                    case 2: // config file and ip
+                        fileName = args[0];
+                        routerAdr = InetAddress.getByName(args[1]);
+                        break;
+                    case 3: // config file, ip and port
+                        fileName = args[0];
+                        routerAdr = InetAddress.getByName(args[1]);
+                        routerPort = Integer.parseInt(args[2]);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(frame,
+                                "Invalid argument count \"" + args.length + "\". Start Gui like:\n" +
+                                "'javaw -jar rack.jar <config-file>' or\n" +
+                                "'java -classpath ... rack.gui.Gui config-file ip <port>",
+                                "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                        throw new Exception("Invalid argument count " + args.length);
+                }
+            }
+            catch(UnknownHostException e)
+            {
+                JOptionPane.showMessageDialog(frame,
+                        "Invalid router ip \"" + args[1] + "\". Start Gui like:\n" +
+                        "'javaw -jar rack.jar <config-file>' or\n" +
+                        "'java -classpath ... rack.gui.Gui config-file ip <port>",
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw e;
+            }
+            catch(NumberFormatException e)
+            {
+                JOptionPane.showMessageDialog(frame,
+                        "Invalid router port \"" + args[2] + "\". Start Gui like:\n" +
+                        "'javaw -jar rack.jar <config-file>' or\n" +
+                        "'java -classpath ... rack.gui.Gui config-file ip <port>",
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw e;
+            }
+
+            try
+            {
+                System.out.println("Load config file \"" + fileName + "\"");
+
+                BufferedReader cfgReader = new BufferedReader(new FileReader(fileName));
+                mainSaveConfigFile  = new File(fileName);
+
+                mainGui = new Gui(frame.getContentPane(), cfgReader, routerAdr, routerPort);
+
+                frame.setTitle("RACK GUI (" + mainGui.routerAdr.getHostAddress() + ")");
+                frame.setLocation(mainGui.mainFrameLocationSize[0], mainGui.mainFrameLocationSize[1]);
+                frame.setSize(mainGui.mainFrameLocationSize[2], mainGui.mainFrameLocationSize[3]);
+                frame.setVisible(true);
+            }
+            catch(IOException e)
+            {
+                JOptionPane.showMessageDialog(frame,
+                        "Can't load config file \"" + fileName + "\"",
+                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw e;
+            }
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            System.out.println(t);
-            t.printStackTrace();
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Can't start RACK GUI", "RACK GUI", JOptionPane.ERROR_MESSAGE);
+
+            mainSaveConfigFile = null;
+            mainGui = null;
+
+            System.exit(-1);
         }
     }
 }

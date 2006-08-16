@@ -30,7 +30,6 @@ import rack.perception.Scan2DProxy;
 
 public class Scan2DGui extends RackModuleGui
 {
-    protected boolean            terminate=false;
     protected boolean            mapViewIsShowing=false;
     public    int                maxDistance=10000; // 10m
     public    Scan2DDataMsg      scan2DData;
@@ -303,11 +302,6 @@ public class Scan2DGui extends RackModuleGui
         }
     }    
     
-    public void terminate()
-    {
-       terminate=true;
-    }
-
     class myKeyListener implements KeyListener {
       public void keyPressed(KeyEvent e)
       {

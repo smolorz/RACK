@@ -130,7 +130,7 @@ public class TimsTcp extends Tims
       InputStream in   = tcpIn;
       Socket      sock = socket;
 
-      while (true) {
+      while (terminate == false) {
 
         // normal operation
         try {
@@ -225,8 +225,37 @@ public class TimsTcp extends Tims
           }
         }
       }
+      System.out.println("TimsTcp terminated");
     }
 
+    public void terminate()
+    {
+        super.terminate();
+        
+        // close connection to router to terminate
+
+        tcpIn  = null;
+        tcpOut = null;
+
+        if (socket != null)
+        {
+            try
+            {
+                socket.close();
+            }
+            catch (IOException e) {}
+        }
+        
+        socket = null;
+        
+        try
+        {
+            this.interrupt();
+            this.join(1000);
+        }
+        catch (Exception e) {}
+    }
+    
     public synchronized void init(int mbxName) throws MsgException
     {
       TimsMbx mbx;

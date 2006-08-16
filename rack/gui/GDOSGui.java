@@ -150,6 +150,12 @@ public class GDOSGui extends Thread {
 
   public void terminate() {
     terminate = true;
+    try
+    {
+        this.interrupt();
+        this.join(100);
+    }
+    catch (Exception e) {}
   }
 
   public void run() {
@@ -157,7 +163,7 @@ public class GDOSGui extends Thread {
     boolean firstTimeout = true;
 
     try {
-      while(!terminate) {
+      while(terminate == false) {
         try {
           data = new GDOSDataMsg(Tims.receive(GDOSMbx,500));
         } catch (MsgTimeoutException e) {

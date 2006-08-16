@@ -29,6 +29,8 @@ import rack.main.proxy.*;
 
 abstract public class RackModuleGui extends Thread//JComponent implements Runnable
 {
+    protected boolean terminate = false;
+    
     // use constructor RackModuleGui(RackProxy moduleProxy) or
     // RackModuleGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
 
@@ -42,9 +44,16 @@ abstract public class RackModuleGui extends Thread//JComponent implements Runnab
 
     /** Wird bei Beendigung des "MainGUIs" aufgerufen und soll
      * ein sofortiges Ende der GUI-Komponente bewirken */
-    abstract public void terminate();
-
-
+    public void terminate()
+    {
+        terminate = true;
+        try
+        {
+            this.interrupt();
+            this.join(100);
+        }
+        catch (Exception e) {}
+    }
 
     /** Legt fest of dieses Gui eine Kartendarstellung hat,
      * Diese Funktion muss gegebenenfals ueberschrieben werden.*/

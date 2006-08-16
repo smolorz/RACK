@@ -81,16 +81,13 @@ public abstract class RackDataModule extends RackModuleGui
     /** Data module period time */
     public int periodTime = 100;
 
-    /** flag zum beenden */
-    protected boolean terminate = false;
-
     protected int gdosLevel = GDOSProxy.GDOS_WARNING;
 
     /** beenden des Programmablaufs */
     public void terminate()
     {
         moduleCleanup();
-        terminate = true;
+
         try
         {
             Tims.mbxDelete(commandMbx);
@@ -99,10 +96,9 @@ public abstract class RackDataModule extends RackModuleGui
             if (workMbx > 0)
                 Tims.mbxDelete(workMbx);
         }
-        catch (MsgException e)
-        {
-            e.printStackTrace();
-        }
+        catch (MsgException e) {}
+        
+        super.terminate();
     }
 
     /**

@@ -28,7 +28,6 @@ public class PilotGui extends RackModuleGui
 {
     protected PilotProxy pilot;
     protected PilotComponent pilotComponent;
-    protected boolean terminate = false;
 
     protected JPanel panel;
     protected JPanel buttonPanel;
@@ -144,11 +143,6 @@ public class PilotGui extends RackModuleGui
             {
             }
         }
-    }
-
-    public void terminate()
-    {
-        terminate = true;
     }
 
     class myKeyListener implements KeyListener

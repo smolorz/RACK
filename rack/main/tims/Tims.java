@@ -23,12 +23,24 @@ public abstract class Tims extends Thread
 
     protected static Tims thisRouter = null;
 
+    protected boolean terminate = false;
+
     public Tims()
     {
         thisRouter = this;
     }
 
-  // public message interface
+    public void terminate()
+    {
+        terminate = true;
+        
+        if (thisRouter != null)
+        {
+            thisRouter = null;
+        }
+    }
+
+    // public message interface
 
     public static void send(TimsMsg p) throws MsgException
     {

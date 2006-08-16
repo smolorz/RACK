@@ -27,7 +27,6 @@ import rack.main.proxy.*;
 public class JoystickGui extends RackModuleGui
 {
     protected JoystickProxy joystick;
-    protected boolean terminate = false;
 
     protected JPanel panel;
     protected JPanel buttonPanel;
@@ -139,11 +138,5 @@ public class JoystickGui extends RackModuleGui
             {
             }
         }
-    }
-
-    public void terminate()
-    {
-        joystick.off();
-        terminate = true;
     }
 }
