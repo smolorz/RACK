@@ -43,7 +43,6 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{PolarSpline.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{JoystickDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{ImageRect.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.debug{GDOSProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.router{TimsRouterMbxMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims.msgtypes{RackMsgType.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.proxy{StopContDataMsg.java"/>
