@@ -23,12 +23,13 @@ import java.io.PrintWriter;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
+import rack.main.debug.GDOS;
 import rack.main.debug.GDOSDataMsg;
 import rack.main.naming.*;
 
 public class GDOSTable extends AbstractTableModel
 {
-  protected int debugLevel = GDOSGui.GDOS_MSG_DBG_DETAIL;
+  protected int debugLevel = GDOS.DBG_DETAIL;
   protected int maxMessages = 1000;
   protected Vector messageList = new Vector(maxMessages);
   protected Vector filteredMessageList = new Vector(maxMessages);
@@ -126,19 +127,19 @@ public class GDOSTable extends AbstractTableModel
 
           switch(message.type) {
 
-            case GDOSGui.GDOS_MSG_PRINT:
+            case GDOS.PRINT:
               output = output + " print";
               break;
-            case GDOSGui.GDOS_MSG_ERROR:
+            case GDOS.ERROR:
               output = output + " error";
               break;
-            case GDOSGui.GDOS_MSG_WARNING:
+            case GDOS.WARNING:
               output = output + " warning";
               break;
-            case GDOSGui.GDOS_MSG_DBG_INFO:
+            case GDOS.DBG_INFO:
               output = output + " dbg_info";
               break;
-            case GDOSGui.GDOS_MSG_DBG_DETAIL:
+            case GDOS.DBG_DETAIL:
               output = output + " dbg_detail";
               break;
 

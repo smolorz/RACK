@@ -25,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
+import rack.main.debug.GDOS;
 import rack.main.debug.GDOSDataMsg;
 import rack.main.naming.*;
 
@@ -80,20 +81,20 @@ public class GDOSMessageRenderer extends JLabel implements TableCellRenderer
 
         switch (gdosMsg.type)
         {
-            case GDOSGui.GDOS_MSG_WARNING:
+            case GDOS.WARNING:
                 setBackground(colorWarning);
                 break;
-            case GDOSGui.GDOS_MSG_ERROR:
+            case GDOS.ERROR:
                 setBackground(colorError);
                 break;
-            case GDOSGui.GDOS_MSG_DBG_INFO:
+            case GDOS.DBG_INFO:
                 setBackground(colorInfo);
                 break;
-            case GDOSGui.GDOS_MSG_DBG_DETAIL:
+            case GDOS.DBG_DETAIL:
                 setBackground(colorDetail);
                 break;
             default:
-            case GDOSGui.GDOS_MSG_PRINT:
+            case GDOS.PRINT:
                 setBackground(colorPrint);
                 break;
         }

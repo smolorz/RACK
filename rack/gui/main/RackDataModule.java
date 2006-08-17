@@ -81,7 +81,7 @@ public abstract class RackDataModule extends RackModuleGui
     /** Data module period time */
     public int periodTime = 100;
 
-    protected int gdosLevel = GDOSProxy.GDOS_WARNING;
+    protected int gdosLevel = GDOS.WARNING;
 
     /** beenden des Programmablaufs */
     public void terminate()
@@ -134,7 +134,7 @@ public abstract class RackDataModule extends RackModuleGui
         {
             e.printStackTrace();
         }
-        this.gdosLevel = GDOSProxy.GDOS_WARNING;
+        this.gdosLevel = GDOS.WARNING;
     }
 
     /**

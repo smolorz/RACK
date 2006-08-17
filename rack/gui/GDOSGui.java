@@ -20,6 +20,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
+import rack.main.debug.GDOS;
 import rack.main.debug.GDOSDataMsg;
 import rack.main.tims.Tims;
 import rack.main.tims.exceptions.*;
@@ -47,45 +48,34 @@ public class GDOSGui extends Thread {
   //Abbruchbedingung
   protected boolean terminate = false;
 
-  /** PRINTOUT (HIGHEST LEVEL) */
-  public static final byte GDOS_MSG_PRINT      = -124;
-  /** ERROR */
-  public static final byte GDOS_MSG_ERROR      = -125;
-  /** WARNING */
-  public static final byte GDOS_MSG_WARNING    = -126;
-  /** DEBUG INFORMATION */
-  public static final byte GDOS_MSG_DBG_INFO   = -127;
-  /** DETAILED DEBUG INFORMATION */
-  public static final byte GDOS_MSG_DBG_DETAIL = -128;
-
   public GDOSGui(int GDOSMbxNum) {
     GDOSMbx = GDOSMbxNum;
     panel = new JPanel(new BorderLayout());
 
     printRadio.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        gdosTableModel.setDebugLevel(GDOS_MSG_PRINT);
+        gdosTableModel.setDebugLevel(GDOS.PRINT);
       }
     });
 
     errorRadio.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        gdosTableModel.setDebugLevel(GDOS_MSG_ERROR);
+        gdosTableModel.setDebugLevel(GDOS.ERROR);
       }
     });
     warningRadio.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        gdosTableModel.setDebugLevel(GDOS_MSG_WARNING);
+        gdosTableModel.setDebugLevel(GDOS.WARNING);
       }
     });
     debugRadio.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        gdosTableModel.setDebugLevel(GDOS_MSG_DBG_INFO);
+        gdosTableModel.setDebugLevel(GDOS.DBG_INFO);
       }
     });
     debugDetailRadio.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        gdosTableModel.setDebugLevel(GDOS_MSG_DBG_DETAIL);
+        gdosTableModel.setDebugLevel(GDOS.DBG_DETAIL);
       }
     });
 
@@ -134,7 +124,7 @@ public class GDOSGui extends Thread {
     jsb=jsp.getVerticalScrollBar();
 
     debugDetailRadio.setSelected(true);
-    gdosTableModel.setDebugLevel(GDOS_MSG_DBG_DETAIL);
+    gdosTableModel.setDebugLevel(GDOS.DBG_DETAIL);
 
     panel.add(panelNorth,BorderLayout.NORTH);
     panel.add(jsp,BorderLayout.CENTER);
