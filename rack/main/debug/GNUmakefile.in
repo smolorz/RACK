@@ -37,7 +37,6 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_TRUE@	GDOS.java \
-@CONFIG_RACK_JAVA_TRUE@	GDOSProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	GDOSDataMsg.java
 
 subdir = main/debug
@@ -53,7 +52,7 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = GDOS.java GDOSProxy.java GDOSDataMsg.java
+am__dist_java_JAVA_DIST = GDOS.java GDOSDataMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

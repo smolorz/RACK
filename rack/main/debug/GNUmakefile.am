@@ -5,7 +5,6 @@ if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	GDOS.java \
-	GDOSProxy.java \
 	GDOSDataMsg.java
 
 endif
