@@ -71,9 +71,6 @@ public class JoystickSoftware extends RackDataModule
 
     protected RackProxy[] rackProxyList;
 
-    /**
-     * @param commandMbx
-     */
     public JoystickSoftware(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
     {
         super(RackName.create(RackName.JOYSTICK, proxyList[moduleIndex.intValue()].getInstanceId()));

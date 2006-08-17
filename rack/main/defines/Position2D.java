@@ -99,7 +99,7 @@ public class Position2D implements Serializable, Cloneable
     }
 
     /** Method getDistance
-     * @param Position2D p2
+     * @param p2
      * @return distance to p2
      */
     public int getDistance(Position2D p2) 
@@ -109,7 +109,7 @@ public class Position2D implements Serializable, Cloneable
     }
 
     /** Method getDistance
-     * @param Point2D p2
+     * @param p2
      * @return distance to p2
      */
     public int getDistance(Point2D p2) 
@@ -119,8 +119,8 @@ public class Position2D implements Serializable, Cloneable
     }
 
     /** Method coordTrafo
-     * @param float ang  - Drehwinkel
-     * @return Point2D   Punkt in neuen Koordinaten
+     * @param ang  - Drehwinkel
+     * @return Punkt in neuen Koordinaten
      */
     public Position2D coordTrafo(float ang) 
     {
@@ -132,9 +132,9 @@ public class Position2D implements Serializable, Cloneable
     }
 
     /** Method coordTrafo
-     * @param float ang  - Drehwinkel
-     * @param Position2D p0 - translatorische Verschiebung
-     * @return Position2D   Punkt in neuen Koordinaten
+     * @param ang  - Drehwinkel
+     * @param p0 - translatorische Verschiebung
+     * @return Punkt in neuen Koordinaten
      */
     public Position2D coordTrafo(float ang, Position2D p0) 
     {
@@ -147,10 +147,10 @@ public class Position2D implements Serializable, Cloneable
     }
 
     /** Method coordTrafo
-     * @param float ang  - Drehwinkel
-     * @param int ptransX - translatorische Verschiebung x
-     * @param int ptransY - translatorische Verschiebung y
-     * @return Position2D   Punkt in neuen Koordinaten
+     * @param ang  - Drehwinkel
+     * @param ptransX - translatorische Verschiebung x
+     * @param ptransY - translatorische Verschiebung y
+     * @return Punkt in neuen Koordinaten
      */
     public Position2D coordTrafo(float ang, int ptransX, int ptransY) 
     {

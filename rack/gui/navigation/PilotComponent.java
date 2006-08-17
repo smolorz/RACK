@@ -259,12 +259,6 @@ public class PilotComponent extends JComponent
         }
     }
 
-    /**
-     * Zeichnet Splines in die Karte ein.
-     *
-     * @param PathDataMsg
-     *            Die zu zeichnenden PolarSplines vom Bahnplaner
-     */
     public double normaliseAngle(double angle)
     {
         if (angle < 0.0)
