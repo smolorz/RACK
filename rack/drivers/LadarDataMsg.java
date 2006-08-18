@@ -38,7 +38,7 @@ public class LadarDataMsg extends TimsMsg
 
     public LadarDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public LadarDataMsg(TimsDataMsg p) throws MsgException

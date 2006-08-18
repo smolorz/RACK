@@ -36,18 +36,18 @@ public class CameraFormatMsg extends TimsMsg
 
     public CameraFormatMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public CameraFormatMsg(TimsDataMsg p) throws MsgException
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
         readTimsDataMsg(p);
     }
 
     public CameraFormatMsg(int width, int height)
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
         this.width = width;
         this.height = height;
         this.mode = -1;
@@ -56,7 +56,7 @@ public class CameraFormatMsg extends TimsMsg
 
     public CameraFormatMsg(int mode)
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
         switch (mode)
         {
             case CameraDataMsg.CAMERA_MODE_MONO8:

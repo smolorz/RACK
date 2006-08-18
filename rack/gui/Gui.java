@@ -1185,7 +1185,7 @@ public final class Gui extends Thread
             {
                 // receive reply
                 reply = Tims.receive(getStatusReplyMbx, 1000);
-                if (reply.seq_nr == getStatusSeqNo)
+                if (reply.seqNr == getStatusSeqNo)
                 {
                     // update module status array
                     for (int i = 0; i < moduleNum; i++)

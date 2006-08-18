@@ -36,7 +36,7 @@ public class PositionDataMsg extends TimsMsg
 
     public PositionDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public PositionDataMsg(TimsDataMsg p) throws MsgException
@@ -47,7 +47,7 @@ public class PositionDataMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
         if (type == RackMsgType.MSG_DATA &&
-            msglen == headLen + getDataLen())
+            msglen == HEAD_LEN + getDataLen())
         {
             return true;
         }

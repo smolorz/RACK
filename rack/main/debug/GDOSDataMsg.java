@@ -29,18 +29,18 @@ public class GDOSDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-        return msglen - headLen;
+        return msglen - HEAD_LEN;
     }
 
     public GDOSDataMsg(String message)
     {
         this.message = message;
-        this.msglen = headLen + message.length();
+        this.msglen = HEAD_LEN + message.length();
     }
 
     public GDOSDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public GDOSDataMsg(TimsDataMsg p) throws MsgException
@@ -56,7 +56,7 @@ public class GDOSDataMsg extends TimsMsg
     protected void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
-        int dataLen = msglen - headLen;
+        int dataLen = msglen - HEAD_LEN;
         int stringLen = dataLen;
 
         if (bodyByteorder == BIG_ENDIAN)

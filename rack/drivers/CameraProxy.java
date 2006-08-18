@@ -33,8 +33,6 @@ import rack.main.tims.exceptions.*;
 
 public class CameraProxy extends RackDataProxy {
 
-    public static final int  MAX = 1;
-
     public static final byte MSG_CAMERA_GET_PARAMETER =
         RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
 
@@ -121,7 +119,7 @@ public class CameraProxy extends RackDataProxy {
 
             do {
                 reply = Tims.receive(replyMbx, dataTimeout);
-            } while (reply.seq_nr != currentSequenceNo);
+            } while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackMsgType.MSG_OK) {
                 System.out.println(

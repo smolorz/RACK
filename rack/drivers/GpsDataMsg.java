@@ -46,7 +46,7 @@ public class GpsDataMsg extends TimsMsg
 
     public GpsDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
     
     public GpsDataMsg(TimsDataMsg p) throws MsgException

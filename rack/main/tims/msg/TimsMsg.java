@@ -34,28 +34,27 @@ import rack.main.naming.*;
 
 public abstract class TimsMsg
 {
-    public static final int SP = 0; // sender priority
-    public static final int RP = 1; // receiver priority
+    protected static final int SP = 0; // sender priority
+    protected static final int RP = 1; // receiver priority
 
     protected static final int BIG_ENDIAN    = 0; // network byteorder
     protected static final int LITTLE_ENDIAN = 1; // Intel byteorder
 
-    public static final int headLen = 16; // length of message-head
-    public static final int MAX_BODY_LENGTH = 65536; // 64kb, max length of message-body
+    protected static final int HEAD_LEN = 16; // length of message-head
 
     protected int   headByteorder = BIG_ENDIAN;
     protected int   bodyByteorder = BIG_ENDIAN;
 
     public    byte  type     = RackMsgType.MSG_ERROR;
     public    byte  priority = 0;   // 0 = less important message
-    public    byte  seq_nr   = 0;
+    public    byte  seqNr   = 0;
     public    int   dest     = 0;
     public    int   src      = 0;
     protected int   msglen   = 0;
 
     public TimsMsg()
     {
-      msglen = headLen;
+      msglen = HEAD_LEN;
     }
 
     public TimsMsg(TimsDataMsg p) throws MsgException
@@ -91,7 +90,7 @@ public abstract class TimsMsg
       headByteorder = p.headByteorder;
       bodyByteorder = p.bodyByteorder;
       priority      = p.priority;
-      seq_nr        = p.seq_nr;
+      seqNr        = p.seqNr;
       type          = p.type;
       dest          = p.dest;
       src           = p.src;
@@ -113,7 +112,7 @@ public abstract class TimsMsg
 
     public void writeTimsMsg(BufferedOutputStream out) throws IOException
     {
-      msglen = headLen + getDataLen();
+      msglen = HEAD_LEN + getDataLen();
 
       writeTimsMsgHead(out);
       writeTimsMsgBody(out);
@@ -136,7 +135,7 @@ public abstract class TimsMsg
 
       type      = dataIn.readByte();
       priority  = dataIn.readByte();
-      seq_nr    = dataIn.readByte();
+      seqNr    = dataIn.readByte();
       dest      = dataIn.readInt();
       src       = dataIn.readInt();
       msglen    = dataIn.readInt();
@@ -153,7 +152,7 @@ public abstract class TimsMsg
       dataOut.writeByte(flags);
       dataOut.writeByte(type);
       dataOut.writeByte(priority);
-      dataOut.writeByte(seq_nr);
+      dataOut.writeByte(seqNr);
       dataOut.writeInt(dest);
       dataOut.writeInt(src);
       dataOut.writeInt(msglen);
@@ -169,7 +168,7 @@ public abstract class TimsMsg
 
     public String toString()
     {
-      return("seq_no:" + seq_nr + " type:" + RackMsgType.toString(type) + " " +
+      return("seq_no:" + seqNr + " type:" + RackMsgType.toString(type) + " " +
              RackName.string(src) + " -> " + RackName.string(dest) +
              " msglen:" + msglen + " priority:" + priority + " flags:" +
             (headByteorder + bodyByteorder * 0x01) );

@@ -36,7 +36,7 @@ public class JoystickDataMsg extends TimsMsg
     public JoystickDataMsg()
     {
         type = RackMsgType.MSG_DATA;
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public JoystickDataMsg(TimsDataMsg p) throws MsgException
@@ -47,7 +47,7 @@ public class JoystickDataMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
         if ((type == RackMsgType.MSG_DATA)
-                && (msglen == headLen + getDataLen()))
+                && (msglen == HEAD_LEN + getDataLen()))
         {
             return (true);
         }

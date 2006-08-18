@@ -86,7 +86,7 @@ public class ChassisProxy extends RackDataProxy
             {
                 reply = Tims.receive(replyMbx, 1000);
             }
-            while ((reply.seq_nr != currentSequenceNo)
+            while ((reply.seqNr != currentSequenceNo)
                     & (reply.type == MSG_CHASSIS_PARAMETER));
             
             ChassisParamMsg data = new ChassisParamMsg(reply);
@@ -115,7 +115,7 @@ public class ChassisProxy extends RackDataProxy
             {
                 reply = Tims.receive(replyMbx, onTimeout);
             }
-            while (reply.seq_nr != currentSequenceNo);
+            while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackMsgType.MSG_OK)
             {

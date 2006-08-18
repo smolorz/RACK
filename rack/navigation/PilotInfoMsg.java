@@ -47,7 +47,7 @@ public class PilotInfoMsg extends TimsMsg
 
     public PilotInfoMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public PilotInfoMsg(TimsDataMsg p) throws MsgException

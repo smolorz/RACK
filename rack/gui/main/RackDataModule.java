@@ -247,7 +247,7 @@ public abstract class RackDataModule extends RackModuleGui
                         case RackMsgType.MSG_DISABLED:
                             moduleTargetStatus = RackMsgType.MSG_ENABLED;
                             notifyIfOn = cmdMsg.src;
-                            notifyIfOnId = cmdMsg.seq_nr;
+                            notifyIfOnId = cmdMsg.seqNr;
                             break;
 
                         default:

@@ -29,7 +29,7 @@ public class TimsMsg0 extends TimsMsg
 
     public TimsMsg0()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public TimsMsg0(TimsDataMsg p) throws MsgException
@@ -39,7 +39,7 @@ public class TimsMsg0 extends TimsMsg
 
     protected boolean checkTimsMsgHead()
     {
-        if (msglen == headLen + getDataLen() )
+        if (msglen == HEAD_LEN + getDataLen() )
         {
             return(true);
         }

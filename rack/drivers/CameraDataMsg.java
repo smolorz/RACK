@@ -63,7 +63,7 @@ public class CameraDataMsg extends TimsMsg
 
     public CameraDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
 //      super();
     }
 

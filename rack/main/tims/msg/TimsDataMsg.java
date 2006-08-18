@@ -28,7 +28,7 @@ public class TimsDataMsg extends TimsMsg
 
   public TimsDataMsg()
   {
-    msglen = headLen;
+    msglen = HEAD_LEN;
   }
 
   public TimsDataMsg(InputStream in) throws IOException
@@ -49,7 +49,7 @@ public class TimsDataMsg extends TimsMsg
   protected void readTimsMsgBody(InputStream in) throws IOException
   {
     DataInputStream dataIn = new DataInputStream(in);
-    body = new byte[msglen - headLen];
+    body = new byte[msglen - HEAD_LEN];
     dataIn.readFully(body);
   }
 

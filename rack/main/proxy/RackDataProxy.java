@@ -55,7 +55,7 @@ public abstract class RackDataProxy extends RackProxy
                 reply = Tims.receive(replyMbx, dataTimeout);
 
             }
-            while (reply.seq_nr != currentSequenceNo);
+            while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackMsgType.MSG_DATA)
             {
@@ -104,7 +104,7 @@ public abstract class RackDataProxy extends RackProxy
             {
                 reply = Tims.receive(replyMbx, dataTimeout);
             }
-            while (reply.seq_nr != currentSequenceNo);
+            while (reply.seqNr != currentSequenceNo);
 
             // System.out.println(RackName.nameString(replyMbx) + ": " +
             // RackName.nameString(commandMbx) +
@@ -142,7 +142,7 @@ public abstract class RackDataProxy extends RackProxy
             {
                 reply = Tims.receive(replyMbx, dataTimeout);
             }
-            while (reply.seq_nr != currentSequenceNo);
+            while (reply.seqNr != currentSequenceNo);
 
             // System.out.println(RackName.nameString(replyMbx) + ": " +
             // RackName.nameString(commandMbx) +

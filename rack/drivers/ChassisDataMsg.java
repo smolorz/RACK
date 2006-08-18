@@ -41,7 +41,7 @@ public class ChassisDataMsg extends TimsMsg
 
     public ChassisDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public ChassisDataMsg(TimsDataMsg p) throws MsgException
@@ -52,7 +52,7 @@ public class ChassisDataMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
       if ((type == RackMsgType.MSG_DATA) &&
-          (msglen == headLen + getDataLen())) {
+          (msglen == HEAD_LEN + getDataLen())) {
         return(true);
       } else {
         return(false);

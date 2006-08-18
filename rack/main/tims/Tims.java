@@ -62,7 +62,7 @@ public abstract class Tims extends Thread
       p.dest     = dest;
       p.src      = src;
       p.priority = priority;
-      p.seq_nr   = seq_nr;
+      p.seqNr   = seq_nr;
 
       thisRouter.snd(p);
     }
@@ -80,7 +80,7 @@ public abstract class Tims extends Thread
       p.dest     = dest;
       p.src      = src;
       p.priority = priority;
-      p.seq_nr   = seq_nr;
+      p.seqNr   = seq_nr;
 
       thisRouter.snd(p);
     }
@@ -96,7 +96,7 @@ public abstract class Tims extends Thread
       p.dest     = replyOn.src;
       p.src      = replyOn.dest;
       p.priority = replyOn.priority;
-      p.seq_nr   = replyOn.seq_nr;
+      p.seqNr   = replyOn.seqNr;
 
         thisRouter.snd(p);
     }
@@ -114,7 +114,7 @@ public abstract class Tims extends Thread
       p.dest     = replyOn.src;
       p.src      = replyOn.dest;
       p.priority = replyOn.priority;
-      p.seq_nr   = replyOn.seq_nr;
+      p.seqNr   = replyOn.seqNr;
 
       thisRouter.snd(p);
     }

@@ -33,7 +33,7 @@ public class ContDataMsg extends TimsMsg
 
     public ContDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public ContDataMsg(TimsDataMsg p) throws MsgException
@@ -44,7 +44,7 @@ public class ContDataMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
         if ((type == RackMsgType.MSG_CONT_DATA)
-                && (msglen == headLen + getDataLen()))
+                && (msglen == HEAD_LEN + getDataLen()))
         {
             return (true);
         }

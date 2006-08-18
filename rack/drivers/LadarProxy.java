@@ -22,8 +22,6 @@ import rack.main.tims.exceptions.*;
 
 public class LadarProxy extends RackDataProxy
 {
-    public static final int MAX = 8;
-
     public LadarProxy(int id, int replyMbx)
     {
         super(RackName.create(RackName.LADAR, id), replyMbx, 10000, 5000, 1000);

@@ -36,7 +36,7 @@ public class StopContDataMsg extends TimsMsg
 
     public StopContDataMsg()
     {
-      msglen = headLen + getDataLen();
+      msglen = HEAD_LEN + getDataLen();
     }
 
     public StopContDataMsg(TimsDataMsg p) throws MsgException
@@ -47,7 +47,7 @@ public class StopContDataMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
       if ((type == RackMsgType.MSG_STOP_CONT_DATA) &&
-          (msglen == headLen + getDataLen())) {
+          (msglen == HEAD_LEN + getDataLen())) {
         return(true);
       } else {
         return(false);

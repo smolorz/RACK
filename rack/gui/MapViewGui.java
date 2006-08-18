@@ -47,7 +47,7 @@ public class MapViewGui extends Thread
     private boolean         updateNeeded = false;
     private Position2D      viewPosition = new Position2D();
     private double          viewZoom     = 0.02;
-    public final int        viewGridDistance = 10000; // in mm
+    private int             viewGridDistance = 10000; // in mm
 
     private Position2D      robotPosition = new Position2D();
     private PositionDataMsg[] robotPositionList;
@@ -70,7 +70,7 @@ public class MapViewGui extends Thread
     private ChassisProxy    chassisProxy;
 
     // Messages
-    ChassisParamMsg         chassisParam;
+    private ChassisParamMsg chassisParam;
 
     private boolean         terminate = false;
     

@@ -32,12 +32,12 @@ public class ChassisSetActivePilotMsg extends TimsMsg
 
     public ChassisSetActivePilotMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public ChassisSetActivePilotMsg(int activePilot) throws MsgException
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
         this.activePilot = activePilot;
     }
 
@@ -49,7 +49,7 @@ public class ChassisSetActivePilotMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
         if ((type == RackMsgType.MSG_DATA)
-                && (msglen == headLen + getDataLen()))
+                && (msglen == HEAD_LEN + getDataLen()))
         {
             return (true);
         }

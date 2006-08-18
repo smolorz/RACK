@@ -27,8 +27,6 @@ public class OdometryProxy extends RackDataProxy
     public static final byte MSG_ODOMETRY_RESET =
         RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
 
-  public static final byte MAX = 1;
-
   public OdometryProxy(int id, int replyMbx)
   {
     super(RackName.create(RackName.ODOMETRY, id), replyMbx, 5000, 1000, 1000);
@@ -65,7 +63,7 @@ public class OdometryProxy extends RackDataProxy
         TimsDataMsg reply;
         do {
           reply = Tims.receive(replyMbx, onTimeout);
-        } while (reply.seq_nr != currentSequenceNo);
+        } while (reply.seqNr != currentSequenceNo);
 
         if (reply.type == RackMsgType.MSG_OK) {
           System.out.println(RackName.nameString(replyMbx) + ": " +

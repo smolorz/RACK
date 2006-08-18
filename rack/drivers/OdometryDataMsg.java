@@ -34,7 +34,7 @@ public class OdometryDataMsg extends TimsMsg
 
     public OdometryDataMsg()
     {
-        msglen = headLen + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
     public OdometryDataMsg(TimsDataMsg p) throws MsgException
@@ -45,7 +45,7 @@ public class OdometryDataMsg extends TimsMsg
     protected boolean checkTimsMsgHead()
     {
         if ((type == RackMsgType.MSG_DATA)
-                && (msglen == headLen + getDataLen()))
+                && (msglen == HEAD_LEN + getDataLen()))
         {
             return (true);
         }

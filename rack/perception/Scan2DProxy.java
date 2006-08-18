@@ -27,8 +27,6 @@ import rack.main.tims.exceptions.*;
 
 public class Scan2DProxy extends RackDataProxy
 {
-  public static final int MAX = 8;
-
   public Scan2DProxy(int id, int replyMbx)
   {
     super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 5000);

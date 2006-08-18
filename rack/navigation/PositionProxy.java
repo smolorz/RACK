@@ -84,9 +84,9 @@ public class PositionProxy extends RackDataProxy
             do
             {
                 reply = Tims.receive(replyMbx, 1000);
-                System.out.println(RackName.nameString(replyMbx) + ": " + reply.type + " " + reply.seq_nr);
+                System.out.println(RackName.nameString(replyMbx) + ": " + reply.type + " " + reply.seqNr);
             }
-            while(reply.seq_nr != currentSequenceNo);
+            while(reply.seqNr != currentSequenceNo);
         }
         catch(MsgException e)
         {
