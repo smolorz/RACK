@@ -36,12 +36,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_JAVA_TRUE@am__append_1 = \
-@CONFIG_RACK_JAVA_TRUE@	RackMsgType.java
-
 subdir = main/tims/msgtypes
-DIST_COMMON = $(am__dist_java_JAVA_DIST) $(include_HEADERS) \
-	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
+DIST_COMMON = $(include_HEADERS) $(srcdir)/GNUmakefile.am \
+	$(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
 	$(top_srcdir)/configure.ac
@@ -52,17 +49,13 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = RackMsgType.java
-JAVAC = javac
-CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
-JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(includedir)"
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -284,7 +277,6 @@ target_alias = @target_alias@
 include_HEADERS = \
 	tims_msg_types.h
 
-dist_java_JAVA = $(am__append_1)
 all: all-am
 
 .SUFFIXES:
@@ -327,24 +319,6 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-
-classdist_java.stamp: $(dist_java_JAVA)
-	@if test -n "$?"; then \
-	  echo '$(CLASSPATH_ENV) $(JAVAC) -d $(JAVAROOT) $(AM_JAVACFLAGS) $(JAVACFLAGS) $?' ; \
-	  $(CLASSPATH_ENV) $(JAVAC) -d $(JAVAROOT) \
-	    $(AM_JAVACFLAGS) $(JAVACFLAGS) $?; \
-	else :; fi
-	echo timestamp > classdist_java.stamp
-
-uninstall-dist_javaJAVA:
-	@$(NORMAL_UNINSTALL)
-	@test -z "$(dist_java_JAVA)" || for p in *.class; do \
-	  echo " rm -f '$(DESTDIR)$(javadir)/$$p'"; \
-	  rm -f "$(DESTDIR)$(javadir)/$$p"; \
-	done
-
-clean-dist_javaJAVA:
-	-rm -f *.class classdist_java.stamp
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
@@ -440,9 +414,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: GNUmakefile classdist_java.stamp $(HEADERS)
+all-am: GNUmakefile $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -471,8 +445,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-dist_javaJAVA clean-generic clean-libtool \
-	mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f GNUmakefile
@@ -489,7 +462,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_javaJAVA install-includeHEADERS
+install-data-am: install-includeHEADERS
 
 install-exec-am:
 
@@ -515,24 +488,20 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_javaJAVA uninstall-includeHEADERS \
+uninstall-am: uninstall-includeHEADERS uninstall-info-am
+
+.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
+	clean-libtool ctags distclean distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am \
+	install-includeHEADERS install-info install-info-am \
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-info-am
 
-.PHONY: CTAGS GTAGS all all-am check check-am clean \
-	clean-dist_javaJAVA clean-generic clean-libtool ctags \
-	distclean distclean-generic distclean-libtool distclean-tags \
-	distdir dvi dvi-am html html-am info info-am install \
-	install-am install-data install-data-am install-dist_javaJAVA \
-	install-exec install-exec-am install-includeHEADERS \
-	install-info install-info-am install-man install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-dist_javaJAVA uninstall-includeHEADERS \
-	uninstall-info-am
-
-
-install-dist_javaJAVA: classdist_java.stamp
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

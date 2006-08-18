@@ -1467,10 +1467,7 @@ AC_CONFIG_FILES([GNUmakefile \
     main/canport/GNUmakefile \
     main/serialport/GNUmakefile \
     main/tims/GNUmakefile \
-    main/tims/exceptions/GNUmakefile \
-    main/tims/msg/GNUmakefile \
     main/tims/msgtypes/GNUmakefile \
-    main/tims/streams/GNUmakefile \
     main/tims/driver/GNUmakefile \
     main/tims/router/GNUmakefile \
     \

@@ -31,21 +31,5 @@ tims_router_tcp_SOURCES = \
 tims_router_tcp_LDADD = \
 	-lpthread
 
-### JAVA  #######################################
-
-dist_java_JAVA =
-
-if CONFIG_RACK_JAVA
-
-dist_java_JAVA += \
-	TimsRouter.java \
-	TimsRouterMbxMsg.java
-
-endif
-
-install-dist_javaJAVA: classdist_java.stamp
-
-### JAVA END #######################################
-
 EXTRA_DIST = \
 	tims_router.h

@@ -3,14 +3,3 @@ includedir = $(prefix)/include/main/tims/msgtypes
 
 include_HEADERS = \
 	tims_msg_types.h
-
-dist_java_JAVA =
-
-if CONFIG_RACK_JAVA
-
-dist_java_JAVA += \
-	RackMsgType.java
-
-endif
-
-install-dist_javaJAVA: classdist_java.stamp
