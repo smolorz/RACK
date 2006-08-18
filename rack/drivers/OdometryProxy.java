@@ -17,15 +17,12 @@ package rack.drivers;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.Tims;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 public class OdometryProxy extends RackDataProxy
 {
     public static final byte MSG_ODOMETRY_RESET =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
+        RackProxy.MSG_POS_OFFSET + 1;
 
   public OdometryProxy(int id, int replyMbx)
   {
@@ -43,7 +40,7 @@ public class OdometryProxy extends RackDataProxy
       } else {
         return(null);
       }
-    } catch(MsgException e) {
+    } catch(TimsException e) {
       System.out.println(e.toString());
       return(null);
     }
@@ -65,14 +62,14 @@ public class OdometryProxy extends RackDataProxy
           reply = Tims.receive(replyMbx, onTimeout);
         } while (reply.seqNr != currentSequenceNo);
 
-        if (reply.type == RackMsgType.MSG_OK) {
+        if (reply.type == RackProxy.MSG_OK) {
           System.out.println(RackName.nameString(replyMbx) + ": " +
                              RackName.nameString(commandMbx) + ".enableMotor");
         } else {
           System.out.println(RackName.nameString(replyMbx) + ": " +
                              RackName.nameString(commandMbx) + ".enableMotor replied error");
         }
-      } catch(MsgException e) {
+      } catch(TimsException e) {
         System.out.println(RackName.nameString(replyMbx) + ": " +
                            RackName.nameString(commandMbx) + ".on " + e);
       }

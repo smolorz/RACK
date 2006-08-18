@@ -16,10 +16,9 @@
 package rack.drivers;
 
 import java.io.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 
 public class LadarDataMsg extends TimsMsg
 {
@@ -41,14 +40,14 @@ public class LadarDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public LadarDataMsg(TimsDataMsg p) throws MsgException
+    public LadarDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if (type == RackMsgType.MSG_DATA)
+        if (type == RackProxy.MSG_DATA)
         {
             return (true);
         }

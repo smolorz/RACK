@@ -16,13 +16,38 @@
 package rack.main.proxy;
 
 import rack.main.naming.*;
-import rack.main.tims.Tims;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 public abstract class RackProxy
 {
+    // Define global message types for RackProxy and RackDataProxy
+    
+    // global commands (positive)
+    public static final byte MSG_ON = 1;
+    public static final byte MSG_OFF = 2;
+    public static final byte MSG_GET_STATUS = 3;
+    public static final byte MSG_GET_DATA = 4;
+    public static final byte MSG_GET_CONT_DATA = 5;
+    public static final byte MSG_STOP_CONT_DATA = 6;
+
+    // TODO
+    public static final byte MSG_SET_LOG_LEVEL = 7;
+
+    // TODO
+    public static final byte MSG_GET_PERIOD_TIME = 8;
+
+    // global returns (negative)
+    public static final byte MSG_OK = Tims.MSG_OK;
+    public static final byte MSG_ERROR = Tims.MSG_ERROR;
+    public static final byte MSG_TIMEOUT = Tims.MSG_TIMEOUT;
+    public static final byte MSG_NOT_AVAILABLE = Tims.MSG_NOT_AVAILABLE;
+    public static final byte MSG_ENABLED = -4;
+    public static final byte MSG_DISABLED = -5;
+    public static final byte MSG_DATA = -6;
+    public static final byte MSG_CONT_DATA = -7;
+
+    public static final byte MSG_POS_OFFSET = 20;
+    public static final byte MSG_NEG_OFFSET = -20;
 
     protected int commandMbx = 0;
     protected int replyMbx = 0;
@@ -63,7 +88,7 @@ public abstract class RackProxy
         currentSequenceNo++;
         try
         {
-            Tims.send0(RackMsgType.MSG_ON, commandMbx, replyMbx,
+            Tims.send0(RackProxy.MSG_ON, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo);
             TimsMsg reply;
 
@@ -76,7 +101,7 @@ public abstract class RackProxy
             // System.out.println(RackName.nameString(replyMbx) + ": " +
             // RackName.nameString(commandMbx) + ".on");
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": "
                     + RackName.nameString(commandMbx) + ".on " + e);
@@ -88,7 +113,7 @@ public abstract class RackProxy
         currentSequenceNo++;
         try
         {
-            Tims.send0(RackMsgType.MSG_OFF, commandMbx, replyMbx,
+            Tims.send0(RackProxy.MSG_OFF, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo);
             TimsMsg reply;
 
@@ -101,7 +126,7 @@ public abstract class RackProxy
             // System.out.println(RackName.nameString(replyMbx) + ": " +
             // RackName.nameString(commandMbx) + ".off");
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": "
                     + RackName.nameString(commandMbx) + ".off " + e);
@@ -113,7 +138,7 @@ public abstract class RackProxy
         currentSequenceNo++;
         try
         {
-            Tims.send0(RackMsgType.MSG_GET_STATUS, commandMbx,
+            Tims.send0(RackProxy.MSG_GET_STATUS, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo);
             TimsMsg reply;
 
@@ -124,16 +149,16 @@ public abstract class RackProxy
             while (reply.seqNr != currentSequenceNo);
 
             /*
-             * switch(reply.type) { case RackMsgType.MSG_ENABLED:
+             * switch(reply.type) { case RackProxy.MSG_ENABLED:
              * System.out.println(RackName.nameString(replyMbx) + ": " +
              * RackName.nameString(commandMbx) + ".getStatus ENABLED"); break;
-             * case RackMsgType.MSG_DISABLED:
+             * case RackProxy.MSG_DISABLED:
              * System.out.println(RackName.nameString(replyMbx) + ": " +
              * RackName.nameString(commandMbx) + ".getStatus DISABLED"); break;
-             * case RackMsgType.MSG_ERROR:
+             * case RackProxy.MSG_ERROR:
              * System.out.println(RackName.nameString(replyMbx) + ": " +
              * RackName.nameString(commandMbx) + ".getStatus ERROR"); break;
-             * case RackMsgType.MSG_NOT_AVAILABLE:
+             * case RackProxy.MSG_NOT_AVAILABLE:
              * System.out.println(RackName.nameString(replyMbx) + ": " +
              * RackName.nameString(commandMbx) + ".getStatus NOT_AVAILABLE");
              * break; default: System.out.println(RackName.nameString(replyMbx) + ": " +
@@ -143,23 +168,23 @@ public abstract class RackProxy
 
             return (reply.type);
         }
-        catch (MsgTimeoutException e)
+        catch (TimsTimeoutException e)
         {
             // System.out.println(RackName.nameString(replyMbx) + ": " +
             // RackName.nameString(commandMbx) +
             // ".getStatus TIMEOUT");
 
-            return (RackMsgType.MSG_TIMEOUT);
+            return (RackProxy.MSG_TIMEOUT);
 
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out
                     .println(RackName.nameString(replyMbx) + ": "
                             + RackName.nameString(commandMbx)
                             + ".getStatus ERROR " + e);
 
-            return (RackMsgType.MSG_ERROR);
+            return (RackProxy.MSG_ERROR);
         }
     }
 

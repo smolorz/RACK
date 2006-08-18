@@ -18,25 +18,22 @@ package rack.drivers;
 import rack.main.naming.*;
 
 import rack.main.proxy.*;
-import rack.main.tims.Tims;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 
 public class ChassisProxy extends RackDataProxy
 {
     public static final byte MSG_CHASSIS_MOVE =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
+        RackProxy.MSG_POS_OFFSET + 1;
 
     public static final byte MSG_CHASSIS_GET_PARAMETER =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 2;
+        RackProxy.MSG_POS_OFFSET + 2;
 
     public static final byte MSG_CHASSIS_SET_ACTIVE_PILOT =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 3;
+        RackProxy.MSG_POS_OFFSET + 3;
 
     public static final byte MSG_CHASSIS_PARAMETER =
-        RackMsgType.RACK_PROXY_MSG_NEG_OFFSET - 1;
+        RackProxy.MSG_NEG_OFFSET - 1;
 
     public static final byte INVAL_PILOT = -1;
 
@@ -61,7 +58,7 @@ public class ChassisProxy extends RackDataProxy
                 return null;
             }
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(e.toString());
             return null;
@@ -92,7 +89,7 @@ public class ChassisProxy extends RackDataProxy
             ChassisParamMsg data = new ChassisParamMsg(reply);
             return (data);
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
         	System.out.println(e);
             return (null);
@@ -117,7 +114,7 @@ public class ChassisProxy extends RackDataProxy
             }
             while (reply.seqNr != currentSequenceNo);
 
-            if (reply.type == RackMsgType.MSG_OK)
+            if (reply.type == RackProxy.MSG_OK)
             {
                 System.out.println(RackName.nameString(replyMbx) + ": "
                         + RackName.nameString(commandMbx) + ".setActivePilot");
@@ -129,7 +126,7 @@ public class ChassisProxy extends RackDataProxy
                         + ".setActivePilot replied error");
             }
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": "
                     + RackName.nameString(commandMbx) + ".on " + e);

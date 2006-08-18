@@ -19,7 +19,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
-import rack.main.tims.streams.EndianDataInputStream;
+import rack.main.tims.EndianDataInputStream;
 
 public class Point2D implements Serializable
 {

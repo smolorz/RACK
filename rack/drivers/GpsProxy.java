@@ -17,9 +17,7 @@ package rack.drivers;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.exceptions.*;
-import rack.drivers.GpsDataMsg;
+import rack.main.tims.*;
 
 public class GpsProxy extends RackDataProxy
 {
@@ -46,7 +44,7 @@ public class GpsProxy extends RackDataProxy
                 return null;
             }
         }
-        catch(MsgException e)
+        catch(TimsException e)
         {
             System.out.println(e.toString());
             return null;

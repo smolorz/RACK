@@ -16,10 +16,8 @@
 package rack.main.proxy;
 
 import java.io.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
+import rack.main.tims.*;
 
 public class GetDataMsg extends TimsMsg
 {
@@ -35,14 +33,14 @@ public class GetDataMsg extends TimsMsg
       msglen = HEAD_LEN + getDataLen();
     }
 
-    protected GetDataMsg(TimsDataMsg p) throws MsgException
+    protected GetDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-      if ((type == RackMsgType.MSG_GET_DATA) &&
+      if ((type == RackProxy.MSG_GET_DATA) &&
           (msglen == HEAD_LEN + getDataLen() )) {
         return(true);
       } else {

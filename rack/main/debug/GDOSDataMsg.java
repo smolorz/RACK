@@ -18,9 +18,7 @@ package rack.main.debug;
 import java.io.*;
 
 import rack.main.naming.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+import rack.main.tims.*;
 
 /** Zum Empfang von GDOS-Nachrichten. */
 public class GDOSDataMsg extends TimsMsg
@@ -43,7 +41,7 @@ public class GDOSDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public GDOSDataMsg(TimsDataMsg p) throws MsgException
+    public GDOSDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }

@@ -18,10 +18,8 @@ package rack.drivers;
 import java.io.*;
 
 import rack.main.defines.Position3D;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 
 public class GpsDataMsg extends TimsMsg
 {
@@ -49,14 +47,14 @@ public class GpsDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
     
-    public GpsDataMsg(TimsDataMsg p) throws MsgException
+    public GpsDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if (type == RackMsgType.MSG_DATA)
+        if (type == RackProxy.MSG_DATA)
         {
             return (true);
         }

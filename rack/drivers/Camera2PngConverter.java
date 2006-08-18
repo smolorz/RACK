@@ -30,7 +30,7 @@ import java.io.FileInputStream;
 
 import javax.imageio.ImageIO;
 
-import rack.main.tims.streams.*;
+import rack.main.tims.*;
 
 
 public class Camera2PngConverter {

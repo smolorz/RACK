@@ -13,13 +13,18 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.exceptions;
+package rack.main.tims;
 
-public class MsgTimeoutException extends MsgException
+public class TimsException extends Exception
 {
     private static final long serialVersionUID = 1L;
 
-    public MsgTimeoutException(String s)
+    public TimsException()
+    {
+      super();
+    }
+
+    public TimsException(String s)
     {
       super(s);
     }

@@ -18,10 +18,8 @@ package rack.perception;
 import java.io.*;
 
 import rack.main.defines.ScanPoint;
-import rack.main.tims.exceptions.MsgException;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.streams.*;
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 
 public class Scan2DDataMsg extends TimsMsg
 {
@@ -36,14 +34,14 @@ public class Scan2DDataMsg extends TimsMsg
         return (16 + pointNum * ScanPoint.getDataLen());
     }
 
-    public Scan2DDataMsg(TimsDataMsg p) throws MsgException
+    public Scan2DDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if (type == RackMsgType.MSG_DATA)
+        if (type == RackProxy.MSG_DATA)
         {
             return true;
         }

@@ -24,7 +24,7 @@ import javax.swing.*;
 import rack.main.debug.GDOS;
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.msg.*;
+import rack.main.tims.*;
 import rack.navigation.PilotProxy;
 import rack.drivers.*;
 import rack.gui.main.RackDataModule;

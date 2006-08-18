@@ -17,8 +17,7 @@ package rack.gui;
 
 import rack.main.defines.*;
 import rack.main.naming.*;
-import rack.main.tims.Tims;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -86,7 +85,7 @@ public class MapViewGui extends Thread
         {
             Tims.mbxInit(workMbx);
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             e.printStackTrace();
         }

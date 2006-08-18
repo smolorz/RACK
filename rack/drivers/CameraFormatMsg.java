@@ -17,10 +17,9 @@
 package rack.drivers;
 
 import java.io.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 
 public class CameraFormatMsg extends TimsMsg
 {
@@ -39,7 +38,7 @@ public class CameraFormatMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public CameraFormatMsg(TimsDataMsg p) throws MsgException
+    public CameraFormatMsg(TimsDataMsg p) throws TimsException
     {
         msglen = HEAD_LEN + getDataLen();
         readTimsDataMsg(p);
@@ -106,7 +105,7 @@ public class CameraFormatMsg extends TimsMsg
 
     protected boolean checkTimsMsgHead()
     {
-        if (type == RackMsgType.MSG_DATA)
+        if (type == RackProxy.MSG_DATA)
         {
             return true;
         }

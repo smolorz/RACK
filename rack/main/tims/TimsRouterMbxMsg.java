@@ -13,11 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.router;
-
-import rack.main.tims.msg.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+package rack.main.tims;
 
 import java.io.*;
 
@@ -35,7 +31,7 @@ public class TimsRouterMbxMsg extends TimsMsg
       msglen = HEAD_LEN + getDataLen();
     }
 
-    public TimsRouterMbxMsg(TimsDataMsg p) throws MsgException
+    public TimsRouterMbxMsg(TimsDataMsg p) throws TimsException
     {
       readTimsDataMsg(p);
     }

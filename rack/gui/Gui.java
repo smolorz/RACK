@@ -28,11 +28,7 @@ import javax.swing.event.*;
 import rack.gui.main.RackModuleGui;
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.Tims;
-import rack.main.tims.TimsTcp;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 
 public final class Gui extends Thread
@@ -187,7 +183,7 @@ public final class Gui extends Thread
     
                 tims = new TimsTcp(this.routerAdr, this.routerPort);
             }
-            catch (MsgException e)
+            catch (TimsException e)
             {
                 JOptionPane.showMessageDialog(mainFrame,
                         "Can't connect to TimsRouterTcp.\n" +
@@ -707,7 +703,7 @@ public final class Gui extends Thread
         return moduleGui[module];
     }
 
-    private void initMbx() throws MsgException
+    private void initMbx() throws TimsException
     {
         try
         {
@@ -729,7 +725,7 @@ public final class Gui extends Thread
             //System.out.println("Creating mailbox " + Integer.toHexString(GDOSMbx) + " ...");
             Tims.mbxInit(GDOSMbx);
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             tims.terminate();
             
@@ -1039,7 +1035,7 @@ public final class Gui extends Thread
                     }
                     else
                     {
-                        if (moduleStatus[module] == RackMsgType.MSG_DISABLED)
+                        if (moduleStatus[module] == RackProxy.MSG_DISABLED)
                         {
                             moduleProxy[module].on();
                         }
@@ -1150,7 +1146,7 @@ public final class Gui extends Thread
         }
         for (int i = 0; i < moduleNum; i++)
         {
-            moduleStatus[i] = RackMsgType.MSG_TIMEOUT;
+            moduleStatus[i] = RackProxy.MSG_TIMEOUT;
         }
 
         try
@@ -1164,7 +1160,7 @@ public final class Gui extends Thread
             {
                 // alle moduleProxy sind bei initModuleProxy schon vorhand.
 
-                Tims.send0(RackMsgType.MSG_GET_STATUS, moduleProxy[i]
+                Tims.send0(RackProxy.MSG_GET_STATUS, moduleProxy[i]
                         .getCommandMbx(), getStatusReplyMbx, (byte) 0,
                         (byte) getStatusSeqNo);
                 // ein bischen warten, um nicht stossweise last zu erzeugen.
@@ -1202,14 +1198,14 @@ public final class Gui extends Thread
                 notAllReplies = false;
                 for (int i = 0; i < moduleNum; i++)
                 {
-                    if (moduleStatus[i] == RackMsgType.MSG_TIMEOUT)
+                    if (moduleStatus[i] == RackProxy.MSG_TIMEOUT)
                     {
                         notAllReplies = true;
                     }
                 }
             }
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             // System.out.println("Java Gui getStatus error: " +
             // e.getMessage());
@@ -1220,15 +1216,15 @@ public final class Gui extends Thread
             // bei paramentern -show und -start soll trotzdem
             // der button angezeigt werden.
             if (getModuleParameterShow(i)
-                    && moduleStatus[i] == RackMsgType.MSG_NOT_AVAILABLE)
-                moduleStatus[i] = RackMsgType.MSG_DISABLED;
+                    && moduleStatus[i] == RackProxy.MSG_NOT_AVAILABLE)
+                moduleStatus[i] = RackProxy.MSG_DISABLED;
             if (getModuleParameterStart(i)
-                    && moduleStatus[i] == RackMsgType.MSG_NOT_AVAILABLE)
-                moduleStatus[i] = RackMsgType.MSG_DISABLED;
+                    && moduleStatus[i] == RackProxy.MSG_NOT_AVAILABLE)
+                moduleStatus[i] = RackProxy.MSG_DISABLED;
 
             switch (moduleStatus[i])
             {
-                case RackMsgType.MSG_ERROR:
+                case RackProxy.MSG_ERROR:
                     if (modulePanel[i] == null)
                     {
                         initModule(i);
@@ -1250,7 +1246,7 @@ public final class Gui extends Thread
                     }
                     break;
 
-                case RackMsgType.MSG_ENABLED:
+                case RackProxy.MSG_ENABLED:
                     if (modulePanel[i] == null)
                     {
                         initModule(i);
@@ -1272,7 +1268,7 @@ public final class Gui extends Thread
                     }
 
                     break;
-                case RackMsgType.MSG_DISABLED:
+                case RackProxy.MSG_DISABLED:
                     if (modulePanel[i] == null)
                     {
                         initModule(i);
@@ -1293,7 +1289,7 @@ public final class Gui extends Thread
 
                     break;
 
-                case RackMsgType.MSG_NOT_AVAILABLE:
+                case RackProxy.MSG_NOT_AVAILABLE:
                     if (modulePanel[i] != null)
                     {
                         statusButton[i].setEnabled(false);
@@ -1301,7 +1297,7 @@ public final class Gui extends Thread
                         moduleButton[i].setEnabled(false);
                     }
                     break;
-                case RackMsgType.MSG_TIMEOUT:
+                case RackProxy.MSG_TIMEOUT:
                 default:
                     if (modulePanel[i] != null)
                     {

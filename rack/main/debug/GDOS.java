@@ -16,8 +16,7 @@
 package rack.main.debug;
 
 import rack.main.naming.*;
-import rack.main.tims.Tims;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 public class GDOS
 {
@@ -43,7 +42,7 @@ public class GDOS
                                (byte)0,
                                (byte)0,
                                msg);
-        } catch (MsgException e) {
+        } catch (TimsException e) {
         }
     }
 
@@ -60,7 +59,7 @@ public class GDOS
                                    (byte)0,
                                    (byte)0,
                                    msg);
-            } catch (MsgException e) {
+            } catch (TimsException e) {
             }
         }
     }
@@ -78,7 +77,7 @@ public class GDOS
                                     (byte)0,
                                     (byte)0,
                                     msg);
-            } catch (MsgException e) {
+            } catch (TimsException e) {
             }
         }
     }
@@ -96,7 +95,7 @@ public class GDOS
                                    (byte)0,
                                    (byte)0,
                                    msg);
-            } catch (MsgException e) {
+            } catch (TimsException e) {
             }
         }
     }
@@ -114,7 +113,7 @@ public class GDOS
                                    (byte)0,
                                    (byte)0,
                                    msg);
-            } catch (MsgException e) {
+            } catch (TimsException e) {
             }
         }
     }

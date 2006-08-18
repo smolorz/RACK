@@ -16,10 +16,7 @@
 package rack.main.proxy;
 
 import rack.main.naming.*;
-import rack.main.tims.Tims;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 public abstract class RackDataProxy extends RackProxy
 {
@@ -44,7 +41,7 @@ public abstract class RackDataProxy extends RackProxy
             GetDataMsg p = new GetDataMsg();
             p.recordingtime = recordingtime;
 
-            Tims.send(RackMsgType.MSG_GET_DATA, commandMbx, replyMbx,
+            Tims.send(RackProxy.MSG_GET_DATA, commandMbx, replyMbx,
                     (byte) 0, currentSequenceNo, p);
 
             TimsDataMsg reply;
@@ -57,7 +54,7 @@ public abstract class RackDataProxy extends RackProxy
             }
             while (reply.seqNr != currentSequenceNo);
 
-            if (reply.type == RackMsgType.MSG_DATA)
+            if (reply.type == RackProxy.MSG_DATA)
             {
 
                 // System.out.println(RackName.nameString(replyMbx) + ": " +
@@ -71,7 +68,7 @@ public abstract class RackDataProxy extends RackProxy
                 return (null);
             }
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": "
                     + RackName.nameString(commandMbx) + ".getData " + e);
@@ -96,7 +93,7 @@ public abstract class RackDataProxy extends RackProxy
             p.periodTime = periodTime;
             p.dataMbx = dataMbx;
 
-            Tims.send(RackMsgType.MSG_GET_CONT_DATA, commandMbx,
+            Tims.send(RackProxy.MSG_GET_CONT_DATA, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo, p);
 
             TimsDataMsg reply;
@@ -110,7 +107,7 @@ public abstract class RackDataProxy extends RackProxy
             // RackName.nameString(commandMbx) +
             // ".getContinuousData frequency " + frequency);
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": "
                     + RackName.nameString(commandMbx) + ".getContData " + e);
@@ -134,7 +131,7 @@ public abstract class RackDataProxy extends RackProxy
             StopContDataMsg p = new StopContDataMsg();
             p.dataMbx = dataMbx;
 
-            Tims.send(RackMsgType.MSG_STOP_CONT_DATA, commandMbx,
+            Tims.send(RackProxy.MSG_STOP_CONT_DATA, commandMbx,
                     replyMbx, (byte) 0, currentSequenceNo, p);
 
             TimsDataMsg reply;
@@ -148,7 +145,7 @@ public abstract class RackDataProxy extends RackProxy
             // RackName.nameString(commandMbx) +
             // ".stopContData");
         }
-        catch (MsgException e)
+        catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": "
                     + RackName.nameString(commandMbx) + ".stopContData " + e);

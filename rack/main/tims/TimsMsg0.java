@@ -13,9 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.msg;
-
-import rack.main.tims.exceptions.*;
+package rack.main.tims;
 
 import java.io.*;
 
@@ -32,7 +30,7 @@ public class TimsMsg0 extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public TimsMsg0(TimsDataMsg p) throws MsgException
+    public TimsMsg0(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }

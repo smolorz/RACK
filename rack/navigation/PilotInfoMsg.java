@@ -17,10 +17,8 @@ package rack.navigation;
 
 import java.io.*;
 
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 
 import rack.main.defines.Position3D;
 import rack.main.defines.PolarSpline;
@@ -50,14 +48,14 @@ public class PilotInfoMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public PilotInfoMsg(TimsDataMsg p) throws MsgException
+    public PilotInfoMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if (type == RackMsgType.MSG_DATA)
+        if (type == RackProxy.MSG_DATA)
         {
             return(true);
         }

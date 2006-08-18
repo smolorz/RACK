@@ -17,16 +17,13 @@ package rack.navigation;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.Tims;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.RackMsgType;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 import rack.main.defines.Position3D;;
 
 public class PositionProxy extends RackDataProxy
 {
     public static final byte MSG_POSITION_UPDATE =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
+        RackProxy.MSG_POS_OFFSET + 1;
 
     public PositionProxy(int id , int replyMbx)
     {
@@ -52,7 +49,7 @@ public class PositionProxy extends RackDataProxy
 
             return(null);
         }
-        catch(MsgException e)
+        catch(TimsException e)
         {
             System.out.println(e.toString());
             return(null);
@@ -88,7 +85,7 @@ public class PositionProxy extends RackDataProxy
             }
             while(reply.seqNr != currentSequenceNo);
         }
-        catch(MsgException e)
+        catch(TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".update " + e);
         }
@@ -106,7 +103,7 @@ public class PositionProxy extends RackDataProxy
             System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
             return(locData);
         }
-        catch(MsgException e)
+        catch(TimsException e)
         {
 //            System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData "  + e);
             return(null);

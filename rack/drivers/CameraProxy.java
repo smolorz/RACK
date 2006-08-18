@@ -26,24 +26,21 @@ import javax.imageio.*;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.Tims;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 public class CameraProxy extends RackDataProxy {
 
     public static final byte MSG_CAMERA_GET_PARAMETER =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 1;
+        RackProxy.MSG_POS_OFFSET + 1;
 
     public static final byte MSG_CAMERA_SET_FORMAT =
-        RackMsgType.RACK_PROXY_MSG_POS_OFFSET + 2;
+        RackProxy.MSG_POS_OFFSET + 2;
 
     public static final byte MSG_CAMERA_PARAMETER =
-        RackMsgType.RACK_PROXY_MSG_NEG_OFFSET - 1;
+        RackProxy.MSG_NEG_OFFSET - 1;
 
     public static final byte MSG_CAMERA_FORMAT =
-        RackMsgType.RACK_PROXY_MSG_NEG_OFFSET - 2;
+        RackProxy.MSG_NEG_OFFSET - 2;
 
 
     public CameraProxy(int id, int replyMbx)
@@ -89,7 +86,7 @@ public class CameraProxy extends RackDataProxy {
                 return null;
             }
         }
-        catch(MsgException e)
+        catch(TimsException e)
         {
             System.out.println(e.toString());
             return null;
@@ -121,7 +118,7 @@ public class CameraProxy extends RackDataProxy {
                 reply = Tims.receive(replyMbx, dataTimeout);
             } while (reply.seqNr != currentSequenceNo);
 
-            if (reply.type == RackMsgType.MSG_OK) {
+            if (reply.type == RackProxy.MSG_OK) {
                 System.out.println(
                         RackName.nameString(replyMbx) + ": cameraProxy setFormat");
             } else {
@@ -131,7 +128,7 @@ public class CameraProxy extends RackDataProxy {
                         + RackName.nameString(commandMbx)
                         + ".setFormat replied error");
             }
-        } catch (MsgException e) {
+        } catch (TimsException e) {
             System.out.println(
                 RackName.nameString(replyMbx) + ": cameraProxy setFormat " + e);
         }

@@ -13,12 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.msg;
+package rack.main.tims;
 
 import java.io.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
 import rack.main.naming.*;
 
   /* TIMS message bytes in tims.h
@@ -45,7 +43,7 @@ public abstract class TimsMsg
     protected int   headByteorder = BIG_ENDIAN;
     protected int   bodyByteorder = BIG_ENDIAN;
 
-    public    byte  type     = RackMsgType.MSG_ERROR;
+    public    byte  type     = 0;
     public    byte  priority = 0;   // 0 = less important message
     public    byte  seqNr   = 0;
     public    int   dest     = 0;
@@ -57,7 +55,7 @@ public abstract class TimsMsg
       msglen = HEAD_LEN;
     }
 
-    public TimsMsg(TimsDataMsg p) throws MsgException
+    public TimsMsg(TimsDataMsg p) throws TimsException
     {
       readTimsDataMsg(p);
     }
@@ -80,12 +78,8 @@ public abstract class TimsMsg
         readTimsMsgBody(in);
     }
 
-    public void readTimsDataMsg(TimsDataMsg p) throws MsgException
+    public void readTimsDataMsg(TimsDataMsg p) throws TimsException
     {
-      if (p == null) {
-        throw(new MsgTypeException("TimsMsg: Message is null"));
-      }
-
       // copy message head
       headByteorder = p.headByteorder;
       bodyByteorder = p.bodyByteorder;
@@ -97,14 +91,14 @@ public abstract class TimsMsg
       msglen        = p.msglen;
 
       if (checkTimsMsgHead() == false) {
-          throw(new MsgTypeException("TimsMsg: Message head doesn't fit\n   "
+          throw(new TimsException("TimsMsg: Message head doesn't fit\n   "
                                           + this.toString()));
       }
 
       try {
           readTimsMsgBody(new ByteArrayInputStream(p.body));
       } catch(IOException e) {
-          throw(new MsgTypeException("TimsMsg: Message body doesn't fit\n    "
+          throw(new TimsException("TimsMsg: Message body doesn't fit\n    "
                                           + this.toString() + "\n" +
                                           e.toString()));
       }
@@ -168,7 +162,7 @@ public abstract class TimsMsg
 
     public String toString()
     {
-      return("seq_no:" + seqNr + " type:" + RackMsgType.toString(type) + " " +
+      return("seq_no:" + seqNr + " type:" + type + " " +
              RackName.string(src) + " -> " + RackName.string(dest) +
              " msglen:" + msglen + " priority:" + priority + " flags:" +
             (headByteorder + bodyByteorder * 0x01) );

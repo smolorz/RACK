@@ -1,4 +1,4 @@
-package rack.main.tims.router;
+package rack.main.tims;
 
 public class TimsRouter
 {

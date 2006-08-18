@@ -22,8 +22,7 @@ import javax.swing.table.TableColumn;
 
 import rack.main.debug.GDOS;
 import rack.main.debug.GDOSDataMsg;
-import rack.main.tims.Tims;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 
 public class GDOSGui extends Thread {
@@ -156,7 +155,7 @@ public class GDOSGui extends Thread {
       while(terminate == false) {
         try {
           data = new GDOSDataMsg(Tims.receive(GDOSMbx,500));
-        } catch (MsgTimeoutException e) {
+        } catch (TimsTimeoutException e) {
           data = null;
         }
 
@@ -174,7 +173,7 @@ public class GDOSGui extends Thread {
           }
         }
       }
-    } catch (MsgException e) {
+    } catch (TimsException e) {
       e.printStackTrace();
     }
     System.out.println("GDOSGui terminated");

@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.tims.msg;
+package rack.main.tims;
 
 import java.io.*;
 

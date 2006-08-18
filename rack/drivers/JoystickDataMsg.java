@@ -16,10 +16,9 @@
 package rack.drivers;
 
 import java.io.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 import rack.main.defines.Position3D;
 
 public class JoystickDataMsg extends TimsMsg
@@ -35,18 +34,18 @@ public class JoystickDataMsg extends TimsMsg
 
     public JoystickDataMsg()
     {
-        type = RackMsgType.MSG_DATA;
+        type = RackProxy.MSG_DATA;
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public JoystickDataMsg(TimsDataMsg p) throws MsgException
+    public JoystickDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if ((type == RackMsgType.MSG_DATA)
+        if ((type == RackProxy.MSG_DATA)
                 && (msglen == HEAD_LEN + getDataLen()))
         {
             return (true);

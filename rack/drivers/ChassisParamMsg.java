@@ -16,9 +16,8 @@
 package rack.drivers;
 
 import java.io.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
+import rack.main.tims.*;
 
 public class ChassisParamMsg extends TimsMsg
 {
@@ -63,7 +62,7 @@ public class ChassisParamMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public ChassisParamMsg(TimsDataMsg p) throws MsgException
+    public ChassisParamMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }

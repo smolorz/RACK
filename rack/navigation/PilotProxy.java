@@ -17,8 +17,7 @@ package rack.navigation;
 
 import rack.main.naming.*;
 import rack.main.proxy.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.exceptions.*;
+import rack.main.tims.*;
 
 public class PilotProxy extends RackDataProxy
 {
@@ -44,7 +43,7 @@ public class PilotProxy extends RackDataProxy
       } else {
         return(null);
       }
-    } catch(MsgException e) {
+    } catch(TimsException e) {
       System.out.println(e.toString());
       return(null);
     }

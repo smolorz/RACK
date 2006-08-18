@@ -18,7 +18,7 @@ package rack.main.defines;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import rack.main.tims.streams.EndianDataInputStream;
+import rack.main.tims.EndianDataInputStream;
 
 public class Position3D
 {

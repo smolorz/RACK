@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
-import rack.main.tims.streams.EndianDataInputStream;
+import rack.main.tims.EndianDataInputStream;
 
 public class Position2D implements Serializable, Cloneable
 {

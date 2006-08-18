@@ -16,10 +16,8 @@
 package rack.main.proxy;
 
 import java.io.*;
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+
+import rack.main.tims.*;
 
 /** Paket zum Abmelden von einem kontinuierlichen Datenstream.
  * Die Mailbox, die abgemeldet weden soll, muss mit uebergeben werden */
@@ -39,14 +37,14 @@ public class StopContDataMsg extends TimsMsg
       msglen = HEAD_LEN + getDataLen();
     }
 
-    public StopContDataMsg(TimsDataMsg p) throws MsgException
+    public StopContDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-      if ((type == RackMsgType.MSG_STOP_CONT_DATA) &&
+      if ((type == RackProxy.MSG_STOP_CONT_DATA) &&
           (msglen == HEAD_LEN + getDataLen())) {
         return(true);
       } else {

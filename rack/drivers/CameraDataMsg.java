@@ -24,10 +24,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
 
-import rack.main.tims.msg.*;
-import rack.main.tims.msgtypes.*;
-import rack.main.tims.exceptions.*;
-import rack.main.tims.streams.*;
+import rack.main.proxy.RackProxy;
+import rack.main.tims.*;
 
 public class CameraDataMsg extends TimsMsg
 {
@@ -67,7 +65,7 @@ public class CameraDataMsg extends TimsMsg
 //      super();
     }
 
-    public CameraDataMsg(TimsDataMsg p) throws MsgException
+    public CameraDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
@@ -86,7 +84,7 @@ public class CameraDataMsg extends TimsMsg
 
     protected boolean checkTimsMsgHead()
     {
-        if (type == RackMsgType.MSG_DATA)
+        if (type == RackProxy.MSG_DATA)
         {
             return (true);
         }
