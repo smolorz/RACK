@@ -37,7 +37,7 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	RackModuleGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	RackDataModule.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	RackDataModuleGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	\
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionEvent.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionList.java \
@@ -57,7 +57,7 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = RackModuleGui.java RackDataModule.java \
+am__dist_java_JAVA_DIST = RackModuleGui.java RackDataModuleGui.java \
 	MapViewActionEvent.java MapViewActionList.java \
 	MapViewDrawContext.java MapViewCursorDrawContext.java
 JAVAC = javac

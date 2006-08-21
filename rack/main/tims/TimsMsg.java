@@ -17,8 +17,6 @@ package rack.main.tims;
 
 import java.io.*;
 
-import rack.main.RackName;
-
   /* TIMS message bytes in tims.h
   __u8          flags;     // 1 Byte: flags
   __s8          type;      // 1 Byte: Message Type
@@ -162,9 +160,9 @@ public abstract class TimsMsg
 
     public String toString()
     {
-      return("seq_no:" + seqNr + " type:" + type + " " +
-             RackName.string(src) + " -> " + RackName.string(dest) +
-             " msglen:" + msglen + " priority:" + priority + " flags:" +
-            (headByteorder + bodyByteorder * 0x01) );
+      return(Integer.toHexString(src) + " -> " + Integer.toHexString(dest) +
+             " type:" + type + " " + " msglen:" + msglen +
+             "seq_no:" + seqNr + " priority:" + priority + " flags:" +
+             (headByteorder + bodyByteorder * 0x01));
     }
 }

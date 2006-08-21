@@ -1441,9 +1441,7 @@ AC_CONFIG_FILES([GNUmakefile \
     main/argopts/GNUmakefile \
     main/defines/GNUmakefile \
     main/dxfmap/GNUmakefile \
-    main/naming/GNUmakefile \
     main/lib/GNUmakefile \
-    main/debug/GNUmakefile \
     main/mailbox/GNUmakefile \
     main/module/GNUmakefile \
     main/proxy/GNUmakefile \

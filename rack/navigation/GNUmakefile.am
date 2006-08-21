@@ -15,7 +15,7 @@ if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	PilotProxy.java \
-	PilotInfoMsg.java \
+	PilotDataMsg.java \
 	PositionProxy.java \
 	PositionDataMsg.java
 

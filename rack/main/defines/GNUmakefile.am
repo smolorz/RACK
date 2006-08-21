@@ -24,8 +24,7 @@ dist_java_JAVA += \
 	PolarSpline.java \
 	Position2D.java \
 	Position3D.java \
-	ScanPoint.java \
-	RackMouseListener.java
+	ScanPoint.java
 
 endif
 

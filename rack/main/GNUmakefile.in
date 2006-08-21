@@ -39,9 +39,20 @@ host_triplet = @host@
 @CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_1 = canport
 @CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_2 = can_port.h
 @CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_3 = jdatadstmem.h
+@CONFIG_RACK_JAVA_TRUE@am__append_4 = \
+@CONFIG_RACK_JAVA_TRUE@	RackName.java \
+@CONFIG_RACK_JAVA_TRUE@	RackProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	RackDataProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	GetDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	GetContDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	StopContDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	ContDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	GDOSDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	GDOS.java
+
 subdir = main
-DIST_COMMON = $(am__include_HEADERS_DIST) $(srcdir)/GNUmakefile.am \
-	$(srcdir)/GNUmakefile.in
+DIST_COMMON = $(am__dist_java_JAVA_DIST) $(am__include_HEADERS_DIST) \
+	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
 	$(top_srcdir)/configure.ac
@@ -58,6 +69,14 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
+am__dist_java_JAVA_DIST = RackName.java RackProxy.java \
+	RackDataProxy.java GetDataMsg.java GetContDataMsg.java \
+	StopContDataMsg.java ContDataMsg.java GDOSDataMsg.java \
+	GDOS.java
+JAVAC = javac
+CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
+JAVAROOT = $(top_builddir)
+am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
 am__include_HEADERS_DIST = can_port.h jdatadstmem.h angle_tool.h \
 	argopts.h dxf_map.h image_tool.h pilot_tool.h rack_byteorder.h \
 	rack_defines.h rack_debug.h rack_mailbox.h rack_mutex.h \
@@ -69,13 +88,12 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(includedir)"
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = canport serialport naming lib tims defines dxfmap \
-	mailbox proxy debug argopts module
+DIST_SUBDIRS = canport serialport tims defines mailbox proxy module \
+	argopts dxfmap lib
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -313,19 +331,18 @@ include_HEADERS = \
 	rack_rtmac.h \
 	serial_port.h
 
+dist_java_JAVA = $(am__append_4)
 SUBDIRS = \
 	$(OPTDIRS) \
 	serialport \
-	naming \
-	lib \
 	tims \
 	defines \
-	dxfmap \
 	mailbox \
 	proxy \
-	debug \
+	module \
 	argopts \
-	module
+	dxfmap \
+	lib
 
 EXTRA_DIST = \
 	Kconfig
@@ -372,6 +389,24 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+
+classdist_java.stamp: $(dist_java_JAVA)
+	@if test -n "$?"; then \
+	  echo '$(CLASSPATH_ENV) $(JAVAC) -d $(JAVAROOT) $(AM_JAVACFLAGS) $(JAVACFLAGS) $?' ; \
+	  $(CLASSPATH_ENV) $(JAVAC) -d $(JAVAROOT) \
+	    $(AM_JAVACFLAGS) $(JAVACFLAGS) $?; \
+	else :; fi
+	echo timestamp > classdist_java.stamp
+
+uninstall-dist_javaJAVA:
+	@$(NORMAL_UNINSTALL)
+	@test -z "$(dist_java_JAVA)" || for p in *.class; do \
+	  echo " rm -f '$(DESTDIR)$(javadir)/$$p'"; \
+	  rm -f "$(DESTDIR)$(javadir)/$$p"; \
+	done
+
+clean-dist_javaJAVA:
+	-rm -f *.class classdist_java.stamp
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
@@ -566,10 +601,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: GNUmakefile $(HEADERS)
+all-am: GNUmakefile classdist_java.stamp $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -598,7 +633,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-libtool mostlyclean-am
+clean-am: clean-dist_javaJAVA clean-generic clean-libtool \
+	mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f GNUmakefile
@@ -615,7 +651,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-dist_javaJAVA install-includeHEADERS
 
 install-exec-am:
 
@@ -641,25 +677,29 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-info-am
+uninstall-am: uninstall-dist_javaJAVA uninstall-includeHEADERS \
+	uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am \
-	clean clean-generic clean-libtool clean-recursive ctags \
-	ctags-recursive distclean distclean-generic distclean-libtool \
-	distclean-recursive distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am \
+	clean clean-dist_javaJAVA clean-generic clean-libtool \
+	clean-recursive ctags ctags-recursive distclean \
+	distclean-generic distclean-libtool distclean-recursive \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am \
+	install-dist_javaJAVA install-exec install-exec-am \
 	install-includeHEADERS install-info install-info-am \
 	install-man install-strip installcheck installcheck-am \
 	installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic maintainer-clean-recursive \
 	mostlyclean mostlyclean-generic mostlyclean-libtool \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-includeHEADERS \
-	uninstall-info-am
+	uninstall uninstall-am uninstall-dist_javaJAVA \
+	uninstall-includeHEADERS uninstall-info-am
 
+
+install-dist_javaJAVA: classdist_java.stamp
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -33,19 +33,36 @@ include_HEADERS = \
 	rack_rtmac.h \
 	serial_port.h
 
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA
+
+dist_java_JAVA += \
+	RackName.java \
+	RackProxy.java \
+	RackDataProxy.java \
+	GetDataMsg.java \
+	GetContDataMsg.java \
+	StopContDataMsg.java \
+	ContDataMsg.java \
+	GDOSDataMsg.java \
+	GDOS.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
 SUBDIRS = \
 	$(OPTDIRS) \
 	serialport \
-	naming \
-	lib \
 	tims \
 	defines \
-	dxfmap \
 	mailbox \
 	proxy \
-	debug \
+	module \
 	argopts \
-	module
+	dxfmap \
+	lib
 
 
 EXTRA_DIST = \

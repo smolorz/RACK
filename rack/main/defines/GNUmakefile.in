@@ -43,8 +43,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	PolarSpline.java \
 @CONFIG_RACK_JAVA_TRUE@	Position2D.java \
 @CONFIG_RACK_JAVA_TRUE@	Position3D.java \
-@CONFIG_RACK_JAVA_TRUE@	ScanPoint.java \
-@CONFIG_RACK_JAVA_TRUE@	RackMouseListener.java
+@CONFIG_RACK_JAVA_TRUE@	ScanPoint.java
 
 subdir = main/defines
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(include_HEADERS) \
@@ -61,7 +60,7 @@ SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = ImageRect.java Point2D.java Point3D.java \
 	PolarSpline.java Position2D.java Position3D.java \
-	ScanPoint.java RackMouseListener.java
+	ScanPoint.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

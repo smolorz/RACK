@@ -5,7 +5,7 @@ if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
 	RackModuleGui.java \
-	RackDataModule.java \
+	RackDataModuleGui.java \
 	\
 	MapViewActionEvent.java \
 	MapViewActionList.java \
