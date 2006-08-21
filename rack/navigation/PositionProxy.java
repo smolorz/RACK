@@ -15,10 +15,9 @@
  */
 package rack.navigation;
 
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
-import rack.main.defines.Position3D;;
+import rack.main.defines.*;
 
 public class PositionProxy extends RackDataProxy
 {

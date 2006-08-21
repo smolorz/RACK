@@ -17,7 +17,7 @@ package rack.main.tims;
 
 import java.io.*;
 
-import rack.main.naming.*;
+import rack.main.RackName;
 
   /* TIMS message bytes in tims.h
   __u8          flags;     // 1 Byte: flags

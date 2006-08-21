@@ -10,48 +10,38 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Marko Reimer     <reimer@l3s.de>
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package rack.main;
 
 import java.io.*;
 
-import rack.main.RackProxy;
 import rack.main.tims.*;
 
-public class ChassisDataMsg extends TimsMsg
+public class GetDataMsg extends TimsMsg
 {
-    public int   recordingtime = 0;
-    public float deltaX        = 0;
-    public float deltaY        = 0;
-    public float deltaRho      = 0;
-    public float vx            = 0;
-    public float vy            = 0;
-    public float omega         = 0;
-    public float battery       = 0;
-    public int   activePilot   = 0;
+    public int recordingtime = 0; // 4 Byte
 
     public int getDataLen()
     {
-        return (36);
+      return 4;
     }
 
-    public ChassisDataMsg()
+    public GetDataMsg()
     {
-        msglen = HEAD_LEN + getDataLen();
+      msglen = HEAD_LEN + getDataLen();
     }
 
-    public ChassisDataMsg(TimsDataMsg p) throws TimsException
+    protected GetDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-      if ((type == RackProxy.MSG_DATA) &&
-          (msglen == HEAD_LEN + getDataLen())) {
+      if ((type == RackProxy.MSG_GET_DATA) &&
+          (msglen == HEAD_LEN + getDataLen() )) {
         return(true);
       } else {
         return(false);
@@ -61,6 +51,7 @@ public class ChassisDataMsg extends TimsMsg
     protected void readTimsMsgBody(InputStream in) throws IOException
     {
       EndianDataInputStream dataIn;
+
       if (bodyByteorder == BIG_ENDIAN) {
         dataIn = new BigEndianDataInputStream(in);
       } else {
@@ -68,14 +59,7 @@ public class ChassisDataMsg extends TimsMsg
       }
 
       recordingtime = dataIn.readInt();
-      deltaX        = dataIn.readFloat();
-      deltaY        = dataIn.readFloat();
-      deltaRho      = dataIn.readFloat();
-      vx            = dataIn.readFloat();
-      vy            = dataIn.readFloat();
-      omega         = dataIn.readFloat();
-      battery       = dataIn.readFloat();
-      activePilot   = dataIn.readInt();
+
       bodyByteorder = BIG_ENDIAN;
     }
 
@@ -83,13 +67,5 @@ public class ChassisDataMsg extends TimsMsg
     {
       DataOutputStream dataOut = new DataOutputStream(out);
       dataOut.writeInt(recordingtime);
-      dataOut.writeFloat(deltaX);
-      dataOut.writeFloat(deltaY);
-      dataOut.writeFloat(deltaRho);
-      dataOut.writeFloat(vx);
-      dataOut.writeFloat(vy);
-      dataOut.writeFloat(omega);
-      dataOut.writeFloat(battery);
-      dataOut.writeInt(activePilot);
     }
 }

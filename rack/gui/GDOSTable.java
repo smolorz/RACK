@@ -23,9 +23,7 @@ import java.io.PrintWriter;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
-import rack.main.debug.GDOS;
-import rack.main.debug.GDOSDataMsg;
-import rack.main.naming.*;
+import rack.main.*;
 
 public class GDOSTable extends AbstractTableModel
 {

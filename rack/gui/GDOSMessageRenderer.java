@@ -25,9 +25,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
-import rack.main.debug.GDOS;
-import rack.main.debug.GDOSDataMsg;
-import rack.main.naming.*;
+import rack.main.*;
 
 /**
  * @author wulf

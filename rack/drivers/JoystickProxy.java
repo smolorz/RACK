@@ -15,8 +15,7 @@
  */
 package rack.drivers;
 
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
 
 public class JoystickProxy extends RackDataProxy

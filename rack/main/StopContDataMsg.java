@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.proxy;
+package rack.main;
 
 import java.io.*;
 

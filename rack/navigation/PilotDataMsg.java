@@ -17,7 +17,7 @@ package rack.navigation;
 
 import java.io.*;
 
-import rack.main.proxy.RackProxy;
+import rack.main.RackProxy;
 import rack.main.tims.*;
 
 import rack.main.defines.Position3D;
@@ -28,7 +28,7 @@ import rack.main.defines.PolarSpline;
  * Datenreihenfolge: recordingTime, splineNum, PolarSpline
  */
 
-public class PilotInfoMsg extends TimsMsg
+public class PilotDataMsg extends TimsMsg
 {
     public int           recordingtime = 0;
     public Position3D    pos = new Position3D(0,0,0,0.0f,0.0f,0.0f);
@@ -43,12 +43,12 @@ public class PilotInfoMsg extends TimsMsg
                 splineNum * PolarSpline.getDataLen());
     }
 
-    public PilotInfoMsg()
+    public PilotDataMsg()
     {
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public PilotInfoMsg(TimsDataMsg p) throws TimsException
+    public PilotDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }

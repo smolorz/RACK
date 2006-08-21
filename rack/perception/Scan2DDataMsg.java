@@ -17,8 +17,8 @@ package rack.perception;
 
 import java.io.*;
 
+import rack.main.RackProxy;
 import rack.main.defines.ScanPoint;
-import rack.main.proxy.RackProxy;
 import rack.main.tims.*;
 
 public class Scan2DDataMsg extends TimsMsg

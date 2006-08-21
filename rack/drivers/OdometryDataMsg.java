@@ -17,7 +17,7 @@ package rack.drivers;
 
 import java.io.*;
 
-import rack.main.proxy.RackProxy;
+import rack.main.RackProxy;
 import rack.main.tims.*;
 import rack.main.defines.Position3D;
 

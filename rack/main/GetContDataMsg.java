@@ -13,35 +13,36 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.proxy;
+package rack.main;
 
 import java.io.*;
 
 import rack.main.tims.*;
 
 /** Paket zum anfordern von kontinuierlichen Daten */
-public class ContDataMsg extends TimsMsg
+public class GetContDataMsg extends TimsMsg
 {
     public int periodTime = 0;
+    public int dataMbx;
 
     public int getDataLen()
     {
-        return 4;
+        return 8;
     }
 
-    public ContDataMsg()
+    public GetContDataMsg()
     {
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public ContDataMsg(TimsDataMsg p) throws TimsException
+    public GetContDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if ((type == RackProxy.MSG_CONT_DATA)
+        if ((type == RackProxy.MSG_GET_CONT_DATA)
                 && (msglen == HEAD_LEN + getDataLen()))
         {
             return (true);
@@ -66,6 +67,7 @@ public class ContDataMsg extends TimsMsg
         }
 
         periodTime = dataIn.readInt();
+        dataMbx    = dataIn.readInt();
 
         bodyByteorder = BIG_ENDIAN;
     }
@@ -74,5 +76,6 @@ public class ContDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
         dataOut.writeInt(periodTime);
+        dataOut.writeInt(dataMbx);
     }
 }

@@ -15,27 +15,22 @@
  */
 package rack.gui;
 
-import rack.main.defines.*;
-import rack.main.naming.*;
-import rack.main.tims.*;
-
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.geom.AffineTransform;
 import java.awt.event.*;
 import java.io.File;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.imageio.*;
 
-import java.util.*;
+import rack.gui.main.*;
+import rack.main.*;
+import rack.main.defines.*;
+import rack.main.tims.*;
 import rack.drivers.*;
-import rack.gui.main.MapViewActionEvent;
-import rack.gui.main.MapViewActionList;
-import rack.gui.main.MapViewCursorDrawContext;
-import rack.gui.main.MapViewDrawContext;
-import rack.gui.main.RackModuleGui;
 import rack.navigation.*;
 
 public class MapViewGui extends Thread

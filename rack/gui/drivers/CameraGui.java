@@ -25,7 +25,7 @@ import rack.drivers.CameraDataMsg;
 import rack.drivers.CameraFormatMsg;
 import rack.drivers.CameraProxy;
 import rack.gui.main.RackModuleGui;
-import rack.main.proxy.*;
+import rack.main.*;
 
 public class CameraGui extends RackModuleGui
 {

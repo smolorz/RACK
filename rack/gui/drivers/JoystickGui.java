@@ -19,10 +19,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.main.RackModuleGui;
+import rack.main.*;
 import rack.drivers.JoystickDataMsg;
 import rack.drivers.JoystickProxy;
-import rack.gui.main.RackModuleGui;
-import rack.main.proxy.*;
 
 public class JoystickGui extends RackModuleGui
 {

@@ -13,59 +13,66 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.proxy;
+package rack.main;
 
 import java.io.*;
 
 import rack.main.tims.*;
 
-public class GetDataMsg extends TimsMsg
+/** Paket zum anfordern von kontinuierlichen Daten */
+public class ContDataMsg extends TimsMsg
 {
-    public int recordingtime = 0; // 4 Byte
+    public int periodTime = 0;
 
     public int getDataLen()
     {
-      return 4;
+        return 4;
     }
 
-    public GetDataMsg()
+    public ContDataMsg()
     {
-      msglen = HEAD_LEN + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
-    protected GetDataMsg(TimsDataMsg p) throws TimsException
+    public ContDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-      if ((type == RackProxy.MSG_GET_DATA) &&
-          (msglen == HEAD_LEN + getDataLen() )) {
-        return(true);
-      } else {
-        return(false);
-      }
+        if ((type == RackProxy.MSG_CONT_DATA)
+                && (msglen == HEAD_LEN + getDataLen()))
+        {
+            return (true);
+        }
+        else
+        {
+            return (false);
+        }
     }
 
     protected void readTimsMsgBody(InputStream in) throws IOException
     {
-      EndianDataInputStream dataIn;
+        EndianDataInputStream dataIn;
 
-      if (bodyByteorder == BIG_ENDIAN) {
-        dataIn = new BigEndianDataInputStream(in);
-      } else {
-        dataIn = new LittleEndianDataInputStream(in);
-      }
+        if (bodyByteorder == BIG_ENDIAN)
+        {
+            dataIn = new BigEndianDataInputStream(in);
+        }
+        else
+        {
+            dataIn = new LittleEndianDataInputStream(in);
+        }
 
-      recordingtime = dataIn.readInt();
+        periodTime = dataIn.readInt();
 
-      bodyByteorder = BIG_ENDIAN;
+        bodyByteorder = BIG_ENDIAN;
     }
 
     protected void writeTimsMsgBody(OutputStream out) throws IOException
     {
-      DataOutputStream dataOut = new DataOutputStream(out);
-      dataOut.writeInt(recordingtime);
+        DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeInt(periodTime);
     }
 }

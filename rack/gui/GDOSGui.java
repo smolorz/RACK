@@ -20,8 +20,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
-import rack.main.debug.GDOS;
-import rack.main.debug.GDOSDataMsg;
+import rack.main.GDOS;
+import rack.main.GDOSDataMsg;
 import rack.main.tims.*;
 
 

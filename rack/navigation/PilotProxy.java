@@ -15,8 +15,7 @@
  */
 package rack.navigation;
 
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
 
 public class PilotProxy extends RackDataProxy
@@ -32,13 +31,13 @@ public class PilotProxy extends RackDataProxy
     return(RackName.create(RackName.PILOT, id));
   }
 
-  public synchronized PilotInfoMsg getData(int recordingtime)
+  public synchronized PilotDataMsg getData(int recordingtime)
   {
     try {
       TimsDataMsg raw = getRawData(recordingtime);
 
       if (raw != null) {
-        PilotInfoMsg data = new PilotInfoMsg(raw);
+        PilotDataMsg data = new PilotDataMsg(raw);
         return(data);
       } else {
         return(null);
@@ -49,7 +48,7 @@ public class PilotProxy extends RackDataProxy
     }
   }
 
-  public synchronized PilotInfoMsg getData()
+  public synchronized PilotDataMsg getData()
   {
     return(getData(0));
   }

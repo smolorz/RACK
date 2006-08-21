@@ -13,11 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.debug;
+package rack.main;
 
 import java.io.*;
 
-import rack.main.naming.*;
 import rack.main.tims.*;
 
 /** Zum Empfang von GDOS-Nachrichten. */

@@ -13,9 +13,8 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.proxy;
+package rack.main;
 
-import rack.main.naming.*;
 import rack.main.tims.*;
 
 public abstract class RackProxy

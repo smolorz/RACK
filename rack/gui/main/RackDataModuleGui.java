@@ -20,9 +20,7 @@ import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import rack.main.naming.*;
-import rack.main.debug.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
 
 /**
@@ -32,7 +30,7 @@ import rack.main.tims.*;
  * Zuhoerer bisher ueber writeWorkPackage()
  *
  */
-public abstract class RackDataModule extends RackModuleGui
+public abstract class RackDataModuleGui extends RackModuleGui
 {
 
     /** Modul hat ein ON-Kommandopaket empfangen und soll sich einschalten */
@@ -111,7 +109,7 @@ public abstract class RackDataModule extends RackModuleGui
      * Initialisiert die Mailboxen des Moduls und startet die Task zum
      * Paketempfang
      */
-    public RackDataModule(int commandMbx)
+    public RackDataModuleGui(int commandMbx)
     {
         this.commandMbx = commandMbx;
         this.dataMbx = commandMbx + 1;
@@ -138,7 +136,7 @@ public abstract class RackDataModule extends RackModuleGui
      * Initialisiert die Mailboxen des Moduls und startet die Task zum
      * Paketempfang
      */
-    public RackDataModule(int commandMbx, int gdosLevel)
+    public RackDataModuleGui(int commandMbx, int gdosLevel)
     {
         this.commandMbx = commandMbx;
         this.dataMbx = commandMbx + 1;

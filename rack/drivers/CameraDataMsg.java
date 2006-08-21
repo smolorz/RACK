@@ -24,7 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
 
-import rack.main.proxy.RackProxy;
+import rack.main.RackProxy;
 import rack.main.tims.*;
 
 public class CameraDataMsg extends TimsMsg

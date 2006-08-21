@@ -20,8 +20,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rack.gui.main.RackModuleGui;
-import rack.main.proxy.*;
-import rack.navigation.PilotInfoMsg;
+import rack.main.*;
+import rack.navigation.PilotDataMsg;
 import rack.navigation.PilotProxy;
 
 public class PilotGui extends RackModuleGui
@@ -122,7 +122,7 @@ public class PilotGui extends RackModuleGui
 
     public void run()
     {
-        PilotInfoMsg infoData;
+        PilotDataMsg infoData;
 
         while (terminate == false)
         {

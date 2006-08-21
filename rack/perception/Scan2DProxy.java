@@ -20,8 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
 
 public class Scan2DProxy extends RackDataProxy

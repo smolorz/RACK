@@ -26,8 +26,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import rack.gui.main.RackModuleGui;
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
 
 

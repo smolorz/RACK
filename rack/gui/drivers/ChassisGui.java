@@ -19,12 +19,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.main.*;
+import rack.main.*;
 import rack.drivers.ChassisDataMsg;
 import rack.drivers.ChassisProxy;
-import rack.gui.main.MapViewDrawContext;
-import rack.gui.main.RackModuleGui;
-import rack.main.proxy.*;
-import rack.main.naming.*;
 
 public class ChassisGui extends RackModuleGui
 {

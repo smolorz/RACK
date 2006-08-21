@@ -17,12 +17,14 @@
 package rack.gui.drivers;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.MemoryImageSource;
 import javax.swing.*;
 
 import rack.drivers.CameraDataMsg;
 import rack.main.defines.ImageRect;
-import rack.main.defines.RackMouseListener;
 
 public class CameraComponent extends JComponent
 {
@@ -36,8 +38,8 @@ public class CameraComponent extends JComponent
 
     public void setMousePositionLabel(JLabel positionLabel)
     {
-        this.addMouseListener(new RackMouseListener(positionLabel));
-        this.addMouseMotionListener(new RackMouseListener(positionLabel));
+        this.addMouseListener(new MyMouseListener(positionLabel));
+        this.addMouseMotionListener(new MyMouseListener(positionLabel));
     }
 
     public void transformImage(int zoomRate, int switchRotate,
@@ -260,6 +262,70 @@ public class CameraComponent extends JComponent
                 }
             }
         }
+    }
+
+    public class MyMouseListener implements MouseListener, MouseMotionListener
+    {
+
+        JLabel outputLabel;
+        int mx, my; // the mouse coordinates
+        boolean isButtonPressed = false;
+
+        public MyMouseListener(JLabel positionLabel)
+        {
+            outputLabel = positionLabel;
+        }
+
+        public void mouseEntered(MouseEvent e)
+        {
+            // called when the pointer enters the applet's rectangular area
+        }
+
+        public void mouseExited(MouseEvent e)
+        {
+            // called when the pointer leaves the applet's rectangular area
+        }
+
+        public void mouseClicked(MouseEvent e)
+        {
+            // called after a press and release of a mouse button
+            // with no motion in between
+            // (If the user presses, drags, and then releases, there will be
+            // no click event generated.)
+        }
+
+        public void mousePressed(MouseEvent e)
+        { // called after a button is pressed down
+            isButtonPressed = true;
+            // "Consume" the event so it won't be processed in the
+            // default manner by the source which generated it.
+            e.consume();
+        }
+
+        public void mouseReleased(MouseEvent e)
+        { // called after a button is released
+            isButtonPressed = false;
+            e.consume();
+        }
+
+        public void mouseMoved(MouseEvent e)
+        { // called during motion when no buttons are down
+            mx = e.getX();
+            my = e.getY();
+            outputLabel.setText("Mouse at (" + mx + "," + my + ")");
+            // showStatus( "Mouse at (" + mx + "," + my + ")" );
+            e.consume();
+        }
+
+        public void mouseDragged(MouseEvent e)
+        { // called during motion with buttons down
+            mx = e.getX();
+            my = e.getY();
+            outputLabel.setText("Mouse at (" + mx + "," + my + ")");
+            // showStatus( "Mouse at (" + mx + "," + my + ")" );
+            e.consume();
+        }
+
     }
 
     protected Image img;

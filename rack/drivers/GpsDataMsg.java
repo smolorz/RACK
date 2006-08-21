@@ -17,8 +17,8 @@ package rack.drivers;
 
 import java.io.*;
 
+import rack.main.RackProxy;
 import rack.main.defines.Position3D;
-import rack.main.proxy.RackProxy;
 import rack.main.tims.*;
 
 public class GpsDataMsg extends TimsMsg

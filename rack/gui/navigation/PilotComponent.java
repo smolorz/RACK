@@ -22,11 +22,11 @@ import javax.swing.*;
 
 import rack.main.defines.Point2D;
 import rack.main.defines.PolarSpline;
-import rack.navigation.PilotInfoMsg;
+import rack.navigation.PilotDataMsg;
 
 public class PilotComponent extends JComponent
 {
-    protected PilotInfoMsg controlInfo = null;
+    protected PilotDataMsg controlInfo = null;
     protected int maxDistance;
     protected boolean updateIsNeeded = false;
 
@@ -53,7 +53,7 @@ public class PilotComponent extends JComponent
         setDoubleBuffered(true);
     }
 
-    public void updateData(PilotInfoMsg newPilotInfo)
+    public void updateData(PilotDataMsg newPilotInfo)
     {
         this.controlInfo = newPilotInfo;
         this.repaint();

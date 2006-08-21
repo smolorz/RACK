@@ -19,10 +19,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.main.RackModuleGui;
+import rack.main.*;
 import rack.drivers.LadarDataMsg;
 import rack.drivers.LadarProxy;
-import rack.gui.main.RackModuleGui;
-import rack.main.proxy.*;
 
 public class LadarGui extends RackModuleGui
 {

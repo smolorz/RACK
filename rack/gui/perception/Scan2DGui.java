@@ -20,10 +20,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import rack.gui.main.MapViewDrawContext;
-import rack.gui.main.RackModuleGui;
+import rack.gui.main.*;
+import rack.main.*;
 import rack.main.defines.*;
-import rack.main.proxy.*;
 import rack.perception.Scan2DDataMsg;
 import rack.perception.Scan2DProxy;
 

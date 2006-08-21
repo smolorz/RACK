@@ -21,14 +21,10 @@ import java.awt.geom.*;
 import java.util.*;
 import javax.swing.*;
 
+import rack.gui.main.*;
+import rack.main.*;
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
-import rack.gui.main.MapViewActionEvent;
-import rack.gui.main.MapViewActionList;
-import rack.gui.main.MapViewDrawContext;
-import rack.gui.main.RackModuleGui;
-import rack.main.naming.RackName;
-import rack.main.proxy.*;
 
 import rack.main.defines.Position3D;
 import rack.main.defines.Position2D;

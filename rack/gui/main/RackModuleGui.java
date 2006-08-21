@@ -18,7 +18,7 @@ package rack.gui.main;
 
 import javax.swing.*;
 
-import rack.main.proxy.*;
+import rack.main.RackProxy;
 
 /**
  * Diese Klasse ist die Superklasse aller GUI-Module.

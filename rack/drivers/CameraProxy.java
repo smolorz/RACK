@@ -24,8 +24,7 @@ import java.io.File;
 import java.awt.image.BufferedImage;
 import javax.imageio.*;
 
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.main.*;
 import rack.main.tims.*;
 
 public class CameraProxy extends RackDataProxy {

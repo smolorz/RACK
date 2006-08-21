@@ -21,20 +21,20 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import rack.main.debug.GDOS;
-import rack.main.naming.*;
-import rack.main.proxy.*;
+import rack.gui.main.RackDataModuleGui;
+import rack.gui.main.RackModuleGui;
+import rack.main.*;
 import rack.main.tims.*;
 import rack.navigation.PilotProxy;
-import rack.drivers.*;
-import rack.gui.main.RackDataModule;
-import rack.gui.main.RackModuleGui;
+import rack.drivers.ChassisProxy;
+import rack.drivers.JoystickDataMsg;
+import rack.drivers.JoystickProxy;
 
 /**
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class JoystickSoftware extends RackDataModule
+public class JoystickSoftware extends RackDataModuleGui
 {
     protected JoystickProxy joystickProxy;
 
