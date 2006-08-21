@@ -32,6 +32,9 @@ install-exec-local: $(OBJS)
 	$(mkinstalldirs) $(moduledir)
 	$(INSTALL_DATA) $^ $(moduledir)
 
+uninstall-local:
+	for f in $(OBJS) do; $(RM) -r $(moduledir) $f; done
+
 clean-local: $(libtims_a_SOURCES)
 	@RACK_KBUILD_CLEAN@
 

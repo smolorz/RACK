@@ -65,7 +65,10 @@ install-data-local:
 	rm -f $(DESTDIR)$(prefix)/source
 	$(LN_S) @abs_srcdir@ $(DESTDIR)$(prefix)/source
 	if test x"$(CONFIG_RACK_JAVA)" == "xy" ; then \
-	install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
+		install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
 	fi;
+
+uninstall-local:
+	$(RM) -r $(DESTDIR)$(prefix)/gui/$(JARFILE)
 
 .PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help

@@ -70,6 +70,14 @@ case "$host" in
     RACK_TARGET_ARCH=i386
     wanted_kernel_arch=CONFIG_X86
     ;;
+  arm-*)
+    RACK_TARGET_ARCH=arm
+    wanted_kernel_arch=CONFIG_ARM
+    ;;
+  powerpc-*|ppc-*)
+    RACK_TARGET_ARCH=ppc
+    wanted_kernel_arch=CONFIG_PPC
+    ;;
   *)
     AC_MSG_ERROR([ *** Sorry - Unsupported architecture])
     ;;
@@ -135,7 +143,7 @@ if test "${CONFIG_RACK_LINUXDIR}" \!= "" ; then
     AC_MSG_CHECKING([for Linux version])
     LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
                     grep "# Linux kernel version:" | \
-                    gawk -F ": " '{print $2}'`"
+                    ${AWK} -F ": " '{print $2}'`"
     AC_MSG_RESULT([${LINUX_VERSION}])
 
     dnl -----------------------------------------------------------------

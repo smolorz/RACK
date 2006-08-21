@@ -5,7 +5,12 @@ SUBDIRS = \
 	navigation \
 	perception
 
+datadir = $(prefix)/gui
+
 if CONFIG_RACK_JAVA_GUI
+
+data_DATA = \
+	gui.cfg
 
 dist_java_JAVA = \
 	Gui.java \
@@ -13,10 +18,6 @@ dist_java_JAVA = \
 	GDOSGui.java \
 	GDOSMessageRenderer.java \
 	GDOSTable.java
-
-install-data-local:
-	install -d -m 755 $(DESTDIR)$(prefix)/gui
-	install -m 644 $(srcdir)/gui.cfg $(DESTDIR)$(prefix)/gui
 
 endif
 

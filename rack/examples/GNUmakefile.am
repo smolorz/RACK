@@ -8,11 +8,13 @@ data_DATA = \
 if CONFIG_RACK_SCAN_2D_SIM
 
 install-data-local:
-	install -m 644 $(srcdir)/rack_sim.dxf $(DESTDIR)$(bindir)/perception
-	if test ! -f $(DESTDIR)$(bindir)/perception/map.dxf; then\
-	$(LN_S) $(DESTDIR)$(prefix)/examples/rack_sim.dxf \
-	        $(DESTDIR)$(bindir)/perception/map.dxf; \
+	if test ! -f $(DESTDIR)$(bindir)/perception/map.dxf ; then \
+		$(LN_S) $(DESTDIR)$(prefix)/examples/rack_sim.dxf \
+			$(DESTDIR)$(bindir)/perception/map.dxf ; \
 	fi
+
+uninstall-local:
+	$(RM) -r $(DESTDIR)$(bindir)/perception/map.dxf
 
 endif
 

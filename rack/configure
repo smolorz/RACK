@@ -18958,6 +18958,14 @@ case "$host" in
     RACK_TARGET_ARCH=i386
     wanted_kernel_arch=CONFIG_X86
     ;;
+  arm-*)
+    RACK_TARGET_ARCH=arm
+    wanted_kernel_arch=CONFIG_ARM
+    ;;
+  powerpc-*|ppc-*)
+    RACK_TARGET_ARCH=ppc
+    wanted_kernel_arch=CONFIG_PPC
+    ;;
   *)
     { { echo "$as_me:$LINENO: error:  *** Sorry - Unsupported architecture" >&5
 echo "$as_me: error:  *** Sorry - Unsupported architecture" >&2;}
@@ -19033,7 +19041,7 @@ echo "${ECHO_T}${CONFIG_RACK_LINUXDIR}/.config" >&6
 echo $ECHO_N "checking for Linux version... $ECHO_C" >&6
     LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
                     grep "# Linux kernel version:" | \
-                    gawk -F ": " '{print $2}'`"
+                    ${AWK} -F ": " '{print $2}'`"
     echo "$as_me:$LINENO: result: ${LINUX_VERSION}" >&5
 echo "${ECHO_T}${LINUX_VERSION}" >&6
 

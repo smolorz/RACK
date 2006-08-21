@@ -403,6 +403,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+@CONFIG_RACK_SCAN_2D_SIM_FALSE@uninstall-local:
 @CONFIG_RACK_SCAN_2D_SIM_FALSE@install-data-local:
 clean: clean-am
 
@@ -448,7 +449,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dataDATA uninstall-info-am
+uninstall-am: uninstall-dataDATA uninstall-info-am uninstall-local
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
@@ -459,15 +460,17 @@ uninstall-am: uninstall-dataDATA uninstall-info-am
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-dataDATA uninstall-info-am
+	uninstall-dataDATA uninstall-info-am uninstall-local
 
 
 @CONFIG_RACK_SCAN_2D_SIM_TRUE@install-data-local:
-@CONFIG_RACK_SCAN_2D_SIM_TRUE@	install -m 644 $(srcdir)/rack_sim.dxf $(DESTDIR)$(bindir)/perception
-@CONFIG_RACK_SCAN_2D_SIM_TRUE@	if test ! -f $(DESTDIR)$(bindir)/perception/map.dxf; then\
-@CONFIG_RACK_SCAN_2D_SIM_TRUE@	$(LN_S) $(DESTDIR)$(prefix)/examples/rack_sim.dxf \
-@CONFIG_RACK_SCAN_2D_SIM_TRUE@	        $(DESTDIR)$(bindir)/perception/map.dxf; \
+@CONFIG_RACK_SCAN_2D_SIM_TRUE@	if test ! -f $(DESTDIR)$(bindir)/perception/map.dxf ; then \
+@CONFIG_RACK_SCAN_2D_SIM_TRUE@		$(LN_S) $(DESTDIR)$(prefix)/examples/rack_sim.dxf \
+@CONFIG_RACK_SCAN_2D_SIM_TRUE@			$(DESTDIR)$(bindir)/perception/map.dxf ; \
 @CONFIG_RACK_SCAN_2D_SIM_TRUE@	fi
+
+@CONFIG_RACK_SCAN_2D_SIM_TRUE@uninstall-local:
+@CONFIG_RACK_SCAN_2D_SIM_TRUE@	$(RM) -r $(DESTDIR)$(bindir)/perception/map.dxf
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
