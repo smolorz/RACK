@@ -16,6 +16,16 @@ config RACK_INSTALLDIR
     named "Value". The default installation directory is
     /usr/local/rack.
 
+config RACK_XENOMAIDIR
+    string "Xenomai build tree"
+    default "/usr/xenomai"
+    help
+    This variable contains the directory where was built your
+    Xenomai. As explained before, you can change the value
+    of the Xenomai build tree which is fixed by default to
+    /usr/xenomai i.e. the build directory of
+    the running Xenomai.
+
 config RACK_BUILD_KMOD
     bool "Build kernel modules"
     default y
@@ -27,16 +37,6 @@ config RACK_LINUXDIR
     help
     This variable contains the directory where was your Linux source tree.
 
-config RACK_XENOMAIDIR
-    string "Xenomai build tree"
-    default "/usr/xenomai"
-    help
-    This variable contains the directory where was built your
-    Xenomai. As explained before, you can change the value
-    of the Xenomai build tree which is fixed by default to
-    /usr/xenomai i.e. the build directory of
-    the running Xenomai.
-
 config RACK_JAVA
     bool "Rack Java"
     help
@@ -44,6 +44,7 @@ config RACK_JAVA
 
 config RACK_JAVA_GUI
     bool "Rack Java Gui"
+    default y
     depends on RACK_JAVA
     help
     Help text.
