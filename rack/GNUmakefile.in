@@ -744,7 +744,7 @@ uninstall-info: uninstall-info-recursive
 @CONFIG_RACK_JAVA_TRUE@	@echo "creating $@"; \
 @CONFIG_RACK_JAVA_TRUE@	builddir=`pwd`; \
 @CONFIG_RACK_JAVA_TRUE@	cd $(top_builddir); \
-@CONFIG_RACK_JAVA_TRUE@	$(JAR) cf$(MANIFEST_FLAG) $(JARFILE) $(MANIFEST) `find -H @PROJNAME@/ -name "*.class" 2> /dev/null`
+@CONFIG_RACK_JAVA_TRUE@	$(JAR) cf$(MANIFEST_FLAG) $(JARFILE) $(MANIFEST) `find @PROJNAME@/ -name "*.class" 2> /dev/null`
 
 clean-local:
 	rm -f $(JARFILE)

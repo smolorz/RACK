@@ -83,6 +83,7 @@ case "$host" in
     ;;
 esac
 AC_MSG_RESULT([${RACK_TARGET_ARCH}])
+AC_SUBST(RACK_TARGET_ARCH)
 
 dnl ======================================================================
 dnl  Loading the RACK configuration.
@@ -245,7 +246,6 @@ dnl -----------------------------------------------------------------
 dnl  get some more information about Xenomai
 dnl -----------------------------------------------------------------
 
-XENO_USER_ARCH="`${XENO_USER_CONFIG} --arch`"
 XENO_LIBRARIES="`${XENO_USER_CONFIG} --library-dir`"
 
 dnl -----------------------------------------------------------------
@@ -255,31 +255,6 @@ dnl -----------------------------------------------------------------
 AC_SUBST(XENO_USER_PREFIX)
 AC_SUBST(XENO_LIBRARIES)
 AC_DEFINE(CONFIG_XENO_21X, 1, [We build for Xenomai 2.1 or newer])
-
-dnl ======================================================================
-dnl  architecture test Xenomai <-> Rack
-dnl ======================================================================
-
-AC_MSG_CHECKING([for Xenomai target arch])
-AC_MSG_RESULT([${XENO_USER_ARCH}])
-
-AC_MSG_CHECKING([for RACK target arch])
-AC_MSG_RESULT([${TARGET_ARCH}])
-
-if test x"${RACK_TARGET_ARCH}" != x"${XENO_USER_ARCH}"; then
-    AC_MSG_ERROR([*** Xenomai Userspace and current target architectures are not the same])
-fi
-
-case "${XENO_USER_ARCH}" in
-    i386)
-        AC_DEFINE(CONFIG_ARCH_I386, 1,[we are building for x86])
-        ;;
-    *)
-        AC_MSG_ERROR([*** unsupported architecture])
-        ;;
-esac
-
-AC_SUBST(RACK_TARGET_ARCH)
 
 dnl ======================================================================
 dnl  check support

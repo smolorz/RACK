@@ -1,8 +1,5 @@
 /* config/rack_config_pre.h.in.  Generated from configure.ac by autoheader.  */
 
-/* we are building for x86 */
-#undef CONFIG_ARCH_I386
-
 /* Build system alias */
 #undef CONFIG_RACK_BUILD_STRING
 

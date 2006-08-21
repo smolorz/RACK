@@ -35,7 +35,7 @@ endif
 	@echo "creating $@"; \
 	builddir=`pwd`; \
 	cd $(top_builddir); \
-	$(JAR) cf$(MANIFEST_FLAG) $(JARFILE) $(MANIFEST) `find -H @PROJNAME@/ -name "*.class" 2> /dev/null`
+	$(JAR) cf$(MANIFEST_FLAG) $(JARFILE) $(MANIFEST) `find @PROJNAME@/ -name "*.class" 2> /dev/null`
 
 endif
 
