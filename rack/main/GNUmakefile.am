@@ -20,7 +20,6 @@ include_HEADERS = \
 	image_tool.h \
 	pilot_tool.h \
 	rack_byteorder.h \
-	rack_defines.h \
 	rack_debug.h \
 	rack_mailbox.h \
 	rack_mutex.h \
