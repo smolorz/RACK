@@ -20,8 +20,10 @@
 #include <string.h>
 #include <errno.h>
 
+//for matlab use oh this class import must be done different
+#ifndef __DXF_MAP_H__
 #include <main/dxf_map.h>
-
+#endif // __DXF_MAP_H__
 
 //
 // Constructor and destructor

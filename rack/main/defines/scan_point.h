@@ -16,6 +16,15 @@
 #ifndef __SCAN_POINT_H__
 #define __SCAN_POINT_H__
 
+#define TYPE_BOUNDING           0x1000  // 3d scan
+
+#define TYPE_LINE               0x0100
+#define TYPE_LINE_HOR           0x0200
+#define TYPE_LINE_VER           0x0400
+#define TYPE_WALL               0x0800  // 3d scan
+
+#define TYPE_REDUCE_MASK        0x0070
+
 #define TYPE_INVALID            0x0010
 #define TYPE_MAX_RANGE          0x0020
 #define TYPE_REDUCE             0x0040

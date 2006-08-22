@@ -9,7 +9,7 @@ OPTHEADERS += can_port.h
 endif
 
 if CONFIG_RACK_LIBJPEG_SUPPORT
-OPTHEADERS += jdatadstmem.h
+OPTHEADERS += jpeg_data_dst_mem.h
 endif
 
 include_HEADERS = \

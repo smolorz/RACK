@@ -14,8 +14,8 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef __JDATADSTMEM_H__
-#define __JDATADSTMEM_H__
+#ifndef __JPEG_DATA_DST_MEM_H__
+#define __JPEG_DATA_DST_MEM_H__
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -167,4 +167,4 @@ inline GLOBAL(void) jpeg_stdmem_dest (j_compress_ptr cinfo, char * outstream)
 }
 #endif
 
-#endif // __JDATADSTMEM_H__
+#endif // __JPEG_DATA_DST_MEM_H__

@@ -38,7 +38,7 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_1 = canport
 @CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_2 = can_port.h
-@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_3 = jdatadstmem.h
+@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_3 = jpeg_data_dst_mem.h
 @CONFIG_RACK_JAVA_TRUE@am__append_4 = \
 @CONFIG_RACK_JAVA_TRUE@	RackName.java \
 @CONFIG_RACK_JAVA_TRUE@	RackProxy.java \
@@ -77,7 +77,7 @@ JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
 am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
-am__include_HEADERS_DIST = can_port.h jdatadstmem.h angle_tool.h \
+am__include_HEADERS_DIST = can_port.h jpeg_data_dst_mem.h angle_tool.h \
 	argopts.h dxf_map.h image_tool.h pilot_tool.h rack_byteorder.h \
 	rack_debug.h rack_mailbox.h rack_mutex.h rack_module.h \
 	rack_datamodule.h rack_name.h rack_proxy.h rack_time.h \
