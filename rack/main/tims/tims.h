@@ -42,7 +42,7 @@
 //
 // TIMS static message types
 // -> see tims_msg_types.h
-#include <main/tims/msgtypes/tims_msg_types.h>
+#include <main/tims/tims_msg_types.h>
 
 //
 // TIMS message head

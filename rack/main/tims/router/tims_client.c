@@ -31,7 +31,6 @@
 #define NAME "TimsClient"
 
 #include <main/tims/tims.h>
-#include <main/tims/msgtypes/tims_msg_types.h>
 #include <main/tims/router/tims_router.h>
 
 #define TIMS_LEVEL_PRINT          0

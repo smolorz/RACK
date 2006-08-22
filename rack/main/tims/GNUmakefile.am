@@ -4,10 +4,10 @@ includedir = $(prefix)/include/main/tims
 include_HEADERS = \
 	tims.h \
 	tims_byteorder.h \
-	tims_endian.h
+	tims_endian.h \
+	tims_msg_types.h
 
 SUBDIRS = \
-	msgtypes \
 	router
 
 if CONFIG_RACK_BUILD_KMOD

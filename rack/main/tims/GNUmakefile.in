@@ -90,7 +90,7 @@ includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = msgtypes router driver
+DIST_SUBDIRS = router driver
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -308,9 +308,10 @@ target_alias = @target_alias@
 include_HEADERS = \
 	tims.h \
 	tims_byteorder.h \
-	tims_endian.h
+	tims_endian.h \
+	tims_msg_types.h
 
-SUBDIRS = msgtypes router $(am__append_1)
+SUBDIRS = router $(am__append_1)
 dist_java_JAVA = $(am__append_2)
 EXTRA_DIST = \
 	Kconfig

@@ -1,5 +1,0 @@
-
-includedir = $(prefix)/include/main/tims/msgtypes
-
-include_HEADERS = \
-	tims_msg_types.h

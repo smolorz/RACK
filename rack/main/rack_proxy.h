@@ -20,7 +20,7 @@
 #include <main/rack_time.h>
 #include <main/rack_debug.h>
 
-#include <main/tims/msgtypes/tims_msg_types.h>
+#include <main/tims/tims_msg_types.h>
 
 //######################################################################
 //# RACK message types
