@@ -82,21 +82,21 @@ public abstract class TimsMsg
       headByteorder = p.headByteorder;
       bodyByteorder = p.bodyByteorder;
       priority      = p.priority;
-      seqNr        = p.seqNr;
+      seqNr         = p.seqNr;
       type          = p.type;
       dest          = p.dest;
       src           = p.src;
       msglen        = p.msglen;
 
       if (checkTimsMsgHead() == false) {
-          throw(new TimsException("TimsMsg: Message head doesn't fit\n   "
+          throw(new TimsException("Message head doesn't fit\n   "
                                           + this.toString()));
       }
 
       try {
           readTimsMsgBody(new ByteArrayInputStream(p.body));
       } catch(IOException e) {
-          throw(new TimsException("TimsMsg: Message body doesn't fit\n    "
+          throw(new TimsException("Message body doesn't fit\n    "
                                           + this.toString() + "\n" +
                                           e.toString()));
       }
@@ -162,7 +162,7 @@ public abstract class TimsMsg
     {
       return(Integer.toHexString(src) + " -> " + Integer.toHexString(dest) +
              " type:" + type + " " + " msglen:" + msglen +
-             "seq_no:" + seqNr + " priority:" + priority + " flags:" +
+             " seqNr:" + seqNr + " priority:" + priority + " flags:" +
              (headByteorder + bodyByteorder * 0x01));
     }
 }

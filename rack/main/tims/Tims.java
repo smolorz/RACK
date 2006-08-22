@@ -76,7 +76,7 @@ public abstract class Tims extends Thread
         throw(new TimsException("No TimsMsgRouter available"));
       }
 
-      TimsMsg0 p = new TimsMsg0();
+      TimsDataMsg p = new TimsDataMsg();
 
       p.type     = type;
       p.dest     = dest;
@@ -110,7 +110,7 @@ public abstract class Tims extends Thread
         throw(new TimsException("No TimsMsgRouter available"));
       }
 
-      TimsMsg0 p = new TimsMsg0();
+      TimsDataMsg p = new TimsDataMsg();
 
       p.type     = type;
       p.dest     = replyOn.src;

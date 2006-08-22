@@ -46,7 +46,6 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsRouterMbxMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{StopContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSMessageRenderer.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsMsg0.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionList.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2DGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.navigation{PilotGui.java"/>

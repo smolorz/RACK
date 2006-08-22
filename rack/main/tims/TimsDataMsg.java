@@ -19,16 +19,24 @@ import java.io.*;
 
 public class TimsDataMsg extends TimsMsg
 {
-  public byte[] body = null;
+  public byte[] body;
 
   public int getDataLen()
   {
-    return 0;
+      if (body != null)
+      {
+          return body.length;
+      }
+      else
+      {
+          return 0;
+      }
   }
 
   public TimsDataMsg()
   {
     msglen = HEAD_LEN;
+    body = null;
   }
 
   public TimsDataMsg(InputStream in) throws IOException
@@ -38,25 +46,33 @@ public class TimsDataMsg extends TimsMsg
 
   protected TimsDataMsg(TimsMsg msg, InputStream in) throws IOException
   {
-    System.out.println("not jet implemented");
+      throw new IOException("Constructor not jet implemented");
   }
 
   protected boolean checkTimsMsgHead()
   {
-    return(true);
+    return true;
   }
 
   protected void readTimsMsgBody(InputStream in) throws IOException
   {
-    DataInputStream dataIn = new DataInputStream(in);
-    body = new byte[msglen - HEAD_LEN];
-    dataIn.readFully(body);
+      if((msglen - HEAD_LEN) > 0)
+      {
+          DataInputStream dataIn = new DataInputStream(in);
+          body = new byte[msglen - HEAD_LEN];
+          dataIn.readFully(body);
+      }
+      else
+      {
+          body = null;
+      }
   }
 
   protected void writeTimsMsgBody(OutputStream out) throws IOException
   {
-    if (body != null) {
-      out.write(body);
-    }
+      if (body != null)
+      {
+          out.write(body);
+      }
   }
 }
