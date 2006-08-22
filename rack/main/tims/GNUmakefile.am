@@ -26,7 +26,6 @@ dist_java_JAVA += \
 	TimsDataMsg.java \
 	TimsMbx.java \
 	TimsMsg.java \
-	TimsMsg0.java \
 	TimsRouter.java \
 	TimsRouterMbxMsg.java \
 	TimsTcp.java \
