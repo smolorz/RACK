@@ -34,8 +34,11 @@ public class GpsDataMsg extends TimsMsg
     public long         utcTime       = 0;  // POSIX time in sec since 1.1.1970
     public float        pdop          = 0;
     public Position3D   posGK  = new Position3D();
-    
-    
+
+    public static final byte MODE_INVALID     = 1;
+    public static final byte MODE_2D          = 2;
+    public static final byte MODE_3D          = 3;
+
     public int getDataLen()
     {
         return 28 + 24 + Position3D.getDataLen();

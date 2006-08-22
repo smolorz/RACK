@@ -72,10 +72,6 @@ public class GpsGui extends RackModuleGui
                                                      SwingConstants.RIGHT);
     public GpsProxy gps;
 
-    public static final byte GPS_MODE_INVALID     = 1;
-    public static final byte GPS_MODE_2D          = 2;
-    public static final byte GPS_MODE_3D          = 3;
-
     public GpsGui(GpsProxy proxy)
     {
         gps = proxy;
@@ -178,11 +174,11 @@ public class GpsGui extends RackModuleGui
                     altitude   = (float)data.altitude / 1000;
                     speed      = (float)data.speed / 1000;
 
-                    if (data.mode == GPS_MODE_2D)
+                    if (data.mode == GpsDataMsg.MODE_2D)
                     {
                         modeLabel.setText("2D");
                     }
-                    if (data.mode == GPS_MODE_3D)
+                    if (data.mode == GpsDataMsg.MODE_3D)
                     {
                         modeLabel.setText("3D");
                     }
