@@ -89,7 +89,7 @@ public class CameraGui extends RackModuleGui
                 {
                     public void actionPerformed(ActionEvent e)
                     {
-                        camera.storeDataToFile("camera.png");
+                    	singleStoring = 1; 
                     }
                 });
 
@@ -213,9 +213,10 @@ public class CameraGui extends RackModuleGui
                 {
                     cameraComponent
                             .transformImage(zoomRate, switchRotate, data);
-                    if (contStoring == 1)
+                    if ((contStoring == 1) || (singleStoring == 1))
                     {
-                        camera.storeDataToFile("camera"+System.currentTimeMillis()+".png", data);
+                        data.storeDataToFile("camera"+System.currentTimeMillis()+".png");
+                        singleStoring = 0; 
                     }
                 }
                 else
@@ -247,6 +248,8 @@ public class CameraGui extends RackModuleGui
     protected JButton storeContOnButton;
     protected JButton storeContOffButton;
     protected int contStoring = 0;
+    protected int singleStoring = 0;
+    
 
     protected CameraComponent cameraComponent;
 

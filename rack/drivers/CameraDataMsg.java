@@ -17,6 +17,7 @@
 package rack.drivers;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -506,7 +507,23 @@ public class CameraDataMsg extends TimsMsg
             dataOut.writeByte(imageRawData[i]);
         }
     }
-
+    
+    public void storeDataToFile(String filename)
+    {
+        if(this != null)
+        {
+            try{
+                System.out.println("Store image data filename=" + filename);
+                BufferedImage image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
+                image.setRGB(0, 0, this.width, this.height, this.imageRawData, 0, this.width);
+                File file = new File(filename);
+                ImageIO.write(image, "png", file);
+            } catch(IOException e) {
+                System.out.println("Error storing image filename=" + filename + e.toString());
+            }
+        }
+    }
+    
     public String toString()
     {
         return "width " + width + " height " + height + " mode " + mode

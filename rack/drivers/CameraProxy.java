@@ -48,27 +48,6 @@ public class CameraProxy extends RackDataProxy {
         this.id = id;
     }
 
-    public void storeDataToFile(String filename)
-    {
-    	CameraDataMsg data = getData(0);
-    	storeDataToFile(filename, data );
-    }
-    
-    public void storeDataToFile(String filename, CameraDataMsg data )
-    {
-        if(data != null)
-        {
-            try{
-                System.out.println("Store image data filename=" + filename);
-                BufferedImage image = new BufferedImage(data.width, data.height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
-                image.setRGB(0, 0, data.width, data.height, data.imageRawData, 0, data.width);
-                File file = new File(filename);
-                ImageIO.write(image, "png", file);
-            } catch(IOException e) {
-                System.out.println("Error storing image filename=" + filename + e.toString());
-            }
-        }
-    }
     public synchronized CameraDataMsg getData(int recordingtime)
     {
         try
