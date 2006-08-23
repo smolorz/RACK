@@ -40,7 +40,6 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	CameraProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	CameraDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	CameraFormatMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	Camera2PngConverter.java \
 @CONFIG_RACK_JAVA_TRUE@	ChassisProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	ChassisParamMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	ChassisDataMsg.java \
@@ -74,11 +73,11 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
 am__dist_java_JAVA_DIST = CameraProxy.java CameraDataMsg.java \
-	CameraFormatMsg.java Camera2PngConverter.java \
-	ChassisProxy.java ChassisParamMsg.java ChassisDataMsg.java \
-	ChassisSetActivePilotMsg.java GpsProxy.java GpsDataMsg.java \
-	JoystickProxy.java JoystickDataMsg.java LadarProxy.java \
-	LadarDataMsg.java OdometryProxy.java OdometryDataMsg.java
+	CameraFormatMsg.java ChassisProxy.java ChassisParamMsg.java \
+	ChassisDataMsg.java ChassisSetActivePilotMsg.java \
+	GpsProxy.java GpsDataMsg.java JoystickProxy.java \
+	JoystickDataMsg.java LadarProxy.java LadarDataMsg.java \
+	OdometryProxy.java OdometryDataMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

@@ -25,7 +25,6 @@ dist_java_JAVA += \
 	CameraProxy.java \
 	CameraDataMsg.java \
 	CameraFormatMsg.java \
-	Camera2PngConverter.java \
 	ChassisProxy.java \
 	ChassisParamMsg.java \
 	ChassisDataMsg.java \
