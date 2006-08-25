@@ -47,6 +47,7 @@ public class CameraComponent extends JComponent
     {
         CameraDataMsg switchRotatedDataMsg;
         CameraDataMsg zoomDataMsg;
+        int newWidth, newHeight; 
 
         switchRotatedDataMsg = switchAndRotate(switchRotate, dataMsg);
         zoomDataMsg = switchRotatedDataMsg;// zoom(zoomRate,
@@ -57,27 +58,34 @@ public class CameraComponent extends JComponent
             img = createImage(new MemoryImageSource(zoomDataMsg.width,
                     zoomDataMsg.height, zoomDataMsg.imageRawData, 0,
                     zoomDataMsg.width));
+
+            newWidth  = zoomDataMsg.width; 
+            newHeight = zoomDataMsg.height;
     
             if (zoomRate > 0)
             {
-                zoomDataMsg.width = zoomDataMsg.width * zoomRate;
-                zoomDataMsg.height = zoomDataMsg.height * zoomRate;
-                img = img.getScaledInstance(zoomDataMsg.width,
-                        zoomDataMsg.height, Image.SCALE_FAST);
+            	newWidth  = zoomDataMsg.width  * zoomRate;
+            	newHeight = zoomDataMsg.height * zoomRate;
+                img = img.getScaledInstance(newWidth,
+                        newHeight, Image.SCALE_FAST);
+                //zoomDataMsg.width = zoomDataMsg.width * zoomRate;
+                //zoomDataMsg.height = zoomDataMsg.height * zoomRate;
+                //img = img.getScaledInstance(zoomDataMsg.width,
+                //        zoomDataMsg.height, Image.SCALE_FAST);
             }
             if (zoomRate < 0)
             {
-                zoomDataMsg.width = zoomDataMsg.width / -zoomRate;
-                zoomDataMsg.height = zoomDataMsg.height / -zoomRate;
-                img = img.getScaledInstance(zoomDataMsg.width,
-                        zoomDataMsg.height, Image.SCALE_FAST);
+                newWidth  = zoomDataMsg.width  / -zoomRate;
+                newHeight = zoomDataMsg.height / -zoomRate;
+                img = img.getScaledInstance(newWidth,
+                        newHeight, Image.SCALE_FAST);
             }
         }
 
-        this.setPreferredSize(new Dimension(zoomDataMsg.width,
-                zoomDataMsg.height));
-        this.setSize(new Dimension(zoomDataMsg.width,
-                zoomDataMsg.height));
+        this.setPreferredSize(new Dimension(newWidth,
+                newHeight));
+        this.setSize(new Dimension(newWidth,
+                newHeight));
 
         this.repaint();
     }
