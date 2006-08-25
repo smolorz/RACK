@@ -83,7 +83,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main{GetContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{GetDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PositionDataMsg.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.drivers{Camera2PngConverter.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.tools{Camera2PngConverter.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2DProxy.java"/>
 </selectedElements>
 </jardesc>
