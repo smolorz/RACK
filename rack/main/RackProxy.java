@@ -102,7 +102,7 @@ public abstract class RackProxy
         }
         catch (TimsException e)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".on " + e);
         }
     }
@@ -127,7 +127,7 @@ public abstract class RackProxy
         }
         catch (TimsException e)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".off " + e);
         }
     }
@@ -179,7 +179,7 @@ public abstract class RackProxy
         catch (TimsException e)
         {
             System.out
-                    .println(replyMbx.getNameString() + ": "
+                    .println(RackName.nameString(replyMbx.getName()) + ": "
                             + RackName.nameString(commandMbx)
                             + ".getStatus ERROR " + e);
 

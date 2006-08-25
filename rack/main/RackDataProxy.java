@@ -69,7 +69,7 @@ public abstract class RackDataProxy extends RackProxy
         }
         catch (TimsException e)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".getData " + e);
             return (null);
         }
@@ -81,7 +81,7 @@ public abstract class RackDataProxy extends RackProxy
 
         if (dataMbx == null)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx)
                     + ".getContData: Keine Datenmailbox eingerichtet.");
             return;
@@ -108,7 +108,7 @@ public abstract class RackDataProxy extends RackProxy
         }
         catch (TimsException e)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".getContData " + e);
         }
     }
@@ -119,7 +119,7 @@ public abstract class RackDataProxy extends RackProxy
 
         if (dataMbx == null)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx)
                     + ".stopContData: Keine Datenmailbox eingerichtet.");
             return;
@@ -146,7 +146,7 @@ public abstract class RackDataProxy extends RackProxy
         }
         catch (TimsException e)
         {
-            System.out.println(replyMbx.getNameString() + ": "
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".stopContData " + e);
         }
     }

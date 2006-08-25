@@ -79,26 +79,26 @@ public class PositionProxy extends RackDataProxy
             do
             {
                 reply = replyMbx.receive(1000);
-                System.out.println(replyMbx.getNameString() + ": " + reply.type + " " + reply.seqNr);
+                System.out.println(RackName.nameString(replyMbx.getName()) + ": " + reply.type + " " + reply.seqNr);
             }
             while(reply.seqNr != currentSequenceNo);
         }
         catch(TimsException e)
         {
-            System.out.println(replyMbx.getNameString() + ": " + RackName.nameString(commandMbx) + ".update " + e);
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".update " + e);
         }
     }
 
     public PositionDataMsg readContinuousData(int timeOut) {
         if (dataMbx == null) {
-            System.out.println(replyMbx.getNameString() + ": " + RackName.nameString(commandMbx) + ".readContinuousData: Keine Datenmailbox eingerichtet."  );
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".readContinuousData: Keine Datenmailbox eingerichtet."  );
             return null;
         }
         try
         {
             TimsDataMsg data = dataMbx.receive(timeOut);
             PositionDataMsg locData = new PositionDataMsg(data);
-            System.out.println(replyMbx.getNameString() + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
             return(locData);
         }
         catch(TimsException e)

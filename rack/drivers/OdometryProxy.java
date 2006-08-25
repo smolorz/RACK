@@ -62,14 +62,14 @@ public class OdometryProxy extends RackDataProxy
         } while (reply.seqNr != currentSequenceNo);
 
         if (reply.type == RackProxy.MSG_OK) {
-          System.out.println(replyMbx.getNameString() + ": " +
+          System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
                              RackName.nameString(commandMbx) + ".enableMotor");
         } else {
-          System.out.println(replyMbx.getNameString() + ": " +
+          System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
                              RackName.nameString(commandMbx) + ".enableMotor replied error");
         }
       } catch(TimsException e) {
-        System.out.println(replyMbx.getNameString() + ": " +
+        System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
                            RackName.nameString(commandMbx) + ".on " + e);
       }
     }

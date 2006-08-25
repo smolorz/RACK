@@ -282,9 +282,8 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         }
                         else
                         {
-                            System.out
-                                    .println(commandMbx.getNameString()
-                                            + ": Im Java-Modul ist das Datenpacket nicht angelegt! (dataPackage == null)");
+                            System.out.println(RackName.nameString(commandMbx.getName()) +
+                                    ": Im Java-Modul ist das Datenpacket nicht angelegt! (dataPackage == null)");
                             commandMbx.sendReply0(RackProxy.MSG_ERROR,
                                     cmdMsg);
                         }

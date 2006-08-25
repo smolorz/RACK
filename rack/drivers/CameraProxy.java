@@ -88,18 +88,18 @@ public class CameraProxy extends RackDataProxy {
             } while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackProxy.MSG_OK) {
-                System.out.println(
-                        replyMbx.getNameString() + ": cameraProxy setFormat");
+                System.out.println(RackName.nameString(replyMbx.getName()) +
+                        ": cameraProxy setFormat");
             } else {
                 System.out.println(
-                        replyMbx.getNameString()
+                        RackName.nameString(replyMbx.getName())
                         + ": "
                         + RackName.nameString(commandMbx)
                         + ".setFormat replied error");
             }
         } catch (TimsException e) {
-            System.out.println(
-                    replyMbx.getNameString() + ": cameraProxy setFormat " + e);
+            System.out.println(RackName.nameString(replyMbx.getName()) +
+                    ": cameraProxy setFormat " + e);
         }
     }
 

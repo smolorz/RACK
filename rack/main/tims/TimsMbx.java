@@ -18,8 +18,6 @@ package rack.main.tims;
 
 import java.util.*;
 
-import rack.main.RackName;
-
 public class TimsMbx extends Vector
 {
   private static final long serialVersionUID = 1L;
@@ -43,11 +41,6 @@ public class TimsMbx extends Vector
   public int getName()
   {
       return name;
-  }
-
-  public String getNameString()
-  {
-      return RackName.nameString(name);
   }
 
   public void send(TimsMsg m) throws TimsException
