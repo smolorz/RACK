@@ -20,7 +20,7 @@ import rack.main.tims.*;
 
 public class LadarProxy extends RackDataProxy
 {
-    public LadarProxy(int id, int replyMbx)
+    public LadarProxy(int id, TimsMbx replyMbx)
     {
         super(RackName.create(RackName.LADAR, id), replyMbx, 10000, 5000, 1000);
         this.id = id;

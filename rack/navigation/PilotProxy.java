@@ -20,7 +20,7 @@ import rack.main.tims.*;
 
 public class PilotProxy extends RackDataProxy
 {
-  public PilotProxy(int id, int replyMbx)
+  public PilotProxy(int id, TimsMbx replyMbx)
   {
     super(RackName.create(RackName.PILOT, id), replyMbx, 5000, 1000, 1000);
     this.id = id;

@@ -24,13 +24,13 @@ public class PositionProxy extends RackDataProxy
     public static final byte MSG_POSITION_UPDATE =
         RackProxy.MSG_POS_OFFSET + 1;
 
-    public PositionProxy(int id , int replyMbx)
+    public PositionProxy(int id , TimsMbx replyMbx)
     {
         super(RackName.create(RackName.POSITION, id), replyMbx, 5000, 1000, 1000);
         this.id = id;
     }
 
-    public PositionProxy(int id , int replyMbx, int dataMbx)
+    public PositionProxy(int id , TimsMbx replyMbx, TimsMbx dataMbx)
     {
         super(RackName.create(RackName.POSITION, id), replyMbx, dataMbx, 5000, 1000, 1000);
         this.id = id;
@@ -68,9 +68,8 @@ public class PositionProxy extends RackDataProxy
             PositionDataMsg updateMsg = new PositionDataMsg();
             updateMsg.recordingTime = recordingTime;
             updateMsg.pos = pos;
-            Tims.send(MSG_POSITION_UPDATE,
+            replyMbx.send(MSG_POSITION_UPDATE,
                                commandMbx,
-                               replyMbx,
                                (byte)0,
                                (byte)currentSequenceNo,
                                updateMsg);
@@ -79,32 +78,32 @@ public class PositionProxy extends RackDataProxy
 
             do
             {
-                reply = Tims.receive(replyMbx, 1000);
-                System.out.println(RackName.nameString(replyMbx) + ": " + reply.type + " " + reply.seqNr);
+                reply = replyMbx.receive(1000);
+                System.out.println(replyMbx.getNameString() + ": " + reply.type + " " + reply.seqNr);
             }
             while(reply.seqNr != currentSequenceNo);
         }
         catch(TimsException e)
         {
-            System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".update " + e);
+            System.out.println(replyMbx.getNameString() + ": " + RackName.nameString(commandMbx) + ".update " + e);
         }
     }
 
     public PositionDataMsg readContinuousData(int timeOut) {
-        if (dataMbx == 0) {
-            System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData: Keine Datenmailbox eingerichtet."  );
+        if (dataMbx == null) {
+            System.out.println(replyMbx.getNameString() + ": " + RackName.nameString(commandMbx) + ".readContinuousData: Keine Datenmailbox eingerichtet."  );
             return null;
         }
         try
         {
-            TimsDataMsg data = Tims.receive(dataMbx, timeOut);
+            TimsDataMsg data = dataMbx.receive(timeOut);
             PositionDataMsg locData = new PositionDataMsg(data);
-            System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
+            System.out.println(replyMbx.getNameString() + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
             return(locData);
         }
         catch(TimsException e)
         {
-//            System.out.println(RackName.nameString(replyMbx) + ": " + RackName.nameString(commandMbx) + ".readContinuousData "  + e);
+//            System.out.println(replyMbx.nameString() + ": " + RackName.nameString(commandMbx) + ".readContinuousData "  + e);
             return(null);
         }
 

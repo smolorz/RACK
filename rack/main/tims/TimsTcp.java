@@ -11,6 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 package rack.main.tims;
@@ -24,6 +25,7 @@ public class TimsTcp extends Tims
     protected Socket                socket = null;
     protected InputStream           tcpIn = null;
     protected BufferedOutputStream  tcpOut = null;
+    protected TimsMbx               routerMbx;
     protected Object                dataCountSync = new Object();
     protected Vector                mbxList = new Vector();
     protected InetAddress           addr;
@@ -45,16 +47,13 @@ public class TimsTcp extends Tims
         tcpIn  = socket.getInputStream();
 
         // init MBX 0 for communication between Tims and TimsRouter
-        TimsMbx mbx = new TimsMbx();
-        mbx.name = 0;
-        mbxList.addElement(mbx);
+        routerMbx = new TimsMbx(0, this);
+        mbxList.addElement(routerMbx);
 
-        thisRouter = this;
         start();
 
       } catch(IOException e) {
 
-        thisRouter = null;
         tcpOut = null;
         tcpIn  = null;
 
@@ -69,7 +68,7 @@ public class TimsTcp extends Tims
       }
     }
 
-    public synchronized void snd(TimsMsg p) throws TimsException
+    synchronized void send(TimsMsg m) throws TimsException
     {
 //    System.out.println(/*"TimsRouter " + */p);
 
@@ -80,45 +79,36 @@ public class TimsTcp extends Tims
       }
 
       try {
-        p.writeTimsMsg(out);
+        m.writeTimsMsg(out);
       } catch(IOException e) {
         throw(new TimsException("Can't send message to TimsRouter. " + e.toString()));
       }
     }
 
-    public TimsDataMsg rcv(int mbxName, int timeout) throws TimsException
+    TimsDataMsg receive(TimsMbx mbx, int timeout) throws TimsException
     {
-      TimsDataMsg p;
-      TimsMbx mbx = getMbx(mbxName);
-
-      if (mbx != null) {
-
+        TimsDataMsg p;
         synchronized(mbx) {
-
+        
           if (mbx.isEmpty()) {
             try {
               mbx.wait(timeout);
             } catch(InterruptedException e) {}
           }
-
+        
           if (mbx.isEmpty()) {
             throw(new TimsTimeoutException("Receive timeout"));
           } else {
             p = (TimsDataMsg)mbx.remove(0);
             return p;
           }
-
+        
         }
-
-      } else {
-        throw(new TimsException("Unknown mbx " + Integer.toHexString(mbxName)));
-      }
-
     }
 
     public void run()
     {
-      TimsDataMsg p;
+      TimsDataMsg m;
       TimsMbx     mbx;
       InputStream in   = tcpIn;
       Socket      sock = socket;
@@ -129,29 +119,35 @@ public class TimsTcp extends Tims
         try {
 
           while(in != null) {
-            p = new TimsDataMsg(in);
+            m = new TimsDataMsg(in);
 
-            if ((p.dest == 0) && (p.src == 0) &&
-                (p.type == TimsRouter.GET_STATUS)) {
+            if ((m.dest == 0) && (m.src == 0) &&
+                (m.type == TimsRouter.GET_STATUS)) {
 
               // reply to lifesign
               try {
-                sendReply0(Tims.MSG_OK, p);
+                  TimsDataMsg rm = new TimsDataMsg();
+                  rm.type     = Tims.MSG_OK;
+                  rm.dest     = 0;
+                  rm.src      = 0;
+                  rm.priority = m.priority;
+                  rm.seqNr    = m.seqNr;
+                  send(rm);
               } catch (TimsException e1) {}
 
             } else {
               synchronized(dataCountSync) {
-                dataCount += p.getDataLen();
+                dataCount += m.getDataLen();
               }
 
-              mbx = getMbx(p.dest);
+              mbx = getMbx(m.dest);
               if (mbx != null) {
                 synchronized(mbx) {
-                  mbx.addElement(p);
+                  mbx.addElement(m);
                   mbx.notifyAll();
                 }
               } else {
-                System.out.println("Tims received message for unknown mbx " + p.dest);
+                System.out.println("Tims received message for unknown mbx " + m.dest);
               }
             }
             in   = tcpIn;
@@ -188,7 +184,11 @@ public class TimsTcp extends Tims
               for(int i = 0; i < mbxList.size(); i++) {
                 initMbxM.mbx = ((TimsMbx)mbxList.elementAt(i)).name;
 
-                send(TimsRouter.MBX_INIT, 0, 0, (byte)0, (byte)0, initMbxM);
+                initMbxM.type     = TimsRouter.MBX_INIT;
+                initMbxM.dest     = 0;
+                initMbxM.src      = 0;
+
+                send(initMbxM);
               }
 
               System.out.println("Tims reconnected to " + addr.getHostAddress() + ":" + port);
@@ -249,93 +249,80 @@ public class TimsTcp extends Tims
         catch (Exception e) {}
     }
     
-    public synchronized void init(int mbxName) throws TimsException
+    public synchronized TimsMbx mbxInit(int mbxName) throws TimsException
     {
-      TimsMbx mbx;
-      TimsRouterMbxMsg p = new TimsRouterMbxMsg();
-      TimsDataMsg reply;
+        TimsMbx mbx;
+        TimsRouterMbxMsg m = new TimsRouterMbxMsg();
+        TimsDataMsg reply;
 
-      mbx = getMbx(mbxName);
+        m.type  = TimsRouter.MBX_INIT_WITH_REPLY;
+        m.dest  = 0;
+        m.src   = 0;
+        m.mbx   = mbxName;
 
-      if (mbx == null) {
-        p.mbx = mbxName;
-        mbxClean(0);
+        routerMbx.clear();
+        routerMbx.send(m);
 
-        send(TimsRouter.MBX_INIT_WITH_REPLY, 0, 0, (byte)0, (byte)0, p);
-
-        reply = receive(0, 1000);
-
+        reply = routerMbx.receive(1000);
+        
         if ((reply != null) &&
             (reply.type == Tims.MSG_OK)) {
-
+        
           synchronized(mbxList) {
-            mbx = new TimsMbx();
-            mbx.name = mbxName;
+            mbx = new TimsMbx(mbxName, this);
             mbxList.addElement(mbx);
           }
-
+        
         } else {
-
+        
           throw(new TimsException("Can't init mbx " +
                                         Integer.toHexString(mbxName) +
                                         ". Allready initialised"));
         }
-      } else {
-
-        throw(new TimsException("Can't init mbx " +
-                                      Integer.toHexString(mbxName) +
-                                      ". Allready initialised"));
-      }
+        return mbx;
     }
 
-    public synchronized void delete(int mbxName) throws TimsException
+    public synchronized void mbxDelete(TimsMbx mbx) throws TimsException
     {
-      TimsMbx mbx;
-      TimsRouterMbxMsg p = new TimsRouterMbxMsg();
-      TimsDataMsg reply;
+        TimsRouterMbxMsg m = new TimsRouterMbxMsg();
+        TimsDataMsg reply;
 
-      mbx = getMbx(mbxName);
-      if (mbx != null) {
-        p.mbx = mbxName;
-        mbxClean(0);
+        m.type  = TimsRouter.MBX_DELETE_WITH_REPLY;
+        m.dest  = 0;
+        m.src   = 0;
+        m.mbx   = mbx.name;
+        
+        routerMbx.clear();
+        routerMbx.send(m);
 
-        send(TimsRouter.MBX_DELETE_WITH_REPLY, 0, 0, (byte)0, (byte)0, p);
-        reply = receive(0, 1000);
-
-        if ((reply != null) && (reply.type == Tims.MSG_OK)) {
-          synchronized (mbxList) {
-            mbxList.removeElement(mbx);
-//          System.out.println("remove from mbxList: mbx "+ mbxName);
-          }
-        } else {
-          throw ( new TimsException("Can't delete mbx " +
-                                          Integer.toHexString(mbxName) +
+        reply = routerMbx.receive(1000);
+        
+        if ((reply != null) && (reply.type == Tims.MSG_OK))
+        {
+            synchronized (mbxList)
+            {
+                mbxList.removeElement(mbx);
+                //System.out.println("remove from mbxList: mbx "+ mbxName);
+            }
+        }
+        else
+        {
+            throw ( new TimsException("Can't delete mbx " +
+                                          Integer.toHexString(mbx.name) +
                                           ". not initialised"));
         }
-      } else {
-        throw(new TimsException("Can't delete mbx " +
-                                      Integer.toHexString(mbxName) +
-                                      ". Not initialised"));
-      }
     }
 
-    public synchronized void clean(int mbxName) throws TimsException
+    public synchronized void mbxClean(TimsMbx mbx)
     {
-      TimsMbx mbx;
-      mbx = getMbx(mbxName);
-      if (mbx != null) {
-        synchronized(mbx) {
-          mbx.clear();
-          mbx.notifyAll();
+        synchronized(mbx)
+        {
+            mbx.clear();
+            mbx.notifyAll();
         }
-      } else {
-        throw(new TimsException("Can't clear mbx " +
-                                      Integer.toHexString(mbxName) +
-                                      ". Not initialised"));
-      }
     }
 
-    public int dataRate()
+    public int getDataRate()
     {
       int dataRate, deltaT;
       long newTime;

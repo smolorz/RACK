@@ -28,6 +28,7 @@ import rack.drivers.GpsProxy;
 
 import rack.main.defines.Position3D;
 import rack.main.defines.Position2D;
+import rack.main.tims.Tims;
 import rack.navigation.PositionDataMsg;
 import rack.navigation.PositionProxy;
 
@@ -63,7 +64,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
     private GeneralPath positionPath;
     private boolean drawPositionPath = false;
 
-    public PositionGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
+    public PositionGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
     {
         position = (PositionProxy)proxyList[moduleIndex.intValue()];
         rackProxyList = proxyList;

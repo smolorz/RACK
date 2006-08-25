@@ -30,14 +30,23 @@ public class GDOS
     /** GDOS message type  DETAILED DEBUG INFORMATION */
     public static final byte DBG_DETAIL = -128;
 
-    public static void print(String message, int module, int gdosLevel)
+    protected TimsMbx moduleMbx;
+    protected byte    gdosLevel;
+    protected int     gdosName = RackName.create(RackName.GDOS, 0);
+    
+    public GDOS(TimsMbx moduleMbx, byte gdosLevel)
+    {
+        this.moduleMbx = moduleMbx;
+        this.gdosLevel = gdosLevel;
+    }
+    
+    public void print(String message)
     {
         GDOSDataMsg msg = new GDOSDataMsg(message);
 
         try {
-            Tims.send(GDOS.PRINT,
-                               RackName.create(RackName.GDOS, 0),
-                               module,
+            moduleMbx.send(GDOS.PRINT,
+                               gdosName,
                                (byte)0,
                                (byte)0,
                                msg);
@@ -45,16 +54,15 @@ public class GDOS
         }
     }
 
-    public static void error(String message, int module, int gdosLevel)
+    public void error(String message)
     {
         if(gdosLevel <= GDOS.ERROR)
         {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                Tims.send(GDOS.ERROR,
-                                   RackName.create(RackName.GDOS, 0),
-                                   module,
+                moduleMbx.send(GDOS.ERROR,
+                                   gdosName,
                                    (byte)0,
                                    (byte)0,
                                    msg);
@@ -63,16 +71,15 @@ public class GDOS
         }
     }
 
-    public static void warning(String message, int module, int gdosLevel)
+    public void warning(String message)
     {
         if(gdosLevel <= GDOS.WARNING)
         {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                Tims.send(GDOS.WARNING,
-                                    RackName.create(RackName.GDOS, 0),
-                                    module,
+                moduleMbx.send(GDOS.WARNING,
+                                    gdosName,
                                     (byte)0,
                                     (byte)0,
                                     msg);
@@ -81,16 +88,15 @@ public class GDOS
         }
     }
 
-    public static void dbgInfo(String message, int module, int gdosLevel)
+    public void dbgInfo(String message)
     {
         if(gdosLevel <= GDOS.DBG_INFO)
         {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                Tims.send(GDOS.DBG_INFO,
-                                   RackName.create(RackName.GDOS, 0),
-                                   module,
+                moduleMbx.send(GDOS.DBG_INFO,
+                                   gdosName,
                                    (byte)0,
                                    (byte)0,
                                    msg);
@@ -99,21 +105,25 @@ public class GDOS
         }
     }
 
-    public static void dbgDetail(String message, int module, int gdosLevel)
+    public void dbgDetail(String message)
     {
         if(gdosLevel <= GDOS.DBG_DETAIL)
         {
             GDOSDataMsg msg = new GDOSDataMsg(message);
 
             try {
-                Tims.send(GDOS.DBG_DETAIL,
-                                   RackName.create(RackName.GDOS, 0),
-                                   module,
+                moduleMbx.send(GDOS.DBG_DETAIL,
+                                   gdosName,
                                    (byte)0,
                                    (byte)0,
                                    msg);
             } catch (TimsException e) {
             }
         }
+    }
+    
+    public void setGdosLevel(byte gdosLevel)
+    {
+        this.gdosLevel = gdosLevel;
     }
 }

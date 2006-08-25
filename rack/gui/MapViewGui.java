@@ -27,7 +27,6 @@ import javax.swing.event.*;
 import javax.imageio.*;
 
 import rack.gui.main.*;
-import rack.main.*;
 import rack.main.defines.*;
 import rack.main.tims.*;
 import rack.drivers.*;
@@ -69,21 +68,10 @@ public class MapViewGui extends Thread
     private boolean         terminate = false;
     
 
-    public MapViewGui(RackModuleGui[] n_moduleGui)
+    public MapViewGui(RackModuleGui[] moduleGui, TimsMbx workMbx)
     {
-        this.moduleGui = n_moduleGui;
+        this.moduleGui = moduleGui;
         this.setPriority(Thread.MIN_PRIORITY);
-
-        // create work Mailbox
-        int workMbx = RackName.create(RackName.MAP_VIEW, 0, 10);
-        try
-        {
-            Tims.mbxInit(workMbx);
-        }
-        catch (TimsException e)
-        {
-            e.printStackTrace();
-        }
 
         // create MapView proxies
         positionProxy = new PositionProxy(0, workMbx);

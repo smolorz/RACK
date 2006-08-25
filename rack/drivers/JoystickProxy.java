@@ -20,7 +20,7 @@ import rack.main.tims.*;
 
 public class JoystickProxy extends RackDataProxy
 {
-    public JoystickProxy(int id, int replyMbx)
+    public JoystickProxy(int id, TimsMbx replyMbx)
     {
         super(RackName.create(RackName.JOYSTICK, id), replyMbx, 2000, 1000,
                 1000);

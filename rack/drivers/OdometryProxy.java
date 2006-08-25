@@ -23,7 +23,7 @@ public class OdometryProxy extends RackDataProxy
     public static final byte MSG_ODOMETRY_RESET =
         RackProxy.MSG_POS_OFFSET + 1;
 
-  public OdometryProxy(int id, int replyMbx)
+  public OdometryProxy(int id, TimsMbx replyMbx)
   {
     super(RackName.create(RackName.ODOMETRY, id), replyMbx, 5000, 1000, 1000);
     this.id = id;
@@ -54,22 +54,22 @@ public class OdometryProxy extends RackDataProxy
     {
       currentSequenceNo++;
       try {
-        Tims.send0(MSG_ODOMETRY_RESET, commandMbx, replyMbx,
+          replyMbx.send0(MSG_ODOMETRY_RESET, commandMbx,
                             (byte)0, currentSequenceNo);
         TimsDataMsg reply;
         do {
-          reply = Tims.receive(replyMbx, onTimeout);
+          reply = replyMbx.receive(onTimeout);
         } while (reply.seqNr != currentSequenceNo);
 
         if (reply.type == RackProxy.MSG_OK) {
-          System.out.println(RackName.nameString(replyMbx) + ": " +
+          System.out.println(replyMbx.getNameString() + ": " +
                              RackName.nameString(commandMbx) + ".enableMotor");
         } else {
-          System.out.println(RackName.nameString(replyMbx) + ": " +
+          System.out.println(replyMbx.getNameString() + ": " +
                              RackName.nameString(commandMbx) + ".enableMotor replied error");
         }
       } catch(TimsException e) {
-        System.out.println(RackName.nameString(replyMbx) + ": " +
+        System.out.println(replyMbx.getNameString() + ": " +
                            RackName.nameString(commandMbx) + ".on " + e);
       }
     }

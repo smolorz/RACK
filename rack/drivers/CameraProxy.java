@@ -16,14 +16,6 @@
  */
 package rack.drivers;
 
-/**
- *
- */
-import java.io.IOException;
-import java.io.File;
-import java.awt.image.BufferedImage;
-import javax.imageio.*;
-
 import rack.main.*;
 import rack.main.tims.*;
 
@@ -42,7 +34,7 @@ public class CameraProxy extends RackDataProxy {
         RackProxy.MSG_NEG_OFFSET - 2;
 
 
-    public CameraProxy(int id, int replyMbx)
+    public CameraProxy(int id, TimsMbx replyMbx)
     {
         super(RackName.create(RackName.CAMERA, id), replyMbx, 5000, 1000, 5000);
         this.id = id;
@@ -82,10 +74,9 @@ public class CameraProxy extends RackDataProxy {
         System.out.println(format);
 
         try {
-            Tims.send(
+            replyMbx.send(
                 MSG_CAMERA_SET_FORMAT,
                 commandMbx,
-                replyMbx,
                 (byte)0,
                 (byte)currentSequenceNo,
                 format);
@@ -93,22 +84,22 @@ public class CameraProxy extends RackDataProxy {
             TimsDataMsg reply;
 
             do {
-                reply = Tims.receive(replyMbx, dataTimeout);
+                reply = replyMbx.receive(dataTimeout);
             } while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackProxy.MSG_OK) {
                 System.out.println(
-                        RackName.nameString(replyMbx) + ": cameraProxy setFormat");
+                        replyMbx.getNameString() + ": cameraProxy setFormat");
             } else {
                 System.out.println(
-                    RackName.nameString(replyMbx)
+                        replyMbx.getNameString()
                         + ": "
                         + RackName.nameString(commandMbx)
                         + ".setFormat replied error");
             }
         } catch (TimsException e) {
             System.out.println(
-                RackName.nameString(replyMbx) + ": cameraProxy setFormat " + e);
+                    replyMbx.getNameString() + ": cameraProxy setFormat " + e);
         }
     }
 

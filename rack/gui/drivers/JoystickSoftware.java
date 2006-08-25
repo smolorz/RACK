@@ -71,9 +71,9 @@ public class JoystickSoftware extends RackDataModuleGui
 
     protected RackProxy[] rackProxyList;
 
-    public JoystickSoftware(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
+    public JoystickSoftware(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
     {
-        super(RackName.create(RackName.JOYSTICK, proxyList[moduleIndex.intValue()].getInstanceId()));
+        super(RackName.create(RackName.JOYSTICK, proxyList[moduleIndex.intValue()].getInstanceId()), tims);
         this.joystickProxy = (JoystickProxy)proxyList[moduleIndex.intValue()];
         this.rackProxyList = proxyList;
         this.periodTime = 100;
@@ -485,7 +485,7 @@ public class JoystickSoftware extends RackDataModuleGui
     {
         synchronized (this)
         {
-            GDOS.dbgInfo("Writing data ... ", commandMbx, gdosLevel);
+            gdos.dbgInfo("Writing data ... ");
             writeWorkMsg(outputData);
         }
 

@@ -30,7 +30,7 @@ public class GDOSGui extends Thread {
   protected JPanel panel;
 
   /** Mailboxnummer des GDOS-Systems */
-  protected int GDOSMbx;
+  protected TimsMbx   gdosMbx;
   protected GDOSTable gdosTableModel = new GDOSTable();
   protected JTable    gdosTable;
 
@@ -47,8 +47,9 @@ public class GDOSGui extends Thread {
   //Abbruchbedingung
   protected boolean terminate = false;
 
-  public GDOSGui(int GDOSMbxNum) {
-    GDOSMbx = GDOSMbxNum;
+  public GDOSGui(TimsMbx gdosMbx) throws TimsException {
+    this.gdosMbx = gdosMbx;
+
     panel = new JPanel(new BorderLayout());
 
     printRadio.addActionListener(new ActionListener() {
@@ -154,7 +155,7 @@ public class GDOSGui extends Thread {
     try {
       while(terminate == false) {
         try {
-          data = new GDOSDataMsg(Tims.receive(GDOSMbx,500));
+          data = new GDOSDataMsg(gdosMbx.receive(500));
         } catch (TimsTimeoutException e) {
           data = null;
         }

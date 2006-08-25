@@ -25,7 +25,7 @@ import rack.main.tims.*;
 
 public class Scan2DProxy extends RackDataProxy
 {
-  public Scan2DProxy(int id, int replyMbx)
+  public Scan2DProxy(int id, TimsMbx replyMbx)
   {
     super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 5000);
     this.id = id;

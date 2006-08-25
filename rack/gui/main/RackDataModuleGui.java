@@ -48,22 +48,24 @@ public abstract class RackDataModuleGui extends RackModuleGui
     /** Modul empfaengt internes Paket */
     public abstract void moduleCommand(TimsDataMsg raw);
 
+    protected Tims tims;
+    protected GDOS gdos;
     /** Kommandomailbox */
-    public int commandMbx;
+    protected TimsMbx commandMbx;
     /** Arbeitsmailbox */
-    public int workMbx;
+    protected TimsMbx workMbx;
     /** Datenmailbox */
-    public int dataMbx;
-
+    protected TimsMbx dataMbx;
+    
     /** Pause im disabled-Zustand in [ms] */
-    public int disabledTime = 100;
+    protected int disabledTime = 100;
     /** Pause im error-Zustand in [ms] */
-    public int errorTime = 1000;
+    protected int errorTime = 1000;
 
     /** Definiert in welchen Status sich das Modul befindet */
-    public byte moduleStatus = RackProxy.MSG_DISABLED;
+    protected byte moduleStatus = RackProxy.MSG_DISABLED;
     /** Wunschstatus */
-    public int moduleTargetStatus = RackProxy.MSG_DISABLED;
+    protected int moduleTargetStatus = RackProxy.MSG_DISABLED;
     /** mailbox, in der On-Kommandos beantwortet werden */
     protected int notifyIfOn = 0;
     /** Merker der Packet-Id zur Notify-Antwort */
@@ -74,9 +76,34 @@ public abstract class RackDataModuleGui extends RackModuleGui
     protected TimsMsg dataMsg = null;
 
     /** Data module period time */
-    public int periodTime = 100;
+    protected int periodTime = 100;
 
-    protected int gdosLevel = GDOS.WARNING;
+    /**
+     * Initialisiert die Mailboxen des Moduls und startet die Task zum
+     * Paketempfang
+     */
+    public RackDataModuleGui(int commandMbxName, Tims tims)
+    {
+        this.tims = tims;
+
+        try
+        {
+            commandMbx = tims.mbxInit(commandMbxName);
+            dataMbx    = tims.mbxInit(commandMbxName+1);
+            workMbx    = tims.mbxInit(commandMbxName+2);
+
+            this.gdos = new GDOS(commandMbx, GDOS.WARNING);
+
+            DataThread dt = new DataThread();
+            dt.setDaemon(true); // Thread beendet sich wenn Programm sich
+                                // beendet
+            dt.start();
+        }
+        catch (TimsException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     /** beenden des Programmablaufs */
     public void terminate()
@@ -85,15 +112,21 @@ public abstract class RackDataModuleGui extends RackModuleGui
 
         try
         {
-            Tims.mbxDelete(commandMbx);
-            if (dataMbx > 0)
-                Tims.mbxDelete(dataMbx);
-            if (workMbx > 0)
-                Tims.mbxDelete(workMbx);
+            if(commandMbx != null)
+                tims.mbxDelete(commandMbx);
+            if(dataMbx != null)
+                tims.mbxDelete(dataMbx);
+            if(workMbx != null)
+                tims.mbxDelete(workMbx);
         }
         catch (TimsException e) {}
         
         super.terminate();
+    }
+
+    public void setGdosLevel(byte gdosLevel)
+    {
+        gdos.setGdosLevel(gdosLevel);
     }
 
     /**
@@ -105,64 +138,9 @@ public abstract class RackDataModuleGui extends RackModuleGui
         return (new JLabel("No Gui implemented yet."));
     }
 
-    /**
-     * Initialisiert die Mailboxen des Moduls und startet die Task zum
-     * Paketempfang
-     */
-    public RackDataModuleGui(int commandMbx)
-    {
-        this.commandMbx = commandMbx;
-        this.dataMbx = commandMbx + 1;
-        this.workMbx = commandMbx + 2;
-        try
-        {
-            Tims.mbxInit(commandMbx);
-            Tims.mbxInit(dataMbx);
-            Tims.mbxInit(workMbx);
-
-            DataThread dt = new DataThread();
-            dt.setDaemon(true); // Thread beendet sich wenn Programm sich
-                                // beendet
-            dt.start();
-        }
-        catch (TimsException e)
-        {
-            e.printStackTrace();
-        }
-        this.gdosLevel = GDOS.WARNING;
-    }
-
-    /**
-     * Initialisiert die Mailboxen des Moduls und startet die Task zum
-     * Paketempfang
-     */
-    public RackDataModuleGui(int commandMbx, int gdosLevel)
-    {
-        this.commandMbx = commandMbx;
-        this.dataMbx = commandMbx + 1;
-        this.workMbx = commandMbx + 2;
-        try
-        {
-            Tims.mbxInit(commandMbx);
-            Tims.mbxInit(dataMbx);
-            Tims.mbxInit(workMbx);
-
-            DataThread dt = new DataThread();
-            dt.setDaemon(true); // Thread beendet sich wenn Programm sich
-                                // beendet
-            dt.start();
-        }
-        catch (TimsException e)
-        {
-            e.printStackTrace();
-        }
-        this.gdosLevel = gdosLevel;
-    }
-
     /** Sendet das uebergebene Paket an alle Listener */
     public void writeWorkMsg(TimsMsg msg)
     {
-        msg.src = commandMbx;
         dataMsg = msg;
 
         synchronized(dataListener)
@@ -174,7 +152,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                     // System.out.println("Sende Karte to
                     // Listener:"+((Integer)listener.elementAt(i)).intValue());
                     msg.dest = ((Integer) dataListener.elementAt(i)).intValue();
-                    Tims.send(msg);
+                    commandMbx.send(msg);
                 }
                 catch (TimsException e)
                 {
@@ -189,14 +167,14 @@ public abstract class RackDataModuleGui extends RackModuleGui
     {
         TimsDataMsg cmdMsg;
 
-        GDOS.dbgInfo("Run command thread", commandMbx, gdosLevel);
+        gdos.dbgInfo("Run command thread");
 
         while (!terminate)
         {
             // Paket der Kommandomailbox empfangen
             try
             {
-                cmdMsg = Tims.receive(commandMbx, 0);
+                cmdMsg = commandMbx.receive(0);
             }
             catch (TimsException e1)
             {
@@ -217,7 +195,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             {
                                 try
                                 {
-                                    Tims.sendReply0(
+                                    commandMbx.sendReply0(
                                             RackProxy.MSG_OK, cmdMsg);
                                 }
                                 catch (TimsException e)
@@ -229,7 +207,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             {
                                 try
                                 {
-                                    Tims.sendReply0(
+                                    commandMbx.sendReply0(
                                             RackProxy.MSG_ERROR, cmdMsg);
                                 }
                                 catch (TimsException e)
@@ -248,7 +226,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         default:
                             try
                             {
-                                Tims.sendReply0(RackProxy.MSG_ERROR,
+                                commandMbx.sendReply0(RackProxy.MSG_ERROR,
                                         cmdMsg);
                             }
                             catch (TimsException e2)
@@ -262,7 +240,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                     moduleTargetStatus = RackProxy.MSG_DISABLED;
                     try
                     {
-                        Tims.sendReply0(RackProxy.MSG_OK, cmdMsg);
+                        commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
                     }
                     catch (TimsException e3)
                     {
@@ -272,9 +250,8 @@ public abstract class RackDataModuleGui extends RackModuleGui
                     {
                         try
                         {
-                            Tims.send0(RackProxy.MSG_ERROR,
-                                    notifyIfOn, commandMbx, (byte) 0,
-                                    (byte) notifyIfOnId);
+                            commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn,
+                                             (byte) 0, (byte) notifyIfOnId);
                         }
                         catch (TimsException e)
                         {
@@ -287,7 +264,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                 case RackProxy.MSG_GET_STATUS:
                     try
                     {
-                        Tims.sendReply0(moduleStatus, cmdMsg);
+                        commandMbx.sendReply0(moduleStatus, cmdMsg);
                     }
                     catch (TimsException e)
                     {
@@ -300,15 +277,15 @@ public abstract class RackDataModuleGui extends RackModuleGui
                     {
                         if (dataMsg != null)
                         {
-                            Tims.sendReply(RackProxy.MSG_DATA,
+                            commandMbx.sendReply(RackProxy.MSG_DATA,
                                     cmdMsg, dataMsg);
                         }
                         else
                         {
                             System.out
-                                    .println(RackName.nameString(commandMbx)
+                                    .println(commandMbx.getNameString()
                                             + ": Im Java-Modul ist das Datenpacket nicht angelegt! (dataPackage == null)");
-                            Tims.sendReply0(RackProxy.MSG_ERROR,
+                            commandMbx.sendReply0(RackProxy.MSG_ERROR,
                                     cmdMsg);
                         }
                     }
@@ -347,9 +324,8 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             ContDataMsg contData = new ContDataMsg();
                             contData.periodTime = periodTime;
 
-                            Tims.sendReply(RackProxy.MSG_CONT_DATA,
-                                                    cmdMsg,
-                                                    contData);
+                            commandMbx.sendReply(RackProxy.MSG_CONT_DATA,
+                                                 cmdMsg, contData);
                         }
                     }
                     catch (TimsException e4)
@@ -373,7 +349,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                                     dataListener.removeElementAt(i);
                                 }
                             }
-                            Tims.sendReply0(RackProxy.MSG_OK, cmdMsg);
+                            commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
                         }
                     }
                     catch (TimsException e5)
@@ -394,7 +370,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
 
         public void run()
         {
-            GDOS.dbgInfo("Run data thread", commandMbx, gdosLevel);
+            gdos.dbgInfo("Run data thread");
 
             while (!terminate)
             {
@@ -406,7 +382,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         {
                             if (!moduleLoop())
                             {
-                                GDOS.error("Error", commandMbx, gdosLevel);
+                                gdos.error("Error");
                                 moduleStatus = RackProxy.MSG_ERROR;
                                 moduleOff();
                             }
@@ -414,9 +390,8 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             {
                                 try
                                 {
-                                    Tims.send0(RackProxy.MSG_OK,
-                                            notifyIfOn, commandMbx, (byte) 0,
-                                            notifyIfOnId);
+                                    commandMbx.send0(RackProxy.MSG_OK, notifyIfOn,
+                                                     (byte) 0, notifyIfOnId);
                                 }
                                 catch (TimsException e)
                                 {
@@ -428,9 +403,9 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         else
                         {
                             moduleStatus = RackProxy.MSG_DISABLED;
-                            GDOS.dbgInfo("Turn off", commandMbx, gdosLevel);
+                            gdos.dbgInfo("Turn off");
                             moduleOff();
-                            GDOS.print("Module off", commandMbx, gdosLevel);
+                            gdos.print("Module off");
                         }
                         break;
 
@@ -441,18 +416,17 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             {
                                 dataListener.removeAllElements();
                             }
-                            GDOS.dbgInfo("Turn on", commandMbx, gdosLevel);
+                            gdos.dbgInfo("Turn on");
                             if (moduleOn() == true)
                             {
-                                GDOS.print("Module on", commandMbx, gdosLevel);
+                                gdos.print("Module on");
                                 moduleStatus = RackProxy.MSG_ENABLED;
                                 if (notifyIfOn > 0)
                                 {
                                     try
                                     {
-                                        Tims.send0(RackProxy.MSG_OK,
-                                                notifyIfOn, commandMbx,
-                                                (byte) 0, notifyIfOnId);
+                                        commandMbx.send0(RackProxy.MSG_OK, notifyIfOn, 
+                                                         (byte) 0, notifyIfOnId);
                                     }
                                     catch (TimsException e)
                                     {
@@ -463,7 +437,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             }
                             else
                             {
-                                GDOS.error("Error", commandMbx, gdosLevel);
+                                gdos.error("Error");
                                 moduleTargetStatus = RackProxy.MSG_DISABLED;
                                 moduleStatus = RackProxy.MSG_DISABLED;
                                 moduleOff();
@@ -471,10 +445,8 @@ public abstract class RackDataModuleGui extends RackModuleGui
                                 {
                                     try
                                     {
-                                        Tims.send0(
-                                                RackProxy.MSG_ERROR,
-                                                notifyIfOn, commandMbx,
-                                                (byte) 0, notifyIfOnId);
+                                        commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn,
+                                                         (byte) 0, notifyIfOnId);
                                     }
                                     catch (TimsException e)
                                     {
@@ -513,19 +485,18 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             {
                                 dataListener.removeAllElements();
                             }
-                            GDOS.dbgInfo("Turn on", commandMbx, gdosLevel);
+                            gdos.dbgInfo("Turn on");
                             if (moduleOn())
                             {
-                                GDOS.print("Module on", commandMbx, gdosLevel);
+                                gdos.print("Module on");
                                 moduleStatus = RackProxy.MSG_ENABLED;
 
                                 if (notifyIfOn > 0)
                                 {
                                     try
                                     {
-                                        Tims.send0(RackProxy.MSG_OK,
-                                                notifyIfOn, commandMbx,
-                                                (byte) 0, notifyIfOnId);
+                                        commandMbx.send0(RackProxy.MSG_OK, notifyIfOn,
+                                                         (byte) 0, notifyIfOnId);
                                     }
                                     catch (TimsException e)
                                     {
@@ -536,17 +507,15 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             }
                             else
                             {
-                                GDOS.dbgInfo("Turn off", commandMbx, gdosLevel);
+                                gdos.dbgInfo("Turn off");
                                 moduleOff();
 
                                 if (notifyIfOn > 0)
                                 {
                                     try
                                     {
-                                        Tims.send0(
-                                                RackProxy.MSG_ERROR,
-                                                notifyIfOn, commandMbx,
-                                                (byte) 0, notifyIfOnId);
+                                        commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn,
+                                                         (byte) 0, notifyIfOnId);
                                     }
                                     catch (TimsException e)
                                     {
@@ -558,7 +527,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         }
                         else
                         {
-                            GDOS.print("Module off", commandMbx, gdosLevel);
+                            gdos.print("Module off");
                             moduleStatus = RackProxy.MSG_DISABLED;
                         }
                         break;

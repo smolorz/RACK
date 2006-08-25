@@ -35,7 +35,7 @@ public class ChassisProxy extends RackDataProxy
 
     public static final byte INVAL_PILOT = -1;
 
-    public ChassisProxy(int id, int replyMbx)
+    public ChassisProxy(int id, TimsMbx replyMbx)
     {
         super(RackName.create(RackName.CHASSIS, id), replyMbx, 5000, 1000, 1000);
         this.id = id;
@@ -73,13 +73,13 @@ public class ChassisProxy extends RackDataProxy
         currentSequenceNo++;
         try
         {
-            Tims.send0(MSG_CHASSIS_GET_PARAMETER, commandMbx, replyMbx,
+            replyMbx.send0(MSG_CHASSIS_GET_PARAMETER, commandMbx,
                     (byte) 0, currentSequenceNo);
 
             TimsDataMsg reply;
             do
             {
-                reply = Tims.receive(replyMbx, 1000);
+                reply = replyMbx.receive(1000);
             }
             while ((reply.seqNr != currentSequenceNo)
                     & (reply.type == MSG_CHASSIS_PARAMETER));
@@ -102,31 +102,31 @@ public class ChassisProxy extends RackDataProxy
             ChassisSetActivePilotMsg cmdMsg = new ChassisSetActivePilotMsg(
                     pilotMbx);
 
-            Tims.send(MSG_CHASSIS_SET_ACTIVE_PILOT, commandMbx,
-                    replyMbx, (byte) 0, currentSequenceNo, cmdMsg);
+            replyMbx.send(MSG_CHASSIS_SET_ACTIVE_PILOT, commandMbx,
+                          (byte) 0, currentSequenceNo, cmdMsg);
 
             TimsDataMsg reply;
             do
             {
-                reply = Tims.receive(replyMbx, onTimeout);
+                reply = replyMbx.receive(onTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackProxy.MSG_OK)
             {
-                System.out.println(RackName.nameString(replyMbx) + ": "
+                System.out.println(replyMbx.getNameString() + ": "
                         + RackName.nameString(commandMbx) + ".setActivePilot");
             }
             else
             {
-                System.out.println(RackName.nameString(replyMbx) + ": "
+                System.out.println(replyMbx.getNameString() + ": "
                         + RackName.nameString(commandMbx)
                         + ".setActivePilot replied error");
             }
         }
         catch (TimsException e)
         {
-            System.out.println(RackName.nameString(replyMbx) + ": "
+            System.out.println(replyMbx.getNameString() + ": "
                     + RackName.nameString(commandMbx) + ".on " + e);
         }
     }

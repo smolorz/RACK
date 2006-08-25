@@ -11,6 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 package rack.main.tims;
@@ -23,157 +24,47 @@ public abstract class Tims extends Thread
     public static final byte MSG_TIMEOUT = -2;
     public static final byte MSG_NOT_AVAILABLE = -3;
 
-    protected static Tims thisRouter = null;
-
     protected boolean terminate = false;
 
     public Tims()
     {
-        thisRouter = this;
     }
 
     public void terminate()
     {
         terminate = true;
-        
-        if (thisRouter != null)
-        {
-            thisRouter = null;
-        }
     }
 
     // public message interface
 
-    public static void send(TimsMsg p) throws TimsException
-    {
-        if (thisRouter == null) {
-          throw(new TimsException("No TimsMsgRouter available"));
-        }
-        thisRouter.snd(p);
-    }
+    /**
+     * Internal send method.
+     * 
+     * To send Tims messages use methods from TimsMbx.
+     * 
+     * @see TimsMbx#send(TimsMsg)
+     * @see TimsMbx#send0(byte, int, byte, byte)
+     * @see TimsMbx#send(byte, int, byte, byte, TimsMsg)
+     * @see TimsMbx#sendReply0(byte, TimsMsg)
+     * @see TimsMbx#sendReply(byte, TimsMsg, TimsMsg)
+     */
+    abstract void send(TimsMsg m) throws TimsException;
 
-    public static void send(byte type, int dest, int src, byte priority,
-                            byte seq_nr, TimsMsg p)
-                            throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
+    /**
+     * Internal receive method.
+     * 
+     * To receive Tims messages use methods from TimsMbx.
+     * 
+     * @see TimsMbx#receive(int)
+     */
+    abstract TimsDataMsg receive(TimsMbx mbx, int timeout)
+                              throws TimsException;
 
-      p.type     = type;
-      p.dest     = dest;
-      p.src      = src;
-      p.priority = priority;
-      p.seqNr   = seq_nr;
+    public abstract TimsMbx mbxInit(int mbxName) throws TimsException;
 
-      thisRouter.snd(p);
-    }
+    public abstract void mbxDelete(TimsMbx mbx) throws TimsException;
 
-    public static void send0(byte type, int dest, int src, byte priority, byte seq_nr)
-                       throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
+    public abstract void mbxClean(TimsMbx mbx) throws TimsException;
 
-      TimsDataMsg p = new TimsDataMsg();
-
-      p.type     = type;
-      p.dest     = dest;
-      p.src      = src;
-      p.priority = priority;
-      p.seqNr   = seq_nr;
-
-      thisRouter.snd(p);
-    }
-
-    public static void sendReply(byte type, TimsMsg replyOn, TimsMsg p)
-                       throws TimsException
-    {
-        if (thisRouter == null) {
-            throw(new TimsException("No TimsMsgRouter available"));
-        }
-
-      p.type     = type;
-      p.dest     = replyOn.src;
-      p.src      = replyOn.dest;
-      p.priority = replyOn.priority;
-      p.seqNr   = replyOn.seqNr;
-
-        thisRouter.snd(p);
-    }
-
-    public static void sendReply0(byte type, TimsMsg replyOn)
-                       throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
-
-      TimsDataMsg p = new TimsDataMsg();
-
-      p.type     = type;
-      p.dest     = replyOn.src;
-      p.src      = replyOn.dest;
-      p.priority = replyOn.priority;
-      p.seqNr   = replyOn.seqNr;
-
-      thisRouter.snd(p);
-    }
-
-    public static TimsDataMsg receive(int mbxName, int timeout)
-                              throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
-      return(thisRouter.rcv(mbxName, timeout));
-    }
-
-    public static void mbxInit(int mbxName) throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
-      thisRouter.init(mbxName);
-    }
-
-    public static void mbxDelete(int mbxName) throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
-      thisRouter.delete(mbxName);
-    }
-
-    public static void mbxClean(int mbxName) throws TimsException
-    {
-      if (thisRouter == null) {
-        throw(new TimsException("No TimsMsgRouter available"));
-      }
-      thisRouter.clean(mbxName);
-    }
-
-    public static int getDataRate()
-    {
-      if (thisRouter == null) {
-        return 0;
-      }
-      return thisRouter.dataRate();
-    }
-
-  // end of public message interface
-
-    protected abstract void init(int mbxName) throws TimsException;
-
-    protected abstract void delete(int mbxName) throws TimsException;
-
-    protected abstract void clean(int mbxName) throws TimsException;
-
-    protected abstract void snd(TimsMsg p) throws TimsException;
-
-    protected abstract TimsDataMsg rcv(int mbxName, int timeout) throws TimsException;
-
-    protected abstract int dataRate();
-
+    public abstract int getDataRate();
 }

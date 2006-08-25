@@ -10,8 +10,8 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Artur Wiebe
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 package rack.gui;
@@ -70,21 +70,22 @@ public final class Gui extends Thread
     private Class           moduleGuiClass;
 
     private GDOSGui         gdosGui = null;
-    private int             GDOSMbx;
+    private TimsMbx         gdosMbx;
     private JInternalFrame  messageFrame;
     
     private boolean         showMapView = false;
     private MapViewGui      myMapViewGui = null;
     private int             mapViewWorkSpace;
     private JInternalFrame  mapViewFrame;
+    private TimsMbx         mapViewReplyMbx;
 
     private int[]           moduleStatus;
     private RackProxy[]     moduleProxy;
     private RackModuleGui[] moduleGui;
-    private int[]           replyMbx;
+    private TimsMbx[]       moduleReplyMbx;
 
     private byte            getStatusSeqNo = 100;
-    private int             getStatusReplyMbx;
+    private TimsMbx         getStatusReplyMbx;
 
     private int[]           groupError, groupOn, groupSum;
 
@@ -113,7 +114,7 @@ public final class Gui extends Thread
                 throw new Exception("Config file empty");
             }
     
-            replyMbx           = new int[moduleNum];
+            moduleReplyMbx     = new TimsMbx[moduleNum];
             moduleStatus       = new int[moduleNum];
             moduleProxy        = new RackProxy[moduleNum];
             moduleGui          = new RackModuleGui[moduleNum];
@@ -582,13 +583,12 @@ public final class Gui extends Thread
         str = (String) moduleName.get(module); // str enthaelt jetzt die
                                                 // entspr. zeile der gui.cfg
                                                 // -datei.
-        // fuer den konstruktor ...(Proxy proxysowiso)
+        // fuer den konstruktor ...(Proxy proxy)
         Class[] guiConstrArgsTypes = new Class[1];
         Object[] guiConstrArgs = new Object[1];
-        // fuer den konstruktor ...(Gui mainJavaGui, Integer module-id, Proxy
-        // proxysowiso)
-        Class[] guiConstrArgsTypes2 = new Class[3];
-        Object[] guiConstrArgs2 = new Object[3];
+        // fuer den konstruktor ...(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
+        Class[] guiConstrArgsTypes2 = new Class[4];
+        Object[] guiConstrArgs2 = new Object[4];
 
         int blank = str.indexOf(' ');
         System.out.println("str " + str);
@@ -638,13 +638,15 @@ public final class Gui extends Thread
         }
         guiConstrArgs[0] = moduleProxy[module];
         // try to create RackModuleGui instance with constructor:
-        // (Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
+        // (Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
         guiConstrArgs2[0] = new Integer(module);
         guiConstrArgsTypes2[0] = Integer.class;
         guiConstrArgs2[1] = moduleProxy;
         guiConstrArgsTypes2[1] = RackProxy[].class;
         guiConstrArgs2[2] = moduleGui;
         guiConstrArgsTypes2[2] = RackModuleGui[].class;
+        guiConstrArgs2[3] = tims;
+        guiConstrArgsTypes2[3] = Tims.class;
 
         try
         {
@@ -706,28 +708,27 @@ public final class Gui extends Thread
     {
         try
         {
-            for (int i = 0; i < moduleNum; i++)
-            {
-                replyMbx[i] = RackName.create(RackName.GUI, 0, i);
-                // Debug output
-                //System.out.println("Creating mailbox " + Integer.toHexString(replyMbx[i]) + " ...");
-                Tims.mbxInit(replyMbx[i]);
-            }
-
-            getStatusReplyMbx = RackName.create(RackName.GUI, 0, moduleNum);
             // Debug output
             //System.out.println("Creating mailbox " + Integer.toHexString(getStatusReplyMbx) + " ...");
-            Tims.mbxInit(getStatusReplyMbx);
+            getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, 0, 0));
 
-            GDOSMbx = RackName.create(RackName.GDOS, 0);
+            for (int i = 0; i < moduleNum; i++)
+            {
+                // Debug output
+                //System.out.println("Creating mailbox " + Integer.toHexString(replyMbx[i]) + " ...");
+                moduleReplyMbx[i] = tims.mbxInit(RackName.create(RackName.GUI, 0, i+1));
+            }
+
             // Debug output
             //System.out.println("Creating mailbox " + Integer.toHexString(GDOSMbx) + " ...");
-            Tims.mbxInit(GDOSMbx);
+            mapViewReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, 0, moduleNum+1));
+
+            // Debug output
+            //System.out.println("Creating mailbox " + Integer.toHexString(GDOSMbx) + " ...");
+            gdosMbx = tims.mbxInit(RackName.create(RackName.GDOS, 0));
         }
         catch (TimsException e)
         {
-            tims.terminate();
-            
             JOptionPane.showMessageDialog(mainFrame,
                     "Can't create Mailbox\n" + e.getMessage(),
                     "Tims Exception", JOptionPane.ERROR_MESSAGE);
@@ -758,10 +759,10 @@ public final class Gui extends Thread
             moduleProxyName = str.substring(0, blank).concat("Proxy");
 
         Class[] proxyConstrArgsTypes = new Class[]
-        { int.class, int.class };
+        { int.class, TimsMbx.class };
         Object[] proxyConstrArgs = new Object[2];
         proxyConstrArgs[0] = new Integer(id);
-        proxyConstrArgs[1] = new Integer(replyMbx[module]);
+        proxyConstrArgs[1] = moduleReplyMbx[module];
 
         try
         {
@@ -897,7 +898,7 @@ public final class Gui extends Thread
 
         // create message frame as an internal frame
         messageFrame = new JInternalFrame("Message", true, false, true, true);
-        gdosGui = new GDOSGui(GDOSMbx);
+        gdosGui = new GDOSGui(gdosMbx);
         messageFrame.getContentPane().add(gdosGui.getComponent());
         messageFrame.pack();
         messageFrame.setVisible(true);
@@ -908,7 +909,7 @@ public final class Gui extends Thread
         {
             //create mapView panel as a tab
         	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
-            myMapViewGui = new MapViewGui(moduleGui);
+            myMapViewGui = new MapViewGui(moduleGui, mapViewReplyMbx);
         	mapViewFrame.getContentPane().add(myMapViewGui.getComponent());
         	mapViewFrame.pack();        	
         	mapViewFrame.setVisible(true);
@@ -1159,8 +1160,9 @@ public final class Gui extends Thread
             {
                 // alle moduleProxy sind bei initModuleProxy schon vorhand.
 
-                Tims.send0(RackProxy.MSG_GET_STATUS, moduleProxy[i]
-                        .getCommandMbx(), getStatusReplyMbx, (byte) 0,
+                getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
+                        moduleProxy[i].getCommandMbx(),
+                        (byte) 0,
                         (byte) getStatusSeqNo);
                 // ein bischen warten, um nicht stossweise last zu erzeugen.
                 try
@@ -1179,7 +1181,7 @@ public final class Gui extends Thread
             while (notAllReplies)
             {
                 // receive reply
-                reply = Tims.receive(getStatusReplyMbx, 1000);
+                reply = getStatusReplyMbx.receive(1000);
                 if (reply.seqNr == getStatusSeqNo)
                 {
                     // update module status array
