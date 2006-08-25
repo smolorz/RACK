@@ -12,3 +12,12 @@ LDADD    = @RACK_LIBS@
 
 RackLogger_SOURCES = \
 	racklogger.cpp
+
+if CONFIG_RACK_JAVA
+
+dist_java_JAVA = \
+	Camera2PngConverter.java
+
+install-dist_javaJAVA: classdist_java.stamp
+
+endif
