@@ -18,6 +18,7 @@ package rack.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyVetoException;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -502,10 +503,20 @@ public final class Gui extends Thread
 
             if (moduleFrame[i] != null)
             {
+                if (moduleFrame[i].isIcon())
+                {
+                    try
+                    {
+                        moduleFrame[i].setIcon(false);
+                    }
+                    catch (PropertyVetoException e) {}
+                }
+
                 if (moduleLocationSize[i] == null)
                 {
                     moduleLocationSize[i] = new int[4];
                 }
+
                 System.out.println("moduleFrame[" + i + "] ! = null");
                 System.out.println("moduleLocationSize[" + i + "][0]"
                         + moduleFrame[i].getLocation().x);
@@ -516,13 +527,6 @@ public final class Gui extends Thread
                 moduleLocationSize[i][2] = moduleFrame[i].getSize().width;
                 moduleLocationSize[i][3] = moduleFrame[i].getSize().height;
 
-                if (moduleFrame[i].isIcon())
-                {
-                    moduleLocationSize[i][2] = moduleFrame[i]
-                            .getMinimumSize().width;
-                    moduleLocationSize[i][3] = moduleFrame[i]
-                            .getMinimumSize().height;
-                }
                 sb = sb.replace(kAuf, kZu, "(" + moduleLocationSize[i][0]
                         + "," + moduleLocationSize[i][1] + ";"
                         + moduleLocationSize[i][2] + ","
@@ -785,9 +789,8 @@ public final class Gui extends Thread
     {
         try
         {
-            UIManager.setLookAndFeel(UIManager
-                    .getCrossPlatformLookAndFeelClassName());
-            // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch (Exception e)
         {
@@ -897,7 +900,7 @@ public final class Gui extends Thread
         mainFrame.add(jtp, BorderLayout.CENTER);
 
         // create message frame as an internal frame
-        messageFrame = new JInternalFrame("Message", true, false, true, true);
+        messageFrame = new JInternalFrame("GDOS Message", true, false, true, true);
         gdosGui = new GDOSGui(gdosMbx);
         messageFrame.getContentPane().add(gdosGui.getComponent());
         messageFrame.pack();
