@@ -17,7 +17,7 @@ config RACK_INSTALLDIR
     /usr/local/rack.
 
 config RACK_XENOMAIDIR
-    string "Xenomai build tree"
+    string "Xenomai installation tree"
     default "/usr/xenomai"
     help
     This variable contains the directory where was built your
