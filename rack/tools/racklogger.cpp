@@ -310,7 +310,7 @@ int init(void)
 
 
   printf("RACKLOG: create mailbox \n");
-  ret = rlt->mbx.create(GDOS_NO, GDOS_MAILBOX_SLOTS, GDOS_MAX_MSG_SIZE,
+  ret = rlt->mbx.create(RackName::create(GDOS, 0), GDOS_MAILBOX_SLOTS, GDOS_MAX_MSG_SIZE,
                         rlt->p_mbxBuffer, mbxBufferSize, GDOS_TASK_PRIO);
   if (ret) {
     printf("RACKLOG: ERROR can't create mailbox, code = %d\n", ret);

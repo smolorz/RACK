@@ -155,8 +155,8 @@ public final class Gui extends Thread
                 try
                 {
                     guiCL.loadClass(rackName)
-                        .getMethod("initClassStringTable",null)
-                        .invoke(null,null);
+                        .getMethod("initClassStringTable", (Class[])null)
+                        .invoke((Object)null, (Object[])null);
                 }
                 catch (Exception e)
                 {

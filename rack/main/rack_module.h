@@ -270,12 +270,6 @@ class RackModule {
             return classID;
         }
 
-        /** Get the name (string) of the module */
-        const char* getNameString(void)
-        {
-            return RackName::classString(name);
-        }
-
         /** Get the name of the module */
         uint32_t getName(void)
         {

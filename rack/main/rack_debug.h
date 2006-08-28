@@ -23,7 +23,6 @@
 #include <main/rack_name.h>
 #include <main/rack_task.h>
 
-#define GDOS_NO             0x00f00000   // resource number of GDOS mailbox
 #define GDOS_MAX_MSG_SIZE   256     // size for message string and variables
 
 // message types
@@ -256,7 +255,7 @@ class GdosMailbox
             va_end(args);
 
             // init message head
-            tims_fillhead(&head, level, GDOS_NO, sendMbx->getAdr(),
+            tims_fillhead(&head, level, RackName::create(GDOS, 0), sendMbx->getAdr(),
                           sendMbx->getPriority(), 0, 0, TIMS_HEADLEN + datasize);
 
             sendMbx->sendDataMsg(&head, 1, &buffer, datasize);
