@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # RACK version: 0.3.0
-# Fri Aug 11 15:40:48 2006
+# Mon Aug 28 23:05:03 2006
 #
 CONFIG_RACK_VERSION="0.3.0"
 
@@ -9,10 +9,23 @@ CONFIG_RACK_VERSION="0.3.0"
 # Build options
 #
 CONFIG_RACK_INSTALLDIR="/usr/local/rack"
-CONFIG_RACK_LINUXDIR="/lib/modules/`uname -r`/build"
 CONFIG_RACK_XENOMAIDIR="/usr/xenomai"
-# CONFIG_RACK_JAVA is not set
+CONFIG_RACK_BUILD_KMOD=y
+CONFIG_RACK_LINUXDIR="/lib/modules/`uname -r`/build"
+CONFIG_RACK_JAVA=y
+CONFIG_RACK_JAVA_GUI=y
 # CONFIG_RACK_DOC_DOX is not set
+
+#
+# External Dependencies
+#
+# CONFIG_RACK_RTNET_SUPPORT is not set
+# CONFIG_RACK_RTCAN_SUPPORT is not set
+# CONFIG_RACK_LIBRAW1394_SUPPORT is not set
+# CONFIG_RACK_LIBDC1394_SUPPORT is not set
+# CONFIG_RACK_LIBJPEG_SUPPORT is not set
+# CONFIG_RACK_LIBPNG_SUPPORT is not set
+# CONFIG_RACK_OPENCV_SUPPORT is not set
 
 #
 # Drivers
@@ -79,13 +92,3 @@ CONFIG_RACK_SCAN_2D_SIM=y
 # Dummy
 #
 # CONFIG_RACK_DUMMY_ABC is not set
-
-#
-# Main
-#
-# CONFIG_RACK_RTNET_SUPPORT is not set
-# CONFIG_RACK_LIBRAW1394_SUPPORT is not set
-# CONFIG_RACK_LIBDC1394_SUPPORT is not set
-# CONFIG_RACK_LIBJPEG_SUPPORT is not set
-# CONFIG_RACK_LIBPNG_SUPPORT is not set
-# CONFIG_RACK_OPENCV_SUPPORT is not set
