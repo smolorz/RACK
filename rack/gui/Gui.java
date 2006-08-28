@@ -93,6 +93,7 @@ public final class Gui extends Thread
     private TimsTcp         tims;
     private InetAddress     routerAdr = null;
     private int             routerPort = 0;
+    private String          rackName = "";
 
     private boolean         terminate = false;
 
@@ -146,6 +147,28 @@ public final class Gui extends Thread
                                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
                 }
+            }
+            
+            // load RackName extension
+            if(rackName.length() > 0)
+            {
+                try
+                {
+                    guiCL.loadClass(rackName)
+                        .getMethod("initClassStringTable",null)
+                        .invoke(null,null);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(mainFrame,
+                                    "Can't load RackName extension \"" + rackName + "\"",
+                                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                    throw e;
+                }
+            }
+            else
+            {
+                RackName.initClassStringTable();
             }
     
             // connect to router ...
@@ -286,6 +309,14 @@ public final class Gui extends Thread
                     else if (string.startsWith("JAR_FILES"))
                     {
                         readMode = 4;
+                    }
+                    else if (string.startsWith("RACK_NAME"))
+                    {
+                        string = string.substring(10);  // cut RACK_NAME
+                        if (string.length() > 0)
+                        {
+                            rackName = string.trim();
+                        }
                     }
                     else if (string.startsWith("MAPVIEW"))
                     {
