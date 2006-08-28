@@ -319,7 +319,7 @@ int init(void)
   rlt->init_state |= RACKLOG_MBX_CREATED;
 
   printf("RACKLOG: create task \n");
-  ret = rlt->log_task.create(0, GDOS_TASK_PRIO, 0);
+  ret = rlt->log_task.create("RackLogger", 0, GDOS_TASK_PRIO, 0);
   if (ret) {
     printf("RACKLOG: can't create task, code = %d\n", ret);
     goto exit_error;

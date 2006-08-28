@@ -80,6 +80,8 @@ class RackTask
 /**
  * @brief Create a new RACK task.
  *
+ * @param[in] name Task name.
+ *
  * @param[in] stksize The size of the stack (in bytes) for the new task.
  * If zero is passed, a reasonable pre-defined size will be substituted.
  *
@@ -109,14 +111,14 @@ class RackTask
  *
  * Rescheduling: possible.
  */
-        int create(int stksize, int prio, int mode)
+        int create(const char *name, int stksize, int prio, int mode)
         {
             int ret;
 
             if (init)
                 return -EBUSY;
 
-            ret = rt_task_create(&task, NULL, stksize, prio, mode);
+            ret = rt_task_create(&task, name, stksize, prio, mode);
             if (ret)
                 return ret;
 
