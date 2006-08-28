@@ -29,11 +29,10 @@ import rack.main.*;
 
 public class CameraGui extends RackModuleGui
 {
-
-    public CameraGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
-    {
-        camera = (CameraProxy)proxyList[moduleIndex.intValue()];
-        rackProxyList = proxyList;
+        
+    public CameraGui(CameraProxy proxy)
+        {
+        camera = proxy;
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -290,5 +289,4 @@ public class CameraGui extends RackModuleGui
             CameraDataMsg.CAMERA_MODE_RAW16 };
 
     public CameraProxy camera;
-    protected RackProxy[] rackProxyList;
 }
