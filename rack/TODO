@@ -10,6 +10,9 @@ refactoring
 Gui
 - common Component for Ladar, Scan2D, Pilot, ...
 
+main
+- cleanup GDOS mess in rack_debug.h, un-inline services
+
 main/tims
 - Strings over GDOS
 - argopts -> string, long
