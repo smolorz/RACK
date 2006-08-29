@@ -107,7 +107,7 @@ class RackModule {
 //
 // init bits
 //
-    private:
+    protected:
         RackBits  modBits;      // internal rack module init bits
     public:
         /** Bits to save the state of the initialisation */
@@ -116,7 +116,7 @@ class RackModule {
 //
 // command task
 //
-    private:
+    protected:
         RackTask  cmdTask;
         int8_t    cmdTaskRunning;
         int8_t    cmdTaskPrio;
@@ -137,7 +137,7 @@ class RackModule {
 //
 // data task
 //
-    private:
+    protected:
         RackTask  dataTask;
         int8_t    dataTaskRunning;
         int8_t    dataTaskPrio;
@@ -160,12 +160,11 @@ class RackModule {
 //
 // common task values
 //
-    private:
+    protected:
         int terminate;      // to stop the tasks
         int targetStatus;   // next module state
         int initializing;   // =1 if this module is still loading
 
-    protected:
         /** Message info to reply a message */
         message_info  replyMsgInfo;
 
@@ -182,7 +181,7 @@ class RackModule {
 //
 // mailboxes
 //
-    private:
+    protected:
         uint32_t  mailboxBaseAdr;
         uint32_t  mailboxFreeAdr;
 
@@ -197,7 +196,6 @@ class RackModule {
         int       mailboxCreate(RackMailbox *p_mbx, uint32_t adr, int slots,
                                 size_t data_size, uint32_t flags, int8_t prio);
 
-    protected:
         /** Command mailbox of the module */
         RackMailbox   cmdMbx;
 
@@ -252,7 +250,7 @@ class RackModule {
 //
 // module values
 //
-    private:
+    protected:
         uint32_t  inst;      // instance number
         uint32_t  classID;   // class-id (LADAR)
         uint32_t  name;      // module name (12345678) == cmdMbxAdr

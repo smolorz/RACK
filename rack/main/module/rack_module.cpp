@@ -623,12 +623,10 @@ int       RackModule::moduleInit(void)
     // print all start arguments
     gdosAllArgs(module_argDesc, gdos);
 
-    char name_buf[32];
-
-    snprintf(name_buf, sizeof(name_buf), "%.28s%dC", classname, inst);
-
     // create command task
-    ret = cmdTask.create(name_buf, 0, cmdTaskPrio, T_FPU | T_JOINABLE);
+    snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%dC", classname, inst);
+
+    ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio, T_FPU | T_JOINABLE);
     if (ret)
     {
         GDOS_ERROR("Can't init command task, code = %d\n", ret);
@@ -638,8 +636,9 @@ int       RackModule::moduleInit(void)
     GDOS_DBG_INFO("Command task created \n");
 
     // create data task
-    name_buf[strlen(name_buf)-1] = 'D';
-    ret = dataTask.create(name_buf, 0, dataTaskPrio, T_FPU | T_JOINABLE);
+    snprintf(dataTaskName, sizeof(dataTaskName), "%.28s%dD", classname, inst);
+
+    ret = dataTask.create(dataTaskName, 0, dataTaskPrio, T_FPU | T_JOINABLE);
     if (ret)
     {
         GDOS_ERROR("Can't init data task, code = %d\n", ret);
