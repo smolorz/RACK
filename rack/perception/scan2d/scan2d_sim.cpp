@@ -104,7 +104,7 @@ int  Scan2DSim::moduleLoop(void)
     message_info     msgInfo;
     ssize_t         datalength = 0;
     double          angle, angleResolution, distance;
-    double          cosPhi, sinPhi, featureDistance, a;
+    double          cosRho, sinRho, featureDistance, a;
     double          x1, x2, x3, x4, y1, y2, y3, y4, denominator;
     int             i, j, ret;
 
@@ -144,8 +144,8 @@ int  Scan2DSim::moduleLoop(void)
     for (i = 0; i < data2D->pointNum; i ++)
     {
         distance = maxRange;   // initialization with maxRange
-        cosPhi = cos(dataOdometry->pos.rho + angle);
-        sinPhi = sin(dataOdometry->pos.rho + angle);
+        cosRho = cos(dataOdometry->pos.rho + angle);
+        sinRho = sin(dataOdometry->pos.rho + angle);
 
         // calculating the minimum distance to the intersections with all lines
         for (j = 0; j < dxfMap.featureNum; j ++)
@@ -162,8 +162,8 @@ int  Scan2DSim::moduleLoop(void)
             y3 = dataOdometry->pos.y;
 
             // adding the orientation of the candidate sample
-            x4 = cosPhi;
-            y4 = sinPhi;
+            x4 = cosRho;
+            y4 = sinRho;
 
             // calculating distance = b
             denominator = (x4 * y2) - (y4 * x2);

@@ -22,7 +22,7 @@ typedef struct {
     double x2;
     double y2;
     double l;
-    double phi;
+    double rho;
     double sin;
     double cos;
 } dxf_map_feature;

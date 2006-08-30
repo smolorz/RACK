@@ -55,11 +55,11 @@ static inline float normaliseAngleSym0(float angle)
 }
 
 /*****************************************************************************
-* Calculates the difference between angle "phiB" and "phi_A"                 *
+* Calculates the difference between angle "angleB" and "angle_A"             *
 ******************************************************************************/
-static inline float deltaPhi(float phiA, float phiB)
+static inline float deltaAngle(float angleA, float angleB)
 {
-    return normaliseAngleSym0(phiB - phiA);
+    return normaliseAngleSym0(angleB - angleA);
 }
 
 #endif // __ANGLE_TOOL_H__

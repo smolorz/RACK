@@ -25,7 +25,7 @@
 typedef struct {
     int32_t x;
     int32_t y;
-    float   phi;
+    float   rho;
 } __attribute__((packed)) position_2d;
 
 class Position2D
@@ -35,14 +35,14 @@ class Position2D
         {
             data->x   = __le32_to_cpu(data->x);
             data->y   = __le32_to_cpu(data->y);
-            data->phi = __le32_float_to_cpu(data->phi);
+            data->rho = __le32_float_to_cpu(data->rho);
         }
 
         static void be_to_cpu(position_2d *data)
         {
             data->x   = __be32_to_cpu(data->x);
             data->y   = __be32_to_cpu(data->y);
-            data->phi = __be32_float_to_cpu(data->phi);
+            data->rho = __be32_float_to_cpu(data->rho);
         }
 };
 
@@ -58,7 +58,7 @@ static inline int position_2d_distance(position_2d position, position_2d origin)
 
 static inline float position_2d_angle(position_2d position, position_2d origin)
 {
-    return normaliseAngleSym0(position.phi - origin.phi);
+    return normaliseAngleSym0(position.rho - origin.rho);
 }
 
 #endif /*__POSITION2D_H__*/

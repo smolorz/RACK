@@ -98,7 +98,7 @@ static inline float point_2d_polar_angle(point_2d point, position_2d origin)
     x = point.x - origin.x;
     y = point.y - origin.y;
 
-    return normaliseAngleSym0(atan2(y, x) - (double)origin.phi);
+    return normaliseAngleSym0(atan2(y, x) - (double)origin.rho);
 }
 
 #endif /*__POINT2D_H__*/

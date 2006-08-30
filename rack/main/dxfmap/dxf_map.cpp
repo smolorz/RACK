@@ -308,13 +308,13 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY)
 
         if (feature[i].l > 0.0)
         {
-            feature[i].phi = atan2(y, x);
-            feature[i].sin = sin(feature[i].phi);
-            feature[i].cos = cos(feature[i].phi);
+            feature[i].rho = atan2(y, x);
+            feature[i].sin = sin(feature[i].rho);
+            feature[i].cos = cos(feature[i].rho);
         }
         else
         {
-            feature[i].phi = 0.0;
+            feature[i].rho = 0.0;
             feature[i].sin = 0.0;
             feature[i].cos = 1.0;
         }
