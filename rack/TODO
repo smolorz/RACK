@@ -4,7 +4,6 @@ modules
 
 refactoring
 - change 2d and 3d to 2D and 3D
-- change position2d.phi to rho (like in position3d)
 -
 
 Gui
