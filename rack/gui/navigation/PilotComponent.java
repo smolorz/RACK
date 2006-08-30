@@ -548,31 +548,31 @@ public class PilotComponent extends JComponent
                     {
                         if (controlInfo.spline[i].radius > 0)
                         {
-                            route.startPos.phi = (float)Math.toDegrees(
+                            route.startPos.rho = (float)Math.toDegrees(
                                                  normAngle(Math.PI -
-                                                 controlInfo.spline[i].startPos.phi));
+                                                 controlInfo.spline[i].startPos.rho));
                         }
                         else
                         {
-                            route.startPos.phi = (float)Math.toDegrees(
+                            route.startPos.rho = (float)Math.toDegrees(
                                                  normAngle(
-                                                 -controlInfo.spline[i].endPos.phi));
+                                                 -controlInfo.spline[i].endPos.rho));
                         }
                     }
                     else
                     {
                         if (controlInfo.spline[i].radius > 0)
                         {
-                            route.startPos.phi = (float) Math.toDegrees(
+                            route.startPos.rho = (float) Math.toDegrees(
                                                  normAngle(Math.PI -
-                                                 controlInfo.spline[i].startPos.phi -
+                                                 controlInfo.spline[i].startPos.rho -
                                                  openAngle));
                         }
                         else
                         {
-                            route.startPos.phi = (float)Math.toDegrees(
+                            route.startPos.rho = (float)Math.toDegrees(
                                                  normAngle(
-                                                 -controlInfo.spline[i].endPos.phi -
+                                                 -controlInfo.spline[i].endPos.rho -
                                                  openAngle));
                         }
                     }
@@ -581,7 +581,7 @@ public class PilotComponent extends JComponent
                     int r = (int) route.radius;
                     drawArc(g, 3, (int) route.centerPos.x - r,
                             (int) route.centerPos.y - r, r * 2, r * 2,
-                            (int) Math.round(route.startPos.phi),
+                            (int) Math.round(route.startPos.rho),
                             (int) Math.round((float)Math.toDegrees(normAngle(openAngle))));
                 }
             } //
@@ -633,11 +633,11 @@ public class PilotComponent extends JComponent
                 if (controlInfo.speed < 0)
                 {
                     if (controlInfo.curve > 0)
-                        route.startPos.phi = (float)Math.toDegrees(
+                        route.startPos.rho = (float)Math.toDegrees(
                                                normAngle(Math.PI -
                                                controlInfo.pos.rho));
                     else
-                        route.startPos.phi = (float)Math.toDegrees(
+                        route.startPos.rho = (float)Math.toDegrees(
                                                normAngle(-controlInfo.pos.rho -
                                                openAngle));
                 }
@@ -645,12 +645,12 @@ public class PilotComponent extends JComponent
                 else
                 {
                     if (controlInfo.curve > 0)
-                        route.startPos.phi = (float)Math.toDegrees(
+                        route.startPos.rho = (float)Math.toDegrees(
                                                normAngle(Math.PI -
                                                controlInfo.pos.rho - openAngle));
                     else
                     {
-                        route.startPos.phi = (float)Math.toDegrees(
+                        route.startPos.rho = (float)Math.toDegrees(
                                                 normAngle(-controlInfo.pos.rho));
                     }
                 }
@@ -659,7 +659,7 @@ public class PilotComponent extends JComponent
                 int r = (int) route.radius;
                 drawArc(g, 3, (int) route.centerPos.x - r,
                        (int)route.centerPos.y - r, r * 2, r * 2,
-                       (int)Math.round(route.startPos.phi),
+                       (int)Math.round(route.startPos.rho),
                        (int)Math.toDegrees(normAngle(openAngle)));
             }
             // direct line

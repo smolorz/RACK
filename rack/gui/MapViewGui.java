@@ -82,6 +82,7 @@ public class MapViewGui extends Thread
         {
             chassisParam = chassisProxy.getParam();
         }
+        System.out.println("chassisParam="+chassisParam);
         if(chassisParam == null)
         {
             chassisParam = new ChassisParamMsg();
@@ -108,14 +109,14 @@ public class MapViewGui extends Thread
         File file = new File("mapViewBackground.jpg");        
 /*        backGndOffset.x   = 106432;
         backGndOffset.y   = 204500;
-//        backGndOffset.phi = (float)(-18.0 / 180.0 * Math.PI);
-        backGndOffset.phi = 0.0f;
+//        backGndOffset.rho = (float)(-18.0 / 180.0 * Math.PI);
+        backGndOffset.rho = 0.0f;
         backGndResX       = 220.0;
         backGndResY       = 230.0;*/
         backGndOffset.x   = 362800;
         backGndOffset.y   = 96500;
-        backGndOffset.phi = (float)(-0.1/ 180.0 * Math.PI);
-//        backGndOffset.phi = 0.0f;
+        backGndOffset.rho = (float)(-0.1/ 180.0 * Math.PI);
+//        backGndOffset.rho = 0.0f;
         backGndResX       = 250.0;
         backGndResY       = 250.0;
 
@@ -157,17 +158,17 @@ public class MapViewGui extends Thread
     }
 
 
-    private void changePositionAndZoom(int changeX, int changeY, int changePhi,
+    private void changePositionAndZoom(int changeX, int changeY, int changeRho,
             int changeZoom)
     {
         Position2D newCenter = getPosOnScreen(viewPanel.getWidth() / 2
                 + changeX * viewPanel.getWidth() / 5, viewPanel.getHeight() / 2
                 + changeY * viewPanel.getHeight() / 5);
-        viewPosition.phi += changePhi * Math.PI / 10;
-        if (viewPosition.phi > Math.PI)
-            viewPosition.phi -= (2 * Math.PI);
-        if (viewPosition.phi < -Math.PI)
-            viewPosition.phi += (2 * Math.PI);
+        viewPosition.rho += changeRho * Math.PI / 10;
+        if (viewPosition.rho > Math.PI)
+            viewPosition.rho -= (2 * Math.PI);
+        if (viewPosition.rho < -Math.PI)
+            viewPosition.rho += (2 * Math.PI);
         if (changeZoom > 0)
             viewZoom = viewZoom * 1.5;
         if (changeZoom < 0)
@@ -185,7 +186,7 @@ public class MapViewGui extends Thread
                                                        (2 * viewZoom)),
                                        (int) Math.round(viewPanel.getWidth() /
                                                        (2 * viewZoom)))).
-                                                  coordTrafo(viewPosition.phi);
+                                                  coordTrafo(viewPosition.rho);
 
         viewPosition.x = newCenter.x - screenCenter.x;
         viewPosition.y = newCenter.y - screenCenter.y;
@@ -198,7 +199,7 @@ public class MapViewGui extends Thread
         // returns position in wold coordinates
         posOnScreen = new Position2D((int) Math.round(-y / viewZoom),
                                      (int) Math.round(x / viewZoom));
-        return posOnScreen.coordTrafo(viewPosition.phi, viewPosition.x,
+        return posOnScreen.coordTrafo(viewPosition.rho, viewPosition.x,
                                       viewPosition.y);
     }
 
@@ -229,7 +230,7 @@ public class MapViewGui extends Thread
 
         if (mapNavigator.viewRobot())
         {
-            viewPosition.phi = robotPosition.phi;
+            viewPosition.rho = robotPosition.rho;
             setCenter(robotPosition);
         }
 
@@ -347,7 +348,7 @@ public class MapViewGui extends Thread
 
             // prepare worldGraph
             worldGraph.scale(viewZoom, viewZoom);
-            worldGraph.rotate(-viewPosition.phi - Math.PI / 2);
+            worldGraph.rotate(-viewPosition.rho - Math.PI / 2);
             worldGraph.translate(-viewPosition.x, -viewPosition.y);
 
             // prepare robotGraph
@@ -355,7 +356,7 @@ public class MapViewGui extends Thread
             robotGraph.setClip(0, 0, this.getWidth(), this.getHeight());
             robotGraph.setTransform(worldGraph.getTransform());
             robotGraph.translate(robotPosition.x, robotPosition.y);
-            robotGraph.rotate(robotPosition.phi);
+            robotGraph.rotate(robotPosition.rho);
 
             drawBackgndImg(backGndImg, backGndResX, backGndResY, backGndOffset);
             drawGrid();
@@ -386,7 +387,7 @@ public class MapViewGui extends Thread
             robotGraphTime.setClip(0, 0, this.getWidth(), this.getHeight());
             robotGraphTime.setTransform(worldGraph.getTransform());
             robotGraphTime.translate(robotPositionTime.x, robotPositionTime.y);
-            robotGraphTime.rotate(robotPositionTime.phi);
+            robotGraphTime.rotate(robotPositionTime.rho);
 
             return robotGraphTime;
         }
@@ -460,7 +461,7 @@ public class MapViewGui extends Thread
             {
                 AffineTransform at = new AffineTransform();
                 at.scale(resX, resY);
-                at.rotate(pos.phi + Math.PI/2);
+                at.rotate(pos.rho + Math.PI/2);
                 BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                 worldGraph.drawImage(image, biop, pos.x, pos.y);
             }
@@ -623,7 +624,7 @@ public class MapViewGui extends Thread
             }
             if (event.getActionCommand().equals("origin"))
             {
-                viewPosition.phi = 0;
+                viewPosition.rho = 0;
                 setCenter(robotPosition);
                 viewRobotButton.setSelected(false);
             }
@@ -806,7 +807,7 @@ public class MapViewGui extends Thread
     {
         public boolean active = false;
         private ModuleActionEvent actionEvent = null;
-        private float dPhiPerClick = (float)Math.toRadians(10.0);
+        private float dRhoPerClick = (float)Math.toRadians(10.0);
 
         private static final long serialVersionUID = 1L;
 
@@ -922,8 +923,8 @@ public class MapViewGui extends Thread
                 Position2D worldCursorPosition, Position2D robotPosition)
         {
             Position2D robotCursorPosition = new Position2D();
-            double sinRho = Math.sin(robotPosition.phi);
-            double cosRho = Math.cos(robotPosition.phi);
+            double sinRho = Math.sin(robotPosition.rho);
+            double cosRho = Math.cos(robotPosition.rho);
             double x      = (double)(worldCursorPosition.x - 
                                       robotPosition.x);
             double y      = (double)(worldCursorPosition.y - 
@@ -931,18 +932,18 @@ public class MapViewGui extends Thread
 
             robotCursorPosition.x   = (int)(  x * cosRho + y * sinRho);
             robotCursorPosition.y   = (int)(- x * sinRho + y * cosRho);
-            robotCursorPosition.phi = normalizePhi(worldCursorPosition.phi - 
-                                      robotPosition.phi);
+            robotCursorPosition.rho = normalizeAngle(worldCursorPosition.rho - 
+                                      robotPosition.rho);
             return robotCursorPosition;
         }
 
-        private float normalizePhi(float phi)
+        private float normalizeAngle(float angle)
         {
-            if (phi > Math.PI)
-                phi -= 2 * Math.PI;
-            if (phi < -Math.PI)
-                phi += 2 * Math.PI;
-            return phi;
+            if (angle > Math.PI)
+                angle -= 2 * Math.PI;
+            if (angle < -Math.PI)
+                angle += 2 * Math.PI;
+            return angle;
         }
 
 
@@ -960,7 +961,7 @@ public class MapViewGui extends Thread
             {
                 Position2D mousePsition = getPosOnScreen(event.getX(), event
                         .getY());
-                worldCursorPosition.phi = normalizePhi((float) Math.atan2(
+                worldCursorPosition.rho = normalizeAngle((float) Math.atan2(
                             mousePsition.y - worldCursorPosition.y,
                             mousePsition.x - worldCursorPosition.x));
             }*/
@@ -973,9 +974,9 @@ public class MapViewGui extends Thread
 
         public void mouseWheelMoved(MouseWheelEvent event)
         {
-            worldCursorPosition.phi = normalizePhi(
-                                      worldCursorPosition.phi +
-                                      event.getWheelRotation() * dPhiPerClick);
+            worldCursorPosition.rho = normalizeAngle(
+                                      worldCursorPosition.rho +
+                                      event.getWheelRotation() * dRhoPerClick);
             updateNeeded();
         }
 
@@ -1108,7 +1109,7 @@ public class MapViewGui extends Thread
             cursorGraph.setTransform(worldGraph.getTransform());
             cursorGraph.translate(worldCursorPosition.x,
                                   worldCursorPosition.y);
-            cursorGraph.rotate(worldCursorPosition.phi);
+            cursorGraph.rotate(worldCursorPosition.rho);
 
             robotPosition = drawContext.getRobotPosition();
             this.worldCursorPosition = worldCursorPosition;

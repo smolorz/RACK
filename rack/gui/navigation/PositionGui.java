@@ -229,7 +229,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
             Position3D newPosition3D;
 
             newPosition3D = new Position3D(newPosition2D.x,
-                        newPosition2D.y, 0, 0, 0, newPosition2D.phi);
+                        newPosition2D.y, 0, 0, 0, newPosition2D.rho);
             position.update(newPosition3D, 0);
         }
     }

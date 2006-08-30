@@ -24,10 +24,10 @@ import rack.main.tims.EndianDataInputStream;
 
 public class Position2D implements Serializable, Cloneable
 {
-    /** Reihenfolge im Datenpacket: x, y, phi */
+    /** Reihenfolge im Datenpacket: x, y, rho */
     public int   x   = 0;
     public int   y   = 0;
-    public float phi = 0.0f;
+    public float rho = 0.0f;
 
     private static final long serialVersionUID = 1L;
     
@@ -40,13 +40,13 @@ public class Position2D implements Serializable, Cloneable
      * Constructor Position2D.
      * @param x
      * @param y
-     * @param phi
+     * @param rho
      */
-    public Position2D(int x, int y, float phi) 
+    public Position2D(int x, int y, float rho) 
     {
         this.x = x;
         this.y = y;
-        this.phi = phi;
+        this.rho = rho;
     }
   
     /**
@@ -58,7 +58,7 @@ public class Position2D implements Serializable, Cloneable
     {
         this.x   = x;
         this.y   = y;
-        this.phi = 0.0f;
+        this.rho = 0.0f;
     }
   
     /**
@@ -68,7 +68,7 @@ public class Position2D implements Serializable, Cloneable
     {
         this.x   = 0;
         this.y   = 0;
-        this.phi = 0.0f;
+        this.rho = 0.0f;
     }
 
     /**
@@ -78,7 +78,7 @@ public class Position2D implements Serializable, Cloneable
     {
         x   = dataIn.readInt();
         y   = dataIn.readInt();
-        phi = dataIn.readFloat();
+        rho = dataIn.readFloat();
     }
   
     /**
@@ -88,14 +88,14 @@ public class Position2D implements Serializable, Cloneable
     {
         dataOut.writeInt(x);
         dataOut.writeInt(y);
-        dataOut.writeFloat(phi);
+        dataOut.writeFloat(rho);
     }
   
     public String toString()
     {
-        DecimalFormat phiFormat = new DecimalFormat("0.0");
-        return("x: "     + x + ", y: " + y + ", phi: " + 
-               phiFormat.format(Math.toDegrees(phi)));
+        DecimalFormat rhoFormat = new DecimalFormat("0.0");
+        return("x: "     + x + ", y: " + y + ", rho: " + 
+               rhoFormat.format(Math.toDegrees(rho)));
     }
 
     /** Method getDistance
@@ -128,7 +128,7 @@ public class Position2D implements Serializable, Cloneable
         double c = Math.cos(ang);
         
         return new Position2D((int) Math.round(x * c - y * s),
-                              (int) Math.round(x * s + y * c), phi - ang);
+                              (int) Math.round(x * s + y * c), rho - ang);
     }
 
     /** Method coordTrafo
@@ -143,7 +143,7 @@ public class Position2D implements Serializable, Cloneable
         
         return new Position2D((int) Math.round(x * c - y * s) + p0.x,
                               (int) Math.round(x * s + y * c) + p0.y, 
-                              phi - ang);
+                              rho - ang);
     }
 
     /** Method coordTrafo
@@ -166,6 +166,6 @@ public class Position2D implements Serializable, Cloneable
     // arne, 5.2.2004
     public Object clone()
     {
-        return ((Object) new Position2D(x, y, phi));
+        return ((Object) new Position2D(x, y, rho));
     }
 }
