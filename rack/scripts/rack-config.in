@@ -13,8 +13,8 @@ includedir="@includedir@"
 #
 RACK_VERSION="@PACKAGE_VERSION@"
 RACK_PREFIX="${staging}${prefix}"
-RACK_CPPFLAGS="-I${staging}${includedir}"
-RACK_LDFLAGS="-L${staging}${libdir}"
+RACK_CPPFLAGS="-I${staging}${includedir} @XENOMAI_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
+RACK_LDFLAGS="-L${staging}${libdir} @XENOMAI_LDFLAGS@ @RACK_GLOBAL_LDFLAGS@"
 RACK_LIBS="@RACK_LIBS@"
 
 #
@@ -30,10 +30,6 @@ RACK_SUPPORTS="@RACK_SUPPORTS@"
 #
 # supports packages
 #
-XENOMAI_CPPFLAGS="@XENOMAI_CPPFLAGS@"
-XENOMAI_LDFLAGS="@XENOMAI_LDFLAGS@"
-XENOMAI_LIBS="@XENOMAI_LIBS@"
-
 RTNET_CPPFLAGS="@RTNET_CPPFLAGS@"
 
 RTCAN_CPPFLAGS="@RTCAN_CPPFLAGS@"
@@ -72,10 +68,11 @@ Options :
         --arch
         --global-cppflags
         --global-ldflags
+        --supports
         --supports <package>
         --cppflags <package>
         --ldflags <package>
-        --lib <package>
+        --libs <package>
         --rack-version
         --rack-prefix
 EOF
@@ -90,9 +87,9 @@ verbose ()
     echo "   " --arch="\"$RACK_TARGET_ARCH\""
     echo "   " --global-cppflags="\"$RACK_GLOBAL_CPPFLAGS\""
     echo "   " --global-ldflags="\"$RACK_GLOBAL_LDFLAGS\""
-    echo "   " --supports="\"$RACK_SUPPORTS\""
     echo "   " --rack-version="\"$RACK_VERSION\""
     echo "   " --rack-prefix="\"$RACK_PREFIX\""
+    echo "   " --supports="\"$RACK_SUPPORTS\""
 }
 
 if test $# -eq 0; then
@@ -124,7 +121,6 @@ while test $# -gt 0; do
         --cppflags)
             case "$2" in
                 rack)       echo $RACK_CPPFLAGS       ;;
-                xenomai)    echo $XENOMAI_CPPFLAGS    ;;
                 rtnet)      echo $RTNET_CPPFLAGS      ;;
                 rtcan)      echo $RTCAN_CPPFLAGS      ;;
                 libraw1394) echo $LIBRAW1394_CPPFLAGS ;;
@@ -139,7 +135,6 @@ while test $# -gt 0; do
         --ldflags)
             case "$2" in
                 rack)       echo $RACK_LDFLAGS       ;;
-                xenomai)    echo $XENOMAI_LDFLAGS    ;;
                 libraw1394) echo $LIBRAW1394_LDFLAGS ;;
                 libdc1394)  echo $LIBDC1394_LDFLAGS  ;;
                 libjpeg)    echo $LIBJPEG_LDFLAGS    ;;
@@ -152,7 +147,6 @@ while test $# -gt 0; do
         --libs)
             case "$2" in
                 rack)       echo $RACK_LIBS       ;;
-                xenomai)    echo $XENOMAI_LIBS    ;;
                 libraw1394) echo $LIBRAW1394_LIBS ;;
                 libdc1394)  echo $LIBDC1394_LIBS  ;;
                 libjpeg)    echo $LIBJPEG_LIBS    ;;

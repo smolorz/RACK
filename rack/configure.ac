@@ -4,10 +4,10 @@
 AC_PREREQ(2.59)
 
 m4_define([ProjectName], [rack])
-m4_define([PrefixDefault], [/usr/local/rack])
-m4_define([SourceFile], [main/module/rack_module.cpp])
+m4_define([PrefixDefault], [/usr/local/]ProjectName)
+m4_define([ConfigScript], [rack-config])
 
-AC_INIT([rack],m4_normalize(m4_include([config/version])),[])
+AC_INIT(ProjectName,m4_normalize(m4_include([config/version])),[])
 
 PROJNAME=ProjectName
 AC_SUBST(PROJNAME)
@@ -18,7 +18,7 @@ CONFIG_RACK_REVISION_LEVEL=`expr $PACKAGE_VERSION : '[0-9]*\.[0-9]*\.\([0-9]*\)'
 test "x$CONFIG_RACK_REVISION_LEVEL" = "x" && CONFIG_RACK_REVISION_LEVEL=0
 
 AC_CONFIG_HEADERS([config/]ProjectName[_config_pre.h])
-AC_CONFIG_SRCDIR(SourceFile)
+AC_CONFIG_SRCDIR([scripts/]ConfigScript[.in])
 AC_PREFIX_DEFAULT(PrefixDefault)
 AC_CONFIG_AUX_DIR([config/autoconf])
 AC_CONFIG_MACRO_DIR([config/m4])
@@ -802,18 +802,10 @@ XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
 XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
 XENOMAI_LIBS="-lnative -lrtdm"
 
-RACK_SUPPORTS="xenomai ${RACK_SUPPORTS}"
-
 AC_SUBST(XENOMAI_CPPFLAGS)
 AC_SUBST(XENOMAI_LDFLAGS)
 AC_SUBST(XENOMAI_LIBS)
 
-dnl *** little hack ***
-CONFIG_RACK_XENOMAI_SUPPORT=y
-
-AM_CONDITIONAL(CONFIG_RACK_XENOMAI_SUPPORT,
-               [test x"${CONFIG_RACK_XENOMAI_SUPPORT}" = "xy"])
-               
 dnl ----- rtnet ----------------------------------------------------------------
 dnl
 dnl  depends on xenomai
@@ -1478,8 +1470,9 @@ AC_CONFIG_FILES([GNUmakefile \
     \
     examples/GNUmakefile \
     \
-    scripts/rack-config \
-    scripts/GNUmakefile
+    scripts/GNUmakefile \
+    scripts/]ConfigScript[ \
+    \
 ])
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
