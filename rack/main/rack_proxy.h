@@ -34,14 +34,14 @@
 #define MSG_OFF                        2
 #define MSG_GET_STATUS                 3
 #define MSG_GET_DATA                   4
-#define MSG_GET_CONT_DATA              5
-#define MSG_STOP_CONT_DATA             6
+#define MSG_GET_CONT_DATA              6
+#define MSG_STOP_CONT_DATA             7
 
 //TODO
-#define MSG_SET_LOG_LEVEL              7
+#define MSG_SET_LOG_LEVEL              8
 
 //TODO
-#define MSG_GET_PERIOD_TIME            8
+#define MSG_GET_PERIOD_TIME            9
 
 // global message returns (negative)
 #define MSG_OK                         TIMS_MSG_OK
