@@ -1413,9 +1413,6 @@ static void destroy_mailbox(tims_ctx *p_ctx)
   rtdm_sem_destroy(&p_mbx->readSem);
 
   tims_dbgdetail("Delete tims-mailbox @ 0x%p\n", p_mbx);
-  kfree(p_mbx);
-
-  td.mbx_num--;
 
   clear_bit(TIMS_CTX_BIT_MBX_CREATED, &p_ctx->flags);
 
@@ -1423,6 +1420,10 @@ static void destroy_mailbox(tims_ctx *p_ctx)
   unregister_mbx_tcp(p_mbx->address);
 
   tims_print("Mbx %x deleted \n", p_mbx->address);
+
+  kfree(p_mbx);
+
+  td.mbx_num--;
 
   return;
 }
