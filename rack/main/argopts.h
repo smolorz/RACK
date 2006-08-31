@@ -34,18 +34,17 @@ using std::string;
 // val_type values
 #define ARGOPT_VAL_INT      0
 #define ARGOPT_VAL_STR      1
+#define ARGOPT_VAL_FLT      2
 
 // error codes
 #define EARGOPT_BASE        400
 #define EARGOPT_INVAL       (EARGOPT_BASE + 1)
 #define EARGOPT_MISSED      (EARGOPT_BASE + 2)
 
-// getIntArg error code
-#define EGETINTARG          0xEFFFFFFF
-
 typedef union arg_value {
     int i;
-    char *c;
+    char *s;
+    float f;
 } arg_value_t;
 
 typedef struct arg_table{
@@ -72,7 +71,22 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_ad,
 
 void argUsage(argDescriptor_t *p_ad);
 
-int getIntArg(char* argname, argTable_t *p_tab);
+arg_value_t __getArg(char *argname, argTable_t *p_tab);
+
+static inline int getIntArg(char *argname, argTable_t *p_tab)
+{
+    return __getArg(argname, p_tab).i;
+}
+
+static inline char *getStrArg(char *argname, argTable_t *p_tab)
+{
+    return __getArg(argname, p_tab).s;
+}
+
+static inline float getFltArg(char *argname, argTable_t *p_tab)
+{
+    return __getArg(argname, p_tab).f;
+}
 
 void printAllArgs(argDescriptor_t *p_argdesc);
 void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg);

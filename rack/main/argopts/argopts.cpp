@@ -44,18 +44,22 @@ void printAllArgs(argDescriptor_t *p_argdesc)
         while (descTab[tabidx].name.length() != 0)
         {
             if (descTab[tabidx].has_val != ARGOPT_NOVAL)  // print out values
-            {
-                if (descTab[tabidx].val_type == ARGOPT_VAL_INT)
-                {
-                    printf(" %-18s: %d\n",
-                           descTab[tabidx].name.c_str(),descTab[tabidx].val.i);
+                switch (descTab[tabidx].val_type) {
+                    case ARGOPT_VAL_INT:
+                        printf(" %-18s: %d\n", descTab[tabidx].name.c_str(),
+                               descTab[tabidx].val.i);
+                        break;
+
+                    case ARGOPT_VAL_STR:
+                        printf(" %-18s: %s\n", descTab[tabidx].name.c_str(),
+                               descTab[tabidx].val.s);
+                        break;
+
+                    case ARGOPT_VAL_FLT:
+                        printf(" %-18s: %f\n", descTab[tabidx].name.c_str(),
+                               descTab[tabidx].val.f);
+                        break;
                 }
-                else
-                {
-                    printf(" %-18s: %s\n",
-                           descTab[tabidx].name.c_str(), descTab[tabidx].val.c);
-                }
-            }
             else    // arguments no not have values
             {
                 printf(" %-18s\n", descTab[tabidx].name.c_str());
@@ -108,6 +112,7 @@ void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg)
 
 void argUsage(argDescriptor_t *p_argdesc)
 {
+    const char *val_type_name[3] = { "int", "str", "flt" };
     argTable_t *descTab;
     int table = 0;
     int tabidx = 0;
@@ -131,8 +136,7 @@ void argUsage(argDescriptor_t *p_argdesc)
 
             printf(" %-18s | %3s | %1s | %1s | %s \n",
                    descTab[tabidx].name.c_str(),
-                   descTab[tabidx].val_type == ARGOPT_VAL_INT ?
-                                               "int" : "str",
+                   val_type_name[descTab[tabidx].val_type],
                    descTab[tabidx].arg_type == ARGOPT_REQ ?
                                                "y" : "n",
                    descTab[tabidx].has_val  == ARGOPT_NOVAL  ?
@@ -296,17 +300,26 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
         argTable_t *descTab = atlt[option_index].tab;
         int index = atlt[option_index].index;
 
-        if (descTab[index].val_type == ARGOPT_VAL_INT)
-        {
-            descTab[index].val.i = atoi(optarg);
-            ADBG("type int, writing %d @ 0x%p\n",
-                 descTab[index].val.i, &descTab[index].val);
-        }
+        switch (descTab[index].val_type) {
+            case ARGOPT_VAL_INT:
+                descTab[index].val.i = atoi(optarg);
+                ADBG("type int, writing %d @ 0x%p\n",
+                     descTab[index].val.i, &descTab[index].val);
+                break;
 
-        // check if string
-        if (descTab[index].val_type == ARGOPT_VAL_STR)
-        {
-            descTab[index].val.c = optarg;
+            case ARGOPT_VAL_STR:
+                descTab[index].val.s = optarg;
+                break;
+
+            case ARGOPT_VAL_FLT:
+                descTab[index].val.f = atof(optarg);
+                ADBG("type float, writing %f @ 0x%p\n",
+                     descTab[index].val.f, &descTab[index].val);
+                break;
+
+            default:
+                printf("Invalid option type -> exit \n");
+                return -EINVAL;
         }
 
         // option required no more
@@ -316,19 +329,19 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
     return -1;
 }
 
-int getIntArg(char* argname, argTable_t *p_tab)
+arg_value_t __getArg(char* argname, argTable_t *p_tab)
 {
     int idx = 0;
     while ( p_tab[idx].name != "")
     {
         if (!strcmp(argname, p_tab[idx].name.c_str()))
         {
-              return (int)p_tab[idx].val.i;
+              return p_tab[idx].val;
         }
         idx++;
     }
     printf("\n");
-    printf("WARNING: %s: getIntArg -> Invalid argname \n", arg_classname);
+    printf("WARNING: %s: getArg -> Invalid argname \n", arg_classname);
 
-    return EGETINTARG;
+    return (arg_value_t){ 0 };
 }

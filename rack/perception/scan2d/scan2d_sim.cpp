@@ -48,6 +48,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "mapOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "mapOffsetY for DXF maps in GK coordinates", { 0 } },
 
+    { ARGOPT_REQ, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
+      "filename of the DXF map to load", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -280,7 +283,7 @@ int Scan2DSim::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
-   ret = dxfMap.load("map.dxf", mapOffsetX, mapOffsetY);
+    ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY);
     if (ret)
     {
         GDOS_ERROR("Can't load DXF map. (%i)\n", ret);
@@ -342,6 +345,7 @@ Scan2DSim::Scan2DSim(void)
     maxRange     = getIntArg("maxRange", argTab);
     mapOffsetX   = getIntArg("mapOffsetX", argTab);
     mapOffsetY   = getIntArg("mapOffsetY", argTab);
+    dxfMapFile   = getStrArg("mapFile", argTab);
 
 
     // set dataBuffer size

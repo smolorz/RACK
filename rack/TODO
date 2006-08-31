@@ -14,7 +14,6 @@ main
 
 main/tims
 - Strings over GDOS
-- argopts -> string, long
 - comments in rtnet.conf
 - fifo-mailboxes in TiMS
 -

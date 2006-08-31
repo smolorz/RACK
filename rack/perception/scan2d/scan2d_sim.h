@@ -34,6 +34,7 @@ class Scan2DSim : public RackDataModule {
         int         mapOffsetX;
         int         mapOffsetY;
         DxfMap      dxfMap;
+        char        *dxfMapFile;
 
         // additional mailboxes
         RackMailbox workMbx;
