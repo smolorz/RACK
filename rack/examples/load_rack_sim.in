@@ -16,8 +16,8 @@
 #      Jan Kiszka       <jan.kiszka@web.de>
 #
 #
- 
-RACK_DIR="/usr/local/rack"
+
+RACK_DIR=@prefix@
 
 CURR_PATH=`pwd`
 
@@ -64,7 +64,8 @@ cd $RACK_DIR/bin/perception
     --odometryInst 0 \
     --maxRange=10000 \
     --cmdTaskPrio 20 \
-    --dataTaskPrio 19 &
+    --dataTaskPrio 19 \
+    --mapFile $RACK_DIR/examples/rack_sim.dxf &
 
 cd $RACK_DIR/bin/navigation
 

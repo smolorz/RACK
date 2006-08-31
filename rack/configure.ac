@@ -1469,6 +1469,7 @@ AC_CONFIG_FILES([GNUmakefile \
     tools/GNUmakefile \
     \
     examples/GNUmakefile \
+    examples/load_rack_sim \
     \
     scripts/GNUmakefile \
     scripts/]ConfigScript[ \
