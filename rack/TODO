@@ -17,3 +17,6 @@ main/tims
 - comments in rtnet.conf
 - fifo-mailboxes in TiMS
 -
+
+build system
+- clean DESTDIR handling, specifically wrt/ paths of external components (xenomai, ...)

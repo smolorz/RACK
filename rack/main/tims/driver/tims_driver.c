@@ -22,6 +22,7 @@
 
 #include <native/pipe.h>
 
+#include <rack_config.h>
 #include <main/tims/driver/tims_driver.h>
 #include <main/tims/driver/tims_debug.h>
 
@@ -702,10 +703,9 @@ static int tims_sendmsg_global(rtdm_user_info_t *user_info,
     // no real-time route available -> forward to TCP-client
 
     sendMsg = rt_pipe_alloc(&td.pipeToClient, p_head->msglen);
-    if (sendMsg == 0)
+    if (sendMsg == NULL)
     {
-        tims_error("Can't allocate pipe buffer (%u bytes), code = %d\n",
-                   p_head->msglen, (int)sendMsg);
+        tims_error("Can't allocate pipe buffer (%u bytes)\n", p_head->msglen);
         return -ENOMEM;
     }
 
@@ -2308,8 +2308,12 @@ static struct rtdm_device tims_rtdmdev = {
 
     device_class:       RTDM_CLASS_NETWORK,
     device_sub_class:   RTDM_SUBCLASS_TIMS,
+#ifdef RACK_PACKAGE_SVN_REVISION
+    driver_name:        "TIMS (SVN revision #" RACK_PACKAGE_SVN_REVISION ")",
+#else /* !RACK_PACKAGE_SVN_REVISION */
     driver_name:        "TIMS",
-    driver_version:     RTDM_DRIVER_VER(0, 0, 4),
+#endif /* RACK_PACKAGE_SVN_REVISION */
+    driver_version:     RTDM_DRIVER_VER(0, 1, 0),
     peripheral_name:    "",
     provider_name:      "Joerg Langenberg",
 

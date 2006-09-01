@@ -1,5 +1,5 @@
 
-percincludedir = $(DESTDIR)$(pkgincludedir)/perception
+percincludedir = $(pkgincludedir)/perception
 
 percinclude_HEADERS = \
 	scan2d_proxy.h

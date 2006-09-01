@@ -1,5 +1,5 @@
 
-defincludedir = $(DESTDIR)$(pkgincludedir)/main/defines
+defincludedir = $(pkgincludedir)/main/defines
 
 definclude_HEADERS = \
 	list_head.h \

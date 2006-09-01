@@ -1,7 +1,7 @@
 OPTDIRS =
 OPTHEADERS =
 
-mainincludedir = $(DESTDIR)$(pkgincludedir)/main
+mainincludedir = $(pkgincludedir)/main
 
 if CONFIG_RACK_RTCAN_SUPPORT
 OPTDIRS += canport

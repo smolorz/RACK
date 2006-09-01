@@ -1,5 +1,5 @@
 
-timsincludedir = $(DESTDIR)$(pkgincludedir)/main/tims
+timsincludedir = $(pkgincludedir)/main/tims
 
 timsinclude_HEADERS = \
 	tims.h \

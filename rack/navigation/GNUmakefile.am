@@ -1,5 +1,5 @@
 
-navincludedir = $(DESTDIR)$(pkgincludedir)/navigation
+navincludedir = $(pkgincludedir)/navigation
 
 navinclude_HEADERS = \
 	pilot_proxy.h \

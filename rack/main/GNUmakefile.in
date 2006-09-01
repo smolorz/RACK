@@ -250,7 +250,6 @@ RACK_MODULE_DIR = @RACK_MODULE_DIR@
 RACK_MODULE_EXT = @RACK_MODULE_EXT@
 RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
-RACK_USER_CFLAGS = @RACK_USER_CFLAGS@
 RANLIB = @RANLIB@
 RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
@@ -308,7 +307,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 OPTDIRS = $(am__append_1)
 OPTHEADERS = $(am__append_2) $(am__append_3)
-mainincludedir = $(DESTDIR)$(pkgincludedir)/main
+mainincludedir = $(pkgincludedir)/main
 maininclude_HEADERS = \
 	$(OPTHEADERS) \
 	angle_tool.h \

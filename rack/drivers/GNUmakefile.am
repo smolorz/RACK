@@ -1,5 +1,5 @@
 
-drvincludedir = $(DESTDIR)$(pkgincludedir)/drivers
+drvincludedir = $(pkgincludedir)/drivers
 
 SUBDIRS = \
 	. \

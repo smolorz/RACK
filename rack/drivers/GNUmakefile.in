@@ -248,7 +248,6 @@ RACK_MODULE_DIR = @RACK_MODULE_DIR@
 RACK_MODULE_EXT = @RACK_MODULE_EXT@
 RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
-RACK_USER_CFLAGS = @RACK_USER_CFLAGS@
 RANLIB = @RANLIB@
 RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
@@ -304,7 +303,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-drvincludedir = $(DESTDIR)$(pkgincludedir)/drivers
+drvincludedir = $(pkgincludedir)/drivers
 SUBDIRS = \
 	. \
 	camera \

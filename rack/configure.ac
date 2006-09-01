@@ -30,6 +30,20 @@ AC_PROG_INSTALL
 CFLAGS=${CFLAGS:--s}
 
 dnl ======================================================================
+dnl checking SVN revision
+dnl ======================================================================
+
+AC_MSG_CHECKING([for SVN revision])
+SVN=`which svn`
+if test x$SVN \!= x; then
+   PACKAGE_SVN_REVISION=`cd $srcdir; $SVN info 2>/dev/null|grep Revision|cut -d' ' -f2`
+   if test x$PACKAGE_SVN_REVISION \!= x; then
+       AC_DEFINE_UNQUOTED(PACKAGE_SVN_REVISION, "${PACKAGE_SVN_REVISION}", [SVN revision])
+   fi
+fi
+AC_MSG_RESULT([${PACKAGE_SVN_REVISION:-(release)}])
+
+dnl ======================================================================
 dnl checking cc
 dnl ======================================================================
 
@@ -1218,7 +1232,7 @@ dnl ======================================================================
 RACK_SUPPORTS="${PROJNAME} ${RACK_SUPPORTS}"
 AC_SUBST(RACK_SUPPORTS)
 
-RACK_CPPFLAGS="-I\${top_srcdir} -I\${top_builddir} ${XENOMAI_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
+RACK_CPPFLAGS="-D__IN_RACK__ -I\${top_srcdir} -I\${top_builddir} ${XENOMAI_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
 RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${XENOMAI_LDFLAGS} ${RACK_GLOBAL_LDFLAGS}"
 RACK_LIBS="-l${PROJNAME} ${XENOMAI_LIBS}"
 
@@ -1400,10 +1414,8 @@ dnl Autoconf-generated symbols have been listed.
 AH_BOTTOM([#endif /* __IN_RACK__ */])
 
 RACK_KMOD_CFLAGS="-D__IN_RACK__ $RACK_KMOD_CFLAGS"
-RACK_USER_CFLAGS="-D__IN_RACK__ $RACK_USER_CFLAGS"
 
 AC_SUBST(RACK_KMOD_CFLAGS)
-AC_SUBST(RACK_USER_CFLAGS)
 
 dnl ======================================================================
 dnl             create links to Makefiles used by linux-2.6.x

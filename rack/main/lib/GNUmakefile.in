@@ -59,7 +59,7 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 librack_la_LIBADD =
 am__librack_la_SOURCES_DIST = $(top_srcdir)/main/canport/can_port.cpp \
-	$(top_srcdir)/drivers/camera_proxy.cpp \
+	version_string.cpp $(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
 	$(top_srcdir)/drivers/gps_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
@@ -78,15 +78,15 @@ am__librack_la_SOURCES_DIST = $(top_srcdir)/main/canport/can_port.cpp \
 @CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__objects_1 =  \
 @CONFIG_RACK_RTCAN_SUPPORT_TRUE@	librack_la-can_port.lo
 am__objects_2 = $(am__objects_1)
-am_librack_la_OBJECTS = $(am__objects_2) librack_la-camera_proxy.lo \
-	librack_la-chassis_proxy.lo librack_la-gps_proxy.lo \
-	librack_la-joystick_proxy.lo librack_la-ladar_proxy.lo \
-	librack_la-odometry_proxy.lo librack_la-scan2d_proxy.lo \
-	librack_la-pilot_proxy.lo librack_la-position_proxy.lo \
-	librack_la-argopts.lo librack_la-dxf_map.lo \
-	librack_la-serial_port.lo librack_la-rack_mailbox.lo \
-	librack_la-rack_datamodule.lo librack_la-rack_module.lo \
-	librack_la-rack_proxy.lo
+am_librack_la_OBJECTS = $(am__objects_2) librack_la-version_string.lo \
+	librack_la-camera_proxy.lo librack_la-chassis_proxy.lo \
+	librack_la-gps_proxy.lo librack_la-joystick_proxy.lo \
+	librack_la-ladar_proxy.lo librack_la-odometry_proxy.lo \
+	librack_la-scan2d_proxy.lo librack_la-pilot_proxy.lo \
+	librack_la-position_proxy.lo librack_la-argopts.lo \
+	librack_la-dxf_map.lo librack_la-serial_port.lo \
+	librack_la-rack_mailbox.lo librack_la-rack_datamodule.lo \
+	librack_la-rack_module.lo librack_la-rack_proxy.lo
 librack_la_OBJECTS = $(am_librack_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
@@ -258,7 +258,6 @@ RACK_MODULE_DIR = @RACK_MODULE_DIR@
 RACK_MODULE_EXT = @RACK_MODULE_EXT@
 RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
-RACK_USER_CFLAGS = @RACK_USER_CFLAGS@
 RANLIB = @RANLIB@
 RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
@@ -321,6 +320,7 @@ lib_LTLIBRARIES = \
 
 librack_la_SOURCES = \
 	$(OPTSOURCES) \
+	version_string.cpp \
 	\
 	$(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
@@ -431,6 +431,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-scan2d_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-serial_port.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-version_string.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -459,6 +460,13 @@ librack_la-can_port.lo: $(top_srcdir)/main/canport/can_port.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/canport/can_port.cpp' object='librack_la-can_port.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp
+
+librack_la-version_string.lo: version_string.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-version_string.lo -MD -MP -MF "$(DEPDIR)/librack_la-version_string.Tpo" -c -o librack_la-version_string.lo `test -f 'version_string.cpp' || echo '$(srcdir)/'`version_string.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/librack_la-version_string.Tpo" "$(DEPDIR)/librack_la-version_string.Plo"; else rm -f "$(DEPDIR)/librack_la-version_string.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='version_string.cpp' object='librack_la-version_string.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-version_string.lo `test -f 'version_string.cpp' || echo '$(srcdir)/'`version_string.cpp
 
 librack_la-camera_proxy.lo: $(top_srcdir)/drivers/camera_proxy.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-camera_proxy.lo -MD -MP -MF "$(DEPDIR)/librack_la-camera_proxy.Tpo" -c -o librack_la-camera_proxy.lo `test -f '$(top_srcdir)/drivers/camera_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/camera_proxy.cpp; \
