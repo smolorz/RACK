@@ -17,6 +17,7 @@ RACK_PREFIX="${staging}${prefix}"
 RACK_CPPFLAGS="-I${staging}${pkgincludedir} @XENOMAI_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
 RACK_LDFLAGS="-L${staging}${libdir} @XENOMAI_LDFLAGS@ @RACK_GLOBAL_LDFLAGS@"
 RACK_LIBS="@RACK_LIBS@"
+RACK_CLASSPATH="${staging}${pkglibdir}/@PROJNAME@.jar"
 
 #
 # common
@@ -67,6 +68,7 @@ Options :
         --cc
         --cxx
         --arch
+        --classpath
         --global-cppflags
         --global-ldflags
         --supports
@@ -86,6 +88,7 @@ verbose ()
     echo "   " --cc="\"$RACK_CC\""
     echo "   " --cxx="\"$RACK_CXX\""
     echo "   " --arch="\"$RACK_TARGET_ARCH\""
+    echo "   " --classpath="\"$RACK_CLASSPATH\""
     echo "   " --global-cppflags="\"$RACK_GLOBAL_CPPFLAGS\""
     echo "   " --global-ldflags="\"$RACK_GLOBAL_LDFLAGS\""
     echo "   " --rack-version="\"$RACK_VERSION\""
@@ -104,6 +107,7 @@ while test $# -gt 0; do
         --cc)                 echo $RACK_CC              ;;
         --cxx)                echo $RACK_CXX             ;;
         --arch)               echo $RACK_TARGET_ARCH     ;;
+        --classpath)          echo $RACK_CLASSPATH       ;;
         --global-cppflags)    echo $RACK_GLOBAL_CPPFLAGS ;;
         --global-ldflags)     echo $RACK_GLOBAL_LDFLAGS  ;;
         --supports)
