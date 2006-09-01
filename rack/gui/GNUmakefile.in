@@ -56,7 +56,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
 am__dist_java_JAVA_DIST = Gui.java MapViewGui.java GDOSGui.java \
-	GDOSMessageRenderer.java GDOSTable.java
+	GDOSMessageRenderer.java GDOSTable.java AppletGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -297,7 +297,8 @@ SUBDIRS = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GDOSGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GDOSMessageRenderer.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	AppletGui.java
 
 EXTRA_DIST = \
 	gui.cfg \

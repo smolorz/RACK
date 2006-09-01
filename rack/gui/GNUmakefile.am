@@ -16,7 +16,8 @@ dist_java_JAVA = \
 	MapViewGui.java \
 	GDOSGui.java \
 	GDOSMessageRenderer.java \
-	GDOSTable.java
+	GDOSTable.java \
+	AppletGui.java
 
 endif
 
