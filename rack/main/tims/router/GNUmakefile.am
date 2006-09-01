@@ -1,15 +1,15 @@
 xeno_dir = @XENO_USER_PREFIX@
 xeno_lib_dir = @XENO_LIBRARIES@
 
-bindir = $(prefix)/bin/tims
-etcdir = $(prefix)/etc
-
-etc_HEADERS = \
+pkgdata_DATA = \
 	tims_rtnet_example.conf
 
 bin_PROGRAMS = \
 	tims_client \
 	tims_router_tcp
+
+noinst_HEADERS = \
+	tims_router.h
 
 CFLAGS = \
 	-I$(top_srcdir) \
@@ -32,4 +32,4 @@ tims_router_tcp_LDADD = \
 	-lpthread
 
 EXTRA_DIST = \
-	tims_router.h
+	tims_rtnet_example.conf

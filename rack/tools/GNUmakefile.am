@@ -1,6 +1,4 @@
 
-bindir = $(prefix)/bin/tools
-
 bin_PROGRAMS = \
 	RackLogger
 

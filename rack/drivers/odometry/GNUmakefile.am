@@ -1,5 +1,4 @@
 
-bindir = $(prefix)/bin/drivers
 bin_PROGRAMS =
 
 if CONFIG_RACK_ODOMETRY_CHASSIS

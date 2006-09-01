@@ -1,7 +1,7 @@
 
-includedir = $(prefix)/include/perception/
+percincludedir = $(DESTDIR)$(pkgincludedir)/perception
 
-include_HEADERS = \
+percinclude_HEADERS = \
 	scan2d_proxy.h
 
 SUBDIRS = \

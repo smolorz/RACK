@@ -13,6 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -62,6 +63,15 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(pkglibdir)"
+pkglibDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(pkglib_DATA)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -218,7 +228,6 @@ PROJNAME = @PROJNAME@
 RACK_CPPFLAGS = @RACK_CPPFLAGS@
 RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
 RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
-RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
 RACK_KBUILD_CLEAN = @RACK_KBUILD_CLEAN@
 RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
 RACK_KBUILD_DISTCLEAN = @RACK_KBUILD_DISTCLEAN@
@@ -272,7 +281,7 @@ host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
-includedir = $(prefix)/include
+includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
@@ -302,6 +311,7 @@ SUBDIRS = \
 	scripts
 
 JARFILE = @PROJNAME@.jar
+@CONFIG_RACK_JAVA_TRUE@pkglib_DATA = $(JARFILE)
 @CONFIG_RACK_JAVA_TRUE@MANIFEST = $(am__append_1)
 @CONFIG_RACK_JAVA_TRUE@MANIFEST_FLAG = $(am__append_2)
 EXTRA_DIST = \
@@ -363,6 +373,23 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+install-pkglibDATA: $(pkglib_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkglibdir)" || $(mkdir_p) "$(DESTDIR)$(pkglibdir)"
+	@list='$(pkglib_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(pkglibDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkglibdir)/$$f'"; \
+	  $(pkglibDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkglibdir)/$$f"; \
+	done
+
+uninstall-pkglibDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkglib_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(pkglibdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pkglibdir)/$$f"; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -639,9 +666,12 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: GNUmakefile
+all-am: GNUmakefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(pkglibdir)"; do \
+	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
+	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -687,9 +717,9 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-data-local
+install-data-am:
 
-install-exec-am:
+install-exec-am: install-pkglibDATA
 
 install-info: install-info-recursive
 
@@ -715,7 +745,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-local
+uninstall-am: uninstall-info-am uninstall-pkglibDATA
 
 uninstall-info: uninstall-info-recursive
 
@@ -726,19 +756,17 @@ uninstall-info: uninstall-info-recursive
 	distclean-generic distclean-libtool distclean-recursive \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-data-local install-exec \
-	install-exec-am install-info install-info-am install-man \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-man install-pkglibDATA \
 	install-strip installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
 	maintainer-clean-recursive mostlyclean mostlyclean-generic \
 	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
 	tags tags-recursive uninstall uninstall-am uninstall-info-am \
-	uninstall-local
+	uninstall-pkglibDATA
 
 
-@CONFIG_RACK_JAVA_TRUE@all: $(JARFILE)
-
-@CONFIG_RACK_JAVA_TRUE@@PROJNAME@.jar: all-recursive $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
+@CONFIG_RACK_JAVA_TRUE@@PROJNAME@.jar: $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
 @CONFIG_RACK_JAVA_TRUE@	@echo "creating $@"; \
 @CONFIG_RACK_JAVA_TRUE@	builddir=`pwd`; \
 @CONFIG_RACK_JAVA_TRUE@	cd $(top_builddir); \
@@ -750,18 +778,6 @@ clean-local:
 reconfig xconfig gconfig mconfig menuconfig config oldconfig help:
 	@$(MAKE) -f $(srcdir)/makefile $@ \
 	srctree=$(srcdir) ARCH=@RACK_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
-
-install-data-local:
-	rm -f $(DESTDIR)$(prefix)/build
-	$(LN_S) @abs_top_builddir@ $(DESTDIR)$(prefix)/build
-	rm -f $(DESTDIR)$(prefix)/source
-	$(LN_S) @abs_srcdir@ $(DESTDIR)$(prefix)/source
-	if test x"$(CONFIG_RACK_JAVA)" == "xy" ; then \
-		install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
-	fi;
-
-uninstall-local:
-	$(RM) -r $(DESTDIR)$(prefix)/gui/$(JARFILE)
 
 .PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

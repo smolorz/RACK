@@ -1,5 +1,4 @@
 
-bindir = $(prefix)/bin/perception
 bin_PROGRAMS =
 
 if CONFIG_RACK_SCAN_2D

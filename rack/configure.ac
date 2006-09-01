@@ -397,10 +397,6 @@ dnl ======================================================================
 dnl    JAVA Part
 dnl ======================================================================
 
-RACK_JAVA_JARDIR="/gui"
-
-AC_SUBST(RACK_JAVA_JARDIR)
-
 dnl -----------------------------------------------------------------
 dnl  rack java
 dnl -----------------------------------------------------------------
@@ -1368,7 +1364,7 @@ AC_ARG_WITH(module-dir,
     "" | y | ye | yes | n | no)
         AC_MSG_ERROR([You must supply an argument to --with-module-dir.]) ;;
     esac],
-    with_module_dir='${exec_prefix}/modules')
+    with_module_dir='${exec_prefix}/lib/rack')
 RACK_MODULE_DIR="$with_module_dir"
 AC_MSG_RESULT([$RACK_MODULE_DIR])
 
@@ -1470,6 +1466,7 @@ AC_CONFIG_FILES([GNUmakefile \
     \
     examples/GNUmakefile \
     examples/load_rack_sim \
+    examples/load_rack_gui \
     \
     scripts/GNUmakefile \
     scripts/]ConfigScript[ \

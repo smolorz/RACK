@@ -60,15 +60,15 @@ am__dist_java_JAVA_DIST = Gui.java MapViewGui.java GDOSGui.java \
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(datadir)"
+am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(pkgdatadir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-dataDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(data_DATA)
+pkgdataDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(pkgdata_DATA)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -215,7 +215,6 @@ PROJNAME = @PROJNAME@
 RACK_CPPFLAGS = @RACK_CPPFLAGS@
 RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
 RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
-RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
 RACK_KBUILD_CLEAN = @RACK_KBUILD_CLEAN@
 RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
 RACK_KBUILD_DISTCLEAN = @RACK_KBUILD_DISTCLEAN@
@@ -262,7 +261,7 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-datadir = $(prefix)/gui
+datadir = @datadir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
@@ -290,8 +289,9 @@ SUBDIRS = \
 	navigation \
 	perception
 
-@CONFIG_RACK_JAVA_GUI_TRUE@data_DATA = \
-@CONFIG_RACK_JAVA_GUI_TRUE@	gui.cfg
+@CONFIG_RACK_JAVA_GUI_TRUE@pkgdata_DATA = \
+@CONFIG_RACK_JAVA_GUI_TRUE@	gui.cfg \
+@CONFIG_RACK_JAVA_GUI_TRUE@	rack_gui.html
 
 @CONFIG_RACK_JAVA_GUI_TRUE@dist_java_JAVA = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	Gui.java \
@@ -302,7 +302,8 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	gui.cfg \
-	gui.manifest
+	gui.manifest \
+	rack_gui.html
 
 all: all-recursive
 
@@ -364,22 +365,22 @@ uninstall-dist_javaJAVA:
 
 clean-dist_javaJAVA:
 	-rm -f *.class classdist_java.stamp
-install-dataDATA: $(data_DATA)
+install-pkgdataDATA: $(pkgdata_DATA)
 	@$(NORMAL_INSTALL)
-	test -z "$(datadir)" || $(mkdir_p) "$(DESTDIR)$(datadir)"
-	@list='$(data_DATA)'; for p in $$list; do \
+	test -z "$(pkgdatadir)" || $(mkdir_p) "$(DESTDIR)$(pkgdatadir)"
+	@list='$(pkgdata_DATA)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(dataDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(datadir)/$$f'"; \
-	  $(dataDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(datadir)/$$f"; \
+	  echo " $(pkgdataDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgdatadir)/$$f'"; \
+	  $(pkgdataDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgdatadir)/$$f"; \
 	done
 
-uninstall-dataDATA:
+uninstall-pkgdataDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(data_DATA)'; for p in $$list; do \
+	@list='$(pkgdata_DATA)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(datadir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(datadir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(pkgdatadir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pkgdatadir)/$$f"; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -561,7 +562,7 @@ check: check-recursive
 all-am: GNUmakefile classdist_java.stamp $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(datadir)"; do \
+	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -608,7 +609,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dataDATA install-dist_javaJAVA
+install-data-am: install-dist_javaJAVA install-pkgdataDATA
 
 install-exec-am:
 
@@ -634,8 +635,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dataDATA uninstall-dist_javaJAVA \
-	uninstall-info-am
+uninstall-am: uninstall-dist_javaJAVA uninstall-info-am \
+	uninstall-pkgdataDATA
 
 uninstall-info: uninstall-info-recursive
 
@@ -645,14 +646,15 @@ uninstall-info: uninstall-info-recursive
 	distclean-generic distclean-libtool distclean-recursive \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
-	install-dataDATA install-dist_javaJAVA install-exec \
-	install-exec-am install-info install-info-am install-man \
+	install-dist_javaJAVA install-exec install-exec-am \
+	install-info install-info-am install-man install-pkgdataDATA \
 	install-strip installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
 	maintainer-clean-recursive mostlyclean mostlyclean-generic \
 	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am uninstall-dataDATA \
-	uninstall-dist_javaJAVA uninstall-info-am
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_javaJAVA uninstall-info-am \
+	uninstall-pkgdataDATA
 
 
 install-dist_javaJAVA: classdist_java.stamp

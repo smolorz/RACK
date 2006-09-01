@@ -52,8 +52,8 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	TimsTimeoutException.java
 
 subdir = main/tims
-DIST_COMMON = $(am__dist_java_JAVA_DIST) $(include_HEADERS) \
-	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
+DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
+	$(srcdir)/GNUmakefile.in $(timsinclude_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
 	$(top_srcdir)/configure.ac
@@ -78,15 +78,15 @@ am__dist_java_JAVA_DIST = BigEndianDataInputStream.java \
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(timsincludedir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS)
+timsincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(timsinclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = router driver
@@ -233,7 +233,6 @@ PROJNAME = @PROJNAME@
 RACK_CPPFLAGS = @RACK_CPPFLAGS@
 RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
 RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
-RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
 RACK_KBUILD_CLEAN = @RACK_KBUILD_CLEAN@
 RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
 RACK_KBUILD_DISTCLEAN = @RACK_KBUILD_DISTCLEAN@
@@ -287,7 +286,7 @@ host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
-includedir = $(prefix)/include/main/tims
+includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
@@ -302,7 +301,8 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-include_HEADERS = \
+timsincludedir = $(DESTDIR)$(pkgincludedir)/main/tims
+timsinclude_HEADERS = \
 	tims.h \
 	tims_byteorder.h \
 	tims_endian.h \
@@ -373,22 +373,22 @@ uninstall-dist_javaJAVA:
 
 clean-dist_javaJAVA:
 	-rm -f *.class classdist_java.stamp
-install-includeHEADERS: $(include_HEADERS)
+install-timsincludeHEADERS: $(timsinclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	test -z "$(timsincludedir)" || $(mkdir_p) "$(DESTDIR)$(timsincludedir)"
+	@list='$(timsinclude_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " $(timsincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(timsincludedir)/$$f'"; \
+	  $(timsincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(timsincludedir)/$$f"; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-timsincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	@list='$(timsinclude_HEADERS)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(timsincludedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(timsincludedir)/$$f"; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -570,7 +570,7 @@ check: check-recursive
 all-am: GNUmakefile classdist_java.stamp $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(timsincludedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -617,7 +617,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_javaJAVA install-includeHEADERS
+install-data-am: install-dist_javaJAVA install-timsincludeHEADERS
 
 install-exec-am:
 
@@ -643,8 +643,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dist_javaJAVA uninstall-includeHEADERS \
-	uninstall-info-am
+uninstall-am: uninstall-dist_javaJAVA uninstall-info-am \
+	uninstall-timsincludeHEADERS
 
 uninstall-info: uninstall-info-recursive
 
@@ -655,14 +655,14 @@ uninstall-info: uninstall-info-recursive
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
 	install-dist_javaJAVA install-exec install-exec-am \
-	install-includeHEADERS install-info install-info-am \
-	install-man install-strip installcheck installcheck-am \
+	install-info install-info-am install-man install-strip \
+	install-timsincludeHEADERS installcheck installcheck-am \
 	installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic maintainer-clean-recursive \
 	mostlyclean mostlyclean-generic mostlyclean-libtool \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-dist_javaJAVA \
-	uninstall-includeHEADERS uninstall-info-am
+	uninstall-info-am uninstall-timsincludeHEADERS
 
 
 install-dist_javaJAVA: classdist_java.stamp

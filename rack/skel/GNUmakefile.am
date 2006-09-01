@@ -1,11 +1,11 @@
 
-includedir = $(prefix)/include/drivers
+drvincludedir = $(DESTDIR)$(pkgincludedir)/drivers
 
 SUBDIRS = \
 	. \
 	dummy
 
-include_HEADERS = \
+drvinclude_HEADERS = \
 	dummy_proxy.h
 
 #dist_java_JAVA =

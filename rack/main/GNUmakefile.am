@@ -1,7 +1,7 @@
 OPTDIRS =
 OPTHEADERS =
 
-includedir = $(prefix)/include/main
+mainincludedir = $(DESTDIR)$(pkgincludedir)/main
 
 if CONFIG_RACK_RTCAN_SUPPORT
 OPTDIRS += canport
@@ -12,7 +12,7 @@ if CONFIG_RACK_LIBJPEG_SUPPORT
 OPTHEADERS += jpeg_data_dst_mem.h
 endif
 
-include_HEADERS = \
+maininclude_HEADERS = \
 	$(OPTHEADERS) \
 	angle_tool.h \
 	argopts.h \
@@ -62,7 +62,3 @@ SUBDIRS = \
 	argopts \
 	dxfmap \
 	lib
-
-
-EXTRA_DIST = \
-	Kconfig

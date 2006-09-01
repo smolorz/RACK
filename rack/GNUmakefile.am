@@ -1,7 +1,5 @@
 ACLOCAL_AMFLAGS=-I config/autoconf
 
-includedir = $(prefix)/include
-
 SUBDIRS = \
 	config \
 	doc \
@@ -19,7 +17,7 @@ JARFILE = @PROJNAME@.jar
 
 if CONFIG_RACK_JAVA
 
-all: $(JARFILE)
+pkglib_DATA = $(JARFILE)
 
 MANIFEST =
 MANIFEST_FLAG =
@@ -31,7 +29,7 @@ MANIFEST_FLAG += m
 
 endif
 
-@PROJNAME@.jar: all-recursive $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
+@PROJNAME@.jar: $(MANIFEST) $(shell find $(top_builddir) -name "*.class")
 	@echo "creating $@"; \
 	builddir=`pwd`; \
 	cd $(top_builddir); \
@@ -58,17 +56,5 @@ DISTCLEANFILES = \
 reconfig xconfig gconfig mconfig menuconfig config oldconfig help:
 	@$(MAKE) -f $(srcdir)/makefile $@ \
 	srctree=$(srcdir) ARCH=@RACK_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
-
-install-data-local:
-	rm -f $(DESTDIR)$(prefix)/build
-	$(LN_S) @abs_top_builddir@ $(DESTDIR)$(prefix)/build
-	rm -f $(DESTDIR)$(prefix)/source
-	$(LN_S) @abs_srcdir@ $(DESTDIR)$(prefix)/source
-	if test x"$(CONFIG_RACK_JAVA)" == "xy" ; then \
-		install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
-	fi;
-
-uninstall-local:
-	$(RM) -r $(DESTDIR)$(prefix)/gui/$(JARFILE)
 
 .PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help

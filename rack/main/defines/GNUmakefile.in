@@ -46,7 +46,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	ScanPoint.java
 
 subdir = main/defines
-DIST_COMMON = $(am__dist_java_JAVA_DIST) $(include_HEADERS) \
+DIST_COMMON = $(am__dist_java_JAVA_DIST) $(definclude_HEADERS) \
 	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
@@ -64,15 +64,15 @@ am__dist_java_JAVA_DIST = ImageRect.java Point2D.java Point3D.java \
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(defincludedir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS)
+defincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(definclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -218,7 +218,6 @@ PROJNAME = @PROJNAME@
 RACK_CPPFLAGS = @RACK_CPPFLAGS@
 RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
 RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
-RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
 RACK_KBUILD_CLEAN = @RACK_KBUILD_CLEAN@
 RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
 RACK_KBUILD_DISTCLEAN = @RACK_KBUILD_DISTCLEAN@
@@ -272,7 +271,7 @@ host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
-includedir = $(prefix)/include/main/defines
+includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
@@ -287,7 +286,8 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-include_HEADERS = \
+defincludedir = $(DESTDIR)$(pkgincludedir)/main/defines
+definclude_HEADERS = \
 	list_head.h \
 	rack_bitops.h \
 	\
@@ -360,22 +360,22 @@ uninstall-dist_javaJAVA:
 
 clean-dist_javaJAVA:
 	-rm -f *.class classdist_java.stamp
-install-includeHEADERS: $(include_HEADERS)
+install-defincludeHEADERS: $(definclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	test -z "$(defincludedir)" || $(mkdir_p) "$(DESTDIR)$(defincludedir)"
+	@list='$(definclude_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " $(defincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(defincludedir)/$$f'"; \
+	  $(defincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(defincludedir)/$$f"; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-defincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	@list='$(definclude_HEADERS)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(defincludedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(defincludedir)/$$f"; \
 	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -457,7 +457,7 @@ check-am: all-am
 check: check-am
 all-am: GNUmakefile classdist_java.stamp $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(defincludedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -504,7 +504,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_javaJAVA install-includeHEADERS
+install-data-am: install-defincludeHEADERS install-dist_javaJAVA
 
 install-exec-am:
 
@@ -530,21 +530,21 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_javaJAVA uninstall-includeHEADERS \
+uninstall-am: uninstall-defincludeHEADERS uninstall-dist_javaJAVA \
 	uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean \
 	clean-dist_javaJAVA clean-generic clean-libtool ctags \
 	distclean distclean-generic distclean-libtool distclean-tags \
 	distdir dvi dvi-am html html-am info info-am install \
-	install-am install-data install-data-am install-dist_javaJAVA \
-	install-exec install-exec-am install-includeHEADERS \
-	install-info install-info-am install-man install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-dist_javaJAVA uninstall-includeHEADERS \
-	uninstall-info-am
+	install-am install-data install-data-am \
+	install-defincludeHEADERS install-dist_javaJAVA install-exec \
+	install-exec-am install-info install-info-am install-man \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-defincludeHEADERS \
+	uninstall-dist_javaJAVA uninstall-info-am
 
 
 install-dist_javaJAVA: classdist_java.stamp

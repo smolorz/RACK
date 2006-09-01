@@ -5,12 +5,11 @@ SUBDIRS = \
 	navigation \
 	perception
 
-datadir = $(prefix)/gui
-
 if CONFIG_RACK_JAVA_GUI
 
-data_DATA = \
-	gui.cfg
+pkgdata_DATA = \
+	gui.cfg \
+	rack_gui.html
 
 dist_java_JAVA = \
 	Gui.java \
@@ -25,4 +24,5 @@ install-dist_javaJAVA: classdist_java.stamp
 
 EXTRA_DIST = \
 	gui.cfg \
-	gui.manifest
+	gui.manifest \
+	rack_gui.html

@@ -1,7 +1,7 @@
 
-includedir = $(prefix)/include/main/defines
+defincludedir = $(DESTDIR)$(pkgincludedir)/main/defines
 
-include_HEADERS = \
+definclude_HEADERS = \
 	list_head.h \
 	rack_bitops.h \
 	\

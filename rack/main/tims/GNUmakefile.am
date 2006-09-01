@@ -1,7 +1,7 @@
 
-includedir = $(prefix)/include/main/tims
+timsincludedir = $(DESTDIR)$(pkgincludedir)/main/tims
 
-include_HEADERS = \
+timsinclude_HEADERS = \
 	tims.h \
 	tims_byteorder.h \
 	tims_endian.h \

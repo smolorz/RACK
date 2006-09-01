@@ -1,5 +1,5 @@
 
-includedir = $(prefix)/include/drivers
+drvincludedir = $(DESTDIR)$(pkgincludedir)/drivers
 
 SUBDIRS = \
 	. \
@@ -9,7 +9,7 @@ SUBDIRS = \
 	ladar \
 	odometry
 
-include_HEADERS = \
+drvinclude_HEADERS = \
 	camera_proxy.h \
 	chassis_proxy.h \
 	gps_proxy.h \

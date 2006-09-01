@@ -1,10 +1,12 @@
 
-datadir = $(prefix)/examples
+pkgdata_DATA = \
+	rack_example.dxf
 
-data_DATA = \
+pkgdata_SCRIPTS = \
 	load_rack_sim \
-	rack_sim.dxf
+	load_rack_gui
 
 EXTRA_DIST = \
 	load_rack_sim.in \
-	rack_sim.dxf
+	load_rack_gui.in \
+	rack_example.dxf

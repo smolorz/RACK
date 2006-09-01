@@ -1,5 +1,4 @@
 
-bindir = $(prefix)/bin/skel
 bin_PROGRAMS =
 
 if CONFIG_RACK_DUMMY_ABC

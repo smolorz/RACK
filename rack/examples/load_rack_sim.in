@@ -17,12 +17,17 @@
 #
 #
 
-RACK_DIR=@prefix@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+BINDIR=@bindir@
+LIBDIR=@libdir@
+PKGLIBDIR=@libdir@/rack
+PKGDATADIR=@datadir@/rack
 
 CURR_PATH=`pwd`
 
 
-# in case Xenomai was built as modules
+# in case Xenomai was built modularised
 
 modprobe xeno_rtdm 2> /dev/null
 modprobe xeno_native 2> /dev/null
@@ -30,22 +35,17 @@ modprobe xeno_native 2> /dev/null
 
 # TiMS communication services
 
-cd $RACK_DIR/bin/tims
+cd $BINDIR
 
-./tims_msg_client &
+./tims_client &
+./tims_router_tcp &
 
-./tcp_tims_msg_router &
-
-cd $RACK_DIR/modules
-
-insmod ./tims.ko
+insmod $PKGLIBDIR/tims.ko
 
 
 # RACK real-time applications
 
-export LD_LIBRARY_PATH=$RACK_DIR/lib:$LD_LIBRARY_PATH
-
-cd $RACK_DIR/bin/drivers
+export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
 
 ./ChassisSim \
     --instance 0 \
@@ -57,17 +57,13 @@ cd $RACK_DIR/bin/drivers
     --cmdTaskPrio 20 \
     --dataTaskPrio 19 &
 
-cd $RACK_DIR/bin/perception
-
 ./Scan2DSim \
     --instance 0 \
     --odometryInst 0 \
     --maxRange=10000 \
     --cmdTaskPrio 20 \
     --dataTaskPrio 19 \
-    --mapFile $RACK_DIR/examples/rack_sim.dxf &
-
-cd $RACK_DIR/bin/navigation
+    --mapFile $PKGDATADIR/rack_example.dxf &
 
 ./PilotJoystick \
     --instance 0 \
@@ -83,6 +79,6 @@ sleep 3
 echo -n "Press ENTER to terminate"
 read DUMMY
 
-killall PilotJoystick Scan2DSim OdometryChassis ChassisSim tims_msg_client tcp_tims_msg_router
+killall PilotJoystick Scan2DSim OdometryChassis ChassisSim tims_client tims_router_tcp
 sleep 3
 rmmod tims

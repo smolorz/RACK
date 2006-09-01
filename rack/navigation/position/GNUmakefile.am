@@ -1,5 +1,4 @@
 
-bindir = $(prefix)/bin/navigation
 bin_PROGRAMS =
 
 if CONFIG_RACK_POSITION

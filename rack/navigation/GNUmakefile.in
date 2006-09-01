@@ -43,7 +43,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	PositionDataMsg.java
 
 subdir = navigation
-DIST_COMMON = $(am__dist_java_JAVA_DIST) $(include_HEADERS) \
+DIST_COMMON = $(am__dist_java_JAVA_DIST) $(navinclude_HEADERS) \
 	$(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
@@ -66,15 +66,15 @@ am__dist_java_JAVA_DIST = PilotProxy.java PilotDataMsg.java \
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(navincludedir)"
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS)
+navincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(navinclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -221,7 +221,6 @@ PROJNAME = @PROJNAME@
 RACK_CPPFLAGS = @RACK_CPPFLAGS@
 RACK_GLOBAL_CPPFLAGS = @RACK_GLOBAL_CPPFLAGS@
 RACK_GLOBAL_LDFLAGS = @RACK_GLOBAL_LDFLAGS@
-RACK_JAVA_JARDIR = @RACK_JAVA_JARDIR@
 RACK_KBUILD_CLEAN = @RACK_KBUILD_CLEAN@
 RACK_KBUILD_CMD = @RACK_KBUILD_CMD@
 RACK_KBUILD_DISTCLEAN = @RACK_KBUILD_DISTCLEAN@
@@ -275,7 +274,7 @@ host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
-includedir = $(prefix)/include/navigation
+includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
@@ -290,7 +289,8 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-include_HEADERS = \
+navincludedir = $(DESTDIR)$(pkgincludedir)/navigation
+navinclude_HEADERS = \
 	pilot_proxy.h \
 	position_proxy.h
 
@@ -365,22 +365,22 @@ uninstall-dist_javaJAVA:
 
 clean-dist_javaJAVA:
 	-rm -f *.class classdist_java.stamp
-install-includeHEADERS: $(include_HEADERS)
+install-navincludeHEADERS: $(navinclude_HEADERS)
 	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	test -z "$(navincludedir)" || $(mkdir_p) "$(DESTDIR)$(navincludedir)"
+	@list='$(navinclude_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " $(navincludeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(navincludedir)/$$f'"; \
+	  $(navincludeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(navincludedir)/$$f"; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-navincludeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	@list='$(navinclude_HEADERS)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(navincludedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(navincludedir)/$$f"; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -562,7 +562,7 @@ check: check-recursive
 all-am: GNUmakefile classdist_java.stamp $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(navincludedir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -609,7 +609,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_javaJAVA install-includeHEADERS
+install-data-am: install-dist_javaJAVA install-navincludeHEADERS
 
 install-exec-am:
 
@@ -635,8 +635,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dist_javaJAVA uninstall-includeHEADERS \
-	uninstall-info-am
+uninstall-am: uninstall-dist_javaJAVA uninstall-info-am \
+	uninstall-navincludeHEADERS
 
 uninstall-info: uninstall-info-recursive
 
@@ -647,14 +647,14 @@ uninstall-info: uninstall-info-recursive
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
 	install-dist_javaJAVA install-exec install-exec-am \
-	install-includeHEADERS install-info install-info-am \
-	install-man install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
+	install-info install-info-am install-man \
+	install-navincludeHEADERS install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic maintainer-clean-recursive \
 	mostlyclean mostlyclean-generic mostlyclean-libtool \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-dist_javaJAVA \
-	uninstall-includeHEADERS uninstall-info-am
+	uninstall-info-am uninstall-navincludeHEADERS
 
 
 install-dist_javaJAVA: classdist_java.stamp

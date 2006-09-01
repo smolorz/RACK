@@ -1,7 +1,7 @@
 
-includedir = $(prefix)/include/navigation
+navincludedir = $(DESTDIR)$(pkgincludedir)/navigation
 
-include_HEADERS = \
+navinclude_HEADERS = \
 	pilot_proxy.h \
 	position_proxy.h
 

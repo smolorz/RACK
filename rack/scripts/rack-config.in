@@ -1,19 +1,20 @@
 #! /bin/bash
 
 staging=${DESTDIR}
-prefix="@prefix@"
-exec_prefix="@exec_prefix@"
-libdir="@libdir@"
-datadir="@datadir@"
-pkgdatadir="${datadir}/@PACKAGE@"
-includedir="@includedir@"
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+pkglibdir=${libdir}/@PACKAGE@
+datadir=@datadir@
+pkgdatadir=${datadir}/@PACKAGE@
+pkgincludedir=@includedir@/@PACKAGE@
 
 #
 # RACK
 #
 RACK_VERSION="@PACKAGE_VERSION@"
 RACK_PREFIX="${staging}${prefix}"
-RACK_CPPFLAGS="-I${staging}${includedir} @XENOMAI_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
+RACK_CPPFLAGS="-I${staging}${pkgincludedir} @XENOMAI_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
 RACK_LDFLAGS="-L${staging}${libdir} @XENOMAI_LDFLAGS@ @RACK_GLOBAL_LDFLAGS@"
 RACK_LIBS="@RACK_LIBS@"
 
@@ -54,7 +55,7 @@ OPENCV_CPPFLAGS="@OPENCV_CPPFLAGS@"
 OPENCV_LDFLAGS="@OPENCV_LDFLAGS@"
 OPENCV_LIBS="@OPENCV_LIBS@"
 
-unset prefix exec_prefix libdir datadir pkgdatadir includedir
+unset prefix exec_prefix libdir datadir pkgdatadir pkgincludedir
 
 usage ()
 {
