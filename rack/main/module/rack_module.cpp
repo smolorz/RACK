@@ -562,12 +562,6 @@ int       RackModule::moduleInit(void)
 {
     int ret;
 
-    argDescriptor_t module_argDesc[] = {
-          {module_argTab},
-          {arg_table},
-          {NULL}
-    };
-
     GDOS_DBG_DETAIL("RackModule::moduleInit ... \n");
 
     // disable memory swapping for this program
