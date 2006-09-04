@@ -44,7 +44,8 @@ void printAllArgs(argDescriptor_t *p_argdesc)
         while (descTab[tabidx].name.length() != 0)
         {
             if (descTab[tabidx].has_val != ARGOPT_NOVAL)  // print out values
-                switch (descTab[tabidx].val_type) {
+                switch (descTab[tabidx].val_type)
+                {
                     case ARGOPT_VAL_INT:
                         printf(" %-18s: %d\n", descTab[tabidx].name.c_str(),
                                descTab[tabidx].val.i);
@@ -61,53 +62,13 @@ void printAllArgs(argDescriptor_t *p_argdesc)
                         break;
                 }
             else    // arguments no not have values
-            {
                 printf(" %-18s\n", descTab[tabidx].name.c_str());
-            }
 
             tabidx++;
         }
         table++;
     }
     printf("\n");
-}
-
-void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg)
-{
-    argTable_t *descTab;
-    int table = 0;
-    int tabidx = 0;
-
-//  GDOS_PRINT("%s", "Hallo");
-    while (p_argdesc[table].tab)
-    {
-        descTab = p_argdesc[table].tab;
-        tabidx = 0;
-
-        while (descTab[tabidx].name.length() != 0)
-        {
-            if (descTab[tabidx].has_val != ARGOPT_NOVAL)  // print out values
-            {
-                if (descTab[tabidx].val_type == ARGOPT_VAL_INT)
-                {
-//                    printf(" %-18s: %d\n",
-//                           descTab[tabidx].name.c_str(),descTab[tabidx].val.i);
-                }
-                else
-                {
-//                  printf(" %-18s: %s\n",
-//                         descTab[tabidx].name.c_str(), descTab[tabidx].val.c);
-                }
-            }
-            else    // arguments no not have values
-            {
-//              printf(" %-18s\n", descTab[tabidx].name.c_str());
-            }
-
-            tabidx++;
-        }
-        table++;
-    }
 }
 
 void argUsage(argDescriptor_t *p_argdesc)
@@ -332,12 +293,10 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
 arg_value_t __getArg(char* argname, argTable_t *p_tab)
 {
     int idx = 0;
-    while ( p_tab[idx].name != "")
+    while (p_tab[idx].name != "")
     {
         if (!strcmp(argname, p_tab[idx].name.c_str()))
-        {
               return p_tab[idx].val;
-        }
         idx++;
     }
     printf("\n");

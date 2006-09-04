@@ -620,9 +620,6 @@ int       RackModule::moduleInit(void)
     }
 
 
-    // print all start arguments
-    gdosAllArgs(module_argDesc, gdos);
-
     // create command task
     snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%dC", classname, inst);
 

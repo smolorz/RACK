@@ -89,6 +89,5 @@ static inline float getFltArg(char *argname, argTable_t *p_tab)
 }
 
 void printAllArgs(argDescriptor_t *p_argdesc);
-void gdosAllArgs(argDescriptor_t *p_argdesc, GdosMailbox *dbg);
 
 #endif // _ARGOPTS_H_
