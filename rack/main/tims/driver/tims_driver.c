@@ -1534,7 +1534,7 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
             if (p_ctx2)
             {
                   tims_error("RTIOC_BIND -> address %x has been allocated "
-                           "by another one\n", p_ctx->sock.id);
+                           "by another one\n", p_ctx2->sock.id);
 
                 tims_ctx_put(p_ctx2);
                 tims_ctx_put(p_ctx);
