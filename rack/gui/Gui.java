@@ -957,10 +957,10 @@ public final class Gui extends Thread
         if (mainFrameLocationSize == null)
         {
             mainFrameLocationSize = new int[4];
-            mainFrameLocationSize[0] = 800;
-            mainFrameLocationSize[0] = 600;
             mainFrameLocationSize[0] = 0;
-            mainFrameLocationSize[0] = 0;
+            mainFrameLocationSize[1] = 0;
+            mainFrameLocationSize[2] = 800;
+            mainFrameLocationSize[3] = 600;
         }
 
         mainFrame.setVisible(true);
@@ -1534,7 +1534,7 @@ public final class Gui extends Thread
                 BufferedReader cfgReader = new BufferedReader(new FileReader(fileName));
                 mainSaveConfigFile  = new File(fileName);
 
-                mainGui = new Gui(frame.getContentPane(), cfgReader, routerAdr, routerPort);
+                mainGui = new Gui(frame, cfgReader, routerAdr, routerPort);
 
                 frame.setTitle("RACK GUI (" + mainGui.routerAdr.getHostAddress() + ")");
                 frame.setLocation(mainGui.mainFrameLocationSize[0], mainGui.mainFrameLocationSize[1]);
