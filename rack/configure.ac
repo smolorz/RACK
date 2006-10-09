@@ -1217,7 +1217,7 @@ dnl ======================================================================
 
 dnl ---- cppflags --------------------------------------------------------------
 
-RACK_GLOBAL_CPPFLAGS="-Wall"
+RACK_GLOBAL_CPPFLAGS="-Wall -pipe -O2 -fstrict-aliasing"
 AC_SUBST(RACK_GLOBAL_CPPFLAGS)
 
 dnl ---- ldflags ---------------------------------------------------------------

@@ -22119,7 +22119,7 @@ fi
 
 
 
-RACK_GLOBAL_CPPFLAGS="-Wall"
+RACK_GLOBAL_CPPFLAGS="-Wall -pipe -O2 -fstrict-aliasing"
 
 
 
