@@ -872,12 +872,12 @@ int main(int argc, char* argv[])
                 "The tims router TCP is a Linux server that transferes "
                 "tims messages between different RACK subsystems\n"
                 "\n"
-                "-i IP address of the tims router TCP\n"
-                "   (default 127.0.0.1 localhost)\n"
+                "-i IP address of the tims router to listen on\n"
+                "   (default: all interfaces)\n"
                 "-p port of the tims router TCP\n"
-                "   (default 2000)\n"
+                "   (default: 2000)\n"
                 "-m maxMessageSize in kBytes\n"
-                "   (default 256 kByte)\n"
+                "   (default: 256 kByte)\n"
                 "-l log level\n"
                 "   debug log level, 0 = silent, 1 = some important messages, 2 = verbose\n");
                 return -1;
