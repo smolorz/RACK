@@ -408,7 +408,7 @@ int ChassisPioneer::moduleLoop(void)
 
         putDataBufferWorkSpace(datalength);
 
-        GDOS_DBG_DETAIL("lEncoder=%i rEncoder=%i vx=%.1f mm/s omega=%.1a deg/s\n",
+        GDOS_DBG_DETAIL("lEncoder=%i rEncoder=%i vx=%f mm/s omega=%a deg/s\n",
                         leftEncoderNew, rightEncoderNew,
                         p_data->vx, p_data->omega);
 
