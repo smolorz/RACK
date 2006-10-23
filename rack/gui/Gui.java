@@ -543,6 +543,15 @@ public final class Gui extends Thread
                     catch (PropertyVetoException e) {}
                 }
 
+                if (moduleFrame[i].isMaximum())
+                {
+                    try
+                    {
+                        moduleFrame[i].setMaximum(false);
+                    }
+                    catch (PropertyVetoException e) {}
+                }
+
                 if (moduleLocationSize[i] == null)
                 {
                     moduleLocationSize[i] = new int[4];
@@ -1159,6 +1168,7 @@ public final class Gui extends Thread
         {
             moduleFrame[id].moveToFront();
             moduleFrame[id].setSelected(true);
+            jtp.setSelectedIndex(((Integer)moduleWorkSpace.get(id)).intValue());
         }
         catch (java.beans.PropertyVetoException pe)
         {
