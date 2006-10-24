@@ -78,7 +78,7 @@ public final class AppletGui extends Applet {
                 
                 this.setLayout(new BorderLayout());
 
-                gui = new Gui(this, cfgReader, routerAdr, 2000);
+                gui = new Gui(null, this, cfgReader, routerAdr, 2000);
             }
             catch (Exception e)
             {

@@ -48,7 +48,8 @@ public final class Gui extends Thread
     private int[]  groupSizeInt;
 
     // main frame
-    private Container       mainFrame;
+    private JFrame          mainFrame;
+    private Container       mainFrameContent;
     private int[]           mainFrameLocationSize;
 
     // navigation panel
@@ -97,10 +98,11 @@ public final class Gui extends Thread
 
     private boolean         terminate = false;
 
-    public Gui(Container mainFrame, BufferedReader cfgReader,
+    public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader,
                InetAddress routerAdr, int routerPort) throws Exception
     {
         this.mainFrame = mainFrame;
+        this.mainFrameContent = mainFrameContent;
 
         try
         {
@@ -109,7 +111,7 @@ public final class Gui extends Thread
 
             if (moduleNum <= 0)
             {
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "Config file empty.\n" + 
                         "GUI config file has to contain at least one module",
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
@@ -142,7 +144,7 @@ public final class Gui extends Thread
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(mainFrame,
+                    JOptionPane.showMessageDialog(mainFrameContent,
                                     "Can't load jar file \"" + jarFile + "\"",
                                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
@@ -160,7 +162,7 @@ public final class Gui extends Thread
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(mainFrame,
+                    JOptionPane.showMessageDialog(mainFrameContent,
                                     "Can't load RackName extension \"" + rackName + "\"",
                                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
@@ -193,7 +195,7 @@ public final class Gui extends Thread
 
             if (this.routerAdr == null)
             {
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "No TimsRouterTcp address\n" + 
                         "Add param 'ROUTER_IP x.x.x.x' to your GUI config file",
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
@@ -209,7 +211,7 @@ public final class Gui extends Thread
             }
             catch (TimsException e)
             {
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "Can't connect to TimsRouterTcp.\n" +
                         "Check service and connection to " +
                         this.routerAdr.getHostAddress() + " port " + this.routerPort,
@@ -232,6 +234,14 @@ public final class Gui extends Thread
     
             System.out.println("Starting ...");
             start();
+
+            if(mainFrame != null)
+            {
+                mainFrame.setTitle("RACK GUI (" + this.routerAdr.getHostAddress() + ")");
+                mainFrame.setLocation(mainFrameLocationSize[0], mainFrameLocationSize[1]);
+                mainFrame.setSize(mainFrameLocationSize[2], mainFrameLocationSize[3]);
+                mainFrame.setVisible(true);
+            }
         }
         catch(Exception e)
         {
@@ -366,7 +376,7 @@ public final class Gui extends Thread
         }
         catch (IOException ioe)
         {
-            JOptionPane.showMessageDialog(mainFrame,
+            JOptionPane.showMessageDialog(mainFrameContent,
                             "Error reading config file",
                             "RACK GUI", JOptionPane.ERROR_MESSAGE);
             throw ioe;
@@ -441,7 +451,7 @@ public final class Gui extends Thread
             }
             catch (NumberFormatException nfe)
             {
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "Error reading module location and size.\n" + 
                         "\"" + path + "\"",
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
@@ -593,9 +603,17 @@ public final class Gui extends Thread
 
         }
         // um die mainFrameLocationSize abzuspeichen.
+        if(mainFrame != null)
+        {
+            mainFrameLocationSize[0] = mainFrame.getLocation().x;
+            mainFrameLocationSize[1] = mainFrame.getLocation().y;
+            mainFrameLocationSize[2] = mainFrame.getSize().width;
+            mainFrameLocationSize[3] = mainFrame.getSize().height;
+        }
+
         String str = "//mainFrameLocationSize(" + mainFrame.getLocation().x
-                + "," + mainFrame.getLocation().y + ";" + mainFrame.getSize().width
-                + "," + mainFrame.getSize().height + ")";
+                     + "," + mainFrame.getLocation().y + ";" + mainFrame.getSize().width
+                     + "," + mainFrame.getSize().height + ")";
 
         if (cfgLines.get(0).toString().startsWith(
                 "//mainFrameLocationSize"))
@@ -660,7 +678,7 @@ public final class Gui extends Thread
         }
         catch (ClassNotFoundException e1)
         {
-            JOptionPane.showMessageDialog(mainFrame,
+            JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load module gui.\n" +
                     "\"" + moduleGuiName + "\"",
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
@@ -673,7 +691,7 @@ public final class Gui extends Thread
         }
         catch (ClassNotFoundException e1)
         {
-            JOptionPane.showMessageDialog(mainFrame,
+            JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load module proxy.\n" + 
                     "\"" + moduleProxyName + "\" class not found! \n" +
                     "Tip: Use parameter \"-proxy=...\" in config-File.",
@@ -713,7 +731,7 @@ public final class Gui extends Thread
             catch (IllegalArgumentException e)
             {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "\"" + moduleGuiName + "\" Illegal Argument!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
@@ -721,7 +739,7 @@ public final class Gui extends Thread
             catch (InstantiationException e)
             {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "\"" + moduleGuiName + "\" Instantiation Exception!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
@@ -729,7 +747,7 @@ public final class Gui extends Thread
             catch (NoSuchMethodException e)
             {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "\"" + moduleGuiName + "\" No Such Method Exception!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
@@ -737,7 +755,7 @@ public final class Gui extends Thread
             catch (Exception e)
             {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrame,
+                JOptionPane.showMessageDialog(mainFrameContent,
                         "\"" + moduleGuiName + "\" getConstructor/newInstance Exception!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
                 return null;
@@ -773,7 +791,7 @@ public final class Gui extends Thread
         }
         catch (TimsException e)
         {
-            JOptionPane.showMessageDialog(mainFrame,
+            JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't create Mailbox\n" + e.getMessage(),
                     "Tims Exception", JOptionPane.ERROR_MESSAGE);
             throw e;
@@ -816,7 +834,7 @@ public final class Gui extends Thread
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(mainFrame,
+            JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load module proxy.\n" +
                     "\"" + str.substring(0, blank) + "\"",
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
@@ -834,7 +852,7 @@ public final class Gui extends Thread
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(mainFrame,
+            JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't set LookAndFeel",
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
             throw e;
@@ -927,7 +945,7 @@ public final class Gui extends Thread
         allOffInterPanel.add(allOffButton, BorderLayout.NORTH);
         navigationPanel.add(allOffInterPanel);
 
-        mainFrame.add(navigationScrollPanel, BorderLayout.WEST);
+        mainFrameContent.add(navigationScrollPanel, BorderLayout.WEST);
 
         // create work panel (Tabbed Panel in the center)
         jtp = new JTabbedPane();
@@ -937,7 +955,7 @@ public final class Gui extends Thread
         	jdp[i] = new JDesktopPane();
          	jtp.add((String)workSpaceName.get(i),jdp[i]);
         }
-        mainFrame.add(jtp, BorderLayout.CENTER);
+        mainFrameContent.add(jtp, BorderLayout.CENTER);
 
         // create message frame as an internal frame
         messageFrame = new JInternalFrame("GDOS Message", true, false, true, true);
@@ -972,7 +990,7 @@ public final class Gui extends Thread
             mainFrameLocationSize[3] = 600;
         }
 
-        mainFrame.setVisible(true);
+        mainFrameContent.setVisible(true);
     }
 
     private int[] getMainFrameLocationSize(Vector configZeilen)
@@ -1389,7 +1407,7 @@ public final class Gui extends Thread
         System.out.println("Terminating ...");
 
         terminate = true;
-        mainFrame.setVisible(false);
+        mainFrameContent.setVisible(false);
         
         // terminate gui thread
         try
@@ -1544,12 +1562,7 @@ public final class Gui extends Thread
                 BufferedReader cfgReader = new BufferedReader(new FileReader(fileName));
                 mainSaveConfigFile  = new File(fileName);
 
-                mainGui = new Gui(frame, cfgReader, routerAdr, routerPort);
-
-                frame.setTitle("RACK GUI (" + mainGui.routerAdr.getHostAddress() + ")");
-                frame.setLocation(mainGui.mainFrameLocationSize[0], mainGui.mainFrameLocationSize[1]);
-                frame.setSize(mainGui.mainFrameLocationSize[2], mainGui.mainFrameLocationSize[3]);
-                frame.setVisible(true);
+                mainGui = new Gui(frame, frame.getContentPane(), cfgReader, routerAdr, routerPort);
             }
             catch(IOException e)
             {
