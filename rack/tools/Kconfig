@@ -1,0 +1,7 @@
+menu "Tools"
+
+menu "Datalog"
+source "tools/datalog/Kconfig"
+endmenu
+
+endmenu

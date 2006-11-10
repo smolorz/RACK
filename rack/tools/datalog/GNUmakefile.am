@@ -1,0 +1,20 @@
+
+bin_PROGRAMS =
+
+if CONFIG_RACK_DATALOG
+bin_PROGRAMS += RackDatalog
+endif
+
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
+RackDatalog_SOURCES = \
+	rack_datalog.h \
+	rack_datalog.cpp
+
+
+EXTRA_DIST = \
+	Kconfig

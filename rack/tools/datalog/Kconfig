@@ -1,0 +1,6 @@
+
+config RACK_DATALOG
+    bool "Rack Datalog"
+    default y
+    ---help---
+    Help text.
