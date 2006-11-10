@@ -11,11 +11,34 @@ LDADD    = @RACK_LIBS@
 RackLogger_SOURCES = \
 	racklogger.cpp
 
+
+toolincludedir = $(pkgincludedir)/tools
+
+toolinclude_HEADERS = \
+        datalog_proxy.h
+
+SUBDIRS = \
+        datalog 
+
+dist_java_JAVA =
+
 if CONFIG_RACK_JAVA
 
-dist_java_JAVA = \
+dist_java_JAVA += \
 	Camera2PngConverter.java
+
+endif
 
 install-dist_javaJAVA: classdist_java.stamp
 
-endif
+EXTRA_DIST = \
+        Kconfig \
+        \
+        datalog_proxy.cpp
+
+
+
+
+
+
+

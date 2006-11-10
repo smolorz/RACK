@@ -793,6 +793,23 @@ if test "$CONFIG_RACK_DUMMY_ABC" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  tools - rack datalog
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Rack Datalog])
+AC_ARG_ENABLE(rack-datalog,
+    AS_HELP_STRING([--enable-rack-datalog], [building Rack Datalog]),   
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_DATALOG=y ;;
+        *) CONFIG_RACK_DATALOG=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_DATALOG:-n}])
+AM_CONDITIONAL(CONFIG_RACK_DATALOG,[test "$CONFIG_RACK_DATALOG" = "y"])
+if test "$CONFIG_RACK_DATALOG" = "y"; then
+    AC_DEFINE(CONFIG_RACK_DATALOG,1,[building Rack Datalog])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  ...
 dnl -----------------------------------------------------------------
 
@@ -1475,6 +1492,7 @@ AC_CONFIG_FILES([GNUmakefile \
     gui/perception/GNUmakefile \
     \
     tools/GNUmakefile \
+    tools/datalog/GNUmakefile \
     \
     examples/GNUmakefile \
     examples/load_rack_sim \

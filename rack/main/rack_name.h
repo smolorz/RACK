@@ -34,6 +34,7 @@
 #define JOYSTICK                0x17
 #define PILOT                   0x18
 #define SCAN2D                  0x19
+#define DATALOG                 0x20
 
 #define RACK_NAME_OFFSET        0x80
 
