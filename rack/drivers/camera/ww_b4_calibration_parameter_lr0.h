@@ -22,7 +22,7 @@
 #ifndef __CALIBRATION_WW_B4__
 #define __CALIBRATION_WW_B4__
 
-#define    F    4.8
+#define    F    4.86
 #define    F_x  756 //f in pixel = 4.8 mm
 #define    F_y  753
 
