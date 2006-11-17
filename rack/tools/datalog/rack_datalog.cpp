@@ -60,11 +60,17 @@ int  RackDatalog::moduleOn(void)
         fileptr[i] = NULL;
     }
 
+    contDataMbx.clean();
+
+    GDOS_PRINT("logNum= %d\n", datalogInfoMsg.data.logNum);
+
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
         logEnable  = datalogInfoMsg.logInfo[i].logEnable;
         periodTime = datalogInfoMsg.logInfo[i].periodTime;
         moduleMbx  = datalogInfoMsg.logInfo[i].moduleMbx;
+
+        GDOS_PRINT("[%d] logEnable %d, periodTime %d, moduleMbx %d\n", i, datalogInfoMsg.logInfo[i].logEnable, datalogInfoMsg.logInfo[i].periodTime, datalogInfoMsg.logInfo[i].moduleMbx);
 
         if (logEnable > 0)
         {
@@ -76,7 +82,8 @@ int  RackDatalog::moduleOn(void)
             }
 
             // turn on module
-            ret = moduleOn(moduleMbx, &workMbx, 5000000000ll);
+//            ret = moduleOn(moduleMbx, &workMbx, 5000000000ll);
+            printf("getContData: %s\n", datalogInfoMsg.logInfo[i].filename);
 
             // request continuous data
             ret = getContData(moduleMbx, periodTime, &contDataMbx, &workMbx,
@@ -166,7 +173,7 @@ int  RackDatalog::moduleLoop(void)
     // position data received
     if (msgInfo.type != MSG_DATA)
     {
-        GDOS_ERROR("No data package from %n type %i\n", msgInfo.src, msgInfo.type);
+        GDOS_ERROR("No data package from %i type %i\n", msgInfo.src, msgInfo.type);
         return -EINVAL;
     }
 
@@ -363,6 +370,9 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
 
     switch (msgInfo->type)
     {
+        GDOS_PRINT("msgInfo->type %d received\n", msgInfo->type);
+        printf("msgInfo->type %d received\n", msgInfo->type);
+
         case MSG_DATALOG_GET_LOG_STATUS:
             if (initLog == 1)
             {
@@ -381,11 +391,14 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
 
         case MSG_DATALOG_SET_LOG:
             setLogData = DatalogInfoData::parse(msgInfo);
+            GDOS_PRINT("logNum %i, setLogNum %i\n", datalogInfoMsg.data.logNum, setLogData->logNum);
 
             if (datalogInfoMsg.data.logNum == setLogData->logNum)
             {
-                memcpy(&datalogInfoMsg.data, &setLogData, sizeof(datalogInfoMsg));
+                memcpy(&datalogInfoMsg.data, setLogData, sizeof(datalogInfoMsg));
+                GDOS_PRINT("logNum %i, setLogNum %i\n", datalogInfoMsg.data.logNum, setLogData->logNum);
                 logInfoPrintModules(datalogInfoMsg.logInfo, datalogInfoMsg.data.logNum);
+                GDOS_PRINT("logNum %i, setLogNum %i\n", datalogInfoMsg.data.logNum, setLogData->logNum);
                 cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             }
             else
@@ -844,7 +857,8 @@ RackDatalog::RackDatalog(void)
                     5000000000llu,    // 5s datatask error sleep time
                      100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
-                    48,               // command mailbox data size per slot
+                    sizeof(datalog_info_data) + // command mailbox data size per slot
+                    DATALOG_LOGNUM_MAX * sizeof(datalog_info),
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
