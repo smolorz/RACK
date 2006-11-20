@@ -36,6 +36,7 @@ public class RackName
     public static final int JOYSTICK            = 0x17;
     public static final int PILOT               = 0x18;
     public static final int SCAN2D              = 0x19;
+    public static final int DATALOG             = 0x20;    
 
     public static final int OFFSET              = 0x80;
 
@@ -64,6 +65,7 @@ public class RackName
         classStringTable.put(new Integer(JOYSTICK), "Joystick");
         classStringTable.put(new Integer(PILOT), "Pilot");
         classStringTable.put(new Integer(SCAN2D), "Scan2D");
+        classStringTable.put(new Integer(DATALOG), "Datalog");
     }
 
     public static String classString(int rackName)
