@@ -10,6 +10,8 @@
 </manifest>
 <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{LadarProxy.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{CameraColorConvert.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{CameraMisColorConvert.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{OdometryDataMsg.java"/>
@@ -83,7 +85,11 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main{GetContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{GetDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PositionDataMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.tools{DatalogGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{Camera2PngConverter.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogLogInfo.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogLogInfoMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2DProxy.java"/>
 </selectedElements>
 </jardesc>
