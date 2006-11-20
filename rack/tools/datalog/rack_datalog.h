@@ -25,6 +25,7 @@
 #include <drivers/gps_proxy.h>
 #include <drivers/ladar_proxy.h>
 #include <drivers/odometry_proxy.h>
+#include <navigation/pilot_proxy.h>
 #include <navigation/position_proxy.h>
 #include <perception/scan2d_proxy.h>
 
@@ -99,6 +100,9 @@ class RackDatalog : public RackDataModule {
                                    uint64_t reply_timeout_ns);
 
         void logInfoPrintModules(datalog_info *logInfo, int logNum);
+
+        int  initLogFile();
+        int  logData(message_info *msgInfo, datalog_data *logData);
 
         // -> non realtime context
         void moduleCleanup(void);

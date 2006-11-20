@@ -18,10 +18,11 @@
 #include <main/argopts.h>
 
 // init_flags
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_WORK           1
-#define INIT_BIT_MBX_CONT_DATA      2
-#define INIT_BIT_MTX_CREATED        3
+#define INIT_BIT_CONT_DATA_BUFFER   0
+#define INIT_BIT_DATA_MODULE        1
+#define INIT_BIT_MBX_WORK           2
+#define INIT_BIT_MBX_CONT_DATA      3
+#define INIT_BIT_MTX_CREATED        4
 
 //
 // data structures
@@ -55,6 +56,12 @@ int  RackDatalog::moduleOn(void)
 
     GDOS_DBG_INFO("Turn on...\n");
 
+    if (datalogInfoMsg.data.logNum == 0)
+    {
+        GDOS_ERROR("Can't turn on, no modules to log\n");
+        return -EINVAL;
+    }
+
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
         fileptr[i] = NULL;
@@ -62,15 +69,11 @@ int  RackDatalog::moduleOn(void)
 
     contDataMbx.clean();
 
-    GDOS_PRINT("logNum= %d\n", datalogInfoMsg.data.logNum);
-
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
         logEnable  = datalogInfoMsg.logInfo[i].logEnable;
         periodTime = datalogInfoMsg.logInfo[i].periodTime;
         moduleMbx  = datalogInfoMsg.logInfo[i].moduleMbx;
-
-        GDOS_PRINT("[%d] logEnable %d, periodTime %d, moduleMbx %d\n", i, datalogInfoMsg.logInfo[i].logEnable, datalogInfoMsg.logInfo[i].periodTime, datalogInfoMsg.logInfo[i].moduleMbx);
 
         if (logEnable > 0)
         {
@@ -82,8 +85,7 @@ int  RackDatalog::moduleOn(void)
             }
 
             // turn on module
-//            ret = moduleOn(moduleMbx, &workMbx, 5000000000ll);
-            printf("getContData: %s\n", datalogInfoMsg.logInfo[i].filename);
+            ret = moduleOn(moduleMbx, &workMbx, 5000000000ll);
 
             // request continuous data
             ret = getContData(moduleMbx, periodTime, &contDataMbx, &workMbx,
@@ -114,6 +116,13 @@ int  RackDatalog::moduleOn(void)
 
     setDataBufferPeriodTime(datalogPeriodTime);
 
+    ret = initLogFile();
+    if (ret)
+    {
+        GDOS_ERROR("Can't init log files, code= %i\n", ret);
+        return ret;
+    }
+
     return RackDataModule::moduleOn();  // have to be last command in moduleOn();
 }
 
@@ -136,10 +145,12 @@ void RackDatalog::moduleOff(void)
 
         if (logEnable > 0)
         {
+            printf("[%d]: stopContData\n", i);
             stopContData(moduleMbx, &contDataMbx, &workMbx, 1000000000ll);
 
             if (fileptr[i] != NULL)
             {
+                printf("[%d]: fclose\n", i);
                 fclose(fileptr[i]);
             }
         }
@@ -148,29 +159,14 @@ void RackDatalog::moduleOff(void)
 
 int  RackDatalog::moduleLoop(void)
 {
-    int             i,j, ret;
-    int             bytesMax;
+    int             ret;
     message_info    msgInfo;
-
-    char            imageFilenameBuf[40] = "camera_";
-    char            imageTimestampBuf[20];
-    FILE*           imagefileptr;
-
-    camera_data     *cameraData;
-    chassis_data    *chassisData;
-    gps_data        *gpsData;
-    ladar_data      *ladarData;
-    odometry_data   *odometryData;
-    position_data   *positionData;
-    scan2d_data     *scan2dData;
     datalog_data    *pDatalogData = NULL;
-
 
     // get continuous data
     ret = contDataMbx.recvDataMsgTimed(4000000000llu, contDataPtr,
                                        DATALOG_MSG_SIZE_MAX, &msgInfo);
 
-    // position data received
     if (msgInfo.type != MSG_DATA)
     {
         GDOS_ERROR("No data package from %i type %i\n", msgInfo.src, msgInfo.type);
@@ -182,176 +178,13 @@ int  RackDatalog::moduleLoop(void)
     // get datapointer from rackdatabuffer
     pDatalogData = (datalog_data *)getDataBufferWorkSpace();
 
-    for (i = 0; i < datalogInfoMsg.data.logNum; i++)
+    // log data
+    ret = logData(&msgInfo, pDatalogData);
+    if (ret)
     {
-        if (datalogInfoMsg.logInfo[i].moduleMbx == msgInfo.src)
-        {
-            switch (RackName::classId(msgInfo.src))
-            {
-                case CAMERA:
-                    cameraData = CameraData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i\n", (int)cameraData->recordingTime);
-
-                    sprintf(imageTimestampBuf, "%i", cameraData->recordingTime);
-                    strncat(imageFilenameBuf, imageTimestampBuf, strlen(imageTimestampBuf));
-
-                    if (cameraData->mode == CAMERA_MODE_JPEG)
-                    {
-                        strcat(imageFilenameBuf, ".jpg");
-                    }
-                    else
-                    {
-                        strcat(imageFilenameBuf, ".raw");
-                    }
-
-                    if ((imagefileptr = fopen(imageFilenameBuf , "w")) == NULL)
-                    {
-                        datalogMtx.unlock();
-                        GDOS_ERROR("Can't open file for Mbx %n...\n",
-                                   datalogInfoMsg.logInfo[i].moduleMbx);
-                        return -EIO;
-                    }
-
-                    bytesMax = cameraData->width * cameraData->height * cameraData->depth / 8;
-                    for (j = 0; j < bytesMax; j++)
-                    {
-                        ret = fputc(cameraData->byteStream[j], imagefileptr);
-
-                        if (ret < 1)
-                        {
-                            datalogMtx.unlock();
-                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
-                                        msgInfo.src, ret);
-                        }
-                    }
-                    fclose(imagefileptr);
-                    break;
-
-                case GPS:
-                    gpsData = GpsData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i  %i %.16f %.16f %i %f %i %i %li %f %i %i %i %f %f %f\n",
-                        (int)gpsData->recordingTime,
-                        gpsData->mode,
-                        gpsData->latitude,
-                        gpsData->longitude,
-                        gpsData->altitude,
-                        gpsData->heading,
-                        gpsData->speed,
-                        gpsData->satelliteNum,
-                        (long int)gpsData->utcTime,
-                        gpsData->pdop,
-                        gpsData->posGK.x,
-                        gpsData->posGK.y,
-                        gpsData->posGK.z,
-                        gpsData->posGK.phi,
-                        gpsData->posGK.psi,
-                        gpsData->posGK.rho);
-                    break;
-
-                case CHASSIS:
-                    chassisData = ChassisData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i  %f %f %f %f %f %f %f %i\n",
-                        (int)chassisData->recordingTime,
-                        chassisData->deltaX,
-                        chassisData->deltaY,
-                        chassisData->deltaRho,
-                        chassisData->vx,
-                        chassisData->vy,
-                        chassisData->omega,
-                        chassisData->battery,
-                        chassisData->activePilot);
-                    break;
-
-                case LADAR:
-                    ladarData = LadarData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i  %i %i %f %f %i ",
-                        (int)ladarData->recordingTime,
-                        ladarData->duration,
-                        ladarData->maxRange,
-                        ladarData->startAngle,
-                        ladarData->angleResolution,
-                        ladarData->distanceNum);
-
-                    for (j = 0; j < ladarData->distanceNum; j++)
-                    {
-                        ret = fprintf(fileptr[i], " %i", ladarData->distance[j]);
-
-                        if (ret < 0)
-                        {
-                            datalogMtx.unlock();
-                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
-                                        msgInfo.src, ret);
-                            return ret;
-                        }
-                    }
-                    break;
-
-                case ODOMETRY:
-                    odometryData = OdometryData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i  %i %i %i %f %f %f\n",
-                        (int)odometryData->recordingTime,
-                        odometryData->pos.x,
-                        odometryData->pos.y,
-                        odometryData->pos.z,
-                        odometryData->pos.phi,
-                        odometryData->pos.psi,
-                        odometryData->pos.rho);
-                    break;
-
-                case POSITION:
-                    positionData = PositionData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i  %i %i %i %f %f %f\n",
-                        (int)positionData->recordingTime,
-                        positionData->pos.x,
-                        positionData->pos.y,
-                        positionData->pos.z,
-                        positionData->pos.phi,
-                        positionData->pos.psi,
-                        positionData->pos.rho);
-                    break;
-
-                case SCAN2D:
-                    scan2dData = Scan2DData::parse(&msgInfo);
-                    ret = fprintf(fileptr[i], "%i  %i %i %i ",
-                        (int)scan2dData->recordingTime,
-                        (int)scan2dData->duration,
-                        scan2dData->maxRange,
-                        scan2dData->pointNum);
-
-                    for (j = 0; j < scan2dData->pointNum; j++)
-                    {
-                        ret = fprintf(fileptr[i], " %i %i %i %i %i %i",
-                            scan2dData->point[j].x,
-                            scan2dData->point[j].y,
-                            scan2dData->point[j].z,
-                            scan2dData->point[j].type,
-                            scan2dData->point[j].segment,
-                            scan2dData->point[j].intensity);
-
-                       if (ret < 0)
-                        {
-                            datalogMtx.unlock();
-                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
-                                       msgInfo.src, ret);
-                            return ret;
-                         }
-                    }
-                    break;
-
-                default:
-                    GDOS_PRINT("No write function for module class %n\n", msgInfo.src);
-                    datalogMtx.unlock();
-                    return -EINVAL;
-            }
-
-            if (ret < 0)
-            {
-                GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
-                           msgInfo.src, ret);
-                datalogMtx.unlock();
-                return ret;
-            }
-        }
+        datalogMtx.unlock();
+        GDOS_ERROR("Error while logging data, code= %i\n", ret);
+        return ret;
     }
 
     // write new data package
@@ -370,9 +203,6 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
 
     switch (msgInfo->type)
     {
-        GDOS_PRINT("msgInfo->type %d received\n", msgInfo->type);
-        printf("msgInfo->type %d received\n", msgInfo->type);
-
         case MSG_DATALOG_GET_LOG_STATUS:
             if (initLog == 1)
             {
@@ -391,14 +221,11 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
 
         case MSG_DATALOG_SET_LOG:
             setLogData = DatalogInfoData::parse(msgInfo);
-            GDOS_PRINT("logNum %i, setLogNum %i\n", datalogInfoMsg.data.logNum, setLogData->logNum);
 
             if (datalogInfoMsg.data.logNum == setLogData->logNum)
             {
                 memcpy(&datalogInfoMsg.data, setLogData, sizeof(datalogInfoMsg));
-                GDOS_PRINT("logNum %i, setLogNum %i\n", datalogInfoMsg.data.logNum, setLogData->logNum);
                 logInfoPrintModules(datalogInfoMsg.logInfo, datalogInfoMsg.data.logNum);
-                GDOS_PRINT("logNum %i, setLogNum %i\n", datalogInfoMsg.data.logNum, setLogData->logNum);
                 cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             }
             else
@@ -411,6 +238,312 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
             // not for me -> ask RackDataModule
             return RackDataModule::moduleCommand(msgInfo);
     }
+    return 0;
+}
+
+int RackDatalog::initLogFile()
+{
+    int i, ret;
+
+    for (i = 0; i < datalogInfoMsg.data.logNum; i++)
+    {
+        if (datalogInfoMsg.logInfo[i].logEnable)
+        {
+            switch (RackName::classId(datalogInfoMsg.logInfo[i].moduleMbx))
+            {
+                case CAMERA:
+                    ret = fprintf(fileptr[i], "%% recordingTime  width height depth mode"
+                                  " colorFilterId cameraFile\n");
+                    break;
+
+                case CHASSIS:
+                    ret = fprintf(fileptr[i], "%% recordingTime  deltaX deltaY deltaRho"
+                                  " vx vy omega battery activePilot\n");
+                    break;
+
+                case GPS:
+                    ret = fprintf(fileptr[i], "%% recordingTime  mode latitude longitude"
+                                  "altitude heading speed satelliteNum utcTime pdop"
+                                  "posGK.x posGK.y posGK.z posGK.phi posGK.psi posGK.rho\n");
+                    break;
+
+                case LADAR:
+                    ret = fprintf(fileptr[i], "%% recordingTime  duration maxRange"
+                                  " startAngle angleResolution distanceNum  distance[0]\n");
+                    break;
+
+                case ODOMETRY:
+                    ret = fprintf(fileptr[i], "%% recordingTime  pos.x pos.y pos.z"
+                                  " pos.phi pos.psi pos.rho\n");
+                    break;
+
+                case PILOT:
+                    ret = fprintf(fileptr[i], "%% recordingTime  pos.x pos.y pos.z"
+                                  " pos.phi pos.psi pos.rho speed curve splineNum "
+                                  " spline[0].startPos.x spline[0].startPos.y"
+                                  " spline[0].startPos.rho spline[0].endPos.x"
+                                  " spline[0].endPos.y spline[0].endPos.rho"
+                                  " spline[0].centerPos.x spline[0].centerPos.y"
+                                  " spline[0].centerPos.rho spline[0].length"
+                                  " spline[0].radius spline[0].vMax spline[0].vStart"
+                                  " spline[0].vEnd spline[0].aMax spline[0].lbo\n");
+                    break;
+
+                case POSITION:
+                    ret = fprintf(fileptr[i], "%% recordingTime  pos.x pos.y pos.z"
+                                  " pos.phi pos.psi pos.rho\n");
+                    break;
+
+                case SCAN2D:
+                    ret = fprintf(fileptr[i], "%% recordingTime  duration maxRange"
+                                  " pointNum  point[0].x point[0].y point[0].z"
+                                  " point[0].type point[0].segment point[0].intensity\n");
+                    break;
+
+                default:
+                    GDOS_PRINT("No write function for module class %n\n", 
+                               RackName::classId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    return -EINVAL;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
+{
+    int             i, j, ret;
+    int             bytesMax;
+    char            imageFilenameBuf[40] = "camera_";
+    char            imageTimestampBuf[20];
+    FILE*           imagefileptr;
+
+    camera_data     *cameraData;
+    chassis_data    *chassisData;
+    gps_data        *gpsData;
+    ladar_data      *ladarData;
+    odometry_data   *odometryData;
+    pilot_data      *pilotData;
+    position_data   *positionData;
+    scan2d_data     *scan2dData;
+
+
+    for (i = 0; i < datalogInfoMsg.data.logNum; i++)
+    {
+        if (datalogInfoMsg.logInfo[i].moduleMbx == msgInfo->src)
+        {
+            switch (RackName::classId(msgInfo->src))
+            {
+                case CAMERA:
+                    cameraData = CameraData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u\n", (unsigned int)cameraData->recordingTime);
+
+                    sprintf(imageTimestampBuf, "%i", cameraData->recordingTime);
+                    strncat(imageFilenameBuf, imageTimestampBuf, strlen(imageTimestampBuf));
+
+                    if (cameraData->mode == CAMERA_MODE_JPEG)
+                    {
+                        strcat(imageFilenameBuf, ".jpg");
+                    }
+                    else
+                    {
+                        strcat(imageFilenameBuf, ".raw");
+                    }
+
+                    if ((imagefileptr = fopen(imageFilenameBuf , "w")) == NULL)
+                    {
+                        GDOS_ERROR("Can't open file for Mbx %n...\n",
+                                   datalogInfoMsg.logInfo[i].moduleMbx);
+                        return -EIO;
+                    }
+
+                    bytesMax = cameraData->width * cameraData->height * cameraData->depth / 8;
+                    for (j = 0; j < bytesMax; j++)
+                    {
+                        ret = fputc(cameraData->byteStream[j], imagefileptr);
+
+                        if (ret < 1)
+                        {
+                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
+                                        msgInfo->src, ret);
+                        }
+                    }
+                    fclose(imagefileptr);
+                    break;
+
+                case CHASSIS:
+                    chassisData = ChassisData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %f %f %f %f %f %f %f %u\n",
+                        (unsigned int)chassisData->recordingTime,
+                        chassisData->deltaX,
+                        chassisData->deltaY,
+                        chassisData->deltaRho,
+                        chassisData->vx,
+                        chassisData->vy,
+                        chassisData->omega,
+                        chassisData->battery,
+                        chassisData->activePilot);
+                    break;
+
+                case GPS:
+                    gpsData = GpsData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %i %.16f %.16f %i %f %i %i %li %f %i %i %i %f %f %f\n",
+                        (unsigned int)gpsData->recordingTime,
+                        gpsData->mode,
+                        gpsData->latitude,
+                        gpsData->longitude,
+                        gpsData->altitude,
+                        gpsData->heading,
+                        gpsData->speed,
+                        gpsData->satelliteNum,
+                        (long int)gpsData->utcTime,
+                        gpsData->pdop,
+                        gpsData->posGK.x,
+                        gpsData->posGK.y,
+                        gpsData->posGK.z,
+                        gpsData->posGK.phi,
+                        gpsData->posGK.psi,
+                        gpsData->posGK.rho);
+                    break;
+
+                case LADAR:
+                    ladarData = LadarData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %i %i %f %f %i ",
+                        (unsigned int)ladarData->recordingTime,
+                        ladarData->duration,
+                        ladarData->maxRange,
+                        ladarData->startAngle,
+                        ladarData->angleResolution,
+                        ladarData->distanceNum);
+
+                    for (j = 0; j < ladarData->distanceNum; j++)
+                    {
+                        ret = fprintf(fileptr[i], " %i", ladarData->distance[j]);
+
+                        if (ret < 0)
+                        {
+                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
+                                        msgInfo->src, ret);
+                            return ret;
+                        }
+                    }
+
+                    ret = fprintf(fileptr[i], "\n");
+                    break;
+
+                case ODOMETRY:
+                    odometryData = OdometryData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %i %i %i %f %f %f\n",
+                        (unsigned int)odometryData->recordingTime,
+                        odometryData->pos.x,
+                        odometryData->pos.y,
+                        odometryData->pos.z,
+                        odometryData->pos.phi,
+                        odometryData->pos.psi,
+                        odometryData->pos.rho);
+                    break;
+
+                case PILOT:
+                    pilotData = PilotData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %i %i %i %f %f %f %i %f %i ",
+                        (unsigned int)pilotData->recordingTime,
+                        pilotData->pos.x,
+                        pilotData->pos.y,
+                        pilotData->pos.z,
+                        pilotData->pos.phi,
+                        pilotData->pos.psi,
+                        pilotData->pos.rho,
+                        pilotData->speed,
+                        pilotData->curve,
+                        pilotData->splineNum);
+
+                    for (j = 0; j < pilotData->splineNum; j++)
+                    {
+                        ret = fprintf(fileptr[i], " %i %i %f %i %i %f %i %i %f %i %i %i %i %i %i %i",
+                            pilotData->spline[j].startPos.x,
+                            pilotData->spline[j].startPos.y,
+                            pilotData->spline[j].startPos.rho,
+                            pilotData->spline[j].endPos.x,
+                            pilotData->spline[j].endPos.y,
+                            pilotData->spline[j].endPos.rho,
+                            pilotData->spline[j].centerPos.x,
+                            pilotData->spline[j].centerPos.y,
+                            pilotData->spline[j].centerPos.rho,
+                            pilotData->spline[j].length,
+                            pilotData->spline[j].radius,
+                            pilotData->spline[j].vMax,
+                            pilotData->spline[j].vStart,
+                            pilotData->spline[j].vEnd,
+                            pilotData->spline[j].aMax,
+                            pilotData->spline[j].lbo);
+
+                       if (ret < 0)
+                        {
+                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
+                                       msgInfo->src, ret);
+                            return ret;
+                         }
+                    }
+
+                    ret = fprintf(fileptr[i], "\n");
+                    break;
+
+                case POSITION:
+                    positionData = PositionData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %i %i %i %f %f %f\n",
+                        (unsigned int)positionData->recordingTime,
+                        positionData->pos.x,
+                        positionData->pos.y,
+                        positionData->pos.z,
+                        positionData->pos.phi,
+                        positionData->pos.psi,
+                        positionData->pos.rho);
+                    break;
+
+                case SCAN2D:
+                    scan2dData = Scan2DData::parse(msgInfo);
+                    ret = fprintf(fileptr[i], "%u  %u %i %i ",
+                        (unsigned int)scan2dData->recordingTime,
+                        (unsigned int)scan2dData->duration,
+                        scan2dData->maxRange,
+                        scan2dData->pointNum);
+
+                    for (j = 0; j < scan2dData->pointNum; j++)
+                    {
+                        ret = fprintf(fileptr[i], " %i %i %i %i %i %i",
+                            scan2dData->point[j].x,
+                            scan2dData->point[j].y,
+                            scan2dData->point[j].z,
+                            scan2dData->point[j].type,
+                            scan2dData->point[j].segment,
+                            scan2dData->point[j].intensity);
+
+                       if (ret < 0)
+                        {
+                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
+                                       msgInfo->src, ret);
+                            return ret;
+                         }
+                    }
+
+                    ret = fprintf(fileptr[i], "\n");
+                    break;
+
+                default:
+                    GDOS_PRINT("No write function for module class %n\n", msgInfo->src);
+                    return -EINVAL;
+            }
+
+            if (ret < 0)
+            {
+                GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
+                           msgInfo->src, ret);
+                return ret;
+            }
+        }
+    }
+
     return 0;
 }
 
@@ -427,7 +560,7 @@ int RackDatalog::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t 
     ret = replyMbx->sendMsg(MSG_GET_STATUS, destMbxAdr, 0);
     if (ret)
     {
-        GDOS_WARNING("Proxy cmd to %n: Can't send command %d, code = %d\n",
+        GDOS_DBG_DETAIL("Proxy cmd to %n: Can't send command %d, code = %d\n",
                         destMbxAdr, MSG_GET_STATUS, ret);
         return ret;
     }
@@ -439,7 +572,7 @@ int RackDatalog::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t 
         ret = replyMbx->recvMsgTimed(reply_timeout_ns, &msgInfo);
         if (ret)
         {
-            GDOS_WARNING("Proxy cmd to %n: Can't receive reply of "
+            GDOS_DBG_DETAIL("Proxy cmd to %n: Can't receive reply of "
                          "command %d, code = %d\n",
                          destMbxAdr, MSG_GET_STATUS, ret);
             return ret;
@@ -450,13 +583,13 @@ int RackDatalog::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t 
             switch(msgInfo.type)
             {
                 case MSG_TIMEOUT:
-                    GDOS_WARNING("Proxy cmd %d to %n: Replied - timeout -\n",
-                                 MSG_GET_STATUS, destMbxAdr);
+                    GDOS_DBG_DETAIL("Proxy cmd %d to %n: Replied - timeout -\n",
+                                    MSG_GET_STATUS, destMbxAdr);
                     return -ETIMEDOUT;
 
                 case MSG_NOT_AVAILABLE:
-                    GDOS_WARNING("Proxy cmd %d to %n: Replied - not available \n",
-                                 MSG_GET_STATUS, destMbxAdr);
+                    GDOS_DBG_DETAIL("Proxy cmd %d to %n: Replied - not available \n",
+                                    MSG_GET_STATUS, destMbxAdr);
                     return -ENODATA;
 
                 case MSG_ENABLED:
@@ -685,16 +818,16 @@ int RackDatalog::logInfoAllModules(datalog_info *logInfo)
     snprintf((char *)logInfo[num].filename, 40, "camera_1_data.sav");
     num++;
 
+    logInfo[num].moduleMbx = RackName::create(CHASSIS, 0);
+    snprintf((char *)logInfo[num].filename, 40, "chassis_0_data.sav");
+    num++;
+
     logInfo[num].moduleMbx = RackName::create(GPS, 0);
     snprintf((char *)logInfo[num].filename, 40, "gps_0_data.sav");
     num++;
 
     logInfo[num].moduleMbx = RackName::create(GPS, 1);
     snprintf((char *)logInfo[num].filename, 40, "gps_1_data.sav");
-    num++;
-
-    logInfo[num].moduleMbx = RackName::create(CHASSIS, 0);
-    snprintf((char *)logInfo[num].filename, 40, "chassis_0_data.sav");
     num++;
 
     logInfo[num].moduleMbx = RackName::create(LADAR, 0);
@@ -707,6 +840,18 @@ int RackDatalog::logInfoAllModules(datalog_info *logInfo)
 
     logInfo[num].moduleMbx = RackName::create(ODOMETRY, 0);
     snprintf((char *)logInfo[num].filename, 40, "odometry_0_data.sav");
+    num++;
+
+    logInfo[num].moduleMbx = RackName::create(PILOT, 0);
+    snprintf((char *)logInfo[num].filename, 40, "pilot_0_data.sav");
+    num++;
+
+    logInfo[num].moduleMbx = RackName::create(PILOT, 1);
+    snprintf((char *)logInfo[num].filename, 40, "pilot_1_data.sav");
+    num++;
+
+    logInfo[num].moduleMbx = RackName::create(PILOT, 2);
+    snprintf((char *)logInfo[num].filename, 40, "pilot_2_data.sav");
     num++;
 
     logInfo[num].moduleMbx = RackName::create(POSITION, 0);
@@ -756,6 +901,7 @@ void RackDatalog::logInfoPrintModules(datalog_info *logInfo, int logNum)
     }
 }
 
+
 /*******************************************************************************
  *   !!! NON REALTIME CONTEXT !!!
  *
@@ -771,12 +917,6 @@ int RackDatalog::moduleInit(void)
 {
     int ret;
 
-    // allocate memory
-    contDataPtr = malloc(DATALOG_MSG_SIZE_MAX);
-
-    // set log variable
-    initLog = 1;
-
     // call RackDataModule init function (first command in init)
     ret = RackDataModule::moduleInit();
     if (ret)
@@ -786,6 +926,17 @@ int RackDatalog::moduleInit(void)
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
     GDOS_DBG_DETAIL("RackDatalog::moduleInit ... \n");
+
+    // allocate memory
+    contDataPtr = malloc(DATALOG_MSG_SIZE_MAX);
+    if (contDataPtr == NULL)
+    {
+        GDOS_ERROR("Can't allocate contData buffer\n");
+        return -ENOMEM;
+    }
+    // set log variable
+    initLog = 1;
+    initBits.setBit(INIT_BIT_CONT_DATA_BUFFER);
 
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
@@ -824,9 +975,6 @@ void RackDatalog::moduleCleanup(void)
 {
     GDOS_DBG_DETAIL("RackDatalog::moduleCleanup ... \n");
 
-    // free memory
-    free(contDataPtr);
-
     // destroy mutex
     if (initBits.testAndClearBit(INIT_BIT_MTX_CREATED))
     {
@@ -842,6 +990,11 @@ void RackDatalog::moduleCleanup(void)
     if (initBits.testAndClearBit(INIT_BIT_MBX_CONT_DATA))
     {
         destroyMbx(&contDataMbx);
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_CONT_DATA_BUFFER))
+    {
+        free(contDataPtr);
     }
 
     // call RackDataModule cleanup function (last command in cleanup)
