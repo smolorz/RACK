@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.main.MapViewDrawContext;
 import rack.gui.main.RackModuleGui;
 import rack.main.*;
 import rack.drivers.GpsDataMsg;
@@ -26,6 +27,9 @@ import rack.drivers.GpsProxy;
 
 public class GpsGui extends RackModuleGui
 {
+    protected boolean       mapViewIsShowing=false;
+    protected GpsDataMsg    gpsData;
+
     protected JButton onButton;
     protected JButton offButton;
 
@@ -168,6 +172,8 @@ public class GpsGui extends RackModuleGui
 
                 if(data != null)
                 {
+                    gpsData    = data;
+
                     latitude   = (float)Math.toDegrees(data.latitude);
                     longitude  = (float)Math.toDegrees(data.longitude);
                     heading    = (float)Math.toDegrees(data.heading);
@@ -277,5 +283,27 @@ public class GpsGui extends RackModuleGui
             {
             }
         }
+    }
+
+    public boolean hasMapView() 
+    {
+        return true;
+    }
+    
+
+    public void paintMapView(MapViewDrawContext drawContext) 
+    {
+        mapViewIsShowing = true;
+        
+        if (gpsData == null) return;
+        
+        Graphics2D worldGraphics = drawContext.getWorldGraphics();
+
+        worldGraphics.setColor(Color.ORANGE);
+        worldGraphics.drawArc(gpsData.posGK.x - 10000, gpsData.posGK.y - 10000,
+                              20000, 20000, 0, 360);
+        worldGraphics.drawLine(gpsData.posGK.x, gpsData.posGK.y,
+                gpsData.posGK.x + (int)(10000 * Math.cos(gpsData.posGK.rho)),
+                gpsData.posGK.y + (int)(10000 * Math.sin(gpsData.posGK.rho)));
     }
 }
