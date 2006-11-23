@@ -42,7 +42,6 @@ typedef struct {
 //######################################################################
 //# class RackDatalog
 //######################################################################
-
 class RackDatalog : public RackDataModule {
     private:
 
@@ -93,13 +92,9 @@ class RackDatalog : public RackDataModule {
         int  stopContData(uint32_t destMbxAdr, RackMailbox *dataMbx,
                           RackMailbox *replyMbx, uint64_t reply_timeout_ns);
 
-        int  logInfoAllModules(datalog_info *logInfo);
-
         int  logInfoCurrentModules(datalog_info *logInfoAll, int num,
                                    datalog_info *logInfoCurrent, RackMailbox *replyMbx,
                                    uint64_t reply_timeout_ns);
-
-        void logInfoPrintModules(datalog_info *logInfo, int logNum);
 
         int  initLogFile();
         int  logData(message_info *msgInfo, datalog_data *logData);
@@ -108,6 +103,8 @@ class RackDatalog : public RackDataModule {
         void moduleCleanup(void);
 
     public:
+        virtual int  logInfoAllModules(datalog_info *logInfo);
+
         // constructor und destructor
         RackDatalog();
         ~RackDatalog() {};
