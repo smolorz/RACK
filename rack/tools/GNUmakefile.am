@@ -20,12 +20,17 @@ toolinclude_HEADERS = \
 SUBDIRS = \
         datalog 
 
+
 dist_java_JAVA =
 
 if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
-	Camera2PngConverter.java
+	Camera2PngConverter.java \
+	\
+	DatalogLogInfo.java \
+	DatalogLogInfoMsg.java \
+	DatalogProxy.java 
 
 endif
 

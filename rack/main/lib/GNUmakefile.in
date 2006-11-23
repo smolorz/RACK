@@ -68,6 +68,8 @@ am__librack_la_SOURCES_DIST = $(top_srcdir)/main/canport/can_port.cpp \
 	$(top_srcdir)/perception/scan2d_proxy.cpp \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
+	$(top_srcdir)/tools/datalog_proxy.cpp \
+	$(top_srcdir)/tools/datalog/rack_datalog_class.cpp \
 	$(top_srcdir)/main/argopts/argopts.cpp \
 	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
 	$(top_srcdir)/main/serialport/serial_port.cpp \
@@ -83,7 +85,8 @@ am_librack_la_OBJECTS = $(am__objects_2) librack_la-version_string.lo \
 	librack_la-gps_proxy.lo librack_la-joystick_proxy.lo \
 	librack_la-ladar_proxy.lo librack_la-odometry_proxy.lo \
 	librack_la-scan2d_proxy.lo librack_la-pilot_proxy.lo \
-	librack_la-position_proxy.lo librack_la-argopts.lo \
+	librack_la-position_proxy.lo librack_la-datalog_proxy.lo \
+	librack_la-rack_datalog_class.lo librack_la-argopts.lo \
 	librack_la-dxf_map.lo librack_la-serial_port.lo \
 	librack_la-rack_mailbox.lo librack_la-rack_datamodule.lo \
 	librack_la-rack_module.lo librack_la-rack_proxy.lo
@@ -336,6 +339,9 @@ librack_la_SOURCES = \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
 	\
+	$(top_srcdir)/tools/datalog_proxy.cpp \
+	$(top_srcdir)/tools/datalog/rack_datalog_class.cpp \
+	\
 	$(top_srcdir)/main/argopts/argopts.cpp \
 	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
 	$(top_srcdir)/main/serialport/serial_port.cpp \
@@ -420,6 +426,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-camera_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-can_port.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-chassis_proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-datalog_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-dxf_map.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-gps_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-joystick_proxy.Plo@am__quote@
@@ -427,6 +434,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-odometry_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-pilot_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-position_proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_datalog_class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_datamodule.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_mailbox.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_module.Plo@am__quote@
@@ -532,6 +540,20 @@ librack_la-position_proxy.lo: $(top_srcdir)/navigation/position_proxy.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/navigation/position_proxy.cpp' object='librack_la-position_proxy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-position_proxy.lo `test -f '$(top_srcdir)/navigation/position_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/navigation/position_proxy.cpp
+
+librack_la-datalog_proxy.lo: $(top_srcdir)/tools/datalog_proxy.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-datalog_proxy.lo -MD -MP -MF "$(DEPDIR)/librack_la-datalog_proxy.Tpo" -c -o librack_la-datalog_proxy.lo `test -f '$(top_srcdir)/tools/datalog_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/tools/datalog_proxy.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/librack_la-datalog_proxy.Tpo" "$(DEPDIR)/librack_la-datalog_proxy.Plo"; else rm -f "$(DEPDIR)/librack_la-datalog_proxy.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/tools/datalog_proxy.cpp' object='librack_la-datalog_proxy.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-datalog_proxy.lo `test -f '$(top_srcdir)/tools/datalog_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/tools/datalog_proxy.cpp
+
+librack_la-rack_datalog_class.lo: $(top_srcdir)/tools/datalog/rack_datalog_class.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_datalog_class.lo -MD -MP -MF "$(DEPDIR)/librack_la-rack_datalog_class.Tpo" -c -o librack_la-rack_datalog_class.lo `test -f '$(top_srcdir)/tools/datalog/rack_datalog_class.cpp' || echo '$(srcdir)/'`$(top_srcdir)/tools/datalog/rack_datalog_class.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/librack_la-rack_datalog_class.Tpo" "$(DEPDIR)/librack_la-rack_datalog_class.Plo"; else rm -f "$(DEPDIR)/librack_la-rack_datalog_class.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/tools/datalog/rack_datalog_class.cpp' object='librack_la-rack_datalog_class.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_datalog_class.lo `test -f '$(top_srcdir)/tools/datalog/rack_datalog_class.cpp' || echo '$(srcdir)/'`$(top_srcdir)/tools/datalog/rack_datalog_class.cpp
 
 librack_la-argopts.lo: $(top_srcdir)/main/argopts/argopts.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-argopts.lo -MD -MP -MF "$(DEPDIR)/librack_la-argopts.Tpo" -c -o librack_la-argopts.lo `test -f '$(top_srcdir)/main/argopts/argopts.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/argopts/argopts.cpp; \

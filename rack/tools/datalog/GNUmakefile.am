@@ -10,9 +10,13 @@ CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
 
+datalogincludedir = $(pkgincludedir)/tools/datalog
+
+dataloginclude_HEADERS = \
+        rack_datalog_class.h
 
 RackDatalog_SOURCES = \
-	rack_datalog.h \
+        rack_datalog_class.h \
 	rack_datalog.cpp
 
 

@@ -288,7 +288,8 @@ SUBDIRS = \
 	main \
 	drivers \
 	navigation \
-	perception
+	perception \
+	tools
 
 @CONFIG_RACK_JAVA_GUI_TRUE@pkgdata_DATA = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	gui.cfg \

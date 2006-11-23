@@ -39,7 +39,11 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = RackLogger$(EXEEXT)
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
-@CONFIG_RACK_JAVA_TRUE@	Camera2PngConverter.java
+@CONFIG_RACK_JAVA_TRUE@	Camera2PngConverter.java \
+@CONFIG_RACK_JAVA_TRUE@	\
+@CONFIG_RACK_JAVA_TRUE@	DatalogLogInfo.java \
+@CONFIG_RACK_JAVA_TRUE@	DatalogLogInfoMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	DatalogProxy.java 
 
 subdir = tools
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
@@ -79,7 +83,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
-am__dist_java_JAVA_DIST = Camera2PngConverter.java
+am__dist_java_JAVA_DIST = Camera2PngConverter.java DatalogLogInfo.java \
+	DatalogLogInfoMsg.java DatalogProxy.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

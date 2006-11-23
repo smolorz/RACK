@@ -3,7 +3,8 @@ SUBDIRS = \
 	main \
 	drivers \
 	navigation \
-	perception
+	perception \
+	tools
 
 if CONFIG_RACK_JAVA_GUI
 

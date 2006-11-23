@@ -1490,6 +1490,7 @@ AC_CONFIG_FILES([GNUmakefile \
     gui/drivers/GNUmakefile \
     gui/navigation/GNUmakefile \
     gui/perception/GNUmakefile \
+    gui/tools/GNUmakefile \
     \
     tools/GNUmakefile \
     tools/datalog/GNUmakefile \
