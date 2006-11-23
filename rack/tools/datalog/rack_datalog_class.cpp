@@ -307,6 +307,7 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
     int             bytesMax;
     char            imageFilenameBuf[40] = "camera_";
     char            imageTimestampBuf[20];
+    char            cameraInstanceBuf[5];
     FILE*           imagefileptr;
 
     camera_data     *cameraData;
@@ -327,9 +328,10 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
             {
                 case CAMERA:
                     cameraData = CameraData::parse(msgInfo);
-                    ret = fprintf(fileptr[i], "%u\n", (unsigned int)cameraData->recordingTime);
 
                     sprintf(imageTimestampBuf, "%i", cameraData->recordingTime);
+                    sprintf(cameraInstanceBuf, "%i_", RackName::instanceId(msgInfo->src));
+                    strncat(imageFilenameBuf, cameraInstanceBuf, strlen(cameraInstanceBuf));
                     strncat(imageFilenameBuf, imageTimestampBuf, strlen(imageTimestampBuf));
 
                     if (cameraData->mode == CAMERA_MODE_JPEG)
@@ -340,6 +342,16 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
                     {
                         strcat(imageFilenameBuf, ".raw");
                     }
+
+                    ret = fprintf(fileptr[i], "%u  %i %i %i %i %i %s\n",
+                        (unsigned int)cameraData->recordingTime,
+                        cameraData->width,
+                        cameraData->height,
+                        cameraData->depth,
+                        cameraData->mode,
+                        cameraData->colorFilterId,
+                        imageFilenameBuf);
+
 
                     if ((imagefileptr = fopen(imageFilenameBuf , "w")) == NULL)
                     {
@@ -353,7 +365,7 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
                     {
                         ret = fputc(cameraData->byteStream[j], imagefileptr);
 
-                        if (ret < 1)
+                        if (ret == EOF)
                         {
                             GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
                                         msgInfo->src, ret);
