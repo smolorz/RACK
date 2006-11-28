@@ -58,6 +58,8 @@ class CameraDcam : public RackDataModule {
     int      bytesPerPixel;
     int      vValue;
     int      uValue;
+    int      whitebalanceCols;
+    int      whitebalanceRows;
     char     *dataBuffer;
     int      fps;
 
@@ -90,6 +92,7 @@ class CameraDcam : public RackDataModule {
     camera_dcam_format7     format7image;
 
     int autoBrightness(camera_data_msg *dataPackage);
+    int autoWhitebalance(camera_data_msg *dataPackage);
     int getFirewirePortnum(void);
     int findCameraByGuid(void);
     int setupCaptureFormat2(void);

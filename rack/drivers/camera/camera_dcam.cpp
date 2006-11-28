@@ -38,6 +38,12 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "vValue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "vValue", { 120 } },
 
+    { ARGOPT_OPT, "whitebalanceCols", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "whitebalanceCols", { 20 } },
+
+    { ARGOPT_OPT, "whitebalanceRows", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "whitebalanceRows", { 10 } },
+
     { ARGOPT_OPT, "minHue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min not under illum. hue value", { 60 } },
 
@@ -73,6 +79,78 @@ camera_param_data param = {
         e0  : E0,
         n0  : N0,
 };
+
+
+//*** Method for automatic adaption of the lumination color****//
+int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
+{
+    int minRow, maxRow, minCol, maxCol, rowNum, colNum; 
+    int i, j, sourceIndex, uDiff, vDiff;
+    unsigned int uvValue, uuValue;
+
+    minCol = (dataPackage->data.width / 2) - whitebalanceCols;
+    maxCol = (dataPackage->data.width / 2) + whitebalanceCols;
+    minRow = 1;
+    maxRow = 1 + whitebalanceRows;
+
+    colNum = maxCol - minCol; 
+    rowNum = maxRow - minRow; 
+    uDiff = 0; 
+    vDiff = 0;
+    
+    switch(dataPackage->data.mode) {
+    case CAMERA_MODE_YUV422:
+        //UYVY
+        for(i=0; i < rowNum; i++) {
+            for (j=0; j < colNum; j++) {
+                //2 bytes pro pixel
+                //take 0.th byte from pixel
+                sourceIndex = ((i+minRow)*dataPackage->data.width+j+minCol);
+                
+                if (sourceIndex%1 == 0) 
+                {
+                    uDiff += (dataPackage->byteStream[sourceIndex*2]-128);
+                }else 
+                {
+                    vDiff += (dataPackage->byteStream[sourceIndex*2]-128);
+                }                                
+            }
+        }
+        
+        uDiff = uDiff / (colNum*rowNum); 
+        vDiff = vDiff / (colNum*rowNum); 
+        
+        if (dc1394_get_white_balance(porthandle[dc1394CameraPortNo], camera_node, &uuValue, &uvValue) != DC1394_SUCCESS)
+        {
+            GDOS_WARNING("getting of white balance failed! ");
+            return DC1394_FAILURE;
+        }
+    
+        GDOS_DBG_INFO("settings of auto white balance actual u:%i v:%i + uDiff:%i vDiff:%i!\n", uuValue, uvValue, -uDiff, -vDiff);
+
+        uvValue -= vDiff;
+        uuValue -= uDiff;
+
+        if (uvValue > 255)
+            {uvValue = 255;}
+        if (uuValue > 255)
+            {uuValue = 255;}
+        if (uvValue < 1)
+            {uvValue = 1;}
+        if (uuValue < 1)
+            {uuValue = 1;}
+
+        if (dc1394_set_white_balance(porthandle[dc1394CameraPortNo], camera_node, uuValue, uvValue) != DC1394_SUCCESS)
+        {
+            GDOS_WARNING("setting of auto white balance failed u:%i v:%i!\n", uuValue, uvValue);
+            return DC1394_FAILURE;
+        }        
+        break;        
+    default:
+        GDOS_WARNING("Whitebalance not implemented for this color mode.");
+    }    
+    return DC1394_SUCCESS;
+}
 
 
 //*** Method for automatic adaption of the lumination parameter****//
@@ -642,6 +720,11 @@ int CameraDcam::moduleLoop(void)
 
         //doing auto shutter / gain / brightness control
         autoBrightness(p_data);
+        
+        if ((whitebalanceCols > 0) && ((whitebalanceRows > 0)))
+        {
+            autoWhitebalance(p_data);
+        }
 
         GDOS_DBG_DETAIL("Data recordingtime %i width %i height %i depth %i mode %i\n", p_data->data.recordingTime, p_data->data.width, p_data->data.height, p_data->data.depth, p_data->data.mode);
 
@@ -780,6 +863,8 @@ CameraDcam::CameraDcam()
     shutterMult         = getIntArg("shutterMult", argTab);
     lossRate            = getIntArg("lossrate", argTab);
     autoBrightnessSize    = getIntArg("autoBrightnessSize", argTab);
+    whitebalanceRows    = getIntArg("whitebalanceRows", argTab);
+    whitebalanceCols    = getIntArg("whitebalanceCols", argTab);
 
                         //fps[i]    is handled as global parameter
 
