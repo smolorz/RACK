@@ -65,6 +65,13 @@ public class DatalogGui extends RackModuleGui
         DatalogLogInfoMsg logStatus;
         logStatus = new DatalogLogInfoMsg();
         logStatus = datalog.getLogStatus();
+        
+        if (logStatus == null)
+        {
+            logStatus = new DatalogLogInfoMsg();
+            logStatus.logNum = 0;
+        }
+        
         final int Num = logStatus.logNum;
         
         panel = new JPanel();
@@ -117,8 +124,6 @@ public class DatalogGui extends RackModuleGui
             moduleMbxLog[i] = logStatus.logInfo[i].moduleMbx;
             logFrequency[i] = new JTextField("max", 4);
             logFrequency[i].setHorizontalAlignment(JTextField.RIGHT);
-            System.out.println(logStatus.logInfo[i].filename.indexOf(".sav") + 
-                               logStatus.logInfo[i].filename);  
 
             while ((logStatus.logInfo[i].filename).endsWith("\0"))
             {
@@ -227,6 +232,12 @@ public class DatalogGui extends RackModuleGui
     {
         DatalogLogInfoMsg state; 
         state = datalog.getLogStatus();
+        
+        if (state == null)
+        {
+            state = new DatalogLogInfoMsg();
+            state.logNum = 0;
+        }
         
         for (int j=0; j < state.logNum; j++)
         {
