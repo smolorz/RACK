@@ -29,7 +29,7 @@
 #include <main/rack_proxy.h>
 #include <main/rack_name.h>
 
-#define DATALOG_LOGNUM_MAX 40
+#define DATALOG_LOGNUM_MAX 50
 
 //######################################################################
 //# Datalog Message Types
@@ -46,8 +46,9 @@
 //######################################################################
 
 typedef struct {
-    rack_time_t recordingTime;  // have to be first element
-    int32_t     dataLogged;
+    rack_time_t recordingTime;           // have to be first element
+    uint64_t     bytesLogged;            // total number of bytes logged
+    uint64_t     setsLogged;             // total number of datasets logged
 } __attribute__((packed)) datalog_data;
 
 class DatalogData
@@ -56,13 +57,15 @@ class DatalogData
         static void le_to_cpu(datalog_data *data)
         {
             data->recordingTime = __le32_to_cpu(data->recordingTime);
-            data->dataLogged    = __le32_to_cpu(data->dataLogged);
+            data->bytesLogged   = __le64_to_cpu(data->bytesLogged);
+            data->setsLogged    = __le64_to_cpu(data->setsLogged);
         }
 
         static void be_to_cpu(datalog_data *data)
         {
             data->recordingTime = __be32_to_cpu(data->recordingTime);
-            data->dataLogged    = __be32_to_cpu(data->dataLogged);
+            data->bytesLogged   = __be64_to_cpu(data->bytesLogged);
+            data->setsLogged    = __be64_to_cpu(data->bytesLogged);
         }
 
         static datalog_data* parse(message_info *msgInfo)

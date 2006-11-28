@@ -109,7 +109,7 @@ int  RackDatalog::moduleOn(void)
     setDataBufferPeriodTime(datalogPeriodTime);
 
     ret = initLogFile();
-    if (ret)
+    if (ret < 0)
     {
         GDOS_ERROR("Can't init log files, code= %i\n", ret);
         return ret;
@@ -181,7 +181,8 @@ int  RackDatalog::moduleLoop(void)
 
     // write new data package
     pDatalogData->recordingTime = rackTime.get();
-    pDatalogData->dataLogged    = 1;
+    pDatalogData->bytesLogged   = 0;
+    pDatalogData->setsLogged    = 0;
     putDataBufferWorkSpace(sizeof(datalog_data));
 
     datalogMtx.unlock();
@@ -198,8 +199,7 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
         case MSG_DATALOG_GET_LOG_STATUS:
             if (initLog == 1)
             {
-                datalogInfoMsg.data.logNum = 0;
-                datalogInfoMsg.data.logNum = logInfoAllModules(datalogInfoMsg.logInfo);
+                logInfoAllModules(&datalogInfoMsg.data);
                 datalogInfoMsg.data.logNum = logInfoCurrentModules(datalogInfoMsg.logInfo,
                                                  datalogInfoMsg.data.logNum, datalogInfoMsg.logInfo,
                                                  &workMbx, 1000000000ll);
@@ -233,7 +233,7 @@ int  RackDatalog::moduleCommand(message_info *msgInfo)
 
 int RackDatalog::initLogFile()
 {
-    int i, ret;
+    int i, ret = 0;
 
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
@@ -289,26 +289,21 @@ int RackDatalog::initLogFile()
                                   " pointNum  point[0].x point[0].y point[0].z"
                                   " point[0].type point[0].segment point[0].intensity\n");
                     break;
-
-                default:
-                    GDOS_PRINT("No write function for module class %n\n",
-                               RackName::classId(datalogInfoMsg.logInfo[i].moduleMbx));
-                    return -EINVAL;
             }
         }
     }
 
-    return 0;
+    return ret;
 }
 
 int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
 {
     int             i, j, ret;
     int             bytesMax;
-    char            imageFilenameBuf[40] = "camera_";
-    char            imageTimestampBuf[20];
-    char            cameraInstanceBuf[5];
-    FILE*           imagefileptr;
+    char            extFilenameBuf[40];
+    char            timestampBuf[20];
+    char            instanceBuf[5];
+    FILE*           extFileptr;
 
     camera_data     *cameraData;
     chassis_data    *chassisData;
@@ -329,18 +324,20 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
                 case CAMERA:
                     cameraData = CameraData::parse(msgInfo);
 
-                    sprintf(imageTimestampBuf, "%i", cameraData->recordingTime);
-                    sprintf(cameraInstanceBuf, "%i_", RackName::instanceId(msgInfo->src));
-                    strncat(imageFilenameBuf, cameraInstanceBuf, strlen(cameraInstanceBuf));
-                    strncat(imageFilenameBuf, imageTimestampBuf, strlen(imageTimestampBuf));
+                    sprintf(extFilenameBuf, "camera_");
+                    sprintf(timestampBuf, "%i", cameraData->recordingTime);
+                    sprintf(instanceBuf, "%i_", RackName::instanceId(msgInfo->src));
+
+                    strncat(extFilenameBuf, instanceBuf, strlen(instanceBuf));
+                    strncat(extFilenameBuf, timestampBuf, strlen(timestampBuf));
 
                     if (cameraData->mode == CAMERA_MODE_JPEG)
                     {
-                        strcat(imageFilenameBuf, ".jpg");
+                        strcat(extFilenameBuf, ".jpg");
                     }
                     else
                     {
-                        strcat(imageFilenameBuf, ".raw");
+                        strcat(extFilenameBuf, ".raw");
                     }
 
                     ret = fprintf(fileptr[i], "%u  %i %i %i %i %i %s\n",
@@ -350,10 +347,10 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
                         cameraData->depth,
                         cameraData->mode,
                         cameraData->colorFilterId,
-                        imageFilenameBuf);
+                        extFilenameBuf);
 
 
-                    if ((imagefileptr = fopen(imageFilenameBuf , "w")) == NULL)
+                    if ((extFileptr = fopen(extFilenameBuf , "w")) == NULL)
                     {
                         GDOS_ERROR("Can't open file for Mbx %n...\n",
                                    datalogInfoMsg.logInfo[i].moduleMbx);
@@ -361,17 +358,16 @@ int RackDatalog::logData(message_info *msgInfo, datalog_data *logData)
                     }
 
                     bytesMax = cameraData->width * cameraData->height * cameraData->depth / 8;
-                    for (j = 0; j < bytesMax; j++)
-                    {
-                        ret = fputc(cameraData->byteStream[j], imagefileptr);
+                    ret = fwrite(&cameraData->byteStream[0], 
+                                 sizeof(cameraData->byteStream[0]), bytesMax, extFileptr);
 
-                        if (ret == EOF)
-                        {
-                            GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
-                                        msgInfo->src, ret);
-                        }
+                    if (ret < bytesMax)
+                    {
+                        GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
+                                   msgInfo->src, ret);
                     }
-                    fclose(imagefileptr);
+
+                    fclose(extFileptr);
                     break;
 
                 case CHASSIS:
@@ -800,71 +796,73 @@ int RackDatalog::stopContData(uint32_t destMbxAdr, RackMailbox *dataMbx, RackMai
     return -EINVAL;
 }
 
-int RackDatalog::logInfoAllModules(datalog_info *logInfo)
+void RackDatalog::logInfoAllModules(datalog_info_data *data)
 {
     int num;
 
     for (num = 0; num < DATALOG_LOGNUM_MAX; num++)
     {
-        logInfo[num].logEnable = 0;
-        logInfo[num].periodTime = 0;
-        bzero(logInfo[num].filename, 40);
+        data->logInfo[num].logEnable = 0;
+        data->logInfo[num].periodTime = 0;
+        bzero(data->logInfo[num].filename, 40);
     }
 
-    num = 0;
-    logInfo[num].moduleMbx = RackName::create(CAMERA, 0);
-    snprintf((char *)logInfo[num].filename, 40, "camera_0_data.sav");
+    data->logNum = 0;
+    num = data->logNum;
+
+    data->logInfo[num].moduleMbx = RackName::create(CAMERA, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "camera_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(CAMERA, 1);
-    snprintf((char *)logInfo[num].filename, 40, "camera_1_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(CAMERA, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "camera_1_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(CHASSIS, 0);
-    snprintf((char *)logInfo[num].filename, 40, "chassis_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(CHASSIS, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "chassis_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(GPS, 0);
-    snprintf((char *)logInfo[num].filename, 40, "gps_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(GPS, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "gps_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(GPS, 1);
-    snprintf((char *)logInfo[num].filename, 40, "gps_1_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(GPS, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "gps_1_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(LADAR, 0);
-    snprintf((char *)logInfo[num].filename, 40, "ladar_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(LADAR, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "ladar_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(LADAR, 1);
-    snprintf((char *)logInfo[num].filename, 40, "ladar_1_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(LADAR, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "ladar_1_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(ODOMETRY, 0);
-    snprintf((char *)logInfo[num].filename, 40, "odometry_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "odometry_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(PILOT, 0);
-    snprintf((char *)logInfo[num].filename, 40, "pilot_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(PILOT, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "pilot_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(PILOT, 1);
-    snprintf((char *)logInfo[num].filename, 40, "pilot_1_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(PILOT, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "pilot_1_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(PILOT, 2);
-    snprintf((char *)logInfo[num].filename, 40, "pilot_2_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(PILOT, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "pilot_2_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(POSITION, 0);
-    snprintf((char *)logInfo[num].filename, 40, "position_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(POSITION, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "position_0_data.sav");
     num++;
 
-    logInfo[num].moduleMbx = RackName::create(SCAN2D, 0);
-    snprintf((char *)logInfo[num].filename, 40, "scan2d_0_data.sav");
+    data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_0_data.sav");
     num++;
 
-    return num;
+    data->logNum = num;
 }
 
 int RackDatalog::logInfoCurrentModules(datalog_info *logInfoAll, int num,

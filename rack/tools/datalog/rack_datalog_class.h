@@ -63,9 +63,7 @@ class RackDatalog : public RackDataModule {
         float       ladarOffsetRhoFloat;
 
         void*                   contDataPtr;
-        FILE*                   fileptr[DATALOG_LOGNUM_MAX];
-        datalog_info_data_msg   datalogInfoMsg;
-
+     
         RackMutex               datalogMtx;
 
         // additional mailboxes
@@ -96,14 +94,16 @@ class RackDatalog : public RackDataModule {
                                    datalog_info *logInfoCurrent, RackMailbox *replyMbx,
                                    uint64_t reply_timeout_ns);
 
-        int  initLogFile();
-        int  logData(message_info *msgInfo, datalog_data *logData);
-
         // -> non realtime context
         void moduleCleanup(void);
 
     public:
-        virtual int  logInfoAllModules(datalog_info *logInfo);
+        FILE*                   fileptr[DATALOG_LOGNUM_MAX];
+        datalog_info_data_msg   datalogInfoMsg;
+
+        virtual void logInfoAllModules(datalog_info_data *data);
+        virtual int  initLogFile();
+        virtual int  logData(message_info *msgInfo, datalog_data *logData);
 
         // constructor und destructor
         RackDatalog();
