@@ -811,55 +811,107 @@ void RackDatalog::logInfoAllModules(datalog_info_data *data)
     num = data->logNum;
 
     data->logInfo[num].moduleMbx = RackName::create(CAMERA, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "camera_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "camera_0.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(CAMERA, 1);
-    snprintf((char *)data->logInfo[num].filename, 40, "camera_1_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "camera_1.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(CAMERA, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "camera_2.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(CAMERA, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "camera_3.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(CHASSIS, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "chassis_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "chassis_0.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(GPS, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "gps_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "gps_0.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(GPS, 1);
-    snprintf((char *)data->logInfo[num].filename, 40, "gps_1_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "gps_1.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(GPS, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "gps_2.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(GPS, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "gps_3.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "ladar_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "ladar_0.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 1);
-    snprintf((char *)data->logInfo[num].filename, 40, "ladar_1_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "ladar_1.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(LADAR, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "ladar_2.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(LADAR, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "ladar_3.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "odometry_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "odometry_0.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "odometry_1.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "pilot_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "pilot_0.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 1);
-    snprintf((char *)data->logInfo[num].filename, 40, "pilot_1_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "pilot_1.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 2);
-    snprintf((char *)data->logInfo[num].filename, 40, "pilot_2_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "pilot_2.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(POSITION, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "position_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "position_0.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(POSITION, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "position_1.dat");
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 0);
-    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_0_data.sav");
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_0.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_1.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_2.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_3.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 4);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_4.dat");
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 5);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_5.dat");
     num++;
 
     data->logNum = num;
