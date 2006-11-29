@@ -174,8 +174,8 @@ public class DatalogGui extends RackModuleGui
                     }
                     else
                     {   
-//                        logData.logInfo[i].periodTime = (Float.valueOf(logFrequency[i].getText())).floatValue();
-                        logData.logInfo[i].periodTime = (Integer.valueOf(logFrequency[i].getText())).intValue();                        
+                       	logData.logInfo[i].periodTime = 1000 / 
+                       						Integer.valueOf(logFrequency[i].getText()).intValue();
                     }
                     logData.logInfo[i].filename = pathName.getText() + "/" + saveName[i].getText();
 
