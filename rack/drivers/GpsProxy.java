@@ -27,11 +27,11 @@ public class GpsProxy extends RackDataProxy
         this.id = id;
     }    
 
-    public synchronized GpsDataMsg getData(int recordingtime)
+    public synchronized GpsDataMsg getData(int recordingTime)
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingtime);
+            TimsDataMsg raw = getRawData(recordingTime);
 
             if (raw != null)
             {

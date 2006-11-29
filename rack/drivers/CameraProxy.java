@@ -40,11 +40,11 @@ public class CameraProxy extends RackDataProxy {
         this.id = id;
     }
 
-    public synchronized CameraDataMsg getData(int recordingtime)
+    public synchronized CameraDataMsg getData(int recordingTime)
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingtime);
+            TimsDataMsg raw = getRawData(recordingTime);
 
             if(raw != null)
             {

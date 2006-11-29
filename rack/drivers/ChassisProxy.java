@@ -41,11 +41,11 @@ public class ChassisProxy extends RackDataProxy
         this.id = id;
     }
 
-    public synchronized ChassisDataMsg getData(int recordingtime)
+    public synchronized ChassisDataMsg getData(int recordingTime)
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingtime);
+            TimsDataMsg raw = getRawData(recordingTime);
             if (raw != null)
             {
                 ChassisDataMsg data = new ChassisDataMsg(raw);

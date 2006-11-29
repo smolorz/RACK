@@ -29,10 +29,10 @@ public class OdometryProxy extends RackDataProxy
     this.id = id;
   }
 
-  public synchronized OdometryDataMsg getData(int recordingtime)
+  public synchronized OdometryDataMsg getData(int recordingTime)
   {
     try {
-      TimsDataMsg raw = getRawData(recordingtime);
+      TimsDataMsg raw = getRawData(recordingTime);
       if (raw != null) {
         OdometryDataMsg data = new OdometryDataMsg(raw);
         return(data);

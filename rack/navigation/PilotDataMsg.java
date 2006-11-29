@@ -30,7 +30,7 @@ import rack.main.defines.PolarSpline;
 
 public class PilotDataMsg extends TimsMsg
 {
-    public int           recordingtime = 0;
+    public int           recordingTime = 0;
     public Position3D    pos = new Position3D(0,0,0,0.0f,0.0f,0.0f);
     public int           speed = 0;
     public float         curve = 0;
@@ -77,7 +77,7 @@ public class PilotDataMsg extends TimsMsg
             dataIn = new LittleEndianDataInputStream(in);
         }
 
-        recordingtime = dataIn.readInt();
+        recordingTime = dataIn.readInt();
 
         pos.readData(dataIn);
         speed                     = dataIn.readInt();
@@ -96,7 +96,7 @@ public class PilotDataMsg extends TimsMsg
     protected void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
-        dataOut.writeInt(recordingtime);
+        dataOut.writeInt(recordingTime);
 
         pos.writeData(dataOut);
         dataOut.writeInt(speed);

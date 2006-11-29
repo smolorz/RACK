@@ -21,7 +21,7 @@ import rack.main.tims.*;
 
 public class GetDataMsg extends TimsMsg
 {
-    public int recordingtime = 0; // 4 Byte
+    public int recordingTime = 0; // 4 Byte
 
     public int getDataLen()
     {
@@ -58,7 +58,7 @@ public class GetDataMsg extends TimsMsg
         dataIn = new LittleEndianDataInputStream(in);
       }
 
-      recordingtime = dataIn.readInt();
+      recordingTime = dataIn.readInt();
 
       bodyByteorder = BIG_ENDIAN;
     }
@@ -66,6 +66,6 @@ public class GetDataMsg extends TimsMsg
     protected void writeTimsMsgBody(OutputStream out) throws IOException
     {
       DataOutputStream dataOut = new DataOutputStream(out);
-      dataOut.writeInt(recordingtime);
+      dataOut.writeInt(recordingTime);
     }
 }

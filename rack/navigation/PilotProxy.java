@@ -31,10 +31,10 @@ public class PilotProxy extends RackDataProxy
     return(RackName.create(RackName.PILOT, id));
   }
 
-  public synchronized PilotDataMsg getData(int recordingtime)
+  public synchronized PilotDataMsg getData(int recordingTime)
   {
     try {
-      TimsDataMsg raw = getRawData(recordingtime);
+      TimsDataMsg raw = getRawData(recordingTime);
 
       if (raw != null) {
         PilotDataMsg data = new PilotDataMsg(raw);

@@ -23,7 +23,7 @@ import rack.main.tims.*;
 
 public class Scan2DDataMsg extends TimsMsg
 {
-    public int recordingtime = 0;
+    public int recordingTime = 0;
     public int duration = 0;
     public int maxRange = 0;
     public int pointNum = 0;
@@ -64,7 +64,7 @@ public class Scan2DDataMsg extends TimsMsg
             dataIn = new LittleEndianDataInputStream(in);
         }
 
-        recordingtime = dataIn.readInt();
+        recordingTime = dataIn.readInt();
         duration = dataIn.readInt();
         maxRange = dataIn.readInt();
         pointNum = dataIn.readInt();
@@ -82,7 +82,7 @@ public class Scan2DDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(recordingtime);
+        dataOut.writeInt(recordingTime);
         dataOut.writeInt(duration);
         dataOut.writeInt(maxRange);
         dataOut.writeInt(pointNum);

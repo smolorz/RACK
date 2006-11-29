@@ -23,7 +23,7 @@ import rack.main.defines.Position3D;
 
 public class OdometryDataMsg extends TimsMsg
 {
-    public int recordingtime = 0;
+    public int recordingTime = 0;
     public Position3D position = new Position3D();
 
     public int getDataLen()
@@ -67,7 +67,7 @@ public class OdometryDataMsg extends TimsMsg
             dataIn = new LittleEndianDataInputStream(in);
         }
 
-        recordingtime = dataIn.readInt();
+        recordingTime = dataIn.readInt();
         position.readData(dataIn);
 
         bodyByteorder = BIG_ENDIAN;
@@ -77,7 +77,7 @@ public class OdometryDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(recordingtime);
+        dataOut.writeInt(recordingTime);
         position.writeData(dataOut);
     }
 

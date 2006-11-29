@@ -36,11 +36,11 @@ public class PositionProxy extends RackDataProxy
         this.id = id;
     }
 
-    public synchronized PositionDataMsg getData(int recordingtime)
+    public synchronized PositionDataMsg getData(int recordingTime)
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingtime);
+            TimsDataMsg raw = getRawData(recordingTime);
             if (raw!=null) {
                 PositionDataMsg data = new PositionDataMsg(raw);
                 return(data);

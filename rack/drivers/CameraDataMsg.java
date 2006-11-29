@@ -46,7 +46,7 @@ public class CameraDataMsg extends TimsMsg
     public final static int COLORFILTER_GRBG = 514;
     public final static int COLORFILTER_BGGR = 515;
 
-    public int recordingtime = 0;
+    public int recordingTime = 0;
     public int width = 0;
     public int height = 0;
     public int depth = 0;
@@ -77,7 +77,7 @@ public class CameraDataMsg extends TimsMsg
         this.height = (short) height;
         this.imageRawData = new int[width * height];
 
-        this.recordingtime = 0;
+        this.recordingTime = 0;
         this.mode = 0;
         this.depth = 0;
         this.colorFilterId = 0;
@@ -351,7 +351,7 @@ public class CameraDataMsg extends TimsMsg
     public void readTimsMsgBodyEndianInput(EndianDataInputStream dataIn)
             throws IOException
     {
-        recordingtime = dataIn.readInt();
+        recordingTime = dataIn.readInt();
         width  = dataIn.readShort();
         height = dataIn.readShort();
         depth  = dataIn.readShort();
@@ -496,7 +496,7 @@ public class CameraDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(recordingtime);
+        dataOut.writeInt(recordingTime);
         dataOut.writeShort(width);
         dataOut.writeShort(height);
         dataOut.writeShort(depth);

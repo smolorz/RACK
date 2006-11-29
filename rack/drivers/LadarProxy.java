@@ -26,11 +26,11 @@ public class LadarProxy extends RackDataProxy
         this.id = id;
     }
 
-    public synchronized LadarDataMsg getData(int recordingtime)
+    public synchronized LadarDataMsg getData(int recordingTime)
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingtime);
+            TimsDataMsg raw = getRawData(recordingTime);
 
             if (raw != null)
             {

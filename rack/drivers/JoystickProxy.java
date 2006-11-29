@@ -27,11 +27,11 @@ public class JoystickProxy extends RackDataProxy
         this.id = id;
     }
 
-    public synchronized JoystickDataMsg getData(int recordingtime)
+    public synchronized JoystickDataMsg getData(int recordingTime)
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingtime);
+            TimsDataMsg raw = getRawData(recordingTime);
             if (raw != null)
             {
                 JoystickDataMsg data = new JoystickDataMsg(raw);

@@ -22,7 +22,7 @@ import rack.main.tims.*;
 
 public class LadarDataMsg extends TimsMsg
 {
-    public int recordingtime = 0;
+    public int recordingTime = 0;
     public int duration = 0;
     public int maxRange = 0;
     public float startAngle = 0.0f;
@@ -70,7 +70,7 @@ public class LadarDataMsg extends TimsMsg
             dataIn = new LittleEndianDataInputStream(in);
         }
 
-        recordingtime = dataIn.readInt();
+        recordingTime = dataIn.readInt();
         duration = dataIn.readInt();
         maxRange = dataIn.readInt();
         startAngle = dataIn.readFloat();
@@ -89,7 +89,7 @@ public class LadarDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(recordingtime);
+        dataOut.writeInt(recordingTime);
         dataOut.writeInt(duration);
         dataOut.writeInt(maxRange);
         dataOut.writeFloat(startAngle);

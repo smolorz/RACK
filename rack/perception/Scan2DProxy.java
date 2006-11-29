@@ -31,10 +31,10 @@ public class Scan2DProxy extends RackDataProxy
     this.id = id;
   }
 
-  public synchronized Scan2DDataMsg getData(int recordingtime)
+  public synchronized Scan2DDataMsg getData(int recordingTime)
   {
     try {
-      TimsDataMsg raw = getRawData(recordingtime);
+      TimsDataMsg raw = getRawData(recordingTime);
 
       if (raw != null) {
         Scan2DDataMsg data = new Scan2DDataMsg(raw);

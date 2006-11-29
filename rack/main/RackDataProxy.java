@@ -31,14 +31,14 @@ public abstract class RackDataProxy extends RackProxy
         super(commandMbx, replyMbx, dataMbx, onTimeout, offTimeout, dataTimeout);
     }
 
-    protected synchronized TimsDataMsg getRawData(int recordingtime)
+    protected synchronized TimsDataMsg getRawData(int recordingTime)
     {
         currentSequenceNo++;
 
         try
         {
             GetDataMsg p = new GetDataMsg();
-            p.recordingtime = recordingtime;
+            p.recordingTime = recordingTime;
 
             replyMbx.send(RackProxy.MSG_GET_DATA, commandMbx,
                           (byte) 0, currentSequenceNo, p);

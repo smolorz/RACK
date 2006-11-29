@@ -239,7 +239,7 @@ public class Scan2DGui extends RackModuleGui
         
         if (scan2DData == null) return;
         
-        Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2DData.recordingtime);
+        Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2DData.recordingTime);
 
         for (int i = 0; i < scan2DData.pointNum; i++) 
         {

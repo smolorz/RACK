@@ -176,7 +176,7 @@ public class CameraComponent extends JComponent
                 }
                 break;
         }
-        switchRotateData.recordingtime = dataMsg.recordingtime;
+        switchRotateData.recordingTime = dataMsg.recordingTime;
         switchRotateData.mode = dataMsg.mode;
         switchRotateData.depth = dataMsg.depth;
 
@@ -208,7 +208,7 @@ public class CameraComponent extends JComponent
             CameraDataMsg zoomData = new CameraDataMsg(newWidth,
                     newHeight);
 
-            zoomData.recordingtime = dataMsg.recordingtime;
+            zoomData.recordingTime = dataMsg.recordingTime;
             zoomData.mode = dataMsg.mode;
             zoomData.depth = dataMsg.depth;
 

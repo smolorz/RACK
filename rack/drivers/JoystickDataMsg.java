@@ -23,7 +23,7 @@ import rack.main.defines.Position3D;
 
 public class JoystickDataMsg extends TimsMsg
 {
-    public int recordingtime = 0;
+    public int recordingTime = 0;
     public Position3D position = new Position3D(); // 24 bytes
     public int buttons = 0;
 
@@ -67,7 +67,7 @@ public class JoystickDataMsg extends TimsMsg
         {
             dataIn = new LittleEndianDataInputStream(in);
         }
-        recordingtime = dataIn.readInt();
+        recordingTime = dataIn.readInt();
         position.readData(dataIn);
         buttons = dataIn.readInt();
 
@@ -78,7 +78,7 @@ public class JoystickDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(recordingtime);
+        dataOut.writeInt(recordingTime);
         position.writeData(dataOut);
         dataOut.writeInt(buttons);
     }
