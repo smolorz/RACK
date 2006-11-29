@@ -85,7 +85,8 @@ camera_param_data param = {
 int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
 {
     int minRow, maxRow, minCol, maxCol, rowNum, colNum; 
-    int i, j, sourceIndex, uDiff, vDiff;
+    int i, j, sourceIndex;
+    double uDiff, vDiff, diffPoints;
     unsigned int uvValue, uuValue;
 
     minCol = (dataPackage->data.width / 2) - whitebalanceCols;
@@ -97,6 +98,7 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
     rowNum = maxRow - minRow; 
     uDiff = 0; 
     vDiff = 0;
+    diffPoints = (colNum*rowNum) / 4;//for real size /2 would fit the additional /2 is for controller speed up
     
     switch(dataPackage->data.mode) {
     case CAMERA_MODE_YUV422:
@@ -107,7 +109,7 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
                 //take 0.th byte from pixel
                 sourceIndex = ((i+minRow)*dataPackage->data.width+j+minCol);
                 
-                if (sourceIndex%1 == 0) 
+                if (sourceIndex%2 == 0) 
                 {
                     uDiff += (dataPackage->byteStream[sourceIndex*2]-128);
                 }else 
@@ -117,8 +119,10 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
             }
         }
         
-        uDiff = uDiff / (colNum*rowNum); 
-        vDiff = vDiff / (colNum*rowNum); 
+        //GDOS_DBG_INFO("auto white balance uDiff:%i vDiff:%i points:%i!\n", (int)uDiff, (int)vDiff, (int)diffPoints);
+        
+        uDiff = round(uDiff / diffPoints); 
+        vDiff = round(vDiff / diffPoints); 
         
         if (dc1394_get_white_balance(porthandle[dc1394CameraPortNo], camera_node, &uuValue, &uvValue) != DC1394_SUCCESS)
         {
@@ -126,10 +130,10 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
             return DC1394_FAILURE;
         }
     
-        GDOS_DBG_INFO("settings of auto white balance actual u:%i v:%i + uDiff:%i vDiff:%i!\n", uuValue, uvValue, -uDiff, -vDiff);
+        GDOS_DBG_INFO("settings of auto white balance actual u:%i v:%i + uDiff:%i vDiff:%i!\n", uuValue, uvValue, (int)uDiff,(int)vDiff);
 
-        uvValue -= vDiff;
-        uuValue -= uDiff;
+        uvValue -= (int) vDiff;
+        uuValue -= (int) uDiff;
 
         if (uvValue > 255)
             {uvValue = 255;}
