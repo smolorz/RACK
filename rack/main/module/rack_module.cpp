@@ -99,12 +99,6 @@ void cmd_task_proc(void *arg)
     char recv_data[p_mod->cmdMbxMsgDataSize];
     int ret;
 
-    if (timer_is_running() != 1)
-    {
-        GDOS_ERROR("Timer isn't running\n");
-        return;
-    }
-
     RackTask::enableRealtimeMode();
 
     p_mod->cmdTaskRunning = 1;
@@ -158,14 +152,8 @@ inline void notify(int8_t type, RackModule *p_mod)
 void data_task_proc(void *arg)
 {
     int ret;
-    RackDataModule*   p_mod = (RackDataModule *)arg;
-    GdosMailbox*  gdos  = p_mod->gdos;
-
-    if (timer_is_running() != 1)
-    {
-        GDOS_ERROR("Timer isn't running\n");
-        return;
-    }
+    RackDataModule* p_mod = (RackDataModule *)arg;
+    GdosMailbox*    gdos  = p_mod->gdos;
 
     RackTask::enableRealtimeMode();
 

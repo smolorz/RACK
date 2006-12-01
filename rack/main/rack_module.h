@@ -62,21 +62,6 @@ extern argTable_t module_argTab[];
 // some additional functions
 //
 
-// non realtime / realtime context
-static inline int timer_is_running(void)
-{
-    int ret;
-
-    if (!in_rt_context())
-        return -1;
-
-    ret = RackTask::sleep(1);
-    if (ret == -EWOULDBLOCK)
-        return 0;
-
-    return 1;
-}
-
 /*!
  * \ingroup rackservices
  * \defgroup module Rack Module
