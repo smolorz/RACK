@@ -810,13 +810,6 @@ void  RackModule::run(void)
         goto exit_error;
     }
 
-    // check if command task is running
-    if (!cmdTaskRunning)
-    {
-        GDOS_ERROR("Error while starting command task\n");
-        ret = -EINVAL;
-        goto exit_error;
-    }
     modBits.setBit(INIT_BIT_CMDTSK_STARTED);
     GDOS_DBG_INFO("Command task started \n");
 
@@ -829,12 +822,6 @@ void  RackModule::run(void)
         goto exit_error;
     }
 
-    // check if data task is running
-    if (!dataTaskRunning) {
-        GDOS_ERROR("Error while starting data task\n");
-        ret = -EINVAL;
-        goto exit_error;
-    }
     modBits.setBit(INIT_BIT_DATATSK_STARTED);
     GDOS_DBG_INFO("Data task started \n");
 
