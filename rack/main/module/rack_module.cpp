@@ -911,11 +911,6 @@ void signal_handler(int sig)
 #endif
 
         case SIGSEGV:
-            if (signal_flags & HANDLING_TERM) // ignore while cleaning up
-                return;
-
-            signal_flags |= HANDLING_TERM;
-
             printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
             printf(" -> SIGSEGV (%02d)\n", sig);
             printf(" -> Segmentation fault \n");
