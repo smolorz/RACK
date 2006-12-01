@@ -25,11 +25,13 @@ public class DatalogLogInfo
     public int     logEnable = 0;
     public int     moduleMbx = 0;
     public int     periodTime = 0;
-    public String  filename = "";    
+    public String  filename = "";  
+    public int	   bytesLogged = 0;
+    public int	   setsLogged = 0;
 
     static public int getDataLen()
     {
-        return(12 + 40);
+        return(20 + 40);
     }
 
     public DatalogLogInfo()
@@ -46,6 +48,9 @@ public class DatalogLogInfo
         
         dataIn.readFully(name);
         filename   = new String(name);
+        
+        bytesLogged = dataIn.readInt();
+        setsLogged  = dataIn.readInt();
     }
     
     public void writeData(DataOutputStream dataOut) throws IOException
@@ -59,6 +64,9 @@ public class DatalogLogInfo
         {
             dataOut.writeByte(0);
         }
+        
+        dataOut.writeInt(bytesLogged);
+        dataOut.writeInt(setsLogged);
     }       
 }
 
