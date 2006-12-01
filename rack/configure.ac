@@ -793,20 +793,20 @@ if test "$CONFIG_RACK_DUMMY_ABC" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
-dnl  tools - rack datalog
+dnl  tools - datalog rec
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build Rack Datalog])
-AC_ARG_ENABLE(rack-datalog,
-    AS_HELP_STRING([--enable-rack-datalog], [building Rack Datalog]),   
+AC_MSG_CHECKING([build Datalog Rec])
+AC_ARG_ENABLE(datalog-rec,
+    AS_HELP_STRING([--enable-datalog-rec], [building Datalog Rec]),   
     [case "$enableval" in
-        y | yes) CONFIG_RACK_DATALOG=y ;;
-        *) CONFIG_RACK_DATALOG=n ;;
+        y | yes) CONFIG_DATALOG_REC=y ;;
+        *) CONFIG_DATALOG_REC=n ;;
     esac])
-AC_MSG_RESULT([${CONFIG_RACK_DATALOG:-n}])
-AM_CONDITIONAL(CONFIG_RACK_DATALOG,[test "$CONFIG_RACK_DATALOG" = "y"])
-if test "$CONFIG_RACK_DATALOG" = "y"; then
-    AC_DEFINE(CONFIG_RACK_DATALOG,1,[building Rack Datalog])
+AC_MSG_RESULT([${CONFIG_DATALOG_REC:-n}])
+AM_CONDITIONAL(CONFIG_DATALOG_REC,[test "$CONFIG_DATALOG_REC" = "y"])
+if test "$CONFIG_DATALOG_REC" = "y"; then
+    AC_DEFINE(CONFIG_DATALOG_REC,1,[building Datalog Rec])
 fi
 
 dnl -----------------------------------------------------------------

@@ -13,7 +13,7 @@
  *      Oliver Wulf        <oliver.wulf@gmx.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
- #include "rack_datalog_class.h"
+ #include "datalog_rec_class.h"
 
 #include <main/argopts.h>
 
@@ -21,7 +21,7 @@
 //
 // data structures
 //
-RackDatalog *p_inst;
+DatalogRec *p_inst;
 
 argTable_t argTab[] = {
 
@@ -34,18 +34,18 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "RackDatalog");
+    ret = RackModule::getArgs(argc, argv, argTab, "DatalogRec");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new RackDatalog
-    p_inst = new RackDatalog();
+    // create new DatalogRec
+    p_inst = new DatalogRec();
     if (!p_inst)
     {
-        printf("Can't create new RackDatalog -> EXIT\n");
+        printf("Can't create new DatalogRec -> EXIT\n");
         return -ENOMEM;
     }
 

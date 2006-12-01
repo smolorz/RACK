@@ -1,10 +1,9 @@
 
 bin_PROGRAMS =
 
-if CONFIG_RACK_DATALOG
-bin_PROGRAMS += RackDatalog
+if CONFIG_DATALOG_REC
+bin_PROGRAMS += DatalogRec
 endif
-
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -13,12 +12,11 @@ LDADD    = @RACK_LIBS@
 datalogincludedir = $(pkgincludedir)/tools/datalog
 
 dataloginclude_HEADERS = \
-        rack_datalog_class.h
+        datalog_rec_class.h
 
-RackDatalog_SOURCES = \
-        rack_datalog_class.h \
-	rack_datalog.cpp
-
+DatalogRec_SOURCES = \
+        datalog_rec_class.h \
+	datalog_rec.cpp
 
 EXTRA_DIST = \
 	Kconfig

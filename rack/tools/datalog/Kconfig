@@ -1,6 +1,6 @@
 
-config RACK_DATALOG
-    bool "Rack Datalog"
+config DATALOG_REC
+    bool "Datalog Recorder"
     default y
     ---help---
     Help text.

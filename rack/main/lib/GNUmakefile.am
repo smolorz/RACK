@@ -30,7 +30,7 @@ librack_la_SOURCES = \
 	$(top_srcdir)/navigation/position_proxy.cpp \
 	\
 	$(top_srcdir)/tools/datalog_proxy.cpp \
-	$(top_srcdir)/tools/datalog/rack_datalog_class.cpp \
+	$(top_srcdir)/tools/datalog/datalog_rec_class.cpp \
 	\
 	$(top_srcdir)/main/argopts/argopts.cpp \
 	$(top_srcdir)/main/dxfmap/dxf_map.cpp \

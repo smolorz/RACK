@@ -38,7 +38,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
-@CONFIG_RACK_DATALOG_TRUE@am__append_1 = RackDatalog
+@CONFIG_DATALOG_REC_TRUE@am__append_1 = DatalogRec
 subdir = tools/datalog
 DIST_COMMON = $(dataloginclude_HEADERS) $(srcdir)/GNUmakefile.am \
 	$(srcdir)/GNUmakefile.in
@@ -50,15 +50,15 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
-@CONFIG_RACK_DATALOG_TRUE@am__EXEEXT_1 = RackDatalog$(EXEEXT)
+@CONFIG_DATALOG_REC_TRUE@am__EXEEXT_1 = DatalogRec$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(datalogincludedir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_RackDatalog_OBJECTS = rack_datalog.$(OBJEXT)
-RackDatalog_OBJECTS = $(am_RackDatalog_OBJECTS)
-RackDatalog_LDADD = $(LDADD)
-RackDatalog_DEPENDENCIES =
+am_DatalogRec_OBJECTS = datalog_rec.$(OBJEXT)
+DatalogRec_OBJECTS = $(am_DatalogRec_OBJECTS)
+DatalogRec_LDADD = $(LDADD)
+DatalogRec_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -78,8 +78,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(RackDatalog_SOURCES)
-DIST_SOURCES = $(RackDatalog_SOURCES)
+SOURCES = $(DatalogRec_SOURCES)
+DIST_SOURCES = $(DatalogRec_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -105,6 +105,8 @@ CCAS = @CCAS@
 CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CONFIG_DATALOG_REC_FALSE = @CONFIG_DATALOG_REC_FALSE@
+CONFIG_DATALOG_REC_TRUE = @CONFIG_DATALOG_REC_TRUE@
 CONFIG_LIBPNG_FALSE = @CONFIG_LIBPNG_FALSE@
 CONFIG_LIBPNG_TRUE = @CONFIG_LIBPNG_TRUE@
 CONFIG_OPENCV_FALSE = @CONFIG_OPENCV_FALSE@
@@ -123,8 +125,6 @@ CONFIG_RACK_CHASSIS_PIONEER_FALSE = @CONFIG_RACK_CHASSIS_PIONEER_FALSE@
 CONFIG_RACK_CHASSIS_PIONEER_TRUE = @CONFIG_RACK_CHASSIS_PIONEER_TRUE@
 CONFIG_RACK_CHASSIS_SIM_FALSE = @CONFIG_RACK_CHASSIS_SIM_FALSE@
 CONFIG_RACK_CHASSIS_SIM_TRUE = @CONFIG_RACK_CHASSIS_SIM_TRUE@
-CONFIG_RACK_DATALOG_FALSE = @CONFIG_RACK_DATALOG_FALSE@
-CONFIG_RACK_DATALOG_TRUE = @CONFIG_RACK_DATALOG_TRUE@
 CONFIG_RACK_DOC_DOX_FALSE = @CONFIG_RACK_DOC_DOX_FALSE@
 CONFIG_RACK_DOC_DOX_TRUE = @CONFIG_RACK_DOC_DOX_TRUE@
 CONFIG_RACK_DUMMY_ABC_FALSE = @CONFIG_RACK_DUMMY_ABC_FALSE@
@@ -305,11 +305,11 @@ target_alias = @target_alias@
 LDADD = @RACK_LIBS@
 datalogincludedir = $(pkgincludedir)/tools/datalog
 dataloginclude_HEADERS = \
-        rack_datalog_class.h
+        datalog_rec_class.h
 
-RackDatalog_SOURCES = \
-        rack_datalog_class.h \
-	rack_datalog.cpp
+DatalogRec_SOURCES = \
+        datalog_rec_class.h \
+	datalog_rec.cpp
 
 EXTRA_DIST = \
 	Kconfig
@@ -375,9 +375,9 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-RackDatalog$(EXEEXT): $(RackDatalog_OBJECTS) $(RackDatalog_DEPENDENCIES) 
-	@rm -f RackDatalog$(EXEEXT)
-	$(CXXLINK) $(RackDatalog_LDFLAGS) $(RackDatalog_OBJECTS) $(RackDatalog_LDADD) $(LIBS)
+DatalogRec$(EXEEXT): $(DatalogRec_OBJECTS) $(DatalogRec_DEPENDENCIES) 
+	@rm -f DatalogRec$(EXEEXT)
+	$(CXXLINK) $(DatalogRec_LDFLAGS) $(DatalogRec_OBJECTS) $(DatalogRec_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -385,7 +385,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rack_datalog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/datalog_rec.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

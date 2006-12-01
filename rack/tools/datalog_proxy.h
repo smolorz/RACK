@@ -19,9 +19,9 @@
 
 /*!
  * @ingroup tools
- * @defgroup datalog RackDatalog
+ * @defgroup datalog
  *
- * Data strcture for the rack datalogger
+ * Data strcture for datalog
  *
  * @{
  */
@@ -29,7 +29,7 @@
 #include <main/rack_proxy.h>
 #include <main/rack_name.h>
 
-#define DATALOG_LOGNUM_MAX 50
+#define DATALOG_LOGNUM_MAX 100
 
 //######################################################################
 //# Datalog Message Types
@@ -41,53 +41,6 @@
 #define MSG_DATALOG_LOG_STATUS          (RACK_PROXY_MSG_NEG_OFFSET - 1)
 
 
-//######################################################################
-//# Datalog Data (static size  - MESSAGE)
-//######################################################################
-
-typedef struct {
-    rack_time_t recordingTime;           // have to be first element
-    uint64_t     bytesLogged;            // total number of bytes logged
-    uint64_t     setsLogged;             // total number of datasets logged
-} __attribute__((packed)) datalog_data;
-
-class DatalogData
-{
-    public:
-        static void le_to_cpu(datalog_data *data)
-        {
-            data->recordingTime = __le32_to_cpu(data->recordingTime);
-            data->bytesLogged   = __le64_to_cpu(data->bytesLogged);
-            data->setsLogged    = __le64_to_cpu(data->setsLogged);
-        }
-
-        static void be_to_cpu(datalog_data *data)
-        {
-            data->recordingTime = __be32_to_cpu(data->recordingTime);
-            data->bytesLogged   = __be64_to_cpu(data->bytesLogged);
-            data->setsLogged    = __be64_to_cpu(data->bytesLogged);
-        }
-
-        static datalog_data* parse(message_info *msgInfo)
-        {
-            if (!msgInfo->p_data)
-                return NULL;
-
-            datalog_data *p_data = (datalog_data *)msgInfo->p_data;
-
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
-            {
-                le_to_cpu(p_data);
-            }
-            else // data in big endian
-            {
-                be_to_cpu(p_data);
-            }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
-            return p_data;
-        }
-};
-
 
 //######################################################################
 //# Datalog Log Info (static size - MESSAGE)
@@ -97,77 +50,86 @@ typedef struct {
     uint32_t        moduleMbx;
     rack_time_t     periodTime;
     uint8_t         filename[40];
-} __attribute__((packed)) datalog_info;
+    uint32_t        bytesLogged;
+    uint32_t        setsLogged;
+} __attribute__((packed)) datalog_logInfo;
 
-class DatalogInfo
+class DatalogLogInfo
 {
     public:
-        static void le_to_cpu(datalog_info *data)
+        static void le_to_cpu(datalog_logInfo *data)
         {
-            data->logEnable  = __le32_to_cpu(data->logEnable);
-            data->moduleMbx  = __le32_to_cpu(data->moduleMbx);
-            data->periodTime = __le32_to_cpu(data->periodTime);
+            data->logEnable   = __le32_to_cpu(data->logEnable);
+            data->moduleMbx   = __le32_to_cpu(data->moduleMbx);
+            data->periodTime  = __le32_to_cpu(data->periodTime);
+            data->bytesLogged = __le32_to_cpu(data->bytesLogged);
+            data->setsLogged  = __le32_to_cpu(data->setsLogged);
         }
 
-        static void be_to_cpu(datalog_info *data)
+        static void be_to_cpu(datalog_logInfo *data)
         {
-            data->logEnable  = __be32_to_cpu(data->logEnable);
-            data->moduleMbx  = __be32_to_cpu(data->moduleMbx);
-            data->periodTime = __be32_to_cpu(data->periodTime);
+            data->logEnable   = __be32_to_cpu(data->logEnable);
+            data->moduleMbx   = __be32_to_cpu(data->moduleMbx);
+            data->periodTime  = __be32_to_cpu(data->periodTime);
+            data->bytesLogged = __be32_to_cpu(data->bytesLogged);
+            data->setsLogged  = __be32_to_cpu(data->setsLogged);
         }
 };
 
 
 //######################################################################
-//# DatalogInfoData (!!! VARIABLE SIZE !!! MESSAGE !!!)
+//# DatalogData (!!! VARIABLE SIZE !!! MESSAGE !!!)
 //######################################################################
 
 /* CREATING A MESSAGE :
 
 typedef struct {
     datalog_info_data   data;
-    datalog_info        logInfo[ ... ];
-} __attribute__((packed)) datalog_info_data_msg;
+    datalog_logInfo     logInfo[ ... ];
+} __attribute__((packed)) datalog_data_msg;
 
-datalog_info_data_msg msg;
+datalog_data_msg msg;
 
 ACCESS: msg.data.logInfo[...] OR msg.logInfo[...];
 */
 
 typedef struct {
-    int32_t       logNum;
-    datalog_info  logInfo[0];
-} __attribute__((packed)) datalog_info_data;
+    rack_time_t      recordingTime;
+    int32_t          logNum;
+    datalog_logInfo  logInfo[0];
+} __attribute__((packed)) datalog_data;
 
-class DatalogInfoData
+class DatalogData
 {
     public:
-        static void le_to_cpu(datalog_info_data *data)
+        static void le_to_cpu(datalog_data *data)
         {
             int i;
-            data->logNum     = __le32_to_cpu(data->logNum);
+            data->recordingTime = __le32_to_cpu(data->recordingTime);
+            data->logNum        = __le32_to_cpu(data->logNum);
             for (i = 0; i < data->logNum; i++)
             {
-                DatalogInfo::le_to_cpu(&data->logInfo[i]);
+                DatalogLogInfo::le_to_cpu(&data->logInfo[i]);
             }
         }
 
-        static void be_to_cpu(datalog_info_data *data)
+        static void be_to_cpu(datalog_data *data)
         {
             int i;
-            data->logNum     = __be32_to_cpu(data->logNum);
+            data->recordingTime = __be32_to_cpu(data->recordingTime);
+            data->logNum        = __be32_to_cpu(data->logNum);
             for (i = 0; i < data->logNum; i++)
             {
-                DatalogInfo::be_to_cpu(&data->logInfo[i]);
+                DatalogLogInfo::be_to_cpu(&data->logInfo[i]);
             }
         }
 
-        static datalog_info_data* parse(message_info *msgInfo)
+        static datalog_data* parse(message_info *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            datalog_info_data *p_data = (datalog_info_data *)msgInfo->p_data;
+            datalog_data *p_data = (datalog_data *)msgInfo->p_data;
 
             if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
             {
@@ -220,22 +182,22 @@ class DatalogProxy : public RackDataProxy {
 
 
 // getLogStatus
-    int getLogStatus(datalog_info_data *recv_data, ssize_t recv_datalen)
+    int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen)
     {
         return getLogStatus(recv_data, recv_datalen, dataTimeout);
     }
 
-    int getLogStatus(datalog_info_data *recv_data, ssize_t recv_datalen,
+    int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
                      uint64_t reply_timeout_ns);
 
 
 // setLog
-    int setLog(datalog_info_data *recv_data, ssize_t recv_datalen)
+    int setLog(datalog_data *recv_data, ssize_t recv_datalen)
     {
         return setLog(recv_data, recv_datalen, dataTimeout);
     }
 
-    int setLog(datalog_info_data *recv_data, ssize_t recv_datalen,
+    int setLog(datalog_data *recv_data, ssize_t recv_datalen,
                uint64_t reply_timeout_ns);
 
 

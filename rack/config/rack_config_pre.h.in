@@ -1,5 +1,8 @@
 /* config/rack_config_pre.h.in.  Generated from configure.ac by autoheader.  */
 
+/* building Datalog Rec */
+#undef CONFIG_DATALOG_REC
+
 /* Build system alias */
 #undef CONFIG_RACK_BUILD_STRING
 
@@ -23,9 +26,6 @@
 
 /* Compiler */
 #undef CONFIG_RACK_COMPILER
-
-/* building Rack Datalog */
-#undef CONFIG_RACK_DATALOG
 
 /* building Dummy Abc */
 #undef CONFIG_RACK_DUMMY_ABC

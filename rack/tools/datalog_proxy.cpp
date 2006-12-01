@@ -33,7 +33,7 @@ int DatalogProxy::getData(datalog_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
-int DatalogProxy::getLogStatus(datalog_info_data *recv_data, ssize_t recv_datalen,
+int DatalogProxy::getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
                                uint64_t reply_timeout_ns)
 {
     message_info msgInfo;
@@ -46,11 +46,11 @@ int DatalogProxy::getLogStatus(datalog_info_data *recv_data, ssize_t recv_datale
         return ret;
     }
 
-    recv_data = DatalogInfoData::parse(&msgInfo);
+    recv_data = DatalogData::parse(&msgInfo);
     return 0;
 }
 
-int DatalogProxy::setLog(datalog_info_data *recv_data, ssize_t recv_datalen,
+int DatalogProxy::setLog(datalog_data *recv_data, ssize_t recv_datalen,
                          uint64_t reply_timeout_ns)
 {
     return proxySendDataCmd(MSG_DATALOG_SET_LOG, recv_data,
