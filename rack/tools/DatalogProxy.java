@@ -38,6 +38,33 @@ public class DatalogProxy extends RackDataProxy
         super(RackName.create(RackName.DATALOG, id), replyMbx, 10000, 5000, 5000);
         this.id = id;
     }
+    
+    public synchronized DatalogDataMsg getData(int recordingTime)
+    {
+        try
+        {
+            TimsDataMsg raw = getRawData(recordingTime);
+            if (raw != null)
+            {
+                DatalogDataMsg data = new DatalogDataMsg(raw);
+                return data;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (TimsException e)
+        {
+            System.out.println(e.toString());
+            return null;
+        }
+    }
+
+    public synchronized DatalogDataMsg getData()
+    {
+        return (getData(0));
+    }    
         
     public synchronized void reset()
     {
@@ -73,7 +100,7 @@ public class DatalogProxy extends RackDataProxy
         }
     }
 
-    public synchronized DatalogLogInfoMsg getLogStatus()
+    public synchronized DatalogDataMsg getLogStatus()
     {
         currentSequenceNo++;
         try
@@ -89,7 +116,7 @@ public class DatalogProxy extends RackDataProxy
             while ((reply.seqNr != currentSequenceNo) &
                    (reply.type == MSG_DATALOG_LOG_STATUS));
 
-            DatalogLogInfoMsg data = new DatalogLogInfoMsg(reply);
+            DatalogDataMsg data = new DatalogDataMsg(reply);
             return(data);
         }
         catch (TimsException e)
@@ -100,7 +127,7 @@ public class DatalogProxy extends RackDataProxy
         }
     }
     
-    public synchronized void setLog(DatalogLogInfoMsg data)
+    public synchronized void setLog(DatalogDataMsg data)
     {
         currentSequenceNo++;
 
