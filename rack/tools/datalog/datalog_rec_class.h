@@ -14,8 +14,8 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
 
-#ifndef __RACK_DATALOG_H__
-#define __RACK_DATALOG_H__
+#ifndef __DATALOG_REC_H__
+#define __DATALOG_REC_H__
 
 #include <main/rack_datamodule.h>
 #include <tools/datalog_proxy.h>
@@ -35,14 +35,14 @@
 #define DATALOG_MSG_SIZE_MAX        1*1024*1024  //1Mb
 
 typedef struct {
-    datalog_info_data   data;
-    datalog_info        logInfo[DATALOG_LOGNUM_MAX];
-} __attribute__((packed)) datalog_info_data_msg;
+    datalog_data         data;
+    datalog_logInfo      logInfo[DATALOG_LOGNUM_MAX];
+} __attribute__((packed)) datalog_data_msg;
 
 //######################################################################
-//# class RackDatalog
+//# class DatalogRec
 //######################################################################
-class RackDatalog : public RackDataModule {
+class DatalogRec : public RackDataModule {
     private:
 
         // own vars
@@ -62,9 +62,9 @@ class RackDatalog : public RackDataModule {
         float       angleMaxFloat;
         float       ladarOffsetRhoFloat;
 
-        void*                   contDataPtr;
-     
-        RackMutex               datalogMtx;
+        void*       contDataPtr;
+
+        RackMutex   datalogMtx;
 
         // additional mailboxes
         RackMailbox workMbx;
@@ -90,27 +90,27 @@ class RackDatalog : public RackDataModule {
         int  stopContData(uint32_t destMbxAdr, RackMailbox *dataMbx,
                           RackMailbox *replyMbx, uint64_t reply_timeout_ns);
 
-        int  logInfoCurrentModules(datalog_info *logInfoAll, int num,
-                                   datalog_info *logInfoCurrent, RackMailbox *replyMbx,
+        int  logInfoCurrentModules(datalog_logInfo *logInfoAll, int num,
+                                   datalog_logInfo *logInfoCurrent, RackMailbox *replyMbx,
                                    uint64_t reply_timeout_ns);
 
         // -> non realtime context
         void moduleCleanup(void);
 
     public:
-        FILE*                   fileptr[DATALOG_LOGNUM_MAX];
-        datalog_info_data_msg   datalogInfoMsg;
+        FILE*              fileptr[DATALOG_LOGNUM_MAX];
+        datalog_data_msg   datalogInfoMsg;
 
-        virtual void logInfoAllModules(datalog_info_data *data);
+        virtual void logInfoAllModules(datalog_data *data);
         virtual int  initLogFile();
-        virtual int  logData(message_info *msgInfo, datalog_data *logData);
+        virtual int  logData(message_info *msgInfo);
 
         // constructor und destructor
-        RackDatalog();
-        ~RackDatalog() {};
+        DatalogRec();
+        ~DatalogRec() {};
 
         // -> non realtime context
         int  moduleInit(void);
 };
 
-#endif // __RACK_DATALOG_H__
+#endif // __DATALOG_REC_H__
