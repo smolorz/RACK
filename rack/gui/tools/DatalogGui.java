@@ -24,7 +24,7 @@ import rack.gui.main.*;
 import rack.main.*;
 import rack.tools.DatalogProxy;
 import rack.tools.DatalogLogInfo;
-import rack.tools.DatalogLogInfoMsg;
+import rack.tools.DatalogDataMsg;
 
 public class DatalogGui extends RackModuleGui
 {
@@ -53,7 +53,7 @@ public class DatalogGui extends RackModuleGui
     protected JRadioButton[] status;
     protected JTextField     pathName;
     
-    DatalogLogInfoMsg   logData;
+    DatalogDataMsg      logData;
     public DatalogProxy datalog;
     
     
@@ -62,13 +62,13 @@ public class DatalogGui extends RackModuleGui
     {
         datalog = proxy;
         
-        DatalogLogInfoMsg logStatus;
-        logStatus = new DatalogLogInfoMsg();
+        DatalogDataMsg logStatus;
+        logStatus = new DatalogDataMsg();
         logStatus = datalog.getLogStatus();
         
         if (logStatus == null)
         {
-            logStatus = new DatalogLogInfoMsg();
+            logStatus = new DatalogDataMsg();
             logStatus.logNum = 0;
         }
         
@@ -150,7 +150,7 @@ public class DatalogGui extends RackModuleGui
         {
             public void actionPerformed(ActionEvent e) 
             {
-                logData = new DatalogLogInfoMsg();
+                logData = new DatalogDataMsg();
                 
                 logData.logInfo = new DatalogLogInfo[Num];
                 logData.logNum  = Num;
@@ -230,12 +230,12 @@ public class DatalogGui extends RackModuleGui
     
     public void getLogStatus()
     {
-        DatalogLogInfoMsg state; 
+        DatalogDataMsg state; 
         state = datalog.getLogStatus();
         
         if (state == null)
         {
-            state = new DatalogLogInfoMsg();
+            state = new DatalogDataMsg();
             state.logNum = 0;
         }
         
@@ -276,8 +276,18 @@ public class DatalogGui extends RackModuleGui
     
     public void run()
     {
+    	DatalogDataMsg data;
+    	
         while(terminate == false)
         {
+        	if (panel.isShowing())
+        	{
+        		data = datalog.getData();
+        		
+        		if (data != null)
+        		{
+        		}
+        	}
             try
             {
                 Thread.sleep(1000);
