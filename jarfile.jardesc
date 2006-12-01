@@ -88,7 +88,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui.tools{DatalogGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{Camera2PngConverter.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogLogInfo.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogLogInfoMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2DProxy.java"/>
 </selectedElements>
