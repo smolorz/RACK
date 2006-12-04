@@ -57,3 +57,8 @@
  * Skeletons and dummies for new modules and components
  *
  */
+
+/*!
+ * @defgroup tools Tools
+ *
+ */
