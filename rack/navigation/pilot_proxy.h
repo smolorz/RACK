@@ -25,6 +25,7 @@
  * @{
  */
 
+
 #include <main/rack_proxy.h>
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
@@ -35,7 +36,7 @@
 //# Pilot Message Types
 //######################################################################
 
-// none
+#define MSG_SET_DESTINATION              (RACK_PROXY_MSG_POS_OFFSET + 1)
 
 //######################################################################
 //# PilotData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -62,6 +63,11 @@ typedef struct{
     int32_t         splineNum;
     polar_spline    spline[0];
 } __attribute__((packed)) pilot_data;
+
+typedef struct{
+    rack_time_t    recordingTime; // have to be first element
+    position_3d  pos;
+} __attribute__((packed)) destination_data;
 
 class PilotData
 {
@@ -114,6 +120,41 @@ class PilotData
         }
 };
 
+class DestinationData
+{
+    public:
+        static void le_to_cpu(destination_data *data)
+        {
+            data->recordingTime = __le32_to_cpu(data->recordingTime);
+            Position3D::le_to_cpu(&data->pos);
+        }
+
+        static void be_to_cpu(destination_data *data)
+        {
+            data->recordingTime = __be32_to_cpu(data->recordingTime);
+            Position3D::be_to_cpu(&data->pos);
+        }
+
+        static destination_data* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            destination_data *p_data = (destination_data *)msgInfo->p_data;
+
+            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            return p_data;
+        }
+};
+
 //######################################################################
 //# Pilot Proxy
 //######################################################################
@@ -145,6 +186,14 @@ class PilotProxy : public RackDataProxy
 
         int getData(pilot_data *recv_data, ssize_t recv_datalen,
                     rack_time_t timeStamp, uint64_t reply_timeout_ns);
+
+//destination data
+        int setDestination(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns);
+
+        int setDestination(position_3d *pos, rack_time_t recordingTime)
+        {
+            return setDestination(pos, recordingTime, dataTimeout);
+        }
 
 };
 

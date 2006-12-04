@@ -365,8 +365,18 @@ int  PilotJoystick::moduleLoop(void)
 
 int  PilotJoystick::moduleCommand(message_info *msgInfo)
 {
-    // not for me -> ask RackDataModule
-    return RackDataModule::moduleCommand(msgInfo);
+    switch(msgInfo->type)
+    {
+        case MSG_SET_DESTINATION:  // not supported by ths module
+
+            cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
+            break;
+
+        default:
+            // not for me -> ask RackDataModule
+            return RackDataModule::moduleCommand(msgInfo);
+      }
+      return 0;
 }
 
  /*******************************************************************************

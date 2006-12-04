@@ -30,3 +30,19 @@ int PilotProxy::getData(pilot_data *recv_data, ssize_t recv_datalen,
     recv_data = PilotData::parse(&msgInfo);
     return 0;
 }
+
+int PilotProxy::setDestination(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns)
+{
+    destination_data sendData;
+
+    sendData.recordingTime = recordingTime;
+    sendData.pos.x         = pos->x;
+    sendData.pos.y         = pos->y;
+    sendData.pos.z         = pos->z;
+    sendData.pos.phi       = pos->phi;
+    sendData.pos.psi       = pos->psi;
+    sendData.pos.rho       = pos->rho;
+
+    return proxySendDataCmd(MSG_SET_DESTINATION, &sendData,
+                            sizeof(destination_data), reply_timeout_ns);
+}
