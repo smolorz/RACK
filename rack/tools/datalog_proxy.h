@@ -19,7 +19,7 @@
 
 /*!
  * @ingroup tools
- * @defgroup datalog
+ * @defgroup datalog Datalog
  *
  * Data strcture for datalog
  *
@@ -52,12 +52,12 @@ typedef struct {
     uint8_t         filename[40];
     uint32_t        bytesLogged;
     uint32_t        setsLogged;
-} __attribute__((packed)) datalog_logInfo;
+} __attribute__((packed)) datalog_log_info;
 
 class DatalogLogInfo
 {
     public:
-        static void le_to_cpu(datalog_logInfo *data)
+        static void le_to_cpu(datalog_log_info *data)
         {
             data->logEnable   = __le32_to_cpu(data->logEnable);
             data->moduleMbx   = __le32_to_cpu(data->moduleMbx);
@@ -66,7 +66,7 @@ class DatalogLogInfo
             data->setsLogged  = __le32_to_cpu(data->setsLogged);
         }
 
-        static void be_to_cpu(datalog_logInfo *data)
+        static void be_to_cpu(datalog_log_info *data)
         {
             data->logEnable   = __be32_to_cpu(data->logEnable);
             data->moduleMbx   = __be32_to_cpu(data->moduleMbx);
@@ -96,7 +96,7 @@ ACCESS: msg.data.logInfo[...] OR msg.logInfo[...];
 typedef struct {
     rack_time_t      recordingTime;
     int32_t          logNum;
-    datalog_logInfo  logInfo[0];
+    datalog_log_info logInfo[0];
 } __attribute__((packed)) datalog_data;
 
 class DatalogData

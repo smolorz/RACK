@@ -36,7 +36,7 @@
 
 typedef struct {
     datalog_data         data;
-    datalog_logInfo      logInfo[DATALOG_LOGNUM_MAX];
+    datalog_log_info     logInfo[DATALOG_LOGNUM_MAX];
 } __attribute__((packed)) datalog_data_msg;
 
 //######################################################################
@@ -90,8 +90,8 @@ class DatalogRec : public RackDataModule {
         int  stopContData(uint32_t destMbxAdr, RackMailbox *dataMbx,
                           RackMailbox *replyMbx, uint64_t reply_timeout_ns);
 
-        int  logInfoCurrentModules(datalog_logInfo *logInfoAll, int num,
-                                   datalog_logInfo *logInfoCurrent, RackMailbox *replyMbx,
+        int  logInfoCurrentModules(datalog_log_info *logInfoAll, int num,
+                                   datalog_log_info *logInfoCurrent, RackMailbox *replyMbx,
                                    uint64_t reply_timeout_ns);
 
         // -> non realtime context

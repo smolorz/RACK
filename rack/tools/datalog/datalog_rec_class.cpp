@@ -194,7 +194,7 @@ int  DatalogRec::moduleLoop(void)
     }
 
     putDataBufferWorkSpace(sizeof(datalog_data)+
-                           pDatalogData->logNum * sizeof(datalog_logInfo));
+                           pDatalogData->logNum * sizeof(datalog_log_info));
     datalogMtx.unlock();
 
     return 0;
@@ -956,8 +956,8 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logNum = num;
 }
 
-int DatalogRec::logInfoCurrentModules(datalog_logInfo *logInfoAll, int num,
-                                       datalog_logInfo *logInfoCurrent, RackMailbox *replyMbx,
+int DatalogRec::logInfoCurrentModules(datalog_log_info *logInfoAll, int num,
+                                       datalog_log_info *logInfoCurrent, RackMailbox *replyMbx,
                                        uint64_t reply_timeout_ns)
 {
     int i, status;
@@ -970,7 +970,7 @@ int DatalogRec::logInfoCurrentModules(datalog_logInfo *logInfoAll, int num,
         if ((status == MSG_ENABLED) || (status == MSG_DISABLED))
         {
             memcpy(&logInfoCurrent[currNum].moduleMbx, &logInfoAll[i].moduleMbx,
-                   sizeof(datalog_logInfo));
+                   sizeof(datalog_log_info));
             currNum++;
         }
     }
@@ -1087,7 +1087,7 @@ DatalogRec::DatalogRec(void)
                      100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     sizeof(datalog_data) + // command mailbox data size per slot
-                    DATALOG_LOGNUM_MAX * sizeof(datalog_logInfo),
+                    DATALOG_LOGNUM_MAX * sizeof(datalog_log_info),
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
