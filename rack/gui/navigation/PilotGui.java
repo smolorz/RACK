@@ -17,10 +17,13 @@ package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.StringTokenizer;
+
 import javax.swing.*;
 
 import rack.gui.main.RackModuleGui;
 import rack.main.*;
+import rack.main.defines.Position3D;
 import rack.navigation.PilotDataMsg;
 import rack.navigation.PilotProxy;
 
@@ -36,7 +39,8 @@ public class PilotGui extends RackModuleGui
     protected JButton offButton;
     protected JButton zoomOutButton;
     protected JButton zoomInButton;
-
+    protected JButton destinationButton;
+    
     public int maxDistance = 1200; // 1m
 
     public PilotGui(PilotProxy proxy)
@@ -54,7 +58,8 @@ public class PilotGui extends RackModuleGui
         offButton = new JButton("Off");
         zoomOutButton = new JButton("Zoom out");
         zoomInButton = new JButton("Zoom in");
-
+        destinationButton = new JButton("Set destination");
+        
         pilotComponent = new PilotComponent(maxDistance);
         pilotComponent.addKeyListener(new myKeyListener());
 
@@ -94,13 +99,39 @@ public class PilotGui extends RackModuleGui
         });
         zoomInButton.addKeyListener(new myKeyListener());
 
+        destinationButton.addActionListener(new ActionListener()
+        {
+        	public void actionPerformed(ActionEvent e)
+            {
+        		String s = (String) JOptionPane.showInputDialog(null,
+                "Destination is:\n" + "x, y, rho",
+                "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0");
+                if ((s != null) && (s.length() > 0))
+                {
+                	StringTokenizer st = new StringTokenizer(s, ",");
+                    if (st.countTokens() == 3)
+                    {
+                    	Position3D destination = new Position3D(Integer.parseInt(st.nextToken()),
+                                    Integer.parseInt(st.nextToken()),
+                                    0,
+                                    0.0f,
+                                    0.0f,
+                                    (float) Math.toRadians(Float.parseFloat(st.nextToken())));
+                    	pilot.setDestination(destination, 0);
+                    }
+                }
+            }
+        });
+        
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
         buttonPanel.add(zoomInButton);
         buttonPanel.add(zoomOutButton);
+        buttonPanel.add(destinationButton);
         northPanel.add(new JLabel("pilot"), BorderLayout.NORTH);
         northPanel.add(buttonPanel, BorderLayout.CENTER);
-
+        northPanel.add(destinationButton, BorderLayout.SOUTH);
+        
         panel.add(northPanel, BorderLayout.NORTH);
         panel.add(pilotComponent, BorderLayout.CENTER);
     }
@@ -133,6 +164,11 @@ public class PilotGui extends RackModuleGui
                 if (infoData != null)
                 {
                     pilotComponent.updateData(infoData);
+                    destinationButton.setEnabled(true);
+                }
+                else
+                {
+                	destinationButton.setEnabled(false);
                 }
             }
             try

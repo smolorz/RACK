@@ -16,10 +16,14 @@
 package rack.navigation;
 
 import rack.main.*;
+import rack.main.defines.Position3D;
 import rack.main.tims.*;
+import rack.navigation.PilotDestMsg;
 
 public class PilotProxy extends RackDataProxy
 {
+  public static final byte MSG_SET_DESTINATION = RackProxy.MSG_POS_OFFSET + 1;
+	  
   public PilotProxy(int id, TimsMbx replyMbx)
   {
     super(RackName.create(RackName.PILOT, id), replyMbx, 5000, 1000, 1000);
@@ -51,5 +55,24 @@ public class PilotProxy extends RackDataProxy
   public synchronized PilotDataMsg getData()
   {
     return(getData(0));
+  }
+  
+  public synchronized void setDestination(Position3D pos, int recordingTime)
+  {
+      try {
+    	  PilotDestMsg destinationMsg = new PilotDestMsg();
+    	  destinationMsg.recordingTime = recordingTime;
+    	  destinationMsg.pos = pos;
+          replyMbx.send(MSG_SET_DESTINATION, commandMbx,(byte)0,(byte)0, destinationMsg);
+          replyMbx.receive(0);
+ 
+          System.out.println(RackName.nameString(replyMbx.getName()) + ": "
+                  + RackName.nameString(commandMbx) + ".setDestination position "
+                  + pos);
+      }
+      catch(TimsException e)
+      {
+          System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".setEstimate " + e);
+      }
   }
 }
