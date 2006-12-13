@@ -70,6 +70,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{OdometryGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionEvent.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotDataMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotDestMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position3D.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{RackProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraFormatMsg.java"/>
