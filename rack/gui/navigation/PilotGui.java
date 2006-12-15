@@ -26,6 +26,7 @@ import rack.main.*;
 import rack.main.defines.Position3D;
 import rack.navigation.PilotDataMsg;
 import rack.navigation.PilotProxy;
+import rack.navigation.PilotDestMsg;
 
 public class PilotGui extends RackModuleGui
 {
@@ -40,6 +41,7 @@ public class PilotGui extends RackModuleGui
     protected JButton zoomOutButton;
     protected JButton zoomInButton;
     protected JButton destinationButton;
+    protected PilotDestMsg   pilotDest = new PilotDestMsg();    
     
     public int maxDistance = 1200; // 1m
 
@@ -104,12 +106,12 @@ public class PilotGui extends RackModuleGui
         	public void actionPerformed(ActionEvent e)
             {
         		String s = (String) JOptionPane.showInputDialog(null,
-                "Destination is:\n" + "x, y, rho",
-                "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0");
+                "Destination is:\n" + "x, y, rho, moveDir",
+                "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0,0");
                 if ((s != null) && (s.length() > 0))
                 {
                 	StringTokenizer st = new StringTokenizer(s, ",");
-                    if (st.countTokens() == 3)
+                    if (st.countTokens() == 4)
                     {
                     	Position3D destination = new Position3D(Integer.parseInt(st.nextToken()),
                                     Integer.parseInt(st.nextToken()),
@@ -117,7 +119,16 @@ public class PilotGui extends RackModuleGui
                                     0.0f,
                                     0.0f,
                                     (float) Math.toRadians(Float.parseFloat(st.nextToken())));
-                    	pilot.setDestination(destination, 0);
+                    	
+                    	pilotDest.pos 	  = destination;
+
+                    	if (Integer.parseInt(st.nextToken()) == -1)
+                    		pilotDest.moveDir = (float)Math.PI;
+                    	else
+                    	{
+                    		pilotDest.moveDir = 0.0f;
+                    	}
+                  		pilot.setDestination(pilotDest);
                     }
                 }
             }
