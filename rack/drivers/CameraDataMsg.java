@@ -33,6 +33,7 @@ public class CameraDataMsg extends TimsMsg
     public final static int CAMERA_MODE_MONO8 = 1;
     public final static int CAMERA_MODE_MONO12 = 2;
     public final static int CAMERA_MODE_MONO16 = 3;
+    public final static int CAMERA_MODE_MONO24 = 4;
     public final static int CAMERA_MODE_RGB24 = 11;
     public final static int CAMERA_MODE_RGB565 = 12;
     public final static int CAMERA_MODE_YUV422 = 21;
@@ -357,14 +358,15 @@ public class CameraDataMsg extends TimsMsg
         depth  = dataIn.readShort();
         mode   = dataIn.readShort();
         colorFilterId = dataIn.readInt();
-        System.out.println("got image data of width:"+width+" height:"+height+" depth:"+depth+" mode:"+mode);
+        //System.out.println("got image data of width:"+width+" height:"+height+" depth:"+depth+" mode:"+mode);
         imageRawData = new int[width * height];
         byte actualData; // structur to multiply data.
+    	byte lowerByte, middleByte, upperByte;
 
         switch (mode)
         {
             case CameraDataMsg.CAMERA_MODE_JPEG:
-                System.out.println("got a jpeg image");
+                //System.out.println("got a jpeg image");
                 // colorFilterId is missused as length of the jpeg stream here.
                 byte[] rawImageBytes = new byte[colorFilterId];
                 dataIn.readFully(rawImageBytes, 0, colorFilterId);
@@ -396,10 +398,51 @@ public class CameraDataMsg extends TimsMsg
                     }
                 }
                 break;
+            case CameraDataMsg.CAMERA_MODE_MONO12:
+            case CameraDataMsg.CAMERA_MODE_MONO16:
+                // every byte from the input data is put to all colors in one
+                // int
+                for (int j = 0; j < height; j++)
+                {
+                    for (int i = 0; i < width; i++)
+                    {
+                    	//subtract the upper 4 bit from the reg and green color
+                    	//bits. use the lower 8 bit for grey level.
+                    	upperByte = dataIn.readByte();
+                        lowerByte = dataIn.readByte();
+                        
+                        imageRawData[width * j + i] = (255 << 24)
+                                | (((int) (lowerByte - upperByte) & 0xff) << 16)
+                                | (((int) (lowerByte - upperByte) & 0xff)) << 8
+                                |   (int)  lowerByte & 0xff;
+                    }
+                }
+                break;
+/*            case CameraDataMsg.CAMERA_MODE_MONO24:
+            // every byte from the input data is put to all colors in one
+            // int
+            for (int j = 0; j < height; j++)
+            {
+                for (int i = 0; i < width; i++)
+                {
+                	//subtract the upper 4 bit from the reg and green color
+                	//bits. use the lower 8 bit for grey level.
+                    upperByte  = dataIn.readByte();
+                    middleByte = dataIn.readByte();
+                    lowerByte  = dataIn.readByte();
+                    
+                    imageRawData[width * j + i] = (255 << 24)
+                            | (((int) (lowerByte - upperByte - middleByte) & 0xff) << 16)
+                            | (((int) (lowerByte - middleByte) & 0xff)) << 8
+                            |   (int)  lowerByte & 0xff;
+                }
+            }
+            break;*/
+                
             case CameraDataMsg.CAMERA_MODE_RGB24: // need an array of
                                                         // int's!
                 // every three bytes from the input data are combined to one int
-                System.out.println("got rgb24 image");
+                //System.out.println("got rgb24 image");
                 for (int j = 0; j < height; j++)
                 {
                     for (int i = 0; i < width; i++)
