@@ -354,7 +354,8 @@ int  PilotJoystick::moduleLoop(void)
     {
         pilotData->curve     = 0.0f;
     }
-    pilotData->splineNum = 0;
+    pilotData->distanceToDest = 0;
+    pilotData->splineNum      = 0;
 
     putDataBufferWorkSpace(sizeof(pilot_data));
 
@@ -367,8 +368,7 @@ int  PilotJoystick::moduleCommand(message_info *msgInfo)
 {
     switch(msgInfo->type)
     {
-        case MSG_SET_DESTINATION:  // not supported by ths module
-
+        case MSG_PILOT_SET_DESTINATION:  // not supported by this module
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
 

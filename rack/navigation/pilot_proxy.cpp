@@ -19,7 +19,7 @@ int PilotProxy::getData(pilot_data *recv_data, ssize_t recv_datalen,
                         rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     message_info msgInfo;
-    
+
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen,
                                      timeStamp, reply_timeout_ns, &msgInfo);
     if (ret)
@@ -31,18 +31,9 @@ int PilotProxy::getData(pilot_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
-int PilotProxy::setDestination(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns)
+int PilotProxy::setDestination(pilot_dest_data *recv_data, ssize_t recv_datalen,
+                              uint64_t reply_timeout_ns)
 {
-    destination_data sendData;
-
-    sendData.recordingTime = recordingTime;
-    sendData.pos.x         = pos->x;
-    sendData.pos.y         = pos->y;
-    sendData.pos.z         = pos->z;
-    sendData.pos.phi       = pos->phi;
-    sendData.pos.psi       = pos->psi;
-    sendData.pos.rho       = pos->rho;
-
-    return proxySendDataCmd(MSG_SET_DESTINATION, &sendData,
-                            sizeof(destination_data), reply_timeout_ns);
+    return proxySendDataCmd(MSG_PILOT_SET_DESTINATION, recv_data, recv_datalen,
+                             reply_timeout_ns);
 }
