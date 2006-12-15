@@ -22,7 +22,7 @@ import rack.navigation.PilotDestMsg;
 
 public class PilotProxy extends RackDataProxy
 {
-  public static final byte MSG_SET_DESTINATION = RackProxy.MSG_POS_OFFSET + 1;
+  public static final byte MSG_PILOT_SET_DESTINATION = RackProxy.MSG_POS_OFFSET + 1;
 	  
   public PilotProxy(int id, TimsMbx replyMbx)
   {
@@ -57,13 +57,13 @@ public class PilotProxy extends RackDataProxy
     return(getData(0));
   }
   
-  public synchronized void setDestination(Position3D pos, int recordingTime)
+  public synchronized void setDestination(Position3D pos)
   {
       try {
     	  PilotDestMsg destinationMsg = new PilotDestMsg();
-    	  destinationMsg.recordingTime = recordingTime;
     	  destinationMsg.pos = pos;
-          replyMbx.send(MSG_SET_DESTINATION, commandMbx,(byte)0,(byte)0, destinationMsg);
+    	  destinationMsg.moveDir = 0.0f;
+          replyMbx.send(MSG_PILOT_SET_DESTINATION, commandMbx,(byte)0,(byte)0, destinationMsg);
           replyMbx.receive(0);
  
           System.out.println(RackName.nameString(replyMbx.getName()) + ": "
@@ -75,4 +75,28 @@ public class PilotProxy extends RackDataProxy
           System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".setEstimate " + e);
       }
   }
+  
+  public synchronized void setDestination(PilotDestMsg dest)
+  {
+      currentSequenceNo++;
+
+      try
+      {
+          replyMbx.send(MSG_PILOT_SET_DESTINATION, commandMbx,
+                             (byte)0, currentSequenceNo, dest);
+
+          TimsDataMsg reply;
+          do
+          {
+            reply = replyMbx.receive(1000);
+          }
+          while(reply.seqNr != currentSequenceNo);
+      }
+      catch(TimsException e)
+      {
+          System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
+                             RackName.nameString(commandMbx) +
+                             ".setDestination " + e);
+      }
+  }  
 }

@@ -21,8 +21,8 @@ import rack.main.defines.*;
 
 public class PilotDestMsg extends TimsMsg
 {
-    public int recordingTime = 0;
     public Position3D pos = new Position3D();
+    public float	  moveDir = 0.0f;
 
     public int getDataLen()
     {
@@ -62,8 +62,8 @@ public class PilotDestMsg extends TimsMsg
             dataIn = new LittleEndianDataInputStream(in);
         }
 
-        recordingTime = dataIn.readInt();
         pos.readData(dataIn);
+        moveDir = dataIn.readFloat();
 
         bodyByteorder = BIG_ENDIAN;
     }
@@ -72,7 +72,7 @@ public class PilotDestMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(recordingTime);
         pos.writeData(dataOut);
+        dataOut.writeFloat(moveDir);
     }
 }
