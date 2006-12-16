@@ -79,7 +79,7 @@ LadarSickS *p_inst;
 
 argTable_t argTab[] = {
 
-    { ARGOPT_REQ, "deviceNumber", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+    { ARGOPT_REQ, "devNumber", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The number of the device family", { -1 } },
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -130,7 +130,7 @@ int  LadarSickS::moduleOn(void)
     }
     GDOS_DBG_INFO("Serial buffer cleaned, serial dev %i\n", serialDev);
 
-    switch(deviceNumber)
+    switch(devNumber)
     {
         case 300:
             setDataBufferPeriodTime(durationS300);
@@ -225,7 +225,7 @@ int  LadarSickS::moduleLoop(void)
         return -1;
     }
 
-    switch(deviceNumber)
+    switch(devNumber)
     {
         case 300:
             p_data->startAngle      = scanningAngleS300 * M_PI/360.0;
@@ -393,7 +393,7 @@ LadarSickS::LadarSickS(void)
 
 {
     // get values
-    deviceNumber = getIntArg("deviceNumber", argTab);
+    devNumber = getIntArg("devNumber", argTab);
     serialDev = getIntArg("serialDev", argTab);
     baudrate = getIntArg("baudrate", argTab);
 

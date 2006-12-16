@@ -33,7 +33,7 @@ class LadarSickS : public RackDataModule {
     private:
 
         SerialPort  serialPort;
-        int deviceNumber;
+        int devNumber;
         int serialDev;
         int baudrate;
         double scanningAngle;
