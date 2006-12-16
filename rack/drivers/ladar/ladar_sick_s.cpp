@@ -14,13 +14,21 @@
  *      Oliver Wulf      <wulf@rts.uni-hannover.de>
  *
  */
-#include "ladar_sick_cms3000.h"
+#include "ladar_sick_s.h"
 
 // init_flags
 #define INIT_BIT_DATA_MODULE            0
 #define INIT_BIT_RTSERIAL_OPENED        1
 
 #define MKSHORT(a,b) ((unsigned short)(a)|((unsigned short)(b)<<8))
+
+int32_t const scanningAngleS300 = 270;
+int32_t const durationS300 = 40;
+int32_t const maxRangeS300 = 30000;
+
+int32_t const scanningAngleS3000 = 190;
+int32_t const durationS3000 = 30;
+int32_t const maxRangeS3000 = 30000;
 
 //
 // init data structures
@@ -67,13 +75,18 @@ static unsigned short crcTable[256] = {
     0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
 };
 
-LadarSickCms3000 *p_inst;
+LadarSickS *p_inst;
 
 argTable_t argTab[] = {
+
+    { ARGOPT_REQ, "deviceNumber", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The number of the device family", { -1 } },
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The number of the local serial device", { -1 } },
 
+    { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Working serial baudrate, default 500000", { 500000 } },
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -105,26 +118,42 @@ const struct rtser_config ladar_serial_config =
  *   own realtime user functions
  ******************************************************************************/
 
-int  LadarSickCms3000::moduleOn(void)
+int  LadarSickS::moduleOn(void)
 {
     int ret;
  
     ret = serialPort.clean();
     if (ret)
     {
+        GDOS_ERROR("Can't clean serial port,code=%d\n", ret);
         return ret;
     }
     GDOS_DBG_INFO("Serial buffer cleaned, serial dev %i\n", serialDev);
 
+    switch(deviceNumber)
+    {
+        case 300:
+            setDataBufferPeriodTime(durationS300);
+            break;
+
+        case 3000:
+            setDataBufferPeriodTime(durationS3000);
+            break;
+
+        default:
+            GDOS_ERROR("Device family is not supported !\n");
+            return -1;
+    }
+
     return RackDataModule::moduleOn();  // have to be last command in moduleOn();
 }
 
-void LadarSickCms3000::moduleOff(void)
+void LadarSickS::moduleOff(void)
 {
   RackDataModule::moduleOff();          // have to be first command in moduleOff();
 }
 
-int  LadarSickCms3000::moduleLoop(void)
+int  LadarSickS::moduleLoop(void)
 {
     ladar_data  *p_data = NULL;
     rack_time_t time = 0;
@@ -196,21 +225,39 @@ int  LadarSickCms3000::moduleLoop(void)
         return -1;
     }
 
+    switch(deviceNumber)
+    {
+        case 300:
+            p_data->startAngle      = scanningAngleS300 * M_PI/360.0;
+            p_data->angleResolution = -0.5 * M_PI/180.0;
+            p_data->distanceNum     = 2 * scanningAngleS300 + 1;
+            p_data->duration        = durationS300;
+            p_data->maxRange        = maxRangeS300;
+            p_data->recordingTime   = p_data->recordingTime - p_data->duration;
+            break;
+
+        case 3000:
+            p_data->startAngle      = scanningAngleS3000 * M_PI/360.0;
+            p_data->angleResolution = -0.5 * M_PI/180.0;
+            p_data->distanceNum     = 2 * scanningAngleS3000 + 1;
+            p_data->duration        = durationS3000;
+            p_data->maxRange        = maxRangeS3000;
+            p_data->recordingTime   = p_data->recordingTime - p_data->duration;
+            break;
+
+        default:
+            GDOS_ERROR("Device family is not supported !\n", size);
+            return -1;
+    }
+
     // parse package body, read laser raw data
-    if((size != 392) |
+    if((size != p_data->distanceNum + 11) |
        (MKSHORT(serialBuffer[20], serialBuffer[21]) != 0xbbbb) |
        (MKSHORT(serialBuffer[22], serialBuffer[23]) != 0x1111))
     {
         GDOS_ERROR("Continuous output configuration is not supported (size %i)\n", size);
         return -1;
     }
-
-    p_data->startAngle      = 95.0 * M_PI/180.0;
-    p_data->angleResolution = -0.5 * M_PI/180.0;
-    p_data->distanceNum     = 2 * 190 + 1;
-    p_data->duration        = 30;
-    p_data->maxRange        = 30000;
-    p_data->recordingTime   = p_data->recordingTime - p_data->duration;
 
     for(i = 0; i < p_data->distanceNum; i++)
     {
@@ -241,13 +288,13 @@ int  LadarSickCms3000::moduleLoop(void)
     return -ENOSPC;
 }
 
-int  LadarSickCms3000::moduleCommand(message_info *p_msginfo)
+int  LadarSickS::moduleCommand(message_info *p_msginfo)
 {
   // not for me -> ask RackDataModule
   return RackDataModule::moduleCommand(p_msginfo);
 }
 
-unsigned short LadarSickCms3000::crc_check(unsigned char* data, int len)
+unsigned short LadarSickS::crc_check(unsigned char* data, int len)
 {
     unsigned short crc16 = 0xFFFF;
     int i;
@@ -270,7 +317,7 @@ unsigned short LadarSickCms3000::crc_check(unsigned char* data, int len)
  *   own non realtime user functions
  ******************************************************************************/
 
-int  LadarSickCms3000::moduleInit(void)
+int  LadarSickS::moduleInit(void)
 {
     int ret;
 
@@ -294,21 +341,21 @@ int  LadarSickCms3000::moduleInit(void)
     GDOS_DBG_INFO("rtser%d has been opened \n", serialDev);
     initBits.setBit(INIT_BIT_RTSERIAL_OPENED);
 
-    ret = serialPort.setBaudrate(500000);
+    ret = serialPort.setBaudrate(baudrate);
     if (ret)
     {
-        GDOS_ERROR("Can't set baudrate to 500kBaud, code = %d\n", ret);
+        GDOS_ERROR("Can't set baudrate to %i Baud, code = %d\n",baudrate, ret);
         goto init_error;
     }
     return 0;
 
 init_error:
     // !!! call local cleanup function !!!
-    LadarSickCms3000::moduleCleanup();
+    LadarSickS::moduleCleanup();
     return ret;
 }
 
-void LadarSickCms3000::moduleCleanup(void)
+void LadarSickS::moduleCleanup(void)
 {
     int ret;
 
@@ -332,7 +379,7 @@ void LadarSickCms3000::moduleCleanup(void)
     }
 }
 
-LadarSickCms3000::LadarSickCms3000(void)
+LadarSickS::LadarSickS(void)
       : RackDataModule( MODULE_CLASS_ID,
                     1000000000llu,    // 1s cmdtask error sleep time
                     1000000000llu,    // 1s datatask error sleep time
@@ -346,13 +393,12 @@ LadarSickCms3000::LadarSickCms3000(void)
 
 {
     // get values
+    deviceNumber = getIntArg("deviceNumber", argTab);
     serialDev = getIntArg("serialDev", argTab);
+    baudrate = getIntArg("baudrate", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(ladar_data_msg));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(30);
 };
 
 int  main(int argc, char *argv[])
@@ -360,7 +406,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "LadarSickCms3000");
+    ret = RackModule::getArgs(argc, argv, argTab, "LadarSickS");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
@@ -368,10 +414,10 @@ int  main(int argc, char *argv[])
     }
 
     // create new LadarSick
-    p_inst = new LadarSickCms3000();
+    p_inst = new LadarSickS();
     if (!p_inst)
     {
-        printf("Can't create new LadarSickCms3000 -> EXIT\n");
+        printf("Can't create new LadarSickS -> EXIT\n");
         return -ENOMEM;
     }
 

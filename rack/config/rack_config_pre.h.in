@@ -48,11 +48,11 @@
 /* building ladar ibeo */
 #undef CONFIG_RACK_LADAR_IBEO
 
-/* building ladar sick cms3000 laser scanner driver */
-#undef CONFIG_RACK_LADAR_SICK_CMS3000
-
 /* building ladar sick lms200 laser scanner driver */
 #undef CONFIG_RACK_LADAR_SICK_LMS200
+
+/* building ladar sick s laser scanner driver */
+#undef CONFIG_RACK_LADAR_SICK_S
 
 /* building odometry chassis */
 #undef CONFIG_RACK_ODOMETRY_CHASSIS

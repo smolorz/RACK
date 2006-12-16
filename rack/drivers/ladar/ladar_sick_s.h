@@ -14,8 +14,8 @@
  *      Oliver Wulf      <wulf@rts.uni-hannover.de>
  *
  */
-#ifndef __LADAR_SICK_CMS_H__
-#define __LADAR_SICK_CMS_H__
+#ifndef __LADAR_SICK_S_H__
+#define __LADAR_SICK_S_H__
 
 #include <main/rack_datamodule.h>
 #include <main/serial_port.h>
@@ -29,11 +29,14 @@
 //# class LadarSick
 //######################################################################
 
-class LadarSickCms3000 : public RackDataModule {
+class LadarSickS : public RackDataModule {
     private:
 
         SerialPort  serialPort;
+        int deviceNumber;
         int serialDev;
+        int baudrate;
+        double scanningAngle;
 
         unsigned short crc_check(unsigned char* data, int len);
 
@@ -49,8 +52,8 @@ class LadarSickCms3000 : public RackDataModule {
 
     public:
         // constructor und destructor
-        LadarSickCms3000();
-        ~LadarSickCms3000() {};
+        LadarSickS();
+        ~LadarSickS() {};
 
         // -> non realtime context
         int  moduleInit(void);

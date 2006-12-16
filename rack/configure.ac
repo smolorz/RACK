@@ -655,21 +655,20 @@ if test "$CONFIG_RACK_LADAR_SICK_LMS200" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - ladar sick cms3000
+dnl  drivers - ladar sick s
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build ladar sick cms3000 driver])
-AC_ARG_ENABLE(ladar-sick-cms3000,
-    AS_HELP_STRING([--enable-ladar-sick-cms3000], [building ladar sick cms3000 laser scanner 
-driver]),
+AC_MSG_CHECKING([build ladar sick s driver])
+AC_ARG_ENABLE(ladar-sick-s,
+    AS_HELP_STRING([--enable-ladar-sick-s], [building ladar sick s laser scanner driver]),
     [case "$enableval" in
-        y | yes) CONFIG_RACK_LADAR_SICK_CMS3000=y ;;
-        *) CONFIG_RACK_LADAR_SICK_CMS3000=n ;;
+        y | yes) CONFIG_RACK_LADAR_SICK_S=y ;;
+        *) CONFIG_RACK_LADAR_SICK_S=n ;;
     esac])
-AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_CMS3000:-n}])
-AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_CMS3000,[test "$CONFIG_RACK_LADAR_SICK_CMS3000" = "y"])
-if test "$CONFIG_RACK_LADAR_SICK_CMS3000" = "y"; then
-    AC_DEFINE(CONFIG_RACK_LADAR_SICK_CMS3000,1,[building ladar sick cms3000 laser scanner 
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_S:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_S,[test "$CONFIG_RACK_LADAR_SICK_S" = "y"])
+if test "$CONFIG_RACK_LADAR_SICK_S" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_SICK_S,1,[building ladar sick s laser scanner 
 driver])
 fi
 

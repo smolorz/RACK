@@ -13,10 +13,9 @@ if CONFIG_RACK_LADAR_SICK_LMS200
 bin_PROGRAMS +=	LadarSickLms200
 endif
 
-if CONFIG_RACK_LADAR_SICK_CMS3000
-bin_PROGRAMS +=	LadarSickCms3000
+if CONFIG_RACK_LADAR_SICK_S
+bin_PROGRAMS +=	LadarSickS
 endif
-
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -38,9 +37,9 @@ LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.h \
 	ladar_sick_lms200.cpp
 
-LadarSickCms3000_SOURCES = \
-	ladar_sick_cms3000.h \
-	ladar_sick_cms3000.cpp
+LadarSickS_SOURCES = \
+	ladar_sick_s.h \
+	ladar_sick_s.cpp
 
 
 EXTRA_DIST = \

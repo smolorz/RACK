@@ -41,7 +41,7 @@ bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 @CONFIG_RACK_LADAR_IBEO_TRUE@am__append_1 = LadarIbeo
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@am__append_2 = LadarHokuyoUrg
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__append_3 = LadarSickLms200
-@CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@am__append_4 = LadarSickCms3000
+@CONFIG_RACK_LADAR_SICK_S_TRUE@am__append_4 = LadarSickS
 subdir = drivers/ladar
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -57,7 +57,7 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@	LadarHokuyoUrg$(EXEEXT)
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__EXEEXT_3 =  \
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@	LadarSickLms200$(EXEEXT)
-@CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@am__EXEEXT_4 = LadarSickCms3000$(EXEEXT)
+@CONFIG_RACK_LADAR_SICK_S_TRUE@am__EXEEXT_4 = LadarSickS$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -69,14 +69,14 @@ am_LadarIbeo_OBJECTS = LadarIbeo-ladar_ibeo.$(OBJEXT)
 LadarIbeo_OBJECTS = $(am_LadarIbeo_OBJECTS)
 LadarIbeo_LDADD = $(LDADD)
 LadarIbeo_DEPENDENCIES =
-am_LadarSickCms3000_OBJECTS = ladar_sick_cms3000.$(OBJEXT)
-LadarSickCms3000_OBJECTS = $(am_LadarSickCms3000_OBJECTS)
-LadarSickCms3000_LDADD = $(LDADD)
-LadarSickCms3000_DEPENDENCIES =
 am_LadarSickLms200_OBJECTS = ladar_sick_lms200.$(OBJEXT)
 LadarSickLms200_OBJECTS = $(am_LadarSickLms200_OBJECTS)
 LadarSickLms200_LDADD = $(LDADD)
 LadarSickLms200_DEPENDENCIES =
+am_LadarSickS_OBJECTS = ladar_sick_s.$(OBJEXT)
+LadarSickS_OBJECTS = $(am_LadarSickS_OBJECTS)
+LadarSickS_LDADD = $(LDADD)
+LadarSickS_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -97,9 +97,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
-	$(LadarSickCms3000_SOURCES) $(LadarSickLms200_SOURCES)
+	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES)
 DIST_SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
-	$(LadarSickCms3000_SOURCES) $(LadarSickLms200_SOURCES)
+	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -153,10 +153,10 @@ CONFIG_RACK_LADAR_HOKUYO_URG_FALSE = @CONFIG_RACK_LADAR_HOKUYO_URG_FALSE@
 CONFIG_RACK_LADAR_HOKUYO_URG_TRUE = @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@
 CONFIG_RACK_LADAR_IBEO_FALSE = @CONFIG_RACK_LADAR_IBEO_FALSE@
 CONFIG_RACK_LADAR_IBEO_TRUE = @CONFIG_RACK_LADAR_IBEO_TRUE@
-CONFIG_RACK_LADAR_SICK_CMS3000_FALSE = @CONFIG_RACK_LADAR_SICK_CMS3000_FALSE@
-CONFIG_RACK_LADAR_SICK_CMS3000_TRUE = @CONFIG_RACK_LADAR_SICK_CMS3000_TRUE@
 CONFIG_RACK_LADAR_SICK_LMS200_FALSE = @CONFIG_RACK_LADAR_SICK_LMS200_FALSE@
 CONFIG_RACK_LADAR_SICK_LMS200_TRUE = @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@
+CONFIG_RACK_LADAR_SICK_S_FALSE = @CONFIG_RACK_LADAR_SICK_S_FALSE@
+CONFIG_RACK_LADAR_SICK_S_TRUE = @CONFIG_RACK_LADAR_SICK_S_TRUE@
 CONFIG_RACK_LIBDC1394_SUPPORT_FALSE = @CONFIG_RACK_LIBDC1394_SUPPORT_FALSE@
 CONFIG_RACK_LIBDC1394_SUPPORT_TRUE = @CONFIG_RACK_LIBDC1394_SUPPORT_TRUE@
 CONFIG_RACK_LIBJPEG_SUPPORT_FALSE = @CONFIG_RACK_LIBJPEG_SUPPORT_FALSE@
@@ -328,9 +328,9 @@ LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.h \
 	ladar_sick_lms200.cpp
 
-LadarSickCms3000_SOURCES = \
-	ladar_sick_cms3000.h \
-	ladar_sick_cms3000.cpp
+LadarSickS_SOURCES = \
+	ladar_sick_s.h \
+	ladar_sick_s.cpp
 
 EXTRA_DIST = \
 	Kconfig
@@ -402,12 +402,12 @@ LadarHokuyoUrg$(EXEEXT): $(LadarHokuyoUrg_OBJECTS) $(LadarHokuyoUrg_DEPENDENCIES
 LadarIbeo$(EXEEXT): $(LadarIbeo_OBJECTS) $(LadarIbeo_DEPENDENCIES) 
 	@rm -f LadarIbeo$(EXEEXT)
 	$(CXXLINK) $(LadarIbeo_LDFLAGS) $(LadarIbeo_OBJECTS) $(LadarIbeo_LDADD) $(LIBS)
-LadarSickCms3000$(EXEEXT): $(LadarSickCms3000_OBJECTS) $(LadarSickCms3000_DEPENDENCIES) 
-	@rm -f LadarSickCms3000$(EXEEXT)
-	$(CXXLINK) $(LadarSickCms3000_LDFLAGS) $(LadarSickCms3000_OBJECTS) $(LadarSickCms3000_LDADD) $(LIBS)
 LadarSickLms200$(EXEEXT): $(LadarSickLms200_OBJECTS) $(LadarSickLms200_DEPENDENCIES) 
 	@rm -f LadarSickLms200$(EXEEXT)
 	$(CXXLINK) $(LadarSickLms200_LDFLAGS) $(LadarSickLms200_OBJECTS) $(LadarSickLms200_LDADD) $(LIBS)
+LadarSickS$(EXEEXT): $(LadarSickS_OBJECTS) $(LadarSickS_DEPENDENCIES) 
+	@rm -f LadarSickS$(EXEEXT)
+	$(CXXLINK) $(LadarSickS_LDFLAGS) $(LadarSickS_OBJECTS) $(LadarSickS_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -417,8 +417,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LadarIbeo-ladar_ibeo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_hokuyo_urg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_cms3000.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_lms200.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_s.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
