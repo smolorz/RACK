@@ -276,7 +276,8 @@ public class CameraGui extends RackModuleGui
     protected JComboBox modeComboBox;
     protected String[] possibleModes =
     { "MONO8", "MONO12", "MONO16", "RGB24", "RGB565", "YUV422", "RAW", "RAW12",
-            "RAW16" };
+            "RAW16", "RANGE", "INTENS", "TP_INT", "RANGE_TP","SEGMENT",
+			"ELEVA","TYPE","EDGE"};
     protected int[] possibleModesNum =
     { CameraDataMsg.CAMERA_MODE_MONO8,
             CameraDataMsg.CAMERA_MODE_MONO12,
@@ -286,7 +287,16 @@ public class CameraGui extends RackModuleGui
             CameraDataMsg.CAMERA_MODE_YUV422,
             CameraDataMsg.CAMERA_MODE_RAW8,
             CameraDataMsg.CAMERA_MODE_RAW12,
-            CameraDataMsg.CAMERA_MODE_RAW16 };
+            CameraDataMsg.CAMERA_MODE_RAW16,
+            CameraDataMsg.CAMERA_MODE_RANGE,
+            CameraDataMsg.CAMERA_MODE_INTENSITY,
+            CameraDataMsg.CAMERA_MODE_TYPE_INTENSITY,
+            CameraDataMsg.CAMERA_MODE_RANGE_TYPE,
+            CameraDataMsg.CAMERA_MODE_SEGMENT,
+            CameraDataMsg.CAMERA_MODE_ELEVATION,
+            CameraDataMsg.CAMERA_MODE_TYPE,
+            CameraDataMsg.CAMERA_MODE_EDGE
+    };
 
     public CameraProxy camera;
 }

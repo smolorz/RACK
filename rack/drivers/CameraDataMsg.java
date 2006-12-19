@@ -30,17 +30,25 @@ import rack.main.tims.*;
 
 public class CameraDataMsg extends TimsMsg
 {
-    public final static int CAMERA_MODE_MONO8 = 1;
+    public final static int CAMERA_MODE_MONO8  = 1;
     public final static int CAMERA_MODE_MONO12 = 2;
     public final static int CAMERA_MODE_MONO16 = 3;
     public final static int CAMERA_MODE_MONO24 = 4;
-    public final static int CAMERA_MODE_RGB24 = 11;
+    public final static int CAMERA_MODE_RGB24  = 11;
     public final static int CAMERA_MODE_RGB565 = 12;
     public final static int CAMERA_MODE_YUV422 = 21;
-    public final static int CAMERA_MODE_RAW8 = 31;
-    public final static int CAMERA_MODE_RAW12 = 32;
-    public final static int CAMERA_MODE_RAW16 = 33;
-    public final static int CAMERA_MODE_JPEG = 41;
+    public final static int CAMERA_MODE_RAW8   = 31;
+    public final static int CAMERA_MODE_RAW12  = 32;
+    public final static int CAMERA_MODE_RAW16  = 33;
+    public final static int CAMERA_MODE_JPEG   = 41;
+    public final static int CAMERA_MODE_RANGE          = 51;
+    public final static int CAMERA_MODE_INTENSITY      = 52;
+    public final static int CAMERA_MODE_TYPE_INTENSITY = 53;
+    public final static int CAMERA_MODE_RANGE_TYPE     = 54;
+    public final static int CAMERA_MODE_SEGMENT        = 55;
+    public final static int CAMERA_MODE_ELEVATION      = 56;
+    public final static int CAMERA_MODE_TYPE           = 57;
+    public final static int CAMERA_MODE_EDGE           = 58;
 
     public final static int COLORFILTER_RGGB = 512;
     public final static int COLORFILTER_GBRG = 513;
@@ -532,6 +540,8 @@ public class CameraDataMsg extends TimsMsg
                     }
                 }
                 break;
+                default: 
+                	System.out.println("CameraMode not implemented in Java!");
         }// switch
     }
 

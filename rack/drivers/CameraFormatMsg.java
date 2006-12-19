@@ -94,6 +94,17 @@ public class CameraFormatMsg extends TimsMsg
                 this.mode = mode;
                 this.depth = 16;
                 break;
+            case CameraDataMsg.CAMERA_MODE_RANGE:
+            case CameraDataMsg.CAMERA_MODE_INTENSITY:
+            case CameraDataMsg.CAMERA_MODE_TYPE_INTENSITY:
+            case CameraDataMsg.CAMERA_MODE_RANGE_TYPE:
+            case CameraDataMsg.CAMERA_MODE_SEGMENT:
+            case CameraDataMsg.CAMERA_MODE_ELEVATION:
+            case CameraDataMsg.CAMERA_MODE_TYPE:
+            case CameraDataMsg.CAMERA_MODE_EDGE:
+                this.mode = mode;
+                this.depth = -1;
+                break;                
             default:
                 this.mode = -1;
                 this.depth = -1;
