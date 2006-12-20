@@ -104,7 +104,14 @@ int  Position::moduleLoop(void)
     {
         OdometryData::parse(&msgInfo);
 
+        odometryData.pos.phi = normaliseAngleSym0(odometryData.pos.phi);
+        odometryData.pos.psi = normaliseAngleSym0(odometryData.pos.psi);
+        odometryData.pos.rho = normaliseAngle(odometryData.pos.rho);
+
         refPosMtx.lock(RACK_INFINITE);
+
+        GDOS_DBG_DETAIL("Odometry position x %i y %i z %i rho %a\n",
+                        odometryData.pos.x, odometryData.pos.y, odometryData.pos.z, odometryData.pos.rho);
 
         // calculate relative position to refference position
         odometryData.pos.x = odometryData.pos.x - refOdo.x;
@@ -112,7 +119,7 @@ int  Position::moduleLoop(void)
         relPos.x   = (int)(+ cosRefOdo * odometryData.pos.x + sinRefOdo * odometryData.pos.y);
         relPos.y   = (int)(- sinRefOdo * odometryData.pos.x + cosRefOdo * odometryData.pos.y);
         relPos.z   = odometryData.pos.z   - refOdo.z;
-        relPos.rho = odometryData.pos.rho - refOdo.rho;
+        relPos.rho = normaliseAngleSym0(odometryData.pos.rho - refOdo.rho);
 
         GDOS_DBG_DETAIL("Relative position x %i y %i z %i rho %a\n",
                         relPos.x, relPos.y, relPos.z, relPos.rho);
@@ -123,7 +130,7 @@ int  Position::moduleLoop(void)
         pPosition->pos.z         = refPos.z   + relPos.z;
         pPosition->pos.phi       = odometryData.pos.phi;
         pPosition->pos.psi       = odometryData.pos.psi;
-        pPosition->pos.rho       = refPos.rho + relPos.rho;
+        pPosition->pos.rho       = normaliseAngle(refPos.rho + relPos.rho);
 
         pPosition->recordingTime = odometryData.recordingTime;
 
@@ -176,7 +183,7 @@ int  Position::moduleCommand(message_info *msgInfo)
             refOdo.z   = odometryData.pos.z;
             refOdo.phi = 0.0f;
             refOdo.psi = 0.0f;
-            refOdo.rho = odometryData.pos.rho;
+            refOdo.rho = normaliseAngle(odometryData.pos.rho);
             sinRefOdo  = sin(refOdo.rho);
             cosRefOdo  = cos(refOdo.rho);
 
@@ -185,7 +192,7 @@ int  Position::moduleCommand(message_info *msgInfo)
             refPos.z   = pUpdate->pos.z;
             refPos.phi = 0.0f;
             refPos.psi = 0.0f;
-            refPos.rho = pUpdate->pos.rho;
+            refPos.rho = normaliseAngle(pUpdate->pos.rho);
             sinRefPos  = sin(refPos.rho);
             cosRefPos  = cos(refPos.rho);
 
