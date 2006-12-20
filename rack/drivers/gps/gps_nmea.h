@@ -58,6 +58,7 @@ class GpsNmea : public RackDataModule {
         int         posGKOffsetY;
         int         msgCounter;
         int         msgNum;
+        rack_time_t lastRecordingTime;
         SerialPort  serialPort;
 
         gps_nmea    nmea;

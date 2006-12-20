@@ -36,7 +36,7 @@ argTable_t argTab[] = {
       "Baudrate of serial device, default 4800", { 4800 } },
 
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "PeriodTime of the GPS - Receiver (in ms), default 2000", { 2000 } },
+      "PeriodTime of the GPS - Receiver (in ms), default 1000", { 1000 } },
 
     { ARGOPT_OPT, "trigMsg", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "NMEA-message to trigger (RMC = 0, GGA = 1, GSA = 2), default RMC (0)",
@@ -82,9 +82,15 @@ struct rtser_config gps_serial_config = {
 
 int GpsNmea::moduleOn(void)
 {
+    serialPort.clean();
+    // set rx timeout 2 * periodTime in ns
+    serialPort.setRxTimeout((int64_t)periodTime * 2000000llu);
+
     // reset values
     msgCounter = -1;
     msgNum     = -1;
+
+    lastRecordingTime = rackTime.get();
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -129,7 +135,7 @@ int GpsNmea::moduleLoop(void)
                 p_data->recordingTime = nmea.recordingTime;
 
                 msgCounter++;
-                GDOS_DBG_DETAIL("received RMC message, counter=%i\n", msgCounter);
+                GDOS_DBG_DETAIL("received RMC message, counter=%i, RecordingTime %i\n", msgCounter, nmea.recordingTime);
             }
 
         }
@@ -149,7 +155,7 @@ int GpsNmea::moduleLoop(void)
             if ((analyseGGA(p_data) == 0) && (msgCounter >= 0))
             {
                 msgCounter++;
-                GDOS_DBG_DETAIL("received GGA message, counter=%i\n", msgCounter);
+                GDOS_DBG_DETAIL("received GGA message, counter=%i, RecordingTime %i\n", msgCounter, nmea.recordingTime);
             }
         }
 
@@ -167,37 +173,18 @@ int GpsNmea::moduleLoop(void)
             if ((analyseGSA(p_data) == 0) && (msgCounter >= 0))
             {
                 msgCounter++;
-                 GDOS_DBG_DETAIL("received GSA message, counter=%i\n", msgCounter);
+                GDOS_DBG_DETAIL("received GSA message, counter=%i, RecordingTime %i\n", msgCounter, nmea.recordingTime);
             }
+        }
+
+        else
+        {
+            GDOS_DBG_DETAIL("received unknown message, RecordingTime %i\n", nmea.recordingTime);
         }
     }
     else
     {
-           GDOS_WARNING("Can't read data from serial device %i, code = %d\n",
-                     serialDev, ret);
-
-        p_data->recordingTime = rackTime.get();
-        p_data->mode          = 1;
-        p_data->latitude      = 0.0;
-        p_data->longitude     = 0.0;
-        p_data->altitude      = 0;
-        p_data->heading       = 0.0f;
-        p_data->speed         = 0;
-        p_data->satelliteNum  = 0;
-        p_data->utcTime       = 0;
-        p_data->pdop          = 999.999f;
-        p_data->posGK.x       = 0;
-        p_data->posGK.y       = 0;
-        p_data->posGK.z       = 0;
-        p_data->posGK.phi     = 0.0f;
-        p_data->posGK.psi     = 0.0f;
-        p_data->posGK.rho     = 0.0f;
-
-        msgCounter = -1;
-        msgNum     = -1;
-
-        putDataBufferWorkSpace(sizeof(gps_data));
-        return 0;
+        GDOS_WARNING("Can't read data from serial device %i, code %i\n", serialDev, ret);
     }
 
     // write package if a complete dataset is read
@@ -235,8 +222,43 @@ int GpsNmea::moduleLoop(void)
         }
 
         msgCounter = 0;
+
+        lastRecordingTime = p_data->recordingTime;
+
         putDataBufferWorkSpace(sizeof(gps_data));
     }
+    else
+    {
+        if(((int)rackTime.get() - (int)lastRecordingTime) >= (1.5 * (int)periodTime))
+        {
+            GDOS_DBG_DETAIL("no position fix available\n");
+
+            p_data->recordingTime = rackTime.get();
+            p_data->mode          = 1;
+            p_data->latitude      = 0.0;
+            p_data->longitude     = 0.0;
+            p_data->altitude      = 0;
+            p_data->heading       = 0.0f;
+            p_data->speed         = 0;
+            p_data->satelliteNum  = 0;
+            p_data->utcTime       = 0;
+            p_data->pdop          = 0.0f;
+            p_data->posGK.x       = 0;
+            p_data->posGK.y       = 0;
+            p_data->posGK.z       = 0;
+            p_data->posGK.phi     = 0.0f;
+            p_data->posGK.psi     = 0.0f;
+            p_data->posGK.rho     = 0.0f;
+
+            msgCounter = -1;
+            msgNum     = -1;
+
+            lastRecordingTime = p_data->recordingTime;
+
+            putDataBufferWorkSpace(sizeof(gps_data));
+        }
+    }
+
     return 0;
 }
 
