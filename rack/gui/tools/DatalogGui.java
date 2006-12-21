@@ -53,8 +53,9 @@ public class DatalogGui extends RackModuleGui
     protected JRadioButton[] status;
     protected JTextField     pathName;
     
-    DatalogDataMsg      logData;
-    public DatalogProxy datalog;
+    protected DatalogDataMsg logStatus;
+    protected DatalogDataMsg logData;
+    public    DatalogProxy   datalog;
     
     
     
@@ -62,7 +63,6 @@ public class DatalogGui extends RackModuleGui
     {
         datalog = proxy;
         
-        DatalogDataMsg logStatus;
         logStatus = new DatalogDataMsg();
         logStatus = datalog.getLogStatus();
         
@@ -178,6 +178,7 @@ public class DatalogGui extends RackModuleGui
                        						Integer.valueOf(logFrequency[i].getText()).intValue();
                     }
                     logData.logInfo[i].filename = pathName.getText() + "/" + saveName[i].getText();
+                    logData.logInfo[i].maxDataLen = logStatus.logInfo[i].maxDataLen; 
 
                 }
 
