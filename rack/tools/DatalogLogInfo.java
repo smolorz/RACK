@@ -25,13 +25,14 @@ public class DatalogLogInfo
     public int     logEnable = 0;
     public int     moduleMbx = 0;
     public int     periodTime = 0;
+    public int     maxDataLen = 0;    
     public String  filename = "";  
     public int	   bytesLogged = 0;
     public int	   setsLogged = 0;
 
     static public int getDataLen()
     {
-        return(20 + 40);
+        return(24 + 40);
     }
 
     public DatalogLogInfo()
@@ -45,6 +46,7 @@ public class DatalogLogInfo
         logEnable  = dataIn.readInt();
         moduleMbx  = dataIn.readInt();
         periodTime = dataIn.readInt();
+        maxDataLen = dataIn.readInt();
         
         dataIn.readFully(name);
         filename   = new String(name);
@@ -58,6 +60,7 @@ public class DatalogLogInfo
         dataOut.writeInt(logEnable);
         dataOut.writeInt(moduleMbx);
         dataOut.writeInt(periodTime);
+        dataOut.writeInt(maxDataLen);
         dataOut.writeBytes(filename);
         
         for (int i = 0; i < (40 - filename.length()); i++)
