@@ -32,7 +32,8 @@
 
 #define MODULE_CLASS_ID             DATALOG
 
-#define DATALOG_MSG_SIZE_MAX        1*1024*1024  //1Mb
+#define DATALOG_SMALL_MBX_SIZE_MAX            20*1024  //20Kb
+#define DATALOG_LARGE_MBX_SIZE_MAX        1*1024*1024  //1Mb
 
 typedef struct {
     datalog_data         data;
@@ -62,13 +63,15 @@ class DatalogRec : public RackDataModule {
         float       angleMaxFloat;
         float       ladarOffsetRhoFloat;
 
-        void*       contDataPtr;
+        void*       smallContDataPtr;
+        void*       largeContDataPtr;
 
         RackMutex   datalogMtx;
 
         // additional mailboxes
         RackMailbox workMbx;
-        RackMailbox contDataMbx;
+        RackMailbox smallContDataMbx;
+        RackMailbox largeContDataMbx;
 
     protected:
         // -> realtime context

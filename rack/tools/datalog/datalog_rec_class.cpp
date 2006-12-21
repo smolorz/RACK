@@ -18,11 +18,13 @@
 #include <main/argopts.h>
 
 // init_flags
-#define INIT_BIT_CONT_DATA_BUFFER   0
-#define INIT_BIT_DATA_MODULE        1
-#define INIT_BIT_MBX_WORK           2
-#define INIT_BIT_MBX_CONT_DATA      3
-#define INIT_BIT_MTX_CREATED        4
+#define INIT_BIT_SMALL_CONT_DATA_BUFFER     0
+#define INIT_BIT_LARGE_CONT_DATA_BUFFER     1
+#define INIT_BIT_DATA_MODULE                2
+#define INIT_BIT_MBX_WORK                   3
+#define INIT_BIT_MBX_SMALL_CONT_DATA        4
+#define INIT_BIT_MBX_LARGE_CONT_DATA        5
+#define INIT_BIT_MTX_CREATED                6
 
 /*******************************************************************************
  *   !!! REALTIME CONTEXT !!!
@@ -59,7 +61,8 @@ int  DatalogRec::moduleOn(void)
         fileptr[i] = NULL;
     }
 
-    contDataMbx.clean();
+    smallContDataMbx.clean();
+    largeContDataMbx.clean();
 
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
@@ -82,18 +85,31 @@ int  DatalogRec::moduleOn(void)
             // turn on module
             ret = moduleOn(moduleMbx, &workMbx, 5000000000ll);
 
-            // request continuous data
-            ret = getContData(moduleMbx, periodTime, &contDataMbx, &workMbx,
-                              &realPeriodTime, 1000000000ll);
-            if (ret)
+            // request continuous data on smallContDataMbx
+            if (datalogInfoMsg.logInfo[i].maxDataLen <= DATALOG_SMALL_MBX_SIZE_MAX)
             {
-                GDOS_ERROR("Can't get continuous data from module %n\n", moduleMbx);
-                return ret;
+                ret = getContData(moduleMbx, periodTime, &smallContDataMbx, &workMbx,
+                                  &realPeriodTime, 1000000000ll);
+                if (ret)
+                {
+                    GDOS_ERROR("SMALL: Can't get continuous data from module %n, code= %d\n", moduleMbx, ret);
+                    return ret;
+                }
             }
+
+            // request continuous data on largeContDataMbx
             else
             {
-                GDOS_DBG_INFO("%n: -log data\n", moduleMbx);
+                ret = getContData(moduleMbx, periodTime, &largeContDataMbx, &workMbx,
+                                  &realPeriodTime, 1000000000ll);
+                if (ret)
+                {
+                    GDOS_ERROR("LARGE:Can't get continuous data from module %n, code= %d\n", moduleMbx, ret);
+                    return ret;
+                }
             }
+
+            GDOS_DBG_INFO("%n: -log data\n", moduleMbx);
 
             // set shortest period time
             if (init == 0)
@@ -140,7 +156,14 @@ void DatalogRec::moduleOff(void)
 
         if (logEnable > 0)
         {
-            stopContData(moduleMbx, &contDataMbx, &workMbx, 1000000000ll);
+            if (datalogInfoMsg.logInfo[i].maxDataLen <= DATALOG_SMALL_MBX_SIZE_MAX)
+            {
+                stopContData(moduleMbx, &smallContDataMbx, &workMbx, 1000000000ll);
+            }
+            else
+            {
+                stopContData(moduleMbx, &largeContDataMbx, &workMbx, 1000000000ll);
+            }
 
             if (fileptr[i] != NULL)
             {
@@ -158,13 +181,43 @@ int  DatalogRec::moduleLoop(void)
     message_info    msgInfo;
     datalog_data    *pDatalogData = NULL;
 
-    // get continuous data
-    ret = contDataMbx.recvDataMsgTimed(4000000000llu, contDataPtr,
-                                       DATALOG_MSG_SIZE_MAX, &msgInfo);
+
+    // get continuous data on largeContDataMbx
+    ret = largeContDataMbx.recvDataMsgIf(largeContDataPtr, DATALOG_LARGE_MBX_SIZE_MAX,
+                                         &msgInfo);
+    if (ret && ret != -EWOULDBLOCK) // error
+    {
+        GDOS_ERROR("Can't read data on largeContDataMbx, code = %d\n", ret);
+        targetStatus = MODULE_TSTATE_OFF;
+        return ret;
+    }
+
+
+    // get continuous data on smallContDataMbx of no data available on largeContDataMbx
+    if (ret == -EWOULDBLOCK)
+    {
+        ret = smallContDataMbx.recvDataMsgTimed(200000000llu, smallContDataPtr,
+                                               DATALOG_SMALL_MBX_SIZE_MAX, &msgInfo);
+
+        if (ret)
+        {
+            if (ret == -ETIMEDOUT)
+            {
+                return 0;
+            }
+            else
+            {
+                GDOS_ERROR("Can't read data on smallContDataMbx, code = %d\n", ret);
+                targetStatus = MODULE_TSTATE_OFF;
+                return ret;
+            }
+        }
+    }
 
     if (msgInfo.type != MSG_DATA)
     {
         GDOS_ERROR("No data package from %i type %i\n", msgInfo.src, msgInfo.type);
+        targetStatus = MODULE_TSTATE_OFF;
         return -EINVAL;
     }
 
@@ -179,6 +232,7 @@ int  DatalogRec::moduleLoop(void)
     {
         datalogMtx.unlock();
         GDOS_ERROR("Error while logging data, code= %i\n", ret);
+        targetStatus = MODULE_TSTATE_OFF;
         return ret;
     }
 
@@ -326,9 +380,9 @@ int DatalogRec::logData(message_info *msgInfo)
     int             i, j;
     int             bytes;
     int             bytesMax;
+    char*           extFilenamePtr;
     char            extFilenameBuf[40];
     char            fileNumBuf[20];
-    char            instanceBuf[5];
     FILE*           extFileptr;
 
     camera_data     *cameraData;
@@ -350,11 +404,9 @@ int DatalogRec::logData(message_info *msgInfo)
                 case CAMERA:
                     cameraData = CameraData::parse(msgInfo);
 
-                    sprintf(extFilenameBuf, "camera_");
-                    sprintf(fileNumBuf, "%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
-                    sprintf(instanceBuf, "%i_", RackName::instanceId(msgInfo->src));
-
-                    strncat(extFilenameBuf, instanceBuf, strlen(instanceBuf));
+                    extFilenamePtr = strtok ((char *)datalogInfoMsg.logInfo[i].filename, ".");
+                    sprintf(extFilenameBuf, "%s", extFilenamePtr);
+                    sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
 
                     if (cameraData->mode == CAMERA_MODE_JPEG)
@@ -528,11 +580,9 @@ int DatalogRec::logData(message_info *msgInfo)
                 case SCAN2D:
                     scan2dData = Scan2DData::parse(msgInfo);
 
-                    sprintf(extFilenameBuf, "scan2d_");
-                    sprintf(fileNumBuf, "%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
-                    sprintf(instanceBuf, "%i_", RackName::instanceId(msgInfo->src));
-
-                    strncat(extFilenameBuf, instanceBuf, strlen(instanceBuf));
+                    extFilenamePtr = strtok ((char *)datalogInfoMsg.logInfo[i].filename, ".");
+                    sprintf(extFilenameBuf, "%s", extFilenamePtr);
+                    sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
                     strcat(extFilenameBuf, ".2d");
 
@@ -849,108 +899,147 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logNum = 0;
     num = data->logNum;
 
-    data->logInfo[num].moduleMbx = RackName::create(CAMERA, 0);
+    data->logInfo[num].moduleMbx  = RackName::create(CAMERA, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(CAMERA, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(CAMERA, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(CAMERA, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(CHASSIS, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "chassis_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(chassis_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(GPS, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(GPS, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(GPS, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(GPS, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(ladar_data) +
+                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(ladar_data) +
+                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(ladar_data) +
+                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(ladar_data) +
+                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(odometry_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(odometry_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(pilot_data) +
+                                    sizeof(polar_spline) * PILOT_DATA_SPLINE_MAX;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(pilot_data) +
+                                    sizeof(polar_spline) * PILOT_DATA_SPLINE_MAX;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(pilot_data) +
+                                    sizeof(polar_spline) * PILOT_DATA_SPLINE_MAX;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(POSITION, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "position_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(position_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(POSITION, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "position_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(position_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 4);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_4.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 5);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_5.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
     data->logNum = num;
@@ -1003,16 +1092,27 @@ int DatalogRec::moduleInit(void)
 
     GDOS_DBG_DETAIL("DatalogRec::moduleInit ... \n");
 
-    // allocate memory
-    contDataPtr = malloc(DATALOG_MSG_SIZE_MAX);
-    if (contDataPtr == NULL)
+    // allocate memory for smallContData buffer
+    smallContDataPtr = malloc(DATALOG_SMALL_MBX_SIZE_MAX);
+    if (smallContDataPtr == NULL)
     {
-        GDOS_ERROR("Can't allocate contData buffer\n");
+        GDOS_ERROR("Can't allocate smallContData buffer\n");
         return -ENOMEM;
     }
     // set log variable
     initLog = 1;
-    initBits.setBit(INIT_BIT_CONT_DATA_BUFFER);
+    initBits.setBit(INIT_BIT_SMALL_CONT_DATA_BUFFER);
+
+    // allocate memory for largeContData buffer
+    largeContDataPtr = malloc(DATALOG_LARGE_MBX_SIZE_MAX);
+    if (largeContDataPtr == NULL)
+    {
+        GDOS_ERROR("Can't allocate largeContData buffer\n");
+        return -ENOMEM;
+    }
+    // set log variable
+    initLog = 1;
+    initBits.setBit(INIT_BIT_LARGE_CONT_DATA_BUFFER);
 
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
@@ -1022,14 +1122,23 @@ int DatalogRec::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_MBX_WORK);
 
-    // continuous-data mailbox
-    ret = createMbx(&contDataMbx, 10, DATALOG_MSG_SIZE_MAX,
+    // continuous-data mailbox for small messages
+    ret = createMbx(&smallContDataMbx, 500, DATALOG_SMALL_MBX_SIZE_MAX,
                     MBX_IN_USERSPACE | MBX_SLOT);
     if (ret)
     {
         goto init_error;
     }
-    initBits.setBit(INIT_BIT_MBX_CONT_DATA);
+    initBits.setBit(INIT_BIT_MBX_SMALL_CONT_DATA);
+
+    // continuous-data mailbox for large messages
+    ret = createMbx(&largeContDataMbx, 10, DATALOG_LARGE_MBX_SIZE_MAX,
+                    MBX_IN_USERSPACE | MBX_SLOT);
+    if (ret)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_MBX_LARGE_CONT_DATA);
 
     // create datalog mutex
     ret = datalogMtx.create();
@@ -1063,14 +1172,24 @@ void DatalogRec::moduleCleanup(void)
         destroyMbx(&workMbx);
     }
 
-    if (initBits.testAndClearBit(INIT_BIT_MBX_CONT_DATA))
+    if (initBits.testAndClearBit(INIT_BIT_MBX_LARGE_CONT_DATA))
     {
-        destroyMbx(&contDataMbx);
+        destroyMbx(&largeContDataMbx);
     }
 
-    if (initBits.testAndClearBit(INIT_BIT_CONT_DATA_BUFFER))
+    if (initBits.testAndClearBit(INIT_BIT_MBX_SMALL_CONT_DATA))
     {
-        free(contDataPtr);
+        destroyMbx(&smallContDataMbx);
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_LARGE_CONT_DATA_BUFFER))
+    {
+        free(largeContDataPtr);
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_SMALL_CONT_DATA_BUFFER))
+    {
+        free(smallContDataPtr);
     }
 
     // call RackDataModule cleanup function (last command in cleanup)
