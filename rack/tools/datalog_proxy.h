@@ -49,6 +49,7 @@ typedef struct {
     int32_t         logEnable;
     uint32_t        moduleMbx;
     rack_time_t     periodTime;
+    int32_t         maxDataLen;
     uint8_t         filename[40];
     uint32_t        bytesLogged;
     uint32_t        setsLogged;
@@ -62,6 +63,7 @@ class DatalogLogInfo
             data->logEnable   = __le32_to_cpu(data->logEnable);
             data->moduleMbx   = __le32_to_cpu(data->moduleMbx);
             data->periodTime  = __le32_to_cpu(data->periodTime);
+            data->maxDataLen  = __le32_to_cpu(data->maxDataLen);
             data->bytesLogged = __le32_to_cpu(data->bytesLogged);
             data->setsLogged  = __le32_to_cpu(data->setsLogged);
         }
@@ -71,6 +73,7 @@ class DatalogLogInfo
             data->logEnable   = __be32_to_cpu(data->logEnable);
             data->moduleMbx   = __be32_to_cpu(data->moduleMbx);
             data->periodTime  = __be32_to_cpu(data->periodTime);
+            data->maxDataLen  = __be32_to_cpu(data->maxDataLen);
             data->bytesLogged = __be32_to_cpu(data->bytesLogged);
             data->setsLogged  = __be32_to_cpu(data->setsLogged);
         }
