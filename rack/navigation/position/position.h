@@ -30,13 +30,14 @@
 class Position : public RackDataModule {
     private:
         position_3d         refPos;
-        double              sinRefPos, cosRefPos;
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;
-        rack_time_t           refTime;
+        rack_time_t         refTime;
+        position_3d         refPosDiff;         // for update interpolation
         RackMutex           refPosMtx;
 
         uint32_t            odometryInst;
+        uint32_t            updateInterpol;
 
         // mailboxes
         RackMailbox         odometryMbx;
