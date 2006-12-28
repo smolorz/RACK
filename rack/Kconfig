@@ -11,20 +11,21 @@ config RACK_INSTALLDIR
     default "/usr/local/rack"
     help
     This option defines the directory where the various RACK
-    files will be installed on your target system.
-    This directory may be changed if you double-click in the area
-    named "Value". The default installation directory is
+    files will be installed on your system.
+    The default installation directory is
     /usr/local/rack.
+    LiRE gcchost users use
+    /home/`whoami`/rack_install
 
 config RACK_XENOMAIDIR
     string "Xenomai installation tree"
     default "/usr/xenomai"
     help
-    This variable contains the directory where was built your
-    Xenomai. As explained before, you can change the value
-    of the Xenomai build tree which is fixed by default to
-    /usr/xenomai i.e. the build directory of
-    the running Xenomai.
+    This option defines the directory where Xenomai is installed
+    The default Xenomai installation directory is
+    /usr/xenomai
+    LiRE gcchost users use
+    /usr/src/LiRE/xenomai
 
 config RACK_BUILD_KMOD
     bool "Build kernel modules"
@@ -35,7 +36,11 @@ config RACK_LINUXDIR
     depends on RACK_BUILD_KMOD
     default "/lib/modules/`uname -r`/build"
     help
-    This variable contains the directory where was your Linux source tree.
+    This option defines the directory of the Linux sources
+    The default Linux source directory is
+    /lib/modules/`uname -r`/build
+    LiRE gcchost users use
+    /usr/src/LiRE/linux/src
 
 config RACK_JAVA
     bool "Rack Java"
@@ -65,7 +70,7 @@ config RACK_RTNET_SUPPORT
 config RACK_RTNETDIR
     string "RTnet install directory"
     depends on RACK_RTNET_SUPPORT
-    default ""
+    default "/usr/src/LiRE/rtnet"
     help
 
 config RACK_RTCAN_SUPPORT
@@ -76,7 +81,7 @@ config RACK_RTCAN_SUPPORT
 config RACK_RTCANDIR
     string "RTcan rt_sja1000 install directory"
     depends on RACK_RTCAN_SUPPORT
-    default ""
+    default "/usr/src/LiRE/rt_sja1000"
     help
 
 config RACK_LIBRAW1394_SUPPORT
@@ -87,6 +92,7 @@ config RACK_LIBRAW1394_SUPPORT
 config RACK_LIBRAW1394DIR
     string "libraw1394 install directory"
     depends on RACK_LIBRAW1394_SUPPORT
+    default "/usr/src/LiRE/libraw1394"
     default ""
     help
 
@@ -99,6 +105,7 @@ config RACK_LIBDC1394_SUPPORT
 config RACK_LIBDC1394DIR
     string "libdc1394 install directory"
     depends on RACK_LIBDC1394_SUPPORT
+    default "/usr/src/LiRE/libdc1394"
     default ""
     help
 
@@ -110,6 +117,7 @@ config RACK_LIBJPEG_SUPPORT
 config RACK_LIBJPEGDIR
     string "libjpeg install directory"
     depends on RACK_LIBJPEG_SUPPORT
+    default "/usr/src/LiRE/libjpeg"
     default ""
     help
 
@@ -120,8 +128,8 @@ config RACK_LIBPNG_SUPPORT
 
 config RACK_LIBPNGDIR
     string "libpng install directory"
-    default ""
     depends on RACK_LIBPNG_SUPPORT
+    default "/usr/src/LiRE/libpng"
     help
 
 config RACK_OPENCV_SUPPORT
@@ -136,7 +144,7 @@ config RACK_OPENCV_SUPPORT
 config RACK_OPENCVDIR
     string "opencv install directory"
     depends on RACK_OPENCV_SUPPORT
-    default ""
+    default "/usr/src/LiRE/opencv"
     help
 
 endmenu
