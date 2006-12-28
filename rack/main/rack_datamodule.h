@@ -31,20 +31,20 @@
 
 class DataBufferEntry {
     public:
-        void*       p_data;
+        void*       pData;
         uint32_t    dataSize;
 
         // Konstruktor
         DataBufferEntry()
         {
-            p_data      = NULL;
+            pData      = NULL;
             dataSize    = 0;
         }
 
         // Destruktor
         ~DataBufferEntry()
         {
-            p_data = NULL;
+            pData = NULL;
         };
 };
 
@@ -55,7 +55,7 @@ class DataBufferEntry {
 class ListenerEntry {
     public:
         uint32_t        reduction;
-        message_info     msgInfo;
+        message_info    msgInfo;
 
         // Konstruktor
         ListenerEntry()
@@ -73,14 +73,15 @@ class ListenerEntry {
 //# class RackDataModule
 //######################################################################
 
-class RackDataModule : public RackModule {
-    private:
+class RackDataModule : public RackModule
+{
+    protected:
         RackBits            dataModBits;   // rack datamodule init bits
         uint32_t            index;
         uint32_t            globalDataCount;
         uint32_t            listenerNum;
 
-        DataBufferEntry*    entry;
+        DataBufferEntry*    dataBuffer;
         ListenerEntry*      listener;
 
         RackMutex           bufferMtx;
@@ -94,17 +95,18 @@ class RackDataModule : public RackModule {
         uint32_t            dataBufferMaxListener;
         int16_t             dataBufferSendType;
         RackMailbox*        dataBufferSendMbx;
-        rack_time_t           dataBufferPeriodTime;
+        rack_time_t         dataBufferPeriodTime;
 
-        friend void         cmd_task_proc(void* arg);
+        rack_time_t         getRecordingTime(void *pData);
+        int                 getDataBufferIndex(rack_time_t time);
+        int                 sendDataReply(rack_time_t time, message_info *msgInfo);
 
-        rack_time_t         getRecTime(void *p_data);
         int                 addListener(rack_time_t periodTime, uint32_t destMbxAdr,
                                         message_info* msgInfo);
         void                removeListener(uint32_t destMbxAdr);
         void                removeAllListener(void);
-        int                 sendDataReply(rack_time_t time, message_info *msgInfo);
 
+        friend void         cmd_task_proc(void* arg);
 
   public:
 

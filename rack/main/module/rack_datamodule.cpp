@@ -58,7 +58,7 @@ RackDataModule::RackDataModule( uint32_t class_id,                // class ID
     globalDataCount         = 0;
     index                   = 0;
 
-    entry                   = NULL;
+    dataBuffer                   = NULL;
     listener                = NULL;
 
     dataModBits.clearAllBits();
@@ -74,7 +74,7 @@ RackDataModule::~RackDataModule()
 
 // the time is the first data element afer the message head !
 // realtime context
-rack_time_t   RackDataModule::getRecTime(void *p_data)
+rack_time_t   RackDataModule::getRecordingTime(void *p_data)
 {
   return *(rack_time_t *)p_data;
 }
@@ -178,37 +178,26 @@ void        RackDataModule::removeAllListener(void)
 }
 
 // realtime context (cmdTask)
-int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
+int         RackDataModule::getDataBufferIndex(rack_time_t time)
 {
-    uint32_t    n;
-    int         ret;
-    rack_time_t   difference;
-    rack_time_t   minDifference = RACK_TIME_MAX;
+    int         n;
+    rack_time_t timeDiff;
+    rack_time_t minTimeDiff = RACK_TIME_MAX;
 
-    uint32_t    old_index;
-    uint32_t    new_index;
+    int         old_index;
+    int         new_index;
 
-    rack_time_t   new_rectime;
-    rack_time_t   old_rectime;
-
-    void*       new_data    = NULL;
-    void*       old_data    = NULL;
-
-    if (!msgInfo)
-        return -EINVAL;
-
-    bufferMtx.lock(RACK_INFINITE);
+    rack_time_t new_rectime;
+    rack_time_t old_rectime;
 
     if (!globalDataCount) // no data available
     {
-        bufferMtx.unlock();
         GDOS_WARNING("DataBuffer: No data in buffer. Try it again \n");
         return -EFAULT;
     }
 
     new_index   = index;
-    new_data    = entry[new_index].p_data;
-    new_rectime = getRecTime(new_data);
+    new_rectime = getRecordingTime(dataBuffer[new_index].pData);
 
     n = globalDataCount > dataBufferMaxEntries ?
         dataBufferMaxEntries : globalDataCount;
@@ -227,38 +216,33 @@ int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInf
             old_index = (index+2) % dataBufferMaxEntries;
         }
 
-        old_data    = entry[old_index].p_data;
-        old_rectime = getRecTime(old_data);
+        old_rectime = getRecordingTime(dataBuffer[old_index].pData);
 
         if (time > ( new_rectime + 2 * dataBufferPeriodTime))
         {
-            bufferMtx.unlock();
             GDOS_ERROR("DataBuffer: Requested time %d is newer than newest "
                        "data message %d\n", time, new_rectime);
             return -EINVAL;
         }
         else if (time < old_rectime)
         {
-            bufferMtx.unlock();
             GDOS_ERROR("DataBuffer: Requested time %d is older than oldest "
                        "data message %d\n", time, old_rectime);
             return -EINVAL;
         }
 
         // loop from oldest to newest data package and find package with
-        // minimum timedifference to requested time
+        // minimum timetimeDiff to requested time
 
         while (n)
         {
-            old_data    = entry[old_index].p_data;
-            old_rectime = getRecTime(old_data);
+            old_rectime = getRecordingTime(dataBuffer[old_index].pData);
 
-            difference = abs(old_rectime - time);
-            if (difference <= minDifference)
+            timeDiff = abs(old_rectime - time);
+            if (timeDiff <= minTimeDiff)
             {
-                minDifference = difference;
-                new_index     = old_index;
-                new_data      = old_data;
+                minTimeDiff = timeDiff;
+                new_index   = old_index;
             }
             else
             {
@@ -271,22 +255,48 @@ int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInf
 
         if (new_rectime == 0)
         {
-            bufferMtx.unlock();
             GDOS_ERROR("DataBuffer: Requested time %d is older than oldest "
                        "data message (Buffer is not completely filled)\n", time);
             return -EINVAL;
         }
     }
 
-/*
-    GDOS_PRINT("Sending Data: %n -> %n, buffer[%d/%d] @ %p, time %d, size %d \n",
-                msgInfo->dest, msgInfo->src, new_index, dataBufferMaxEntries,
-                new_data, getRecTime(new_data), entry[new_index].dataSize);
-*/
+    return new_index;
+}
 
-    ret = dataBufferSendMbx->sendDataMsgReply(MSG_DATA, msgInfo, 1, new_data,
-                                              entry[new_index].dataSize);
+int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
+{
+    int index, ret;
 
+    if (!msgInfo)
+        return -EINVAL;
+
+    bufferMtx.lock(RACK_INFINITE);
+
+    index = getDataBufferIndex(time);
+
+    if(index >= 0)
+    {
+        ret = dataBufferSendMbx->sendDataMsgReply(MSG_DATA, msgInfo, 1, dataBuffer[index].pData,
+                                                  dataBuffer[index].dataSize);
+        if(ret)
+        {
+            GDOS_ERROR("DataBuffer: Can't send data msg (code %d)\n", ret);
+        }
+        else
+        {
+        /*
+            GDOS_PRINT("Sending Data: %n -> %n, buffer[%d/%d] @ %p, time %d, size %d \n",
+                        msgInfo->dest, msgInfo->src, new_index, dataBufferMaxEntries,
+                        new_data, getRecordingTime(new_data), dataBuffer[new_index].dataSize);
+        */
+        }
+    }
+    else
+    {
+        ret = index;
+    }
+    
     bufferMtx.unlock();
     return ret;
 }
@@ -340,7 +350,7 @@ void RackDataModule::setDataBufferPeriodTime(rack_time_t periodTime)
 // realtime context (dataTask)
 void*       RackDataModule::getDataBufferWorkSpace(void)
 {
-    return entry[(index+1) % dataBufferMaxEntries].p_data;
+    return dataBuffer[(index+1) % dataBufferMaxEntries].pData;
 }
 
 // realtime context (dataTask)
@@ -363,11 +373,11 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
 
 /*
     GDOS_PRINT("Put DataBuffer: buffer[%d/%d] @ %p, time %d, size %d \n",
-               index, dataBufferMaxEntries, entry[index].p_data,
-               getRecTime(entry[index].p_data), entry[index].dataSize);
+               index, dataBufferMaxEntries, dataBuffer[index].pData,
+               getRecordingTime(dataBuffer[index].pData), dataBuffer[index].dataSize);
 */
 
-    entry[index].dataSize = datalength;
+    dataBuffer[index].dataSize = datalength;
 
     for (i=0; i<listenerNum; i++)
     {
@@ -381,8 +391,8 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
             ret = dataBufferSendMbx->sendDataMsgReply(MSG_DATA,
                                                       &listener[i].msgInfo,
                                                       1,
-                                                      entry[index].p_data,
-                                                      entry[index].dataSize);
+                                                      dataBuffer[index].pData,
+                                                      dataBuffer[index].dataSize);
             if (ret)
             {
                 GDOS_ERROR("DataBuffer: Can't send continuous data "
@@ -430,7 +440,7 @@ int         RackDataModule::moduleInit(void)
         goto init_error;
     }
 
-    if (entry || listener)
+    if (dataBuffer || listener)
     {
         GDOS_ERROR("RackDataModule: DataBuffer exists !\n");
         return -EBUSY;
@@ -438,34 +448,34 @@ int         RackDataModule::moduleInit(void)
 
     // create data buffer structures
 
-    entry = new DataBufferEntry[dataBufferMaxEntries];
-    if (!entry)
+    dataBuffer = new DataBufferEntry[dataBufferMaxEntries];
+    if (!dataBuffer)
     {
         GDOS_ERROR("RackDataModule: DataBuffer entries not created !\n");
         goto init_error;
     }
     dataModBits.setBit(INIT_BIT_ENTRIES_CREATED);
-    GDOS_DBG_DETAIL("DataBuffer entry table created @ %p\n", entry);
+    GDOS_DBG_DETAIL("DataBuffer dataBuffer table created @ %p\n", dataBuffer);
 
     for (i=0; i<dataBufferMaxEntries; i++)
     {
-        entry[i].p_data = malloc(dataBufferMaxDataSize);
-        if (!entry[i].p_data)
+        dataBuffer[i].pData = malloc(dataBufferMaxDataSize);
+        if (!dataBuffer[i].pData)
         {
-            GDOS_ERROR("Error while allocating databuffer entry[%d] \n", i);
+            GDOS_ERROR("Error while allocating databuffer dataBuffer[%d] \n", i);
             for (k=i-1; i>=0; k--)
             {
-                free(entry[k].p_data);
+                free(dataBuffer[k].pData);
             }
             goto init_error;
         }
         else
         {
-            memset(entry[i].p_data, 0, dataBufferMaxDataSize);
-            GDOS_DBG_DETAIL("DataBuffer entry @ %p (%d bytes) created\n",
-                            entry[i].p_data, dataBufferMaxDataSize);
+            memset(dataBuffer[i].pData, 0, dataBufferMaxDataSize);
+            GDOS_DBG_DETAIL("DataBuffer dataBuffer @ %p (%d bytes) created\n",
+                            dataBuffer[i].pData, dataBufferMaxDataSize);
         }
-        entry[i].dataSize = 0;
+        dataBuffer[i].dataSize = 0;
     }
     dataModBits.setBit(INIT_BIT_BUFFER_CREATED);
     GDOS_DBG_DETAIL("Memory for DataBuffer entries allocated\n");
@@ -537,17 +547,17 @@ void        RackDataModule::moduleCleanup(void)
     {
         for (i=0; i<dataBufferMaxEntries; i++)
         {
-            GDOS_DBG_DETAIL("Deleting dataBuffer entry @ %p (%d bytes)\n",
-                            entry[i].p_data, dataBufferMaxDataSize);
-            free(entry[i].p_data);
+            GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer @ %p (%d bytes)\n",
+                            dataBuffer[i].pData, dataBufferMaxDataSize);
+            free(dataBuffer[i].pData);
         }
     }
 
     if (dataModBits.testAndClearBit(INIT_BIT_ENTRIES_CREATED))
     {
-        GDOS_DBG_DETAIL("Deleting dataBuffer entry table @ %p\n", entry);
-        delete[] entry;
-        entry = NULL;
+        GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer table @ %p\n", dataBuffer);
+        delete[] dataBuffer;
+        dataBuffer = NULL;
     }
 
     // cleanunp module (last command)
