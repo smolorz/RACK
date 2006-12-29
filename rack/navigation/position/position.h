@@ -33,7 +33,8 @@ class Position : public RackDataModule {
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;
         rack_time_t         refTime;
-        position_3d         refPosDiff;         // for update interpolation
+        position_3d         interpolDiff;           // for update interpolation
+        rack_time_t         interpolStartTime;
         RackMutex           refPosMtx;
 
         uint32_t            odometryInst;

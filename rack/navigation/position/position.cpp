@@ -133,7 +133,7 @@ int  Position::moduleLoop(void)
         // calculate interpolated reference position refPosI
         if(updateInterpol != 0)
         {
-            interpolFactor = 1.0 - (((double)odometryData.recordingTime - (double)refTime) / (double)updateInterpol);
+            interpolFactor = 1.0 - (((double)odometryData.recordingTime - (double)interpolStartTime) / (double)updateInterpol);
     
             if(interpolFactor > 1.0)
             {
@@ -144,10 +144,10 @@ int  Position::moduleLoop(void)
                 interpolFactor = 0.0;
             }
     
-            refPosI.x   = refPos.x + (int)(interpolFactor * refPosDiff.x);
-            refPosI.y   = refPos.y + (int)(interpolFactor * refPosDiff.y);
-            refPosI.z   = refPos.z + (int)(interpolFactor * refPosDiff.z);
-            refPosI.rho = refPos.rho + (interpolFactor * refPosDiff.rho);
+            refPosI.x   = refPos.x + (int)(interpolFactor * interpolDiff.x);
+            refPosI.y   = refPos.y + (int)(interpolFactor * interpolDiff.y);
+            refPosI.z   = refPos.z + (int)(interpolFactor * interpolDiff.z);
+            refPosI.rho = refPos.rho + (interpolFactor * interpolDiff.rho);
     
             sinRefPosI  = sin(refPosI.rho);
             cosRefPosI  = cos(refPosI.rho);
@@ -207,6 +207,11 @@ int  Position::moduleCommand(message_info *msgInfo)
         case MSG_POSITION_UPDATE:
             pUpdate = PositionData::parse(msgInfo);
 
+            if(pUpdate->recordingTime == 0)
+            {
+                pUpdate->recordingTime = rackTime.get();
+            }
+
             ret = odometry->getData(&odometryData,
                                     sizeof(odometry_data),
                                     pUpdate->recordingTime);
@@ -226,18 +231,19 @@ int  Position::moduleCommand(message_info *msgInfo)
                 {
                     pPosOldRef = ((position_data*)dataBuffer[posOldRefIndex].pData);
         
-                    refPosDiff.x = pPosOldRef->pos.x - pUpdate->pos.x;
-                    refPosDiff.y = pPosOldRef->pos.y - pUpdate->pos.y;
-                    refPosDiff.z = pPosOldRef->pos.z - pUpdate->pos.z;
-                    refPosDiff.rho = normaliseAngleSym0(pPosOldRef->pos.rho - pUpdate->pos.rho);
+                    interpolDiff.x = pPosOldRef->pos.x - pUpdate->pos.x;
+                    interpolDiff.y = pPosOldRef->pos.y - pUpdate->pos.y;
+                    interpolDiff.z = pPosOldRef->pos.z - pUpdate->pos.z;
+                    interpolDiff.rho = normaliseAngleSym0(pPosOldRef->pos.rho - pUpdate->pos.rho);
                 }
                 else
                 {
-                    refPosDiff.x = 0;
-                    refPosDiff.y = 0;
-                    refPosDiff.z = 0;
-                    refPosDiff.rho = 0.0f;
+                    interpolDiff.x = 0;
+                    interpolDiff.y = 0;
+                    interpolDiff.z = 0;
+                    interpolDiff.rho = 0.0f;
                 }
+                interpolStartTime = rackTime.get();
             }
 
             // store new reference position            
@@ -247,15 +253,6 @@ int  Position::moduleCommand(message_info *msgInfo)
             refPos.phi = 0.0f;
             refPos.psi = 0.0f;
             refPos.rho = normaliseAngle(pUpdate->pos.rho);
-
-            if(pUpdate->recordingTime != 0)
-            {
-                refTime    = pUpdate->recordingTime;
-            }
-            else
-            {
-                refTime    = rackTime.get();
-            }
 
             // store odometry position of new reference
             refOdo.x   = odometryData.pos.x;
@@ -413,12 +410,14 @@ Position::Position()
 
     refTime    = 0;
 
-    refPosDiff.x   = 0;
-    refPosDiff.y   = 0;
-    refPosDiff.z   = 0;
-    refPosDiff.phi = 0;
-    refPosDiff.psi = 0;
-    refPosDiff.rho = 0;
+    interpolDiff.x   = 0;
+    interpolDiff.y   = 0;
+    interpolDiff.z   = 0;
+    interpolDiff.phi = 0;
+    interpolDiff.psi = 0;
+    interpolDiff.rho = 0;
+    
+    interpolStartTime = 0;
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(position_data));
