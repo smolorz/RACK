@@ -369,7 +369,8 @@ public class CameraDataMsg extends TimsMsg
         //System.out.println("got image data of width:"+width+" height:"+height+" depth:"+depth+" mode:"+mode);
         imageRawData = new int[width * height];
         byte actualData; // structur to multiply data.
-    	byte lowerByte, middleByte, upperByte;
+    	byte lowerByte, upperByte;
+        //byte middleByte;
 
         switch (mode)
         {
