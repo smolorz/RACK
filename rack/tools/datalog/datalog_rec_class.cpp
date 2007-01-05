@@ -172,6 +172,9 @@ void DatalogRec::moduleOff(void)
         }
     }
 
+    // set log variable
+    initLog = 1;
+
     RackTask::enableRealtimeMode();
 }
 
@@ -896,6 +899,7 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
 {
     int num;
 
+    GDOS_PRINT("logInfoAllModules called\n");
     for (num = 0; num < DATALOG_LOGNUM_MAX; num++)
     {
         data->logInfo[num].logEnable = 0;
