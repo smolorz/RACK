@@ -150,7 +150,9 @@ public class DatalogGui extends RackModuleGui
         {
             public void actionPerformed(ActionEvent e) 
             {
-                logData = new DatalogDataMsg();
+            	getLogStatus();
+            	
+            	logData = new DatalogDataMsg();
                 
                 logData.logInfo = new DatalogLogInfo[Num];
                 logData.logNum  = Num;
