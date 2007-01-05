@@ -377,7 +377,7 @@ int DatalogRec::initLogFile()
 
 int DatalogRec::logData(message_info *msgInfo)
 {
-    int             i, j;
+    int             i, j, ret;
     int             bytes;
     int             bytesMax;
     char*           extFilenamePtr;
@@ -627,6 +627,13 @@ int DatalogRec::logData(message_info *msgInfo)
                 GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
                            msgInfo->src, bytes);
                 return bytes;
+            }
+
+            ret = fflush(fileptr[i]);
+            if (ret < 0)
+            {
+                GDOS_ERROR("Can't flush file\n");
+                return ret;
             }
         }
     }
