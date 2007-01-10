@@ -45,18 +45,33 @@
 #define CAMERA_MAX_DEPTH    24 //max bit per pixel(YUV Mode) //actual max of tims = 16 * 1280 * 960
 #define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * 2)
 
+//CAMERA_MODE 50-59 are modi for the mono images
 #define CAMERA_MODE_MONO8  01
 #define CAMERA_MODE_MONO12 02
 #define CAMERA_MODE_MONO16 03
 #define CAMERA_MODE_MONO24 04
+//CAMERA_MODE 50-59 are modi for rgb images
 #define CAMERA_MODE_RGB24  11
 #define CAMERA_MODE_RGB565 12
+//CAMERA_MODE 50-59 are modi for yuv images 
 #define CAMERA_MODE_YUV422 21
+//CAMERA_MODE 50-59 are modi for raw (bayer) images
 #define CAMERA_MODE_RAW8   31
 #define CAMERA_MODE_RAW12  32
 #define CAMERA_MODE_RAW16  33
+//CAMERA_MODE 50-59 are modi for jpeg compressed images
 #define CAMERA_MODE_JPEG   41
+//CAMERA_MODE 50-59 are modi for the 3d range images
+#define CAMERA_MODE_RANGE          51
+#define CAMERA_MODE_INTENSITY      52
+#define CAMERA_MODE_TYPE_INTENSITY 53
+#define CAMERA_MODE_RANGE_TYPE     54
+#define CAMERA_MODE_SEGMENT        55
+#define CAMERA_MODE_ELEVATION      56
+#define CAMERA_MODE_TYPE           57
+#define CAMERA_MODE_EDGE           58
 
+//Pattern for raw images
 #define COLORFILTER_RGGB  512
 #define COLORFILTER_GBRG  513
 #define COLORFILTER_GRBG  514
