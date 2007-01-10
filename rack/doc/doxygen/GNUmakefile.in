@@ -268,6 +268,9 @@ EXTRA_DIST = \
 @CONFIG_RACK_DOC_DOX_TRUE@docdir = $(datadir)/doc/$(PACKAGE)-$(VERSION)
 @CONFIG_RACK_DOC_DOX_TRUE@doc_top_distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)
 @CONFIG_RACK_DOC_DOX_TRUE@GEN_DOC_DIST_ROOT = $(doc_top_distdir)/doc/generated
+@CONFIG_RACK_DOC_DOX_TRUE@DISTCLEANFILES = \
+@CONFIG_RACK_DOC_DOX_TRUE@	rack_doc.tag
+
 all: all-am
 
 .SUFFIXES:
@@ -371,6 +374,7 @@ clean-generic:
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -490,14 +494,14 @@ uninstall-am: uninstall-info-am uninstall-local
 @CONFIG_RACK_DOC_DOX_TRUE@dist-docs-hook: all-local dist-htmldocs
 
 # To make distcheck happy.
-# uninstall-docs:
-# 	if test -n "$(HTML_DOCS)"; then \
-# 	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)
-# 	    for t in $$targets; do \
-# 		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
-# 		else $(RM) $$t; fi; \
-# 	    done; \
-# 	fi
+@CONFIG_RACK_DOC_DOX_TRUE@uninstall-docs:
+@CONFIG_RACK_DOC_DOX_TRUE@	if test -n "$(HTML_DOCS)"; then \
+@CONFIG_RACK_DOC_DOX_TRUE@	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)"; \
+@CONFIG_RACK_DOC_DOX_TRUE@	    for t in $$targets; do \
+@CONFIG_RACK_DOC_DOX_TRUE@		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
+@CONFIG_RACK_DOC_DOX_TRUE@		else $(RM) $$t; fi; \
+@CONFIG_RACK_DOC_DOX_TRUE@	    done; \
+@CONFIG_RACK_DOC_DOX_TRUE@	fi
 
 @CONFIG_RACK_DOC_DOX_TRUE@.PHONY: doxygen-api
 

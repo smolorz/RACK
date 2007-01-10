@@ -247,7 +247,7 @@ AC_MSG_CHECKING([for Xenomai version])
 XENO_VERSION_PRE="`${XENO_USER_CONFIG} --version`"
 
 case "$XENO_VERSION_PRE" in
-  2.1* | 2.0.9* | 2.2*)
+  2.[[1-3]] | 2.[[1-3]].* | 2.0.9*)
     XENO_VERSION=xeno-21x
     ;;
   *)
@@ -1356,7 +1356,7 @@ RACK_KBUILD_CMD="                                                           \
                 "
 
 RACK_KBUILD_CLEAN="                                                         \
-        @rm -f *.ko *.mod.c .*.cmd *.o;                                     \
+        @rm -rf *.ko *.mod.c .*.cmd *.o .tmp_versions Module*.symvers;      \
         for src in \$^; do                                                  \
             if test -h \`basename \$\$src\`; then                           \
                 rm -f \`basename \$\$src\`;                                 \

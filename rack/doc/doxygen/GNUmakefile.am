@@ -66,18 +66,21 @@ install-docs-local: install-htmldocs
 dist-docs-hook: all-local dist-htmldocs
 
 # To make distcheck happy.
-# uninstall-docs:
-# 	if test -n "$(HTML_DOCS)"; then \
-# 	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)
-# 	    for t in $$targets; do \
-# 		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
-# 		else $(RM) $$t; fi; \
-# 	    done; \
-# 	fi
+uninstall-docs:
+	if test -n "$(HTML_DOCS)"; then \
+	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)"; \
+	    for t in $$targets; do \
+		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
+		else $(RM) $$t; fi; \
+	    done; \
+	fi
 
 .PHONY: doxygen-api
 
 .DELETE_ON_ERROR:
+
+DISTCLEANFILES = \
+	rack_doc.tag
 
 endif
 
