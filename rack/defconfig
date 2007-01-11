@@ -1,9 +1,9 @@
 #
 # Automatically generated make config: don't edit
-# RACK version: 0.3.0
-# Mon Aug 28 23:05:03 2006
+# RACK version: 0.4.0
+# Thu Jan 11 11:00:54 2007
 #
-CONFIG_RACK_VERSION="0.3.0"
+CONFIG_RACK_VERSION="0.4.0"
 
 #
 # Build options
@@ -20,7 +20,6 @@ CONFIG_RACK_JAVA_GUI=y
 # External Dependencies
 #
 # CONFIG_RACK_RTNET_SUPPORT is not set
-# CONFIG_RACK_RTCAN_SUPPORT is not set
 # CONFIG_RACK_LIBRAW1394_SUPPORT is not set
 # CONFIG_RACK_LIBDC1394_SUPPORT is not set
 # CONFIG_RACK_LIBJPEG_SUPPORT is not set
@@ -56,7 +55,7 @@ CONFIG_RACK_GPS_NMEA=y
 # CONFIG_RACK_LADAR_IBEO is not set
 # CONFIG_RACK_LADAR_HOKUYO_URG is not set
 CONFIG_RACK_LADAR_SICK_LMS200=y
-CONFIG_RACK_LADAR_SICK_CMS3000=y
+CONFIG_RACK_LADAR_SICK_S=y
 
 #
 # Odometry
@@ -92,3 +91,12 @@ CONFIG_RACK_SCAN_2D_SIM=y
 # Dummy
 #
 # CONFIG_RACK_DUMMY_ABC is not set
+
+#
+# Tools
+#
+
+#
+# Datalog
+#
+CONFIG_DATALOG_REC=y
