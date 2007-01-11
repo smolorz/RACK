@@ -247,8 +247,8 @@ AC_MSG_CHECKING([for Xenomai version])
 XENO_VERSION_PRE="`${XENO_USER_CONFIG} --version`"
 
 case "$XENO_VERSION_PRE" in
-  2.[[1-3]] | 2.[[1-3]].* | 2.0.9*)
-    XENO_VERSION=xeno-21x
+  2.[[3-9]]*)
+    XENO_VERSION=xeno-23x
     ;;
   *)
     AC_MSG_ERROR([*** Unsupported Xenomai version $XENO_VERSION_PRE in $XENO_USER_DIR])
@@ -268,7 +268,7 @@ dnl -----------------------------------------------------------------
 
 AC_SUBST(XENO_USER_PREFIX)
 AC_SUBST(XENO_LIBRARIES)
-AC_DEFINE(CONFIG_XENO_21X, 1, [We build for Xenomai 2.1 or newer])
+AC_DEFINE(CONFIG_XENO_23X, 1, [We build for Xenomai 2.3 or newer])
 
 dnl ======================================================================
 dnl  check support
@@ -291,25 +291,6 @@ AC_ARG_WITH(rtnet-dir,
       ;;
     esac
     CONFIG_RACK_RTNETDIR="$withval"
-    ])
-
-dnl ----------------------------------------------------------------------------
-
-AC_ARG_ENABLE(rtcan-support,
-    AS_HELP_STRING([--enable-rtcan-support], [enable rtcan support]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_RTCAN_SUPPORT=y ;;
-        *) CONFIG_RACK_RTCAN_SUPPORT=n ;;
-    esac])
-
-AC_ARG_WITH(rtcan-dir,
-    AS_HELP_STRING([--with-rtcan-dir=<can-dir>], [Source path of rtcan]),
-    [case "${withval}" in
-        "" | y | ye | yes | n | no)
-            AC_MSG_ERROR([You must supply an argument to --with-rtcan-dir.])
-      ;;
-    esac
-    CONFIG_RACK_RTCANDIR="$withval"
     ])
 
 dnl ----------------------------------------------------------------------------
@@ -634,7 +615,6 @@ AC_MSG_RESULT([${CONFIG_RACK_LADAR_IBEO:-n}])
 AM_CONDITIONAL(CONFIG_RACK_LADAR_IBEO,[test "$CONFIG_RACK_LADAR_IBEO" = "y"])
 if test "$CONFIG_RACK_LADAR_IBEO" = "y"; then
     AC_DEFINE(CONFIG_RACK_LADAR_IBEO,1,[building ladar ibeo])
-    CONFIG_RACK_RTCAN_SUPPORT=y
 fi
 
 dnl -----------------------------------------------------------------
@@ -872,48 +852,6 @@ fi
 AC_SUBST(RTNET_CPPFLAGS)
 AM_CONDITIONAL(CONFIG_RACK_RTNET_SUPPORT,
                [test x"${CONFIG_RACK_RTNET_SUPPORT}" = "xy"])
-
-dnl ----- rt_sja1000 -----------------------------------------------------------
-dnl
-dnl  depends on xenomai
-dnl  provides headers: yes
-dnl  provides libs:    no
-dnl
-
-AC_MSG_CHECKING([rtcan support is needed])
-AC_MSG_RESULT([${CONFIG_RACK_RTCAN_SUPPORT}])
-
-RTCAN_CPPFLAGS=""
-    
-if test x"${CONFIG_RACK_RTCAN_SUPPORT}" = x"y"; then
-
-    cppflags_backup="${CPPFLAGS}"
-
-    if test x${CONFIG_RACK_RTCANDIR} != "x"; then
-        AC_MSG_CHECKING([rtcan directory])
-        if test -d ${CONFIG_RACK_RTCANDIR}; then
-            AC_MSG_RESULT([${CONFIG_RACK_RTCANDIR}])
-
-            RTCAN_CPPFLAGS="-I${CONFIG_RACK_RTCANDIR}/include"
-
-            CPPFLAGS="${XENOMAI_CPPFLAGS} ${CPPFLAGS}"
-            CPPFLAGS="${RTCAN_CPPFLAGS} ${CPPFLAGS}"
-        else
-            AC_MSG_ERROR(cannot find ${CONFIG_RACK_RTCANDIR})
-        fi
-    fi
-
-    AC_CHECK_HEADER(rtcan.h,,
-                    [AC_MSG_ERROR(cannot find rtcan.h)]
-                   )
-
-    RACK_SUPPORTS="rtcan ${RACK_SUPPORTS}"
-    CPPFLAGS="${cppflags_backup}"
-fi
-
-AC_SUBST(RTCAN_CPPFLAGS)
-AM_CONDITIONAL(CONFIG_RACK_RTCAN_SUPPORT,
-               [test x"${CONFIG_RACK_RTCAN_SUPPORT}" = "xy"])
 
 dnl ----- libraw1394 -----------------------------------------------------------
 dnl

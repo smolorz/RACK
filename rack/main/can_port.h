@@ -11,6 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Jan Kiszka <jan.kiszka@web.de> - update to new RT-Socket-CAN profile
  *
  */
 #ifndef __CAN_PORT_H__
@@ -18,18 +19,8 @@
 
 #include <main/rack_time.h>
 #include <main/rack_module.h>
-#include <rtcan.h>
+#include <rtdm/rtcan.h>
 
-/* Create a sockaddr_can with specific filterlen
-
-struct meta_sockaddr_can {
-    struct sockaddr_can  scan;          // you need not init this
-    rtcan_filter_t       filter[...];
-};
-
-sockaddr_can mcan;
-
-*/
 //######################################################################
 //# class CanPort
 //######################################################################
@@ -48,15 +39,15 @@ class CanPort
         CanPort();
         ~CanPort();
 
-        int open(int dev, sockaddr_can* scan, int scan_size, RackModule *module);
+        int open(int dev, can_filter_t *filter_list, int nr_filters, RackModule *module);
         int close(void);
 
         int setTxTimeout(int64_t timeout);
         int setRxTimeout(int64_t timeout);
         int getTimestamps();
 
-        int send(rtcan_frame_t* frame);
-        int recv(rtcan_frame_t *recv_frame, rack_time_t *timestamp);
+        int send(can_frame_t *frame);
+        int recv(can_frame_t *recv_frame, rack_time_t *timestamp);
 
 };
 

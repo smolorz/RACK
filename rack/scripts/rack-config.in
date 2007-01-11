@@ -34,8 +34,6 @@ RACK_SUPPORTS="@RACK_SUPPORTS@"
 #
 RTNET_CPPFLAGS="@RTNET_CPPFLAGS@"
 
-RTCAN_CPPFLAGS="@RTCAN_CPPFLAGS@"
-
 LIBRAW1394_CPPFLAGS="@LIBRAW1394_CPPFLAGS@"
 LIBRAW1394_LDFLAGS="@LIBRAW1394_LDFLAGS@"
 LIBRAW1394_LIBS="@LIBRAW1394_LIBS@"
@@ -127,7 +125,6 @@ while test $# -gt 0; do
             case "$2" in
                 rack)       echo $RACK_CPPFLAGS       ;;
                 rtnet)      echo $RTNET_CPPFLAGS      ;;
-                rtcan)      echo $RTCAN_CPPFLAGS      ;;
                 libraw1394) echo $LIBRAW1394_CPPFLAGS ;;
                 libdc1394)  echo $LIBDC1394_CPPFLAGS  ;;
                 libjpeg)    echo $LIBJPEG_CPPFLAGS    ;;

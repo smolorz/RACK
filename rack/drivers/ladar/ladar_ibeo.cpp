@@ -91,11 +91,6 @@ typedef struct {
     int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
-struct ladar_sockaddr_can {
-    struct sockaddr_can  scan;
-    rtcan_filter_t       filter[1];
-};
-
 argTable_t argTab[] = {
 
     { ARGOPT_REQ, "canDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -324,7 +319,7 @@ int  LadarIbeo::moduleCommand(message_info *p_msginfo)
 int LadarIbeo::sendRequestPacket(int requestCommand, int parameterLen,
                                  void* parameter)
 {
-    rtcan_frame_t canSend;
+    can_frame_t canSend;
     uint16_packet canPacket;
     int packetId;
     int parameterCount;
@@ -435,7 +430,7 @@ int LadarIbeo::receiveResponsePacket(int responseCode, int maxParameterLen,
                                      void* parameter,
                                      rack_time_t* recordingtime)
 {
-    rtcan_frame_t canReceive;
+    can_frame_t canReceive;
     rack_time_t timestamp = 0;
     int parameterLen;
     int sequenceFlag;
@@ -803,21 +798,13 @@ int LadarIbeo::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    ladar_sockaddr_can cscan =
-     {
-        scan   :
-        {
-            can_family   : AF_CAN, can_ifindex  : 0,
-            can_flistlen : 1
-        },
-        filter :
-        {
-            {(canSensorIdBase | sensorId), 0xffff}
-        },
+    // CAN filter
+    can_filter_t filter[] = {
+        { can_id: canSensorIdBase | sensorId, can_mask: 0xFFFF },
     };
 
-    // Open can port
-    ret = canPort.open(canDev, (sockaddr_can *)&cscan, sizeof(cscan), this);
+    // Open CAN port
+    ret = canPort.open(canDev, filter, 1, this);
     if (ret)
     {
         GDOS_ERROR("Can't open can port, code = %d\n", ret);

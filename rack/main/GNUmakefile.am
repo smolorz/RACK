@@ -1,12 +1,6 @@
-OPTDIRS =
 OPTHEADERS =
 
 mainincludedir = $(pkgincludedir)/main
-
-if CONFIG_RACK_RTCAN_SUPPORT
-OPTDIRS += canport
-OPTHEADERS += can_port.h
-endif
 
 if CONFIG_RACK_LIBJPEG_SUPPORT
 OPTHEADERS += jpeg_data_dst_mem.h
@@ -30,6 +24,7 @@ maininclude_HEADERS = \
 	rack_time.h \
 	rack_task.h \
 	rack_rtmac.h \
+	can_port.h \
 	serial_port.h
 
 dist_java_JAVA =
@@ -52,7 +47,7 @@ endif
 install-dist_javaJAVA: classdist_java.stamp
 
 SUBDIRS = \
-	$(OPTDIRS) \
+	canport \
 	serialport \
 	tims \
 	defines \

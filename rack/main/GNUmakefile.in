@@ -36,10 +36,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_1 = canport
-@CONFIG_RACK_RTCAN_SUPPORT_TRUE@am__append_2 = can_port.h
-@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_3 = jpeg_data_dst_mem.h
-@CONFIG_RACK_JAVA_TRUE@am__append_4 = \
+@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_1 = jpeg_data_dst_mem.h
+@CONFIG_RACK_JAVA_TRUE@am__append_2 = \
 @CONFIG_RACK_JAVA_TRUE@	RackName.java \
 @CONFIG_RACK_JAVA_TRUE@	RackProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	RackDataProxy.java \
@@ -78,11 +76,11 @@ JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
 am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(mainincludedir)"
-am__maininclude_HEADERS_DIST = can_port.h jpeg_data_dst_mem.h \
-	angle_tool.h argopts.h dxf_map.h image_tool.h pilot_tool.h \
-	rack_byteorder.h rack_debug.h rack_mailbox.h rack_mutex.h \
-	rack_module.h rack_datamodule.h rack_name.h rack_proxy.h \
-	rack_time.h rack_task.h rack_rtmac.h serial_port.h
+am__maininclude_HEADERS_DIST = jpeg_data_dst_mem.h angle_tool.h \
+	argopts.h dxf_map.h image_tool.h pilot_tool.h rack_byteorder.h \
+	rack_debug.h rack_mailbox.h rack_mutex.h rack_module.h \
+	rack_datamodule.h rack_name.h rack_proxy.h rack_time.h \
+	rack_task.h rack_rtmac.h can_port.h serial_port.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -93,8 +91,7 @@ mainincludeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(maininclude_HEADERS)
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = canport serialport tims defines mailbox proxy module \
-	argopts dxfmap lib
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -166,8 +163,6 @@ CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
-CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
-CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
 CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
@@ -253,7 +248,6 @@ RACK_MODULE_EXT = @RACK_MODULE_EXT@
 RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
 RANLIB = @RANLIB@
-RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -307,8 +301,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-OPTDIRS = $(am__append_1)
-OPTHEADERS = $(am__append_2) $(am__append_3)
+OPTHEADERS = $(am__append_1)
 mainincludedir = $(pkgincludedir)/main
 maininclude_HEADERS = \
 	$(OPTHEADERS) \
@@ -328,11 +321,12 @@ maininclude_HEADERS = \
 	rack_time.h \
 	rack_task.h \
 	rack_rtmac.h \
+	can_port.h \
 	serial_port.h
 
-dist_java_JAVA = $(am__append_4)
+dist_java_JAVA = $(am__append_2)
 SUBDIRS = \
-	$(OPTDIRS) \
+	canport \
 	serialport \
 	tims \
 	defines \

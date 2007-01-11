@@ -73,17 +73,6 @@ config RACK_RTNETDIR
     default "/usr/src/LiRE/rtnet"
     help
 
-config RACK_RTCAN_SUPPORT
-    bool "Enable rt_sja100 support"
-    help
-    Enable realtime CAN support for Rack.
-
-config RACK_RTCANDIR
-    string "RTcan rt_sja1000 install directory"
-    depends on RACK_RTCAN_SUPPORT
-    default "/usr/src/LiRE/rt_sja1000"
-    help
-
 config RACK_LIBRAW1394_SUPPORT
     bool "Enable libraw1394 support"
     help

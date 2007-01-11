@@ -26,9 +26,6 @@ LadarIbeo_SOURCES = \
 	ladar_ibeo.h \
 	ladar_ibeo.cpp
 
-LadarIbeo_CPPFLAGS = @RTCAN_CPPFLAGS@
-
-
 LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp

@@ -74,8 +74,8 @@
 
 #ifdef __IN_RACK__
 
-/* We build for Xenomai 2.1 or newer */
-#undef CONFIG_XENO_21X
+/* We build for Xenomai 2.3 or newer */
+#undef CONFIG_XENO_23X
 
 /* Define to 1 if you have the <cvaux.h> header file. */
 #undef HAVE_CVAUX_H

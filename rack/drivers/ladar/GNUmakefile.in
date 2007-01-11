@@ -65,7 +65,7 @@ am_LadarHokuyoUrg_OBJECTS = ladar_hokuyo_urg.$(OBJEXT)
 LadarHokuyoUrg_OBJECTS = $(am_LadarHokuyoUrg_OBJECTS)
 LadarHokuyoUrg_LDADD = $(LDADD)
 LadarHokuyoUrg_DEPENDENCIES =
-am_LadarIbeo_OBJECTS = LadarIbeo-ladar_ibeo.$(OBJEXT)
+am_LadarIbeo_OBJECTS = ladar_ibeo.$(OBJEXT)
 LadarIbeo_OBJECTS = $(am_LadarIbeo_OBJECTS)
 LadarIbeo_LDADD = $(LDADD)
 LadarIbeo_DEPENDENCIES =
@@ -173,8 +173,6 @@ CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
-CONFIG_RACK_RTCAN_SUPPORT_FALSE = @CONFIG_RACK_RTCAN_SUPPORT_FALSE@
-CONFIG_RACK_RTCAN_SUPPORT_TRUE = @CONFIG_RACK_RTCAN_SUPPORT_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
 CONFIG_RACK_RTNET_SUPPORT_TRUE = @CONFIG_RACK_RTNET_SUPPORT_TRUE@
 CONFIG_RACK_SCAN_2D_FALSE = @CONFIG_RACK_SCAN_2D_FALSE@
@@ -260,7 +258,6 @@ RACK_MODULE_EXT = @RACK_MODULE_EXT@
 RACK_SUPPORTS = @RACK_SUPPORTS@
 RACK_TARGET_ARCH = @RACK_TARGET_ARCH@
 RANLIB = @RANLIB@
-RTCAN_CPPFLAGS = @RTCAN_CPPFLAGS@
 RTNET_CPPFLAGS = @RTNET_CPPFLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -319,7 +316,6 @@ LadarIbeo_SOURCES = \
 	ladar_ibeo.h \
 	ladar_ibeo.cpp
 
-LadarIbeo_CPPFLAGS = @RTCAN_CPPFLAGS@
 LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp
@@ -415,8 +411,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LadarIbeo-ladar_ibeo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_hokuyo_urg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_ibeo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_lms200.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_s.Po@am__quote@
 
@@ -440,20 +436,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
-
-LadarIbeo-ladar_ibeo.o: ladar_ibeo.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LadarIbeo_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LadarIbeo-ladar_ibeo.o -MD -MP -MF "$(DEPDIR)/LadarIbeo-ladar_ibeo.Tpo" -c -o LadarIbeo-ladar_ibeo.o `test -f 'ladar_ibeo.cpp' || echo '$(srcdir)/'`ladar_ibeo.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LadarIbeo-ladar_ibeo.Tpo" "$(DEPDIR)/LadarIbeo-ladar_ibeo.Po"; else rm -f "$(DEPDIR)/LadarIbeo-ladar_ibeo.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ladar_ibeo.cpp' object='LadarIbeo-ladar_ibeo.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LadarIbeo_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LadarIbeo-ladar_ibeo.o `test -f 'ladar_ibeo.cpp' || echo '$(srcdir)/'`ladar_ibeo.cpp
-
-LadarIbeo-ladar_ibeo.obj: ladar_ibeo.cpp
-@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LadarIbeo_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LadarIbeo-ladar_ibeo.obj -MD -MP -MF "$(DEPDIR)/LadarIbeo-ladar_ibeo.Tpo" -c -o LadarIbeo-ladar_ibeo.obj `if test -f 'ladar_ibeo.cpp'; then $(CYGPATH_W) 'ladar_ibeo.cpp'; else $(CYGPATH_W) '$(srcdir)/ladar_ibeo.cpp'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LadarIbeo-ladar_ibeo.Tpo" "$(DEPDIR)/LadarIbeo-ladar_ibeo.Po"; else rm -f "$(DEPDIR)/LadarIbeo-ladar_ibeo.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ladar_ibeo.cpp' object='LadarIbeo-ladar_ibeo.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(LadarIbeo_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LadarIbeo-ladar_ibeo.obj `if test -f 'ladar_ibeo.cpp'; then $(CYGPATH_W) 'ladar_ibeo.cpp'; else $(CYGPATH_W) '$(srcdir)/ladar_ibeo.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
