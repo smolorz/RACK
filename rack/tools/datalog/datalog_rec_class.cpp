@@ -325,8 +325,8 @@ int DatalogRec::initLogFile()
                 case GPS:
                     ret = fprintf(fileptr[i], "%% Gps(%i)\n"
                                   "%% recordingTime mode latitude longitude"
-                                  "altitude heading speed satelliteNum utcTime pdop"
-                                  "posGK.x posGK.y posGK.z posGK.phi posGK.psi posGK.rho\n",
+                                  " altitude heading speed satelliteNum utcTime pdop"
+                                  " posGK.x posGK.y posGK.z posGK.phi posGK.psi posGK.rho\n",
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
