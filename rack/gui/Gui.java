@@ -976,8 +976,7 @@ public final class Gui extends Thread
         	mapViewFrame.setVisible(true);
         	jdp[mapViewWorkSpace].add(mapViewFrame);
         	mapViewFrame.setLocation(0, 0);
-        	mapViewFrame.setSize(850, 400);
-        	
+        	mapViewFrame.setSize(600, 400);
         }
         
         mainFrameLocationSize = getMainFrameLocationSize(cfgLines);
