@@ -70,17 +70,18 @@
 //
 
 
-#define                 DEFAULT_PORT   2000
-#define                 DEFAULT_MAX    256
+#define DEFAULT_PORT        2000
+#define DEFAULT_MAX         256
 
-unsigned int            maxMsgSize;
-unsigned int            init_flags = 0;
-unsigned int            sem_flags = 0;
-int                     terminate = 0;
-int                     tcpServerSocket = -1;
-struct sockaddr_in      tcpServerAddr;
-pthread_t               watchdogThread;
-int                     loglevel = 0;
+static unsigned int         maxMsgSize;
+static unsigned int         init_flags;
+static unsigned int         sem_flags;
+static int                  terminate;
+static int                  tcpServerSocket = -1;
+static struct sockaddr_in   tcpServerAddr;
+static pthread_t            watchdogThread;
+static int                  loglevel;
+static struct sched_param   sched_param = { .sched_priority = 1 };
 
 
 typedef struct {
@@ -773,6 +774,17 @@ int init()
     init_flags = 0;
     sem_flags  = 0;
 
+    // raise priority, will be inherited by sub-threads
+    if (sched_param.sched_priority > 0)
+    {
+        ret = sched_setscheduler(0, SCHED_FIFO, &sched_param);
+        if (ret)
+        {
+            tims_print("[INIT] ERROR: can't raise pipeSendSem\n");
+            return ret;
+        }
+    }
+
     // init all connections
     for (i = 0; i < MAX_CONNECTIONS; i++)
     {
@@ -866,6 +878,11 @@ int main(int argc, char* argv[])
                 maxMsgSize *= 1024;
                 break;
 
+            case 'P':
+                sscanf(optarg, "%i", &sched_param.sched_priority);
+                tims_dbgdetail("opt -P priority: %i\n", sched_param.sched_priority);
+                break;
+
             case 'h':
             default:
                 printf( "\n"
@@ -879,21 +896,17 @@ int main(int argc, char* argv[])
                 "-m maxMessageSize in kBytes\n"
                 "   (default: 256 kByte)\n"
                 "-l log level\n"
-                "   debug log level, 0 = silent, 1 = some important messages, 2 = verbose\n");
+                "   debug log level, 0 = silent, 1 = some important messages, 2 = verbose\n"
+                "-P RT-priority of the TimsClient\n"
+                "   (default: 1)\n");
                 return -1;
         }
     }
 
-    // parse TCP Tims Message Router ip address and port
+    // parse TCP Tims Message Router ip address
     if (tcpServerAddr.sin_addr.s_addr == INADDR_NONE)
     {
         tims_print("error: Ip %s not valid\n", ip);
-        return -1;
-    }
-
-    if ((port < 0x400) | ( port > 0xffff))
-    {
-        tims_print("error: Port %i not valid\n", port);
         return -1;
     }
 

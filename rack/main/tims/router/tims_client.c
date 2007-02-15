@@ -78,30 +78,31 @@
 #define                   DEFAULT_CFG    ""
 #define                   DEFAULT_MAX    256
 
-static unsigned int       maxMsgSize     = 0;
-static unsigned int       init_flags     = 0;
-static int                terminate      = 0;
+static unsigned int       maxMsgSize;
+static unsigned int       init_flags;
+static int                terminate;
 
 static pthread_t          tcpRecvThread;
-static int                tcpSocket      = -1;
+static int                tcpSocket = -1;
 static struct sockaddr_in tcpAddr;
 static sem_t              tcpSendSem;
 
-static int                pipeTimsToClientFd  = -1;
-static int                pipeClientToTimsFd  = -1;
+static int                pipeTimsToClientFd = -1;
+static int                pipeClientToTimsFd = -1;
 static sem_t              pipeSendSem;
 
 static tims_router_config_msg* configMsg = NULL;
 
 static pthread_t          watchdogThread;
-static int                watchdog = 0;
+static int                watchdog;
 static sem_t              watchdogSem;
 
 static tims_msg_head*     tcpRecvMsg;
 static tims_msg_head*     pipeRecvMsg;
 
-static int                loglevel = 0;
+static int                loglevel;
 static char               filename[80];
+static struct sched_param sched_param = { .sched_priority = 1 };
 
 void connection_close();
 int connection_create();
@@ -755,6 +756,19 @@ int init(char* filename)
 
     terminate = 0;
 
+    //
+    // raise priority, will be inherited by sub-threads
+    //
+    if (sched_param.sched_priority > 0)
+    {
+        ret = sched_setscheduler(0, SCHED_FIFO, &sched_param);
+        if (ret)
+        {
+            tims_print("[INIT] ERROR: can't raise pipeSendSem\n");
+            return ret;
+        }
+    }
+
     tims_dbg("[INIT] MaxMsgSize %u kByte\n", maxMsgSize/1024);
 
     tims_dbgdetail("[INIT] now the Pipes to TIMS will be opened.\n"
@@ -883,6 +897,11 @@ int main(int argc, char* argv[])
                 tims_dbgdetail("opt -c config filename: %s\n", filename);
                 break;
 
+            case 'P':
+                sscanf(optarg, "%i", &sched_param.sched_priority);
+                tims_dbgdetail("opt -P priority: %i\n", sched_param.sched_priority);
+                break;
+
             case 'h':
 
             default:
@@ -891,30 +910,26 @@ int main(int argc, char* argv[])
                 "between the TIMS kernel module tims.o and the TimsRouterTcp\n"
                 "\n"
                 "-i IP address of the TimsRouterTcp\n"
-                "   (default 127.0.0.1 localhost)\n"
+                "   (default: localhost)\n"
                 "-p port of the TimsRouterTcp\n"
-                "   (default 2000)\n"
+                "   (default: 2000)\n"
                 "-m maxMessageSize in kBytes\n"
-                "   (default 256 kByte)\n"
+                "   (default: 256 kByte)\n"
                 "-c config filename\n"
                 "   only needed for distributed real-time communication via RTnet\n"
                 "-l log level\n"
-                "   debug log level, 0 = silent, 1 = some important messages, 2 = verbose\n");
+                "   0 = silent (default), 1 = important messages, 2 = verbose\n"
+                "-P RT-priority of the TimsClient\n"
+                "   (default: 1)\n");
 
                 return -1;
         }
     }
 
-    // parse TCPTimsMsgRouter ip address and port
+    // parse TCPTimsMsgRouter ip address
     if ((tcpAddr.sin_addr.s_addr = inet_addr(ip)) == INADDR_NONE)
     {
         tims_print("error: Ip %s not valid\n", ip);
-        return -1;
-    }
-
-    if ((port < 0x400) | ( port > 0xffff))
-    {
-        tims_print("error: Port %i not valid\n", port);
         return -1;
     }
 
