@@ -989,6 +989,11 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].maxDataLen = sizeof(odometry_data);
     num++;
 
+    data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "odometry_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(odometry_data);
+    num++;
+
     data->logInfo[num].moduleMbx = RackName::create(PILOT, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_0.dat");
     data->logInfo[num].maxDataLen = sizeof(pilot_data) +
