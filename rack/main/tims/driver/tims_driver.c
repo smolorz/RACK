@@ -1480,7 +1480,7 @@ static void tims_clean_mailbox(tims_ctx *p_ctx)
 
 int rt_tims_ioctl(struct rtdm_dev_context *context,
                   rtdm_user_info_t *user_info,
-                  int request,
+                  unsigned int request,
                   void *arg)
 {
     tims_ctx*               p_ctx   = NULL;
