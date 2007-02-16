@@ -86,11 +86,8 @@ int GpsNmea::moduleOn(void)
     // set rx timeout 2 * periodTime in ns
     serialPort.setRxTimeout((int64_t)periodTime * 2000000llu);
 
-    // reset values
-    msgCounter = -1;
-    msgNum     = -1;
-
-    lastRecordingTime = rackTime.get();
+    // set values
+    gpsData.recordingTime = rackTime.get();
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -106,80 +103,117 @@ int GpsNmea::moduleLoop(void)
 {
     gps_data*       p_data;
     gps_nmea_pos_3d posLLA, posGK;
-    int ret;
-
+    int             nmeaMsg = -1;
+    int             ret;
 
     // get datapointer from rackdatabuffer
     p_data = (gps_data *)getDataBufferWorkSpace();
-
 
     // read next NMEA message
     ret = readNMEAMessage();
 
     if (!ret)
     {
-        // RMC - Message
+        // decode NMEA message type
         if (strstr(&nmea.data[0], "GPRMC") != NULL)
         {
-            if (trigMsg == RMC_MESSAGE)
+            nmeaMsg = RMC_MSG;
+        }
+        if (strstr(&nmea.data[0], "GPGGA") != NULL)
+        {
+            nmeaMsg = GGA_MSG;
+        }
+        if (strstr(&nmea.data[0], "GPGSA") != NULL)
+        {
+            nmeaMsg = GSA_MSG;
+        }
+        if (strstr(&nmea.data[0], "VTG") != NULL)
+        {
+            nmeaMsg = VTG_MSG;
+        }
+
+        // write package if a complete dataset is read
+        if (nmeaMsg == trigMsg)
+        {
+            // calculate global position and orientation in Gauss-Krueger coordinates
+            posLLA.x = gpsData.latitude;
+            posLLA.y = gpsData.longitude;
+            posLLA.z = gpsData.altitude / 1000.0;
+
+            posWGS84ToGK(&posLLA, &posGK);
+
+            gpsData.posGK.phi     = 0.0f;
+            gpsData.posGK.psi     = 0.0f;
+            gpsData.posGK.rho     = atan2(posGK.x - posGKOld.x, posGK.y - posGKOld.y);
+            memcpy(&posGKOld, &posGK, sizeof(gps_nmea_pos_3d));
+
+            GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f posGK.rho %a speed %i satNum %i\n",
+                           posGK.x, posGK.y, posGK.z, gpsData.posGK.rho,
+                           gpsData.speed, gpsData.satelliteNum);
+
+            // subtract local position offset
+            if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
             {
-                if (msgCounter > 0)
-                {
-                    msgNum = msgCounter;
-                }
-                msgCounter = 0;
+                gpsData.posGK.x = (int)rint((posGK.x -
+                                            (double)posGKOffsetX) * 1000.0);
             }
 
-            if ((analyseRMC(p_data) == 0) && (msgCounter >= 0))
+            if (fabs(posGK.y - (double)posGKOffsetY) < 2000000.0)
             {
-                p_data->recordingTime = nmea.recordingTime;
-
-                msgCounter++;
-                GDOS_DBG_DETAIL("received RMC message, counter=%i, RecordingTime %i\n", msgCounter, nmea.recordingTime);
+                gpsData.posGK.y = (int)rint((posGK.y -
+                                            (double)posGKOffsetY) * 1000.0);
             }
 
+            if (fabs(posGK.z) < 2000000000.0)
+            {
+                gpsData.posGK.z = (int)rint(posGK.z * 1000.0);
+            }
+
+            memcpy(p_data, &gpsData, sizeof(gps_data));
+            putDataBufferWorkSpace(sizeof(gps_data));
+
+            gpsData.recordingTime = nmea.recordingTime;
+        }
+
+        // RMC - Message
+        if (nmeaMsg == RMC_MSG)
+        {
+            if (analyseRMC(&gpsData) == 0)
+            {
+                GDOS_DBG_DETAIL("received RMC message, recordingTime %i\n", nmea.recordingTime);
+            }
         }
 
         // GGA - Message
-        else if (strstr(&nmea.data[0], "GPGGA") != NULL)
+        else if (nmeaMsg == GGA_MSG)
         {
-            if (trigMsg == GGA_MESSAGE)
+            if (analyseGGA(&gpsData) == 0)
             {
-                if (msgCounter > 0)
-                {
-                    msgNum = msgCounter;
-                }
-                msgCounter = 0;
-            }
-
-            if ((analyseGGA(p_data) == 0) && (msgCounter >= 0))
-            {
-                msgCounter++;
-                GDOS_DBG_DETAIL("received GGA message, counter=%i, RecordingTime %i\n", msgCounter, nmea.recordingTime);
+                GDOS_DBG_DETAIL("received GGA message, recordingTime %i\n", nmea.recordingTime);
             }
         }
 
         // GSA - Message
-        else if (strstr(&nmea.data[0], "GPGSA") != NULL)
+        else if (nmeaMsg == GSA_MSG)
         {
-            if (trigMsg == GSA_MESSAGE)
+            if (analyseGSA(&gpsData) == 0)
             {
-                if (msgCounter > 0)
-                {
-                    msgNum = msgCounter;
-                }
-                msgCounter = 0;
+                GDOS_DBG_DETAIL("received GSA message, recordingTime %i\n", nmea.recordingTime);
             }
-            if ((analyseGSA(p_data) == 0) && (msgCounter >= 0))
+        }
+
+        // VTG - Message
+        else if (nmeaMsg == VTG_MSG)
+        {
+            if (analyseVTG(&gpsData) == 0)
             {
-                msgCounter++;
-                GDOS_DBG_DETAIL("received GSA message, counter=%i, RecordingTime %i\n", msgCounter, nmea.recordingTime);
+                GDOS_DBG_DETAIL("received VTG message, recordingTime %i\n", nmea.recordingTime);
             }
         }
 
         else
         {
-            GDOS_DBG_DETAIL("received unknown message, RecordingTime %i\n", nmea.recordingTime);
+            GDOS_DBG_DETAIL("received unknown message, recordingTime %i\n", nmea.recordingTime);
         }
     }
     else
@@ -187,76 +221,30 @@ int GpsNmea::moduleLoop(void)
         GDOS_WARNING("Can't read data from serial device %i, code %i\n", serialDev, ret);
     }
 
-    // write package if a complete dataset is read
-    if ((msgNum > 0) && (msgCounter == msgNum))
+
+    if(((int)rackTime.get() - (int)gpsData.recordingTime) >= (1.5 * (int)periodTime))
     {
-        // calculate global position in Gauss-Krueger coordinates
-        posLLA.x = p_data->latitude;
-        posLLA.y = p_data->longitude;
-        posLLA.z = p_data->altitude / 1000.0;
+        GDOS_DBG_DETAIL("no position fix available or invalid trigger message\n");
 
-        posWGS84ToGK(&posLLA, &posGK);
-        GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f heading %a speed %i satNum %i\n",
-                       posGK.x, posGK.y, posGK.z, p_data->heading, p_data->speed, p_data->satelliteNum);
+        gpsData.recordingTime = rackTime.get();
+        gpsData.mode          = 1;
+        gpsData.latitude      = 0.0;
+        gpsData.longitude     = 0.0;
+        gpsData.altitude      = 0;
+        gpsData.heading       = 0.0f;
+        gpsData.speed         = 0;
+        gpsData.satelliteNum  = 0;
+        gpsData.utcTime       = 0;
+        gpsData.pdop          = 0.0f;
+        gpsData.posGK.x       = 0;
+        gpsData.posGK.y       = 0;
+        gpsData.posGK.z       = 0;
+        gpsData.posGK.phi     = 0.0f;
+        gpsData.posGK.psi     = 0.0f;
+        gpsData.posGK.rho     = 0.0f;
 
-        p_data->posGK.phi     = 0.0f;
-        p_data->posGK.psi     = 0.0f;
-        p_data->posGK.rho     = p_data->heading;
-
-        // subtract local position offset
-        if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
-        {
-            p_data->posGK.x = (int)rint((posGK.x -
-                                        (double)posGKOffsetX) * 1000.0);
-        }
-
-        if (fabs(posGK.y - (double)posGKOffsetY) < 2000000.0)
-        {
-            p_data->posGK.y = (int)rint((posGK.y -
-                                        (double)posGKOffsetY) * 1000.0);
-        }
-
-        if (fabs(posGK.z) < 2000000000.0)
-        {
-            p_data->posGK.z = (int)rint(posGK.z * 1000.0);
-        }
-
-        msgCounter = 0;
-
-        lastRecordingTime = p_data->recordingTime;
-
+        memcpy(p_data, &gpsData, sizeof(gps_data));
         putDataBufferWorkSpace(sizeof(gps_data));
-    }
-    else
-    {
-        if(((int)rackTime.get() - (int)lastRecordingTime) >= (1.5 * (int)periodTime))
-        {
-            GDOS_DBG_DETAIL("no position fix available\n");
-
-            p_data->recordingTime = rackTime.get();
-            p_data->mode          = 1;
-            p_data->latitude      = 0.0;
-            p_data->longitude     = 0.0;
-            p_data->altitude      = 0;
-            p_data->heading       = 0.0f;
-            p_data->speed         = 0;
-            p_data->satelliteNum  = 0;
-            p_data->utcTime       = 0;
-            p_data->pdop          = 0.0f;
-            p_data->posGK.x       = 0;
-            p_data->posGK.y       = 0;
-            p_data->posGK.z       = 0;
-            p_data->posGK.phi     = 0.0f;
-            p_data->posGK.psi     = 0.0f;
-            p_data->posGK.rho     = 0.0f;
-
-            msgCounter = -1;
-            msgNum     = -1;
-
-            lastRecordingTime = p_data->recordingTime;
-
-            putDataBufferWorkSpace(sizeof(gps_data));
-        }
     }
 
     return 0;
@@ -376,92 +364,92 @@ int GpsNmea::analyseRMC(gps_data *data)
     unsigned char   checksum;
     int             pos, i, j;
     int             date;
-    float           fNum, time;
+    float           fNum, utcTime;
     double          dNum;
 
-      // Initalisation of local variables
-      i = 0;
-      currChar   = 0;
-      checksum   = 0;
-      pos        = 0;
+    // Initalisation of local variables
+    i = 0;
+    currChar   = 0;
+    checksum   = 0;
+    pos        = 0;
 
-      // Decode message, until checksum delimiter or timeout condition is reached
-      while ((i <= 14) && (currChar != '*'))
-      {
-          // Decode message-part (max. 20 chars per part)
-          for (j = 0; j < 20; j++)
-          {
+    // Decode message, until checksum delimiter or timeout condition is reached
+    while ((i <= 14) && (currChar != '*'))
+    {
+        // Decode message-part (max. 20 chars per part)
+        for (j = 0; j < 20; j++)
+        {
             // read next char
             currChar = nmea.data[pos];
             pos++;
 
             // calc new checksum until checksum delimiter is reached
             if (currChar != '*')
-                   checksum = checksum ^ currChar;
+                checksum = checksum ^ currChar;
 
-              // save character if current char is no delimiter
-              if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
-              {
-                  buffer[j] = 0;
-                  break;
-              }
-              else
-                  buffer[j]  = currChar;
-          }
+            // save character if current char is no delimiter
+            if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
+            {
+                buffer[j] = 0;
+                break;
+            }
+            else
+                buffer[j]  = currChar;
+        }
 
-          // Decode message
-          switch(i)
-          {
+        // Decode message
+        switch(i)
+        {
             // UTC-Time [hhmmss.dd]
             case 1:
-                sscanf(buffer, "%f", &time);
+                sscanf(buffer, "%f", &utcTime);
                 break;
 
-              // Latitude [xxmm.dddd]
-              case 3:
-                  sscanf(buffer, "%lf", &dNum);
-                  data->latitude = degHMStoRad(dNum);
-                  break;
+            // Latitude [xxmm.dddd]
+            case 3:
+                sscanf(buffer, "%lf", &dNum);
+                data->latitude = degHMStoRad(dNum);
+                break;
 
-              // Latitude north / south adjustment [N|S]
-              case 4:
-                  if (buffer[0] == 'S')
-                       data->latitude *= -1.0;
-                  break;
+            // Latitude north / south adjustment [N|S]
+            case 4:
+                if (buffer[0] == 'S')
+                    data->latitude *= -1.0;
+                break;
 
-              // Longitude [yyymm.dddd]
-              case 5:
-                  sscanf(buffer, "%lf", &dNum);
-                  data->longitude = degHMStoRad(dNum);
-                  break;
+            // Longitude [yyymm.dddd]
+            case 5:
+                sscanf(buffer, "%lf", &dNum);
+                data->longitude = degHMStoRad(dNum);
+                break;
 
-              // Longitude east / west adjustment [E|W]
-              case 6:
-                   if (buffer[0] == 'W')
-                       data->longitude *= -1.0;
-                  break;
+            // Longitude east / west adjustment [E|W]
+            case 6:
+                if (buffer[0] == 'W')
+                    data->longitude *= -1.0;
+                break;
 
-              // Speed [s.s]
-              case 7:
+            // Speed [s.s]
+            case 7:
                 sscanf(buffer, "%f", &fNum);
-                   data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
-                  break;
+                data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
+                break;
 
-              // Heading[h.h]
-              case 8:
+            // Heading[h.h]
+            case 8:
                 sscanf(buffer, "%f", &fNum);
-                   data->heading = fNum * M_PI / 180.0;
-                  break;
+                data->heading = fNum * M_PI / 180.0;
+                break;
 
             // Date [ddmmyy]
             case 9:
                 sscanf(buffer, "%d", &date);
-                data->utcTime = toCalendarTime(time, date);
+                data->utcTime = toCalendarTime(utcTime, date);
                 break;
 
-              default:
-                  break;
-          }
+            default:
+                break;
+        }
         i++;
     }
 
@@ -510,89 +498,84 @@ int GpsNmea::analyseRMC(gps_data *data)
 *******************************************************************************/
 int GpsNmea::analyseGGA(gps_data *data)
 {
-    char             buffer[20];
-      char            currChar;
-      unsigned char   checksum;
-      int             pos, i, j;
-    float           fNum, utcTime;
+    char            buffer[20];
+    char            currChar;
+    unsigned char   checksum;
+    int             pos, i, j;
+    float           fNum;
     double          dNum;
 
-      // Initalisation of local variables
-      i = 0;
-      currChar   = 0;
-      checksum   = 0;
-      pos        = 0;
+    // Initalisation of local variables
+    i = 0;
+    currChar   = 0;
+    checksum   = 0;
+    pos        = 0;
 
-      // Decode message, until checksum delimiter or timeout condition is reached
-      while ((i <= 16) && (currChar != '*'))
-      {
-         // Decode message-part (max. 20 chars per part)
-         for (j = 0; j < 20; j++)
-          {
+    // Decode message, until checksum delimiter or timeout condition is reached
+    while ((i <= 16) && (currChar != '*'))
+    {
+        // Decode message-part (max. 20 chars per part)
+        for (j = 0; j < 20; j++)
+        {
             // read next char
             currChar = nmea.data[pos];
             pos++;
 
             // calc new checksum until checksum delimiter is reached
             if (currChar != '*')
-                   checksum = checksum ^ currChar;
+                checksum = checksum ^ currChar;
 
-              // save character if current char is no delimiter
-              if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
-              {
-                  buffer[j] = 0;
-                  break;
-              }
-              else
-                  buffer[j]  = currChar;
-          }
+            // save character if current char is no delimiter
+            if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
+            {
+                buffer[j] = 0;
+                break;
+            }
+            else
+                buffer[j]  = currChar;
+        }
 
-          // Decode message
-          switch(i)
-          {
-              // UTC time [hhmmss.dd]
-              case 1:
-                  sscanf(buffer, "%f", &utcTime);
-                  break;
+        // Decode message
+        switch(i)
+        {
+            // Latitude [xxmm.dddd]
+            case 2:
+                sscanf(buffer, "%lf", &dNum);
+                data->latitude = degHMStoRad(dNum);
+                break;
 
-              // Latitude [xxmm.dddd]
-              case 2:
-                  sscanf(buffer, "%lf", &dNum);
-                  data->latitude = degHMStoRad(dNum);
-                  break;
+            // Latitude north / south adjustment [N|S]
+            case 3:
+                if (buffer[0] == 'S')
+                    data->latitude *= -1.0;
+                break;
 
-              // Latitude north / south adjustment [N|S]
-              case 3:
-                   if (buffer[0] == 'S')
-                       data->latitude *= -1.0;
-                  break;
+            // Longitude [yyymm.dddd]
+            case 4:
+                sscanf(buffer, "%lf", &dNum);
+                data->longitude = degHMStoRad(dNum);
+                break;
 
-              // Longitude [yyymm.dddd]
-              case 4:
-                  sscanf(buffer, "%lf", &dNum);
-                  data->longitude = degHMStoRad(dNum);
-                  break;
+            // Longitude east / west adjustment [E|W]
+            case 5:
+                if (buffer[0] == 'W')
+                    data->longitude *= -1.0;
+                break;
 
-              // Longitude east / west adjustment [E|W]
-              case 5:
-                   if (buffer[0] == 'W')
-                      data->longitude *= -1.0;
-                  break;
-
-               // Number of satellites used in position fix
-              case 7:
+            // Number of satellites used in position fix
+            case 7:
                 sscanf(buffer, "%d", &data->satelliteNum);
-                  break;
+                break;
 
-              // Altitude [h.h]
-              case 9:
+            // Altitude [h.h]
+            case 9:
                 sscanf(buffer, "%f", &fNum);
                 data->altitude = (int)rint(fNum * 1000.0f);     // in mm
-                  break;
+                break;
 
-              default:
-                  break;
-          }
+            default:
+                break;
+        }
 
         i++;
     }
@@ -603,16 +586,16 @@ int GpsNmea::analyseGGA(gps_data *data)
         if (strtol(&nmea.data[pos], NULL, 16) == checksum)
             return 0;
         else
-          {
-              GDOS_ERROR("GGA: Wrong checksum\n");
-                return -EINVAL;
-          }
-      }
-      else
-      {
-          GDOS_ERROR("GGA: Wrong NMEA-format\n");
+        {
+            GDOS_ERROR("GGA: Wrong checksum\n");
             return -EINVAL;
-      }
+        }
+    }
+    else
+    {
+        GDOS_ERROR("GGA: Wrong NMEA-format\n");
+        return -EINVAL;
+    }
 }
 
 
@@ -644,57 +627,57 @@ int GpsNmea::analyseGGA(gps_data *data)
 ******************************************************************************/
 int GpsNmea::analyseGSA(gps_data *data)
 {
-    char             buffer[20];
-      char            currChar;
-      unsigned char   checksum;
-      int             pos, i, j;
+    char            buffer[20];
+    char            currChar;
+    unsigned char   checksum;
+    int             pos, i, j;
 
-      // Initalisation of local variables
-      i = 0;
-      currChar   = 0;
-      checksum   = 0;
-      pos        = 0;
+    // Initalisation of local variables
+    i = 0;
+    currChar   = 0;
+    checksum   = 0;
+    pos        = 0;
 
-      // Decode message, until checksum delimiter or timeout condition is reached
-      while ((i <= 19) && (currChar != '*'))
-      {
-         // Decode message-part (max. 20 chars per part)
-         for (j = 0; j < 20; j++)
-          {
+    // Decode message, until checksum delimiter or timeout condition is reached
+    while ((i <= 19) && (currChar != '*'))
+    {
+        // Decode message-part (max. 20 chars per part)
+        for (j = 0; j < 20; j++)
+        {
             // read next char
             currChar = nmea.data[pos];
             pos++;
 
             // calc new checksum until checksum delimiter is reached
             if (currChar != '*')
-                   checksum = checksum ^ currChar;
+                checksum = checksum ^ currChar;
 
-              // save character if current char is no delimiter
-              if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
-              {
-                  buffer[j] = 0;
-                  break;
-              }
-              else
-                  buffer[j]  = currChar;
-          }
+            // save character if current char is no delimiter
+            if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
+            {
+                buffer[j] = 0;
+                break;
+            }
+            else
+                buffer[j]  = currChar;
+        }
 
-          // Decode message
-          switch(i)
-          {
+        // Decode message
+        switch(i)
+        {
             // Mode (1 = fix not valid / 2 = 2D / 3 = 3D)
             case 2:
                 sscanf(buffer, "%d", &data->mode);
-                  break;
+                break;
 
-              // PDOP
-              case 15:
+            // PDOP
+            case 15:
                 sscanf(buffer, "%f", &data->pdop);
-                  break;
+                break;
 
-               default:
-                  break;
-          }
+            default:
+                break;
+        }
         i++;
     }
 
@@ -704,16 +687,116 @@ int GpsNmea::analyseGSA(gps_data *data)
         if (strtol(&nmea.data[pos], NULL, 16) == checksum)
             return 0;
         else
-          {
-              GDOS_ERROR("GSA: Wrong checksum\n");
-                return -EINVAL;
-          }
-      }
-      else
-      {
-          GDOS_ERROR("GSA: Wrong NMEA-format\n");
+        {
+            GDOS_ERROR("GSA: Wrong checksum\n");
             return -EINVAL;
-      }
+        }
+    }
+    else
+    {
+        GDOS_ERROR("GSA: Wrong NMEA-format\n");
+        return -EINVAL;
+    }
+}
+
+
+/*****************************************************************************
+* This function analyses the "VTG"-Message.                                  *
+*                                                                            *
+*  0:    GPVTG                     Protokoll header                          *
+*  1:    h.h                       Heading                                   *
+*  2:    T                         Degrees (heading units)                   *
+*  3:    m.m                       Magnetic heading                          *
+*  4:    M                         Degrees (magnetic heading units)          *
+*  5:    s.s                       Speed knots                               *
+*  6:    N                         Knots (speed unit)                        *
+*  7:    s.s                       Speed km/h                                *
+*  8:    K                         Km/h (speed unit)                         *
+*  9:    M                         Mode indicator                            *
+* 18:    Checksum                                                            *
+* 19:    <CR LF>                                                             *
+******************************************************************************/
+int GpsNmea::analyseVTG(gps_data *data)
+{
+    char            buffer[20];
+    char            currChar;
+    unsigned char   checksum;
+    int             pos, i, j;
+    float           fNum;
+
+    // Initalisation of local variables
+    i = 0;
+    currChar   = 0;
+    checksum   = 0;
+    pos        = 0;
+
+    // Decode message, until checksum delimiter or timeout condition is reached
+    while ((i <= 19) && (currChar != '*'))
+    {
+        // Decode message-part (max. 20 chars per part)
+        for (j = 0; j < 20; j++)
+        {
+            // read next char
+            currChar = nmea.data[pos];
+            pos++;
+
+            // calc new checksum until checksum delimiter is reached
+            if (currChar != '*')
+                checksum = checksum ^ currChar;
+
+            // save character if current char is no delimiter
+            if ((currChar == ',') || (currChar == '*') || (currChar == 0x0D))
+            {
+                buffer[j] = 0;
+                break;
+            }
+            else
+                buffer[j]  = currChar;
+        }
+
+        // Decode message
+        switch(i)
+        {
+            // Heading[h.h]
+            case 1:
+                sscanf(buffer, "%f", &fNum);
+                data->heading = fNum * M_PI / 180.0;
+                break;
+
+            // Speed [s.s]
+            case 5:
+                sscanf(buffer, "%f", &fNum);
+                data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
+                break;
+
+            // Speed [s.s]
+            case 7:
+                sscanf(buffer, "%f", &fNum);
+                data->speed = (int)rint(fNum * 1000.0);
+                break;
+
+            default:
+                break;
+        }
+        i++;
+    }
+
+    // compare checksum
+    if (currChar == '*')
+    {
+        if (strtol(&nmea.data[pos], NULL, 16) == checksum)
+            return 0;
+        else
+        {
+            GDOS_ERROR("GSA: Wrong checksum\n");
+            return -EINVAL;
+        }
+    }
+    else
+    {
+        GDOS_ERROR("GSA: Wrong NMEA-format\n");
+        return -EINVAL;
+    }
 }
 
 

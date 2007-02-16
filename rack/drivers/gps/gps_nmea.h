@@ -25,9 +25,10 @@
 // define module class
 #define MODULE_CLASS_ID                     GPS
 
-#define RMC_MESSAGE 0
-#define GGA_MESSAGE 1
-#define GSA_MESSAGE 2
+#define RMC_MSG 0
+#define GGA_MSG 1
+#define GSA_MSG 2
+#define VTG_MSG 3
 
 #define KNOTS_TO_MS 0.5144456334
 
@@ -51,23 +52,24 @@ typedef struct
 
 class GpsNmea : public RackDataModule {
     private:
-        int         serialDev;
-        int         periodTime;
-        int         trigMsg;
-        int         posGKOffsetX;
-        int         posGKOffsetY;
-        int         msgCounter;
-        int         msgNum;
-        rack_time_t lastRecordingTime;
-        SerialPort  serialPort;
+        int             serialDev;
+        int             periodTime;
+        int             trigMsg;
+        int             posGKOffsetX;
+        int             posGKOffsetY;
 
-        gps_nmea    nmea;
+        rack_time_t     lastRecordingTime;
+        SerialPort      serialPort;
+        gps_nmea        nmea;
+        gps_nmea_pos_3d posGKOld;
+        gps_data        gpsData;
 
         // -> realtime context
         int readNMEAMessage();
         int analyseRMC(gps_data *data);
         int analyseGGA(gps_data *data);
         int analyseGSA(gps_data *data);
+        int analyseVTG(gps_data *data);
 
         double degHMStoRad(double degHMS);
         long    toCalendarTime(float time, int date);
