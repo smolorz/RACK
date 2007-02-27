@@ -98,7 +98,7 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
     rowNum = maxRow - minRow; 
     uDiff = 0; 
     vDiff = 0;
-    diffPoints = (colNum*rowNum) / 4;//for real size /2 would fit the additional /2 is for controller speed up
+    diffPoints = (colNum*rowNum);// / 2;//for real size /2 would fit the additional /2 is for controller speed up
     
     switch(dataPackage->data.mode) {
     case CAMERA_MODE_YUV422:
@@ -542,7 +542,13 @@ int CameraDcam::setupCaptureFormat7()
     if (CAMERA_MAX_WIDTH < 1280 || CAMERA_MAX_HEIGHT < 960) //##tobe replaced by a dynamic call
     {
         GDOS_ERROR("Size parameter set too small in camera.h!! EXITING! \n");
-        return ENOMEM;
+        return -ENOMEM;
+    }
+
+    if (lossRate < 1) 
+    {
+        GDOS_ERROR("Lossrate must not be less than 1!! EXITING! \n");
+        return -EINVAL;
     }
 
     RackTask::disableRealtimeMode();
@@ -853,20 +859,21 @@ CameraDcam::CameraDcam()
                       10)                   // data buffer listener
 {
     // get value(s) out of your argument table
-    format             = FORMAT_SVGA_NONCOMPRESSED_2;
-    frameRate        = FRAMERATE_7_5; // only used in continuous grabbing mode (con. iso transmission, not implemented yet.)
+    format              = FORMAT_SVGA_NONCOMPRESSED_2;
+    frameRate           = FRAMERATE_7_5; // only used in continuous grabbing mode (con. iso transmission, not implemented yet.)
                                          // not used in singleshot opiton! Must be set in protocol.
-    device             =  "/dev/video1394"; // only possible with only one device!
+    device              = "/dev/video1394"; // only possible with only one device!
+    cameraGuid          = getIntArg("cameraGuid", argTab);
     mode                = getIntArg("mode", argTab);
                         //bytesPerPixel[i]    included in mode
     vValue              = getIntArg("vValue", argTab);
-    uValue               = getIntArg("uValue", argTab);
+    uValue              = getIntArg("uValue", argTab);
     minHue              = getIntArg("minHue", argTab);
-    maxHue               = getIntArg("maxHue", argTab);
-    gainMult              = getIntArg("gainMult", argTab);
+    maxHue              = getIntArg("maxHue", argTab);
+    gainMult            = getIntArg("gainMult", argTab);
     shutterMult         = getIntArg("shutterMult", argTab);
     lossRate            = getIntArg("lossrate", argTab);
-    autoBrightnessSize    = getIntArg("autoBrightnessSize", argTab);
+    autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
     whitebalanceRows    = getIntArg("whitebalanceRows", argTab);
     whitebalanceCols    = getIntArg("whitebalanceCols", argTab);
 
