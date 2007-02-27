@@ -538,20 +538,14 @@ int CameraDcam::setupCaptureFormat7()
  int CameraDcam::moduleOn(void)
 {
     unsigned int uvValue, uuValue;
-    //need to get max size of image from this camera and also set dataBuffer according
-    if (CAMERA_MAX_WIDTH < 1280 || CAMERA_MAX_HEIGHT < 960) //##tobe replaced by a dynamic call
-    {
-        GDOS_ERROR("Size parameter set too small in camera.h!! EXITING! \n");
-        return -ENOMEM;
-    }
 
+    RackTask::disableRealtimeMode();
+    
     if (lossRate < 1) 
     {
         GDOS_ERROR("Lossrate must not be less than 1!! EXITING! \n");
         return -EINVAL;
     }
-
-    RackTask::disableRealtimeMode();
 
     if ( getFirewirePortnum() != DC1394_SUCCESS)
         return FW_ERROR;
@@ -590,6 +584,13 @@ int CameraDcam::setupCaptureFormat7()
         return -EINVAL;
     }
 
+    //need to get max size of image from this camera and also set dataBuffer according
+    if (CAMERA_MAX_WIDTH   < (dc1394Camera.frame_width   / lossRate) || 
+        CAMERA_MAX_HEIGHT  < (dc1394Camera.frame_height  / lossRate) ) 
+    {
+        GDOS_ERROR("Size parameter set too small in camera.h!! EXITING! \n");
+        return -ENOMEM;
+    }
 
    /*-----------------------------------------------------------------------
     *  have the camera start sending us data
