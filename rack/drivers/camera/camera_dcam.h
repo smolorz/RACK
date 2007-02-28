@@ -24,8 +24,6 @@
 #include <libraw1394/raw1394.h>//firewire bus
 #include <libdc1394/dc1394_control.h>//iidc 1.30 or dcam standard
 
-#include "ww_b4_calibration_parameter_lr2.h"
-
 //helper construct for format7 specification
 typedef struct {
     int leftImagePosition;
@@ -74,6 +72,8 @@ class CameraDcam : public RackDataModule {
     int      shutterMult;
     int      gainMult;
     int      autoBrightnessSize;
+    char     *intrParFile;
+    char     *extrParFile;
 
     //variables needed for initial handling of the firewire bus system.
     int                     firewireNumPorts;
@@ -90,6 +90,8 @@ class CameraDcam : public RackDataModule {
     unsigned int            speed;
     char*                   device;
     camera_dcam_format7     format7image;
+    camera_param_data       param;
+
 
     int autoBrightness(camera_data_msg *dataPackage);
     int autoWhitebalance(camera_data_msg *dataPackage);
@@ -97,6 +99,8 @@ class CameraDcam : public RackDataModule {
     int findCameraByGuid(void);
     int setupCaptureFormat2(void);
     int setupCaptureFormat7(void);
+    int loadCameraParameter(camera_param_data *parData, char *intrParFilename, const int lossrate, char *extrParFilename);
+    int parseParameterfile(char *filenameBuffer, camera_param_data *parData);
 
   protected:
 

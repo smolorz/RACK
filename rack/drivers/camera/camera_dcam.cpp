@@ -59,32 +59,19 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "autoBrightnessSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Button part of autobrightness part of image", { 1 } },
 
+    { ARGOPT_REQ, "intrParFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
+      "filename of intrinsic parameter file to load without extension, i.e. 'ww_b4_intrinsic_calibration_parameter'", { 0 } },
+
+    { ARGOPT_OPT, "extrParFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
+      "filename of extrinsic parameter file to load without extension, i.e. 'basler_Erika_extrinsic_fixedTo3dScanner'", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
-
-camera_param_data param = {
-        calibration_width  : CALIBRATION_WIDTH,
-        calibration_height : CALIBRATION_HEIGHT,
-        f   : F,
-        fx  : F_x,
-        fy  : F_y,
-        sx  : S_x,
-        sy  : S_y,
-        dx  : D_x,
-        dy  : D_y,
-        k1  : K1,
-        k2  : K2,
-        p1  : P1,
-        p2  : P2,
-        e0  : E0,
-        n0  : N0,
-};
-
 
 //*** Method for automatic adaption of the lumination color****//
 int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
 {
-    int minRow, maxRow, minCol, maxCol, rowNum, colNum; 
+    int minRow, maxRow, minCol, maxCol, rowNum, colNum;
     int i, j, sourceIndex;
     double uDiff, vDiff, diffPoints;
     unsigned int uvValue, uuValue;
@@ -94,12 +81,12 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
     minRow = 1;
     maxRow = 1 + whitebalanceRows;
 
-    colNum = maxCol - minCol; 
-    rowNum = maxRow - minRow; 
-    uDiff = 0; 
+    colNum = maxCol - minCol;
+    rowNum = maxRow - minRow;
+    uDiff = 0;
     vDiff = 0;
     diffPoints = (colNum*rowNum);// / 2;//for real size /2 would fit the additional /2 is for controller speed up
-    
+
     switch(dataPackage->data.mode) {
     case CAMERA_MODE_YUV422:
         //UYVY
@@ -108,28 +95,28 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
                 //2 bytes pro pixel
                 //take 0.th byte from pixel
                 sourceIndex = ((i+minRow)*dataPackage->data.width+j+minCol);
-                
-                if (sourceIndex%2 == 0) 
+
+                if (sourceIndex%2 == 0)
                 {
                     uDiff += (dataPackage->byteStream[sourceIndex*2]-128);
-                }else 
+                }else
                 {
                     vDiff += (dataPackage->byteStream[sourceIndex*2]-128);
-                }                                
+                }
             }
         }
-        
+
         //GDOS_DBG_INFO("auto white balance uDiff:%i vDiff:%i points:%i!\n", (int)uDiff, (int)vDiff, (int)diffPoints);
-        
-        uDiff = round(uDiff / diffPoints); 
-        vDiff = round(vDiff / diffPoints); 
-        
+
+        uDiff = round(uDiff / diffPoints);
+        vDiff = round(vDiff / diffPoints);
+
         if (dc1394_get_white_balance(porthandle[dc1394CameraPortNo], camera_node, &uuValue, &uvValue) != DC1394_SUCCESS)
         {
             GDOS_WARNING("getting of white balance failed! ");
             return DC1394_FAILURE;
         }
-    
+
         GDOS_DBG_INFO("settings of auto white balance actual u:%i v:%i + uDiff:%i vDiff:%i!\n", uuValue, uvValue, (int)uDiff,(int)vDiff);
 
         uvValue -= (int) vDiff;
@@ -148,11 +135,11 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
         {
             GDOS_WARNING("setting of auto white balance failed u:%i v:%i!\n", uuValue, uvValue);
             return DC1394_FAILURE;
-        }        
-        break;        
+        }
+        break;
     default:
         GDOS_WARNING("Whitebalance not implemented for this color mode.");
-    }    
+    }
     return DC1394_SUCCESS;
 }
 
@@ -181,7 +168,7 @@ int CameraDcam::autoBrightness(camera_data_msg *dataPackage)
 
     for(i = start; i < count; i += bytesPerPixel)
     {
-        if((unsigned char)dataPackage->byteStream[i] <= minHue)
+       if((unsigned char)dataPackage->byteStream[i] <= minHue)
         {
             minCount++;
         }
@@ -538,13 +525,21 @@ int CameraDcam::setupCaptureFormat7()
  int CameraDcam::moduleOn(void)
 {
     unsigned int uvValue, uuValue;
+    int ret;
 
     RackTask::disableRealtimeMode();
-    
-    if (lossRate < 1) 
+
+    if (lossRate < 1)
     {
         GDOS_ERROR("Lossrate must not be less than 1!! EXITING! \n");
         return -EINVAL;
+    }
+
+    ret = loadCameraParameter(&param, intrParFile, lossRate, extrParFile);
+    if(ret)
+    {
+        GDOS_ERROR("Couldn't load camera parameter!! code = %d\n", ret);
+        return ret;
     }
 
     if ( getFirewirePortnum() != DC1394_SUCCESS)
@@ -585,11 +580,20 @@ int CameraDcam::setupCaptureFormat7()
     }
 
     //need to get max size of image from this camera and also set dataBuffer according
-    if (CAMERA_MAX_WIDTH   < (dc1394Camera.frame_width   / lossRate) || 
-        CAMERA_MAX_HEIGHT  < (dc1394Camera.frame_height  / lossRate) ) 
+    if (CAMERA_MAX_WIDTH   < (dc1394Camera.frame_width   / lossRate) ||
+        CAMERA_MAX_HEIGHT  < (dc1394Camera.frame_height  / lossRate) )
     {
         GDOS_ERROR("Size parameter set too small in camera.h!! EXITING! \n");
         return -ENOMEM;
+    }
+
+    if (param.calibration_width     != (int)(dc1394Camera.frame_width  / lossRate) ||
+        param.calibration_height    != (int)(dc1394Camera.frame_height / lossRate) )
+    {
+        GDOS_ERROR("Size parameter of intrinsic parameter file (%i,%i) and camera (%i,%i) doesn't fit together!!\n",
+                    param.calibration_width, param.calibration_height,
+                    dc1394Camera.frame_width  / lossRate, dc1394Camera.frame_height / lossRate);
+        return -EAGAIN;
     }
 
    /*-----------------------------------------------------------------------
@@ -731,7 +735,7 @@ int CameraDcam::moduleLoop(void)
 
         //doing auto shutter / gain / brightness control
         autoBrightness(p_data);
-        
+
         if ((whitebalanceCols > 0) && ((whitebalanceRows > 0)))
         {
             autoWhitebalance(p_data);
@@ -877,6 +881,8 @@ CameraDcam::CameraDcam()
     autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
     whitebalanceRows    = getIntArg("whitebalanceRows", argTab);
     whitebalanceCols    = getIntArg("whitebalanceCols", argTab);
+    intrParFile         = getStrArg("intrParFile", argTab);
+    extrParFile         = getStrArg("extrParFile", argTab);
 
                         //fps[i]    is handled as global parameter
 
@@ -934,4 +940,198 @@ exit_error:
     delete (p_inst);
 
     return ret;
+}
+
+//**Method for loading intrinsic and extrinsic camera parameters out of Files**//
+int CameraDcam::loadCameraParameter(camera_param_data *parData, char *intrParFilename, const int lossrate, char *extrParFilename)
+{
+    char endingBuffer[5];
+    char filenameBuffer[255];
+    int ret, i, j;
+
+    //initialize camera_param_data with zero's
+    parData->f = 0.0;
+    parData->fx = 0.0;
+    parData->fy = 0.0;
+    parData->k1 = 0.0;
+    parData->k2 = 0.0;
+    parData->p1 = 0.0;
+    parData->p2 = 0.0;
+    parData->sx = 0.0;
+    parData->sy = 0.0;
+    parData->dx = 0.0;
+    parData->dy = 0.0;
+    parData->n0 = 0.0;
+    parData->e0 = 0.0;
+    parData->calibration_width = 0;
+    parData->calibration_height = 0;
+    for(i = 0; i < 9; i++){
+        parData->coordinateRotation[i] = 0.0;
+    }
+    for(i = 0; i < 3; i++){
+        parData->coordinateTranslation[i] = 0.0;
+    }
+
+    //load intrinsic parameters from file
+    sprintf(filenameBuffer,"%s",intrParFilename);
+    sprintf(endingBuffer,"_lr%i", lossrate);
+    strncat(filenameBuffer, endingBuffer, strlen(endingBuffer));
+    strcat(filenameBuffer, ".cal");
+    //printf("lesen aus: %s\n",filenameBuffer);
+
+    ret = parseParameterfile(filenameBuffer, parData);
+    if(ret)
+    {
+        GDOS_ERROR("parseParameterfile could not open intrinsic parameterfile\n");
+        return ret;
+    }
+
+    //load extrinsic parameters from file
+    if(extrParFilename != 0)
+    {
+        sprintf(filenameBuffer,"%s",extrParFilename);
+        strcat(filenameBuffer, ".cal");
+        //printf("lesen aus: %s\n",filenameBuffer);
+
+        ret = parseParameterfile(filenameBuffer, parData);
+        if(ret)
+        {
+            GDOS_ERROR("parseParameterfile could not open extrinsic parameterfile\n");
+            return ret;
+        }
+    }
+
+    //check completeness of intrinsic parameters
+    if(parData->f == 0.0) {GDOS_WARNING("f is initialized with 0\n");}
+    if(parData->fx == 0.0){GDOS_WARNING("fx is initialized with 0\n");}
+    if(parData->fy == 0.0){GDOS_WARNING("fy is initialized with 0\n");}
+    if(parData->k1 == 0.0){GDOS_WARNING("k1 is initialized with 0\n");}
+    if(parData->k2 == 0.0){GDOS_WARNING("k2 is initialized with 0\n");}
+    if(parData->p1 == 0.0){GDOS_WARNING("p1 is initialized with 0\n");}
+    if(parData->p2 == 0.0){GDOS_WARNING("p2 is initialized with 0\n");}
+    if(parData->sx == 0.0){GDOS_WARNING("sx is initialized with 0\n");}
+    if(parData->sy == 0.0){GDOS_WARNING("sy is initialized with 0\n");}
+    if(parData->dx == 0.0){GDOS_WARNING("dx is initialized with 0\n");}
+    if(parData->dy == 0.0){GDOS_WARNING("dy is initialized with 0\n");}
+    if(parData->n0 == 0.0){GDOS_WARNING("n0 is initialized with 0\n");}
+    if(parData->e0 == 0.0){GDOS_WARNING("e0 is initialized with 0\n");}
+    if(parData->calibration_width == 0) {GDOS_WARNING("calibration_width is initialized with 0\n");}
+    if(parData->calibration_height == 0){GDOS_WARNING("calibration_height is initialized with 0\n");}
+
+    //check completeness of extrinsic paramters
+    j = 0;
+    for(i = 0; i < 9; i++){
+        if(parData->coordinateRotation[i] == 0.0){j++;}
+    }
+    for(i = 0; i < 3; i++){
+        if(parData->coordinateTranslation[i] == 0.0){j++;}
+    }
+    if(j > 0){GDOS_WARNING("%i of 12 extrinsic parameter(s) is(are) initialized with 0\n",j);}
+
+    return 0;
+}
+
+
+//**Method for parsing parameterfiles**//
+int CameraDcam::parseParameterfile(char *filenameBuffer, camera_param_data *parData)
+{
+    FILE *filePtr;
+    char lineBuffer[256];
+    char *segBuffer;
+    char *endPtr;
+
+    if((filePtr = fopen(filenameBuffer,"r")) == NULL)
+    {
+        printf("Can't open file %s\n",filenameBuffer);
+        return -EIO;
+    }
+
+    //Parsen der intrinsischen Parameter
+    while(fgets(lineBuffer, 256, filePtr) != NULL){
+        segBuffer = strtok(lineBuffer, " ");
+       if(strcmp(segBuffer, "f") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->f = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "fx") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->fx = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "fy") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->fy = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "k1") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->k1 = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "k2") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->k2 = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "p1") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->p1 = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "p2") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->p2 = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "sx") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->sx = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "sy") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->sy = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "dx") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->dx = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "dy") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->dy = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "e0") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->e0 = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "n0") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->n0 = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "calibration_width") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->calibration_width = strtol(segBuffer, &endPtr, 0);}}
+        else if(strcmp(segBuffer, "calibration_height") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->calibration_height = strtol(segBuffer, &endPtr, 0);}}
+        else if(strcmp(segBuffer, "r1") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[0] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r2") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[1] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r3") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[2] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r4") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[3] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r5") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[4] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r6") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[5] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r7") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[6] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r8") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[7] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "r9") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateRotation[8] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "t1") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateTranslation[0] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "t2") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateTranslation[1] = strtod(segBuffer, &endPtr);}}
+        else if(strcmp(segBuffer, "t3") == 0){
+            if((segBuffer = strtok(NULL, " ")) != NULL){
+                parData->coordinateTranslation[2] = strtod(segBuffer, &endPtr);}}
+    }
+    fclose(filePtr);
+
+    return 0;
 }

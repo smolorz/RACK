@@ -53,7 +53,7 @@
 //CAMERA_MODE 50-59 are modi for rgb images
 #define CAMERA_MODE_RGB24  11
 #define CAMERA_MODE_RGB565 12
-//CAMERA_MODE 50-59 are modi for yuv images 
+//CAMERA_MODE 50-59 are modi for yuv images
 #define CAMERA_MODE_YUV422 21
 //CAMERA_MODE 50-59 are modi for raw (bayer) images
 #define CAMERA_MODE_RAW8   31
@@ -170,13 +170,13 @@ typedef struct
   int32_t   calibration_height; //#pixel y
   float32_t    f;  //focus of lens [mm]
   float32_t    fx; //f in pixel = 4.8 mm [pix]
-  float32_t    fy; 
+  float32_t    fy;
   float32_t    sx; //scaling factor
   float32_t    sy; //scaling factor
   float32_t    dx; //size of sensor element[mm]
   float32_t    dy; //size of sensor element in [mm]
   float32_t    k1; //1. radial coeffizient  [1/mm^2]
-  float32_t    k2; //2. radial coeffizient  
+  float32_t    k2; //2. radial coeffizient
   float32_t    p1; //1. tangential coeffizient [1/mm]
   float32_t    p2; //2. tangential coeffizient [1/mm]
   float32_t    e0; //Z axis intercept of camera coordinate system x-axis [pix]
@@ -184,6 +184,8 @@ typedef struct
                    //coordinates of center of radial lens distortion
                    //(also used as the piercing point of the camera coordinate
                    //frame's Z axis with the camera's sensor plane)
+  float32_t    coordinateRotation[9]; //rotation matrix (extrinsic parameter)
+  float32_t    coordinateTranslation[3]; //translation vector [mm] (extrinsic parameter)
 
 } __attribute__((packed)) camera_param_data;
 
@@ -207,6 +209,10 @@ class CameraParamData
             data->p2    = __le32_float_to_cpu(data->p2);
             data->e0    = __le32_float_to_cpu(data->e0);
             data->n0    = __le32_float_to_cpu(data->n0);
+            for(int i = 0; i < 9; i++){
+                data->coordinateRotation[i] = __le32_float_to_cpu(data->coordinateRotation[i]);}
+            for(int i = 0; i < 3; i++){
+                data->coordinateTranslation[i] = __le32_float_to_cpu(data->coordinateTranslation[i]);}
         }
 
         static void be_to_cpu(camera_param_data *data)
@@ -226,6 +232,10 @@ class CameraParamData
             data->p2    = __be32_float_to_cpu(data->p2);
             data->e0    = __be32_float_to_cpu(data->e0);
             data->n0    = __be32_float_to_cpu(data->n0);
+            for(int i = 0; i < 9; i++){
+                data->coordinateRotation[i] = __be32_float_to_cpu(data->coordinateRotation[i]);}
+            for(int i = 0; i < 3; i++){
+                data->coordinateTranslation[i] = __be32_float_to_cpu(data->coordinateTranslation[i]);}
         }
 
         static camera_param_data *parse(message_info *msgInfo)
