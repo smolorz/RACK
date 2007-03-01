@@ -10,8 +10,6 @@
 </manifest>
 <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{LadarProxy.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{CameraColorConvert.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{CameraMisColorConvert.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{OdometryDataMsg.java"/>
