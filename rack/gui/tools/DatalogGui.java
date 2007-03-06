@@ -175,9 +175,9 @@ public class DatalogGui extends RackModuleGui
                         logData.logInfo[i].periodTime = 0;
                     }
                     else
-                    {   
-                       	logData.logInfo[i].periodTime = 1000 / 
-                       						Integer.valueOf(logFrequency[i].getText()).intValue();
+                    {
+                    	logData.logInfo[i].periodTime = (int)(1000 / 
+                       						Double.valueOf(logFrequency[i].getText()).doubleValue());
                     }
                     logData.logInfo[i].filename = pathName.getText() + "/" + saveName[i].getText();
                     logData.logInfo[i].maxDataLen = logStatus.logInfo[i].maxDataLen; 
