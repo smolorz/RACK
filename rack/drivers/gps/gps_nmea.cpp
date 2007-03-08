@@ -50,6 +50,14 @@ argTable_t argTab[] = {
       "Y-Offset for position in Gauss-Krueger coordinates (in mm), default 0",
       { 0 } },
 
+    { ARGOPT_OPT, "varXY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "variance of xy position in mm [default 20000 mm]",
+      { 20000 } },
+
+    { ARGOPT_OPT, "varRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "variance of heading in deg [default 90 deg]",
+      { 90 } },
+
   { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -87,6 +95,7 @@ int GpsNmea::moduleOn(void)
     serialPort.setRxTimeout((int64_t)periodTime * 2000000llu);
 
     // set values
+    satelliteNumOld       = 0;
     gpsData.recordingTime = rackTime.get();
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
@@ -144,7 +153,8 @@ int GpsNmea::moduleLoop(void)
 
             gpsData.posGK.phi     = 0.0f;
             gpsData.posGK.psi     = 0.0f;
-            gpsData.posGK.rho     = atan2(posGK.x - posGKOld.x, posGK.y - posGKOld.y);
+            gpsData.posGK.rho     = normaliseAngle(atan2(posGK.y - posGKOld.y,
+                                                         posGK.x - posGKOld.x));
             memcpy(&posGKOld, &posGK, sizeof(gps_nmea_pos_3d));
 
             GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f posGK.rho %a speed %i satNum %i\n",
@@ -169,9 +179,52 @@ int GpsNmea::moduleLoop(void)
                 gpsData.posGK.z = (int)rint(posGK.z * 1000.0);
             }
 
+
+            // estimate GPS position variance
+            if (gpsData.satelliteNum >= 6)
+            {
+                gpsData.varXY  = varXY;               // default 20m
+                gpsData.varZ   = varXY;               // default 100m
+            }
+            else if (gpsData.satelliteNum >= 4)
+            {
+                gpsData.varXY  = varXY * 5;           // default 100m
+                gpsData.varZ   = varXY * 5 * 5;       // default 500m
+            }
+            else if (gpsData.satelliteNum >= 3)
+            {
+                gpsData.varXY  = varXY * 5;           // default 100m
+                gpsData.varZ   = (int)1e12;           // Mode 2D
+            }
+            else  // satelliteNum < 3
+            {
+                gpsData.varXY  = (int)1e12;
+                gpsData.varZ   = (int)1e12;
+            }
+
+
+            // estimate GPS heading variance
+            if ((gpsData.satelliteNum >= 4) & (gpsData.satelliteNum == satelliteNumOld))
+            {
+                // use gps heading only with motion of at least 0.3m/s
+                if (gpsData.speed > 300)
+                {
+                    gpsData.varRho = varRho;          // default 90 deg
+                }
+                else
+                {
+                    gpsData.varRho = (int)1e12;       // no GPS heading
+                }
+            }
+            else
+            {
+                gpsData.varRho = (int)1e12;           // no GPS heading
+            }
+
             memcpy(p_data, &gpsData, sizeof(gps_data));
             putDataBufferWorkSpace(sizeof(gps_data));
 
+            satelliteNumOld       = gpsData.satelliteNum;
             gpsData.recordingTime = nmea.recordingTime;
         }
 
@@ -227,7 +280,7 @@ int GpsNmea::moduleLoop(void)
         GDOS_DBG_DETAIL("no position fix available or invalid trigger message\n");
 
         gpsData.recordingTime = rackTime.get();
-        gpsData.mode          = 1;
+        gpsData.mode          = GPS_MODE_INVALID;
         gpsData.latitude      = 0.0;
         gpsData.longitude     = 0.0;
         gpsData.altitude      = 0;
@@ -242,9 +295,13 @@ int GpsNmea::moduleLoop(void)
         gpsData.posGK.phi     = 0.0f;
         gpsData.posGK.psi     = 0.0f;
         gpsData.posGK.rho     = 0.0f;
+        gpsData.varXY         = 0;
+        gpsData.varRho        = 0.0f;
 
         memcpy(p_data, &gpsData, sizeof(gps_data));
         putDataBufferWorkSpace(sizeof(gps_data));
+
+        satelliteNumOld = gpsData.satelliteNum;
     }
 
     return 0;
@@ -763,16 +820,16 @@ int GpsNmea::analyseVTG(gps_data *data)
                 data->heading = fNum * M_PI / 180.0;
                 break;
 
-            // Speed [s.s]
+            // Speed [s.s] knots
             case 5:
                 sscanf(buffer, "%f", &fNum);
                 data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
                 break;
 
-            // Speed [s.s]
+            // Speed [s.s] km/h
             case 7:
                 sscanf(buffer, "%f", &fNum);
-                data->speed = (int)rint(fNum * 1000.0);
+                data->speed = (int)rint(fNum * 1000.0 / 3.6);
                 break;
 
             default:
@@ -1064,6 +1121,8 @@ GpsNmea::GpsNmea()
     posGKOffsetX = getIntArg("posGKOffsetX", argTab);
     posGKOffsetY = getIntArg("posGKOffsetY", argTab);
     gps_serial_config.baud_rate  = getIntArg("baudrate", argTab);
+    varXY        = getIntArg("varXY", argTab);
+    varRho       = (float)(getIntArg("varRho", argTab) * M_PI / 180.0);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(gps_data));

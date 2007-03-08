@@ -40,16 +40,19 @@
 
 typedef struct {
     rack_time_t   recordingTime;  // has to be first element
-    int32_t     mode;
-    float64_t   latitude;       // rad
-    float64_t   longitude;      // rad
-    int32_t     altitude;       // mm over mean sea level
-    float32_t   heading;        // rad
-    int32_t     speed;          // mm/s
-    int32_t     satelliteNum;
-    int64_t     utcTime;        // POSIX time in sec since 1.1.1970
-    float32_t   pdop;
-    position_3d posGK;
+    int32_t       mode;
+    float64_t     latitude;       // rad
+    float64_t     longitude;      // rad
+    int32_t       altitude;       // mm over mean sea level
+    float32_t     heading;        // rad
+    int32_t       speed;          // mm/s
+    int32_t       satelliteNum;
+    int64_t       utcTime;        // POSIX time in sec since 1.1.1970
+    float32_t     pdop;
+    position_3d   posGK;
+    int32_t       varXY;          // variance of xy position in mm
+    int32_t       varZ;           // variance of  z position in mm
+    float32_t     varRho;         // variance of heading in rad
 } __attribute__((packed)) gps_data;
 
 
@@ -69,6 +72,9 @@ class GpsData
             data->utcTime       = __le64_to_cpu(data->utcTime);
             data->pdop          = __le32_float_to_cpu(data->pdop);
             Position3D::le_to_cpu(&data->posGK);
+            data->varXY         = __le32_to_cpu(data->varXY);
+            data->varZ          = __le32_to_cpu(data->varZ);
+            data->varRho        = __le32_float_to_cpu(data->varRho);
         }
 
         static void be_to_cpu(gps_data *data)
@@ -84,6 +90,9 @@ class GpsData
             data->utcTime       = __be64_to_cpu(data->utcTime);
             data->pdop          = __be32_float_to_cpu(data->pdop);
             Position3D::be_to_cpu(&data->posGK);
+            data->varXY         = __be32_to_cpu(data->varXY);
+            data->varZ          = __le32_to_cpu(data->varZ);
+            data->varRho        = __be32_float_to_cpu(data->varRho);
         }
 
         static gps_data* parse(message_info *msgInfo)

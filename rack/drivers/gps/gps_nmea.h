@@ -57,12 +57,17 @@ class GpsNmea : public RackDataModule {
         int             trigMsg;
         int             posGKOffsetX;
         int             posGKOffsetY;
+        int             varXY;
+        float           varRho;
 
         rack_time_t     lastRecordingTime;
+        int             satelliteNumOld;
+
         SerialPort      serialPort;
         gps_nmea        nmea;
         gps_nmea_pos_3d posGKOld;
         gps_data        gpsData;
+
 
         // -> realtime context
         int readNMEAMessage();
