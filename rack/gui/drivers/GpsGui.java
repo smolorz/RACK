@@ -74,6 +74,18 @@ public class GpsGui extends RackModuleGui
     protected JLabel zGKLabel           = new JLabel();
     protected JLabel zGKNameLabel       = new JLabel("Z",
                                                      SwingConstants.RIGHT);
+    protected JLabel rhoGKLabel         = new JLabel();
+    protected JLabel rhoGKNameLabel     = new JLabel("Rho",
+                                                     SwingConstants.RIGHT);    
+    protected JLabel varXYLabel         = new JLabel();
+    protected JLabel varXYNameLabel     = new JLabel("Variance XY",
+                                                     SwingConstants.RIGHT); 
+    protected JLabel varZLabel          = new JLabel();
+    protected JLabel varZNameLabel      = new JLabel("Variance Z",
+                                                     SwingConstants.RIGHT);    
+    protected JLabel varRhoLabel        = new JLabel();
+    protected JLabel varRhoNameLabel    = new JLabel("Variance Rho",
+                                                     SwingConstants.RIGHT);    
     public GpsProxy gps;
 
     public GpsGui(GpsProxy proxy)
@@ -135,6 +147,14 @@ public class GpsGui extends RackModuleGui
         labelPanel.add(yGKLabel);
         labelPanel.add(zGKNameLabel);
         labelPanel.add(zGKLabel);
+        labelPanel.add(rhoGKNameLabel);
+        labelPanel.add(rhoGKLabel);        
+        labelPanel.add(varXYNameLabel);
+        labelPanel.add(varXYLabel);      
+        labelPanel.add(varZNameLabel);
+        labelPanel.add(varZLabel);        
+        labelPanel.add(varRhoNameLabel);
+        labelPanel.add(varRhoLabel);        
         panel.add(northPanel,BorderLayout.NORTH);
         panel.add(labelPanel,BorderLayout.CENTER);
     }
@@ -221,6 +241,10 @@ public class GpsGui extends RackModuleGui
                     xGKLabel.setText(data.posGK.x+" mm");
                     yGKLabel.setText(data.posGK.y+" mm");
                     zGKLabel.setText(data.posGK.z+" mm");
+                    rhoGKLabel.setText((float)Math.toDegrees(data.posGK.rho)+" deg");
+                    varXYLabel.setText(data.varXY+" mm");
+                    varZLabel.setText(data.varZ+" mm");
+                    varRhoLabel.setText((float)Math.toDegrees(data.varRho)+" deg");
 
                     modeNameLabel.setEnabled(true);
                     modeLabel.setEnabled(true);
@@ -246,6 +270,14 @@ public class GpsGui extends RackModuleGui
                     yGKLabel.setEnabled(true);
                     zGKNameLabel.setEnabled(true);
                     zGKLabel.setEnabled(true);
+                    rhoGKNameLabel.setEnabled(true);
+                    rhoGKLabel.setEnabled(true);
+                    varXYNameLabel.setEnabled(true);
+                    varXYLabel.setEnabled(true);
+                    varZNameLabel.setEnabled(true);
+                    varZLabel.setEnabled(true);
+                    varRhoNameLabel.setEnabled(true);
+                    varRhoLabel.setEnabled(true);
                 }
                 else
                 {
@@ -273,6 +305,14 @@ public class GpsGui extends RackModuleGui
                     yGKLabel.setEnabled(false);
                     zGKNameLabel.setEnabled(false);
                     zGKLabel.setEnabled(false);
+                    rhoGKNameLabel.setEnabled(false);
+                    rhoGKLabel.setEnabled(false);
+                    varXYNameLabel.setEnabled(false);
+                    varXYLabel.setEnabled(false);
+                    varZNameLabel.setEnabled(false);
+                    varZLabel.setEnabled(false);
+                    varRhoNameLabel.setEnabled(false);
+                    varRhoLabel.setEnabled(false);                    
                 }
             }
             try
