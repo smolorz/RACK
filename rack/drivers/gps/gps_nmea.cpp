@@ -95,6 +95,8 @@ int GpsNmea::moduleOn(void)
     serialPort.setRxTimeout((int64_t)periodTime * 2000000llu);
 
     // set values
+    utcTime               = 0.0f;
+    utcTimeOld            = 0.0f;
     satelliteNumOld       = 0;
     gpsData.recordingTime = rackTime.get();
 
@@ -113,6 +115,7 @@ int GpsNmea::moduleLoop(void)
     gps_data*       p_data;
     gps_nmea_pos_3d posLLA, posGK;
     int             nmeaMsg = -1;
+    int             gpsInvalid = 0;
     int             ret;
 
     // get datapointer from rackdatabuffer
@@ -224,6 +227,7 @@ int GpsNmea::moduleLoop(void)
             memcpy(p_data, &gpsData, sizeof(gps_data));
             putDataBufferWorkSpace(sizeof(gps_data));
 
+            utcTimeOld            = utcTime;
             satelliteNumOld       = gpsData.satelliteNum;
             gpsData.recordingTime = nmea.recordingTime;
         }
@@ -274,8 +278,18 @@ int GpsNmea::moduleLoop(void)
         GDOS_WARNING("Can't read data from serial device %i, code %i\n", serialDev, ret);
     }
 
+    // gps invalid conditions
+    if (((int)rackTime.get() - (int)gpsData.recordingTime) >= (1.5 * (int)periodTime))
+    {
+        gpsInvalid = 1;
+    }
+    if ((utcTime != 0) && (utcTimeOld != 0) && (utcTime == utcTimeOld))
+    {
+        gpsInvalid = 1;
+    }
 
-    if(((int)rackTime.get() - (int)gpsData.recordingTime) >= (1.5 * (int)periodTime))
+    // send empty data package
+    if (gpsInvalid == 1)
     {
         GDOS_DBG_DETAIL("no position fix available or invalid trigger message\n");
 
@@ -296,6 +310,7 @@ int GpsNmea::moduleLoop(void)
         gpsData.posGK.psi     = 0.0f;
         gpsData.posGK.rho     = 0.0f;
         gpsData.varXY         = 0;
+        gpsData.varZ          = 0;
         gpsData.varRho        = 0.0f;
 
         memcpy(p_data, &gpsData, sizeof(gps_data));
@@ -421,7 +436,7 @@ int GpsNmea::analyseRMC(gps_data *data)
     unsigned char   checksum;
     int             pos, i, j;
     int             date;
-    float           fNum, utcTime;
+    float           fNum;
     double          dNum;
 
     // Initalisation of local variables
@@ -595,6 +610,11 @@ int GpsNmea::analyseGGA(gps_data *data)
         // Decode message
         switch(i)
         {
+            // UTC-Time [hhmmss.dd]
+            case 1:
+                sscanf(buffer, "%f", &utcTime);
+                break;
+
             // Latitude [xxmm.dddd]
             case 2:
                 sscanf(buffer, "%lf", &dNum);

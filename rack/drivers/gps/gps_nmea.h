@@ -62,6 +62,8 @@ class GpsNmea : public RackDataModule {
 
         rack_time_t     lastRecordingTime;
         int             satelliteNumOld;
+        float           utcTime;
+        float           utcTimeOld;
 
         SerialPort      serialPort;
         gps_nmea        nmea;
