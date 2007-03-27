@@ -206,12 +206,26 @@ public class PositionGui extends RackModuleGui implements ActionListener
 
     public void paintMapView(MapViewDrawContext drawContext)
     {
-        Graphics2D robotGraphics = drawContext.getRobotGraphics();
-
         if (drawPositionPath)
         {
             Graphics2D worldGraphics = drawContext.getWorldGraphics();
-            worldGraphics.setColor(robotGraphics.getColor());
+            
+            switch (position.getInstanceId())
+            {
+            	case 1: 
+                    worldGraphics.setColor(Color.BLUE);
+                    break;
+            	case 2:
+                    worldGraphics.setColor(Color.RED);
+                    break;
+            	case 3:
+                    worldGraphics.setColor(Color.GREEN);
+                    break;
+                
+            	default:
+                    worldGraphics.setColor(Color.BLACK);                	
+            }
+            
             worldGraphics.draw(positionPath);
         }
     }
