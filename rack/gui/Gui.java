@@ -33,6 +33,8 @@ import rack.main.tims.*;
 
 public final class Gui extends Thread
 {
+    private static final int GUI_MAX_INSTANCES = 10;
+
     private int moduleNum;
     private int groupNum;
     private int jarfileNum;
@@ -135,12 +137,9 @@ public final class Gui extends Thread
                 
                 try {
                     URL urls[] = new URL[ ] { jarFile.toURL() };
-//                    ClassLoader aCL = Thread.currentThread().getContextClassLoader();
-//                    URLClassLoader aUrlCL = new URLClassLoader(urls, guiCL);
                     guiCL = new URLClassLoader(urls, guiCL);
-//                    Thread.currentThread().setContextClassLoader(aUrlCL);
 
-                     System.out.println("File " + jarFile + " has been loaded");
+                    System.out.println("File " + jarFile + " has been loaded");
                 }
                 catch (Exception e)
                 {
@@ -768,26 +767,31 @@ public final class Gui extends Thread
 
     private void initMbx() throws TimsException
     {
-        try
-        {
-            // Debug output
-            //System.out.println("Creating mailbox " + Integer.toHexString(getStatusReplyMbx) + " ...");
-            getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, 0, 0));
+        int inst = 0;
 
-            for (int i = 0; i < moduleNum; i++)
+        while (true) {
+            try
             {
-                // Debug output
-                //System.out.println("Creating mailbox " + Integer.toHexString(replyMbx[i]) + " ...");
-                moduleReplyMbx[i] = tims.mbxInit(RackName.create(RackName.GUI, 0, i+1));
+                getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, 0));
+                break;
             }
+            catch (TimsException e)
+            {
+                if (++inst == GUI_MAX_INSTANCES) {
+                    JOptionPane.showMessageDialog(mainFrameContent,
+                            "Can't create Mailbox\n" + e.getMessage(),
+                            "Tims Exception", JOptionPane.ERROR_MESSAGE);
+                    throw e;
+                }
+            }
+        }
+        try {
+            for (int i = 0; i < moduleNum; i++)
+                moduleReplyMbx[i] = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
 
-            // Debug output
-            //System.out.println("Creating mailbox " + Integer.toHexString(GDOSMbx) + " ...");
-            mapViewReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, 0, moduleNum+1));
-
-            // Debug output
-            //System.out.println("Creating mailbox " + Integer.toHexString(GDOSMbx) + " ...");
-            gdosMbx = tims.mbxInit(RackName.create(RackName.GDOS, 0));
+            mapViewReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, moduleNum+1));
+            if (inst == 0)
+                gdosMbx = tims.mbxInit(RackName.create(RackName.GDOS, inst));
         }
         catch (TimsException e)
         {
@@ -959,12 +963,14 @@ public final class Gui extends Thread
 
         // create message frame as an internal frame
         messageFrame = new JInternalFrame("GDOS Message", true, false, true, true);
-        gdosGui = new GDOSGui(gdosMbx);
-        messageFrame.getContentPane().add(gdosGui.getComponent());
-        messageFrame.pack();
-        messageFrame.setVisible(true);
-        jdp[0].add(messageFrame);
-        gdosGui.start();
+        if (gdosMbx != null) {
+            gdosGui = new GDOSGui(gdosMbx);
+            messageFrame.getContentPane().add(gdosGui.getComponent());
+            messageFrame.pack();
+            messageFrame.setVisible(true);
+            jdp[0].add(messageFrame);
+            gdosGui.start();
+        }
 
         if (showMapView)
         {
@@ -1239,7 +1245,7 @@ public final class Gui extends Thread
 
             for (int i = 0; i < moduleNum; i++)
             {
-                // alle moduleProxy sind bei initModuleProxy schon vorhand.
+                // alle moduleProxy sind bei initModuleProxy schon vorhanden
 
                 getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
                         moduleProxy[i].getCommandMbx(),

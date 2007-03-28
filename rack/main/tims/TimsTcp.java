@@ -248,7 +248,7 @@ public class TimsTcp extends Tims
         }
         catch (Exception e) {}
     }
-    
+
     public synchronized TimsMbx mbxInit(int mbxName) throws TimsException
     {
         TimsMbx mbx;
@@ -276,8 +276,8 @@ public class TimsTcp extends Tims
         } else {
         
           throw(new TimsException("Can't init mbx " +
-                                        Integer.toHexString(mbxName) +
-                                        ". Allready initialised"));
+                                  Integer.toHexString(mbxName) +
+                                  ". Already initialised"));
         }
         return mbx;
     }
