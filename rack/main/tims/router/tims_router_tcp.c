@@ -780,7 +780,7 @@ int init()
         ret = sched_setscheduler(0, SCHED_FIFO, &sched_param);
         if (ret)
         {
-            tims_print("[INIT] ERROR: can't raise pipeSendSem\n");
+            tims_print("[INIT] ERROR: can't raise priority\n");
             return ret;
         }
     }
@@ -852,7 +852,7 @@ int main(int argc, char* argv[])
     port = DEFAULT_PORT;
     maxMsgSize = DEFAULT_MAX * 1024;
 
-    while ((opt = getopt(argc, argv, "i:p:m:h:l:")) != -1)
+    while ((opt = getopt(argc, argv, "i:p:m:h:l:P:")) != -1)
     {
         switch (opt)
         {
