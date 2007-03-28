@@ -1092,6 +1092,7 @@ public final class Gui extends Thread
                     if ((ae.getModifiers() & ActionEvent.CTRL_MASK) == 0)
                     {
                         openModule(module, null);
+                        relocateModule(module);
                     }
                     else
                     {
@@ -1191,6 +1192,25 @@ public final class Gui extends Thread
         {
             pe.printStackTrace();
         }
+    }
+
+    private void relocateModule(int id)
+    {
+        Point pos = moduleFrame[id].getLocation();
+        Dimension size = moduleFrame[id].getSize();
+        Dimension paneSize = moduleFrame[id].getDesktopPane().getSize();
+
+        if (pos.x < 0)
+            pos.x = 0;
+        else if (pos.x + size.width > paneSize.width)
+            pos.x = paneSize.width - size.width;
+
+        if (pos.y < 0)
+            pos.y = 0;
+        else if (pos.y + size.height > paneSize.height)
+            pos.y = paneSize.height - size.height;
+
+        moduleFrame[id].setLocation(pos);
     }
 
     private void updateAllStatus()
