@@ -1538,6 +1538,8 @@ public final class Gui extends Thread
                         fd.setDirectory(".");
                         fd.setLocation(150, 150);
                         fd.setVisible(true);
+                        if (fd.getFile() == null)
+                        	System.exit(0);
                         fileName = fd.getDirectory() + System.getProperty("file.separator").charAt(0) + fd.getFile();
                         break;
                     case 1: // only config file
