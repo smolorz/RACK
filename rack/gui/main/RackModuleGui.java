@@ -17,11 +17,16 @@ package rack.gui.main;
 
 
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.*;
+import java.awt.image.MemoryImageSource;
+
 import javax.swing.*;
 
 import rack.main.RackProxy;
-import rack.gui.FullScreenFrame;
 
 /**
  * Diese Klasse ist die Superklasse aller GUI-Module.
@@ -32,9 +37,31 @@ import rack.gui.FullScreenFrame;
 
 abstract public class RackModuleGui extends Thread//JComponent implements Runnable
 {
+    class FullScreenFrame extends JFrame {
+
+        private static final long serialVersionUID = 1L;
+
+        public FullScreenFrame()
+        {
+            setUndecorated(true);
+            setSize(Toolkit.getDefaultToolkit().getScreenSize());
+            setAlwaysOnTop(true);
+        }
+
+        public void hideCursor()
+        {
+            Image image = Toolkit.getDefaultToolkit().createImage(
+                    new MemoryImageSource(0, 0, null, 0, 16));
+            Cursor transparentCursor = Toolkit.getDefaultToolkit().
+                createCustomCursor(image, new Point(0,0), "");
+            setCursor(transparentCursor);
+        }
+    }
+
     protected boolean terminate = false;
     protected FullScreenFrame fullScreen = null;
-    protected Container prevContainer;
+
+    Container prevContainer;
 
     // use constructor RackModuleGui(RackProxy moduleProxy) or
     // RackModuleGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
@@ -117,10 +144,6 @@ abstract public class RackModuleGui extends Thread//JComponent implements Runnab
     		fullScreen.add(getComponent());
             fullScreen.addWindowListener(new WindowAdapter()
             {
-                public void windowClosing(WindowEvent e)
-                {
-                    System.exit(0);
-                }
                 public void windowDeactivated(WindowEvent e)
                 {
                     if (fullScreen != null) {
@@ -129,6 +152,7 @@ abstract public class RackModuleGui extends Thread//JComponent implements Runnab
                     }
                 }
             });
+            fullScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     		fullScreen.setVisible(true);
     	}
     	else
