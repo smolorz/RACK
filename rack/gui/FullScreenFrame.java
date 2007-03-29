@@ -28,7 +28,6 @@ public class FullScreenFrame extends JFrame {
 	public FullScreenFrame()
 	{
     	setUndecorated(true);
-    	setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     	setSize(Toolkit.getDefaultToolkit().getScreenSize());
     	setAlwaysOnTop(true);
 	}

@@ -17,6 +17,7 @@ package rack.gui.main;
 
 
 import java.awt.Container;
+import java.awt.event.*;
 import javax.swing.*;
 
 import rack.main.RackProxy;
@@ -34,7 +35,7 @@ abstract public class RackModuleGui extends Thread//JComponent implements Runnab
     protected boolean terminate = false;
     protected FullScreenFrame fullScreen = null;
     protected Container prevContainer;
-    
+
     // use constructor RackModuleGui(RackProxy moduleProxy) or
     // RackModuleGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
 
@@ -114,6 +115,20 @@ abstract public class RackModuleGui extends Thread//JComponent implements Runnab
     		fullScreen = new FullScreenFrame();
     		prevContainer = getComponent().getParent();
     		fullScreen.add(getComponent());
+            fullScreen.addWindowListener(new WindowAdapter()
+            {
+                public void windowClosing(WindowEvent e)
+                {
+                    System.exit(0);
+                }
+                public void windowDeactivated(WindowEvent e)
+                {
+                    if (fullScreen != null) {
+                        prevContainer.add(getComponent());
+                        fullScreen = null;
+                    }
+                }
+            });
     		fullScreen.setVisible(true);
     	}
     	else

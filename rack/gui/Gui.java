@@ -1177,6 +1177,8 @@ public final class Gui extends Thread
                 	}
             	}
             };
+            moduleGui[id].getComponent().getInputMap().
+                put(KeyStroke.getKeyStroke("F11"), "fullScreen");
             moduleGui[id].getComponent().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
             	put(KeyStroke.getKeyStroke("F11"), "fullScreen");
             moduleGui[id].getComponent().getActionMap().put("fullScreen", action);
