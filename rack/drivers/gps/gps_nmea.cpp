@@ -216,12 +216,12 @@ int GpsNmea::moduleLoop(void)
                 }
                 else
                 {
-                    gpsData.varRho = (int)1e12;       // no GPS heading
+                    gpsData.varRho = 1e12;       // no GPS heading
                 }
             }
             else
             {
-                gpsData.varRho = (int)1e12;           // no GPS heading
+                gpsData.varRho = 1e12;           // no GPS heading
             }
 
             memcpy(p_data, &gpsData, sizeof(gps_data));
@@ -282,10 +282,13 @@ int GpsNmea::moduleLoop(void)
     if (((int)rackTime.get() - (int)gpsData.recordingTime) >= (1.5 * (int)periodTime))
     {
         gpsInvalid = 1;
+        GDOS_ERROR("Gps invalid by timeout: %d, %d, %d\n", (int)rackTime.get(),
+                   (int)gpsData.recordingTime, ((int)rackTime.get() - (int)gpsData.recordingTime));
     }
     if ((utcTime != 0) && (utcTimeOld != 0) && (utcTime == utcTimeOld))
     {
         gpsInvalid = 1;
+        GDOS_ERROR("Gps invalid by utcTime: %f, %f\n", utcTime, utcTimeOld);
     }
 
     // send empty data package
@@ -309,9 +312,9 @@ int GpsNmea::moduleLoop(void)
         gpsData.posGK.phi     = 0.0f;
         gpsData.posGK.psi     = 0.0f;
         gpsData.posGK.rho     = 0.0f;
-        gpsData.varXY         = 0;
-        gpsData.varZ          = 0;
-        gpsData.varRho        = 0.0f;
+        gpsData.varXY         = (int)1e12;
+        gpsData.varZ          = (int)1e12;
+        gpsData.varRho        = 1e12;
 
         memcpy(p_data, &gpsData, sizeof(gps_data));
         putDataBufferWorkSpace(sizeof(gps_data));

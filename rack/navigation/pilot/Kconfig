@@ -4,3 +4,10 @@ config RACK_PILOT_JOYSTICK
     default y
     ---help---
     Help text.
+
+config RACK_PILOT_WALL_FOLLOWING
+    bool "Pilot Wall Following"
+    default y
+    ---help---
+    Help text.
+

@@ -687,6 +687,23 @@ if test "$CONFIG_RACK_PILOT_JOYSTICK" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  navigation - Pilot Wall Following
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build pilot wall following])
+AC_ARG_ENABLE(pilot-wall-following,
+    AS_HELP_STRING([--enable-pilot-wall-following], [building pilot wall following]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_PILOT_WALL_FOLLOWING=y ;;
+        *) CONFIG_RACK_PILOT_WALL_FOLLOWING=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_PILOT_WALL_FOLLOWING:-n}])
+AM_CONDITIONAL(CONFIG_RACK_PILOT_WALL_FOLLOWING,[test "$CONFIG_RACK_PILOT_WALL_FOLLOWING" = "y"])
+if test "$CONFIG_RACK_PILOT_WALL_FOLLOWING" = "y"; then
+    AC_DEFINE(CONFIG_RACK_PILOT_WALL_FOLLOWING,1,[building pilot wall following])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  navigation - Position
 dnl -----------------------------------------------------------------
 

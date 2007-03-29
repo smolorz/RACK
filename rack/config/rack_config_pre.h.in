@@ -60,6 +60,9 @@
 /* building pilot joystick */
 #undef CONFIG_RACK_PILOT_JOYSTICK
 
+/* building pilot wall following */
+#undef CONFIG_RACK_PILOT_WALL_FOLLOWING
+
 /* building position */
 #undef CONFIG_RACK_POSITION
 

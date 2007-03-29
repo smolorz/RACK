@@ -36,8 +36,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1)
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
 @CONFIG_RACK_PILOT_JOYSTICK_TRUE@am__append_1 = PilotJoystick
+@CONFIG_RACK_PILOT_WALL_FOLLOWING_TRUE@am__append_2 = PilotWallFollowing
 subdir = navigation/pilot
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -50,6 +51,7 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 @CONFIG_RACK_PILOT_JOYSTICK_TRUE@am__EXEEXT_1 =  \
 @CONFIG_RACK_PILOT_JOYSTICK_TRUE@	PilotJoystick$(EXEEXT)
+@CONFIG_RACK_PILOT_WALL_FOLLOWING_TRUE@am__EXEEXT_2 = PilotWallFollowing$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -57,6 +59,10 @@ am_PilotJoystick_OBJECTS = pilot_joystick.$(OBJEXT)
 PilotJoystick_OBJECTS = $(am_PilotJoystick_OBJECTS)
 PilotJoystick_LDADD = $(LDADD)
 PilotJoystick_DEPENDENCIES =
+am_PilotWallFollowing_OBJECTS = pilot_wall_following.$(OBJEXT)
+PilotWallFollowing_OBJECTS = $(am_PilotWallFollowing_OBJECTS)
+PilotWallFollowing_LDADD = $(LDADD)
+PilotWallFollowing_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -76,8 +82,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(PilotJoystick_SOURCES)
-DIST_SOURCES = $(PilotJoystick_SOURCES)
+SOURCES = $(PilotJoystick_SOURCES) $(PilotWallFollowing_SOURCES)
+DIST_SOURCES = $(PilotJoystick_SOURCES) $(PilotWallFollowing_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -149,6 +155,8 @@ CONFIG_RACK_OPENCV_SUPPORT_FALSE = @CONFIG_RACK_OPENCV_SUPPORT_FALSE@
 CONFIG_RACK_OPENCV_SUPPORT_TRUE = @CONFIG_RACK_OPENCV_SUPPORT_TRUE@
 CONFIG_RACK_PILOT_JOYSTICK_FALSE = @CONFIG_RACK_PILOT_JOYSTICK_FALSE@
 CONFIG_RACK_PILOT_JOYSTICK_TRUE = @CONFIG_RACK_PILOT_JOYSTICK_TRUE@
+CONFIG_RACK_PILOT_WALL_FOLLOWING_FALSE = @CONFIG_RACK_PILOT_WALL_FOLLOWING_FALSE@
+CONFIG_RACK_PILOT_WALL_FOLLOWING_TRUE = @CONFIG_RACK_PILOT_WALL_FOLLOWING_TRUE@
 CONFIG_RACK_POSITION_FALSE = @CONFIG_RACK_POSITION_FALSE@
 CONFIG_RACK_POSITION_TRUE = @CONFIG_RACK_POSITION_TRUE@
 CONFIG_RACK_RTNET_SUPPORT_FALSE = @CONFIG_RACK_RTNET_SUPPORT_FALSE@
@@ -294,6 +302,10 @@ PilotJoystick_SOURCES = \
 	pilot_joystick.h \
 	pilot_joystick.cpp
 
+PilotWallFollowing_SOURCES = \
+	pilot_wall_following.h \
+	pilot_wall_following.cpp
+
 EXTRA_DIST = \
 	Kconfig
 
@@ -361,6 +373,9 @@ clean-binPROGRAMS:
 PilotJoystick$(EXEEXT): $(PilotJoystick_OBJECTS) $(PilotJoystick_DEPENDENCIES) 
 	@rm -f PilotJoystick$(EXEEXT)
 	$(CXXLINK) $(PilotJoystick_LDFLAGS) $(PilotJoystick_OBJECTS) $(PilotJoystick_LDADD) $(LIBS)
+PilotWallFollowing$(EXEEXT): $(PilotWallFollowing_OBJECTS) $(PilotWallFollowing_DEPENDENCIES) 
+	@rm -f PilotWallFollowing$(EXEEXT)
+	$(CXXLINK) $(PilotWallFollowing_LDFLAGS) $(PilotWallFollowing_OBJECTS) $(PilotWallFollowing_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -369,6 +384,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pilot_joystick.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pilot_wall_following.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
