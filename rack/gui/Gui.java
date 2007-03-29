@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
+ *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
 package rack.gui;
@@ -63,6 +64,7 @@ public final class Gui extends Thread
     // work panel
     private JTabbedPane     jtp;
     private JDesktopPane [] jdp;
+    private int             fullScreenModule = -1;
 
     private JInternalFrame[] moduleFrame;
     private int[][]         moduleLocationSize;
@@ -228,8 +230,8 @@ public final class Gui extends Thread
             System.out.println("Initializing Proxies ...");
             initModuleProxy();
     
-            System.out.println("Initializing last stand ...");
-            lastStand();
+            System.out.println("Initializing layout ...");
+            loadLayout();
     
             System.out.println("Starting ...");
             start();
@@ -249,7 +251,7 @@ public final class Gui extends Thread
         }
     }
 
-    private void lastStand()
+    private void loadLayout()
     {
         for (int i = 0; i < moduleNum; i++)
         {
@@ -1143,11 +1145,41 @@ public final class Gui extends Thread
             moduleGui[id] = createModuleGui(id); // gleichzeitig wird
                                                     // moduleProxy[id] erzeugt .
             moduleGui[id].start();
+
             moduleFrame[id] = new JInternalFrame(getModuleName(id), true, true,
                     true, true);
+            moduleFrame[id].getContentPane().add(moduleGui[id].getComponent());
+            Action action = new AbstractAction()
+            {
+				private static final long serialVersionUID = 1L;
 
-            moduleFrame[id].getContentPane().add(
-                    ((RackModuleGui) moduleGui[id]).getComponent());
+				public void actionPerformed(ActionEvent e)
+                {
+                	if (fullScreenModule == -1)
+                	{
+    					JInternalFrame frame = jdp[jtp.getSelectedIndex()].getSelectedFrame();
+                    	int module;
+    	                for (module = 0; module < moduleNum; module++)
+    	                {
+    	                    if (moduleFrame[module] == frame)
+                                break;
+    	                }
+    	                if (module == moduleNum)
+    	                	return;
+
+                		fullScreenModule = module;
+	                    moduleGui[module].toggleFullScreen();
+                	}
+                	else
+                	{
+                		moduleGui[fullScreenModule].toggleFullScreen();
+                		fullScreenModule = -1;
+                	}
+            	}
+            };
+            moduleGui[id].getComponent().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+            	put(KeyStroke.getKeyStroke("F11"), "fullScreen");
+            moduleGui[id].getComponent().getActionMap().put("fullScreen", action);
             moduleFrame[id].addInternalFrameListener(new InternalFrameAdapter()
             {
                 public void internalFrameClosing(InternalFrameEvent e)
@@ -1159,6 +1191,7 @@ public final class Gui extends Thread
                         if (o == moduleFrame[j])
                         {
                             module = j;
+                            break;
                         }
                     }
                     if (moduleGui[module] != null)

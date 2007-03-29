@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -16,9 +16,11 @@
 package rack.gui.main;
 
 
+import java.awt.Container;
 import javax.swing.*;
 
 import rack.main.RackProxy;
+import rack.gui.FullScreenFrame;
 
 /**
  * Diese Klasse ist die Superklasse aller GUI-Module.
@@ -30,6 +32,8 @@ import rack.main.RackProxy;
 abstract public class RackModuleGui extends Thread//JComponent implements Runnable
 {
     protected boolean terminate = false;
+    protected FullScreenFrame fullScreen = null;
+    protected Container prevContainer;
     
     // use constructor RackModuleGui(RackProxy moduleProxy) or
     // RackModuleGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList)
@@ -98,5 +102,25 @@ abstract public class RackModuleGui extends Thread//JComponent implements Runnab
      * wenn eine Aktion auf der Karte ausgefuehrt wird */
     public void mapViewActionPerformed(MapViewActionEvent event)
     {
+    }
+
+    /**
+     * Called when component was switched to/from full-screen mode
+     */
+    public synchronized void toggleFullScreen()
+    {
+    	if (fullScreen == null)
+    	{
+    		fullScreen = new FullScreenFrame();
+    		prevContainer = getComponent().getParent();
+    		fullScreen.add(getComponent());
+    		fullScreen.setVisible(true);
+    	}
+    	else
+    	{
+    		fullScreen.dispose();
+    		prevContainer.add(getComponent());
+    		fullScreen = null;
+    	}
     }
 }

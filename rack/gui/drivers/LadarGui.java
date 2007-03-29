@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -212,7 +212,7 @@ public class LadarGui extends RackModuleGui
         }
     }
 
-    class myKeyListener implements KeyListener
+    class myKeyListener extends KeyAdapter
     {
         public void keyPressed(KeyEvent e)
         {
@@ -225,15 +225,5 @@ public class LadarGui extends RackModuleGui
             if (e.getKeyCode() == KeyEvent.VK_UP)
                 ladarComponent.up();
         }
-
-        public void keyReleased(KeyEvent e)
-        {
-            System.out.println("just you!");
-        }
-
-        public void keyTyped(KeyEvent e)
-        {
-        }
-
     }
 }
