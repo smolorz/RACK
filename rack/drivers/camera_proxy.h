@@ -70,6 +70,7 @@
 #define CAMERA_MODE_ELEVATION      56
 #define CAMERA_MODE_TYPE           57
 #define CAMERA_MODE_EDGE           58
+#define CAMERA_MODE_DISPARITY      59
 
 //Pattern for raw images
 #define COLORFILTER_RGGB  512
