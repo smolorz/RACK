@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -548,6 +548,7 @@ void      RackModule::deleteGdosMbx()
 // non realtime context
 int       RackModule::moduleInit(void)
 {
+    int64_t offset;
     int ret;
 
     GDOS_DBG_DETAIL("RackModule::moduleInit ... \n");
@@ -584,22 +585,19 @@ int       RackModule::moduleInit(void)
     GDOS_DBG_INFO("Gdos mailbox created\n");
 
     // init rack time
-    ret = rackTime.init();
+    ret = rackTime.init(cmdMbx.getFildes());
     if (ret)
     {
         GDOS_ERROR("Can't init rack time, code = %d\n", ret);
         goto exit_error;
     }
 
-    if (rackTime.global)
-    {
-        GDOS_PRINT("Using global time, offset: %d ms\n",
-                   rackTime.offset / 1000000);
-    }
+    offset = rackTime.getOffset();
+    if (offset)
+        GDOS_PRINT("Using global time, offset: %.2f ms\n",
+                   (double)offset / 1000000);
     else
-    {
         GDOS_PRINT("Using local time\n");
-    }
 
 
     // create command task

@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -11,6 +11,8 @@
  *
  * Authors
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
+ *      Marko Reimer <reimer@rts.uni-hannover.de>
+ *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
 #ifndef __TIMS_H__
@@ -115,7 +117,13 @@ typedef struct
                                         int)
 
 #define TIMS_RTIOC_TIMEOUT         _IOW(RTIOC_TYPE_TIMS, 0x04,        \
-                                        int64_t)
+                                        nanosecs_rel_t)
+
+#define TIMS_RTIOC_GETCLOCKOFFSET  _IOW(RTIOC_TYPE_TIMS, 0x05,        \
+                                        nanosecs_rel_t)
+
+#define TIMS_RTIOC_GETTIME         _IOW(RTIOC_TYPE_TIMS, 0x06,        \
+                                        nanosecs_abs_t)
 
 //
 // functions

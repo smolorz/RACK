@@ -49,8 +49,8 @@ ARFLAGS = cru
 libtims_a_AR = $(AR) $(ARFLAGS)
 libtims_a_LIBADD =
 am_libtims_a_OBJECTS = libtims_a-tims_copy.$(OBJEXT) \
-	libtims_a-tims_rtnet.$(OBJEXT) libtims_a-tims_debug.$(OBJEXT) \
-	libtims_a-tims_driver.$(OBJEXT)
+	libtims_a-tims_rtnet.$(OBJEXT) libtims_a-tims_clock.$(OBJEXT) \
+	libtims_a-tims_debug.$(OBJEXT) libtims_a-tims_driver.$(OBJEXT)
 libtims_a_OBJECTS = $(am_libtims_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
@@ -289,6 +289,8 @@ libtims_a_SOURCES = \
 	tims_copy.h \
 	tims_rtnet.c \
 	tims_rtnet.h \
+	tims_clock.c \
+	tims_clock.h \
 	tims_debug.c \
 	tims_debug.h \
 	tims_driver.c \
@@ -345,6 +347,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtims_a-tims_clock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtims_a-tims_copy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtims_a-tims_debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libtims_a-tims_driver.Po@am__quote@
@@ -398,6 +401,20 @@ libtims_a-tims_rtnet.obj: tims_rtnet.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_rtnet.c' object='libtims_a-tims_rtnet.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtims_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libtims_a-tims_rtnet.obj `if test -f 'tims_rtnet.c'; then $(CYGPATH_W) 'tims_rtnet.c'; else $(CYGPATH_W) '$(srcdir)/tims_rtnet.c'; fi`
+
+libtims_a-tims_clock.o: tims_clock.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtims_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libtims_a-tims_clock.o -MD -MP -MF "$(DEPDIR)/libtims_a-tims_clock.Tpo" -c -o libtims_a-tims_clock.o `test -f 'tims_clock.c' || echo '$(srcdir)/'`tims_clock.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libtims_a-tims_clock.Tpo" "$(DEPDIR)/libtims_a-tims_clock.Po"; else rm -f "$(DEPDIR)/libtims_a-tims_clock.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_clock.c' object='libtims_a-tims_clock.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtims_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libtims_a-tims_clock.o `test -f 'tims_clock.c' || echo '$(srcdir)/'`tims_clock.c
+
+libtims_a-tims_clock.obj: tims_clock.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtims_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libtims_a-tims_clock.obj -MD -MP -MF "$(DEPDIR)/libtims_a-tims_clock.Tpo" -c -o libtims_a-tims_clock.obj `if test -f 'tims_clock.c'; then $(CYGPATH_W) 'tims_clock.c'; else $(CYGPATH_W) '$(srcdir)/tims_clock.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libtims_a-tims_clock.Tpo" "$(DEPDIR)/libtims_a-tims_clock.Po"; else rm -f "$(DEPDIR)/libtims_a-tims_clock.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tims_clock.c' object='libtims_a-tims_clock.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtims_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libtims_a-tims_clock.obj `if test -f 'tims_clock.c'; then $(CYGPATH_W) 'tims_clock.c'; else $(CYGPATH_W) '$(srcdir)/tims_clock.c'; fi`
 
 libtims_a-tims_debug.o: tims_debug.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtims_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libtims_a-tims_debug.o -MD -MP -MF "$(DEPDIR)/libtims_a-tims_debug.Tpo" -c -o libtims_a-tims_debug.o `test -f 'tims_debug.c' || echo '$(srcdir)/'`tims_debug.c; \

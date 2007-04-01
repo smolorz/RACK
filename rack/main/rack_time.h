@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -11,6 +11,8 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Marko Reimer <reimer@rts.uni-hannover.de>
+ *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
 
@@ -29,13 +31,9 @@
 /** RACK time factor (1 ms) */
 #define RACK_TIME_FACTOR          1000000
 
-/** RTnet time reference device*/
-#define RACK_TIME_REF_DEV      "TDMA0"
-
-#include <main/rack_rtmac.h>
 #include <native/timer.h>
 #include <inttypes.h>
-
+#include <main/tims/tims.h>
 
 /** RACK time (32 Bit) */
 typedef uint32_t rack_time_t;
@@ -43,16 +41,10 @@ typedef uint32_t rack_time_t;
 class RackTime {
     private:
 
-/** TDMA file decriptor */
-        int32_t tdma_fd;
+/** File decriptor to communicate with TIMS */
+        int tims_fd;
 
     public:
-
-/** Global time offset */
-        int64_t offset;
-
-/** Global time flag */
-        char    global;
 
 /**
  * @brief RackTime constructor.
@@ -67,52 +59,16 @@ class RackTime {
  */
         RackTime()
         {
-            tdma_fd = -1;
-            global  = 0;
-            offset  = 0;
-        }
-
-/**
- * @brief RackTime destructor.
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT)
- *
- * Rescheduling: never.
- */
-        ~RackTime()
-        {
-            cleanup();
-        }
-
-/**
- * @brief Cleanup the RackTime class. If the RTnet TDMA device has been opened
- * the device is closed.
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (RT, non-RT)
- *
- * Rescheduling: never.
- */
-        void cleanup()
-        {
-            if (tdma_fd)
-                rt_dev_close(tdma_fd);
-
-            tdma_fd = -1;
-            global = 0;
+            tims_fd = -1;
         }
 
 /**
  * @brief Initializing the RackTime class. The function tries to open the
  * RTnet TDMA device. On success the global offset is fetched and the
  * global flag is set.
+ *
+ * @param[in] tims_fd File descriptor of a TIMS mailbox. Has to remain valid
+ * as long as the RackTime instance is uses.
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -124,26 +80,25 @@ class RackTime {
  *
  * Rescheduling: never.
  */
-        int init()
+        int init(int tims_fd)
         {
-            int ret;
+            int err;
             int64_t offset;
 
-            tdma_fd = rt_dev_open(RACK_TIME_REF_DEV, O_RDONLY);
-            if (tdma_fd > -1)
+            this->tims_fd = tims_fd;
+            err = rt_dev_ioctl(tims_fd, TIMS_RTIOC_GETCLOCKOFFSET, &offset);
+            if (err)
             {
-                global = 1;
-
-                ret = getOffset(&offset);
-                if (ret)
-                {
-                    cleanup();
-                    return ret;
-                }
+                tims_fd = -1;
+                return err;
+            }
+            if (offset == 0)
+            {
+                /* Optimisation: we are (most probably) the time master */
+                tims_fd = -1;
             }
             return 0;
         }
-
 
 /**
  * @brief Converting nanoseconds into rack_time_t. If a global time offset is
@@ -163,10 +118,7 @@ class RackTime {
  */
         rack_time_t fromNano(uint64_t ntime)
         {
-            int64_t offset = 0;
-
-            getOffset(&offset);
-            return (rack_time_t)((ntime + offset) / RACK_TIME_FACTOR);
+            return (rack_time_t)((ntime + getOffset()) / RACK_TIME_FACTOR);
         }
 
 /**
@@ -190,8 +142,8 @@ class RackTime {
         }
 
 /**
- * @brief Gets the current RACK time. If a global time offset is given the
- * offset is added.
+ * @brief Gets the current RACK time, synchonised on a reference clock if TIMS
+ * is configured accordingly.
  *
  * @return Current rack_time_t
  *
@@ -205,19 +157,14 @@ class RackTime {
  */
         rack_time_t get(void)
         {
-            int64_t offset;
-
-            getOffset(&offset);
-            return (uint32_t)((rt_timer_read() + offset) / RACK_TIME_FACTOR);
+            return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
         }
 
 /**
- * @brief Gets the current time in nanoseconds. If a global time offset is
- * given the offset is added.
+ * @brief Gets the current RACK time in nanoseconds, synchonised on a
+ * reference clock if TIMS is configured accordingly.
  *
- * @param[in,out] time_ns Pointer to the nanoseconds value
- *
- * @return 0 on success, otherwise negative error code
+ * @return Current RACK time in nanoseconds
  *
  * Environments:
  *
@@ -227,50 +174,39 @@ class RackTime {
  *
  * Rescheduling: never.
  */
-        int getNano(uint64_t *time_ns)
+        uint64_t getNano(void)
         {
-            int ret;
-            int64_t offset;
+            uint64_t ntime;
 
-            ret = getOffset(&offset);
-            if (ret)
-                return ret;
-
-            *time_ns = rt_timer_read() + offset;
-            return 0;
-        }
-
-/**
- * @brief Gets the global offset in nanoseconds.
- *
- * @param[in,out] offset Pointer to the offset value
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (RT, non-RT)
- *
- * Rescheduling: never.
- */
-        int getOffset(int64_t *offset)
-        {
-            int ret;
-
-            if (global)
-            {
-                ret = rt_dev_ioctl(tdma_fd, RTMAC_RTIOC_TIMEOFFSET, offset);
-                if (ret)
-                    return ret;
-            }
+            if (tims_fd < 0 ||
+                rt_dev_ioctl(tims_fd, TIMS_RTIOC_GETTIME, &ntime) < 0)
+                return rt_timer_read();
             else
-            {
-                *offset = 0;
-            }
+                return ntime;
+        }
 
-            return 0;
+/**
+ * @brief Gets the offset to the reference clock in nanoseconds.
+ *
+ * @return Local clock offset (global = local + offset)
+ *
+ * Environments:
+ *
+ * This service can be called from:
+ *
+ * - User-space task (RT, non-RT)
+ *
+ * Rescheduling: never.
+ */
+        int64_t getOffset(void)
+        {
+            int64_t offset;
+
+            if (tims_fd < 0 ||
+                rt_dev_ioctl(tims_fd, TIMS_RTIOC_GETCLOCKOFFSET, &offset) < 0)
+                offset = 0;
+
+            return offset;
         }
 };
 

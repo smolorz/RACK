@@ -107,4 +107,6 @@
                                     rtdm_printk(fmt, ##__VA_ARGS__);         \
                                 } while(0)
 
+extern int dbglevel;
+
  #endif // __TIMS_DEBUG_H__

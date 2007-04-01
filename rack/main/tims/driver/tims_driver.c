@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
  *      Sebastian Smolorz <Sebastian.Smolorz@stud.uni-hannover.de>
+ *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
 #include <linux/kernel.h>
@@ -25,9 +26,10 @@
 #include <rack_config.h>
 #include <main/tims/driver/tims_driver.h>
 #include <main/tims/driver/tims_debug.h>
+#include <main/tims/driver/tims_clock.h>
 
-#define DRIVER_AUTHOR   "Joerg Langenberg - joerg.langenberg@gmx.net"
-#define DRIVER_VERSION  "0.0.6"
+#define DRIVER_AUTHOR   "RACK project team"
+#define DRIVER_VERSION  "0.2.0"
 #define DRIVER_DESC     "Tiny Messaging Service (TIMS)"
 
 //
@@ -36,16 +38,6 @@
 #define TIMS_STATE_BIT_STARTING             0
 #define TIMS_STATE_BIT_SHUTDOWN             1
 #define TIMS_STATE_BIT_RTNET_ENABLED        2
-
-//
-// init flags
-//
-#define TIMS_INIT_BIT_RECV_TASK             0
-#define TIMS_INIT_BIT_PIPE_TO_CLIENT        1
-#define TIMS_INIT_BIT_PIPE_FROM_CLIENT      2
-#define TIMS_INIT_BIT_REGISTERED            3
-#define TIMS_INIT_BIT_MBX_CACHE             4
-#define TIMS_INIT_BIT_RTNET                 5
 
 //
 // context flags
@@ -89,9 +81,6 @@ extern int  rtnet_read_config(tims_router_config_msg *configMsg);
 extern void rtnet_cleanup(void);
 extern int  rtnet_init(void);
 
-// --- tims_debug ---
-extern int dbglevel;
-
 //
 // context cache data structure
 //
@@ -105,11 +94,10 @@ typedef struct tims_ctx_cache { // fast search for context
 #define CONFIG_TIMS_CTX_CACHE_SIZE      64
 
 //
-// driver values
+// driver data
 //
 
-struct tims_driver {
-    unsigned long           init_flags;     // init flags
+static struct {
     unsigned long           state_flags;    // module state flags
 
     rtdm_lock_t             ctx_lock;       // context lock
@@ -122,21 +110,10 @@ struct tims_driver {
     RT_PIPE                 pipeToClient;   // Pipe to Client
     RT_PIPE                 pipeFromClient; // Pipe from Client
     int                     terminate;      // terminate signal
-    atomic_t                taskCount;      // task counter
-};
+} td;
 
-//
-// macro functions
-//
-#define RTNET_INITIALISED   (test_bit(TIMS_INIT_BIT_RTNET, \
-                                      &td.init_flags))
-#define RTNET_ENABLED       (test_bit(TIMS_STATE_BIT_RTNET_ENABLED, \
-                                      &td.state_flags))
+unsigned long init_flags = 0;
 
-//
-// data structures
-//
-static struct tims_driver td;
 
 // ****************************************************************************
 //
@@ -693,7 +670,7 @@ static int tims_sendmsg_global(rtdm_user_info_t *user_info,
     void*           sendBuffer = NULL;
     tims_msg_head*  p_head = msg->msg_iov[0].iov_base;
 
-    if (RTNET_ENABLED)
+    if (test_bit(TIMS_STATE_BIT_RTNET_ENABLED, &td.state_flags))
     {
         ret = rtnet_sendmsg(user_info, msg);
         if (!ret)    // handled
@@ -810,7 +787,7 @@ static int unregister_mbx_tcp(unsigned int mbxAdr)
 //
 
 // realtime or non realtime context (xenomai task or linux)
-static inline int tims_wait_for_writers(tims_ctx *p_ctx)
+static int tims_wait_for_writers(tims_ctx *p_ctx)
 {
     int             listempty = 0;
     int             try = 100;
@@ -854,7 +831,7 @@ static inline int tims_wait_for_writers(tims_ctx *p_ctx)
 }
 
 // realtime or non realtime context (xenomai task or linux)
-static inline int tims_wake_up_reader(tims_ctx *p_ctx)
+static int tims_wake_up_reader(tims_ctx *p_ctx)
 {
     int             loops = 10;
     int             peek = 1;
@@ -1483,29 +1460,103 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
                   unsigned int request,
                   void *arg)
 {
-    tims_ctx*               p_ctx   = NULL;
-    tims_ctx*               p_ctx2  = NULL;
-    tims_mbx_cfg*           p_tmc   = NULL;
-    int                     ret     = 0;
-    tims_msg_head**         p_head  = NULL;
-    tims_mbx_slot*          slot    = NULL;
+    tims_ctx*       p_ctx   = NULL;
+    tims_ctx*       p_ctx2  = NULL;
+    tims_mbx_cfg*   p_tmc   = NULL;
+    tims_msg_head** p_head  = NULL;
+    tims_mbx_slot*  slot    = NULL;
+    int             ret;
 
     switch (request)
     {
-        case _RTIOC_GETSOCKOPT:
+        case TIMS_RTIOC_GETCLOCKOFFSET:
+        case TIMS_RTIOC_GETTIME:
+            return tims_clock_ioctl(user_info, request, arg);
+
+        case TIMS_RTIOC_RECVBEGIN:
         {
-            // struct _rtdm_getsockopt_args *args =
-            //                             (struct _rtdm_getsockopt_args *)arg;
-            // tims_dbginfo("ioctl, _RTIOC_GETSOCKOPT \n");
-            return -ENOTTY;
+            ret = 0;
+
+            if (!rtdm_in_rt_context())
+            {
+                tims_error("Call TIMS_RTIOC_RECVBEGIN only in realtime context!\n");
+                return -EPERM;
+            }
+
+            if (!arg)
+                return -EINVAL;
+
+            p_head = (tims_msg_head **)arg;
+
+            // get context
+            p_ctx = tims_ctx_get_rtdm(context);
+            if (!p_ctx)
+                return -ENODEV;
+
+            if (!test_bit(TIMS_CTX_BIT_BOUND, &p_ctx->flags) ||
+                !test_bit(TIMS_CTX_BIT_MBX_CREATED, &p_ctx->flags))
+            {
+                tims_error("Not bound or mailbox not created\n");
+                tims_ctx_put(p_ctx);
+                return -EFAULT;
+            }
+
+            if (user_info &&
+                !test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_ctx->p_mbx->flags))
+            {
+                tims_error("Mbx is in kernelspace. No peek allowed !!!\n");
+                tims_ctx_put(p_ctx);
+                return -EPERM;
+            }
+
+            ret = tims_peek_intern(p_ctx->p_mbx, &slot, NULL);
+            if (ret)
+            {
+                tims_error("ioctl, TIMS_RTIOC_RECVBEGIN\n");
+                tims_ctx_put(p_ctx);
+                return ret;
+            }
+
+            *p_head = slot->p_head;
+
+            // don't put context (it will be done in TIMS_RTIOC_RECVEND)
+            return 0;
         }
 
-        case _RTIOC_SETSOCKOPT:
+        case TIMS_RTIOC_RECVEND:
         {
-            // struct _rtdm_setsockopt_args *args =
-            //                             (struct _rtdm_setsockopt_args *)arg;
-            // tims_dbginfo("ioctl, _RTIOC_SETSOCKOPT \n");
-            return -ENOTTY;
+            if (!rtdm_in_rt_context())
+            {
+                tims_error("Call TIMS_RTIOC_RECVEND only "
+                           "in realtime context !!!\n");
+                  return -EPERM;
+            }
+
+            // don't inc use counter (done in TIMS_RTIOC_RECVBEGIN)
+            p_ctx = (tims_ctx*) context->dev_private;
+
+            if (!test_bit(TIMS_CTX_BIT_BOUND, &p_ctx->flags) ||
+                !test_bit(TIMS_CTX_BIT_MBX_CREATED, &p_ctx->flags))
+            {
+                tims_error("Not bound or mbx not created\n");
+                return -EFAULT;
+            }
+
+            if (!p_ctx->p_mbx->p_peek)
+            {
+                return -ENOSYS;
+            }
+
+            if (user_info &&
+                !test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_ctx->p_mbx->flags))
+            {
+                tims_error("Mbx is in kernelspace. No peek allowed !!!\n");
+                return -EPERM;
+            }
+
+            tims_peek_end_intern(p_ctx->p_mbx);
+            tims_ctx_put(p_ctx);
+            return 0;
         }
 
         case _RTIOC_BIND:
@@ -1599,92 +1650,6 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
             return 0;
         }
 
-        case TIMS_RTIOC_RECVBEGIN:
-        {
-            ret = 0;
-
-            if (!rtdm_in_rt_context())
-            {
-              tims_error("Call TIMS_RTIOC_RECVBEGIN only in realtime context!\n");
-              return -EPERM;
-            }
-
-            if (!arg)
-              return -EINVAL;
-
-            p_head = (tims_msg_head **)arg;
-
-              // get context
-            p_ctx = tims_ctx_get_rtdm(context);
-            if (!p_ctx)
-                return -ENODEV;
-
-            if (!test_bit(TIMS_CTX_BIT_BOUND, &p_ctx->flags) ||
-                !test_bit(TIMS_CTX_BIT_MBX_CREATED, &p_ctx->flags))
-            {
-                tims_error("Not bound or mailbox not created\n");
-                tims_ctx_put(p_ctx);
-                return -EFAULT;
-            }
-
-            if (user_info &&
-                !test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_ctx->p_mbx->flags))
-            {
-                  tims_error("Mbx is in kernelspace. No peek allowed !!!\n");
-                  tims_ctx_put(p_ctx);
-                  return -EPERM;
-            }
-
-            ret = tims_peek_intern(p_ctx->p_mbx, &slot, NULL);
-            if (ret)
-            {
-              tims_error("ioctl, TIMS_RTIOC_RECVBEGIN\n");
-              tims_ctx_put(p_ctx);
-              return ret;
-            }
-
-            *p_head = slot->p_head;
-
-            // don't put context (it will be done in TIMS_RTIOC_RECVEND)
-            return 0;
-        }
-
-        case TIMS_RTIOC_RECVEND:
-        {
-            if (!rtdm_in_rt_context())
-            {
-                tims_error("Call TIMS_RTIOC_RECVEND only "
-                           "in realtime context !!!\n");
-                  return -EPERM;
-            }
-
-            // don't inc use counter (done in TIMS_RTIOC_RECVBEGIN)
-            p_ctx = (tims_ctx*) context->dev_private;
-
-            if (!test_bit(TIMS_CTX_BIT_BOUND, &p_ctx->flags) ||
-                !test_bit(TIMS_CTX_BIT_MBX_CREATED, &p_ctx->flags))
-            {
-                tims_error("Not bound or mbx not created\n");
-                return -EFAULT;
-            }
-
-            if (!p_ctx->p_mbx->p_peek)
-            {
-                return -ENOSYS;
-            }
-
-            if (user_info &&
-                !test_bit(TIMS_MBX_BIT_USRSPCBUFFER, &p_ctx->p_mbx->flags))
-            {
-                tims_error("Mbx is in kernelspace. No peek allowed !!!\n");
-                return -EPERM;
-            }
-
-            tims_peek_end_intern(p_ctx->p_mbx);
-            tims_ctx_put(p_ctx);
-            return 0;
-        }
-
         case TIMS_RTIOC_TIMEOUT:
         {
             if (!arg)
@@ -1706,11 +1671,6 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
             tims_ctx_put(p_ctx);
             return 0;
         }
-
-        default: {
-            return -ENOTTY;
-        }
-
       }
       return -ENOTTY;
 }
@@ -1962,6 +1922,9 @@ int rt_tims_socket(struct rtdm_dev_context *context,
     // inc module use counter
     try_module_get(THIS_MODULE);
 
+    // inform about potential new clock user
+    tims_clock_open();
+
     return 0;
 }
 
@@ -1998,7 +1961,7 @@ int rt_tims_close(struct rtdm_dev_context *context,
         }
 
         // check use counter
-         tims_info("Use counter is %d\n", p_ctx->use_counter);
+        tims_info("Use counter is %d\n", p_ctx->use_counter);
 
         // free mailbox
         destroy_mailbox(p_ctx);
@@ -2011,6 +1974,9 @@ int rt_tims_close(struct rtdm_dev_context *context,
 
     // dec module use counter
     module_put(THIS_MODULE);
+
+    // release clock usage
+    tims_clock_close();
 
     return 0;
 }
@@ -2039,12 +2005,12 @@ static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
         return -EINVAL;
     }
 
-    if (RTNET_INITIALISED)
+    if (test_bit(TIMS_INIT_BIT_RTNET, &init_flags))
     {
         ret = rtnet_read_config(configMsg);
         if (ret)
         {
-            if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &td.init_flags))
+            if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &init_flags))
             {
                 rtnet_cleanup();
                 tims_print("RTnet disabled\n");
@@ -2122,10 +2088,6 @@ static void pipe_recv_proc(void *arg)
     int             ret     = 0;
     void*           ptr     = NULL;
 
-    atomic_inc(&td.taskCount);
-
-    tims_print("[PIPE]: waiting for msg from timsMsgClient ...\n");
-
     while (!td.terminate)   // terminate will be set by cleanup()
     {
         // read message from pipe (blocking)
@@ -2139,7 +2101,7 @@ static void pipe_recv_proc(void *arg)
             else // error
             {
                 tims_error("[PIPE]: Can't receive data, code = %d\n", ret);
-                goto task_exit;
+                return;
             }
         }
         else if (ret > 1 && ret < TIMS_HEADLEN) // smaller than tims_msg_head
@@ -2154,7 +2116,7 @@ static void pipe_recv_proc(void *arg)
             if (*p_val == 1)    // terminate
             {
                 tims_error("[PIPE]: Recv term signal from TIMS -> EXIT\n");
-                goto task_exit;
+                return;
             }
         }
         p_head = (tims_msg_head *)P_MSGPTR(recvMsg);
@@ -2256,11 +2218,8 @@ static void pipe_recv_proc(void *arg)
         rt_pipe_free(&td.pipeFromClient, recvMsg);
         tims_ctx_put(p_ctx);
     }
-
-    task_exit:
-    atomic_dec(&td.taskCount);
-    tims_info("timsRecvTask EXIT \n");
 }
+
 
 // ****************************************************************************
 //
@@ -2278,29 +2237,15 @@ static struct rtdm_device tims_rtdmdev = {
     protocol_family:    PF_TIMS,
     socket_type:        SOCK_RAW,
 
-    open_rt:            NULL,
-    open_nrt:           NULL,
-
-    socket_rt:          NULL,
-
-
     socket_nrt:         rt_tims_socket,
 
     ops: {
-        close_rt:       NULL,
         close_nrt:      rt_tims_close,
 
         ioctl_rt:       rt_tims_ioctl,
         ioctl_nrt:      rt_tims_ioctl,
 
-        read_rt:        NULL,
-        read_nrt:       NULL,
-
-        write_rt:       NULL,
-        write_nrt:      NULL,
-
         recvmsg_rt:     rt_tims_recvmsg,
-        recvmsg_nrt:    NULL,
 
         sendmsg_rt:     rt_tims_sendmsg,
         sendmsg_nrt:    rt_tims_sendmsg,
@@ -2313,9 +2258,9 @@ static struct rtdm_device tims_rtdmdev = {
 #else /* !RACK_PACKAGE_SVN_REVISION */
     driver_name:        "TIMS",
 #endif /* RACK_PACKAGE_SVN_REVISION */
-    driver_version:     RTDM_DRIVER_VER(0, 1, 0),
+    driver_version:     RTDM_DRIVER_VER(0, 2, 0),
     peripheral_name:    "",
-    provider_name:      "Joerg Langenberg",
+    provider_name:      "RACK project team",
 
     proc_name:          "tims"
 };
@@ -2347,32 +2292,34 @@ static void tims_cleanup(void)
     // wake up pipe_task
 //TODO
 
-    if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &td.init_flags))
+    tims_clock_cleanup();
+
+    if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &init_flags))
     {
         rtnet_cleanup();
         tims_info("Pipe to client has been deleted\n");
     }
 
-    if (test_and_clear_bit(TIMS_INIT_BIT_PIPE_TO_CLIENT, &td.init_flags))
+    if (test_and_clear_bit(TIMS_INIT_BIT_PIPE_TO_CLIENT, &init_flags))
     {
         rt_pipe_delete(&td.pipeToClient);
         tims_info("Pipe to client has been deleted\n");
     }
 
-    if (test_and_clear_bit(TIMS_INIT_BIT_PIPE_FROM_CLIENT, &td.init_flags))
+    if (test_and_clear_bit(TIMS_INIT_BIT_PIPE_FROM_CLIENT, &init_flags))
     {
         rt_pipe_delete(&td.pipeFromClient);
         tims_info("Pipe from client has been deleted\n");
     }
 
-    if (test_and_clear_bit(TIMS_INIT_BIT_RECV_TASK, &td.init_flags))
+    if (test_and_clear_bit(TIMS_INIT_BIT_RECV_TASK, &init_flags))
     {
         rtdm_task_destroy(&td.pipeRecvTask);
         tims_info("timsRecvTask has been deleted\n");
     }
 
     // unregister tims
-    if (test_and_clear_bit(TIMS_INIT_BIT_REGISTERED, &td.init_flags))
+    if (test_and_clear_bit(TIMS_INIT_BIT_REGISTERED, &init_flags))
     {
         ret = rtdm_dev_unregister(&tims_rtdmdev, 50); // poll delay 50ms
         if (ret)
@@ -2388,15 +2335,19 @@ static int tims_init(void)
     int ret;
     tims_msg_head getConfig;
 
-    atomic_set(&td.taskCount,0);
     rtdm_lock_init(&td.ctx_lock);        // init context lock
     INIT_LIST_HEAD(&td.ctx_list);
+
+    // init clock services
+    ret = tims_clock_init();
+    if (ret)
+        goto init_error;
 
     // init rtnet
     ret = rtnet_init();
     if (!ret)
     {
-        set_bit(TIMS_INIT_BIT_RTNET, &td.init_flags);
+        set_bit(TIMS_INIT_BIT_RTNET, &init_flags);
         tims_print("RTnet initialised\n");
     }
     else
@@ -2418,7 +2369,7 @@ static int tims_init(void)
                    PIPE_TIMS_TO_CLIENT);
         goto init_error;
     }
-    set_bit(TIMS_INIT_BIT_PIPE_TO_CLIENT, &td.init_flags);
+    set_bit(TIMS_INIT_BIT_PIPE_TO_CLIENT, &init_flags);
     tims_info("Pipe to Client created \n");
 
     ret = rt_pipe_create(&td.pipeFromClient, "timsPipeFromClient",
@@ -2430,7 +2381,7 @@ static int tims_init(void)
                    PIPE_CLIENT_TO_TIMS);
         goto init_error;
     }
-    set_bit(TIMS_INIT_BIT_PIPE_FROM_CLIENT, &td.init_flags);
+    set_bit(TIMS_INIT_BIT_PIPE_FROM_CLIENT, &init_flags);
     tims_info("Pipe from client created \n");
 
     //
@@ -2445,13 +2396,13 @@ static int tims_init(void)
         goto init_error;
     }
     tims_info("timsRecvTask started \n");
-    set_bit(TIMS_INIT_BIT_RECV_TASK, &td.init_flags);
+    set_bit(TIMS_INIT_BIT_RECV_TASK, &init_flags);
 
     //
     // Request configuration (if RTnet is available)
     //
 
-    if (RTNET_INITIALISED)
+    if (test_bit(TIMS_INIT_BIT_RTNET, &init_flags))
     {
         tims_fillhead(&getConfig, TIMS_MSG_ROUTER_GET_CONFIG, 0, 0,
                       0, 0, 0, TIMS_HEADLEN);
@@ -2474,12 +2425,12 @@ static int tims_init(void)
         tims_error("Can't register driver \n");
         goto init_error;
     }
-    set_bit(TIMS_INIT_BIT_REGISTERED, &td.init_flags);
+    set_bit(TIMS_INIT_BIT_REGISTERED, &init_flags);
     tims_info("Driver registered \n");
 
     return 0;
 
-init_error:
+ init_error:
     tims_cleanup();
     return ret;
 }
@@ -2490,27 +2441,26 @@ int __init mod_start(void)
     int ret;
 
     // clear driver mem (and all flags)
-    memset(&td, 0, sizeof(struct tims_driver));
+    memset(&td, 0, sizeof(td));
 
     // set start flag
     set_bit(TIMS_STATE_BIT_STARTING, &td.state_flags);
 
-    rtdm_printk("********** %s - %s ***********\n", DRIVER_DESC, DRIVER_VERSION);
+    printk("********** %s - %s ***********\n", DRIVER_DESC, DRIVER_VERSION);
 
     if (dbglevel < 0 && dbglevel > TIMS_LEVEL_MAX)
     {
-        rtdm_printk("TIMS: ERROR: Invalid debug level -> EXIT \n");
-        return -1;
+        printk("TIMS: ERROR: Invalid debug level -> EXIT \n");
+        return -EINVAL;
     }
-    rtdm_printk("TIMS: Using debug level %d\n", dbglevel);
-    rtdm_printk("TIMS: Max message size is %d kB \n", max_msg_size);
-    rtdm_printk("TIMS: Max slots for sending over TCP/Pipe %d \n", max_msg_slots);
+    printk("TIMS: Using debug level %d\n", dbglevel);
+    printk("TIMS: Max message size is %d kB \n", max_msg_size);
+    printk("TIMS: Max slots for sending over TCP/Pipe %d\n", max_msg_slots);
 
     ret = tims_init();
     clear_bit(TIMS_STATE_BIT_STARTING, &td.state_flags);
     return ret;
 }
-
 
 
 void mod_exit(void)
@@ -2524,5 +2474,6 @@ MODULE_AUTHOR(DRIVER_AUTHOR);
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_LICENSE("GPL");
 
-module_init (mod_start);
-module_exit (mod_exit);
+module_init(mod_start);
+module_exit(mod_exit);
+

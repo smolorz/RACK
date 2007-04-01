@@ -12,6 +12,8 @@ libtims_a_SOURCES = \
 	tims_copy.h \
 	tims_rtnet.c \
 	tims_rtnet.h \
+	tims_clock.c \
+	tims_clock.h \
 	tims_debug.c \
 	tims_debug.h \
 	tims_driver.c \

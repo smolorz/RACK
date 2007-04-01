@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2007 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
  *      Sebastian Smolorz <Sebastian.Smolorz@stud.uni-hannover.de>
+ *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
 #ifndef __TIMS_DRIVER_H__
@@ -20,9 +21,22 @@
 #include <linux/bitops.h>
 #include <linux/list.h>
 #include <linux/mm.h>
+
 #include <rtdm/rtdm_driver.h>
 #include <main/tims/tims.h>
 #include <main/tims/router/tims_router.h>
+
+//
+// init flags
+//
+#define TIMS_INIT_BIT_RECV_TASK             0
+#define TIMS_INIT_BIT_PIPE_TO_CLIENT        1
+#define TIMS_INIT_BIT_PIPE_FROM_CLIENT      2
+#define TIMS_INIT_BIT_REGISTERED            3
+#define TIMS_INIT_BIT_MBX_CACHE             4
+#define TIMS_INIT_BIT_RTNET                 5
+#define TIMS_INIT_BIT_SYNC_DEV              6
+#define TIMS_INIT_BIT_SYNC_TASK             7
 
 //
 // map info
@@ -111,7 +125,12 @@ typedef struct
 } tims_ctx;
 
 //
-// help functions
+// common variables
+//
+extern unsigned long init_flags;
+
+//
+// helper functions
 //
 static inline int get_max_pages(unsigned long buffersize)
 {
