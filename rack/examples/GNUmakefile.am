@@ -1,6 +1,9 @@
 
 pkgdata_DATA = \
-	rack_example.dxf
+	rack_example.dxf \
+	gui.cfg \
+	rack_gui.html \
+	tims_rtnet.conf
 
 pkgdata_SCRIPTS = \
 	load_rack_sim \
@@ -9,4 +12,8 @@ pkgdata_SCRIPTS = \
 EXTRA_DIST = \
 	load_rack_sim.in \
 	load_rack_gui.in \
-	rack_example.dxf
+	rack_example.dxf \
+	gui.cfg \
+	rack_gui.html \
+	tims_rtnet.conf
+

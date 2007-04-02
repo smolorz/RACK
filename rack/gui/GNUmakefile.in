@@ -13,7 +13,6 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -60,15 +59,7 @@ am__dist_java_JAVA_DIST = Gui.java MapViewGui.java GDOSGui.java \
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
-am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(pkgdatadir)"
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-pkgdataDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(pkgdata_DATA)
+am__installdirs = "$(DESTDIR)$(javadir)"
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -290,10 +281,6 @@ SUBDIRS = \
 	perception \
 	tools
 
-@CONFIG_RACK_JAVA_GUI_TRUE@pkgdata_DATA = \
-@CONFIG_RACK_JAVA_GUI_TRUE@	gui.cfg \
-@CONFIG_RACK_JAVA_GUI_TRUE@	rack_gui.html
-
 @CONFIG_RACK_JAVA_GUI_TRUE@dist_java_JAVA = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	Gui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
@@ -303,9 +290,7 @@ SUBDIRS = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	AppletGui.java
 
 EXTRA_DIST = \
-	gui.cfg \
-	gui.manifest \
-	rack_gui.html
+	gui.manifest
 
 all: all-recursive
 
@@ -367,23 +352,6 @@ uninstall-dist_javaJAVA:
 
 clean-dist_javaJAVA:
 	-rm -f *.class classdist_java.stamp
-install-pkgdataDATA: $(pkgdata_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgdatadir)" || $(mkdir_p) "$(DESTDIR)$(pkgdatadir)"
-	@list='$(pkgdata_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(pkgdataDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgdatadir)/$$f'"; \
-	  $(pkgdataDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgdatadir)/$$f"; \
-	done
-
-uninstall-pkgdataDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(pkgdata_DATA)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(pkgdatadir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(pkgdatadir)/$$f"; \
-	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -561,10 +529,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: GNUmakefile classdist_java.stamp $(DATA)
+all-am: GNUmakefile classdist_java.stamp
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(javadir)" "$(DESTDIR)$(pkgdatadir)"; do \
+	for dir in "$(DESTDIR)$(javadir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -611,7 +579,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_javaJAVA install-pkgdataDATA
+install-data-am: install-dist_javaJAVA
 
 install-exec-am:
 
@@ -637,8 +605,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dist_javaJAVA uninstall-info-am \
-	uninstall-pkgdataDATA
+uninstall-am: uninstall-dist_javaJAVA uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
@@ -649,14 +616,13 @@ uninstall-info: uninstall-info-recursive
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
 	install-dist_javaJAVA install-exec install-exec-am \
-	install-info install-info-am install-man install-pkgdataDATA \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
+	install-info install-info-am install-man install-strip \
+	installcheck installcheck-am installdirs installdirs-am \
+	maintainer-clean maintainer-clean-generic \
 	maintainer-clean-recursive mostlyclean mostlyclean-generic \
 	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
 	tags tags-recursive uninstall uninstall-am \
-	uninstall-dist_javaJAVA uninstall-info-am \
-	uninstall-pkgdataDATA
+	uninstall-dist_javaJAVA uninstall-info-am
 
 
 install-dist_javaJAVA: classdist_java.stamp

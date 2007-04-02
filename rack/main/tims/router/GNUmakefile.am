@@ -1,9 +1,6 @@
 xeno_dir = @XENO_USER_PREFIX@
 xeno_lib_dir = @XENO_LIBRARIES@
 
-pkgdata_DATA = \
-	tims_rtnet_example.conf
-
 bin_PROGRAMS = \
 	tims_client \
 	tims_router_tcp
@@ -30,6 +27,3 @@ tims_router_tcp_SOURCES = \
 
 tims_router_tcp_LDADD = \
 	-lpthread
-
-EXTRA_DIST = \
-	tims_rtnet_example.conf
