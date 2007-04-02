@@ -420,6 +420,7 @@ public class JoystickSoftware extends RackDataModuleGui
                 ChassisProxy chassisProxy = (ChassisProxy)rackProxyList[j];
                 if(pilot >= 0)
                 {
+                    chassisProxy.on();
                     chassisProxy.setActivePilot(RackName.create(RackName.PILOT, pilot));
                 }
                 else
