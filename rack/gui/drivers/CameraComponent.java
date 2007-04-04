@@ -245,15 +245,22 @@ public class CameraComponent extends JComponent
     }
 
 
-    public void setRects(int number, ImageRect[] newRects)
+/*    public void setRects(int number, ImageRect[] newRects)
     {
         rectNumber = number;
-        rects        = newRects;
-    }
+        rects      = newRects;
+    }*/
 
+    public void setRects(int number, ImageRect[] newRects, int[] objIds)
+    {
+        rectNumber = number;
+        rects      = newRects;
+        rectObjIds = objIds;
+    }
     public void paintComponent(Graphics g)
     {
     	Graphics2D g2 = (Graphics2D)g;
+    	Color rectColor = Color.GREEN; 
     	
         synchronized(this)
         {
@@ -261,10 +268,18 @@ public class CameraComponent extends JComponent
             {
                 g2.drawImage(img, 0, 0, this);
     
-                g2.setColor(Color.GREEN);
                 g2.setStroke(new BasicStroke(5));
                 for (int a = 0; a < rectNumber; a++)
                 {
+                	switch(rectObjIds[a] % 5) {
+                	case 0 : rectColor = Color.BLUE; break;
+                	case 1 : rectColor = Color.RED; break;
+                	case 2 : rectColor = Color.GREEN; break;
+                	case 3 : rectColor = Color.ORANGE; break;
+                	case 4 : rectColor = Color.MAGENTA; break;
+                	default: rectColor = Color.BLACK; break;
+                	}
+                    g2.setColor(rectColor);
                     g2.drawRect(rects[a].x, rects[a].y,
                                 rects[a].width, rects[a].height);
                 }
@@ -338,6 +353,7 @@ public class CameraComponent extends JComponent
 
     protected Image img;
     protected ImageRect[] rects;
+    protected int[] rectObjIds;
     protected int rectNumber = 0;
 
     private static final long serialVersionUID = 1L;

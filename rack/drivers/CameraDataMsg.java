@@ -49,6 +49,7 @@ public class CameraDataMsg extends TimsMsg
     public final static int CAMERA_MODE_ELEVATION      = 56;
     public final static int CAMERA_MODE_TYPE           = 57;
     public final static int CAMERA_MODE_EDGE           = 58;
+    public final static int CAMERA_MODE_DISPARITY      = 59;
 
     public final static int COLORFILTER_RGGB = 512;
     public final static int COLORFILTER_GBRG = 513;
@@ -393,6 +394,7 @@ public class CameraDataMsg extends TimsMsg
                 }
                 break;
             case CameraDataMsg.CAMERA_MODE_MONO8:
+            case CameraDataMsg.CAMERA_MODE_DISPARITY:
                 // every byte from the input data is put to all colors in one
                 // int
                 for (int j = 0; j < height; j++)
