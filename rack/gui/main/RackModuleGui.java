@@ -37,7 +37,7 @@ import rack.main.RackProxy;
 
 abstract public class RackModuleGui extends Thread//JComponent implements Runnable
 {
-    class FullScreenFrame extends JFrame {
+    protected class FullScreenFrame extends JFrame {
 
         private static final long serialVersionUID = 1L;
 
