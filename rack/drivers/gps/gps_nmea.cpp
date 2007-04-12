@@ -115,7 +115,6 @@ int GpsNmea::moduleLoop(void)
     gps_data*       p_data;
     gps_nmea_pos_3d posLLA, posGK;
     int             nmeaMsg = -1;
-    int             gpsInvalid = 0;
     int             ret;
 
     // get datapointer from rackdatabuffer
@@ -147,81 +146,110 @@ int GpsNmea::moduleLoop(void)
         // write package if a complete dataset is read
         if (nmeaMsg == trigMsg)
         {
-            // calculate global position and orientation in Gauss-Krueger coordinates
-            posLLA.x = gpsData.latitude;
-            posLLA.y = gpsData.longitude;
-            posLLA.z = gpsData.altitude / 1000.0;
-
-            posWGS84ToGK(&posLLA, &posGK);
-
-            gpsData.posGK.phi     = 0.0f;
-            gpsData.posGK.psi     = 0.0f;
-            gpsData.posGK.rho     = normaliseAngle(atan2(posGK.y - posGKOld.y,
-                                                         posGK.x - posGKOld.x));
-            memcpy(&posGKOld, &posGK, sizeof(gps_nmea_pos_3d));
-
-            GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f posGK.rho %a speed %i satNum %i\n",
-                           posGK.x, posGK.y, posGK.z, gpsData.posGK.rho,
-                           gpsData.speed, gpsData.satelliteNum);
-
-            // subtract local position offset
-            if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
+            // gps data invalid by utcTime
+            if ((utcTime != 0) && (utcTimeOld != 0) && (utcTime == utcTimeOld))
             {
-                gpsData.posGK.x = (int)rint((posGK.x -
-                                            (double)posGKOffsetX) * 1000.0);
+                GDOS_ERROR("Gps invalid by utcTime: %f, %f\n", utcTime, utcTimeOld);
+
+                gpsData.mode          = GPS_MODE_INVALID;
+                gpsData.latitude      = 0.0;
+                gpsData.longitude     = 0.0;
+                gpsData.altitude      = 0;
+                gpsData.heading       = 0.0f;
+                gpsData.speed         = 0;
+                gpsData.satelliteNum  = 0;
+                gpsData.utcTime       = 0;
+                gpsData.pdop          = 0.0f;
+                gpsData.posGK.x       = 0;
+                gpsData.posGK.y       = 0;
+                gpsData.posGK.z       = 0;
+                gpsData.posGK.phi     = 0.0f;
+                gpsData.posGK.psi     = 0.0f;
+                gpsData.posGK.rho     = 0.0f;
+                gpsData.varXY         = (int)1e12;
+                gpsData.varZ          = (int)1e12;
+                gpsData.varRho        = 1e12;
             }
 
-            if (fabs(posGK.y - (double)posGKOffsetY) < 2000000.0)
+            // gps data valid
+            else
             {
-                gpsData.posGK.y = (int)rint((posGK.y -
-                                            (double)posGKOffsetY) * 1000.0);
-            }
+                // calculate global position and orientation in Gauss-Krueger coordinates
+                posLLA.x = gpsData.latitude;
+                posLLA.y = gpsData.longitude;
+                posLLA.z = gpsData.altitude / 1000.0;
 
-            if (fabs(posGK.z) < 2000000000.0)
-            {
-                gpsData.posGK.z = (int)rint(posGK.z * 1000.0);
-            }
+                posWGS84ToGK(&posLLA, &posGK);
 
+                gpsData.posGK.phi     = 0.0f;
+                gpsData.posGK.psi     = 0.0f;
+                gpsData.posGK.rho     = normaliseAngle(atan2(posGK.y - posGKOld.y,
+                                                             posGK.x - posGKOld.x));
+                memcpy(&posGKOld, &posGK, sizeof(gps_nmea_pos_3d));
 
-            // estimate GPS position variance
-            if (gpsData.satelliteNum >= 6)
-            {
-                gpsData.varXY  = varXY;               // default 20m
-                gpsData.varZ   = varXY;               // default 100m
-            }
-            else if (gpsData.satelliteNum >= 4)
-            {
-                gpsData.varXY  = varXY * 5;           // default 100m
-                gpsData.varZ   = varXY * 5 * 5;       // default 500m
-            }
-            else if (gpsData.satelliteNum >= 3)
-            {
-                gpsData.varXY  = varXY * 5;           // default 100m
-                gpsData.varZ   = (int)1e12;           // Mode 2D
-            }
-            else  // satelliteNum < 3
-            {
-                gpsData.varXY  = (int)1e12;
-                gpsData.varZ   = (int)1e12;
-            }
+                GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f posGK.rho %a speed %i satNum %i\n",
+                               posGK.x, posGK.y, posGK.z, gpsData.posGK.rho,
+                               gpsData.speed, gpsData.satelliteNum);
 
-
-            // estimate GPS heading variance
-            if ((gpsData.satelliteNum >= 4) & (gpsData.satelliteNum == satelliteNumOld))
-            {
-                // use gps heading only with motion of at least 0.3m/s
-                if (gpsData.speed > 300)
+                // subtract local position offset
+                if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
                 {
-                    gpsData.varRho = varRho;          // default 90 deg
+                    gpsData.posGK.x = (int)rint((posGK.x -
+                                                (double)posGKOffsetX) * 1000.0);
+                }
+
+                if (fabs(posGK.y - (double)posGKOffsetY) < 2000000.0)
+                {
+                    gpsData.posGK.y = (int)rint((posGK.y -
+                                                (double)posGKOffsetY) * 1000.0);
+                }
+
+                if (fabs(posGK.z) < 2000000000.0)
+                {
+                    gpsData.posGK.z = (int)rint(posGK.z * 1000.0);
+                }
+
+
+                // estimate GPS position variance
+                if (gpsData.satelliteNum >= 6)
+                {
+                    gpsData.varXY  = varXY;               // default 20m
+                    gpsData.varZ   = varXY;               // default 100m
+                }
+                else if (gpsData.satelliteNum >= 4)
+                {
+                    gpsData.varXY  = varXY * 5;           // default 100m
+                    gpsData.varZ   = varXY * 5 * 5;       // default 500m
+                }
+                else if (gpsData.satelliteNum >= 3)
+                {
+                    gpsData.varXY  = varXY * 5;           // default 100m
+                    gpsData.varZ   = (int)1e12;           // Mode 2D
+                }
+                else  // satelliteNum < 3
+                {
+                    gpsData.varXY  = (int)1e12;
+                    gpsData.varZ   = (int)1e12;
+                }
+
+
+                // estimate GPS heading variance
+                if ((gpsData.satelliteNum >= 4) & (gpsData.satelliteNum == satelliteNumOld))
+                {
+                    // use gps heading only with motion of at least 0.3m/s
+                    if (gpsData.speed > 300)
+                    {
+                        gpsData.varRho = varRho;          // default 90 deg
+                    }
+                    else
+                    {
+                        gpsData.varRho = 1e12;       // no GPS heading
+                    }
                 }
                 else
                 {
-                    gpsData.varRho = 1e12;       // no GPS heading
+                    gpsData.varRho = 1e12;           // no GPS heading
                 }
-            }
-            else
-            {
-                gpsData.varRho = 1e12;           // no GPS heading
             }
 
             memcpy(p_data, &gpsData, sizeof(gps_data));
@@ -278,21 +306,9 @@ int GpsNmea::moduleLoop(void)
         GDOS_WARNING("Can't read data from serial device %i, code %i\n", serialDev, ret);
     }
 
-    // gps invalid conditions
-    if (((int)rackTime.get() - (int)gpsData.recordingTime) >= (1.5 * (int)periodTime))
-    {
-        gpsInvalid = 1;
-        GDOS_ERROR("Gps invalid by timeout: %d, %d, %d\n", (int)rackTime.get(),
-                   (int)gpsData.recordingTime, ((int)rackTime.get() - (int)gpsData.recordingTime));
-    }
-    if ((utcTime != 0) && (utcTimeOld != 0) && (utcTime == utcTimeOld))
-    {
-        gpsInvalid = 1;
-        GDOS_ERROR("Gps invalid by utcTime: %f, %f\n", utcTime, utcTimeOld);
-    }
 
-    // send empty data package
-    if (gpsInvalid == 1)
+    // gps data timeout condition
+    if (((int)rackTime.get() - (int)gpsData.recordingTime) >= (1.5 * (int)periodTime))
     {
         GDOS_DBG_DETAIL("no position fix available or invalid trigger message\n");
 
