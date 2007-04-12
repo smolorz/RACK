@@ -56,12 +56,14 @@ class ListenerEntry {
     public:
         uint32_t        reduction;
         message_info    msgInfo;
+        uint32_t        getNextData;
 
         // Konstruktor
         ListenerEntry()
         {
             reduction = 0;
             memset(&msgInfo, 0, sizeof(message_info));
+            getNextData = 0;
         };
 
         // Destruktor
@@ -101,7 +103,7 @@ class RackDataModule : public RackModule
         int                 getDataBufferIndex(rack_time_t time);
         int                 sendDataReply(rack_time_t time, message_info *msgInfo);
 
-        int                 addListener(rack_time_t periodTime, uint32_t destMbxAdr,
+        int                 addListener(rack_time_t periodTime, uint32_t getNextData, uint32_t destMbxAdr,
                                         message_info* msgInfo);
         void                removeListener(uint32_t destMbxAdr);
         void                removeAllListener(void);

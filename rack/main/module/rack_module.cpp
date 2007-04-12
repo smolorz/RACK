@@ -766,17 +766,6 @@ int RackModule::moduleCommand(message_info *msgInfo)
         return 0;
     }
 
-    case MSG_SET_LOG_LEVEL: {
-//TODO
-        return -0;
-    }
-
-    case MSG_GET_PERIOD_TIME: {
-//TODO
-        return -0;
-    }
-
-
     default: {
       // nobody handles this command -> return MODULE_ERROR
       return -EINVAL;

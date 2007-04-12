@@ -58,7 +58,7 @@ RackDataModule::RackDataModule( uint32_t class_id,                // class ID
     globalDataCount         = 0;
     index                   = 0;
 
-    dataBuffer                   = NULL;
+    dataBuffer              = NULL;
     listener                = NULL;
 
     dataModBits.clearAllBits();
@@ -74,17 +74,16 @@ RackDataModule::~RackDataModule()
 
 // the time is the first data element afer the message head !
 // realtime context
-rack_time_t   RackDataModule::getRecordingTime(void *p_data)
+rack_time_t RackDataModule::getRecordingTime(void *p_data)
 {
   return *(rack_time_t *)p_data;
 }
 
 // realtime context (cmdTask)
-int         RackDataModule::addListener(rack_time_t periodTime, uint32_t destMbxAdr,
+int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNextData, uint32_t destMbxAdr,
                                     message_info* msgInfo)
 {
     unsigned int i, idx;
-    unsigned int reduction;
 
     listenerMtx.lock(RACK_INFINITE);
 
@@ -104,19 +103,6 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t destMbx
         }
     }
 
-    if ((periodTime < dataBufferPeriodTime) ||
-        (periodTime == 0))
-    {
-        reduction = 1; // sending data after every putDataBufferWorkspace()
-    }
-    else
-    {
-        reduction = periodTime / dataBufferPeriodTime;
-    }
-
-    GDOS_DBG_DETAIL("Setting reduction to %d (self %d ms, request %d ms)\n",
-                    reduction, dataBufferPeriodTime, periodTime);
-
     if (idx == listenerNum) // not in table
     {
         if (listenerNum >= dataBufferMaxListener)
@@ -134,7 +120,30 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t destMbx
         listenerNum++;
     }
 
-    listener[idx].reduction = reduction;
+    if(getNextData)
+    {
+        listener[idx].reduction     = 1;
+        listener[idx].getNextData   = 1;
+
+        GDOS_DBG_DETAIL("DataBuffer: Add nextData listener %n time %i\n",
+                        listener[i].msgInfo.src, rackTime.get());
+    }
+    else
+    {
+        if ((periodTime < dataBufferPeriodTime) ||
+            (periodTime == 0))
+        {
+            listener[idx].reduction     = 1; // sending data after every putDataBufferWorkspace()
+        }
+        else
+        {
+            listener[idx].reduction     = periodTime / dataBufferPeriodTime;
+        }
+        listener[idx].getNextData   = 0;
+
+        GDOS_DBG_DETAIL("Setting reduction to %d (self %d ms, request %d ms)\n",
+                        listener[idx].reduction, dataBufferPeriodTime, periodTime);
+    }
 
     listenerMtx.unlock();
     return 0;
@@ -296,7 +305,7 @@ int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInf
     {
         ret = index;
     }
-    
+
     bufferMtx.unlock();
     return ret;
 }
@@ -398,6 +407,13 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
                 GDOS_ERROR("DataBuffer: Can't send continuous data "
                            "to listener %n, code = %d\n",
                            listener[i].msgInfo.src, ret);
+
+                removeListener(listener[i].msgInfo.src);
+            }
+            else if (listener[i].getNextData)
+            {
+                GDOS_DBG_DETAIL("DataBuffer: Remove nextData listener %n time %i\n",
+                                listener[i].msgInfo.src, rackTime.get());
 
                 removeListener(listener[i].msgInfo.src);
             }
@@ -568,7 +584,7 @@ void        RackDataModule::moduleCleanup(void)
 int         RackDataModule::moduleOn(void)
 {
     int ret;
-    
+
     if (!dataBufferPeriodTime)
     {
         GDOS_ERROR("Local dataBuffer period time was not set \n");
@@ -590,7 +606,7 @@ int         RackDataModule::moduleOn(void)
             return ret;
         }
     }
-        
+
     return RackModule::moduleOn();
 }
 
@@ -661,7 +677,7 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
 
             if (status == MODULE_STATE_ENABLED)
             {
-                ret = addListener(p_data->periodTime, p_data->dataMbxAdr, msgInfo);
+                ret = addListener(p_data->periodTime, 0, p_data->dataMbxAdr, msgInfo);
                 if (ret)
                 {
                     ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
@@ -708,9 +724,9 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
                             msgInfo->src, msgInfo->dest, p_data->dataMbxAdr);
 
             listenerMtx.lock(RACK_INFINITE);
-            
+
             removeListener(p_data->dataMbxAdr);
-            
+
             listenerMtx.unlock();
 
             ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
@@ -718,6 +734,38 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
             {
                 GDOS_ERROR("CmdTask: Can't send ok reply, code = %d\n", ret);
                 return ret;
+            }
+            return 0;
+        }
+
+        case MSG_GET_NEXT_DATA:
+        {
+            GDOS_DBG_DETAIL("CmdTask: GET_NEXT_DATA: %n -> %n, type: %d\n",
+                            msgInfo->src, msgInfo->dest, msgInfo->type);
+
+            if (status == MODULE_STATE_ENABLED)
+            {
+                ret = addListener(0, 1, msgInfo->src, msgInfo);
+                if (ret)
+                {
+                    ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
+                    if (ret)
+                    {
+                        GDOS_ERROR("CmdTask: Can't send error reply, "
+                                "code = %d\n", ret);
+                        return ret;
+                    }
+                }
+            }
+            else // status != MODULE_STATE_ENABLED
+            {
+                ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
+                if (ret)
+                {
+                    GDOS_ERROR("CmdTask: Can't send error reply, "
+                               "code = %d\n", ret);
+                    return ret;
+                }
             }
             return 0;
         }

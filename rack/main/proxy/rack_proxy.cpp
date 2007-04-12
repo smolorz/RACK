@@ -389,6 +389,19 @@ int RackDataProxy::getData(void *recv_data, ssize_t recv_datalen,
 }
 
 //
+// get next data
+//
+
+int RackDataProxy::getNextData(void *recv_data, ssize_t recv_datalen,
+                               uint64_t reply_timeout_ns,
+                               message_info *msgInfo)
+{
+    return proxySendRecvDataCmd(MSG_GET_NEXT_DATA, NULL, 0,
+                                MSG_DATA, recv_data, recv_datalen,
+                                reply_timeout_ns, msgInfo);
+}
+
+//
 // get continuous data
 //
 

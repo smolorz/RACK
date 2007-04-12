@@ -36,12 +36,7 @@
 #define MSG_GET_DATA                   4
 #define MSG_GET_CONT_DATA              6
 #define MSG_STOP_CONT_DATA             7
-
-//TODO
-#define MSG_SET_LOG_LEVEL              8
-
-//TODO
-#define MSG_GET_PERIOD_TIME            9
+#define MSG_GET_NEXT_DATA              8
 
 // global message returns (negative)
 #define MSG_OK                         TIMS_MSG_OK
@@ -62,7 +57,7 @@
 
 typedef struct
 {
-    rack_time_t   recordingTime;  // have to be first element
+    rack_time_t   recordingTime;  // has to be first element
 } __attribute__((packed)) rack_get_data;
 
 class RackGetData
@@ -105,7 +100,7 @@ class RackGetData
 
 typedef struct
 {
-    rack_time_t   periodTime;
+    rack_time_t periodTime;
     uint32_t    dataMbxAdr;
 } __attribute__((packed)) rack_get_cont_data;
 
@@ -151,7 +146,7 @@ class RackGetContData
 
 typedef struct
 {
-    rack_time_t   periodTime;
+    rack_time_t periodTime;
 } __attribute__((packed)) rack_cont_data;
 
 class RackContData
@@ -367,6 +362,13 @@ class RackDataProxy : public RackProxy {
 
     int getData(void *recv_data, ssize_t recv_max_len, rack_time_t timeStamp,
                 uint64_t reply_timeout_ns, message_info *p_msginfo);
+
+//
+// get next data
+//
+
+    int getNextData(void *recv_data, ssize_t recv_max_len,
+                    uint64_t reply_timeout_ns, message_info *p_msginfo);
 
     public:
 

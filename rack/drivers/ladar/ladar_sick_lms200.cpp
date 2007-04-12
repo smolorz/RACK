@@ -205,6 +205,7 @@ int  LadarSickLms200::moduleLoop(void)
     if (bytes > 0 && bytes <= getDataBufferMaxDataSize() )
     {
         putDataBufferWorkSpace(bytes);
+        GDOS_DBG_DETAIL("Data recordingtime %i distanceNum %i\n", p_data->recordingTime, p_data->distanceNum);
         return 0;
     }
 
