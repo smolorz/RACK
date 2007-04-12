@@ -55,23 +55,63 @@ public abstract class RackDataProxy extends RackProxy
 
             if (reply.type == RackProxy.MSG_DATA)
             {
-
                 // System.out.println(RackName.nameString(replyMbx) + ": " +
-                // RackName.nameString(commandMbx) + ".getData");
-                return (reply);
+                // RackName.nameString(commandMbx) + ".getRawData");
+                return reply;
             }
             else
             {
                 // System.out.println(RackName.nameString(replyMbx) + ": " +
-                // RackName.nameString(commandMbx) + ".getData replied error");
-                return (null);
+                // RackName.nameString(commandMbx) + ".getRawData replied error");
+                return null;
             }
         }
         catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx.getName()) + ": "
-                    + RackName.nameString(commandMbx) + ".getData " + e);
-            return (null);
+                    + RackName.nameString(commandMbx) + ".getRawData " + e);
+            return null;
+        }
+    }
+
+    protected synchronized TimsDataMsg getNextData()
+    {
+        currentSequenceNo++;
+
+        try
+        {
+            replyMbx.send0(RackProxy.MSG_GET_NEXT_DATA, commandMbx,
+                          (byte) 0, currentSequenceNo);
+
+            TimsDataMsg reply;
+
+            do
+            {
+
+                reply = replyMbx.receive(onTimeout);
+
+            }
+            while (reply.seqNr != currentSequenceNo);
+
+            if (reply.type == RackProxy.MSG_DATA)
+            {
+
+                // System.out.println(RackName.nameString(replyMbx) + ": " +
+                // RackName.nameString(commandMbx) + ".getNextData");
+                return reply;
+            }
+            else
+            {
+                // System.out.println(RackName.nameString(replyMbx) + ": " +
+                // RackName.nameString(commandMbx) + ".getNextData replied error");
+                return null;
+            }
+        }
+        catch (TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
+                    + RackName.nameString(commandMbx) + ".getNextData " + e);
+            return null;
         }
     }
 

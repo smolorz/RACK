@@ -28,12 +28,7 @@ public abstract class RackProxy
     public static final byte MSG_GET_DATA = 4;
     public static final byte MSG_GET_CONT_DATA = 6;
     public static final byte MSG_STOP_CONT_DATA = 7;
-
-    // TODO
-    public static final byte MSG_SET_LOG_LEVEL = 8;
-
-    // TODO
-    public static final byte MSG_GET_PERIOD_TIME = 9;
+    public static final byte MSG_GET_NEXT_DATA = 8;
 
     // global returns (negative)
     public static final byte MSG_OK = Tims.MSG_OK;

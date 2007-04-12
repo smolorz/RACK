@@ -35,24 +35,42 @@ public class LadarProxy extends RackDataProxy
             if (raw != null)
             {
                 LadarDataMsg data = new LadarDataMsg(raw);
-                return (data);
+                return data;
             }
             else
             {
-                return (null);
+                return null;
             }
 
         }
         catch (TimsException e)
         {
             System.out.println(e.toString());
-            return (null);
+            return null;
         }
     }
 
     public synchronized LadarDataMsg getData()
     {
-        return (getData(0));
+        try
+        {
+            TimsDataMsg raw = getNextData();
+
+            if (raw != null)
+            {
+                LadarDataMsg data = new LadarDataMsg(raw);
+                return data;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (TimsException e)
+        {
+            System.out.println(e.toString());
+            return null;
+        }
     }
 
     public int getCommandMbx()

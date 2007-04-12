@@ -50,7 +50,19 @@ public class Scan2DProxy extends RackDataProxy
 
   public synchronized Scan2DDataMsg getData()
   {
-    return(getData(0));
+    try {
+      TimsDataMsg raw = getNextData();
+
+      if (raw != null) {
+        Scan2DDataMsg data = new Scan2DDataMsg(raw);
+        return(data);
+      } else {
+        return(null);
+      }
+    } catch(TimsException e) {
+      System.out.println(e.toString());
+      return(null);
+    }
   }
 
   public int getCommandMbx()

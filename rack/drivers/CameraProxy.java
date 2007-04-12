@@ -65,7 +65,25 @@ public class CameraProxy extends RackDataProxy {
 
     public synchronized CameraDataMsg getData()
     {
-        return(getData(0));
+        try
+        {
+            TimsDataMsg raw = getNextData();
+
+            if(raw != null)
+            {
+                CameraDataMsg data = new CameraDataMsg(raw);
+                return data;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch(TimsException e)
+        {
+            System.out.println(e.toString());
+            return null;
+        }
     }
 
     public synchronized void setFormat(CameraFormatMsg format)
