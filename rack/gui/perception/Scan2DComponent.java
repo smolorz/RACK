@@ -38,7 +38,7 @@ public class Scan2DComponent extends JComponent
   /** Creates a new instance of LadarScan2DComponent */
   public Scan2DComponent(int maxDistance)
   {
-    setBackground(Color.lightGray );
+    setBackground(Color.LIGHT_GRAY );
     this.maxDistance = maxDistance;
     setDoubleBuffered(true);
   }
@@ -136,9 +136,9 @@ public class Scan2DComponent extends JComponent
             xWindow++) {
 
           if ((xWindow % 5) == 0) {
-            g.setColor(Color.black);
+            g.setColor(Color.BLACK);
           } else {
-            g.setColor(Color.gray);
+            g.setColor(Color.GRAY);
           }
 
           g.drawLine(transformToXWindow(0.0, 0.0) + xWindow*mToPixel, 0 ,
@@ -152,9 +152,9 @@ public class Scan2DComponent extends JComponent
              yWindow++) {
 
           if ((yWindow % 5) == 0) {
-            g.setColor(Color.black);
+            g.setColor(Color.BLACK);
           } else {
-            g.setColor(Color.gray);
+            g.setColor(Color.GRAY);
           }
 
           g.drawLine(0, transformToYWindow(0,0) + yWindow*mToPixel, width,
@@ -165,7 +165,7 @@ public class Scan2DComponent extends JComponent
       }
 
       // draw scan position
-      g.setColor(Color.gray);
+      g.setColor(Color.GRAY);
       xWindow = transformToXWindow(0.0, 0.0);
       yWindow = transformToYWindow(0.0, 0.0);
 //    g.fillRect(xWindow-2,yWindow-2,4,4);
@@ -178,19 +178,23 @@ public class Scan2DComponent extends JComponent
 
         if((point.type & ScanPoint.TYPE_INVALID) != 0)
         {               
-            g.setColor(Color.gray);
+            g.setColor(Color.GRAY);
         }
         else if((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
         {
-            g.setColor(Color.yellow);
+            g.setColor(Color.YELLOW);
         }
         else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
         {
             g.setColor(Color.BLUE);
         }
-        else
+        else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
         {
             g.setColor(Color.RED);
+        }
+        else
+        {
+            g.setColor(Color.BLACK);
         }
 
         xWindow = transformToXWindow(point.x, point.y);
@@ -203,7 +207,7 @@ public class Scan2DComponent extends JComponent
         }
       }
 
-      g.setColor(Color.black);
+      g.setColor(Color.BLACK);
       g.fillRect(xWindowCenter-2,yWindowCenter-2,4,4);
     }
   }

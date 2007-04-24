@@ -259,38 +259,13 @@ public class Scan2DGui extends RackModuleGui
             {
             	robotGraphics.setColor(Color.BLUE);
             }
+            else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
+            {
+                robotGraphics.setColor(Color.RED);
+            }
             else
             {
-                if (point.segment == 0)
-                {
-                    robotGraphics.setColor(Color.RED);
-                }
-
-                // draw segmentation
-                else
-                {
-                    switch ((point.segment - 1) % 6)
-                    {
-                        case 0:
-                            robotGraphics.setColor(Color.BLACK);
-                            break;
-                        case 1:
-                            robotGraphics.setColor(Color.GREEN);
-                            break;
-                        case 2:
-                            robotGraphics.setColor(Color.ORANGE);
-                            break;
-                        case 3:
-                            robotGraphics.setColor(Color.MAGENTA);                    
-                            break;
-                        case 4:
-                            robotGraphics.setColor(Color.CYAN);
-                            break;
-                        case 5:
-                            robotGraphics.setColor(Color.PINK);
-                            break;
-                    }
-                }
+                robotGraphics.setColor(Color.BLACK);
             }
 
             // draw scanpoints in mm

@@ -48,7 +48,7 @@ public class PilotComponent extends JComponent
     /** Creates a new instance of ScanComponent */
     public PilotComponent(int maxDistance)
     {
-        setBackground(Color.lightGray);
+        setBackground(Color.LIGHT_GRAY);
         this.maxDistance = maxDistance;
         setDoubleBuffered(true);
     }
@@ -320,7 +320,7 @@ public class PilotComponent extends JComponent
             // zeichnen des Rechteckes beim zoomen
             if (this.RectangleDraw == true)
             {
-                g.setColor(Color.black);
+                g.setColor(Color.BLACK);
                 g.drawRect(this.RectangleX, this.RectangleY,
                         this.RectangleWidth, this.RectangleHeight);
             }
@@ -336,11 +336,11 @@ public class PilotComponent extends JComponent
                 {
                     if ((xWindow % 5) == 0)
                     {
-                        g.setColor(Color.black);
+                        g.setColor(Color.BLACK);
                     }
                     else
                     {
-                        g.setColor(Color.gray);
+                        g.setColor(Color.GRAY);
                     }
 
                     g.drawLine(transformToXWindow(0.0, 0.0) +
@@ -359,11 +359,11 @@ public class PilotComponent extends JComponent
                 {
                     if ((yWindow % 5) == 0)
                     {
-                        g.setColor(Color.black);
+                        g.setColor(Color.BLACK);
                     }
                     else
                     {
-                        g.setColor(Color.gray);
+                        g.setColor(Color.GRAY);
                     }
                     g.drawLine(0,
                                transformToYWindow(0, 0) + yWindow * mToPixel,
@@ -694,12 +694,12 @@ public class PilotComponent extends JComponent
             }
 
             // draw scan position
-            g.setColor(Color.black);
+            g.setColor(Color.BLACK);
             xWindow = transformToXWindow(0.0, 0.0);
             yWindow = transformToYWindow(0.0, 0.0);
             g.fillRect(xWindow - 2, yWindow - 2, 4, 4);
 
-            g.setColor(Color.gray);
+            g.setColor(Color.GRAY);
             g.fillRect(xWindowCenter - 2, yWindowCenter - 2, 4, 4);
         }
     }

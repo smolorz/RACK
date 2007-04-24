@@ -32,7 +32,7 @@ public class CameraComponent extends JComponent
     public CameraComponent()
     {
         this.setPreferredSize(new Dimension(320, 240));
-        this.setBackground(Color.lightGray);
+        this.setBackground(Color.LIGHT_GRAY);
         setDoubleBuffered(true);
     }
 

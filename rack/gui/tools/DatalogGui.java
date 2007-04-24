@@ -133,7 +133,7 @@ public class DatalogGui extends RackModuleGui
             
             saveName[i] = new JTextField(logStatus.logInfo[i].filename,15);
             status[i] = new JRadioButton();
-            status[i].setForeground(Color.red);
+            status[i].setForeground(Color.RED);
             status[i].setSelected(true);
         
             logPanel.add(logCb[i]);
@@ -245,36 +245,36 @@ public class DatalogGui extends RackModuleGui
         for (int j=0; j < state.logNum; j++)
         {
             if (state.logInfo[j].logEnable == 1)
-                status[j].setForeground(Color.green);
+                status[j].setForeground(Color.GREEN);
             else
-                status[j].setForeground(Color.red);
+                status[j].setForeground(Color.RED);
         }
             
 /*            if (state.logInfo[j].periodTime == -2)
-                status[j].setForeground(Color.red);
+                status[j].setForeground(Color.RED);
             else if (state.logInfo[j].periodTime == -1)
             {
-                status[j].setForeground(Color.yellow);
+                status[j].setForeground(Color.YELLOW);
             }
             else
-                status[j].setForeground(Color.green);
+                status[j].setForeground(Color.GREEN);
         }*/
     }
     
 
     public JComponent getComponent()
     {
-        return (panel);
+        return panel;
     }
 
     public String getModuleName()
     {
-        return ("Datalog");
+        return "Datalog";
     }
 
     public RackProxy getProxy()
     {
-        return (datalog);
+        return datalog;
     }
     
     public void run()

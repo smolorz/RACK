@@ -61,6 +61,7 @@ public final class Gui extends Thread
     // Groupe Panel
     private JPanel[]        groupPanel, groupInterPanel;
     private JButton[]       groupButton;
+    private Color           groupButtonBG;
     // work panel
     private JTabbedPane     jtp;
     private JDesktopPane [] jdp;
@@ -71,6 +72,7 @@ public final class Gui extends Thread
     private JButton[]       moduleButton;
     private JRadioButton[]  statusButton;
     private JPanel[]        modulePanel;
+    private Color           statusButtonBG;
 
     private ClassLoader     guiCL = this.getContextClassLoader();
     private Class           moduleGuiClass;
@@ -1334,6 +1336,11 @@ public final class Gui extends Thread
             // e.getMessage());
         }
 
+        if((statusButtonBG == null) & (statusButton[0] != null))
+        {
+            statusButtonBG = statusButton[0].getBackground();
+        }
+            
         for (int i = 0; i < moduleNum; i++)
         {
             // bei paramentern -show und -start soll trotzdem
@@ -1354,7 +1361,7 @@ public final class Gui extends Thread
                     }
                     statusButton[i].setEnabled(true);
                     statusButton[i].setSelected(true);
-                    statusButton[i].setForeground(Color.red);
+                    statusButton[i].setBackground(Color.RED);
                     moduleButton[i].setEnabled(true);
 
                     for (int id = 0; id < groupNum; id++)
@@ -1376,7 +1383,7 @@ public final class Gui extends Thread
                     }
                     statusButton[i].setEnabled(true);
                     statusButton[i].setSelected(true);
-                    statusButton[i].setForeground(Color.green);
+                    statusButton[i].setBackground(Color.GREEN);
                     moduleButton[i].setEnabled(true);
 
                     for (int id = 0; id < groupNum; id++)
@@ -1398,6 +1405,7 @@ public final class Gui extends Thread
                     }
                     statusButton[i].setEnabled(true);
                     statusButton[i].setSelected(false);
+                    statusButton[i].setBackground(statusButtonBG);
                     moduleButton[i].setEnabled(true);
 
                     for (int id = 0; id < groupNum; id++)
@@ -1417,6 +1425,7 @@ public final class Gui extends Thread
                     {
                         statusButton[i].setEnabled(false);
                         statusButton[i].setSelected(false);
+                        statusButton[i].setBackground(statusButtonBG);
                         moduleButton[i].setEnabled(false);
                     }
                     break;
@@ -1426,7 +1435,7 @@ public final class Gui extends Thread
                     {
                         statusButton[i].setEnabled(true);
                         statusButton[i].setSelected(true);
-                        statusButton[i].setForeground(Color.orange);
+                        statusButton[i].setBackground(Color.ORANGE);
                         moduleButton[i].setEnabled(false);
                     }
             }
@@ -1438,16 +1447,25 @@ public final class Gui extends Thread
         while (terminate == false)
         {
             updateAllStatus();
+            
+            if((groupButtonBG == null) & (groupButton[0] != null))
+            {
+                groupButtonBG = groupButton[0].getBackground();
+            }
+            
             for (int i = 0; i < groupSize.size(); i++)
             {
                 if (groupError[i] > 0)
                 {
-                    groupButton[i].setForeground(Color.red);
+                    groupButton[i].setBackground(Color.RED);
+                }
+                else if (groupOn[i] > 0)
+                {
+                    groupButton[i].setBackground(Color.GREEN);
                 }
                 else
                 {
-                    groupButton[i].setForeground(groupButton[i].getParent()
-                            .getForeground());
+                    groupButton[i].setBackground(groupButtonBG);
                 }
                 groupButton[i].setText(getGroupName(i) + " ("
                         + groupError[i] + " , " + groupOn[i] + " , "
@@ -1526,7 +1544,6 @@ public final class Gui extends Thread
 
         try
         {
-            
             // create main frame
             JFrame frame = new JFrame("Robot Gui");
             frame.addWindowListener(new WindowAdapter()
