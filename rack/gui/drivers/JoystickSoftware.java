@@ -130,6 +130,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 forward();
+                stopButton.grabFocus();
             }
         });
         backwardButton.addActionListener(new ActionListener()
@@ -137,6 +138,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 backward();
+                stopButton.grabFocus();
             }
         });
         leftButton.addActionListener(new ActionListener()
@@ -144,6 +146,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 left();
+                stopButton.grabFocus();
             }
         });
         rightButton.addActionListener(new ActionListener()
@@ -151,6 +154,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 right();
+                stopButton.grabFocus();
             }
         });
         stopButton.addActionListener(new ActionListener()
@@ -178,6 +182,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 pilot(0);
+                stopButton.grabFocus();
             }
         });
 
@@ -186,6 +191,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 pilot(1);
+                stopButton.grabFocus();
             }
         });
 
@@ -194,6 +200,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 pilot(2);
+                stopButton.grabFocus();
             }
         });
 
@@ -202,6 +209,7 @@ public class JoystickSoftware extends RackDataModuleGui
             public void actionPerformed(ActionEvent e)
             {
                 pilot(ChassisProxy.INVAL_PILOT);
+                stopButton.grabFocus();
             }
         });
 
@@ -265,6 +273,7 @@ public class JoystickSoftware extends RackDataModuleGui
                     default:
                         zero();
                 }
+                stopButton.grabFocus();
             }
 
             public void keyReleased(KeyEvent e)
@@ -290,6 +299,8 @@ public class JoystickSoftware extends RackDataModuleGui
             {
             }
         };
+
+        panel.addKeyListener(keyListener);
 
         onButton.addKeyListener(keyListener);
         offButton.addKeyListener(keyListener);
@@ -353,8 +364,7 @@ public class JoystickSoftware extends RackDataModuleGui
     public synchronized void f1Up()
     {
         outputData.buttons &= ~0x01;
-        outputData.position.x = 0;
-        outputData.position.y = 0;
+        zero();
     }
 
     public synchronized void f2Down()
@@ -365,8 +375,7 @@ public class JoystickSoftware extends RackDataModuleGui
     public synchronized void f2Up()
     {
         outputData.buttons &= ~0x02;
-        outputData.position.x = 0;
-        outputData.position.y = 0;
+        zero();
     }
 
     public synchronized void f3Down()
@@ -377,8 +386,7 @@ public class JoystickSoftware extends RackDataModuleGui
     public synchronized void f3Up()
     {
         outputData.buttons &= ~0x04;
-        outputData.position.x = 0;
-        outputData.position.y = 0;
+        zero();
     }
 
     public synchronized void f4Down()
@@ -389,14 +397,12 @@ public class JoystickSoftware extends RackDataModuleGui
     public synchronized void f4Up()
     {
         outputData.buttons &= ~0x08;
-        outputData.position.x = 0;
-        outputData.position.y = 0;
+        zero();
     }
 
     public synchronized void pilot(int pilot)
     {
-        outputData.position.x = 0;
-        outputData.position.y = 0;
+        zero();
 
         // turn off pilots
         for(int i = 0; i < 3; i++)
@@ -486,6 +492,22 @@ public class JoystickSoftware extends RackDataModuleGui
     {
         synchronized (this)
         {
+            if( !panel.hasFocus() &
+                !onButton.hasFocus() &
+                !offButton.hasFocus() &
+                !forwardButton.hasFocus() &
+                !backwardButton.hasFocus() &
+                !leftButton.hasFocus() &
+                !rightButton.hasFocus() &
+                !stopButton.hasFocus() &
+                !pilot0Button.hasFocus() &
+                !pilot1Button.hasFocus() &
+                !pilot2Button.hasFocus() &
+                !noPilotButton.hasFocus())
+            {
+                zero();
+            }
+
             gdos.dbgInfo("Writing data ... ");
             writeWorkMsg(outputData);
         }
@@ -515,17 +537,17 @@ public class JoystickSoftware extends RackDataModuleGui
 
     public JComponent getComponent()
     {
-        return (panel);
+        return panel;
     }
 
     public String getModuleName()
     {
-        return ("joystick");
+        return "joystick";
     }
 
     public RackProxy getProxy()
     {
-        return (joystickProxy);
+        return joystickProxy;
     }
 
     public void setEnabled(boolean enabled)
