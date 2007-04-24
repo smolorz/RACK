@@ -41,6 +41,7 @@ public class MapViewGui extends Thread
     private Position2D      viewPosition = new Position2D();
     private double          viewZoom     = 0.02;
     private int             viewGridDistance = 10000; // in mm
+    private boolean         mouseEntered = false;
 
     private Position2D      robotPosition = new Position2D();
     private PositionDataMsg[] robotPositionList;
@@ -289,7 +290,7 @@ public class MapViewGui extends Thread
                     drawContext = new DrawContext(robotPosition, robotPositionList);
                 }
 
-                actionCursor.drawDefaultCursor(drawContext.getRobotGraphics());
+                actionCursor.drawDefaultCursor(drawContext.getRobotGraphics(), true);
 
                 ListIterator moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
@@ -492,9 +493,16 @@ public class MapViewGui extends Thread
         public synchronized void paint(Graphics onGraph)
         {
             if (drawContext == null)
+            {
                 return;
+            }
+            
             onGraph.drawImage(drawContext, 0, 0, this);
-            actionCursor.drawCursor((Graphics2D) onGraph, drawContext);
+            
+            if (mouseEntered)
+            {
+                actionCursor.drawCursor((Graphics2D) onGraph, drawContext);
+            }
         }
 
         public void componentResized(ComponentEvent evnt)
@@ -663,6 +671,7 @@ public class MapViewGui extends Thread
 
         public void mousePressed(MouseEvent event)
         {
+            viewPanel.grabFocus();
         }
 
         public void mouseReleased(MouseEvent event)
@@ -671,17 +680,18 @@ public class MapViewGui extends Thread
 
         public void mouseEntered(MouseEvent e)
         {
-            viewPanel.grabFocus();
+            mouseEntered = true;
         }
 
         public void mouseExited(MouseEvent e)
         {
+            mouseEntered = false;
         }
 
         public void mouseWheelMoved(MouseWheelEvent event)
         {
             changePositionAndZoom(0, 0, 0, -event.getWheelRotation());
-            updateNeeded();
+            viewPanel.grabFocus();
         }
 
         public void keyPressed(KeyEvent event)
@@ -875,31 +885,34 @@ public class MapViewGui extends Thread
                 }
                 else
                 {
-                    drawDefaultCursor(cursorDrawContext.getCursorGraphics());
+                    drawDefaultCursor(cursorDrawContext.getCursorGraphics(), false);
                 }
             }
         }
 
-        private void drawDefaultCursor(Graphics2D cursorGraphics)
+        private void drawDefaultCursor(Graphics2D cursorGraphics, boolean filled)
         {
             int chassisWidth = chassisParam.boundaryLeft +
                chassisParam.boundaryRight;
             int chassisLength = chassisParam.boundaryBack +
                 chassisParam.boundaryFront;
 
-            cursorGraphics.setColor(Color.GRAY);
-            cursorGraphics.fillRect(-chassisParam.boundaryBack -
-                                     chassisParam.safetyMargin,
-                                    -chassisParam.boundaryLeft -
-                                     chassisParam.safetyMargin,
-                                     chassisLength + 2 * chassisParam.safetyMargin +
-                                     chassisParam.safetyMarginMove,
-                                     chassisWidth + 2 * chassisParam.safetyMargin);
-
-            cursorGraphics.setColor(Color.DARK_GRAY);
-            cursorGraphics.fillRect(-chassisParam.boundaryBack,
-                                    -chassisParam.boundaryLeft,
-                                     chassisLength, chassisWidth);
+            if(filled)
+            {
+                cursorGraphics.setColor(Color.LIGHT_GRAY);
+                cursorGraphics.fillRect(-chassisParam.boundaryBack -
+                                         chassisParam.safetyMargin,
+                                        -chassisParam.boundaryLeft -
+                                         chassisParam.safetyMargin,
+                                         chassisLength + 2 * chassisParam.safetyMargin +
+                                         chassisParam.safetyMarginMove,
+                                         chassisWidth + 2 * chassisParam.safetyMargin);
+    
+                cursorGraphics.setColor(Color.GRAY);
+                cursorGraphics.fillRect(-chassisParam.boundaryBack,
+                                        -chassisParam.boundaryLeft,
+                                         chassisLength, chassisWidth);
+            }
 
             cursorGraphics.setColor(Color.BLACK);
             cursorGraphics.drawRect(-chassisParam.boundaryBack,
