@@ -87,8 +87,6 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNext
 
     listenerMtx.lock(RACK_INFINITE);
 
-    GDOS_DBG_INFO("Add listener %n (datambx: %x)\n", destMbxAdr, destMbxAdr);
-
     idx = listenerNum;
 
     // check if listener is in table yet
@@ -125,8 +123,8 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNext
         listener[idx].reduction     = 1;
         listener[idx].getNextData   = 1;
 
-        GDOS_DBG_DETAIL("DataBuffer: Add nextData listener %n time %i\n",
-                        listener[i].msgInfo.src, rackTime.get());
+        //GDOS_DBG_DETAIL("Add nextData listener %n (datambx: %x) time %i\n",
+        //                destMbxAdr, destMbxAdr, rackTime.get());
     }
     else
     {
@@ -141,8 +139,8 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNext
         }
         listener[idx].getNextData   = 0;
 
-        GDOS_DBG_DETAIL("Setting reduction to %d (self %d ms, request %d ms)\n",
-                        listener[idx].reduction, dataBufferPeriodTime, periodTime);
+        //GDOS_DBG_DETAIL("Add listener %n (datambx: %x) reduction %d (self %d ms, request %d ms)\n",
+        //                destMbxAdr, destMbxAdr, listener[idx].reduction, dataBufferPeriodTime, periodTime);
     }
 
     listenerMtx.unlock();
@@ -155,7 +153,7 @@ void        RackDataModule::removeListener(uint32_t destMbxAdr)
     uint32_t read = 0;
     uint32_t write = 0;
 
-    GDOS_DBG_INFO("Remove listener %n (datambx: %x)\n", destMbxAdr, destMbxAdr);
+    //GDOS_DBG_DETAIL("Remove listener %n (datambx: %x)\n", destMbxAdr, destMbxAdr);
 
     for(; read < listenerNum; read++)
     {
