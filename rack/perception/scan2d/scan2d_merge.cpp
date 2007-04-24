@@ -187,26 +187,33 @@ int  Scan2DMerge::moduleLoop(void)
                     sinRho = sin(odometryBuffer[k].pos.rho);
                     cosRho = cos(odometryBuffer[k].pos.rho);
 
+                    j = 0;
+
                     for (i = 0; i < scanData->pointNum; i++)
                     {
-                        scanBuffer[k].point[i].x  = (int)(scanData->point[i].x *
-                                                          cosRho) -
-                                                    (int)(scanData->point[i].y *
-                                                          sinRho);
-                        scanBuffer[k].point[i].y  = (int)(scanData->point[i].x *
-                                                          sinRho) +
-                                                    (int)(scanData->point[i].y *
-                                                          cosRho);
-                        scanBuffer[k].point[i].z  = scanData->point[i].z;
-                        scanBuffer[k].point[i].type      = scanData->point[i].type;
-                        scanBuffer[k].point[i].segment   = k + 1;
-                        scanBuffer[k].point[i].intensity = scanData->point[i].intensity;
+                        if ((scanData->point[i].type & TYPE_MASK) != TYPE_LANDMARK)
+                        {
+                            scanBuffer[k].point[j].x  = (int)(scanData->point[i].x *
+                                                              cosRho) -
+                                                        (int)(scanData->point[i].y *
+                                                              sinRho);
+                            scanBuffer[k].point[j].y  = (int)(scanData->point[i].x *
+                                                              sinRho) +
+                                                        (int)(scanData->point[i].y *
+                                                              cosRho);
+                            scanBuffer[k].point[j].z  = scanData->point[i].z;
+                            scanBuffer[k].point[j].type      = scanData->point[i].type;
+                            scanBuffer[k].point[j].segment   = k + 1;
+                            scanBuffer[k].point[j].intensity = scanData->point[i].intensity;
+
+                            j++;
+                        }
                     }
 
                     scanBuffer[k].data.recordingTime = scanData->recordingTime;
                     scanBuffer[k].data.duration      = scanData->duration;
                     scanBuffer[k].data.maxRange      = scanData->maxRange;
-                    scanBuffer[k].data.pointNum      = scanData->pointNum;
+                    scanBuffer[k].data.pointNum      = j;
                     scan2dTimeout[k] = 0;
 
                     GDOS_DBG_DETAIL("Buffer Scan2D(%i) recordingtime %i "
@@ -251,9 +258,23 @@ int  Scan2DMerge::moduleLoop(void)
                     sinRho = sin(odoData->pos.rho);
                     cosRho = cos(odoData->pos.rho);
 
-                    for (i = 0; ((i < scanBuffer[k].data.pointNum) &
-                        (mergeData->pointNum < SCAN2D_POINT_MAX)); i++)
+                    for (i = 0; i < scanBuffer[k].data.pointNum; i++)
                     {
+                        if (mergeData->pointNum >= SCAN2D_POINT_MAX)
+                        {
+                            GDOS_ERROR("Merged scan exceeds SCAN2D_POINT_MAX %i\n", SCAN2D_POINT_MAX);
+
+                            for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+                            {
+                                if (scan2dInst[k] >= 0)
+                                {
+                                    GDOS_WARNING("Scan2d(%i) pointNum %i", scan2dInst[k], scanBuffer[k].data.pointNum);
+                                }
+                            }
+                            dataMbx.peekEnd();
+                            return -EOVERFLOW;
+                        }
+
                         j = mergeData->pointNum;
 
                         posDiffX = odometryBuffer[k].pos.x - odoData->pos.x;
