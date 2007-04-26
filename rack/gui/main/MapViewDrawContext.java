@@ -15,7 +15,7 @@
  */
 package rack.gui.main;
 
-import rack.main.defines.Position2D;
+import rack.main.defines.Position2d;
 
 import java.awt.*;
 
@@ -29,7 +29,7 @@ public interface MapViewDrawContext
 
     public Graphics2D getRobotGraphics(int time);
 
-    public Position2D getRobotPosition();
+    public Position2d getRobotPosition();
 
-    public Position2D getRobotPosition(int time);
+    public Position2d getRobotPosition(int time);
 }

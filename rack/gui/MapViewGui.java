@@ -38,15 +38,15 @@ public class MapViewGui extends Thread
     private ArrayList       moduleGuiList;
 
     private boolean         updateNeeded = false;
-    private Position2D      viewPosition = new Position2D();
+    private Position2d      viewPosition = new Position2d();
     private double          viewZoom     = 0.02;
     private int             viewGridDistance = 10000; // in mm
     private boolean         mouseEntered = false;
 
-    private Position2D      robotPosition = new Position2D();
+    private Position2d      robotPosition = new Position2d();
     private PositionDataMsg[] robotPositionList;
     private int             robotPositionListIndex = 0;
-    private Position2D      worldCursorPosition = new Position2D(0, 0, 0);
+    private Position2d      worldCursorPosition = new Position2d(0, 0, 0);
 
     // basic Components
     private ViewPanel       viewPanel;
@@ -57,7 +57,7 @@ public class MapViewGui extends Thread
     private BufferedImage   backGndImg;
     private double          backGndResX,        // in mm/pixel
                             backGndResY;        // in mm/pixel
-    private Position2D      backGndOffset = new Position2D();
+    private Position2d      backGndOffset = new Position2d();
 
     // proxies
     private PositionProxy   positionProxy;
@@ -162,7 +162,7 @@ public class MapViewGui extends Thread
     private void changePositionAndZoom(int changeX, int changeY, int changeRho,
             int changeZoom)
     {
-        Position2D newCenter = getPosOnScreen(viewPanel.getWidth() / 2
+        Position2d newCenter = getPosOnScreen(viewPanel.getWidth() / 2
                 + changeX * viewPanel.getWidth() / 5, viewPanel.getHeight() / 2
                 + changeY * viewPanel.getHeight() / 5);
         viewPosition.rho += changeRho * Math.PI / 10;
@@ -178,12 +178,12 @@ public class MapViewGui extends Thread
     }
 
 
-    private void setCenter(Position2D newCenter)
+    private void setCenter(Position2d newCenter)
     {
-        Position2D screenCenter;
+        Position2d screenCenter;
 
         // sets center on screen in world coordinates
-        screenCenter = (new Position2D((int)Math.round(-viewPanel.getHeight() /
+        screenCenter = (new Position2d((int)Math.round(-viewPanel.getHeight() /
                                                        (2 * viewZoom)),
                                        (int) Math.round(viewPanel.getWidth() /
                                                        (2 * viewZoom)))).
@@ -193,12 +193,12 @@ public class MapViewGui extends Thread
         viewPosition.y = newCenter.y - screenCenter.y;
     }
 
-    private Position2D getPosOnScreen(int x, int y)
+    private Position2d getPosOnScreen(int x, int y)
     {
-        Position2D posOnScreen;
+        Position2d posOnScreen;
 
         // returns position in wold coordinates
-        posOnScreen = new Position2D((int) Math.round(-y / viewZoom),
+        posOnScreen = new Position2d((int) Math.round(-y / viewZoom),
                                      (int) Math.round(x / viewZoom));
         return posOnScreen.coordTrafo(viewPosition.rho, viewPosition.x,
                                       viewPosition.y);
@@ -213,7 +213,7 @@ public class MapViewGui extends Thread
         	if (positionProxy != null)
         	    position = positionProxy.getData();
 
-            robotPosition = new Position2D(position.pos.x, position.pos.y,
+            robotPosition = new Position2d(position.pos.x, position.pos.y,
                                            position.pos.rho);
 
             synchronized(robotPositionList)
@@ -226,7 +226,7 @@ public class MapViewGui extends Thread
         }
         catch (Exception exc)
         {
-            robotPosition = new Position2D();
+            robotPosition = new Position2d();
         }
 
         if (mapNavigator.viewRobot())
@@ -238,9 +238,9 @@ public class MapViewGui extends Thread
         // center mapView
         else
         {
-        	Position2D upLeftBound     = getPosOnScreen(viewPanel.getWidth() / 4,
+        	Position2d upLeftBound     = getPosOnScreen(viewPanel.getWidth() / 4,
             										    viewPanel.getHeight() / 4);
-            Position2D lowRightBound   = getPosOnScreen(viewPanel.getWidth() - 
+            Position2d lowRightBound   = getPosOnScreen(viewPanel.getWidth() - 
             										    viewPanel.getWidth() / 4,
             										    viewPanel.getHeight() -
             										    viewPanel.getHeight() / 4);
@@ -267,7 +267,7 @@ public class MapViewGui extends Thread
         Thread.yield();
         Thread.yield();
         Thread.yield();
-        setCenter(new Position2D());
+        setCenter(new Position2d());
 
         while (terminate == false)
         {
@@ -333,10 +333,10 @@ public class MapViewGui extends Thread
 
         private Graphics2D worldGraph;
         private Graphics2D robotGraph;
-        private Position2D robotPosition;
+        private Position2d robotPosition;
         private PositionDataMsg robotPositionList[];
 
-        public DrawContext(Position2D robotPosition, PositionDataMsg[] robotPositionList)
+        public DrawContext(Position2d robotPosition, PositionDataMsg[] robotPositionList)
         {
             super(viewPanel.getWidth(), viewPanel.getHeight(),
                     BufferedImage.TYPE_INT_RGB);
@@ -380,7 +380,7 @@ public class MapViewGui extends Thread
 
         public Graphics2D getRobotGraphics(int time)
         {
-            Position2D robotPositionTime = getRobotPosition(time);
+            Position2d robotPositionTime = getRobotPosition(time);
 
             // prepare robotGraph
             Graphics2D robotGraphTime = this.createGraphics();
@@ -393,16 +393,16 @@ public class MapViewGui extends Thread
             return robotGraphTime;
         }
 
-        public Position2D getRobotPosition()
+        public Position2d getRobotPosition()
         {
-            return (Position2D) robotPosition.clone();
+            return (Position2d) robotPosition.clone();
         }
 
-        public Position2D getRobotPosition(int time)
+        public Position2d getRobotPosition(int time)
         {
             if(robotPositionList != null)
             {
-                Position2D robotPosition;
+                Position2d robotPosition;
                 
                 synchronized(robotPositionList)
                 {
@@ -418,14 +418,14 @@ public class MapViewGui extends Thread
                             indexTimeDiff = timeDiff;
                         }
                     }
-                    robotPosition = new Position2D(robotPositionList[index].pos.x,
+                    robotPosition = new Position2d(robotPositionList[index].pos.x,
                                                    robotPositionList[index].pos.y,
                                                    robotPositionList[index].pos.rho);
                 }
                 return robotPosition;
             }
             else
-                return (Position2D) robotPosition.clone();
+                return (Position2d) robotPosition.clone();
         }
 
         private void drawGrid()
@@ -452,7 +452,7 @@ public class MapViewGui extends Thread
 
 
         private void drawBackgndImg(BufferedImage image,
-                                       double resX, double resY, Position2D pos)
+                                       double resX, double resY, Position2d pos)
         {
             Rectangle viewBounds = worldGraph.getClipBounds();
             worldGraph.setBackground(Color.WHITE);
@@ -647,7 +647,7 @@ public class MapViewGui extends Thread
 
         public void mouseMoved(MouseEvent event)
         {
-            Position2D tempPosition = getPosOnScreen(event.getX(),
+            Position2d tempPosition = getPosOnScreen(event.getX(),
                                                      event.getY());
             worldCursorPosition.x   = tempPosition.x;
             worldCursorPosition.y   = tempPosition.y;
@@ -932,10 +932,10 @@ public class MapViewGui extends Thread
                                      chassisParam.boundaryRight);
         }
 
-        public Position2D translateRobotCursorPosition(
-                Position2D worldCursorPosition, Position2D robotPosition)
+        public Position2d translateRobotCursorPosition(
+                Position2d worldCursorPosition, Position2d robotPosition)
         {
-            Position2D robotCursorPosition = new Position2D();
+            Position2d robotCursorPosition = new Position2d();
             double sinRho = Math.sin(robotPosition.rho);
             double cosRho = Math.cos(robotPosition.rho);
             double x      = (double)(worldCursorPosition.x - 
@@ -964,7 +964,7 @@ public class MapViewGui extends Thread
         {
             if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0)
             {
-                Position2D tempPosition = getPosOnScreen(event.getX(), event
+                Position2d tempPosition = getPosOnScreen(event.getX(), event
                         .getY());
                 worldCursorPosition.x = tempPosition.x;
                 worldCursorPosition.y = tempPosition.y;
@@ -1029,9 +1029,9 @@ public class MapViewGui extends Thread
         public ModuleGuiProp moduleGuiProp = null;
         public String actionCommand = "";
 
-        public Position2D robotPosition;
-        public Position2D worldCursorPosition;
-        public Position2D robotCursorPosition;
+        public Position2d robotPosition;
+        public Position2d worldCursorPosition;
+        public Position2d robotCursorPosition;
 
         private static final long serialVersionUID = 1L;
 
@@ -1046,8 +1046,8 @@ public class MapViewGui extends Thread
             actionCommand = listItem.actionCommand;
         }
 
-        public void updatePositions(Position2D robotPosition,
-                Position2D worldCursorPosition)
+        public void updatePositions(Position2d robotPosition,
+                Position2d worldCursorPosition)
         {
             this.robotPosition = robotPosition;
             this.worldCursorPosition = worldCursorPosition;
@@ -1060,19 +1060,19 @@ public class MapViewGui extends Thread
             return actionCommand;
         }
 
-        public Position2D getWorldCursorPos()
+        public Position2d getWorldCursorPos()
         {
-            return (Position2D) worldCursorPosition;
+            return (Position2d) worldCursorPosition;
         }
 
-        public Position2D getRobotCursorPos()
+        public Position2d getRobotCursorPos()
         {
-            return (Position2D) robotCursorPosition;
+            return (Position2d) robotCursorPosition;
         }
 
-        public Position2D getRobotPosition()
+        public Position2d getRobotPosition()
         {
-            return (Position2D) robotPosition;
+            return (Position2d) robotPosition;
         }
     }
 
@@ -1090,15 +1090,15 @@ public class MapViewGui extends Thread
         private Graphics2D robotGraph;
         private Graphics2D cursorGraph;
 
-        private Position2D robotPosition;
-        private Position2D worldCursorPosition;
-        private Position2D robotCursorPosition;
+        private Position2d robotPosition;
+        private Position2d worldCursorPosition;
+        private Position2d robotCursorPosition;
 
         private ModuleActionEvent actionEvent;
 
         public CursorDrawContext(Graphics2D screenGraph,
                 DrawContext drawContext, ModuleActionEvent actionEvent,
-                Position2D worldCursorPosition)
+                Position2d worldCursorPosition)
         {
 
             // prepare worldGraph
@@ -1157,22 +1157,22 @@ public class MapViewGui extends Thread
             return cursorGraph;
         }
 
-        public Position2D getRobotPosition()
+        public Position2d getRobotPosition()
         {
             return robotPosition;
         }
 
-        public Position2D getRobotPosition(int time)
+        public Position2d getRobotPosition(int time)
         {
             return robotPosition;
         }
 
-        public Position2D getRobotCursorPos()
+        public Position2d getRobotCursorPos()
         {
             return robotCursorPosition;
         }
 
-        public Position2D getWorldCursorPos()
+        public Position2d getWorldCursorPos()
         {
             return worldCursorPosition;
         }

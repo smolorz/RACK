@@ -19,16 +19,16 @@ import java.io.*;
 
 import rack.main.RackProxy;
 import rack.main.tims.*;
-import rack.main.defines.Position3D;
+import rack.main.defines.Position3d;
 
 public class OdometryDataMsg extends TimsMsg
 {
     public int recordingTime = 0;
-    public Position3D position = new Position3D();
+    public Position3d position = new Position3d();
 
     public int getDataLen()
     {
-        return (4 + Position3D.getDataLen());
+        return (4 + Position3d.getDataLen());
     }
 
     public OdometryDataMsg()

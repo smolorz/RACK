@@ -20,7 +20,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import rack.main.defines.Point2D;
+import rack.main.defines.Point2d;
 import rack.main.defines.PolarSpline;
 import rack.navigation.PilotDataMsg;
 
@@ -380,10 +380,10 @@ public class PilotComponent extends JComponent
             if ((chassisLength != 0) &&
                 (chassisWidth != 0))
             {
-                Point2D upperLeftCorner = new Point2D();
-                Point2D lowerRightCorner = new Point2D();
-                Point2D upperRightCorner = new Point2D();
-                Point2D lowerLeftCorner = new Point2D();
+                Point2d upperLeftCorner = new Point2d();
+                Point2d lowerRightCorner = new Point2d();
+                Point2d upperRightCorner = new Point2d();
+                Point2d lowerLeftCorner = new Point2d();
 
                 double PolarLaenge = Math.sqrt(Math.pow(
                                         (float)chassisLength * 0.5, 2.0) +

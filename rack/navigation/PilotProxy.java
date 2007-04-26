@@ -16,7 +16,7 @@
 package rack.navigation;
 
 import rack.main.*;
-import rack.main.defines.Position3D;
+import rack.main.defines.Position3d;
 import rack.main.tims.*;
 import rack.navigation.PilotDestMsg;
 
@@ -57,7 +57,7 @@ public class PilotProxy extends RackDataProxy
     return(getData(0));
   }
   
-  public synchronized void setDestination(Position3D pos)
+  public synchronized void setDestination(Position3d pos)
   {
       try {
     	  PilotDestMsg destinationMsg = new PilotDestMsg();

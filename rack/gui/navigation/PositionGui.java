@@ -26,8 +26,8 @@ import rack.main.*;
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
 
-import rack.main.defines.Position3D;
-import rack.main.defines.Position2D;
+import rack.main.defines.Position3d;
+import rack.main.defines.Position2d;
 import rack.main.tims.Tims;
 import rack.navigation.PositionDataMsg;
 import rack.navigation.PositionProxy;
@@ -110,7 +110,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
                     StringTokenizer st = new StringTokenizer(s, ",");
                     if (st.countTokens() == 3)
                     {
-                        Position3D robotPosition = new Position3D(
+                        Position3d robotPosition = new Position3d(
                             Integer.parseInt(st.nextToken()),
                             Integer.parseInt(st.nextToken()),
                             0,
@@ -239,12 +239,12 @@ public class PositionGui extends RackModuleGui implements ActionListener
     {
         if (event.getActionCommand().equals("manualUpdate"))
         {
-            Position2D newPosition2D = event.getWorldCursorPos();
-            Position3D newPosition3D;
+            Position2d newPosition2d = event.getWorldCursorPos();
+            Position3d newPosition3d;
 
-            newPosition3D = new Position3D(newPosition2D.x,
-                        newPosition2D.y, 0, 0, 0, newPosition2D.rho);
-            position.update(newPosition3D, 0);
+            newPosition3d = new Position3d(newPosition2d.x,
+                        newPosition2d.y, 0, 0, 0, newPosition2d.rho);
+            position.update(newPosition3d, 0);
         }
     }
 

@@ -15,16 +15,16 @@
  */
 package rack.gui.main;
 
-import rack.main.defines.Position2D;
+import rack.main.defines.Position2d;
 
 public interface MapViewActionEvent
 {
 
     public String getActionCommand();
 
-    public Position2D getWorldCursorPos();
+    public Position2d getWorldCursorPos();
 
-    public Position2D getRobotCursorPos();
+    public Position2d getRobotCursorPos();
 
-    public Position2D getRobotPosition();
+    public Position2d getRobotPosition();
 }

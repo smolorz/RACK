@@ -18,7 +18,7 @@ package rack.drivers;
 import java.io.*;
 
 import rack.main.RackProxy;
-import rack.main.defines.Position3D;
+import rack.main.defines.Position3d;
 import rack.main.tims.*;
 
 public class GpsDataMsg extends TimsMsg
@@ -33,7 +33,7 @@ public class GpsDataMsg extends TimsMsg
     public int          satelliteNum  = 0;
     public long         utcTime       = 0;  // POSIX time in sec since 1.1.1970
     public float        pdop          = 0;
-    public Position3D   posGK  		  = new Position3D();
+    public Position3d   posGK  		  = new Position3d();
     public int			varXY		  = 0;	// variance of xy position in mm
     public int			varZ	      = 0;	// variance of  z position in mm
     public float		varRho		  = 0;	// variance of heading in rad
@@ -44,7 +44,7 @@ public class GpsDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-        return 36 + 28 + Position3D.getDataLen();
+        return 36 + 28 + Position3d.getDataLen();
 
     }
 

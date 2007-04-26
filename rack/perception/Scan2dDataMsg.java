@@ -13,52 +13,48 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package rack.perception;
 
 import java.io.*;
 
 import rack.main.RackProxy;
+import rack.main.defines.ScanPoint;
 import rack.main.tims.*;
-import rack.main.defines.Position3d;
 
-public class JoystickDataMsg extends TimsMsg
+public class Scan2dDataMsg extends TimsMsg
 {
     public int recordingTime = 0;
-    public Position3d position = new Position3d(); // 24 bytes
-    public int buttons = 0;
+    public int duration = 0;
+    public int maxRange = 0;
+    public int pointNum = 0;
+    public ScanPoint[] point;
 
     public int getDataLen()
     {
-        return ( 4 + Position3d.getDataLen() + 4);
+        return (16 + pointNum * ScanPoint.getDataLen());
     }
 
-    public JoystickDataMsg()
-    {
-        type = RackProxy.MSG_DATA;
-        msglen = HEAD_LEN + getDataLen();
-    }
-
-    public JoystickDataMsg(TimsDataMsg p) throws TimsException
+    public Scan2dDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }
 
     protected boolean checkTimsMsgHead()
     {
-        if ((type == RackProxy.MSG_DATA)
-                && (msglen == HEAD_LEN + getDataLen()))
+        if (type == RackProxy.MSG_DATA)
         {
-            return (true);
+            return true;
         }
         else
         {
-            return (false);
+            return false;
         }
     }
 
     protected void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
+
         if (bodyByteorder == BIG_ENDIAN)
         {
             dataIn = new BigEndianDataInputStream(in);
@@ -67,10 +63,18 @@ public class JoystickDataMsg extends TimsMsg
         {
             dataIn = new LittleEndianDataInputStream(in);
         }
-        recordingTime = dataIn.readInt();
-        position.readData(dataIn);
-        buttons = dataIn.readInt();
 
+        recordingTime = dataIn.readInt();
+        duration = dataIn.readInt();
+        maxRange = dataIn.readInt();
+        pointNum = dataIn.readInt();
+
+        point = new ScanPoint[pointNum];
+
+        for (int i = 0; i < pointNum; i++)
+        {
+            point[i] = new ScanPoint(dataIn);
+        }
         bodyByteorder = BIG_ENDIAN;
     }
 
@@ -79,8 +83,13 @@ public class JoystickDataMsg extends TimsMsg
         DataOutputStream dataOut = new DataOutputStream(out);
 
         dataOut.writeInt(recordingTime);
-        position.writeData(dataOut);
-        dataOut.writeInt(buttons);
-    }
+        dataOut.writeInt(duration);
+        dataOut.writeInt(maxRange);
+        dataOut.writeInt(pointNum);
 
+        for (int i = 0; i < pointNum; i++)
+        {
+            point[i].writeDataOut(dataOut);
+        }
+    }
 }

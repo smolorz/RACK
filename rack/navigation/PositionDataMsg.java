@@ -20,16 +20,16 @@ import java.io.*;
 import rack.main.RackProxy;
 import rack.main.tims.*;
 
-import rack.main.defines.Position3D;
+import rack.main.defines.Position3d;
 
 public class PositionDataMsg extends TimsMsg
 {
     public int recordingTime = 0;
-    public Position3D pos = new Position3D();
+    public Position3d pos = new Position3d();
 
     public int getDataLen()
     {
-        return (4 + Position3D.getDataLen());
+        return (4 + Position3d.getDataLen());
     }
 
     public PositionDataMsg()

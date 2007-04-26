@@ -21,12 +21,12 @@ import rack.main.defines.*;
 
 public class PilotDestMsg extends TimsMsg
 {
-    public Position3D pos = new Position3D();
+    public Position3d pos = new Position3d();
     public float	  moveDir = 0.0f;
 
     public int getDataLen()
     {
-        return (4 + Position3D.getDataLen());
+        return (4 + Position3d.getDataLen());
     }
 
     public PilotDestMsg()

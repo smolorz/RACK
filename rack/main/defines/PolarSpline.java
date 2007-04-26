@@ -22,9 +22,9 @@ import rack.main.tims.EndianDataInputStream;
 
 public class PolarSpline
 {
-    public Position2D   startPos  = new Position2D();
-    public Position2D   endPos    = new Position2D();
-    public Position2D   centerPos = new Position2D();
+    public Position2d   startPos  = new Position2d();
+    public Position2d   endPos    = new Position2d();
+    public Position2d   centerPos = new Position2d();
     public int          length    = 0;
     public int          radius    = 0;
     public int          vMax      = 0;
@@ -35,7 +35,7 @@ public class PolarSpline
 
     static public int getDataLen()
     {
-        return (28 + 3 * Position2D.getDataLen());
+        return (28 + 3 * Position2d.getDataLen());
     }
 
     public PolarSpline()

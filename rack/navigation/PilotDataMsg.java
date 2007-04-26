@@ -20,7 +20,7 @@ import java.io.*;
 import rack.main.RackProxy;
 import rack.main.tims.*;
 
-import rack.main.defines.Position3D;
+import rack.main.defines.Position3d;
 import rack.main.defines.PolarSpline;
 
 /** Paket zur Uebertragung von Splinedaten.
@@ -31,7 +31,7 @@ import rack.main.defines.PolarSpline;
 public class PilotDataMsg extends TimsMsg
 {
     public int           recordingTime = 0;
-    public Position3D    pos = new Position3D(0,0,0,0.0f,0.0f,0.0f);
+    public Position3d    pos = new Position3d(0,0,0,0.0f,0.0f,0.0f);
     public int           speed = 0;
     public float         curve = 0;
     public int           distanceToDest = 0;    
@@ -40,7 +40,7 @@ public class PilotDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-        return (20 + Position3D.getDataLen() +
+        return (20 + Position3d.getDataLen() +
                 splineNum * PolarSpline.getDataLen());
     }
 

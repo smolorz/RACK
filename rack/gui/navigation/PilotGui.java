@@ -23,7 +23,7 @@ import javax.swing.*;
 
 import rack.gui.main.RackModuleGui;
 import rack.main.*;
-import rack.main.defines.Position3D;
+import rack.main.defines.Position3d;
 import rack.navigation.PilotDataMsg;
 import rack.navigation.PilotProxy;
 import rack.navigation.PilotDestMsg;
@@ -113,7 +113,7 @@ public class PilotGui extends RackModuleGui
                 	StringTokenizer st = new StringTokenizer(s, ",");
                     if (st.countTokens() == 4)
                     {
-                    	Position3D destination = new Position3D(Integer.parseInt(st.nextToken()),
+                    	Position3d destination = new Position3d(Integer.parseInt(st.nextToken()),
                                     Integer.parseInt(st.nextToken()),
                                     0,
                                     0.0f,

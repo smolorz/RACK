@@ -60,7 +60,7 @@ public class PositionProxy extends RackDataProxy
         return(getData(0));
     }
 
-    public synchronized void update(Position3D pos, int recordingTime)
+    public synchronized void update(Position3d pos, int recordingTime)
     {
         currentSequenceNo++;
 
