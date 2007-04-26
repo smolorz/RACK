@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import rack.main.tims.EndianDataInputStream;
 
-public class Point3D
+public class Point3d
 {
     public int x     = 0;
     public int y     = 0;

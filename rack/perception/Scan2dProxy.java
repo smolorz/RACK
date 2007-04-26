@@ -23,21 +23,21 @@ import java.io.PrintWriter;
 import rack.main.*;
 import rack.main.tims.*;
 
-public class Scan2DProxy extends RackDataProxy
+public class Scan2dProxy extends RackDataProxy
 {
-  public Scan2DProxy(int id, TimsMbx replyMbx)
+  public Scan2dProxy(int id, TimsMbx replyMbx)
   {
     super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 5000);
     this.id = id;
   }
 
-  public synchronized Scan2DDataMsg getData(int recordingTime)
+  public synchronized Scan2dDataMsg getData(int recordingTime)
   {
     try {
       TimsDataMsg raw = getRawData(recordingTime);
 
       if (raw != null) {
-        Scan2DDataMsg data = new Scan2DDataMsg(raw);
+        Scan2dDataMsg data = new Scan2dDataMsg(raw);
         return(data);
       } else {
         return(null);
@@ -48,13 +48,13 @@ public class Scan2DProxy extends RackDataProxy
     }
   }
 
-  public synchronized Scan2DDataMsg getData()
+  public synchronized Scan2dDataMsg getData()
   {
     try {
       TimsDataMsg raw = getNextData();
 
       if (raw != null) {
-        Scan2DDataMsg data = new Scan2DDataMsg(raw);
+        Scan2dDataMsg data = new Scan2dDataMsg(raw);
         return(data);
       } else {
         return(null);
@@ -70,25 +70,25 @@ public class Scan2DProxy extends RackDataProxy
     return(RackName.create(RackName.SCAN2D, id));
   }
   
-  public int storeDataToFile(String filename, Scan2DDataMsg scan2DData)
+  public int storeDataToFile(String filename, Scan2dDataMsg scan2dData)
   {
-      if(scan2DData != null)
+      if(scan2dData != null)
       {
          try
           {
 	          PrintWriter fileOut = new PrintWriter(new BufferedWriter(
 	                  new FileWriter(filename)));
 	
-	          for (int i = 0; i < scan2DData.pointNum; i++)
+	          for (int i = 0; i < scan2dData.pointNum; i++)
 	          {
-	              fileOut.println(scan2DData.point[i].toString());
+	              fileOut.println(scan2dData.point[i].toString());
 	          }
 	          fileOut.flush();
 	          fileOut.close();
           }
          catch (IOException e)
 	      {
-	          System.out.println("Can't write 2D data to file.");
+	          System.out.println("Can't write 2d data to file.");
 	          System.out.println(e.toString());
 	      }
       }
@@ -97,7 +97,7 @@ public class Scan2DProxy extends RackDataProxy
   
   public int storeDataToFile(String filename)
   {
-  	Scan2DDataMsg scan2DData = getData(0);
-  	return storeDataToFile(filename, scan2DData);
+  	Scan2dDataMsg scan2dData = getData(0);
+  	return storeDataToFile(filename, scan2dData);
   }
 }

@@ -23,17 +23,17 @@ import javax.swing.*;
 import rack.gui.main.*;
 import rack.main.*;
 import rack.main.defines.*;
-import rack.perception.Scan2DDataMsg;
-import rack.perception.Scan2DProxy;
+import rack.perception.Scan2dDataMsg;
+import rack.perception.Scan2dProxy;
 
 
-public class Scan2DGui extends RackModuleGui
+public class Scan2dGui extends RackModuleGui
 {
     protected boolean            mapViewIsShowing=false;
     public    int                maxDistance=10000; // 10m
-    public    Scan2DDataMsg      scan2DData;
-    protected Scan2DProxy        scan2D;
-    protected Scan2DComponent    scan2DComponent;
+    public    Scan2dDataMsg      scan2dData;
+    protected Scan2dProxy        scan2d;
+    protected Scan2dComponent    scan2dComponent;
 
     protected JButton onButton;
     protected JButton offButton;
@@ -56,9 +56,9 @@ public class Scan2DGui extends RackModuleGui
     protected Point mouseReleasedPoint;
     protected Point mouseClickedPoint;
 
-    public Scan2DGui(Scan2DProxy proxy)
+    public Scan2dGui(Scan2dProxy proxy)
     {
-        scan2D = proxy;
+        scan2d = proxy;
         panel       = new JPanel(new BorderLayout(2,2));
         panel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 
@@ -77,14 +77,14 @@ public class Scan2DGui extends RackModuleGui
         contStoringLabel.setText("Cont.storing off.");
 
 
-        scan2DComponent = new Scan2DComponent(maxDistance);
+        scan2dComponent = new Scan2dComponent(maxDistance);
 
-        scan2DComponent.addMouseListener(
+        scan2dComponent.addMouseListener(
           new MouseListener() {
             public void mouseClicked(MouseEvent e)
             {
               mouseClickedPoint = e.getPoint();
-              scan2DComponent.setCenter(mouseClickedPoint);
+              scan2dComponent.setCenter(mouseClickedPoint);
             }
 
             public void mousePressed(MouseEvent e)
@@ -95,7 +95,7 @@ public class Scan2DGui extends RackModuleGui
             public void mouseReleased(MouseEvent e)
             {
               mouseReleasedPoint = e.getPoint();
-              //scan2DComponent.select(mousePressedPoint , mouseReleasedPoint);
+              //scan2dComponent.select(mousePressedPoint , mouseReleasedPoint);
             }
 
             public void mouseEntered(MouseEvent e) {}
@@ -107,7 +107,7 @@ public class Scan2DGui extends RackModuleGui
           new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                scan2D.on();
+                scan2d.on();
             }
           }
         );
@@ -118,7 +118,7 @@ public class Scan2DGui extends RackModuleGui
           new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                scan2D.off();
+                scan2d.off();
             }
           }
         );
@@ -130,7 +130,7 @@ public class Scan2DGui extends RackModuleGui
             public void actionPerformed(ActionEvent e)
             {
               maxDistance = maxDistance * 2;
-              scan2DComponent.setMaxDistance(maxDistance);
+              scan2dComponent.setMaxDistance(maxDistance);
             }
           }
         );
@@ -142,7 +142,7 @@ public class Scan2DGui extends RackModuleGui
             public void actionPerformed(ActionEvent e)
             {
               maxDistance = maxDistance / 2;
-              scan2DComponent.setMaxDistance(maxDistance);
+              scan2dComponent.setMaxDistance(maxDistance);
             }
           }
         );
@@ -184,7 +184,7 @@ public class Scan2DGui extends RackModuleGui
         northPanel.add(sButtonPanel,BorderLayout.SOUTH);
 
         panel.add(northPanel,BorderLayout.NORTH);
-        panel.add(scan2DComponent,BorderLayout.CENTER);
+        panel.add(scan2dComponent,BorderLayout.CENTER);
 
     }
 
@@ -195,28 +195,28 @@ public class Scan2DGui extends RackModuleGui
 
     public String getModuleName()
     {
-      return("Scan2D");
+      return "Scan2d";
     }
 
 
     public RackProxy getProxy()
     {
-      return(scan2D);
+      return scan2d;
     }
 
     public void run()
     {
-      Scan2DDataMsg data;
+      Scan2dDataMsg data;
 
       while (terminate == false) {
         if(panel.isShowing() | (mapViewIsShowing)) {
-          data = scan2D.getData();
+          data = scan2d.getData();
           if (data != null) {
-            scan2DData = data;
-            scan2DComponent.updateData(data);
+            scan2dData = data;
+            scan2dComponent.updateData(data);
             if (contStoring == 1)
             {
-                scan2D.storeDataToFile("scan2D-"+System.currentTimeMillis()+".txt");
+                scan2d.storeDataToFile("scan2d-"+System.currentTimeMillis()+".txt");
             }
           }
           mapViewIsShowing = false;
@@ -237,13 +237,13 @@ public class Scan2DGui extends RackModuleGui
     {
         mapViewIsShowing = true;
         
-        if (scan2DData == null) return;
+        if (scan2dData == null) return;
         
-        Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2DData.recordingTime);
+        Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2dData.recordingTime);
 
-        for (int i = 0; i < scan2DData.pointNum; i++) 
+        for (int i = 0; i < scan2dData.pointNum; i++) 
         {
-            ScanPoint point = scan2DData.point[i];
+            ScanPoint point = scan2dData.point[i];
             int size = 100;
             int dist;            
             
@@ -279,10 +279,10 @@ public class Scan2DGui extends RackModuleGui
     class myKeyListener extends KeyAdapter {
       public void keyPressed(KeyEvent e)
       {
-        if(e.getKeyCode()==KeyEvent.VK_RIGHT) scan2DComponent.right();
-        if(e.getKeyCode()==KeyEvent.VK_DOWN)  scan2DComponent.down();
-        if(e.getKeyCode()==KeyEvent.VK_LEFT)  scan2DComponent.left();
-        if(e.getKeyCode()==KeyEvent.VK_UP)    scan2DComponent.up();
+        if(e.getKeyCode()==KeyEvent.VK_RIGHT) scan2dComponent.right();
+        if(e.getKeyCode()==KeyEvent.VK_DOWN)  scan2dComponent.down();
+        if(e.getKeyCode()==KeyEvent.VK_LEFT)  scan2dComponent.left();
+        if(e.getKeyCode()==KeyEvent.VK_UP)    scan2dComponent.up();
       }
     }
 }

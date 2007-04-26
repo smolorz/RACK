@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 import rack.main.tims.EndianDataInputStream;
 
-public class Point2D implements Serializable
+public class Point2d implements Serializable
 {
     public int x = 0;
     public int y = 0;
@@ -39,7 +39,7 @@ public class Point2D implements Serializable
     /**
      * Constructor Point2D.
      */
-    public Point2D()
+    public Point2d()
     {
     }
 
@@ -48,7 +48,7 @@ public class Point2D implements Serializable
      * @param x
      * @param y
      */
-    public Point2D(int x, int y)
+    public Point2d(int x, int y)
     {
         this.x    = x;
         this.y    = y;
@@ -76,7 +76,7 @@ public class Point2D implements Serializable
      * @param p2
      * @return distance to p2
      */
-    public int getDistance(Point2D p2)
+    public int getDistance(Point2d p2)
     {
         return ((int) Math.round(Math.sqrt((x - p2.x) * (x - p2.x) +
                                            (y - p2.y) * (y - p2.y))));
@@ -86,12 +86,12 @@ public class Point2D implements Serializable
      * @param ang Drehwinkel
      * @return Punkt in neuen Koordinaten
      */
-    public Point2D coordTrafo(float ang)
+    public Point2d coordTrafo(float ang)
     {
         double s = Math.sin(ang);
         double c = Math.cos(ang);
 
-        return new Point2D((int) Math.round(x * c - y * s),
+        return new Point2d((int) Math.round(x * c - y * s),
                            (int) Math.round(x * s + y * c));
     }
 
@@ -100,12 +100,12 @@ public class Point2D implements Serializable
      * @param p0 translatorische Verschiebung
      * @return Punkt in neuen Koordinaten
      */
-    public Point2D coordTrafo(float ang, Point2D p0)
+    public Point2d coordTrafo(float ang, Point2d p0)
     {
         double s = Math.sin(ang);
         double c = Math.cos(ang);
 
-        return new Point2D((int) Math.round(x * c - y * s) + p0.x,
+        return new Point2d((int) Math.round(x * c - y * s) + p0.x,
                            (int) Math.round(x * s + y * c) + p0.y);
     }
 
@@ -115,12 +115,12 @@ public class Point2D implements Serializable
      * @param ptransY translatorische Verschiebung y
      * @return Punkt in neuen Koordinaten
      */
-     public Point2D coordTrafo(float ang, int ptransX, int ptransY)
+     public Point2d coordTrafo(float ang, int ptransX, int ptransY)
      {
          double s = Math.sin(ang);
          double c = Math.cos(ang);
 
-         return new Point2D((int) Math.round(x * c - y * s) + ptransX,
+         return new Point2d((int) Math.round(x * c - y * s) + ptransX,
                             (int) Math.round(x * s + y * c) + ptransY);
     }
 }

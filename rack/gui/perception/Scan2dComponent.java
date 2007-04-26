@@ -20,11 +20,11 @@ import java.awt.*;
 import javax.swing.*;
 
 import rack.main.defines.ScanPoint;
-import rack.perception.Scan2DDataMsg;
+import rack.perception.Scan2dDataMsg;
 
-public class Scan2DComponent extends JComponent
+public class Scan2dComponent extends JComponent
 {
-  protected Scan2DDataMsg scan2DData = null;
+  protected Scan2dDataMsg scan2dData = null;
   protected int maxDistance;
 
   public double xScanCenter = 0.0;
@@ -35,17 +35,17 @@ public class Scan2DComponent extends JComponent
 
   private static final long serialVersionUID = 1L;
 
-  /** Creates a new instance of LadarScan2DComponent */
-  public Scan2DComponent(int maxDistance)
+  /** Creates a new instance of LadarScan2dComponent */
+  public Scan2dComponent(int maxDistance)
   {
     setBackground(Color.LIGHT_GRAY );
     this.maxDistance = maxDistance;
     setDoubleBuffered(true);
   }
 
-  public void updateData(Scan2DDataMsg ladarScan2DData)
+  public void updateData(Scan2dDataMsg data)
   {
-    this.scan2DData = ladarScan2DData;
+    this.scan2dData = data;
     this.repaint();
   }
 
@@ -120,7 +120,7 @@ public class Scan2DComponent extends JComponent
 
   public void paint(Graphics g)
   {
-    if (scan2DData != null) {
+    if (scan2dData != null) {
       int width     = this.getSize().width;
       int height    = this.getSize().height;
       xWindowCenter = width/2;
@@ -173,8 +173,8 @@ public class Scan2DComponent extends JComponent
                 (int)(600.0 * mmToPixel),(int)(840.0 * mmToPixel));
 
       ScanPoint point;
-      for(int i = 0; i < scan2DData.pointNum; i++) {
-        point = scan2DData.point[i];
+      for(int i = 0; i < scan2dData.pointNum; i++) {
+        point = scan2dData.point[i];
 
         if((point.type & ScanPoint.TYPE_INVALID) != 0)
         {               

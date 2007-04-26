@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 
 import rack.main.tims.EndianDataInputStream;
 
-public class Position2D implements Serializable, Cloneable
+public class Position2d implements Serializable, Cloneable
 {
     /** Reihenfolge im Datenpacket: x, y, rho */
     public int   x   = 0;
@@ -42,7 +42,7 @@ public class Position2D implements Serializable, Cloneable
      * @param y
      * @param rho
      */
-    public Position2D(int x, int y, float rho) 
+    public Position2d(int x, int y, float rho) 
     {
         this.x = x;
         this.y = y;
@@ -54,7 +54,7 @@ public class Position2D implements Serializable, Cloneable
      * @param x
      * @param y
      */
-    public Position2D(int x, int y) 
+    public Position2d(int x, int y) 
     {
         this.x   = x;
         this.y   = y;
@@ -64,7 +64,7 @@ public class Position2D implements Serializable, Cloneable
     /**
      * Constructor Position2D.
      */
-    public Position2D() 
+    public Position2d() 
     {
         this.x   = 0;
         this.y   = 0;
@@ -102,7 +102,7 @@ public class Position2D implements Serializable, Cloneable
      * @param p2
      * @return distance to p2
      */
-    public int getDistance(Position2D p2) 
+    public int getDistance(Position2d p2) 
     {
         return((int) Math.round(Math.sqrt((x - p2.x)*(x - p2.x) + 
                                           (y - p2.y)*(y - p2.y))));
@@ -112,7 +112,7 @@ public class Position2D implements Serializable, Cloneable
      * @param p2
      * @return distance to p2
      */
-    public int getDistance(Point2D p2) 
+    public int getDistance(Point2d p2) 
     {
         return((int) Math.round(Math.sqrt((x - p2.x)*(x - p2.x) + 
                                           (y - p2.y)*(y - p2.y))));
@@ -122,12 +122,12 @@ public class Position2D implements Serializable, Cloneable
      * @param ang  - Drehwinkel
      * @return Punkt in neuen Koordinaten
      */
-    public Position2D coordTrafo(float ang) 
+    public Position2d coordTrafo(float ang) 
     {
         double s = Math.sin(ang);
         double c = Math.cos(ang);
         
-        return new Position2D((int) Math.round(x * c - y * s),
+        return new Position2d((int) Math.round(x * c - y * s),
                               (int) Math.round(x * s + y * c), rho - ang);
     }
 
@@ -136,12 +136,12 @@ public class Position2D implements Serializable, Cloneable
      * @param p0 - translatorische Verschiebung
      * @return Punkt in neuen Koordinaten
      */
-    public Position2D coordTrafo(float ang, Position2D p0) 
+    public Position2d coordTrafo(float ang, Position2d p0) 
     {
         double s = Math.sin(ang);
         double c = Math.cos(ang);
         
-        return new Position2D((int) Math.round(x * c - y * s) + p0.x,
+        return new Position2d((int) Math.round(x * c - y * s) + p0.x,
                               (int) Math.round(x * s + y * c) + p0.y, 
                               rho - ang);
     }
@@ -152,12 +152,12 @@ public class Position2D implements Serializable, Cloneable
      * @param ptransY - translatorische Verschiebung y
      * @return Punkt in neuen Koordinaten
      */
-    public Position2D coordTrafo(float ang, int ptransX, int ptransY) 
+    public Position2d coordTrafo(float ang, int ptransX, int ptransY) 
     {
         double s = Math.sin(ang);
         double c = Math.cos(ang);
         
-        return new Position2D((int) Math.round(x * c - y * s) + ptransX,
+        return new Position2d((int) Math.round(x * c - y * s) + ptransX,
                               (int) Math.round(x * s + y * c) + ptransY);
     }
 
@@ -166,6 +166,6 @@ public class Position2D implements Serializable, Cloneable
     // arne, 5.2.2004
     public Object clone()
     {
-        return ((Object) new Position2D(x, y, rho));
+        return ((Object) new Position2d(x, y, rho));
     }
 }

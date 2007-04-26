@@ -21,7 +21,7 @@ import rack.main.RackProxy;
 import rack.main.defines.ScanPoint;
 import rack.main.tims.*;
 
-public class Scan2DDataMsg extends TimsMsg
+public class Scan2dDataMsg extends TimsMsg
 {
     public int recordingTime = 0;
     public int duration = 0;
@@ -34,7 +34,7 @@ public class Scan2DDataMsg extends TimsMsg
         return (16 + pointNum * ScanPoint.getDataLen());
     }
 
-    public Scan2DDataMsg(TimsDataMsg p) throws TimsException
+    public Scan2dDataMsg(TimsDataMsg p) throws TimsException
     {
         readTimsDataMsg(p);
     }

@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import rack.main.tims.EndianDataInputStream;
 
-public class Position3D
+public class Position3d
 {
     /** Position, Reihenfolge im Datenpacket: x, y, z, phi, psi, rho */
     public int x = 0; // 4 Byte
@@ -30,7 +30,7 @@ public class Position3D
     public float psi = 0.0f; // 4 Byte
     public float rho = 0.0f; // 4 Byte ==> 24 Byte
 
-    public Position3D(int x, int y, int z, float phi, float psi, float rho)
+    public Position3d(int x, int y, int z, float phi, float psi, float rho)
     {
         this.x = x;
         this.y = y;
@@ -40,7 +40,7 @@ public class Position3D
         this.rho = rho;
     }
 
-    public Position3D()
+    public Position3d()
     {
         this.x = 0;
         this.y = 0;
