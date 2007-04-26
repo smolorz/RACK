@@ -17,11 +17,9 @@ if CONFIG_RACK_CAMERA_V4L
 bin_PROGRAMS += CameraV4l
 endif
 
-
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
-
 
 CameraDcam_SOURCES = \
 	camera_dcam.h \
@@ -34,11 +32,9 @@ CameraDcam_LDFLAGS = \
 	@LIBRAW1394_LDFLAGS@ @LIBDC1394_LDFLAGS@ \
 	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@
 
-
 CameraFile_SOURCES = \
 	camera_file.h \
 	camera_file.cpp
-
 
 CameraJpeg_SOURCES = \
 	camera_jpeg.h \
@@ -50,11 +46,9 @@ CameraJpeg_CPPFLAGS = \
 CameraJpeg_LDFLAGS = \
 	@LIBJPEG_LDFLAGS@ @LIBJPEG_LIBS@
 
-
 CameraV4l_SOURCES = \
 	camera_v4l.h \
 	camera_v4l.cpp
-
 
 EXTRA_DIST = \
 	Kconfig \

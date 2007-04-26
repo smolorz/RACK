@@ -12,8 +12,8 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
-	Scan2DProxy.java \
-	Scan2DDataMsg.java
+	Scan2dProxy.java \
+	Scan2dDataMsg.java
 
 endif
 

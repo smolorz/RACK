@@ -586,7 +586,7 @@ int DatalogRec::logData(message_info *msgInfo)
                     break;
 
                 case SCAN2D:
-                    scan2dData = Scan2DData::parse(msgInfo);
+                    scan2dData = Scan2dData::parse(msgInfo);
 
                     extFilenamePtr = strtok ((char *)datalogInfoMsg.logInfo[i].filename, ".");
                     sprintf(extFilenameBuf, "%s", extFilenamePtr);

@@ -276,7 +276,7 @@ int  PilotJoystick::moduleLoop(void)
             (s2dInfo.type == MSG_DATA))
         {
             scan2dDataMissing = 0;
-            Scan2DData::parse(&s2dInfo);
+            Scan2dData::parse(&s2dInfo);
         }
         else
         {
@@ -450,7 +450,7 @@ int  PilotJoystick::moduleInit(void)
     initBits.setBit(INIT_BIT_PROXY_JOYSTICK);
 
     // scan2d
-    scan2d = new Scan2DProxy(&workMbx, 0, scan2dInst);
+    scan2d = new Scan2dProxy(&workMbx, 0, scan2dInst);
     if (!scan2d)
     {
         ret = -ENOMEM;

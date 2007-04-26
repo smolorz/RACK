@@ -34,7 +34,7 @@ PilotWallFollowing *p_inst;
 argTable_t argTab[] = {
 
     { ARGOPT_REQ, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The instance number of the Scan2D module", { -1 } },
+      "The instance number of the Scan2d module", { -1 } },
 
     { ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the chassis module", { 0 } },
@@ -120,7 +120,7 @@ argTable_t argTab[] = {
     ret = scan2d->on();
     if (ret)
     {
-          GDOS_ERROR("Can't turn on Scan2D(%i), code = %d\n",
+          GDOS_ERROR("Can't turn on Scan2d(%i), code = %d\n",
                      scan2dInst, ret);
       return ret;
     }
@@ -130,7 +130,7 @@ argTable_t argTab[] = {
     ret = scan2d->getContData(0, &scan2dDataMbx, &scan2dPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from scan2D(%i), "
+        GDOS_ERROR("Can't get continuous data from Scan2d(%i), "
                    "code = %d\n", scan2dInst, ret);
         return ret;
     }
@@ -152,7 +152,7 @@ argTable_t argTab[] = {
     // set databuffer period time to position
     setDataBufferPeriodTime(scan2dPeriodTime);
 
-    GDOS_PRINT("maxSpeed %f m/s, scan2D(%i)\n",
+    GDOS_PRINT("maxSpeed %f m/s, Scan2d(%i)\n",
                 (float)maxSpeed / 1000.0f, scan2dInst);
 
     return RackDataModule::moduleOn(); // have to be last command in moduleOn();
@@ -187,7 +187,7 @@ int  PilotWallFollowing::moduleLoop(void)
         msgInfo.src  == scan2d->getDestAdr())
     {
         // message parsing
-        pS2dData = Scan2DData::parse(&msgInfo);
+        pS2dData = Scan2dData::parse(&msgInfo);
         memcpy(&scan2dMsg.data, pS2dData, sizeof(scan2d_data) +
                pS2dData->pointNum * sizeof(scan_point));
 
@@ -1803,7 +1803,7 @@ int  PilotWallFollowing::moduleInit(void)
     //
 
     // scan2d
-    scan2d = new Scan2DProxy(&workMbx, 0, scan2dInst);
+    scan2d = new Scan2dProxy(&workMbx, 0, scan2dInst);
     if (!scan2d)
     {
         ret = -ENOMEM;

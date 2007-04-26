@@ -1,6 +1,4 @@
 
 config RACK_GPS_NMEA
-    bool "GPS nmea"
+    bool "Gps - Nmea"
     default y
-    ---help---
-    Help text.

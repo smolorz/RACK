@@ -57,7 +57,7 @@ typedef struct {
     scan_point      point[0];
 } __attribute__((packed)) scan2d_data;
 
-class Scan2DData
+class Scan2dData
 {
     public:
         static void le_to_cpu(scan2d_data *data)
@@ -111,7 +111,7 @@ class Scan2DData
 //# Chassis Proxy Functions
 //######################################################################
 
-class Scan2DProxy : public RackDataProxy {
+class Scan2dProxy : public RackDataProxy {
 
     public:
 
@@ -120,12 +120,12 @@ class Scan2DProxy : public RackDataProxy {
 // WARNING -> look at module class id in constuctor
 //
 
-        Scan2DProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
+        Scan2dProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
                 : RackDataProxy(workMbx, sys_id, SCAN2D, instance)
         {
         };
 
-        ~Scan2DProxy()
+        ~Scan2dProxy()
         {
         };
 

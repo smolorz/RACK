@@ -462,12 +462,12 @@ dnl    project modules
 dnl ======================================================================
 
 dnl -----------------------------------------------------------------
-dnl  drivers - camera dcam
+dnl  drivers - CameraDcam
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build camera dcam])
+AC_MSG_CHECKING([build CameraDcam])
 AC_ARG_ENABLE(camera-dcam,
-    AS_HELP_STRING([--enable-camera-dcam], [building camera dcam]),
+    AS_HELP_STRING([--enable-camera-dcam], [building CameraDcam]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CAMERA_DCAM=y ;;
         *) CONFIG_RACK_CAMERA_DCAM=n ;;
@@ -475,18 +475,18 @@ AC_ARG_ENABLE(camera-dcam,
 AC_MSG_RESULT([${CONFIG_RACK_CAMERA_DCAM:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CAMERA_DCAM,[test "$CONFIG_RACK_CAMERA_DCAM" = "y"])
 if test "$CONFIG_RACK_CAMERA_DCAM" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CAMERA_DCAM,1,[building camera dcam])
+    AC_DEFINE(CONFIG_RACK_CAMERA_DCAM,1,[building CameraDcam])
     CONFIG_RACK_LIBRAW1394_SUPPORT=y
     CONFIG_RACK_LIBDC1394_SUPPORT=y
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - camera file
+dnl  drivers - CameraFile
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build camera file])
+AC_MSG_CHECKING([build CameraFile])
 AC_ARG_ENABLE(camera-file,
-    AS_HELP_STRING([--enable-camera-file], [building camera file]),
+    AS_HELP_STRING([--enable-camera-file], [building CameraFile]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CAMERA_FILE=y ;;
         *) CONFIG_RACK_CAMERA_FILE=n ;;
@@ -494,16 +494,16 @@ AC_ARG_ENABLE(camera-file,
 AC_MSG_RESULT([${CONFIG_RACK_CAMERA_FILE:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CAMERA_FILE,[test "$CONFIG_RACK_CAMERA_FILE" = "y"])
 if test "$CONFIG_RACK_CAMERA_FILE" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CAMERA_FILE,1,[building camera file])
+    AC_DEFINE(CONFIG_RACK_CAMERA_FILE,1,[building CameraFile])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - camera jpeg
+dnl  drivers - CameraJpeg
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build camera jpeg])
+AC_MSG_CHECKING([build CameraJpeg])
 AC_ARG_ENABLE(camera-jpeg,
-    AS_HELP_STRING([--enable-camera-jpeg], [building camera jpeg]),
+    AS_HELP_STRING([--enable-camera-jpeg], [building CameraJpeg]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CAMERA_JPEG=y ;;
         *) CONFIG_RACK_CAMERA_JPEG=n ;;
@@ -511,17 +511,17 @@ AC_ARG_ENABLE(camera-jpeg,
 AC_MSG_RESULT([${CONFIG_RACK_CAMERA_JPEG:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CAMERA_JPEG,[test "$CONFIG_RACK_CAMERA_JPEG" = "y"])
 if test "$CONFIG_RACK_CAMERA_JPEG" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CAMERA_JPEG,1,[building camera jpeg])
+    AC_DEFINE(CONFIG_RACK_CAMERA_JPEG,1,[building CameraJpeg])
     CONFIG_RACK_LIBJPEG_SUPPORT=y
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - camera v4l
+dnl  drivers - CameraV4l
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build camera v4l])
+AC_MSG_CHECKING([build CameraV4l])
 AC_ARG_ENABLE(camera-v4l,
-    AS_HELP_STRING([--enable-camera-v4l], [building camera v4l]),
+    AS_HELP_STRING([--enable-camera-v4l], [building CameraV4l]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CAMERA_V4L=y ;;
         *) CONFIG_RACK_CAMERA_V4L=n ;;
@@ -529,16 +529,16 @@ AC_ARG_ENABLE(camera-v4l,
 AC_MSG_RESULT([${CONFIG_RACK_CAMERA_V4L:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CAMERA_V4L,[test "$CONFIG_RACK_CAMERA_V4L" = "y"])
 if test "$CONFIG_RACK_CAMERA_V4L" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CAMERA_V4L,1,[building camera v4l])
+    AC_DEFINE(CONFIG_RACK_CAMERA_V4L,1,[building CameraV4l])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - chassis pioneer
+dnl  drivers - ChassisPioneer
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build chassis pioneer])
+AC_MSG_CHECKING([build ChassisPioneer])
 AC_ARG_ENABLE(chassis-pioneer,
-    AS_HELP_STRING([--enable-chassis-pioneer], [building chassis pioneer]),
+    AS_HELP_STRING([--enable-chassis-pioneer], [building ChassisPioneer]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CHASSIS_PIONEER=y ;;
         *) CONFIG_RACK_CHASSIS_PIONEER=n ;;
@@ -546,16 +546,16 @@ AC_ARG_ENABLE(chassis-pioneer,
 AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_PIONEER:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CHASSIS_PIONEER,[test "$CONFIG_RACK_CHASSIS_PIONEER" = "y"])
 if test "$CONFIG_RACK_CHASSIS_PIONEER" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CHASSIS_PIONEER,1,[building chassis pioneer])
+    AC_DEFINE(CONFIG_RACK_CHASSIS_PIONEER,1,[building ChassisPioneer])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - chassis sim
+dnl  drivers - ChassisSim
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build chassis sim])
+AC_MSG_CHECKING([build ChassisSim])
 AC_ARG_ENABLE(chassis-sim,
-    AS_HELP_STRING([--enable-chassis-sim], [building chassis sim]),
+    AS_HELP_STRING([--enable-chassis-sim], [building ChassisSim]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CHASSIS_SIM=y ;;
         *) CONFIG_RACK_CHASSIS_SIM=n ;;
@@ -563,16 +563,16 @@ AC_ARG_ENABLE(chassis-sim,
 AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_SIM:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CHASSIS_SIM,[test "$CONFIG_RACK_CHASSIS_SIM" = "y"])
 if test "$CONFIG_RACK_CHASSIS_SIM" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CHASSIS_SIM,1,[building chassis sim])
+    AC_DEFINE(CONFIG_RACK_CHASSIS_SIM,1,[building ChassisSim])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - gps nmea
+dnl  drivers - GpsNmea
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build gps nmea])
+AC_MSG_CHECKING([build GpsNmea])
 AC_ARG_ENABLE(gps-nmea,
-    AS_HELP_STRING([--enable-gps-nmea], [building gps nmea]),
+    AS_HELP_STRING([--enable-gps-nmea], [building GpsNmea]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_GPS_NMEA=y ;;
         *) CONFIG_RACK_GPS_NMEA=n ;;
@@ -580,16 +580,16 @@ AC_ARG_ENABLE(gps-nmea,
 AC_MSG_RESULT([${CONFIG_RACK_GPS_NMEA:-n}])
 AM_CONDITIONAL(CONFIG_RACK_GPS_NMEA,[test "$CONFIG_RACK_GPS_NMEA" = "y"])
 if test "$CONFIG_RACK_GPS_NMEA" = "y"; then
-    AC_DEFINE(CONFIG_RACK_GPS_NMEA,1,[building gps nmea])
+    AC_DEFINE(CONFIG_RACK_GPS_NMEA,1,[building GpsNmea])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - ladar hokuyo urg
+dnl  drivers - LadarHokuyoUrg
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build ladar hokuyo urg])
+AC_MSG_CHECKING([build LadarHokuyoUrg])
 AC_ARG_ENABLE(ladar-hokuyo-urg,
-    AS_HELP_STRING([--enable-ladar-hokuyo-urg], [building ladar hokuyo urg]),
+    AS_HELP_STRING([--enable-ladar-hokuyo-urg], [building LadarHokuyoUrg]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_LADAR_HOKUYO_URG=y ;;
         *) CONFIG_RACK_LADAR_HOKUYO_URG=n ;;
@@ -597,16 +597,16 @@ AC_ARG_ENABLE(ladar-hokuyo-urg,
 AC_MSG_RESULT([${CONFIG_RACK_LADAR_HOKUYO_URG:-n}])
 AM_CONDITIONAL(CONFIG_RACK_LADAR_HOKUYO_URG,[test "$CONFIG_RACK_LADAR_HOKUYO_URG" = "y"])
 if test "$CONFIG_RACK_LADAR_HOKUYO_URG" = "y"; then
-    AC_DEFINE(CONFIG_RACK_LADAR_HOKUYO_URG,1,[building ladar hokuyo urg])
+    AC_DEFINE(CONFIG_RACK_LADAR_HOKUYO_URG,1,[building LadarHokuyoUrg])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - ladar ibeo
+dnl  drivers - LadarIbeo
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build ladar ibeo])
+AC_MSG_CHECKING([build LadarIbeo])
 AC_ARG_ENABLE(ladar-ibeo,
-    AS_HELP_STRING([--enable-ladar-ibeo], [building ladar ibeo]),
+    AS_HELP_STRING([--enable-ladar-ibeo], [building LadarIbeo]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_LADAR_IBEO=y ;;
         *) CONFIG_RACK_LADAR_IBEO=n ;;
@@ -614,16 +614,16 @@ AC_ARG_ENABLE(ladar-ibeo,
 AC_MSG_RESULT([${CONFIG_RACK_LADAR_IBEO:-n}])
 AM_CONDITIONAL(CONFIG_RACK_LADAR_IBEO,[test "$CONFIG_RACK_LADAR_IBEO" = "y"])
 if test "$CONFIG_RACK_LADAR_IBEO" = "y"; then
-    AC_DEFINE(CONFIG_RACK_LADAR_IBEO,1,[building ladar ibeo])
+    AC_DEFINE(CONFIG_RACK_LADAR_IBEO,1,[building LadarIbeo])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - ladar sick lms200
+dnl  drivers - LadarSickLms200
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build ladar sick lms200 driver])
+AC_MSG_CHECKING([build LadarSickLms200])
 AC_ARG_ENABLE(ladar-sick-lms200,
-    AS_HELP_STRING([--enable-ladar-sick-lms200], [building ladar sick lms200 laser scanner driver]),
+    AS_HELP_STRING([--enable-ladar-sick-lms200], [building LadarSickLms200]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_LADAR_SICK_LMS200=y ;;
         *) CONFIG_RACK_LADAR_SICK_LMS200=n ;;
@@ -631,16 +631,16 @@ AC_ARG_ENABLE(ladar-sick-lms200,
 AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_LMS200:-n}])
 AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_LMS200,[test "$CONFIG_RACK_LADAR_SICK_LMS200" = "y"])
 if test "$CONFIG_RACK_LADAR_SICK_LMS200" = "y"; then
-    AC_DEFINE(CONFIG_RACK_LADAR_SICK_LMS200,1,[building ladar sick lms200 laser scanner driver])
+    AC_DEFINE(CONFIG_RACK_LADAR_SICK_LMS200,1,[building LadarSickLms200])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - ladar sick s
+dnl  drivers - LadarSickS
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build ladar sick s driver])
+AC_MSG_CHECKING([build LadarSickS])
 AC_ARG_ENABLE(ladar-sick-s,
-    AS_HELP_STRING([--enable-ladar-sick-s], [building ladar sick s laser scanner driver]),
+    AS_HELP_STRING([--enable-ladar-sick-s], [building LadarSickS]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_LADAR_SICK_S=y ;;
         *) CONFIG_RACK_LADAR_SICK_S=n ;;
@@ -648,17 +648,16 @@ AC_ARG_ENABLE(ladar-sick-s,
 AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_S:-n}])
 AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_S,[test "$CONFIG_RACK_LADAR_SICK_S" = "y"])
 if test "$CONFIG_RACK_LADAR_SICK_S" = "y"; then
-    AC_DEFINE(CONFIG_RACK_LADAR_SICK_S,1,[building ladar sick s laser scanner 
-driver])
+    AC_DEFINE(CONFIG_RACK_LADAR_SICK_S,1,[building LadarSickS])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - Odometry
+dnl  drivers - OdometryChassis
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build odometry chassis])
+AC_MSG_CHECKING([build OdometryChassis])
 AC_ARG_ENABLE(odometry-chassis,
-    AS_HELP_STRING([--enable-odometry-chassis], [building odometry chassis]),
+    AS_HELP_STRING([--enable-odometry-chassis], [building OdometryChassis]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_ODOMETRY_CHASSIS=y ;;
         *) CONFIG_RACK_ODOMETRY_CHASSIS=n ;;
@@ -666,16 +665,16 @@ AC_ARG_ENABLE(odometry-chassis,
 AC_MSG_RESULT([${CONFIG_RACK_ODOMETRY_CHASSIS:-n}])
 AM_CONDITIONAL(CONFIG_RACK_ODOMETRY_CHASSIS,[test "$CONFIG_RACK_ODOMETRY_CHASSIS" = "y"])
 if test "$CONFIG_RACK_ODOMETRY_CHASSIS" = "y"; then
-    AC_DEFINE(CONFIG_RACK_ODOMETRY_CHASSIS,1,[building odometry chassis])
+    AC_DEFINE(CONFIG_RACK_ODOMETRY_CHASSIS,1,[building OdometryChassis])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  navigation - Pilot Joystick
+dnl  navigation - PilotJoystick
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build pilot joystick])
+AC_MSG_CHECKING([build PilotJoystick])
 AC_ARG_ENABLE(pilot-joystick,
-    AS_HELP_STRING([--enable-pilot-joystick], [building pilot joystick]),
+    AS_HELP_STRING([--enable-pilot-joystick], [building PilotJoystick]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_PILOT_JOYSTICK=y ;;
         *) CONFIG_RACK_PILOT_JOYSTICK=n ;;
@@ -683,16 +682,16 @@ AC_ARG_ENABLE(pilot-joystick,
 AC_MSG_RESULT([${CONFIG_RACK_PILOT_JOYSTICK:-n}])
 AM_CONDITIONAL(CONFIG_RACK_PILOT_JOYSTICK,[test "$CONFIG_RACK_PILOT_JOYSTICK" = "y"])
 if test "$CONFIG_RACK_PILOT_JOYSTICK" = "y"; then
-    AC_DEFINE(CONFIG_RACK_PILOT_JOYSTICK,1,[building pilot joystick])
+    AC_DEFINE(CONFIG_RACK_PILOT_JOYSTICK,1,[building PilotJoystick])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  navigation - Pilot Wall Following
+dnl  navigation - PilotWallFollowing
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build pilot wall following])
+AC_MSG_CHECKING([build PilotWallFollowing])
 AC_ARG_ENABLE(pilot-wall-following,
-    AS_HELP_STRING([--enable-pilot-wall-following], [building pilot wall following]),
+    AS_HELP_STRING([--enable-pilot-wall-following], [building PilotWallFollowing]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_PILOT_WALL_FOLLOWING=y ;;
         *) CONFIG_RACK_PILOT_WALL_FOLLOWING=n ;;
@@ -700,16 +699,16 @@ AC_ARG_ENABLE(pilot-wall-following,
 AC_MSG_RESULT([${CONFIG_RACK_PILOT_WALL_FOLLOWING:-n}])
 AM_CONDITIONAL(CONFIG_RACK_PILOT_WALL_FOLLOWING,[test "$CONFIG_RACK_PILOT_WALL_FOLLOWING" = "y"])
 if test "$CONFIG_RACK_PILOT_WALL_FOLLOWING" = "y"; then
-    AC_DEFINE(CONFIG_RACK_PILOT_WALL_FOLLOWING,1,[building pilot wall following])
+    AC_DEFINE(CONFIG_RACK_PILOT_WALL_FOLLOWING,1,[building PilotWallFollowing])
 fi
 
 dnl -----------------------------------------------------------------
 dnl  navigation - Position
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build position])
+AC_MSG_CHECKING([build Position])
 AC_ARG_ENABLE(position,
-    AS_HELP_STRING([--enable-position], [building position]),
+    AS_HELP_STRING([--enable-position], [building Position]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_POSITION=y ;;
         *) CONFIG_RACK_POSITION=n ;;
@@ -717,67 +716,67 @@ AC_ARG_ENABLE(position,
 AC_MSG_RESULT([${CONFIG_RACK_POSITION:-n}])
 AM_CONDITIONAL(CONFIG_RACK_POSITION,[test "$CONFIG_RACK_POSITION" = "y"])
 if test "$CONFIG_RACK_POSITION" = "y"; then
-    AC_DEFINE(CONFIG_RACK_POSITION,1,[building position])
+    AC_DEFINE(CONFIG_RACK_POSITION,1,[building Position])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  perception - scan 2d
+dnl  perception - Scan2d
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build Scan2D])
-AC_ARG_ENABLE(scan-2d,
-    AS_HELP_STRING([--enable-scan-2d], [building Scan2D]),
+AC_MSG_CHECKING([build Scan2d])
+AC_ARG_ENABLE(scan2d,
+    AS_HELP_STRING([--enable-scan2d], [building Scan2d]),
     [case "$enableval" in
-        y | yes) CONFIG_RACK_SCAN_2D=y ;;
-        *) CONFIG_RACK_SCAN_2D=n ;;
+        y | yes) CONFIG_RACK_SCAN2D=y ;;
+        *) CONFIG_RACK_SCAN2D=n ;;
     esac])
-AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D:-n}])
-AM_CONDITIONAL(CONFIG_RACK_SCAN_2D,[test "$CONFIG_RACK_SCAN_2D" = "y"])
-if test "$CONFIG_RACK_SCAN_2D" = "y"; then
-    AC_DEFINE(CONFIG_RACK_SCAN_2D,1,[building Scan2D])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN2D:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN2D,[test "$CONFIG_RACK_SCAN2D" = "y"])
+if test "$CONFIG_RACK_SCAN2D" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN2D,1,[building Scan2d])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  perception - scan 2d merge
+dnl  perception - Scan2dMerge
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build Scan2D Merge])
-AC_ARG_ENABLE(scan-2d-merge,
-    AS_HELP_STRING([--enable-scan-2d-merge], [building Scan2D Merge]),
+AC_MSG_CHECKING([build Scan2dMerge])
+AC_ARG_ENABLE(scan2d-merge,
+    AS_HELP_STRING([--enable-scan2d-merge], [building Scan2dMerge]),
     [case "$enableval" in
-        y | yes) CONFIG_RACK_SCAN_2D_MERGE=y ;;
-        *) CONFIG_RACK_SCAN_2D_MERGE=n ;;
+        y | yes) CONFIG_RACK_SCAN2D_MERGE=y ;;
+        *) CONFIG_RACK_SCAN2D_MERGE=n ;;
     esac])
-AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_MERGE:-n}])
-AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_MERGE,[test "$CONFIG_RACK_SCAN_2D_MERGE" = "y"])
-if test "$CONFIG_RACK_SCAN_2D_MERGE" = "y"; then
-    AC_DEFINE(CONFIG_RACK_SCAN_2D_MERGE,1,[building Scan2D Merge])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN2D_MERGE:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN2D_MERGE,[test "$CONFIG_RACK_SCAN2D_MERGE" = "y"])
+if test "$CONFIG_RACK_SCAN2D_MERGE" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN2D_MERGE,1,[building Scan2dMerge])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  perception - scan 2d sim
+dnl  perception - Scan2dSim
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build Scan2D Sim])
-AC_ARG_ENABLE(scan-2d-sim,
-    AS_HELP_STRING([--enable-scan-2d-sim], [building Scan2D Sim]),
+AC_MSG_CHECKING([build Scan2dSim])
+AC_ARG_ENABLE(scan2d-sim,
+    AS_HELP_STRING([--enable-scan2d-sim], [building Scan2dSim]),
     [case "$enableval" in
-        y | yes) CONFIG_RACK_SCAN_2D_SIM=y ;;
-        *) CONFIG_RACK_SCAN_2D_SIM=n ;;
+        y | yes) CONFIG_RACK_SCAN2D_SIM=y ;;
+        *) CONFIG_RACK_SCAN2D_SIM=n ;;
     esac])
-AC_MSG_RESULT([${CONFIG_RACK_SCAN_2D_SIM:-n}])
-AM_CONDITIONAL(CONFIG_RACK_SCAN_2D_SIM,[test "$CONFIG_RACK_SCAN_2D_SIM" = "y"])
-if test "$CONFIG_RACK_SCAN_2D_SIM" = "y"; then
-    AC_DEFINE(CONFIG_RACK_SCAN_2D_SIM,1,[building Scan2D Sim])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN2D_SIM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN2D_SIM,[test "$CONFIG_RACK_SCAN2D_SIM" = "y"])
+if test "$CONFIG_RACK_SCAN2D_SIM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN2D_SIM,1,[building Scan2dSim])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  skel - dummy abc
+dnl  skel - DummyAbc
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build Dummy Abc])
+AC_MSG_CHECKING([build DummyAbc])
 AC_ARG_ENABLE(dummy-abc,
-    AS_HELP_STRING([--enable-dummy-abc], [building Dummy Abc]),
+    AS_HELP_STRING([--enable-dummy-abc], [building DummyAbc]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_DUMMY_ABC=y ;;
         *) CONFIG_RACK_DUMMY_ABC=n ;;
@@ -785,16 +784,16 @@ AC_ARG_ENABLE(dummy-abc,
 AC_MSG_RESULT([${CONFIG_RACK_DUMMY_ABC:-n}])
 AM_CONDITIONAL(CONFIG_RACK_DUMMY_ABC,[test "$CONFIG_RACK_DUMMY_ABC" = "y"])
 if test "$CONFIG_RACK_DUMMY_ABC" = "y"; then
-    AC_DEFINE(CONFIG_RACK_DUMMY_ABC,1,[building Dummy Abc])
+    AC_DEFINE(CONFIG_RACK_DUMMY_ABC,1,[building DummyAbc])
 fi
 
 dnl -----------------------------------------------------------------
-dnl  tools - datalog rec
+dnl  tools - DatalogRec
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build Datalog Rec])
+AC_MSG_CHECKING([build DatalogRec])
 AC_ARG_ENABLE(datalog-rec,
-    AS_HELP_STRING([--enable-datalog-rec], [building Datalog Rec]),   
+    AS_HELP_STRING([--enable-datalog-rec], [building DatalogRec]),   
     [case "$enableval" in
         y | yes) CONFIG_DATALOG_REC=y ;;
         *) CONFIG_DATALOG_REC=n ;;
@@ -802,12 +801,8 @@ AC_ARG_ENABLE(datalog-rec,
 AC_MSG_RESULT([${CONFIG_DATALOG_REC:-n}])
 AM_CONDITIONAL(CONFIG_DATALOG_REC,[test "$CONFIG_DATALOG_REC" = "y"])
 if test "$CONFIG_DATALOG_REC" = "y"; then
-    AC_DEFINE(CONFIG_DATALOG_REC,1,[building Datalog Rec])
+    AC_DEFINE(CONFIG_DATALOG_REC,1,[building DatalogRec])
 fi
-
-dnl -----------------------------------------------------------------
-dnl  ...
-dnl -----------------------------------------------------------------
 
 dnl ======================================================================
 dnl  directory / library checks

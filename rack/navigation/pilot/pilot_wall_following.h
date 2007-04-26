@@ -82,7 +82,7 @@ class PilotWallFollowing : public RackDataModule {
         RackMailbox         workMbx;                // communication
 
         // proxies
-        Scan2DProxy*        scan2d;
+        Scan2dProxy*        scan2d;
         PositionProxy*      position;
         ChassisProxy*       chassis;
 

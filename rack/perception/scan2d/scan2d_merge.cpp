@@ -29,7 +29,7 @@
 // data structures
 //
 
-Scan2DMerge *p_inst;
+Scan2dMerge *p_inst;
 
 argTable_t argTab[] = {
 
@@ -63,7 +63,7 @@ argTable_t argTab[] = {
  *
  *   own realtime user functions
  ******************************************************************************/
-int  Scan2DMerge::moduleOn(void)
+int  Scan2dMerge::moduleOn(void)
 {
     int     ret, k;
     rack_time_t odometryPeriodTime;
@@ -79,7 +79,7 @@ int  Scan2DMerge::moduleOn(void)
     }
 
     // turn on scan2d modules
-    for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+    for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
     {
         if (scan2dInst[k] >= 0)
         {
@@ -107,7 +107,7 @@ int  Scan2DMerge::moduleOn(void)
     setDataBufferPeriodTime(odometryPeriodTime);
 
     // get continuous data from scan2d modules
-    for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+    for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
     {
         if (scan2dInst[k] >= 0)
         {
@@ -126,7 +126,7 @@ int  Scan2DMerge::moduleOn(void)
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
-void Scan2DMerge::moduleOff(void)
+void Scan2dMerge::moduleOff(void)
 {
     int     k;
 
@@ -134,7 +134,7 @@ void Scan2DMerge::moduleOff(void)
 
     odometry->stopContData(&dataMbx);
 
-    for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+    for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
     {
         if (scan2dInst[k] >= 0)
         {
@@ -145,7 +145,7 @@ void Scan2DMerge::moduleOff(void)
 
 
 // realtime context
-int  Scan2DMerge::moduleLoop(void)
+int  Scan2dMerge::moduleLoop(void)
 {
     message_info     dataInfo;
     odometry_data   *odoData   = NULL;
@@ -169,7 +169,7 @@ int  Scan2DMerge::moduleLoop(void)
     if (dataInfo.type == MSG_DATA)
     {
         // store new scan2d data message from scan2dInst 0, 1, 2, ...
-        for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+        for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
         {
             if (scan2dInst[k] >= 0)
             {
@@ -178,7 +178,7 @@ int  Scan2DMerge::moduleLoop(void)
                     (dataInfo.type == MSG_DATA))
                 {
                     // message parsing
-                    scanData = Scan2DData::parse(&dataInfo);
+                    scanData = Scan2dData::parse(&dataInfo);
 
                     ret = odometry->getData(&odometryBuffer[k],
                                             sizeof(odometry_data),
@@ -241,14 +241,14 @@ int  Scan2DMerge::moduleLoop(void)
             mergeData->maxRange      = scanBuffer[0].data.maxRange;
             mergeData->pointNum      = 0;
 
-            for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+            for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
             {
                 if (scan2dInst[k] >= 0)
                 {
                     // scan2d timeout 5s
                     if (scan2dTimeout[k] > 5 * ((float)1000.0f / getDataBufferPeriodTime(0)))
                     {
-                        GDOS_ERROR("Data timeout scan_2d(%i)\n", scan2dInst[k]);
+                        GDOS_ERROR("Data timeout Scan2d(%i)\n", scan2dInst[k]);
 
                         dataMbx.peekEnd();
                         return -ETIMEDOUT;
@@ -264,7 +264,7 @@ int  Scan2DMerge::moduleLoop(void)
                         {
                             GDOS_ERROR("Merged scan exceeds SCAN2D_POINT_MAX %i\n", SCAN2D_POINT_MAX);
 
-                            for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+                            for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
                             {
                                 if (scan2dInst[k] >= 0)
                                 {
@@ -320,7 +320,7 @@ int  Scan2DMerge::moduleLoop(void)
     return 0;
 }
 
-int  Scan2DMerge::moduleCommand(message_info *msgInfo)
+int  Scan2dMerge::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -337,7 +337,7 @@ int  Scan2DMerge::moduleCommand(message_info *msgInfo)
  *   main
  *
  ******************************************************************************/
-int Scan2DMerge::moduleInit(void)
+int Scan2dMerge::moduleInit(void)
 {
     int     ret, k;
 
@@ -387,11 +387,11 @@ int Scan2DMerge::moduleInit(void)
     initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
     // scan2d
-    for (k = 0; k < SCAN_2D_SENSOR_NUM_MAX; k++)
+    for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
     {
         if (scan2dInst[k] >= 0)
         {
-            scan2d[k] = new Scan2DProxy(&workMbx, 0, scan2dInst[k]);
+            scan2d[k] = new Scan2dProxy(&workMbx, 0, scan2dInst[k]);
             if (!scan2d)
             {
                 ret = -ENOMEM;
@@ -406,20 +406,20 @@ int Scan2DMerge::moduleInit(void)
 init_error:
 
     // !!! call local cleanup function !!!
-    Scan2DMerge::moduleCleanup();
+    Scan2dMerge::moduleCleanup();
     return ret;
 }
 
 
 // non realtime context
-void Scan2DMerge::moduleCleanup(void)
+void Scan2dMerge::moduleCleanup(void)
 {
     int     k;
 
     GDOS_DBG_DETAIL("Scan2DMerge::moduleCleanup ... \n");
 
     // free scan2d proxies
-    for (k = SCAN_2D_SENSOR_NUM_MAX - 1; k >= 0; k--)
+    for (k = SCAN2D_SENSOR_NUM_MAX - 1; k >= 0; k--)
     {
         if (scan2dInst[k] >= 0)
         {
@@ -455,7 +455,7 @@ void Scan2DMerge::moduleCleanup(void)
     }
 }
 
-Scan2DMerge::Scan2DMerge(void)
+Scan2dMerge::Scan2dMerge(void)
       : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
@@ -482,18 +482,18 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "Scan2DMerge");
+    ret = RackModule::getArgs(argc, argv, argTab, "Scan2dMerge");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new Scan2DMerge
-    p_inst = new Scan2DMerge();
+    // create new Scan2dMerge
+    p_inst = new Scan2dMerge();
     if (!p_inst)
     {
-        printf("Can't create new Scan2DMerge -> EXIT\n");
+        printf("Can't create new Scan2dMerge -> EXIT\n");
         return -ENOMEM;
     }
 

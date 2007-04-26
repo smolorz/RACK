@@ -69,7 +69,7 @@ class PilotJoystick : public RackDataModule {
 
         // proxies
         JoystickProxy*      joystick;
-        Scan2DProxy*        scan2d;
+        Scan2dProxy*        scan2d;
         ChassisProxy*       chassis;
 
         // buffer

@@ -1,36 +1,33 @@
 
 bin_PROGRAMS =
 
-if CONFIG_RACK_SCAN_2D
-bin_PROGRAMS += Scan2D
+if CONFIG_RACK_SCAN2D
+bin_PROGRAMS += Scan2d
 endif
 
-if CONFIG_RACK_SCAN_2D_MERGE
-bin_PROGRAMS += Scan2DMerge
+if CONFIG_RACK_SCAN2D_MERGE
+bin_PROGRAMS += Scan2dMerge
 endif
 
-if CONFIG_RACK_SCAN_2D_SIM
-bin_PROGRAMS += Scan2DSim
+if CONFIG_RACK_SCAN2D_SIM
+bin_PROGRAMS += Scan2dSim
 endif
-
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
 
-
-Scan2D_SOURCES = \
+Scan2d_SOURCES = \
 	scan2d.h \
 	scan2d.cpp
 
-Scan2DMerge_SOURCES = \
+Scan2dMerge_SOURCES = \
 	scan2d_merge.h \
 	scan2d_merge.cpp
 
-Scan2DSim_SOURCES = \
+Scan2dSim_SOURCES = \
 	scan2d_sim.h \
 	scan2d_sim.cpp
-
 
 EXTRA_DIST = \
 	Kconfig

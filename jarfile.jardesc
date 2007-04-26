@@ -17,7 +17,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{RackDataModuleGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{RackDataProxy.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position2D.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position2d.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{ChassisGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{ChassisProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PositionProxy.java"/>
@@ -34,7 +34,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewCursorDrawContext.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{JoystickSoftware.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraProxy.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2DComponent.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2dComponent.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{GDOS.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsTimeoutException.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{GpsGui.java"/>
@@ -47,14 +47,14 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main{StopContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSMessageRenderer.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionList.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2DGui.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2dGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.navigation{PilotGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{LadarDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewDrawContext.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{LadarGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{ChassisParamMsg.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Point2D.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Point2d.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{CameraGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{GDOSDataMsg.java"/>
@@ -72,7 +72,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position3D.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{RackProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraFormatMsg.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2DDataMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2dDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsMbx.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsRouter.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{GpsProxy.java"/>
@@ -89,6 +89,6 @@
 <javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogLogInfo.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogProxy.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2DProxy.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2dProxy.java"/>
 </selectedElements>
 </jardesc>

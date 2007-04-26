@@ -1,19 +1,20 @@
 
 config RACK_LADAR_IBEO
-    bool "Ladar Ibeo"
-    ---help---
+    bool "Ladar - Ibeo"
+    default y
+    help
+    SICK IBEO LD-A
 
 config RACK_LADAR_HOKUYO_URG
-    bool "Ladar Hokuyo urg"
-    ---help---
+    bool "Ladar - HokuyoUrg"
+    default y
 
 config RACK_LADAR_SICK_LMS200
-    bool "Ladar Sick LMS200"
+    bool "Ladar - SickLms200"
     default y
-    ---help---
 
 config RACK_LADAR_SICK_S
-    bool "Ladar Sick S"
+    bool "Ladar - SickS"
     default y
-    ---help---
-
+    help
+    SICK S300, SICK S3000

@@ -1,6 +1,4 @@
 
 config RACK_ODOMETRY_CHASSIS
-    bool "Odometry Chassis"
+    bool "Odometry - Chassis"
     default y
-    ---help---
-    Help text.

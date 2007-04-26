@@ -13,8 +13,8 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef __SCAN_2D_MERGE_H__
-#define __SCAN_2D_MERGE_H__
+#ifndef __SCAN2D_MERGE_H__
+#define __SCAN2D_MERGE_H__
 
 #include <main/rack_datamodule.h>
 #include <drivers/odometry_proxy.h>
@@ -22,7 +22,7 @@
 
 #define MODULE_CLASS_ID             SCAN2D
 
-#define SCAN_2D_SENSOR_NUM_MAX      4
+#define SCAN2D_SENSOR_NUM_MAX       4
 
 // scan_2d data message (use max message size)
 typedef struct {
@@ -31,17 +31,17 @@ typedef struct {
 } __attribute__((packed)) scan2d_data_msg;
 
 //######################################################################
-//# class Scan2DMerge
+//# class Scan2dMerge
 //######################################################################
 
-class Scan2DMerge : public RackDataModule {
+class Scan2dMerge : public RackDataModule {
     private:
         int32_t             odometryInst;
-        int32_t             scan2dInst[SCAN_2D_SENSOR_NUM_MAX];
-        int                 scan2dTimeout[SCAN_2D_SENSOR_NUM_MAX];
+        int32_t             scan2dInst[SCAN2D_SENSOR_NUM_MAX];
+        int                 scan2dTimeout[SCAN2D_SENSOR_NUM_MAX];
 
-        odometry_data       odometryBuffer[SCAN_2D_SENSOR_NUM_MAX];
-        scan2d_data_msg      scanBuffer[SCAN_2D_SENSOR_NUM_MAX];
+        odometry_data       odometryBuffer[SCAN2D_SENSOR_NUM_MAX];
+        scan2d_data_msg     scanBuffer[SCAN2D_SENSOR_NUM_MAX];
 
         // additional mailboxes
         RackMailbox         workMbx;
@@ -49,7 +49,7 @@ class Scan2DMerge : public RackDataModule {
 
         // proxies
         OdometryProxy       *odometry;
-        Scan2DProxy         *scan2d[SCAN_2D_SENSOR_NUM_MAX];
+        Scan2dProxy         *scan2d[SCAN2D_SENSOR_NUM_MAX];
 
     protected:
         // -> realtime context
@@ -63,11 +63,11 @@ class Scan2DMerge : public RackDataModule {
 
     public:
         // constructor und destructor
-        Scan2DMerge();
-        ~Scan2DMerge() {};
+        Scan2dMerge();
+        ~Scan2dMerge() {};
 
         // -> non realtime context
         int moduleInit(void);
 };
 
-#endif // __SCAN_2D_MERGE_H__
+#endif // __SCAN2D_MERGE_H__

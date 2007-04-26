@@ -1,36 +1,36 @@
 /* config/rack_config_pre.h.in.  Generated from configure.ac by autoheader.  */
 
-/* building Datalog Rec */
+/* building DatalogRec */
 #undef CONFIG_DATALOG_REC
 
 /* Build system alias */
 #undef CONFIG_RACK_BUILD_STRING
 
-/* building camera dcam */
+/* building CameraDcam */
 #undef CONFIG_RACK_CAMERA_DCAM
 
-/* building camera file */
+/* building CameraFile */
 #undef CONFIG_RACK_CAMERA_FILE
 
-/* building camera jpeg */
+/* building CameraJpeg */
 #undef CONFIG_RACK_CAMERA_JPEG
 
-/* building camera v4l */
+/* building CameraV4l */
 #undef CONFIG_RACK_CAMERA_V4L
 
-/* building chassis pioneer */
+/* building ChassisPioneer */
 #undef CONFIG_RACK_CHASSIS_PIONEER
 
-/* building chassis sim */
+/* building ChassisSim */
 #undef CONFIG_RACK_CHASSIS_SIM
 
 /* Compiler */
 #undef CONFIG_RACK_COMPILER
 
-/* building Dummy Abc */
+/* building DummyAbc */
 #undef CONFIG_RACK_DUMMY_ABC
 
-/* building gps nmea */
+/* building GpsNmea */
 #undef CONFIG_RACK_GPS_NMEA
 
 /* Host system alias */
@@ -42,38 +42,38 @@
 /* building java gui */
 #undef CONFIG_RACK_JAVA_GUI
 
-/* building ladar hokuyo urg */
+/* building LadarHokuyoUrg */
 #undef CONFIG_RACK_LADAR_HOKUYO_URG
 
-/* building ladar ibeo */
+/* building LadarIbeo */
 #undef CONFIG_RACK_LADAR_IBEO
 
-/* building ladar sick lms200 laser scanner driver */
+/* building LadarSickLms200 */
 #undef CONFIG_RACK_LADAR_SICK_LMS200
 
-/* building ladar sick s laser scanner driver */
+/* building LadarSickS */
 #undef CONFIG_RACK_LADAR_SICK_S
 
-/* building odometry chassis */
+/* building OdometryChassis */
 #undef CONFIG_RACK_ODOMETRY_CHASSIS
 
-/* building pilot joystick */
+/* building PilotJoystick */
 #undef CONFIG_RACK_PILOT_JOYSTICK
 
-/* building pilot wall following */
+/* building PilotWallFollowing */
 #undef CONFIG_RACK_PILOT_WALL_FOLLOWING
 
-/* building position */
+/* building Position */
 #undef CONFIG_RACK_POSITION
 
-/* building Scan2D */
-#undef CONFIG_RACK_SCAN_2D
+/* building Scan2d */
+#undef CONFIG_RACK_SCAN2D
 
-/* building Scan2D Merge */
-#undef CONFIG_RACK_SCAN_2D_MERGE
+/* building Scan2dMerge */
+#undef CONFIG_RACK_SCAN2D_MERGE
 
-/* building Scan2D Sim */
-#undef CONFIG_RACK_SCAN_2D_SIM
+/* building Scan2dSim */
+#undef CONFIG_RACK_SCAN2D_SIM
 
 #ifdef __IN_RACK__
 

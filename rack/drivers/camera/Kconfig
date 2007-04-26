@@ -1,26 +1,18 @@
 
 config RACK_CAMERA_DCAM
-    bool "Camera DCam"
+    bool "Camera - Dcam"
     select RACK_LIBDC1394_SUPPORT
     default n
-    ---help---
-    Help text.
 
 config RACK_CAMERA_FILE
-    bool "Camera File"
-    default n
-    ---help---
-    Help text.
+    bool "Camera - File"
+    default y
 
 config RACK_CAMERA_JPEG
-    bool "Camera Jpeg"
+    bool "Camera - Jpeg"
     select RACK_LIBJPEG_SUPPORT
     default n
-    ---help---
-    Help text.
 
 config RACK_CAMERA_V4L
-    bool "Camera V4L"
+    bool "Camera - V4l"
     default n
-    ---help---
-    Help text.

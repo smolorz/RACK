@@ -1,13 +1,8 @@
 
 config RACK_PILOT_JOYSTICK
-    bool "Pilot Joystick"
+    bool "Pilot - Joystick"
     default y
-    ---help---
-    Help text.
 
 config RACK_PILOT_WALL_FOLLOWING
-    bool "Pilot Wall Following"
+    bool "Pilot - WallFollowing"
     default y
-    ---help---
-    Help text.
-

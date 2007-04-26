@@ -1,6 +1,6 @@
 
 config DATALOG_REC
-    bool "Datalog Recorder"
+    bool "Datalog - Rec"
     default y
     ---help---
-    Help text.
+    Record data from RACK modules

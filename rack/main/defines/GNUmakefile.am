@@ -19,11 +19,11 @@ if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	ImageRect.java \
-	Point2D.java \
-	Point3D.java \
+	Point2d.java \
+	Point3d.java \
 	PolarSpline.java \
-	Position2D.java \
-	Position3D.java \
+	Position2d.java \
+	Position3d.java \
 	ScanPoint.java
 
 endif

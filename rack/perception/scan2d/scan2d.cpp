@@ -343,7 +343,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "Scan2D");
+    ret = RackModule::getArgs(argc, argv, argTab, "Scan2d");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

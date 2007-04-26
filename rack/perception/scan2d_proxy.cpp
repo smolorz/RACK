@@ -19,7 +19,7 @@
 // proxy functions
 //
 
-int Scan2DProxy::getData(scan2d_data *recv_data, ssize_t recv_datalen,
+int Scan2dProxy::getData(scan2d_data *recv_data, ssize_t recv_datalen,
                          rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     message_info msgInfo;
@@ -30,6 +30,6 @@ int Scan2DProxy::getData(scan2d_data *recv_data, ssize_t recv_datalen,
         return ret;
     }
 
-    recv_data = Scan2DData::parse(&msgInfo);
+    recv_data = Scan2dData::parse(&msgInfo);
     return 0;
 }

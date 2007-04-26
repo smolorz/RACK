@@ -57,7 +57,7 @@ export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
     --cmdTaskPrio 20 \
     --dataTaskPrio 19 &
 
-./Scan2DSim \
+./Scan2dSim \
     --instance 0 \
     --odometryInst 0 \
     --maxRange=10000 \
@@ -91,6 +91,6 @@ sleep 3
 echo -n "Press ENTER to terminate"
 read DUMMY
 
-killall PilotWallFollowing PilotJoystick Scan2DSim Position OdometryChassis ChassisSim tims_client tims_router_tcp
+killall PilotWallFollowing PilotJoystick Scan2dSim Position OdometryChassis ChassisSim tims_client tims_router_tcp
 sleep 3
 rmmod tims

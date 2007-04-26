@@ -1,4 +1,4 @@
-menu "Skeleton"
+menu "Skel"
 
 menu "Dummy"
 source "skel/dummy/Kconfig"

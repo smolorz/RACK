@@ -1,4 +1,7 @@
-
 menu "Perception"
+
+menu "Scan2d"
 source "perception/scan2d/Kconfig"
+endmenu
+
 endmenu
