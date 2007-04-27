@@ -64,12 +64,12 @@
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{GpsDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{RackModuleGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.navigation{PilotComponent.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Point3D.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Point3d.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{OdometryGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionEvent.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotDestMsg.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position3D.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position3d.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{RackProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{CameraFormatMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.perception{Scan2dDataMsg.java"/>
