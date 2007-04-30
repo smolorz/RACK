@@ -64,7 +64,7 @@ public class RackName
         classStringTable.put(new Integer(GPS), "Gps");
         classStringTable.put(new Integer(JOYSTICK), "Joystick");
         classStringTable.put(new Integer(PILOT), "Pilot");
-        classStringTable.put(new Integer(SCAN2D), "Scan2D");
+        classStringTable.put(new Integer(SCAN2D), "Scan2d");
         classStringTable.put(new Integer(DATALOG), "Datalog");
     }
 
