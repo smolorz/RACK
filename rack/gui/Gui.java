@@ -61,7 +61,7 @@ public final class Gui extends Thread
     // Groupe Panel
     private JPanel[]        groupPanel, groupInterPanel;
     private JButton[]       groupButton;
-    private Color           groupButtonBG;
+    private Color           groupButtonFG;
     // work panel
     private JTabbedPane     jtp;
     private JDesktopPane [] jdp;
@@ -1448,24 +1448,20 @@ public final class Gui extends Thread
         {
             updateAllStatus();
             
-            if((groupButtonBG == null) & (groupButton[0] != null))
+            if((groupButtonFG == null) & (groupButton[0] != null))
             {
-                groupButtonBG = groupButton[0].getBackground();
+                groupButtonFG = groupButton[0].getForeground();
             }
             
             for (int i = 0; i < groupSize.size(); i++)
             {
                 if (groupError[i] > 0)
                 {
-                    groupButton[i].setBackground(Color.RED);
-                }
-                else if (groupOn[i] > 0)
-                {
-                    groupButton[i].setBackground(Color.GREEN);
+                    groupButton[i].setForeground(Color.RED);
                 }
                 else
                 {
-                    groupButton[i].setBackground(groupButtonBG);
+                    groupButton[i].setForeground(groupButtonFG);
                 }
                 groupButton[i].setText(getGroupName(i) + " ("
                         + groupError[i] + " , " + groupOn[i] + " , "
