@@ -29,11 +29,68 @@ ChassisSim *p_inst;
 
 argTable_t argTab[] = {
 
-    { 0, "", 0, 0, "", { 0 } } // last entry
+    { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max vehicle velocity in x direction, default 700 m/s", { 700 } },
 
+    { ARGOPT_OPT, "vxMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "min vehicle velocity in x direction, default 50 m/s)", { 50 } },
+
+    { ARGOPT_OPT, "axMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max vehicle acceleration in x direction, default 500", { 500 } },
+
+    { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "omegaMax, default 20 deg/s", { 20 } },
+
+    { ARGOPT_OPT, "minTurningRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "min vehicle turning radius, default 200 (mm)", { 200 } },
+
+    { ARGOPT_OPT, "breakConstant", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "breakConstant, default 100 (1.0f)", { 100 } },
+
+    { ARGOPT_OPT, "safetyMargin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "safetyMargin, default 50 (mm)", { 50 } },
+
+    { ARGOPT_OPT, "safetyMarginMove", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "safety margin in move directiom, default 200 (mm)", { 200 } },
+
+    { ARGOPT_OPT, "comfortMargin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "comfortMargin, default 300 (mm)", { 300 } },
+
+    { ARGOPT_OPT, "front", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "front, default 250 (mm)", { 250 } },
+
+    { ARGOPT_OPT, "back", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "back, default 250 (mm)", { 250 } },
+
+    { ARGOPT_OPT, "left", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "left, default 250 (mm)", { 250 } },
+
+    { ARGOPT_OPT, "right", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "right, default 250 (mm)", { 250 } },
+
+    { ARGOPT_OPT, "wheelBase", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "wheel distance, default 280 (mm)", { 280 } },
+
+    { ARGOPT_OPT, "wheelRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "wheelRadius, default 110 (mm)", { 110 } },
+
+    { ARGOPT_OPT, "trackWidth", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "trackWidth, default 280 (mm)", { 280 } },
+
+    { ARGOPT_OPT, "pilotParameterA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "pilotParameterA, default 10 (0.001f)", { 10 } },
+
+    { ARGOPT_OPT, "pilotParameterB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "pilotParameterB, default 200 (2.0f)", { 200 } },
+
+    { ARGOPT_OPT, "pilotVTransMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "pilotVTransMax, default 200", { 200 } },
+
+    { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
-// Parameter des Fahrzeugs
+
+// vehicle parameter
 
 chassis_param_data param = {
     vxMax:            700,                  // mm/s
@@ -277,6 +334,27 @@ ChassisSim::ChassisSim()
                       5,                // max buffer entries
                       10)               // data buffer listener
 {
+    // get value(s) out of your argument table
+    param.vxMax             = getIntArg("vxMax", argTab);
+    param.vxMin             = getIntArg("vxMin", argTab);
+    param.axMax             = getIntArg("axMax", argTab);
+    param.omegaMax          = getIntArg("omegaMax", argTab) * M_PI / 180.0;
+    param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
+    param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
+    param.safetyMargin      = getIntArg("safetyMargin", argTab);
+    param.safetyMarginMove  = getIntArg("safetyMarginMove", argTab);
+    param.comfortMargin     = getIntArg("comfortMargin", argTab);
+    param.boundaryFront     = getIntArg("front", argTab);
+    param.boundaryBack      = getIntArg("back", argTab);
+    param.boundaryLeft      = getIntArg("left", argTab);
+    param.boundaryRight     = getIntArg("right", argTab);
+    param.wheelBase         = getIntArg("wheelBase", argTab);
+    param.wheelRadius       = getIntArg("wheelRadius", argTab);
+    param.trackWidth        = getIntArg("trackWidth", argTab);
+    param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
+    param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
+    param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
+    
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 
