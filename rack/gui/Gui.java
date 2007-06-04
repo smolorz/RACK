@@ -658,22 +658,20 @@ public final class Gui extends Thread
         int blank = str.indexOf(' ');
         System.out.println("str " + str);
         moduleGuiName = str.substring(0, blank);
-        System.out.println("Name 1 " + moduleGuiName);
-        if (!getModuleParameterStart(module))
-        {
-            int dot = str.indexOf('.');
-            moduleGuiName = moduleGuiName.substring(0, dot)
-                            + ".gui."
-                            + moduleGuiName.substring(dot + 1, moduleGuiName.length())
-                            + "Gui";
-        }
-        System.out.println("Name 2 " + moduleGuiName);
+        System.out.println("ModuleGuiName " + moduleGuiName);
 
         moduleProxyName = getModuleParameter(module, "-proxy=");
-        // -proxy=??? im cfg-file?
         if (moduleProxyName == "")
-            moduleProxyName = str.substring(0, blank).concat("Proxy");
-        // System.out.println(moduleProxyClass.getConstructor(proxyParametersClass).newInstance(proxyParameters).toString());
+        {
+            moduleProxyName = moduleGuiName;
+
+            if(moduleProxyName.endsWith("Gui") == true)
+            {
+                moduleProxyName = moduleProxyName.replaceAll("Gui", "Proxy");
+                moduleProxyName = moduleProxyName.replaceAll("gui.", "");
+            }
+        }
+        System.out.println("ModuleProxyName " + moduleProxyName);
 
         try
         {
@@ -823,10 +821,19 @@ public final class Gui extends Thread
         int blank = str.indexOf(' ');
         int k = str.indexOf('(');
         int id = Integer.parseInt(str.substring(blank + 1, k).trim());
+
         moduleProxyName = getModuleParameter(module, "-proxy=");
-        // -proxy=??? im cfg-file?
         if (moduleProxyName == "")
-            moduleProxyName = str.substring(0, blank).concat("Proxy");
+        {
+            moduleProxyName = str.substring(0, blank);
+
+            if(moduleProxyName.endsWith("Gui") == true)
+            {
+                moduleProxyName = moduleProxyName.replaceAll("Gui", "Proxy");
+                moduleProxyName = moduleProxyName.replaceAll("gui.", "");
+            }
+        }
+        System.out.println("ModuleProxyName " + moduleProxyName);
 
         Class[] proxyConstrArgsTypes = new Class[]
         { int.class, TimsMbx.class };
