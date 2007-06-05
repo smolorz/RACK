@@ -41,13 +41,13 @@ public final class Gui extends Thread
     private int jarfileNum;
     private int workspaceNum;
 
-    private Vector cfgLines         = new Vector();
-    private Vector moduleName       = new Vector();
-    private Vector groupName        = new Vector();
-    private Vector groupSize        = new Vector();
-    private Vector jarFiles         = new Vector();
-    private Vector workSpaceName    = new Vector();
-    private Vector moduleWorkSpace  = new Vector();
+    private Vector<String> cfgLines         = new Vector<String>();
+    private Vector<String> moduleName       = new Vector<String>();
+    private Vector<String> groupName        = new Vector<String>();
+    private Vector<Integer> groupSize       = new Vector<Integer>();
+    private Vector<String> jarFiles         = new Vector<String>();
+    private Vector<String> workSpaceName    = new Vector<String>();
+    private Vector<Integer> moduleWorkSpace = new Vector<Integer>();
     private int[]  groupSizeInt;
 
     // main frame
@@ -75,7 +75,7 @@ public final class Gui extends Thread
     private Color           statusButtonBG;
 
     private ClassLoader     guiCL = this.getContextClassLoader();
-    private Class           moduleGuiClass;
+    private Class<?>        moduleGuiClass;
 
     private GDOSGui         gdosGui = null;
     private TimsMbx         gdosMbx;
@@ -137,7 +137,7 @@ public final class Gui extends Thread
             // load additional jar files
             for (int i = 0; i < jarfileNum; i++)
             {
-                File jarFile = new File((String)jarFiles.get(i));
+                File jarFile = new File(jarFiles.get(i));
                 
                 try {
                     URL urls[] = new URL[ ] { jarFile.toURI().toURL() };
@@ -393,7 +393,7 @@ public final class Gui extends Thread
        	
         for (int i = 0; i < groupNum; i++)
         {
-            groupSizeInt[i] = ((Integer) groupSize.get(i)).intValue();
+            groupSizeInt[i] = groupSize.get(i).intValue();
         }
 
         System.out.println("Found " + moduleNum + " modules");
@@ -417,7 +417,7 @@ public final class Gui extends Thread
     private int[] getModuleLocationSize(int id)
     {
         int[] locationSize = new int[4];
-        String path = (String) moduleName.elementAt(id);
+        String path = moduleName.elementAt(id);
         // System.out.println("module["+id+"] :"+path);
         int kAuf   = path.indexOf('(');
         int komma1 = path.indexOf(',');
@@ -465,7 +465,7 @@ public final class Gui extends Thread
 
     private String getModuleParameter(int id, String param)
     {
-        String path = (String) moduleName.elementAt(id);
+        String path = moduleName.elementAt(id);
         int a = path.indexOf(param);
         if (a < 0)
             return ""; // param not found
@@ -498,20 +498,20 @@ public final class Gui extends Thread
      */
     private boolean getModuleParameterShow(int id)
     {
-        String path = (String) moduleName.elementAt(id);
+        String path = moduleName.elementAt(id);
         return (path.indexOf("-show") > -1);
     }
 
     private boolean getModuleParameterStart(int id)
     {
-        String path = (String) moduleName.elementAt(id);
+        String path = moduleName.elementAt(id);
         return (path.indexOf("-start") > -1);
     }
 
     private String getGroupName(int id)
     {
         String name = null;
-        name = (String) groupName.get(id);
+        name = groupName.get(id);
         int blank = name.lastIndexOf(' ');
         name = name.substring(blank).toLowerCase();
         return name;
@@ -541,7 +541,7 @@ public final class Gui extends Thread
         StringBuffer sb;
         for (int i = 0; i < moduleNum; i++)
         {
-            sb = new StringBuffer(moduleName.get(i).toString());
+            sb = new StringBuffer(moduleName.get(i));
             int kAuf = sb.indexOf("(");
             int kZu = sb.indexOf(")");
 
@@ -596,7 +596,7 @@ public final class Gui extends Thread
             {
                 if (moduleName.get(i).equals(cfgLines.get(z)))
                 {
-                    cfgLines.set(z, sb);
+                    cfgLines.set(z, sb.toString());
                     System.out.println("moduleName:" + moduleName.get(i));
                     System.out.println("configZeilen:"
                             + cfgLines.get(z));
@@ -618,7 +618,7 @@ public final class Gui extends Thread
                      + "," + mainFrame.getLocation().y + ";" + mainFrame.getSize().width
                      + "," + mainFrame.getSize().height + ")";
 
-        if (cfgLines.get(0).toString().startsWith(
+        if (cfgLines.get(0).startsWith(
                 "//mainFrameLocationSize"))
         {
             cfgLines.set(0, str);
@@ -631,7 +631,7 @@ public final class Gui extends Thread
         for (int z = 0; z < cfgLines.size(); z++)
         {
             System.out.println(cfgLines.get(z));
-            cfgWriter.write(cfgLines.get(z).toString());
+            cfgWriter.write(cfgLines.get(z));
             cfgWriter.newLine();
         }
 
@@ -645,11 +645,11 @@ public final class Gui extends Thread
         String str = null;
         String moduleGuiName = null;
         String moduleProxyName = null;
-        str = (String) moduleName.get(module); // str enthaelt jetzt die
+        str = moduleName.get(module); // str enthaelt jetzt die
                                                 // entspr. zeile der gui.cfg
                                                 // -datei.
         // fuer den konstruktor ...(Proxy proxy)
-        Class[] guiConstrArgsTypes = new Class[1];
+        Class<?>[] guiConstrArgsTypes = new Class<?>[1];
         Object[] guiConstrArgs = new Object[1];
         // fuer den konstruktor ...(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
         Class<?>[] guiConstrArgsTypes2 = new Class<?>[4];
@@ -817,7 +817,7 @@ public final class Gui extends Thread
         // moduleProxy werden erzeugt.
         String str = null;
         String moduleProxyName = null;
-        str = (String) moduleName.get(module);
+        str = moduleName.get(module);
         int blank = str.indexOf(' ');
         int k = str.indexOf('(');
         int id = Integer.parseInt(str.substring(blank + 1, k).trim());
@@ -968,7 +968,7 @@ public final class Gui extends Thread
         for (int i = 0; i < workspaceNum; i++)
         {
         	jdp[i] = new JDesktopPane();
-         	jtp.add((String)workSpaceName.get(i),jdp[i]);
+         	jtp.add(workSpaceName.get(i),jdp[i]);
         }
         mainFrameContent.add(jtp, BorderLayout.CENTER);
 
@@ -1009,10 +1009,10 @@ public final class Gui extends Thread
         mainFrameContent.setVisible(true);
     }
 
-    private int[] getMainFrameLocationSize(Vector configZeilen)
+    private int[] getMainFrameLocationSize(Vector<String> configZeilen)
     {
         int[] locationSize = new int[4];
-        String path = (String) configZeilen.get(0);
+        String path = configZeilen.get(0);
         int kAuf = path.indexOf('(');
         int komma1 = path.indexOf(',');
         int b = path.indexOf(';');
@@ -1229,14 +1229,14 @@ public final class Gui extends Thread
                 moduleFrame[id].setSize(moduleLocationSize[2],
                         moduleLocationSize[3]);
             }
-            jdp[((Integer)moduleWorkSpace.get(id)).intValue()].add(moduleFrame[id]);
+            jdp[moduleWorkSpace.get(id).intValue()].add(moduleFrame[id]);
         }
 
         try
         {
             moduleFrame[id].moveToFront();
             moduleFrame[id].setSelected(true);
-            jtp.setSelectedIndex(((Integer)moduleWorkSpace.get(id)).intValue());
+            jtp.setSelectedIndex(moduleWorkSpace.get(id).intValue());
         }
         catch (java.beans.PropertyVetoException pe)
         {

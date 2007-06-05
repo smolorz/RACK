@@ -17,7 +17,7 @@ package rack.gui.main;
 
 import java.util.ArrayList;
 
-public class MapViewActionList extends ArrayList
+public class MapViewActionList extends ArrayList<MapViewActionListItem>
 {
     public String title;
 
@@ -35,17 +35,4 @@ public class MapViewActionList extends ArrayList
         this.add(newItem);
         return newItem;
     }
-
-    public class MapViewActionListItem
-    {
-        public String title;
-        public String actionCommand;
-
-        public MapViewActionListItem(String n_title, String n_actionCommand)
-        {
-            title = n_title;
-            actionCommand = n_actionCommand;
-        }
-    }
-
 }

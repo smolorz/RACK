@@ -27,7 +27,7 @@ public class TimsTcp extends Tims
     protected BufferedOutputStream  tcpOut = null;
     protected TimsMbx               routerMbx;
     protected Object                dataCountSync = new Object();
-    protected Vector                mbxList = new Vector();
+    protected Vector<TimsMbx>       mbxList = new Vector<TimsMbx>();
     protected InetAddress           addr;
     protected int                   port;
     protected int                   dataCount;
@@ -182,7 +182,7 @@ public class TimsTcp extends Tims
               TimsRouterMbxMsg initMbxM = new TimsRouterMbxMsg();
 
               for(int i = 0; i < mbxList.size(); i++) {
-                initMbxM.mbx = ((TimsMbx)mbxList.elementAt(i)).name;
+                initMbxM.mbx = mbxList.elementAt(i).name;
 
                 initMbxM.type     = TimsRouter.MBX_INIT;
                 initMbxM.dest     = 0;
@@ -343,7 +343,7 @@ public class TimsTcp extends Tims
 
       synchronized(mbxList) {
         for (int i = 0; i < mbxList.size(); i++) {
-          mbx = (TimsMbx)(mbxList.elementAt(i));
+          mbx = mbxList.elementAt(i);
           if (mbx.name == mbxName) {
             return mbx;
           }

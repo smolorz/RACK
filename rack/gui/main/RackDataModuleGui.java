@@ -72,7 +72,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
     protected byte notifyIfOnId;
 
     /** Liste der Zuhoerer von kontinuierlichen Daten */
-    protected Vector dataListener = new Vector();
+    protected Vector<Integer> dataListener = new Vector<Integer>();
     protected TimsMsg dataMsg = null;
 
     /** Data module period time */
@@ -151,7 +151,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                 {
                     // System.out.println("Sende Karte to
                     // Listener:"+((Integer)listener.elementAt(i)).intValue());
-                    msg.dest = ((Integer) dataListener.elementAt(i)).intValue();
+                    msg.dest = dataListener.elementAt(i).intValue();
                     commandMbx.send(msg);
                 }
                 catch (TimsException e)
@@ -308,7 +308,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                             // check listener first
                             for (i = 0; i < dataListener.size(); i++)
                             {
-                                int name = ((Integer) dataListener.elementAt(i)).intValue();
+                                int name = dataListener.elementAt(i).intValue();
                                 if (name == contPack.dataMbx)
                                 {
                                     existent = true;
@@ -342,7 +342,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         {
                             for (int i = 0; i < dataListener.size(); i++)
                             {
-                                int name = ((Integer) dataListener.elementAt(i)).intValue();
+                                int name = dataListener.elementAt(i).intValue();
                                 if (name == stopPack.dataMbx)
                                 {
                                     dataListener.removeElementAt(i);

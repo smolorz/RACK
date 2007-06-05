@@ -29,8 +29,8 @@ public class GDOSTable extends AbstractTableModel
 {
   protected int debugLevel = GDOS.DBG_DETAIL;
   protected int maxMessages = 1000;
-  protected Vector messageList = new Vector(maxMessages);
-  protected Vector filteredMessageList = new Vector(maxMessages);
+  protected Vector<GDOSDataMsg> messageList = new Vector<GDOSDataMsg>(maxMessages);
+  protected Vector<GDOSDataMsg> filteredMessageList = new Vector<GDOSDataMsg>(maxMessages);
 
   private static final long serialVersionUID = 1L;
 
@@ -67,7 +67,7 @@ public class GDOSTable extends AbstractTableModel
     }
   }
 
-  public Class getColumnClass(int c) {
+  public Class<?> getColumnClass(int c) {
     return GDOSDataMsg.class;
   }
 
@@ -120,7 +120,7 @@ public class GDOSTable extends AbstractTableModel
 
         for(int i = 0; i < size; i++) {
 
-          GDOSDataMsg message = (GDOSDataMsg)filteredMessageList.elementAt(i);
+          GDOSDataMsg message = filteredMessageList.elementAt(i);
           String output = RackName.nameString(message.src);
 
           switch(message.type) {
@@ -168,7 +168,7 @@ public class GDOSTable extends AbstractTableModel
     }
 
     for(int i = 0; i < messageList.size(); i++) {
-      message = (GDOSDataMsg)messageList.elementAt(i);
+      message = messageList.elementAt(i);
       if (isPrintableDebugLevel(message)) {
         filteredMessageList.addElement(message);
       }

@@ -35,7 +35,7 @@ import rack.navigation.*;
 public class MapViewGui extends Thread
 {
     private RackModuleGui[] moduleGui;
-    private ArrayList       moduleGuiList;
+    private ModuleGuiList   moduleGuiList;
 
     private boolean         updateNeeded = false;
     private Position2d      viewPosition = new Position2d();
@@ -292,11 +292,10 @@ public class MapViewGui extends Thread
 
                 actionCursor.drawDefaultCursor(drawContext.getRobotGraphics(), true);
 
-                ListIterator moduleGuiIterator = moduleGuiList.listIterator();
+                ListIterator<ModuleGuiProp> moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
-                    ModuleGuiProp moduleGuiProp = (ModuleGuiProp) moduleGuiIterator
-                            .next();
+                    ModuleGuiProp moduleGuiProp = moduleGuiIterator.next();
                     if (!moduleGuiProp.getPaintIntoMap())
                         continue;
                     try
@@ -764,11 +763,10 @@ public class MapViewGui extends Thread
             {
                 this.removeAll();
 
-                ListIterator moduleGuiIterator = moduleGuiList.listIterator();
+                ListIterator<ModuleGuiProp> moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
-                    ModuleGuiProp moduleGuiProp = (ModuleGuiProp)moduleGuiIterator
-                            .next();
+                    ModuleGuiProp moduleGuiProp = moduleGuiIterator.next();
                     if (!moduleGuiProp.isOn())
                         continue;
 
@@ -780,13 +778,11 @@ public class MapViewGui extends Thread
                     JMenu newSubmenu = new JMenu(actionList.title);
                     this.add(newSubmenu);
 
-                    ListIterator actionListIterator = actionList.listIterator();
+                    ListIterator<MapViewActionListItem> actionListIterator = actionList.listIterator();
                     while (actionListIterator.hasNext())
                     {
                         newSubmenu.add(new ModuleActionEvent(moduleGuiProp,
-                                      (MapViewActionList.
-                                       MapViewActionListItem)actionListIterator.
-                                          next()));
+                                      actionListIterator.next()));
                     }
                 }
 
@@ -1036,7 +1032,7 @@ public class MapViewGui extends Thread
         private static final long serialVersionUID = 1L;
 
         public ModuleActionEvent(ModuleGuiProp n_moduleGuiProp,
-                MapViewActionList.MapViewActionListItem listItem)
+                MapViewActionListItem listItem)
         {
             super(listItem.title);
             setActionCommand("selectAction");
@@ -1244,7 +1240,7 @@ public class MapViewGui extends Thread
     // **********************************************************
     // ModuleGuiList
     // **********************************************************
-    private class ModuleGuiList extends ArrayList
+    private class ModuleGuiList extends ArrayList<ModuleGuiProp>
     {
 
         private GuiListMenu guiListMenu;
@@ -1288,11 +1284,10 @@ public class MapViewGui extends Thread
             {
                 this.removeAll();
 
-                ListIterator moduleGuiIterator = moduleGuiList.listIterator();
+                ListIterator<ModuleGuiProp> moduleGuiIterator = moduleGuiList.listIterator();
                 while (moduleGuiIterator.hasNext())
                 {
-                    ModuleGuiProp moduleGuiProp = (ModuleGuiProp) moduleGuiIterator
-                            .next();
+                    ModuleGuiProp moduleGuiProp = moduleGuiIterator.next();
                     if (!moduleGuiProp.isOn())
                         continue;
 

@@ -18,7 +18,7 @@ package rack.main.tims;
 
 import java.util.*;
 
-public class TimsMbx extends Vector
+public class TimsMbx extends Vector<TimsMsg>
 {
   private static final long serialVersionUID = 1L;
 

@@ -45,11 +45,11 @@ public class RackName
     protected static final int CLASS_ID_RANGE      = 8;
     protected static final int SYSTEM_ID_RANGE     = 8;
 
-    protected static Hashtable classStringTable;
+    protected static Hashtable<Integer,String> classStringTable;
 
     public static void initClassStringTable()
     {
-        classStringTable = new Hashtable();
+        classStringTable = new Hashtable<Integer,String>();
 
         classStringTable.put(new Integer(TIMS), "Tims");
         classStringTable.put(new Integer(GDOS), "GDOS");
