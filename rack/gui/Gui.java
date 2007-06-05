@@ -140,7 +140,7 @@ public final class Gui extends Thread
                 File jarFile = new File((String)jarFiles.get(i));
                 
                 try {
-                    URL urls[] = new URL[ ] { jarFile.toURL() };
+                    URL urls[] = new URL[ ] { jarFile.toURI().toURL() };
                     guiCL = new URLClassLoader(urls, guiCL);
 
                     System.out.println("File " + jarFile + " has been loaded");
@@ -160,7 +160,7 @@ public final class Gui extends Thread
                 try
                 {
                     guiCL.loadClass(rackName)
-                        .getMethod("initClassStringTable", (Class[])null)
+                        .getMethod("initClassStringTable", (Class<?>[])null)
                         .invoke((Object)null, (Object[])null);
                 }
                 catch (Exception e)
@@ -652,7 +652,7 @@ public final class Gui extends Thread
         Class[] guiConstrArgsTypes = new Class[1];
         Object[] guiConstrArgs = new Object[1];
         // fuer den konstruktor ...(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
-        Class[] guiConstrArgsTypes2 = new Class[4];
+        Class<?>[] guiConstrArgsTypes2 = new Class<?>[4];
         Object[] guiConstrArgs2 = new Object[4];
 
         int blank = str.indexOf(' ');
@@ -835,7 +835,7 @@ public final class Gui extends Thread
         }
         System.out.println("ModuleProxyName " + moduleProxyName);
 
-        Class[] proxyConstrArgsTypes = new Class[]
+        Class<?>[] proxyConstrArgsTypes = new Class<?>[]
         { int.class, TimsMbx.class };
         Object[] proxyConstrArgs = new Object[2];
         proxyConstrArgs[0] = new Integer(id);
