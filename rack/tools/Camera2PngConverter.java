@@ -17,88 +17,119 @@
 package rack.tools;
 
 /**
-
-
+ * 
+ * 
  */
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.DataOutputStream;
 
 import javax.imageio.ImageIO;
 
 import rack.drivers.CameraDataMsg;
 import rack.main.tims.*;
 
-
 public class Camera2PngConverter {
 
+	public final static int BIG_ENDIAN = 1;
 
-    public final static int BIG_ENDIAN   = 1;
+	public static int bodyByteorder = BIG_ENDIAN;
 
-    public static int bodyByteorder = BIG_ENDIAN;
+	public static void main(String[] args) {
 
-    
-    public CameraDataMsg data; 
+		bodyByteorder = BIG_ENDIAN;
 
+		int recordingTime = 0;
+		int colorFilterId = 512;
+		short width  = 1280;
+		short height = 960;
+		short depth  = 16;
+		short mode   = 21;
 
-    public  void main(String[] args) {
+		File tempfile;
+		File rawimagefile;
+		File saveFile = null; 
+		FileOutputStream fileOutputStream  = null;
+		FileInputStream  fileInputStream   = null;
+		FileInputStream rawfileInputStream = null;
+		
+		String filename;
+		String saveFilename = null;
+		String endung;
+		CameraDataMsg data = new CameraDataMsg();
 
-        String dirname = args[0];
+		String dirname = args[0];
+		File workDir = new File(dirname);
+		String[] filenames = workDir.list();
+		
+		System.out.println("Using (static) parameter: width:"+width+" height:"+height+" depth:"+depth+" mode:"+mode+" colorfilterId:"+colorFilterId);
+		System.out.println("Processing all files in directory: "+workDir);
 
-        bodyByteorder = BIG_ENDIAN;
-        
-        File file;
-        String filename;
-        String saveFilename;
-        String endung;
+		for (int i = 0; i < filenames.length; i++) {
+			filename = dirname.concat(filenames[i]);
+			endung = filename.substring(filename.indexOf('.') + 1, filename.length());
+			
+			if ((endung.compareTo("raw") == 0)) {
+				saveFilename = filename.substring(0, filename.indexOf('.'));
+				saveFilename = saveFilename.concat(".png");
 
-        File workDir = new File(dirname);
-        String[] filenames = workDir.list();
+				try {
+					tempfile = File.createTempFile("tempfile", null);
+					fileOutputStream = new FileOutputStream(tempfile);
+					fileInputStream = new FileInputStream(tempfile);
 
-        for (int i = 0; i < filenames.length; i++)
-        {
-            filename = dirname.concat(filenames[i]);
+					rawimagefile = new File(filename);				
+					rawfileInputStream = new FileInputStream(rawimagefile);
 
-            endung = filename.substring(filename.indexOf('.') + 1, filename.length());
-            if ( (endung.compareTo("rck") == 0))
-            {
-	            file  = new File(filename);
-	            saveFilename = filename.substring(0,filename.indexOf('.'));
-	            saveFilename = saveFilename.concat(".png");
+					saveFile = new File(saveFilename);
+
+					DataOutputStream dataOut = new DataOutputStream(fileOutputStream);
 	
-	            EndianDataInputStream dataIn;
+					dataOut.writeInt(recordingTime);
+					dataOut.writeShort(width);
+					dataOut.writeShort(height);
+					dataOut.writeShort(depth);
+					dataOut.writeShort(mode);
+					dataOut.writeInt(colorFilterId);
 	
-	            try{
-	                FileInputStream fileInputStream = new FileInputStream(file);
-	                if(bodyByteorder == BIG_ENDIAN)
-	                {
-	                    dataIn = new BigEndianDataInputStream(fileInputStream);
-	                } else {
-	                    dataIn = new LittleEndianDataInputStream(fileInputStream);
-	                }
-	                data.readTimsMsgBodyEndianInput(dataIn);
-	            }catch(Exception e){
-	                System.out.println("File not useable."+e.toString());
-	            }
+					EndianDataInputStream dataIn;
+	
+					int imagelength = width*height*depth/8;
+					byte[] imagebytes = new byte[imagelength];
+					
+					System.out.println("Reading image data filename="+ filename);
+					rawfileInputStream.read(imagebytes, 0, imagelength);
+					
+					dataOut.write(imagebytes, 0, imagelength);
+					dataOut.flush();
+					
+					if (bodyByteorder == BIG_ENDIAN) {
+						dataIn = new BigEndianDataInputStream(fileInputStream);
+					} else {
+						dataIn = new LittleEndianDataInputStream(fileInputStream);
+					}
+					
+					//System.out.println("parsing file");
+					
+					data.readTimsMsgBodyEndianInput(dataIn);
+					System.out.println("Store image data filename="+ saveFilename);
+					BufferedImage image = new BufferedImage(data.width,data.height, BufferedImage.TYPE_INT_RGB);
+					image.setRGB(0, 0, data.width, data.height,	data.imageRawData, 0, data.width);
+					ImageIO.write(image, "png", saveFile);
+				}catch(IOException ioe)
+				{
+					System.out.println("IOError " + ioe.toString());	
+				}
+			} else {
+				System.out.println("Unknown fileending. (Ending(rcc) is not longer supported)");
 
-	            try{
-	                System.out.println("Store image data filename=" + saveFilename);
-	                BufferedImage image = new BufferedImage(data.width, data.height, BufferedImage.TYPE_INT_RGB);// the image to be stored //";
-	                image.setRGB(0, 0, data.width, data.height, data.imageRawData, 0, data.width);
-	                File saveFile = new File(saveFilename);
-	                ImageIO.write(image, "png", saveFile);
-	            } catch(IOException e) {
-	                System.out.println("Error storing image filename=" + saveFilename + e.toString());
-	            }
-            } else {
-            		System.out.println("Ending(rcc) is not longer supported as the file stream now must contain width, height, depth and mode now");
-
-            }
-      }
-
-    }
+			}
+			
+		}
+	System.out.println("Converion finshed");
+	}
 }
-
-
