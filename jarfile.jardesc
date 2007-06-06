@@ -5,7 +5,7 @@
 <manifest generateManifest="false" mainClassHandleIdentifier="=rack/&lt;rack.gui{Gui.java[Gui" manifestLocation="/rack/rack/gui/gui.manifest" manifestVersion="1.0" reuseManifest="false" saveManifest="true" usesManifest="true">
 <sealing sealJar="true">
 <packagesToSeal/>
-<packagesToUnSeal/>
+<packagesToUnSeal/> 
 </sealing>
 </manifest>
 <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
@@ -47,6 +47,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main{StopContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSMessageRenderer.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionList.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewActionListItem.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2dGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.navigation{PilotGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{LadarDataMsg.java"/>
