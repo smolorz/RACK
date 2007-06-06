@@ -9,6 +9,7 @@ dist_java_JAVA += \
 	\
 	MapViewActionEvent.java \
 	MapViewActionList.java \
+	MapViewActionListItem.java \
 	MapViewDrawContext.java \
 	MapViewCursorDrawContext.java
 

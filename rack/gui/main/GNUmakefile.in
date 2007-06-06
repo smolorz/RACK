@@ -41,6 +41,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@	\
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionEvent.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionList.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionListItem.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewDrawContext.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewCursorDrawContext.java
 
@@ -59,7 +60,8 @@ SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = RackModuleGui.java RackDataModuleGui.java \
 	MapViewActionEvent.java MapViewActionList.java \
-	MapViewDrawContext.java MapViewCursorDrawContext.java
+	MapViewActionListItem.java MapViewDrawContext.java \
+	MapViewCursorDrawContext.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
