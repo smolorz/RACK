@@ -22,11 +22,10 @@ import java.net.*;
 
 import javax.swing.JOptionPane;
 
-public final class AppletGui extends Applet {
-
+public final class AppletGui extends Applet
+{
     private static final long serialVersionUID = 1L;
-
-    private Gui gui = null;
+    private Gui               gui              = null;
 
     public void init()
     {
@@ -34,51 +33,37 @@ public final class AppletGui extends Applet {
 
     public void start()
     {
-        if(gui == null)
+        if (gui == null)
         {
             try
             {
                 URL documentBase = this.getDocumentBase();
                 System.out.println("Document base \"" + documentBase + "\"");
-                
+
                 // reading config file
                 BufferedReader cfgReader;
 
                 try
                 {
                     URL configURL = new URL("http", documentBase.getHost(), "/gui.cfg");
-        
+
                     System.out.println("Load config file \"" + configURL + "\"");
-        
+
                     cfgReader = new BufferedReader(new InputStreamReader(configURL.openStream()));
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(this,
-                            "Can't read config file\n" +
-                            "\"http:" + documentBase.getHost() + "/gui.cfg\"",
-                            "RACK APPLET GUI", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Can't read config file\n" + "\"http:" + documentBase.getHost()
+                            + "/gui.cfg\"", "RACK APPLET GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
                 }
-    
+
                 // get router address
-    
-                InetAddress routerAdr;
-                try
-                {
-                    routerAdr = InetAddress.getByName(documentBase.getHost());
-                }
-                catch(UnknownHostException e)
-                {
-                    JOptionPane.showMessageDialog(this,
-                            "Unknown host \"" + documentBase.getHost() + "\"",
-                            "RACK APPLET GUI", JOptionPane.ERROR_MESSAGE);
-                    throw e;
-                }
-                
+                String timsParam = documentBase.getHost();
+
                 this.setLayout(new BorderLayout());
 
-                gui = new Gui(null, this, cfgReader, routerAdr, 2000);
+                gui = new Gui(null, this, cfgReader, "rack.main.tims.TimsTcp", timsParam);
             }
             catch (Exception e)
             {
@@ -94,7 +79,7 @@ public final class AppletGui extends Applet {
 
     public void stop()
     {
-        if(gui != null)
+        if (gui != null)
         {
             gui.terminate();
         }

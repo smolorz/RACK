@@ -34,19 +34,19 @@ import rack.main.tims.*;
 
 public final class Gui extends Thread
 {
-    private static final int GUI_MAX_INSTANCES = 10;
+    private static final int GUI_MAX_INSTANCES = 4;
 
     private int moduleNum;
     private int groupNum;
     private int jarfileNum;
     private int workspaceNum;
 
-    private Vector<String> cfgLines         = new Vector<String>();
-    private Vector<String> moduleName       = new Vector<String>();
-    private Vector<String> groupName        = new Vector<String>();
+    private Vector<String>  cfgLines        = new Vector<String>();
+    private Vector<String>  moduleName      = new Vector<String>();
+    private Vector<String>  groupName       = new Vector<String>();
     private Vector<Integer> groupSize       = new Vector<Integer>();
-    private Vector<String> jarFiles         = new Vector<String>();
-    private Vector<String> workSpaceName    = new Vector<String>();
+    private Vector<String>  jarFiles        = new Vector<String>();
+    private Vector<String>  workSpaceName   = new Vector<String>();
     private Vector<Integer> moduleWorkSpace = new Vector<Integer>();
     private int[]  groupSizeInt;
 
@@ -97,15 +97,15 @@ public final class Gui extends Thread
 
     private int[]           groupError, groupOn, groupSum;
 
-    private TimsTcp         tims;
-    private InetAddress     routerAdr = null;
-    private int             routerPort = 0;
+    private Tims            tims;
+    private String          timsClass = null;
+    private String          timsParam = "";
     private String          rackName = "";
 
     private boolean         terminate = false;
 
     public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader,
-               InetAddress routerAdr, int routerPort) throws Exception
+               String timsClass, String timsParam) throws Exception
     {
         this.mainFrame = mainFrame;
         this.mainFrameContent = mainFrameContent;
@@ -139,7 +139,8 @@ public final class Gui extends Thread
             {
                 File jarFile = new File(jarFiles.get(i));
                 
-                try {
+                try
+                {
                     URL urls[] = new URL[ ] { jarFile.toURI().toURL() };
                     guiCL = new URLClassLoader(urls, guiCL);
 
@@ -179,45 +180,38 @@ public final class Gui extends Thread
             // connect to router ...
     
             // constructor parameter overwrites config file
-            if(routerAdr != null)
+            if(timsClass != null)
             {
-                this.routerAdr = routerAdr;
+                this.timsClass = timsClass;
             }
             
-            // constructor parameter overwrites config file
-            if(routerPort > 0)
+            if (this.timsClass == null)
             {
-                this.routerPort = routerPort;
-            }
-
-            // set default port
-            if(this.routerPort <= 0)
-            {
-                this.routerPort = 2000;
-            }
-
-            if (this.routerAdr == null)
-            {
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "No TimsRouterTcp address\n" + 
-                        "Add param 'ROUTER_IP x.x.x.x' to your GUI config file",
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                throw new Exception("No TimsRouterTcp address");
+                this.timsClass = "rack.main.tims.TimsTcp";
             }
     
+            if(timsParam != "")
+            {
+                this.timsParam = timsParam;
+            }
+
+            System.out.println("Connect to TimsRouter \"" + this.timsClass + "\" param \"" + this.timsParam + "\"");
+
+            Class<?>[] timsConstrArgType = new Class<?>[] {String.class};
+            Object[] timsConstrArg = new Object[1];
+            timsConstrArg[0] = this.timsParam;
+
             try
             {
-                System.out.println("Connect to TimsRouterTcp "
-                        + this.routerAdr.getHostAddress() + " port " + this.routerPort);
-    
-                tims = new TimsTcp(this.routerAdr, this.routerPort);
+               tims = (Tims) guiCL.loadClass(this.timsClass)
+                       .getConstructor(timsConstrArgType)
+                       .newInstance(timsConstrArg);
             }
-            catch (TimsException e)
+            catch (Exception e)
             {
                 JOptionPane.showMessageDialog(mainFrameContent,
-                        "Can't connect to TimsRouterTcp.\n" +
-                        "Check service and connection to " +
-                        this.routerAdr.getHostAddress() + " port " + this.routerPort,
+                        "Can't connect to TimsRouter\n" +
+                        "\"" + this.timsClass + "\" param \"" + this.timsParam + "\"\n",
                         "RACK GUI",
                         JOptionPane.ERROR_MESSAGE);
                 throw e;
@@ -240,7 +234,7 @@ public final class Gui extends Thread
 
             if(mainFrame != null)
             {
-                mainFrame.setTitle("RACK GUI (" + this.routerAdr.getHostAddress() + ")");
+                mainFrame.setTitle("RACK GUI (" + this.timsParam + ")");
                 mainFrame.setLocation(mainFrameLocationSize[0], mainFrameLocationSize[1]);
                 mainFrame.setSize(mainFrameLocationSize[2], mainFrameLocationSize[3]);
                 mainFrame.setVisible(true);
@@ -267,7 +261,6 @@ public final class Gui extends Thread
             {
                 // System.out.println("module[" + i + "] is not open");
             }
-
         }
     }
 
@@ -289,7 +282,7 @@ public final class Gui extends Thread
                 cfgLines.add(string);
 
                 // Debug output
-                //System.out.println(string);
+                // System.out.println(string);
 
                 if (!string.startsWith("//") && string.length() != 0)
                 {
@@ -301,23 +294,15 @@ public final class Gui extends Thread
                         // the first element of this vector is always = 0;
                         grpElement = 0;
                     }
-                    else if (string.startsWith("ROUTER_IP"))
+                    else if (string.startsWith("TIMS_PARAM"))
                     {
-                        readMode = 2;
-                        string = string.substring(10);  // cut ROUTER_IP
-                        if (string.length() > 0)
-                        {
-                            routerAdr = InetAddress.getByName(string.trim());
-                        }
+                        string = string.substring(11);  // cut TIMS_PARAM
+                        timsParam = string;
                     }
-                    else if (string.startsWith("ROUTER_PORT"))
+                    else if (string.startsWith("TIMS"))
                     {
-                        readMode = 3;
-                        string = string.substring(12);  // cut ROUTER_PORT
-                        if (string.length() > 0)
-                        {
-                            routerPort = Integer.parseInt(string.trim());
-                        }
+                        string = string.substring(5);  // cut TIMS
+                        timsClass = string;
                     }
                     else if (string.startsWith("JAR_FILES"))
                     {
@@ -366,10 +351,8 @@ public final class Gui extends Thread
                         {
                             jarFiles.add(string);
                         }
-
                     }
                 }
-
                 // read next line
                 string = configReader.readLine();
             }
@@ -384,6 +367,7 @@ public final class Gui extends Thread
                             "RACK GUI", JOptionPane.ERROR_MESSAGE);
             throw ioe;
         }
+
         moduleNum    = moduleName.size();
         groupNum     = groupName.size();
         jarfileNum   = jarFiles.size();
@@ -432,7 +416,6 @@ public final class Gui extends Thread
         }
         else
         {
-
             // System.out.println(path.substring(kAuf,kZu+1)+" ;
             // "+Integer.parseInt(path.substring(b+1,komma2).trim()));
             try
@@ -450,7 +433,6 @@ public final class Gui extends Thread
                         kZu)).trim());
 
                 return locationSize;
-
             }
             catch (NumberFormatException nfe)
             {
@@ -484,17 +466,13 @@ public final class Gui extends Thread
     }
 
     /*
-     * private String getModuleParameterProxy(int id) { String path = (String)
-     * moduleName.elementAt(id); int a = path.indexOf("-proxy="); if (a < 0)
-     * return ""; a += 7; int e = path.indexOf(" ", a); if (e <= a) e =
-     * path.length(); //System.out.println("Proxy: " + path.substring(a, e));
-     * return (path.substring(a, e)); } private String getModuleParameterName(int
-     * id) { String path = (String) moduleName.elementAt(id); int a =
-     * path.indexOf("-name="); if (a < 0) return ""; a += 6; char stop = ' '; if
-     * (path.charAt(a) == '\"') { // der name steht in anfuehrungszeichen a +=
-     * 1; stop = '\"'; } int e = path.indexOf(stop, a); if (e <= a) e =
-     * path.length(); //System.out.println("Proxy: " + path.substring(a, e));
-     * return (path.substring(a, e)); }
+     * private String getModuleParameterProxy(int id) { String path = (String) moduleName.elementAt(id); int a =
+     * path.indexOf("-proxy="); if (a < 0) return ""; a += 7; int e = path.indexOf(" ", a); if (e <= a) e =
+     * path.length(); //System.out.println("Proxy: " + path.substring(a, e)); return (path.substring(a, e)); } private
+     * String getModuleParameterName(int id) { String path = (String) moduleName.elementAt(id); int a =
+     * path.indexOf("-name="); if (a < 0) return ""; a += 6; char stop = ' '; if (path.charAt(a) == '\"') { // der name
+     * steht in anfuehrungszeichen a += 1; stop = '\"'; } int e = path.indexOf(stop, a); if (e <= a) e = path.length();
+     * //System.out.println("Proxy: " + path.substring(a, e)); return (path.substring(a, e)); }
      */
     private boolean getModuleParameterShow(int id)
     {
@@ -600,10 +578,8 @@ public final class Gui extends Thread
                     System.out.println("moduleName:" + moduleName.get(i));
                     System.out.println("configZeilen:"
                             + cfgLines.get(z));
-
                 }
             }
-
         }
         // um die mainFrameLocationSize abzuspeichen.
         if(mainFrame != null)
@@ -771,7 +747,8 @@ public final class Gui extends Thread
     {
         int inst = 0;
 
-        while (true) {
+        while (true)
+        {
             try
             {
                 getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, 0));
@@ -787,7 +764,8 @@ public final class Gui extends Thread
                 }
             }
         }
-        try {
+        try
+        {
             for (int i = 0; i < moduleNum; i++)
                 moduleReplyMbx[i] = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
 
@@ -835,8 +813,7 @@ public final class Gui extends Thread
         }
         System.out.println("ModuleProxyName " + moduleProxyName);
 
-        Class<?>[] proxyConstrArgsTypes = new Class<?>[]
-        { int.class, TimsMbx.class };
+        Class<?>[] proxyConstrArgsTypes = new Class<?>[] { int.class, TimsMbx.class };
         Object[] proxyConstrArgs = new Object[2];
         proxyConstrArgs[0] = new Integer(id);
         proxyConstrArgs[1] = moduleReplyMbx[module];
@@ -863,7 +840,7 @@ public final class Gui extends Thread
         try
         {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch (Exception e)
         {
@@ -919,6 +896,7 @@ public final class Gui extends Thread
                     }
                 }
             });
+
             groupButton[i].setHorizontalAlignment(SwingConstants.LEFT);
 
             groupPanel[i] = new JPanel(new GridLayout(0, 1));
@@ -985,7 +963,7 @@ public final class Gui extends Thread
 
         if (showMapView)
         {
-            //create mapView panel as a tab
+            // create mapView panel as a tab
         	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
             myMapViewGui = new MapViewGui(moduleGui, mapViewReplyMbx);
         	mapViewFrame.getContentPane().add(myMapViewGui.getComponent());
@@ -1525,9 +1503,9 @@ public final class Gui extends Thread
             tims.terminate();
         }
 
-//        JOptionPane.showMessageDialog(frame,
-//                "GUI Terminated",
-//                "RACK GUI", JOptionPane.INFORMATION_MESSAGE);
+// JOptionPane.showMessageDialog(frame,
+// "GUI Terminated",
+// "RACK GUI", JOptionPane.INFORMATION_MESSAGE);
         System.out.println("GUI terminated");
     }
 
@@ -1580,61 +1558,34 @@ public final class Gui extends Thread
             // reading config file
 
             String      fileName    = "";
-            InetAddress routerAdr   = null;
-            int         routerPort  = 0;
+            String      timsParam   = "";
 
-            try
+            switch (args.length)
             {
-                switch (args.length)
-                {
-                    case 0:
-                        FileDialog fd = new FileDialog(frame, "RACK GUI config", FileDialog.LOAD);
-                        fd.setFile("*.cfg");
-                        fd.setDirectory(".");
-                        fd.setLocation(150, 150);
-                        fd.setVisible(true);
-                        if (fd.getFile() == null)
-                        	System.exit(0);
-                        fileName = fd.getDirectory() + System.getProperty("file.separator").charAt(0) + fd.getFile();
-                        break;
-                    case 1: // only config file
-                        fileName = args[0];
-                        break;
-                    case 2: // config file and ip
-                        fileName = args[0];
-                        routerAdr = InetAddress.getByName(args[1]);
-                        break;
-                    case 3: // config file, ip and port
-                        fileName = args[0];
-                        routerAdr = InetAddress.getByName(args[1]);
-                        routerPort = Integer.parseInt(args[2]);
-                        break;
-                    default:
-                        JOptionPane.showMessageDialog(frame,
-                                "Invalid argument count \"" + args.length + "\". Start Gui like:\n" +
-                                "'javaw -jar rack.jar <config-file>' or\n" +
-                                "'java -classpath ... rack.gui.Gui config-file ip <port>",
-                                "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                        throw new Exception("Invalid argument count " + args.length);
-                }
-            }
-            catch(UnknownHostException e)
-            {
-                JOptionPane.showMessageDialog(frame,
-                        "Invalid router ip \"" + args[1] + "\". Start Gui like:\n" +
-                        "'javaw -jar rack.jar <config-file>' or\n" +
-                        "'java -classpath ... rack.gui.Gui config-file ip <port>",
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                throw e;
-            }
-            catch(NumberFormatException e)
-            {
-                JOptionPane.showMessageDialog(frame,
-                        "Invalid router port \"" + args[2] + "\". Start Gui like:\n" +
-                        "'javaw -jar rack.jar <config-file>' or\n" +
-                        "'java -classpath ... rack.gui.Gui config-file ip <port>",
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                throw e;
+                case 0:
+                    FileDialog fd = new FileDialog(frame, "RACK GUI config", FileDialog.LOAD);
+                    fd.setFile("*.cfg");
+                    fd.setDirectory(".");
+                    fd.setLocation(150, 150);
+                    fd.setVisible(true);
+                    if (fd.getFile() == null)
+                    	System.exit(0);
+                    fileName = fd.getDirectory() + System.getProperty("file.separator").charAt(0) + fd.getFile();
+                    break;
+                case 1: // only config file
+                    fileName = args[0];
+                    break;
+                case 2: // config file and ip
+                    fileName = args[0];
+                    timsParam = args[1];
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(frame,
+                            "Invalid argument count \"" + args.length + "\". Start Gui like:\n" +
+                            "'java -jar rack.jar <config-file> <ip>' or\n" +
+                            "'java -classpath ... rack.gui.Gui <config-file> <ip>",
+                            "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                    throw new Exception("Invalid argument count " + args.length);
             }
 
             try
@@ -1644,7 +1595,7 @@ public final class Gui extends Thread
                 BufferedReader cfgReader = new BufferedReader(new FileReader(fileName));
                 mainSaveConfigFile  = new File(fileName);
 
-                mainGui = new Gui(frame, frame.getContentPane(), cfgReader, routerAdr, routerPort);
+                mainGui = new Gui(frame, frame.getContentPane(), cfgReader, null, timsParam);
             }
             catch(IOException e)
             {
