@@ -23,7 +23,7 @@ dist_java_JAVA += \
 	EndianDataInputStream.java \
 	LittleEndianDataInputStream.java \
 	Tims.java \
-	TimsDataMsg.java \
+	TimsRawMsg.java \
 	TimsMbx.java \
 	TimsMsg.java \
 	TimsRouter.java \
