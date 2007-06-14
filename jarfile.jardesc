@@ -51,7 +51,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2dGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.navigation{PilotGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{LadarDataMsg.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsDataMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsRawMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewDrawContext.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{LadarGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{ChassisParamMsg.java"/>
