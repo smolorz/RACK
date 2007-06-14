@@ -53,9 +53,9 @@ public class GpsDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
     
-    public GpsDataMsg(TimsDataMsg p) throws TimsException
+    public GpsDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

@@ -57,7 +57,7 @@ public abstract class Tims extends Thread
      * 
      * @see TimsMbx#receive(int)
      */
-    abstract TimsDataMsg receive(TimsMbx mbx, int timeout)
+    abstract TimsRawMsg receive(TimsMbx mbx, int timeout)
                               throws TimsException;
 
     public abstract TimsMbx mbxInit(int mbxName) throws TimsException;

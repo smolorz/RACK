@@ -43,7 +43,7 @@ public class DatalogProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
             if (raw != null)
             {
                 DatalogDataMsg data = new DatalogDataMsg(raw);
@@ -74,7 +74,7 @@ public class DatalogProxy extends RackDataProxy
             replyMbx.send0(MSG_DATALOG_RESET, commandMbx,
                            (byte) 0, currentSequenceNo);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(1000);
@@ -108,7 +108,7 @@ public class DatalogProxy extends RackDataProxy
             replyMbx.send0(MSG_DATALOG_GET_LOG_STATUS, commandMbx,
                            (byte) 0, currentSequenceNo);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(1000);
@@ -136,7 +136,7 @@ public class DatalogProxy extends RackDataProxy
             replyMbx.send(MSG_DATALOG_SET_LOG, commandMbx,
                                (byte)0, currentSequenceNo, data);
         
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(1000);

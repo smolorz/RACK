@@ -38,9 +38,9 @@ public class DatalogDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public DatalogDataMsg(TimsDataMsg p) throws TimsException
+    public DatalogDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

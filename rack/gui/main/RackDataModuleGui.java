@@ -46,7 +46,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
     public abstract void moduleCleanup();
 
     /** Modul empfaengt internes Paket */
-    public abstract void moduleCommand(TimsDataMsg raw);
+    public abstract void moduleCommand(TimsRawMsg raw);
 
     protected Tims tims;
     protected GDOS gdos;
@@ -165,7 +165,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
     /** Paketempfangstask */
     public void run()
     {
-        TimsDataMsg cmdMsg;
+        TimsRawMsg cmdMsg;
 
         gdos.dbgInfo("Run command thread");
 

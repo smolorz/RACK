@@ -40,9 +40,9 @@ public class ChassisSetActivePilotMsg extends TimsMsg
         this.activePilot = activePilot;
     }
 
-    public ChassisSetActivePilotMsg(TimsDataMsg p) throws TimsException
+    public ChassisSetActivePilotMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

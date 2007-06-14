@@ -32,9 +32,9 @@ public class TimsRouterMbxMsg extends TimsMsg
       msglen = HEAD_LEN + getDataLen();
     }
 
-    public TimsRouterMbxMsg(TimsDataMsg p) throws TimsException
+    public TimsRouterMbxMsg(TimsRawMsg p) throws TimsException
     {
-      readTimsDataMsg(p);
+      readTimsRawMsg(p);
     }
 
     public boolean checkTimsMsgHead()

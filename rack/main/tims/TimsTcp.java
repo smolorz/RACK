@@ -95,9 +95,9 @@ public class TimsTcp extends Tims
         }
     }
 
-    TimsDataMsg receive(TimsMbx mbx, int timeout) throws TimsException
+    TimsRawMsg receive(TimsMbx mbx, int timeout) throws TimsException
     {
-        TimsDataMsg p;
+        TimsRawMsg p;
 
         synchronized (mbx)
         {
@@ -117,7 +117,7 @@ public class TimsTcp extends Tims
             }
             else
             {
-                p = (TimsDataMsg) mbx.remove(0);
+                p = (TimsRawMsg) mbx.remove(0);
                 return p;
             }
 
@@ -126,7 +126,7 @@ public class TimsTcp extends Tims
 
     public void run()
     {
-        TimsDataMsg m;
+        TimsRawMsg m;
         TimsMbx mbx;
         InputStream in = tcpIn;
         Socket sock = socket;
@@ -138,14 +138,14 @@ public class TimsTcp extends Tims
             {
                 while (in != null)
                 {
-                    m = new TimsDataMsg(in);
+                    m = new TimsRawMsg(in);
 
                     if ((m.dest == 0) && (m.src == 0) && (m.type == TimsRouter.GET_STATUS))
                     {
                         // reply to lifesign
                         try
                         {
-                            TimsDataMsg rm = new TimsDataMsg();
+                            TimsRawMsg rm = new TimsRawMsg();
                             rm.type = Tims.MSG_OK;
                             rm.dest = 0;
                             rm.src = 0;
@@ -303,7 +303,7 @@ public class TimsTcp extends Tims
     {
         TimsMbx mbx;
         TimsRouterMbxMsg m = new TimsRouterMbxMsg();
-        TimsDataMsg reply;
+        TimsRawMsg reply;
 
         m.type = TimsRouter.MBX_INIT_WITH_REPLY;
         m.dest = 0;
@@ -336,7 +336,7 @@ public class TimsTcp extends Tims
     public synchronized void mbxDelete(TimsMbx mbx) throws TimsException
     {
         TimsRouterMbxMsg m = new TimsRouterMbxMsg();
-        TimsDataMsg reply;
+        TimsRawMsg reply;
 
         m.type = TimsRouter.MBX_DELETE_WITH_REPLY;
         m.dest = 0;

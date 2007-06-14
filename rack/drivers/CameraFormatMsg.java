@@ -38,10 +38,10 @@ public class CameraFormatMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public CameraFormatMsg(TimsDataMsg p) throws TimsException
+    public CameraFormatMsg(TimsRawMsg p) throws TimsException
     {
         msglen = HEAD_LEN + getDataLen();
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     public CameraFormatMsg(int width, int height)

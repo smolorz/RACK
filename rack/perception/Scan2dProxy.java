@@ -34,7 +34,7 @@ public class Scan2dProxy extends RackDataProxy
   public synchronized Scan2dDataMsg getData(int recordingTime)
   {
     try {
-      TimsDataMsg raw = getRawData(recordingTime);
+      TimsRawMsg raw = getRawData(recordingTime);
 
       if (raw != null) {
         Scan2dDataMsg data = new Scan2dDataMsg(raw);
@@ -51,7 +51,7 @@ public class Scan2dProxy extends RackDataProxy
   public synchronized Scan2dDataMsg getData()
   {
     try {
-      TimsDataMsg raw = getNextData();
+      TimsRawMsg raw = getNextData();
 
       if (raw != null) {
         Scan2dDataMsg data = new Scan2dDataMsg(raw);

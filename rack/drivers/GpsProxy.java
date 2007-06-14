@@ -31,7 +31,7 @@ public class GpsProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
 
             if (raw != null)
             {

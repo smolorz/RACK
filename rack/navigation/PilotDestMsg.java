@@ -34,9 +34,9 @@ public class PilotDestMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public PilotDestMsg(TimsDataMsg p) throws TimsException
+    public PilotDestMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

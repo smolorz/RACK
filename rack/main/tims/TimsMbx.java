@@ -66,7 +66,7 @@ public class TimsMbx extends Vector<TimsMsg>
   public void send0(byte type, int dest, byte priority, byte seqNr)
                      throws TimsException
   {
-    TimsDataMsg m = new TimsDataMsg();
+    TimsRawMsg m = new TimsRawMsg();
 
     m.type     = type;
     m.dest     = dest;
@@ -92,7 +92,7 @@ public class TimsMbx extends Vector<TimsMsg>
   public void sendReply0(byte type, TimsMsg replyOn)
                      throws TimsException
   {
-    TimsDataMsg m = new TimsDataMsg();
+    TimsRawMsg m = new TimsRawMsg();
 
     m.type     = type;
     m.dest     = replyOn.src;
@@ -103,7 +103,7 @@ public class TimsMbx extends Vector<TimsMsg>
     tims.send(m);
   }
 
-  public TimsDataMsg receive(int timeout)
+  public TimsRawMsg receive(int timeout)
                             throws TimsException
   {
     return tims.receive(this, timeout);

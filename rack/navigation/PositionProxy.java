@@ -40,7 +40,7 @@ public class PositionProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
             if (raw!=null) {
                 PositionDataMsg data = new PositionDataMsg(raw);
                 return(data);
@@ -74,7 +74,7 @@ public class PositionProxy extends RackDataProxy
                                (byte)currentSequenceNo,
                                updateMsg);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
 
             do
             {
@@ -96,7 +96,7 @@ public class PositionProxy extends RackDataProxy
         }
         try
         {
-            TimsDataMsg data = dataMbx.receive(timeOut);
+            TimsRawMsg data = dataMbx.receive(timeOut);
             PositionDataMsg locData = new PositionDataMsg(data);
             System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".readContinuousData");
             return(locData);

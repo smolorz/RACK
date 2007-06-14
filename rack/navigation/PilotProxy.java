@@ -38,7 +38,7 @@ public class PilotProxy extends RackDataProxy
   public synchronized PilotDataMsg getData(int recordingTime)
   {
     try {
-      TimsDataMsg raw = getRawData(recordingTime);
+      TimsRawMsg raw = getRawData(recordingTime);
 
       if (raw != null) {
         PilotDataMsg data = new PilotDataMsg(raw);
@@ -85,7 +85,7 @@ public class PilotProxy extends RackDataProxy
           replyMbx.send(MSG_PILOT_SET_DESTINATION, commandMbx,
                              (byte)0, currentSequenceNo, dest);
 
-          TimsDataMsg reply;
+          TimsRawMsg reply;
           do
           {
             reply = replyMbx.receive(1000);

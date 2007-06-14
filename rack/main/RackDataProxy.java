@@ -31,7 +31,7 @@ public abstract class RackDataProxy extends RackProxy
         super(commandMbx, replyMbx, dataMbx, onTimeout, offTimeout, dataTimeout);
     }
 
-    protected synchronized TimsDataMsg getRawData(int recordingTime)
+    protected synchronized TimsRawMsg getRawData(int recordingTime)
     {
         currentSequenceNo++;
 
@@ -43,7 +43,7 @@ public abstract class RackDataProxy extends RackProxy
             replyMbx.send(RackProxy.MSG_GET_DATA, commandMbx,
                           (byte) 0, currentSequenceNo, p);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
 
             do
             {
@@ -74,7 +74,7 @@ public abstract class RackDataProxy extends RackProxy
         }
     }
 
-    protected synchronized TimsDataMsg getNextData()
+    protected synchronized TimsRawMsg getNextData()
     {
         currentSequenceNo++;
 
@@ -83,7 +83,7 @@ public abstract class RackDataProxy extends RackProxy
             replyMbx.send0(RackProxy.MSG_GET_NEXT_DATA, commandMbx,
                           (byte) 0, currentSequenceNo);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
 
             do
             {
@@ -135,7 +135,7 @@ public abstract class RackDataProxy extends RackProxy
             replyMbx.send(RackProxy.MSG_GET_CONT_DATA, commandMbx,
                           (byte) 0, currentSequenceNo, p);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(dataTimeout);
@@ -173,7 +173,7 @@ public abstract class RackDataProxy extends RackProxy
             replyMbx.send(RackProxy.MSG_STOP_CONT_DATA, commandMbx,
                           (byte) 0, currentSequenceNo, p);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(dataTimeout);

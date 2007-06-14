@@ -62,9 +62,9 @@ public class ChassisParamMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public ChassisParamMsg(TimsDataMsg p) throws TimsException
+    public ChassisParamMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

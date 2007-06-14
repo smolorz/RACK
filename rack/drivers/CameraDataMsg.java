@@ -76,9 +76,9 @@ public class CameraDataMsg extends TimsMsg
 //      super();
     }
 
-    public CameraDataMsg(TimsDataMsg p) throws TimsException
+    public CameraDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     public CameraDataMsg(int width, int height)

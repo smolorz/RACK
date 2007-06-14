@@ -34,9 +34,9 @@ public class Scan2dDataMsg extends TimsMsg
         return (16 + pointNum * ScanPoint.getDataLen());
     }
 
-    public Scan2dDataMsg(TimsDataMsg p) throws TimsException
+    public Scan2dDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

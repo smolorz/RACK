@@ -531,7 +531,7 @@ public class JoystickSoftware extends RackDataModuleGui
     {
     }
 
-    public void moduleCommand(TimsDataMsg raw)
+    public void moduleCommand(TimsRawMsg raw)
     {
     }
 

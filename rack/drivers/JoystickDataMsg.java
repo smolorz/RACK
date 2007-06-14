@@ -38,9 +38,9 @@ public class JoystickDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public JoystickDataMsg(TimsDataMsg p) throws TimsException
+    public JoystickDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

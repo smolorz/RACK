@@ -44,7 +44,7 @@ public class CameraProxy extends RackDataProxy {
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
 
             if(raw != null)
             {
@@ -67,7 +67,7 @@ public class CameraProxy extends RackDataProxy {
     {
         try
         {
-            TimsDataMsg raw = getNextData();
+            TimsRawMsg raw = getNextData();
 
             if(raw != null)
             {
@@ -99,7 +99,7 @@ public class CameraProxy extends RackDataProxy {
                 (byte)currentSequenceNo,
                 format);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
 
             do {
                 reply = replyMbx.receive(dataTimeout);

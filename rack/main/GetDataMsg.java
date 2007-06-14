@@ -33,9 +33,9 @@ public class GetDataMsg extends TimsMsg
       msglen = HEAD_LEN + getDataLen();
     }
 
-    protected GetDataMsg(TimsDataMsg p) throws TimsException
+    protected GetDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

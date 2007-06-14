@@ -30,7 +30,7 @@ public class LadarProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
 
             if (raw != null)
             {
@@ -54,7 +54,7 @@ public class LadarProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getNextData();
+            TimsRawMsg raw = getNextData();
 
             if (raw != null)
             {

@@ -40,9 +40,9 @@ public class LadarDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public LadarDataMsg(TimsDataMsg p) throws TimsException
+    public LadarDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

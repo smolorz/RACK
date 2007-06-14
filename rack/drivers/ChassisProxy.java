@@ -45,7 +45,7 @@ public class ChassisProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
             if (raw != null)
             {
                 ChassisDataMsg data = new ChassisDataMsg(raw);
@@ -76,7 +76,7 @@ public class ChassisProxy extends RackDataProxy
             replyMbx.send0(MSG_CHASSIS_GET_PARAMETER, commandMbx,
                     (byte) 0, currentSequenceNo);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(1000);
@@ -105,7 +105,7 @@ public class ChassisProxy extends RackDataProxy
             replyMbx.send(MSG_CHASSIS_SET_ACTIVE_PILOT, commandMbx,
                           (byte) 0, currentSequenceNo, cmdMsg);
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             do
             {
                 reply = replyMbx.receive(onTimeout);

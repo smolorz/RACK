@@ -1283,7 +1283,7 @@ public final class Gui extends Thread
                 }
             }
 
-            TimsDataMsg reply;
+            TimsRawMsg reply;
             boolean notAllReplies = true;
 
             // wait for all replies or timeout

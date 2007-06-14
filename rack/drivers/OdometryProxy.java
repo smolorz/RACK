@@ -32,7 +32,7 @@ public class OdometryProxy extends RackDataProxy
   public synchronized OdometryDataMsg getData(int recordingTime)
   {
     try {
-      TimsDataMsg raw = getRawData(recordingTime);
+      TimsRawMsg raw = getRawData(recordingTime);
       if (raw != null) {
         OdometryDataMsg data = new OdometryDataMsg(raw);
         return(data);
@@ -56,7 +56,7 @@ public class OdometryProxy extends RackDataProxy
       try {
           replyMbx.send0(MSG_ODOMETRY_RESET, commandMbx,
                             (byte)0, currentSequenceNo);
-        TimsDataMsg reply;
+        TimsRawMsg reply;
         do {
           reply = replyMbx.receive(onTimeout);
         } while (reply.seqNr != currentSequenceNo);

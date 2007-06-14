@@ -37,9 +37,9 @@ public class PositionDataMsg extends TimsMsg
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public PositionDataMsg(TimsDataMsg p) throws TimsException
+    public PositionDataMsg(TimsRawMsg p) throws TimsException
     {
-        readTimsDataMsg(p);
+        readTimsRawMsg(p);
     }
 
     protected boolean checkTimsMsgHead()

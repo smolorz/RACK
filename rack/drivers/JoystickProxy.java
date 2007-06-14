@@ -31,7 +31,7 @@ public class JoystickProxy extends RackDataProxy
     {
         try
         {
-            TimsDataMsg raw = getRawData(recordingTime);
+            TimsRawMsg raw = getRawData(recordingTime);
             if (raw != null)
             {
                 JoystickDataMsg data = new JoystickDataMsg(raw);
