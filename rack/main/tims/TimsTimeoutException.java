@@ -16,13 +16,17 @@
  */
 package rack.main.tims;
 
-
 public class TimsTimeoutException extends TimsException
 {
     private static final long serialVersionUID = 1L;
 
+    public TimsTimeoutException()
+    {
+        super();
+    }
+
     public TimsTimeoutException(String s)
     {
-      super(s);
+        super(s);
     }
 }

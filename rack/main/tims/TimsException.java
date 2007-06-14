@@ -22,11 +22,11 @@ public class TimsException extends Exception
 
     public TimsException()
     {
-      super();
+        super();
     }
 
     public TimsException(String s)
     {
-      super(s);
+        super(s);
     }
 }

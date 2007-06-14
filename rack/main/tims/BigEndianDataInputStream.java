@@ -16,21 +16,21 @@ public class BigEndianDataInputStream extends EndianDataInputStream
 
     public final int readUnsignedShort() throws IOException
     {
-      return in.readUnsignedShort();
+        return in.readUnsignedShort();
     }
 
     public final char readChar() throws IOException
     {
-      return in.readChar();
+        return in.readChar();
     }
 
     public final int readInt() throws IOException
     {
-      return in.readInt();
+        return in.readInt();
     }
 
     public final long readLong() throws IOException
     {
-      return in.readLong();
+        return in.readLong();
     }
 }

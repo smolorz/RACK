@@ -20,54 +20,55 @@ import java.io.*;
 
 public class TimsRouterMbxMsg extends TimsMsg
 {
-    public int mbx = 0;   // 4 Bytes
+    public int mbx = 0; // 4 Bytes
 
     public int getDataLen()
     {
-      return 4;
+        return 4;
     }
 
     public TimsRouterMbxMsg()
     {
-      msglen = HEAD_LEN + getDataLen();
+        msglen = HEAD_LEN + getDataLen();
     }
 
-    public TimsRouterMbxMsg(TimsRawMsg p) throws TimsException
+    public TimsRouterMbxMsg(TimsRawMsg m) throws TimsException
     {
-      readTimsRawMsg(p);
+        readTimsRawMsg(m);
     }
 
     public boolean checkTimsMsgHead()
     {
-      if ((msglen == (HEAD_LEN + getDataLen() )) &&
-         ((type == TimsRouter.MBX_INIT) |
-          (type == TimsRouter.MBX_DELETE) |
-          (type == TimsRouter.MBX_INIT_WITH_REPLY)|
-          (type == TimsRouter.MBX_DELETE_WITH_REPLY))) {
-          return(true);
-      }
-      else
-          return(false);
+        if ((msglen == (HEAD_LEN + getDataLen())) && 
+                ((type == TimsRouter.MBX_INIT) |
+                 (type == TimsRouter.MBX_DELETE) |
+                 (type == TimsRouter.MBX_INIT_WITH_REPLY) |
+                 (type == TimsRouter.MBX_DELETE_WITH_REPLY)))
+        {
+            return true;
+        }
+        else
+            return false;
     }
 
     public void readTimsMsgBody(InputStream in) throws IOException
     {
-      if (bodyByteorder == BIG_ENDIAN) {
-
-        DataInputStream dataIn = new DataInputStream(in);
-        mbx = dataIn.readInt();
-
-      } else {
-
-        LittleEndianDataInputStream dataIn = new LittleEndianDataInputStream(in);
-        mbx = dataIn.readInt();
-      }
-      bodyByteorder = BIG_ENDIAN;
+        if (bodyByteorder == BIG_ENDIAN)
+        {
+            DataInputStream dataIn = new DataInputStream(in);
+            mbx = dataIn.readInt();
+        }
+        else
+        {
+            LittleEndianDataInputStream dataIn = new LittleEndianDataInputStream(in);
+            mbx = dataIn.readInt();
+        }
+        bodyByteorder = BIG_ENDIAN;
     }
 
     public void writeTimsMsgBody(OutputStream out) throws IOException
     {
-      DataOutputStream dataOut = new DataOutputStream(out);
-      dataOut.writeInt(mbx);
+        DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeInt(mbx);
     }
 }

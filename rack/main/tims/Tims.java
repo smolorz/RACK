@@ -19,10 +19,10 @@ package rack.main.tims;
 public abstract class Tims extends Thread
 {
     // Tims return types / reply message types
-    public static final byte MSG_OK = 0;
-    public static final byte MSG_ERROR = -1;
-    public static final byte MSG_TIMEOUT = -2;
-    public static final byte MSG_NOT_AVAILABLE = -3;
+    public static final byte MSG_OK             = 0;
+    public static final byte MSG_ERROR          = -1;
+    public static final byte MSG_TIMEOUT        = -2;
+    public static final byte MSG_NOT_AVAILABLE  = -3;
 
     protected boolean terminate = false;
 
@@ -34,8 +34,6 @@ public abstract class Tims extends Thread
     {
         terminate = true;
     }
-
-    // public message interface
 
     /**
      * Internal send method.
@@ -57,8 +55,7 @@ public abstract class Tims extends Thread
      * 
      * @see TimsMbx#receive(int)
      */
-    abstract TimsRawMsg receive(TimsMbx mbx, int timeout)
-                              throws TimsException;
+    abstract TimsRawMsg receive(TimsMbx mbx, int timeout) throws TimsException;
 
     public abstract TimsMbx mbxInit(int mbxName) throws TimsException;
 

@@ -36,32 +36,32 @@ public abstract class EndianDataInputStream implements DataInput
 
     public final int skipBytes(int n) throws IOException
     {
-        return(in.skipBytes(n));
+        return (in.skipBytes(n));
     }
 
     public final boolean readBoolean() throws IOException
     {
-        return(in.readBoolean());
+        return (in.readBoolean());
     }
 
     public final byte readByte() throws IOException
     {
-        return(in.readByte());
+        return (in.readByte());
     }
 
     public final int readUnsignedByte() throws IOException
     {
-        return(in.readUnsignedByte());
+        return (in.readUnsignedByte());
     }
 
     public final String readLine() throws IOException
     {
-        throw(new IOException("readLine() is not implemented"));
+        throw (new IOException("readLine() is not implemented"));
     }
 
     public final String readUTF() throws IOException
     {
-        throw(new IOException("readUTF() is not implemented"));
+        throw (new IOException("readUTF() is not implemented"));
     }
 
     protected DataInputStream in;
