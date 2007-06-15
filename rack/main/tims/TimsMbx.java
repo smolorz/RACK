@@ -22,8 +22,8 @@ public class TimsMbx extends Vector<TimsMsg>
 {
     private static final long serialVersionUID = 1L;
 
-    protected int             name             = 0;
-    protected Tims            tims;
+    public int             name                = 0;
+    public Tims            tims;
 
     /**
      * Internal constructor.
@@ -32,7 +32,7 @@ public class TimsMbx extends Vector<TimsMsg>
      * 
      * @see Tims#mbxInit(int)
      */
-    TimsMbx(int mbxName, Tims tims)
+    public TimsMbx(int mbxName, Tims tims)
     {
         this.name = mbxName;
         this.tims = tims;

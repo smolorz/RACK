@@ -74,7 +74,7 @@ public class TimsTcp extends Tims
         }
     }
 
-    synchronized void send(TimsMsg m) throws TimsException
+    protected synchronized void send(TimsMsg m) throws TimsException
     {
         // System.out.println("Send message " + m + " to TimsRouterTcp");
 
@@ -95,7 +95,7 @@ public class TimsTcp extends Tims
         }
     }
 
-    TimsRawMsg receive(TimsMbx mbx, int timeout) throws TimsException
+    protected TimsRawMsg receive(TimsMbx mbx, int timeout) throws TimsException
     {
         TimsRawMsg p;
 

@@ -46,7 +46,7 @@ public abstract class Tims extends Thread
      * @see TimsMbx#sendReply0(byte, TimsMsg)
      * @see TimsMbx#sendReply(byte, TimsMsg, TimsMsg)
      */
-    abstract void send(TimsMsg m) throws TimsException;
+    protected abstract void send(TimsMsg m) throws TimsException;
 
     /**
      * Internal receive method.
@@ -55,7 +55,7 @@ public abstract class Tims extends Thread
      * 
      * @see TimsMbx#receive(int)
      */
-    abstract TimsRawMsg receive(TimsMbx mbx, int timeout) throws TimsException;
+    protected abstract TimsRawMsg receive(TimsMbx mbx, int timeout) throws TimsException;
 
     public abstract TimsMbx mbxInit(int mbxName) throws TimsException;
 
