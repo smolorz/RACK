@@ -5,9 +5,6 @@ bin_PROGRAMS = \
 	tims_client \
 	tims_router_tcp
 
-noinst_HEADERS = \
-	tims_router.h
-
 CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(xeno_dir)/include

@@ -16,7 +16,6 @@
 #ifndef __SERIAL_PORT_H__
 #define __SERIAL_PORT_H__
 
-#include <main/rack_time.h>
 #include <main/rack_module.h>
 #include <rtdm/rtserial.h>
 

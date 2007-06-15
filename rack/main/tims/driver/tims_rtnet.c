@@ -293,7 +293,7 @@ int rtnet_read_config(tims_router_config_msg *configMsg)
 
     p_head = &configMsg->head;
 
-    if (p_head->flags & MESSAGE_FLAG_BODY_ORDER_LE)
+    if (p_head->flags & TIMS_BODY_BYTEORDER_LE)
         configMsg->num = __le32_to_cpu(configMsg->num);
     else
         configMsg->num = __be32_to_cpu(configMsg->num);
@@ -324,7 +324,7 @@ int rtnet_read_config(tims_router_config_msg *configMsg)
     {
         entry = &configMsg->mbx_route[i];
 
-        if (configMsg->head.flags & MESSAGE_FLAG_BODY_ORDER_LE)
+        if (configMsg->head.flags & TIMS_BODY_BYTEORDER_LE)
         {
             entry->mbx = __le32_to_cpu(entry->mbx);
             entry->ip  = __le32_to_cpu(entry->ip);

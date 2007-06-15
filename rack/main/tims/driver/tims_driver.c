@@ -747,7 +747,7 @@ static int register_mbx_tcp(unsigned int mbxAdr)
     unsigned int cpysize = sizeof(tims_router_mbx_msg);
     tims_router_mbx_msg mbxMsg;
 
-    tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_INIT,
+    tims_fill_head(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_INIT,
                   0, 0, 0, 0, 0, cpysize);
 
     mbxMsg.mbx = mbxAdr;
@@ -768,7 +768,7 @@ static int unregister_mbx_tcp(unsigned int mbxAdr)
     unsigned int cpysize = sizeof(tims_router_mbx_msg);
     tims_router_mbx_msg mbxMsg;
 
-    tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_DELETE,
+    tims_fill_head(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_DELETE,
                   0, 0, 0, 0, 0, cpysize);
 
     mbxMsg.mbx = mbxAdr;
@@ -2035,7 +2035,7 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
 
     tims_info("Registering %d mailboxes.\n", td.mbx_num);
 
-    tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_PURGE, 0, 0, 0, 0, 0,
+    tims_fill_head(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_PURGE, 0, 0, 0, 0, 0,
                   TIMS_HEADLEN);
 
     ret = rt_pipe_write(&td.pipeToClient, &mbxMsg, TIMS_HEADLEN, P_NORMAL);
@@ -2044,7 +2044,7 @@ static int pipe_register_mbx_list(RT_PIPE_MSG* recvMsg)
         tims_warn("[PIPE]: Can't send mbx purge msg, code = %d\n", ret);
     }
 
-    tims_fillhead(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_INIT, 0, 0, 0, 0, 0,
+    tims_fill_head(&mbxMsg.head, TIMS_MSG_ROUTER_MBX_INIT, 0, 0, 0, 0, 0,
                   sizeof(tims_router_mbx_msg));
 
     rtdm_lock_get_irqsave(&td.ctx_lock, lock_ctx);
@@ -2404,7 +2404,7 @@ static int tims_init(void)
 
     if (test_bit(TIMS_INIT_BIT_RTNET, &init_flags))
     {
-        tims_fillhead(&getConfig, TIMS_MSG_ROUTER_GET_CONFIG, 0, 0,
+        tims_fill_head(&getConfig, TIMS_MSG_ROUTER_GET_CONFIG, 0, 0,
                       0, 0, 0, TIMS_HEADLEN);
 
         ret = rt_pipe_write(&td.pipeToClient, &getConfig, TIMS_HEADLEN, P_NORMAL);

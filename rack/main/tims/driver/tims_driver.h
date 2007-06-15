@@ -24,7 +24,8 @@
 
 #include <rtdm/rtdm_driver.h>
 #include <main/tims/tims.h>
-#include <main/tims/router/tims_router.h>
+#include <main/tims/tims_router.h>
+#include <main/tims/router/tims_rt_pipe.h>
 
 //
 // init flags

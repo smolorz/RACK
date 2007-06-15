@@ -3,9 +3,10 @@ timsincludedir = $(pkgincludedir)/main/tims
 
 timsinclude_HEADERS = \
 	tims.h \
+	tims_api.h \
 	tims_byteorder.h \
-	tims_endian.h \
-	tims_msg_types.h
+	tims_router.h \
+	tims_types.h
 
 SUBDIRS = \
 	router

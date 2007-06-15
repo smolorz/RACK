@@ -17,7 +17,7 @@
 #ifndef __TIMS_RTNET_H__
 #define __TIMS_RTNET_H__
 
-#include <main/tims/driver/tims_driver.h>
+#include "tims_driver.h"
 
 #include <net/ip.h>
 

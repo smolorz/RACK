@@ -40,7 +40,7 @@
 //######################################################################
 
 typedef struct{
-    rack_time_t    recordingTime; // have to be first element
+    rack_time_t  recordingTime; // has to be first element
     position_3d  pos;
 } __attribute__((packed)) position_data;
 
@@ -66,7 +66,7 @@ class PositionData
 
             position_data *p_data = (position_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }

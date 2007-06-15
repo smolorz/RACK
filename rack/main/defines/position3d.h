@@ -24,9 +24,9 @@ typedef struct {
     int32_t     x;      // in mm
     int32_t     y;      // in mm
     int32_t     z;      // in mm
-    float32_t   phi;    // Drehung um x-Achse in rad von 0 <= x < 2PI
-    float32_t   psi;    // Drehung um y-Achse in rad von 0 <= x < 2PI
-    float32_t   rho;    // Drehung um z-Achse in rad von 0 <= x < 2PI
+    float       phi;    // Drehung um x-Achse in rad von 0 <= x < 2PI
+    float       psi;    // Drehung um y-Achse in rad von 0 <= x < 2PI
+    float       rho;    // Drehung um z-Achse in rad von 0 <= x < 2PI
 } __attribute__((packed)) position_3d;
 
 class Position3D

@@ -22,6 +22,8 @@
 #include <signal.h>
 #include <execinfo.h>
 
+#include <main/tims/tims.h>
+
 #include <main/rack_debug.h>
 #include <main/rack_proxy.h>
 #include <main/rack_mailbox.h>

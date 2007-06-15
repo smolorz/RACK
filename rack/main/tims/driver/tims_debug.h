@@ -17,7 +17,7 @@
  #ifndef __TIMS_DEBUG_H__
  #define __TIMS_DEBUG_H__
 
-#include <main/tims/driver/tims_driver.h>
+#include "tims_driver.h"
 
 #define TIMS_LEVEL_PRINT          0
 #define TIMS_LEVEL_ERROR          1

@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
- 
+
 #ifndef __CHASSIS_PROXY_H__
 #define __CHASSIS_PROXY_H__
 
@@ -45,15 +45,15 @@
 //######################################################################
 
 typedef struct {
-    rack_time_t recordingTime;  // have to be first element
-    float32_t deltaX;
-    float32_t deltaY;
-    float32_t deltaRho;
-    float32_t vx;
-    float32_t vy;
-    float32_t omega;
-    float32_t battery;
-    uint32_t  activePilot;
+    rack_time_t recordingTime;  // has to be first element
+    float       deltaX;
+    float       deltaY;
+    float       deltaRho;
+    float       vx;
+    float       vy;
+    float       omega;
+    float       battery;
+    uint32_t    activePilot;
 } __attribute__((packed)) chassis_data;
 
 class ChassisData
@@ -92,7 +92,7 @@ class ChassisData
 
             chassis_data *p_data = (chassis_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -113,7 +113,7 @@ class ChassisData
 typedef struct {
     int32_t   vx;
     int32_t   vy;
-    float32_t omega;
+    float     omega;
 } __attribute__((packed)) chassis_move_data;
 
 class ChassisMoveData
@@ -140,7 +140,7 @@ class ChassisMoveData
 
             chassis_move_data *p_data = (chassis_move_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -167,10 +167,10 @@ typedef struct
   int32_t   axMax;            // mm/s
   int32_t   ayMax;
 
-  float32_t omegaMax;         // rad/s
+  float     omegaMax;         // rad/s
   int32_t   minTurningRadius; // mm
 
-  float32_t breakConstant;    // mm/mm/s
+  float     breakConstant;    // mm/mm/s
   int32_t   safetyMargin;     // mm
   int32_t   safetyMarginMove; // mm
   int32_t   comfortMargin;    // mm
@@ -184,8 +184,8 @@ typedef struct
   int32_t   wheelRadius;      // mm
   int32_t   trackWidth;
 
-  float32_t pilotParameterA;
-  float32_t pilotParameterB;
+  float     pilotParameterA;
+  float     pilotParameterB;
   int32_t   pilotVTransMax;   /**< Maximal transversal velocity in mm /s */
 
 } __attribute__((packed)) chassis_param_data;
@@ -262,7 +262,7 @@ class ChassisParamData
 
             chassis_param_data *p_data = (chassis_param_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -305,7 +305,7 @@ class ChassisSetActivePilotData
             chassis_set_active_pilot_data *p_data =
                                (chassis_set_active_pilot_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -358,25 +358,25 @@ class ChassisProxy : public RackDataProxy {
 
 // move
 
-    int move(int vx, int vy, float omega, uint64_t reply_timeout_ns);
-    int move(int vx, int vy, float omega)
+    int move(int32_t vx, int32_t vy, float omega, uint64_t reply_timeout_ns);
+    int move(int32_t vx, int32_t vy, float omega)
     {
         return move(vx, vy, omega, dataTimeout);
     }
 
-    int moveCurve(int speed, float curve, uint64_t reply_timeout_ns)
+    int moveCurve(int32_t speed, float curve, uint64_t reply_timeout_ns)
     {
         float omega = curve * (float)speed;
 
         return move(speed, 0 , omega, reply_timeout_ns);
     }
 
-    int moveCurve(int speed, float curve)
+    int moveCurve(int32_t speed, float curve)
     {
         return moveCurve(speed, curve, dataTimeout);
     }
 
-    int moveRadius(int speed, int radius, uint64_t reply_timeout_ns)
+    int moveRadius(int32_t speed, int32_t radius, uint64_t reply_timeout_ns)
     {
         float omega;
 
@@ -392,7 +392,7 @@ class ChassisProxy : public RackDataProxy {
         return move(speed, 0 , omega, reply_timeout_ns);
     }
 
-    int moveRadius(int speed, int radius)
+    int moveRadius(int32_t speed, int32_t radius)
     {
         return moveRadius(speed, radius, dataTimeout);
     }
@@ -413,12 +413,12 @@ class ChassisProxy : public RackDataProxy {
 // setActivePilot
 
 
-    int setActivePilot(int pilotMbx)
+    int setActivePilot(uint32_t pilotMbx)
     {
         return setActivePilot(pilotMbx, dataTimeout);
     }
 
-    int setActivePilot(uint pilotMbxAdr, uint64_t reply_timeout_ns);
+    int setActivePilot(uint32_t pilotMbxAdr, uint64_t reply_timeout_ns);
 
 };
 

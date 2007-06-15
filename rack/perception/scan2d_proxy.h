@@ -50,8 +50,8 @@ ACCESS: msg.data.point[...] OR msg.point[...];
 */
 
 typedef struct {
-    rack_time_t       recordingTime;  // have to be first element !!!
-    rack_time_t       duration;
+    rack_time_t     recordingTime;  // has to be first element !!!
+    rack_time_t     duration;
     int32_t         maxRange;
     int32_t         pointNum;
     scan_point      point[0];
@@ -93,7 +93,7 @@ class Scan2dData
 
             scan2d_data *p_data = (scan2d_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }

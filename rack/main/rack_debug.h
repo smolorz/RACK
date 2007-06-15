@@ -255,7 +255,7 @@ class GdosMailbox
             va_end(args);
 
             // init message head
-            tims_fillhead(&head, level, RackName::create(GDOS, 0), sendMbx->getAdr(),
+            tims_fill_head(&head, level, RackName::create(GDOS, 0), sendMbx->getAdr(),
                           sendMbx->getPriority(), 0, 0, TIMS_HEADLEN + datasize);
 
             sendMbx->sendDataMsg(&head, 1, &buffer, datasize);

@@ -68,8 +68,8 @@ ACCESS: msg.data.value[...] OR msg.value[...];
 // ...
 
 typedef struct {
-    rack_time_t   recordingTime; // !!! HAS TO BE FIRST ELEMENT !!!
-    float32_t   valA;
+    rack_time_t recordingTime; // has to be first element
+    float       valA;
     uint32_t    valB;
     int32_t     valueNum;
     int32_t     value[0];
@@ -115,7 +115,7 @@ class DummyData
 
             dummy_data *pData = (dummy_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(pData);
             }
@@ -164,7 +164,7 @@ class DummyParam
 
             dummy_param *pData = (dummy_param *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(pData);
             }

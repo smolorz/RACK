@@ -34,7 +34,7 @@
 //#define DEBUG_DETAIL
 
 #include <main/tims/tims.h>
-#include <main/tims/router/tims_router.h>
+#include <main/tims/tims_router.h>
 
 #define TIMS_LEVEL_PRINT          0
 #define TIMS_LEVEL_DBG            1
@@ -401,7 +401,7 @@ int mailbox_init(connection_t *con, tims_msg_head* tcpMsg, tims_msg_head *replyM
                    mbxMsg->mbx, ret);
         if (replyMsg)
         {
-            tims_fillhead(replyMsg, TIMS_MSG_ERROR, tcpMsg->src, tcpMsg->dest,
+            tims_fill_head(replyMsg, TIMS_MSG_ERROR, tcpMsg->src, tcpMsg->dest,
                           tcpMsg->priority, tcpMsg->seq_nr, 0, TIMS_HEADLEN);
         }
     }
@@ -412,7 +412,7 @@ int mailbox_init(connection_t *con, tims_msg_head* tcpMsg, tims_msg_head *replyM
 
         if (replyMsg)
         {
-            tims_fillhead(replyMsg, TIMS_MSG_OK, tcpMsg->src, tcpMsg->dest,
+            tims_fill_head(replyMsg, TIMS_MSG_OK, tcpMsg->src, tcpMsg->dest,
                           tcpMsg->priority, tcpMsg->seq_nr, 0, TIMS_HEADLEN);
         }
 
@@ -449,7 +449,7 @@ void mailbox_cleanup(connection_t *con, tims_msg_head* tcpMsg,
 
     if (replyMsg)
     {
-        tims_fillhead(replyMsg, TIMS_MSG_OK, tcpMsg->src, tcpMsg->dest,
+        tims_fill_head(replyMsg, TIMS_MSG_OK, tcpMsg->src, tcpMsg->dest,
                       tcpMsg->priority, tcpMsg->seq_nr, 0, TIMS_HEADLEN);
 
         sndTcpTimsMsg(con, replyMsg);
@@ -632,7 +632,7 @@ void tcpConnection_task_proc(void *arg)
             {
                 if (tcpMsg->type > 0)
                 {
-                    tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE, tcpMsg->src,
+                    tims_fill_head(&replyMsg, TIMS_MSG_NOT_AVAILABLE, tcpMsg->src,
                                   tcpMsg->dest, tcpMsg->priority, tcpMsg->seq_nr,
                                   0, TIMS_HEADLEN);
                     sndTcpTimsMsg(con, &replyMsg);
@@ -732,7 +732,7 @@ void watchdog_task_proc(void *arg)
 
     tims_dbg("watchdog task: start\n");
 
-    tims_fillhead(&lifesignMsg, TIMS_MSG_ROUTER_GET_STATUS, 0, 0, 0, 0, 0,
+    tims_fill_head(&lifesignMsg, TIMS_MSG_ROUTER_GET_STATUS, 0, 0, 0, 0, 0,
                   TIMS_HEADLEN);
 
     while (!terminate)

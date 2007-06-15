@@ -304,9 +304,10 @@ target_alias = @target_alias@
 timsincludedir = $(pkgincludedir)/main/tims
 timsinclude_HEADERS = \
 	tims.h \
+	tims_api.h \
 	tims_byteorder.h \
-	tims_endian.h \
-	tims_msg_types.h
+	tims_router.h \
+	tims_types.h
 
 SUBDIRS = router $(am__append_1)
 dist_java_JAVA = $(am__append_2)

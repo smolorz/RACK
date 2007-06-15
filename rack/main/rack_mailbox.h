@@ -11,6 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
 #ifndef __RACK_MAILBOX_H__
@@ -33,21 +34,17 @@
 //# message_info
 //######################################################################
 
-// dataformat is little endian
-#define MSGINFO_HEAD_LE         MESSAGE_FLAG_HEAD_ORDER_LE
-#define MSGINFO_DATA_LE         MESSAGE_FLAG_BODY_ORDER_LE
-
 class RackMailbox;
 
 /*  TiMS message head
-    __u8          flags;     // 1 Byte: flags
-    __s8          type;      // 1 Byte: Message Type
-    __s8          priority;  // 1 Byte: Priority
-    __u8          seq_nr;    // 1 Byte: Sequence Number
-    __u32         dest;      // 4 Byte: Destination ID
-    __u32         src;       // 4 Byte: Source ID
-    __u32         msglen;    // 4 Byte: length of complete message
-    __u8          data[0];   // 0 Byte: following data
+    uint8_t       flags;     // 1 Byte: flags
+    int8_t        type;      // 1 Byte: Message Type
+    uint8_t       priority;  // 1 Byte: Priority
+    uint8_t       seq_nr;    // 1 Byte: Sequence Number
+    uint32_t      dest;      // 4 Byte: Destination ID
+    uint32_t      src;       // 4 Byte: Source ID
+    uint32_t      msglen;    // 4 Byte: length of complete message
+    uint8_t       data[0];   // 0 Byte: following data
 */
 
 /** Message information */
@@ -59,7 +56,7 @@ typedef struct {
     int8_t          type;
 
 /** message priority */
-    int8_t          priority;
+    uint8_t         priority;
 
 /** sequence number */
     uint8_t         seq_nr;

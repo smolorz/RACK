@@ -4,9 +4,9 @@
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 2 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
  * Authors
@@ -16,7 +16,11 @@
 #ifndef __TIMS_BYTEORDER_H__
 #define __TIMS_BYTEORDER_H__
 
-#ifndef __KERNEL__
+#ifdef __KERNEL__
+
+#include <asm/byteorder.h>
+
+#else  /* !__KERNEL__ */
 
 #include <endian.h>
 #include <byteswap.h>
@@ -32,13 +36,6 @@
 #undef   __LITTLE_ENDIAN_BITFIELD
 
 #endif // __BYTE_ORDER == __LITTLE_ENDIAN
-
-//
-// float types
-//
-typedef float   float32_t;
-typedef double  float64_t;
-
 
 #ifdef __LITTLE_ENDIAN_BITFIELD
 
@@ -61,11 +58,11 @@ static inline int16_t __be16_to_cpu(int16_t x)
     return bswap_16(x);
 }
 
-static inline float64_t __be64_float_to_cpu(float64_t x)
+static inline double __be64_float_to_cpu(double x)
 {
     union {
         uint64_t  raw;
-        float64_t flt;
+        double flt;
     } u;
 
     u.flt = x;
@@ -73,11 +70,11 @@ static inline float64_t __be64_float_to_cpu(float64_t x)
     return u.flt;
 }
 
-static inline float32_t __be32_float_to_cpu(float32_t x)
+static inline float __be32_float_to_cpu(float x)
 {
     union {
         uint32_t  raw;
-        float32_t flt;
+        float flt;
     } u;
 
     u.flt = x;
@@ -104,12 +101,12 @@ static inline int16_t __le16_to_cpu(int16_t x)
     return x;
 }
 
-static inline float64_t  __le64_float_to_cpu(float64_t x)
+static inline double  __le64_float_to_cpu(double x)
 {
     return x;
 }
 
-static inline float32_t  __le32_float_to_cpu(float32_t x)
+static inline float  __le32_float_to_cpu(float x)
 {
     return x;
 }
@@ -135,12 +132,12 @@ static inline int16_t __be16_to_cpu(int16_t x)
     return x;
 }
 
-static inline float64_t  __be64_float_to_cpu(float64_t x)
+static inline double  __be64_float_to_cpu(double x)
 {
     return x;
 }
 
-static inline float32_t  __be32_float_to_cpu(float32_t x)
+static inline float  __be32_float_to_cpu(float x)
 {
     return x;
 }
@@ -164,11 +161,11 @@ static inline int16_t __le16_to_cpu(int16_t x)
     return bswap_16(x);
 }
 
-static inline float64_t __le64_float_to_cpu(float64_t x)
+static inline double __le64_float_to_cpu(double x)
 {
     union {
         uint64_t  raw;
-        float64_t flt;
+        double flt;
     } u;
 
     u.flt = x;
@@ -176,11 +173,11 @@ static inline float64_t __le64_float_to_cpu(float64_t x)
     return u.flt;
 }
 
-static inline float32_t __le32_float_to_cpu(float32_t x)
+static inline float __le32_float_to_cpu(float x)
 {
     union {
         uint32_t  raw;
-        float32_t flt;
+        float flt;
     } u;
 
     u.flt = x;
@@ -190,12 +187,12 @@ static inline float32_t __le32_float_to_cpu(float32_t x)
 
 #endif // ! __LITTLE_ENDIAN_BITFIELD
 
-static inline float64_t __cpu_to_be64_float(float64_t x)
+static inline double __cpu_to_be64_float(double x)
 {
     return __be64_float_to_cpu(x);
 }
 
-static inline float32_t __cpu_to_be32_float(float32_t x)
+static inline float __cpu_to_be32_float(float x)
 {
     return __be32_float_to_cpu(x);
 }
@@ -220,6 +217,6 @@ static inline int16_t __cpu_to_le16(int16_t x)
     return __le16_to_cpu(x);
 }
 
-#endif // __KERNEL__
+#endif // !__KERNEL__
 
 #endif // __TIMS_BYTEORDER_H__

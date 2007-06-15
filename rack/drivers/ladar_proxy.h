@@ -47,11 +47,11 @@ ACCESS: msg.data.distance[...] OR msg.distance[...];
 #define LADAR_DATA_MAX_DISTANCE_NUM 720
 
 typedef struct {
-    rack_time_t   recordingTime;    // have to be first element !!!
-    rack_time_t   duration;
+    rack_time_t recordingTime;    // has to be first element !!!
+    rack_time_t duration;
     int32_t     maxRange;
-    float32_t   startAngle;
-    float32_t   angleResolution;
+    float       startAngle;
+    float       angleResolution;
     int32_t     distanceNum;
     int32_t     distance[0];
 } __attribute__((packed)) ladar_data;
@@ -98,7 +98,7 @@ class LadarData
 
             ladar_data *p_data = (ladar_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }

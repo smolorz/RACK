@@ -41,18 +41,18 @@
 typedef struct {
     rack_time_t   recordingTime;  // has to be first element
     int32_t       mode;
-    float64_t     latitude;       // rad
-    float64_t     longitude;      // rad
+    double        latitude;       // rad
+    double        longitude;      // rad
     int32_t       altitude;       // mm over mean sea level
-    float32_t     heading;        // rad
+    float         heading;        // rad
     int32_t       speed;          // mm/s
     int32_t       satelliteNum;
     int64_t       utcTime;        // POSIX time in sec since 1.1.1970
-    float32_t     pdop;
+    float         pdop;
     position_3d   posGK;
     int32_t       varXY;          // variance of xy position in mm
     int32_t       varZ;           // variance of  z position in mm
-    float32_t     varRho;         // variance of heading in rad
+    float         varRho;         // variance of heading in rad
 } __attribute__((packed)) gps_data;
 
 
@@ -102,7 +102,7 @@ class GpsData
 
             gps_data *p_data = (gps_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -130,7 +130,7 @@ class GpsProxy : public RackDataProxy {
     };
 
     ~GpsProxy()
-    {
+   {
     };
 
 //

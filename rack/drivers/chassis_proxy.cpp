@@ -23,7 +23,7 @@ int ChassisProxy::getData(chassis_data *recv_data, ssize_t recv_datalen,
                           rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     message_info msgInfo;
-    
+
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, &msgInfo);
     if (ret)
@@ -35,7 +35,7 @@ int ChassisProxy::getData(chassis_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
-int ChassisProxy::move(int vx, int vy, float omega, uint64_t reply_timeout_ns)
+int ChassisProxy::move(int32_t vx, int32_t vy, float omega, uint64_t reply_timeout_ns)
 {
     chassis_move_data send_data;
     send_data.vx    = vx;
@@ -63,7 +63,7 @@ int ChassisProxy::getParam(chassis_param_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
-int ChassisProxy::setActivePilot(uint pilotMbxAdr, uint64_t reply_timeout_ns)
+int ChassisProxy::setActivePilot(uint32_t pilotMbxAdr, uint64_t reply_timeout_ns)
 {
     chassis_set_active_pilot_data send_data;
     send_data.activePilot = pilotMbxAdr;

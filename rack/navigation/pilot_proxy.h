@@ -58,7 +58,7 @@ typedef struct{
     rack_time_t     recordingTime;
     position_3d     pos;
     int32_t         speed;
-    float32_t       curve;
+    float           curve;
     int32_t         distanceToDest;
     int32_t         splineNum;
     polar_spline    spline[0];
@@ -104,7 +104,7 @@ class PilotData
 
             pilot_data *p_data = (pilot_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -122,7 +122,7 @@ class PilotData
 //######################################################################
 typedef struct{
     position_3d    pos;
-    float32_t      moveDir;
+    float          moveDir;
 } __attribute__((packed)) pilot_dest_data;
 
 class PilotDestData
@@ -147,7 +147,7 @@ class PilotDestData
 
             pilot_dest_data *p_data = (pilot_dest_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }

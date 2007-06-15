@@ -181,8 +181,8 @@ int  LadarHokuyoUrg::moduleLoop(void)
         return -1;
     }
     p_data->distanceNum     = (int32_t)((end - start)/cluster);     //max 681
-    p_data->startAngle      = (float32_t)startAngle * M_PI/180.0;
-    p_data->angleResolution = (float32_t)cluster * -0.3515625 * M_PI/180.0;
+    p_data->startAngle      = (float)startAngle * M_PI/180.0;
+    p_data->angleResolution = (float)cluster * -0.3515625 * M_PI/180.0;
 
     serialDataLen = 15 + p_data->distanceNum * 2 + p_data->distanceNum / 32;
 

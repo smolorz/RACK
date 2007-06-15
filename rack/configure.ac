@@ -816,7 +816,7 @@ dnl
 dnl  depends on nothing
 dnl
 
-XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
+XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags` -D__XENO__"
 XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
 XENOMAI_LIBS="-lnative -lrtdm"
 

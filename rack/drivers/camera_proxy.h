@@ -83,13 +83,13 @@
 //######################################################################
 
 typedef struct {
-    rack_time_t recordingTime;  // have to be first element
-    uint16_t   width;
-    uint16_t   height;
-    uint16_t   depth;
-    uint16_t   mode;
-    uint32_t   colorFilterId;
-    uint8_t    byteStream[0];
+    rack_time_t recordingTime;  // has to be first element
+    uint16_t    width;
+    uint16_t    height;
+    uint16_t    depth;
+    uint16_t    mode;
+    uint32_t    colorFilterId;
+    uint8_t     byteStream[0];
 } __attribute__((packed)) camera_data;
 
 class CameraData
@@ -141,7 +141,7 @@ class CameraData
 
             camera_data *p_data = (camera_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -167,26 +167,26 @@ typedef struct {
 
 typedef struct
 {
-  int32_t   calibration_width;  //#pixel x
-  int32_t   calibration_height; //#pixel y
-  float32_t    f;  //focus of lens [mm]
-  float32_t    fx; //f in pixel = 4.8 mm [pix]
-  float32_t    fy;
-  float32_t    sx; //scaling factor
-  float32_t    sy; //scaling factor
-  float32_t    dx; //size of sensor element[mm]
-  float32_t    dy; //size of sensor element in [mm]
-  float32_t    k1; //1. radial coeffizient  [1/mm^2]
-  float32_t    k2; //2. radial coeffizient
-  float32_t    p1; //1. tangential coeffizient [1/mm]
-  float32_t    p2; //2. tangential coeffizient [1/mm]
-  float32_t    e0; //Z axis intercept of camera coordinate system x-axis [pix]
-  float32_t    n0; //Z axis intercept of camera coordinate system y-axis [pix]
+  int32_t  calibration_width;  //#pixel x
+  int32_t  calibration_height; //#pixel y
+  float    f;  //focus of lens [mm]
+  float    fx; //f in pixel = 4.8 mm [pix]
+  float    fy;
+  float    sx; //scaling factor
+  float    sy; //scaling factor
+  float    dx; //size of sensor element[mm]
+  float    dy; //size of sensor element in [mm]
+  float    k1; //1. radial coeffizient  [1/mm^2]
+  float    k2; //2. radial coeffizient
+  float    p1; //1. tangential coeffizient [1/mm]
+  float    p2; //2. tangential coeffizient [1/mm]
+  float    e0; //Z axis intercept of camera coordinate system x-axis [pix]
+  float    n0; //Z axis intercept of camera coordinate system y-axis [pix]
                    //coordinates of center of radial lens distortion
                    //(also used as the piercing point of the camera coordinate
                    //frame's Z axis with the camera's sensor plane)
-  float32_t    coordinateRotation[9]; //rotation matrix (extrinsic parameter)
-  float32_t    coordinateTranslation[3]; //translation vector [mm] (extrinsic parameter)
+  float    coordinateRotation[9]; //rotation matrix (extrinsic parameter)
+  float    coordinateTranslation[3]; //translation vector [mm] (extrinsic parameter)
 
 } __attribute__((packed)) camera_param_data;
 
@@ -246,7 +246,7 @@ class CameraParamData
 
             camera_param_data *p_data = (camera_param_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -300,7 +300,7 @@ class CameraFormatData
 
             camera_format_data *p_data = (camera_format_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & MSGINFO_DATA_LE) // data in little endian
+            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
             {
                 le_to_cpu(p_data);
             }

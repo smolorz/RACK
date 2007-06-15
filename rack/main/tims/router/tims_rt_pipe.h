@@ -11,26 +11,17 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
-#ifndef __TIMS_ROUTER_H__
-#define __TIMS_ROUTER_H__
+#ifndef __TIMS_RT_PIPE_H__
+#define __TIMS_RT_PIPE_H__
 
-/* this header file is used by tims_client, tims_router_tcp
-   and tims kernel module
-*/
+#include <main/tims/tims.h>
+#include <main/tims/tims_router.h>
 
 #define PIPE_TIMS_TO_CLIENT                     6
 #define PIPE_CLIENT_TO_TIMS                     7
-
-//######################################################################
-//# tims_router_mbx_msg
-//######################################################################
-
-typedef struct {
-    tims_msg_head head;
-    uint32_t      mbx;
-} __attribute__((packed)) tims_router_mbx_msg;
 
 //######################################################################
 //# tims_router_config_msg
@@ -49,25 +40,4 @@ typedef struct {
 
 #define MAX_RTNET_ROUTE_NUM         512
 
-//######################################################################
-//# tims_router_config_msg parsing function
-//######################################################################
-
-static inline tims_router_mbx_msg* tims_router_parse_mbx_msg(tims_msg_head* p)
-{
-    tims_router_mbx_msg *returnP = (tims_router_mbx_msg*)p;
-
-    if (returnP->head.flags & MESSAGE_FLAG_BODY_ORDER_LE)  // body is little endian
-    {
-        returnP->mbx = __le32_to_cpu(returnP->mbx);
-    }
-    else // body is big endian
-    {
-        returnP->mbx = __be32_to_cpu(returnP->mbx);
-    }
-
-      tims_set_body_byteorder(p);
-      return returnP;
-}
-
-#endif // __TIMS_ROUTER_H_
+#endif // __TIMS_RT_PIPE_H_

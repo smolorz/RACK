@@ -30,8 +30,7 @@
 
 #define NAME "TimsClient"
 
-#include <main/tims/tims.h>
-#include <main/tims/router/tims_router.h>
+#include "tims_rt_pipe.h"
 
 #define TIMS_LEVEL_PRINT          0
 #define TIMS_LEVEL_DBG            1
@@ -444,7 +443,7 @@ int connection_create()
     }
 
     // connected to TCP TimsRouter
-    tims_fillhead(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0, 0, 0,
+    tims_fill_head(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0, 0, 0,
                   TIMS_HEADLEN);
 
     ret = sndPipeTimsMsg(&connMsg);
@@ -499,7 +498,7 @@ void tcpRecv_task_proc(void *arg)
             (tcpRecvMsg->type == TIMS_MSG_ROUTER_GET_STATUS))
         {
             // reply to lifesign
-            tims_fillhead(&replyMsg, TIMS_MSG_OK, 0, 0, tcpRecvMsg->priority,
+            tims_fill_head(&replyMsg, TIMS_MSG_OK, 0, 0, tcpRecvMsg->priority,
                           0, 0, TIMS_HEADLEN);
             sndTcpTimsMsg(&replyMsg);
             goto reset_watchdog;
@@ -511,7 +510,7 @@ void tcpRecv_task_proc(void *arg)
         {
             if (tcpRecvMsg->type > 0) // send reply if connection is not available
             {
-                tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
+                tims_fill_head(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
                               tcpRecvMsg->src, tcpRecvMsg->dest,
                               tcpRecvMsg->priority, tcpRecvMsg->seq_nr,
                               0, TIMS_HEADLEN);
@@ -550,7 +549,7 @@ void pipeRecv_task_proc(tims_msg_head *pipeRecvMsg)
                 else
                 {
                     tims_router_config_msg cMsg;
-                    tims_fillhead(&cMsg.head, TIMS_MSG_ROUTER_CONFIG, 0, 0,
+                    tims_fill_head(&cMsg.head, TIMS_MSG_ROUTER_CONFIG, 0, 0,
                                   pipeRecvMsg->priority, 0, 0,
                                   sizeof(tims_router_config_msg));
                     cMsg.num = 0;
@@ -561,7 +560,7 @@ void pipeRecv_task_proc(tims_msg_head *pipeRecvMsg)
             {
                 if (pipeRecvMsg->type > 0) // send reply if connection is not available
                 {
-                    tims_fillhead(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
+                    tims_fill_head(&replyMsg, TIMS_MSG_NOT_AVAILABLE,
                                   pipeRecvMsg->src, pipeRecvMsg->dest,
                                   pipeRecvMsg->priority, pipeRecvMsg->seq_nr,
                                   0, TIMS_HEADLEN);
@@ -654,7 +653,7 @@ int read_config_file(void)
     msglen = sizeof(tims_router_config_msg) +
                     configMsg->num * sizeof(tims_router_mbx_route);
 
-    tims_fillhead((tims_msg_head*)configMsg, TIMS_MSG_ROUTER_CONFIG,
+    tims_fill_head((tims_msg_head*)configMsg, TIMS_MSG_ROUTER_CONFIG,
                   0, 0, 0, 0, 0, msglen);
 
     return 0;

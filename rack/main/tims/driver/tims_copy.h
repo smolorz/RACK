@@ -16,7 +16,7 @@
 #ifndef __TIMS_COPY_H__
 #define __TIMS_COPY_H__
 
-#include <main/tims/driver/tims_driver.h>
+#include "tims_driver.h"
 
 int copy_msg_into_slot(rtdm_user_info_t *user_info, tims_mbx_slot *slot,
                        const struct msghdr *msg, unsigned long mbxFlags);
