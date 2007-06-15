@@ -487,59 +487,62 @@ int GpsNmea::analyseRMC(gps_data *data)
             else
                 buffer[j]  = currChar;
         }
-
-        // Decode message
-        switch(i)
+       
+         if (strlen(buffer) > 0)
         {
-            // UTC-Time [hhmmss.dd]
-            case 1:
-                sscanf(buffer, "%f", &utcTime);
-                break;
-
-            // Latitude [xxmm.dddd]
-            case 3:
-                sscanf(buffer, "%lf", &dNum);
-                data->latitude = degHMStoRad(dNum);
-                break;
-
-            // Latitude north / south adjustment [N|S]
-            case 4:
-                if (buffer[0] == 'S')
-                    data->latitude *= -1.0;
-                break;
-
-            // Longitude [yyymm.dddd]
-            case 5:
-                sscanf(buffer, "%lf", &dNum);
-                data->longitude = degHMStoRad(dNum);
-                break;
-
-            // Longitude east / west adjustment [E|W]
-            case 6:
-                if (buffer[0] == 'W')
-                    data->longitude *= -1.0;
-                break;
-
-            // Speed [s.s]
-            case 7:
-                sscanf(buffer, "%f", &fNum);
-                data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
-                break;
-
-            // Heading[h.h]
-            case 8:
-                sscanf(buffer, "%f", &fNum);
-                data->heading = fNum * M_PI / 180.0;
-                break;
-
-            // Date [ddmmyy]
-            case 9:
-                sscanf(buffer, "%d", &date);
-                data->utcTime = toCalendarTime(utcTime, date);
-                break;
-
-            default:
-                break;
+            // Decode message
+            switch(i)
+            {
+                // UTC-Time [hhmmss.dd]
+                case 1:
+                    sscanf(buffer, "%f", &utcTime);
+                    break;
+    
+                // Latitude [xxmm.dddd]
+                case 3:
+                    sscanf(buffer, "%lf", &dNum);
+                    data->latitude = degHMStoRad(dNum);
+                    break;
+    
+                // Latitude north / south adjustment [N|S]
+                case 4:
+                    if (buffer[0] == 'S')
+                        data->latitude *= -1.0;
+                    break;
+    
+                // Longitude [yyymm.dddd]
+                case 5:
+                    sscanf(buffer, "%lf", &dNum);
+                    data->longitude = degHMStoRad(dNum);
+                    break;
+    
+                // Longitude east / west adjustment [E|W]
+                case 6:
+                    if (buffer[0] == 'W')
+                        data->longitude *= -1.0;
+                    break;
+    
+                // Speed [s.s]
+                case 7:
+                    sscanf(buffer, "%f", &fNum);
+                    data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
+                    break;
+    
+                // Heading[h.h]
+                case 8:
+                    sscanf(buffer, "%f", &fNum);
+                    data->heading = fNum * M_PI / 180.0;
+                    break;
+    
+                // Date [ddmmyy]
+                case 9:
+                    sscanf(buffer, "%d", &date);
+                    data->utcTime = toCalendarTime(utcTime, date);
+                    break;
+    
+                default:
+                    break;
+            }
         }
         i++;
     }
@@ -626,51 +629,54 @@ int GpsNmea::analyseGGA(gps_data *data)
                 buffer[j]  = currChar;
         }
 
-        // Decode message
-        switch(i)
+        if (strlen(buffer) > 0)
         {
-            // UTC-Time [hhmmss.dd]
-            case 1:
-                sscanf(buffer, "%f", &utcTime);
-                break;
-
-            // Latitude [xxmm.dddd]
-            case 2:
-                sscanf(buffer, "%lf", &dNum);
-                data->latitude = degHMStoRad(dNum);
-                break;
-
-            // Latitude north / south adjustment [N|S]
-            case 3:
-                if (buffer[0] == 'S')
-                    data->latitude *= -1.0;
-                break;
-
-            // Longitude [yyymm.dddd]
-            case 4:
-                sscanf(buffer, "%lf", &dNum);
-                data->longitude = degHMStoRad(dNum);
-                break;
-
-            // Longitude east / west adjustment [E|W]
-            case 5:
-                if (buffer[0] == 'W')
-                    data->longitude *= -1.0;
-                break;
-
-            // Number of satellites used in position fix
-            case 7:
-                sscanf(buffer, "%d", &data->satelliteNum);
-                break;
-
-            // Altitude [h.h]
-            case 9:
-                sscanf(buffer, "%f", &fNum);
-                data->altitude = (int)rint(fNum * 1000.0f);     // in mm
-                break;
-
-            default:
-                break;
+            // Decode message
+            switch(i)
+            {
+                // UTC-Time [hhmmss.dd]
+                case 1:
+                    sscanf(buffer, "%f", &utcTime);
+                    break;
+    
+                // Latitude [xxmm.dddd]
+                case 2:
+                    sscanf(buffer, "%lf", &dNum);
+                    data->latitude = degHMStoRad(dNum);
+                    break;
+    
+                // Latitude north / south adjustment [N|S]
+                case 3:
+                    if (buffer[0] == 'S')
+                        data->latitude *= -1.0;
+                    break;
+    
+                // Longitude [yyymm.dddd]
+                case 4:
+                    sscanf(buffer, "%lf", &dNum);
+                    data->longitude = degHMStoRad(dNum);
+                    break;
+    
+                // Longitude east / west adjustment [E|W]
+                case 5:
+                    if (buffer[0] == 'W')
+                        data->longitude *= -1.0;
+                    break;
+    
+                // Number of satellites used in position fix
+                case 7:
+                    sscanf(buffer, "%d", &data->satelliteNum);
+                    break;
+    
+                // Altitude [h.h]
+                case 9:
+                    sscanf(buffer, "%f", &fNum);
+                    data->altitude = (int)rint(fNum * 1000.0f);     // in mm
+                    break;
+    
+                default:
+                    break;
+            }
         }
 
         i++;
@@ -758,21 +764,24 @@ int GpsNmea::analyseGSA(gps_data *data)
                 buffer[j]  = currChar;
         }
 
-        // Decode message
-        switch(i)
+        if (strlen(buffer) > 0)
         {
-            // Mode (1 = fix not valid / 2 = 2D / 3 = 3D)
-            case 2:
-                sscanf(buffer, "%d", &data->mode);
-                break;
-
-            // PDOP
-            case 15:
-                sscanf(buffer, "%f", &data->pdop);
-                break;
-
-            default:
-                break;
+            // Decode message
+            switch(i)
+            {
+                // Mode (1 = fix not valid / 2 = 2D / 3 = 3D)
+                case 2:
+                    sscanf(buffer, "%d", &data->mode);
+                    break;
+    
+                // PDOP
+                case 15:
+                    sscanf(buffer, "%f", &data->pdop);
+                    break;
+    
+                default:
+                    break;
+            }
         }
         i++;
     }
@@ -850,29 +859,32 @@ int GpsNmea::analyseVTG(gps_data *data)
                 buffer[j]  = currChar;
         }
 
-        // Decode message
-        switch(i)
+        if (strlen(buffer) > 0)
         {
-            // Heading[h.h]
-            case 1:
-                sscanf(buffer, "%f", &fNum);
-                data->heading = fNum * M_PI / 180.0;
-                break;
-
-            // Speed [s.s] knots
-            case 5:
-                sscanf(buffer, "%f", &fNum);
-                data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
-                break;
-
-            // Speed [s.s] km/h
-            case 7:
-                sscanf(buffer, "%f", &fNum);
-                data->speed = (int)rint(fNum * 1000.0 / 3.6);
-                break;
-
-            default:
-                break;
+            // Decode message
+            switch(i)
+            {
+                // Heading[h.h]
+                case 1:
+                    sscanf(buffer, "%f", &fNum);
+                    data->heading = fNum * M_PI / 180.0;
+                    break;
+    
+                // Speed [s.s] knots
+                case 5:
+                    sscanf(buffer, "%f", &fNum);
+                    data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
+                    break;
+    
+                // Speed [s.s] km/h
+                case 7:
+                    sscanf(buffer, "%f", &fNum);
+                    data->speed = (int)rint(fNum * 1000.0 / 3.6);
+                    break;
+    
+                default:
+                    break;
+            }
         }
         i++;
     }
