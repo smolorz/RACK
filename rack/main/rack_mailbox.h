@@ -26,9 +26,7 @@
  *
  *@{*/
 
-#include <string.h>
 #include <main/tims/tims.h>
-#include <main/defines/rack_bitops.h> // init bits
 
 //######################################################################
 //# message_info
@@ -49,39 +47,55 @@ class RackMailbox;
 
 /** Message information */
 typedef struct {
-/** data flags */
+    /** data flags */
     uint8_t         flags;
 
-/** message type */
+    /** message type */
     int8_t          type;
 
-/** message priority */
+    /** message priority */
     uint8_t         priority;
 
-/** sequence number */
+    /** sequence number */
     uint8_t         seq_nr;
 
-/** destination address */
+    /** destination address */
     uint32_t        dest;
 
-/** source address */
+    /** source address */
     uint32_t        src;
 
-/** data length (bytes)*/
+    /** data length (bytes)*/
     uint32_t        datalen;
 
-/** data pointer */
+    /** data pointer */
     void*           p_data;
-
-/** used mailbox */
-    RackMailbox*    usedMbx;
 
 } __attribute__((packed)) message_info;
 
-/** Clear a message info*/
+/** Clear message info*/
 static inline void clearMsgInfo(message_info* msgInfo)
 {
-    memset(msgInfo, 0, sizeof(message_info));
+    msgInfo->flags    = 0;
+    msgInfo->type     = -1;
+    msgInfo->priority = 0;
+    msgInfo->seq_nr   = 0;
+    msgInfo->dest     = 0;
+    msgInfo->src      = 0;
+    msgInfo->datalen  = 0;
+    msgInfo->p_data   = NULL;
+}
+
+/** Check if data byteorder is little endian */
+static inline int isDataByteorderLe(message_info *msgInfo)
+{
+    return (msgInfo->flags & TIMS_BODY_BYTEORDER_LE);
+}
+
+/** Set byteorder of received mailbox data */
+static inline void setDataByteorder(message_info *msgInfo)
+{
+    tims_set_body_byteorder((tims_msg_head*)msgInfo);
 }
 
 //######################################################################
@@ -91,75 +105,59 @@ static inline void clearMsgInfo(message_info* msgInfo)
 class RackMailbox {
 
     private:
-        RackBits        mbxBits;
-        int             fildes;
+        int             fd;
         uint32_t        adr;
+        uint8_t         sendPrio;
 
-        tims_msg_head*  p_peek_head;
-
-        int8_t          send_prio;
-        uint32_t        max_data_len;
-
-        int             mbxOK(void);
         void            fillMessageRecvInfo(message_info *msgInfo, void *p_data);
-        void            fillMessagePeekInfo(message_info *msgInfo);
+        void            fillMessagePeekInfo(message_info *msgInfo, tims_msg_head* p_peek_head);
 
     public:
         RackMailbox();
 
-/** Get length of message overhead */
+        /** Get length of message overhead */
         static uint32_t getMsgOverhead(void)  { return TIMS_HEADLEN; }
 
-/** Get address of the mailbox */
+        /** Get address of the mailbox */
         uint32_t        getAdr(void)          { return adr; }
 
-/** Get maximum data length supported by the mailbox */
-        uint32_t        maxDataLen(void)      { return max_data_len; }
+        /** Get mailbox priority */
+        uint8_t         getPriority(void)     { return sendPrio; }
 
-/** Get mailbox priority */
-        int8_t          getPriority(void)     { return send_prio; }
+        /** Get mailbox file descriptor */
+        int             getFd(void)           { return fd; }
 
-/** Get mailbox file descriptor */
-        int             getFildes(void)       { return fildes; }
-
-/** Set byteorder of received mailbox data */
-        int             setDataByteorder(message_info *msgInfo);
-
-
-//
-// create, destroy and clean
-//
+        //
+        // create, destroy and clean
+        //
 
         int     create(uint32_t address, int messageSlots,
-                       ssize_t messageDataSize, void *buffer,
-                       ssize_t buffer_size, int8_t sendPriority);
+                       ssize_t maxDatalen, void *buffer,
+                       ssize_t bufferSize, int8_t sendPriority);
 
         int     remove(void);
 
         int     clean(void);
 
-//
-// send
-//
+        //
+        // send
+        //
 
-        int     sendMsg(int8_t type, uint32_t dest, uint8_t seq_nr);
+        int     sendMsg(int8_t type, uint32_t dest, uint8_t seqNr);
 
         int     sendMsgReply(int8_t type, message_info *msgInfo);
 
-        int     sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data1,
-                            uint32_t datalen1, ...);
+        int     sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data1, uint32_t datalen1, ...);
 
-        int     sendDataMsg(int8_t type, uint32_t dest, uint8_t seq_nr,
-                            int dataPointers, void *data1,
-                            uint32_t datalen1, ...);
+        int     sendDataMsg(int8_t type, uint32_t dest, uint8_t seqNr,
+                            int dataPointers, void *data1, uint32_t datalen1, ...);
 
         int     sendDataMsgReply(int8_t type, message_info *msgInfo,
-                                 int dataPointers,
-                                 void* data1, uint32_t datalen1, ...);
+                                 int dataPointers, void* data1, uint32_t datalen1, ...);
 
-//
-// peek
-//
+        //
+        // peek
+        //
 
         int     peekEnd(void);
 
@@ -169,9 +167,9 @@ class RackMailbox {
 
         int     peekIf(message_info *msgInfo);
 
-//
-// receive
-//
+        //
+        // receive
+        //
 
         int     recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo);
 
@@ -179,14 +177,11 @@ class RackMailbox {
 
         int     recvMsgIf(message_info *msgInfo);
 
-        int     recvDataMsgTimed(uint64_t timeout_ns, void *p_data,
-                                 uint32_t maxdatalen, message_info *msgInfo);
+        int     recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_t maxDatalen, message_info *msgInfo);
 
-        int     recvDataMsg(void *p_data, uint32_t maxdatalen,
-                            message_info *msgInfo);
+        int     recvDataMsg(void *p_data, uint32_t maxDatalen, message_info *msgInfo);
 
-        int     recvDataMsgIf(void *p_data, uint32_t maxdatalen,
-                              message_info *msgInfo);
+        int     recvDataMsgIf(void *p_data, uint32_t maxDatalen, message_info *msgInfo);
 };
 
 /*@}*/

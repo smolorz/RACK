@@ -78,7 +78,7 @@ class RackGetData
 
             rack_get_data *p_data = (rack_get_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -86,7 +86,7 @@ class RackGetData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 
@@ -124,7 +124,7 @@ class RackGetContData
 
             rack_get_cont_data *p_data = (rack_get_cont_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -132,7 +132,7 @@ class RackGetContData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 
@@ -167,7 +167,7 @@ class RackContData
 
             rack_cont_data *p_data = (rack_cont_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -175,7 +175,7 @@ class RackContData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 
@@ -210,7 +210,7 @@ class RackStopContData
 
             rack_stop_cont_data *p_data = (rack_stop_cont_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -218,7 +218,7 @@ class RackStopContData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 

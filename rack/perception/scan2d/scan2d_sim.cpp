@@ -124,8 +124,7 @@ int  Scan2DSim::moduleLoop(void)
     }
 
     if ((msgInfo.type != MSG_DATA) ||
-        (msgInfo.src  != odometry->getDestAdr()) ||
-        (msgInfo.datalen > odometryMbx.maxDataLen()))
+        (msgInfo.src  != odometry->getDestAdr()))
     {
         GDOS_ERROR("Received unexpected message from %n to %n type %d on "
                    "data mailbox\n", msgInfo.src, msgInfo.dest, msgInfo.type);

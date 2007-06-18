@@ -147,8 +147,7 @@ int CameraJpeg::moduleLoop(void)
     GDOS_DBG_INFO("parsing camera data \n");
 
     if ((msgInfo.type != MSG_DATA) ||
-        (msgInfo.src  != camera->getDestAdr()) ||
-        (msgInfo.datalen > cameraMbx.maxDataLen()))
+        (msgInfo.src  != camera->getDestAdr()))
     {
         GDOS_ERROR("Received unexpected message from %n to %n type %d on "
                    "data mailbox\n", msgInfo.src, msgInfo.dest, msgInfo.type);

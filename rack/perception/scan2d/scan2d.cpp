@@ -135,8 +135,7 @@ int  Scan2d::moduleLoop(void)
     }
 
     if ((msgInfo.type != MSG_DATA) ||
-        (msgInfo.src  != ladar->getDestAdr()) ||
-        (msgInfo.datalen > ladarMbx.maxDataLen()))
+        (msgInfo.src  != ladar->getDestAdr()))
     {
         GDOS_ERROR("Received unexpected message from %n to %n type %d on "
                    "data mailbox\n", msgInfo.src, msgInfo.dest, msgInfo.type);

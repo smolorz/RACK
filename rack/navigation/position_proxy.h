@@ -66,7 +66,7 @@ class PositionData
 
             position_data *p_data = (position_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -74,7 +74,7 @@ class PositionData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 };

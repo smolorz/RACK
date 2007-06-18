@@ -31,7 +31,7 @@
 #include <main/rack_name.h>
 #include <main/rack_task.h>
 #include <main/rack_time.h>
-
+#include <main/defines/rack_bitops.h>
 #include <main/argopts.h>
 
 using std::string;

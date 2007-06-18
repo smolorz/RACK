@@ -585,7 +585,7 @@ int       RackModule::moduleInit(void)
     GDOS_DBG_INFO("Gdos mailbox created\n");
 
     // init rack time
-    ret = rackTime.init(cmdMbx.getFildes());
+    ret = rackTime.init(cmdMbx.getFd());
     if (ret)
     {
         GDOS_ERROR("Can't init rack time, code = %d\n", ret);

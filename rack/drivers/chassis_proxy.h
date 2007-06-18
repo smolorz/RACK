@@ -92,7 +92,7 @@ class ChassisData
 
             chassis_data *p_data = (chassis_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -100,7 +100,7 @@ class ChassisData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 
@@ -140,7 +140,7 @@ class ChassisMoveData
 
             chassis_move_data *p_data = (chassis_move_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -148,7 +148,7 @@ class ChassisMoveData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 
@@ -262,7 +262,7 @@ class ChassisParamData
 
             chassis_param_data *p_data = (chassis_param_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -270,7 +270,7 @@ class ChassisParamData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 
@@ -305,7 +305,7 @@ class ChassisSetActivePilotData
             chassis_set_active_pilot_data *p_data =
                                (chassis_set_active_pilot_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -313,7 +313,7 @@ class ChassisSetActivePilotData
             {
                 be_to_cpu(p_data);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return p_data;
         }
 

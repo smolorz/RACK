@@ -115,7 +115,7 @@ class DummyData
 
             dummy_data *pData = (dummy_data *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(pData);
             }
@@ -123,7 +123,7 @@ class DummyData
             {
                 be_to_cpu(pData);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return pData;
         }
 
@@ -164,7 +164,7 @@ class DummyParam
 
             dummy_param *pData = (dummy_param *)msgInfo->p_data;
 
-            if (msgInfo->flags & TIMS_BODY_BYTEORDER_LE) // data in little endian
+            if (isDataByteorderLe(msgInfo)) // data in little endian
             {
                 le_to_cpu(pData);
             }
@@ -172,7 +172,7 @@ class DummyParam
             {
                 be_to_cpu(pData);
             }
-            msgInfo->usedMbx->setDataByteorder(msgInfo);
+            setDataByteorder(msgInfo);
             return pData;
         }
 
