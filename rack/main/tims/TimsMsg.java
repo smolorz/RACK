@@ -165,4 +165,27 @@ public abstract class TimsMsg
     {
         return (Integer.toHexString(src) + " -> " + Integer.toHexString(dest) + " type: " + type + " msglen: " + msglen);
     }
+
+    /**
+     * TimsMsgs are equal if the src, dest and type are equal.
+     * 
+     * @param o
+     *            TimsMsg to compare to.
+     * @return true if the specified Object is a TimsMsg with the same src, dest and type
+     */
+    public boolean equals(Object o)
+    {
+        try
+        {
+            TimsMsg msg = (TimsMsg) o;
+
+            return ((src == msg.src) &&
+                    (dest == msg.dest) &&
+                    (type == msg.type));
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
 }

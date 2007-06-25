@@ -110,13 +110,13 @@ public class TimsMbx extends Vector<TimsMsg>
      *            TimsMbx to compare to.
      * @return true if the specified Object is a TimsMbx with the same name
      */
-    public synchronized boolean equals(Object o)
+    public boolean equals(Object o)
     {
         try
         {
             return name == ((TimsMbx) o).name;
         }
-        catch (java.lang.ClassCastException e)
+        catch (Exception e)
         {
             return false;
         }
