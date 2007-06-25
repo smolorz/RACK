@@ -34,7 +34,7 @@ import rack.navigation.*;
 
 public class MapViewGui extends Thread
 {
-    private RackModuleGui[] moduleGui;
+    private Vector<GuiElementDescriptor> guiElement;
     private ModuleGuiList   moduleGuiList;
 
     private boolean         updateNeeded = false;
@@ -69,9 +69,9 @@ public class MapViewGui extends Thread
     private boolean         terminate = false;
     
 
-    public MapViewGui(RackModuleGui[] moduleGui, TimsMbx workMbx)
+    public MapViewGui(Vector<GuiElementDescriptor> element, TimsMbx workMbx)
     {
-        this.moduleGui = moduleGui;
+        this.guiElement = element;
         this.setPriority(Thread.MIN_PRIORITY);
 
         // create MapView proxies
@@ -1207,7 +1207,7 @@ public class MapViewGui extends Thread
 
         public RackModuleGui getModuleGui()
         {
-            return moduleGui[moduleGuiIndex];
+            return guiElement.get(moduleGuiIndex).gui;
         }
 
         public boolean isOn()
@@ -1249,9 +1249,9 @@ public class MapViewGui extends Thread
 
         public ModuleGuiList()
         {
-            super(moduleGui.length);
+            super(guiElement.size());
 
-            for (int g = 0; g < moduleGui.length; g++)
+            for (int g = 0; g < guiElement.size(); g++)
             {
                 this.add(new ModuleGuiProp(g));
             }

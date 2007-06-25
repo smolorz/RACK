@@ -29,6 +29,11 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{Tims.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSTable.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{Gui.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui{GuiCfg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui{GuiElementDescriptor.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui{GuiGroupDescriptor.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui{GuiWorkspaceDescriptor.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui{GuiInterface.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{OdometryProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{ChassisSetActivePilotMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewCursorDrawContext.java"/>

@@ -19,7 +19,6 @@ package rack.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyVetoException;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -31,78 +30,54 @@ import rack.gui.main.RackModuleGui;
 import rack.main.*;
 import rack.main.tims.*;
 
-
-public final class Gui extends Thread
+public final class Gui extends Thread implements GuiInterface
 {
-    private static final int GUI_MAX_INSTANCES = 4;
+    static final int GUI_MAX_INSTANCES = 4;
 
-    private int moduleNum;
-    private int groupNum;
-    private int jarfileNum;
-    private int workspaceNum;
+    // general
+    Vector<GuiElementDescriptor>    elements    = new Vector<GuiElementDescriptor>();
+    Vector<GuiGroupDescriptor>      groups      = new Vector<GuiGroupDescriptor>();
+    Vector<GuiWorkspaceDescriptor>  workspaces  = new Vector<GuiWorkspaceDescriptor>();
+    Vector<String>                  jarfiles    = new Vector<String>();
 
-    private Vector<String>  cfgLines        = new Vector<String>();
-    private Vector<String>  moduleName      = new Vector<String>();
-    private Vector<String>  groupName       = new Vector<String>();
-    private Vector<Integer> groupSize       = new Vector<Integer>();
-    private Vector<String>  jarFiles        = new Vector<String>();
-    private Vector<String>  workSpaceName   = new Vector<String>();
-    private Vector<Integer> moduleWorkSpace = new Vector<Integer>();
-    private int[]  groupSizeInt;
+    boolean                 terminate = false;
+
+    GuiCfg                  cfg;
+
+    ClassLoader             guiCL = this.getContextClassLoader();
+
+    Tims                    tims;
+    String                  timsClass = null;
+    String                  timsParam = "";
+    String                  rackName = "";
+
+    byte                    getStatusSeqNr = 100;
+    TimsMbx                 getStatusReplyMbx;
 
     // main frame
-    private JFrame          mainFrame;
-    private Container       mainFrameContent;
-    private int[]           mainFrameLocationSize;
-
+    JFrame                  mainFrame;
+    Container               mainFrameContent;
+    Point                   mainFrameLocation = new Point(0, 0);
+    Dimension               mainFrameSize = new Dimension(800, 600);
+    int                     fullScreenModule = -1;
     // navigation panel
-    private JPanel          navigationPanel, navigationInterPanel;
-    private JScrollPane     navigationScrollPanel;
-    // Groupe Panel
-    private JPanel[]        groupPanel, groupInterPanel;
-    private JButton[]       groupButton;
-    private Color           groupButtonFG;
-    // work panel
-    private JTabbedPane     jtp;
-    private JDesktopPane [] jdp;
-    private int             fullScreenModule = -1;
+    JPanel                  navPanel, navInterPanel;
+    JScrollPane             navScrollPanel;
+    Color                   navGroupButtonFG;
+    Color                   navStatusButtonBG;
+    // workspace
+    JTabbedPane             jtp;
 
-    private JInternalFrame[] moduleFrame;
-    private int[][]         moduleLocationSize;
-    private JButton[]       moduleButton;
-    private JRadioButton[]  statusButton;
-    private JPanel[]        modulePanel;
-    private Color           statusButtonBG;
-
-    private ClassLoader     guiCL = this.getContextClassLoader();
-    private Class<?>        moduleGuiClass;
-
-    private GDOSGui         gdosGui = null;
-    private TimsMbx         gdosMbx;
-    private JInternalFrame  messageFrame;
+    // special windows
+    GDOSGui                 gdosGui = null;
+    JInternalFrame          gdosFrame;
+    TimsMbx                 gdosMbx;
     
-    private boolean         showMapView = false;
-    private MapViewGui      myMapViewGui = null;
-    private int             mapViewWorkSpace;
-    private JInternalFrame  mapViewFrame;
-    private TimsMbx         mapViewReplyMbx;
-
-    private int[]           moduleStatus;
-    private RackProxy[]     moduleProxy;
-    private RackModuleGui[] moduleGui;
-    private TimsMbx[]       moduleReplyMbx;
-
-    private byte            getStatusSeqNo = 100;
-    private TimsMbx         getStatusReplyMbx;
-
-    private int[]           groupError, groupOn, groupSum;
-
-    private Tims            tims;
-    private String          timsClass = null;
-    private String          timsParam = "";
-    private String          rackName = "";
-
-    private boolean         terminate = false;
+    boolean                 showMapView = false;
+    MapViewGui              mapViewGui = null;
+    int                     mapViewWorkSpace;
+    JInternalFrame          mapViewFrame;
+    TimsMbx                 mapViewReplyMbx;
 
     public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader,
                String timsClass, String timsParam) throws Exception
@@ -112,10 +87,12 @@ public final class Gui extends Thread
 
         try
         {
+            cfg = new GuiCfg(this);
+            
             // reading config file
-            readConfig(cfgReader);
+            cfg.readConfig(cfgReader);
 
-            if (moduleNum <= 0)
+            if (elements.size() <= 0)
             {
                 JOptionPane.showMessageDialog(mainFrameContent,
                         "Config file empty.\n" + 
@@ -124,32 +101,22 @@ public final class Gui extends Thread
                 throw new Exception("Config file empty");
             }
     
-            moduleReplyMbx     = new TimsMbx[moduleNum];
-            moduleStatus       = new int[moduleNum];
-            moduleProxy        = new RackProxy[moduleNum];
-            moduleGui          = new RackModuleGui[moduleNum];
-            moduleFrame        = new JInternalFrame[moduleNum];
-            moduleButton       = new JButton[moduleNum];
-            statusButton       = new JRadioButton[moduleNum];
-            modulePanel        = new JPanel[moduleNum];
-            moduleLocationSize = new int[moduleNum][4];
-    
             // load additional jar files
-            for (int i = 0; i < jarfileNum; i++)
+            for (int i = 0; i < jarfiles.size(); i++)
             {
-                File jarFile = new File(jarFiles.get(i));
+                File jarfile = new File(jarfiles.get(i));
                 
                 try
                 {
-                    URL urls[] = new URL[ ] { jarFile.toURI().toURL() };
+                    URL urls[] = new URL[] { jarfile.toURI().toURL() };
                     guiCL = new URLClassLoader(urls, guiCL);
 
-                    System.out.println("File " + jarFile + " has been loaded");
+                    System.out.println("File " + jarfile + " has been loaded");
                 }
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(mainFrameContent,
-                                    "Can't load jar file \"" + jarFile + "\"",
+                                    "Can't load jar file \"" + jarfile + "\"",
                                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
                 }
@@ -224,7 +191,7 @@ public final class Gui extends Thread
             initGui();
     
             System.out.println("Initializing Proxies ...");
-            initModuleProxy();
+            initProxies();
     
             System.out.println("Initializing layout ...");
             loadLayout();
@@ -235,8 +202,8 @@ public final class Gui extends Thread
             if(mainFrame != null)
             {
                 mainFrame.setTitle("RACK GUI (" + this.timsParam + ")");
-                mainFrame.setLocation(mainFrameLocationSize[0], mainFrameLocationSize[1]);
-                mainFrame.setSize(mainFrameLocationSize[2], mainFrameLocationSize[3]);
+                mainFrame.setLocation(mainFrameLocation);
+                mainFrame.setSize(mainFrameSize);
                 mainFrame.setVisible(true);
             }
         }
@@ -247,14 +214,34 @@ public final class Gui extends Thread
         }
     }
 
+    public RackProxy getProxy(int moduleName, int instance)
+    {
+        for(int i = 0; i < elements.size(); i++)
+        {
+            RackProxy proxy = elements.get(i).proxy;
+            
+            if(proxy.getCommandMbx() == RackName.create(moduleName, instance))
+            {
+                return proxy;
+            }
+        }
+        return null;
+    }
+
+    public Tims getTims()
+    {
+        return tims;
+    }
+
     private void loadLayout()
     {
-        for (int i = 0; i < moduleNum; i++)
+        for (int i = 0; i < elements.size(); i++)
         {
-            moduleLocationSize[i] = getModuleLocationSize(i);
-            if (moduleLocationSize[i] != null)
+            GuiElementDescriptor ge = elements.get(i);
+            
+            if ((ge.size.width != 0) && (ge.size.height != 0))
             {
-                openModule(i, moduleLocationSize[i]);
+                openModule(ge);
                 // System.out.println("module[" + i + "] is open");
             }
             else
@@ -264,483 +251,99 @@ public final class Gui extends Thread
         }
     }
 
-    private void readConfig(BufferedReader configReader) throws IOException
+    private void createModuleGui(GuiElementDescriptor ge)
     {
-        String string;
-        try
-        {
-            int grpElement = 0;
-            int readMode = 0; // init
-            String currWorkSpace = "workspace";
-            workSpaceName.add(currWorkSpace);
-            
-            string = configReader.readLine();
+        Class<?>                moduleGuiClass;
 
-            while (string != null)
-            {
-                string.trim();
-                cfgLines.add(string);
-
-                // Debug output
-                // System.out.println(string);
-
-                if (!string.startsWith("//") && string.length() != 0)
-                {
-                    if (string.startsWith("GROUP"))
-                    {
-                        readMode = 1;
-                        groupName.add(string);
-                        groupSize.add(new Integer(grpElement));
-                        // the first element of this vector is always = 0;
-                        grpElement = 0;
-                    }
-                    else if (string.startsWith("TIMS_PARAM"))
-                    {
-                        string = string.substring(11);  // cut TIMS_PARAM
-                        timsParam = string;
-                    }
-                    else if (string.startsWith("TIMS"))
-                    {
-                        string = string.substring(5);  // cut TIMS
-                        timsClass = string;
-                    }
-                    else if (string.startsWith("JAR_FILES"))
-                    {
-                        readMode = 4;
-                    }
-                    else if (string.startsWith("RACK_NAME"))
-                    {
-                        string = string.substring(10);  // cut RACK_NAME
-                        if (string.length() > 0)
-                        {
-                            rackName = string.trim();
-                        }
-                    }
-                    else if (string.startsWith("MAPVIEW"))
-                    {
-                        showMapView = true;
-                        mapViewWorkSpace = workSpaceName.indexOf(currWorkSpace);
-                    }
-                    else if (string.startsWith("WORKSPACE"))
-                    {
-                    	if (moduleName.size() == 0)
-                        {
-                        	workSpaceName.remove(0);
-                        }
-                        
-                    	string = string.substring(9).toLowerCase();
-                        if (string.length() > 0)
-                    	{
-                        	if (workSpaceName.indexOf(string) < 0)
-                        	{
-                        		workSpaceName.add(string);
-                        	}
-                        	currWorkSpace = string;
-                    	}
-                    }
-                    else // line starts without keyword
-                    {
-                        if (readMode == 1) // module
-                        {
-                            moduleName.add(string);
-                            moduleWorkSpace.add(new Integer(
-                            			workSpaceName.indexOf(currWorkSpace)));                            
-                            grpElement++;
-                        }
-                        if (readMode == 4) // jar files
-                        {
-                            jarFiles.add(string);
-                        }
-                    }
-                }
-                // read next line
-                string = configReader.readLine();
-            }
-            groupSize.add(new Integer(grpElement));
-            groupSize.remove(0); // just to remove the first useless element
-            configReader.close();
-        }
-        catch (IOException ioe)
-        {
-            JOptionPane.showMessageDialog(mainFrameContent,
-                            "Error reading config file",
-                            "RACK GUI", JOptionPane.ERROR_MESSAGE);
-            throw ioe;
-        }
-
-        moduleNum    = moduleName.size();
-        groupNum     = groupName.size();
-        jarfileNum   = jarFiles.size();
-        workspaceNum = workSpaceName.size();        
-        // System.out.println("module_num=" + MODULE_NUM);
-        groupSizeInt = new int[groupNum];
-       	
-        for (int i = 0; i < groupNum; i++)
-        {
-            groupSizeInt[i] = groupSize.get(i).intValue();
-        }
-
-        System.out.println("Found " + moduleNum + " modules");
-        System.out.println("Found " + groupNum + " groups");
-        System.out.println("Found " + jarfileNum + " jar files");
-    }
-
-    private String getModuleName(int id)
-    {
-        // erstmal sehen, ob der parameter "-name=..." in der gui.cfg benutzt
-        // wurde
-        String name = getModuleParameter(id, "-name=");
-        if (name == "")
-        {
-            // nein! also den Standard Namen verwenden
-            name = RackName.nameString(moduleProxy[id].getCommandMbx());
-        }
-        return name;
-    }
-
-    private int[] getModuleLocationSize(int id)
-    {
-        int[] locationSize = new int[4];
-        String path = moduleName.elementAt(id);
-        // System.out.println("module["+id+"] :"+path);
-        int kAuf   = path.indexOf('(');
-        int komma1 = path.indexOf(',');
-        int b      = path.indexOf(';');
-        int komma2 = path.indexOf(',', b);
-        // int komma2 = path.lastIndexOf(',');
-        int kZu = path.indexOf(')');
-        // die meistens falle sind so! Deshalb ist es so effizient!
-        if (path.substring(kAuf, kZu + 1).equals("(,;,)"))
-        {
-            return null;
-        }
-        else
-        {
-            // System.out.println(path.substring(kAuf,kZu+1)+" ;
-            // "+Integer.parseInt(path.substring(b+1,komma2).trim()));
-            try
-            {
-                // for the location
-                locationSize[0] = Integer.parseInt((path.substring(kAuf + 1,
-                        komma1)).trim());
-                locationSize[1] = Integer.parseInt((path.substring(komma1 + 1,
-                        b)).trim());
-
-                // for the size
-                locationSize[2] = Integer.parseInt((path.substring(b + 1,
-                        komma2)).trim());
-                locationSize[3] = Integer.parseInt((path.substring(komma2 + 1,
-                        kZu)).trim());
-
-                return locationSize;
-            }
-            catch (NumberFormatException nfe)
-            {
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "Error reading module location and size.\n" + 
-                        "\"" + path + "\"",
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
-        }
-    }
-
-    private String getModuleParameter(int id, String param)
-    {
-        String path = moduleName.elementAt(id);
-        int a = path.indexOf(param);
-        if (a < 0)
-            return ""; // param not found
-        a += param.length();
-        char stop = ' ';
-        if (path.charAt(a) == '\"')
-        { // der name steht in anfuehrungszeichen
-            a += 1;
-            stop = '\"';
-        }
-        int e = path.indexOf(stop, a);
-        if (e <= a)
-            e = path.length();
-        // System.out.println("Proxy: " + path.substring(a, e));
-        return (path.substring(a, e));
-    }
-
-    /*
-     * private String getModuleParameterProxy(int id) { String path = (String) moduleName.elementAt(id); int a =
-     * path.indexOf("-proxy="); if (a < 0) return ""; a += 7; int e = path.indexOf(" ", a); if (e <= a) e =
-     * path.length(); //System.out.println("Proxy: " + path.substring(a, e)); return (path.substring(a, e)); } private
-     * String getModuleParameterName(int id) { String path = (String) moduleName.elementAt(id); int a =
-     * path.indexOf("-name="); if (a < 0) return ""; a += 6; char stop = ' '; if (path.charAt(a) == '\"') { // der name
-     * steht in anfuehrungszeichen a += 1; stop = '\"'; } int e = path.indexOf(stop, a); if (e <= a) e = path.length();
-     * //System.out.println("Proxy: " + path.substring(a, e)); return (path.substring(a, e)); }
-     */
-    private boolean getModuleParameterShow(int id)
-    {
-        String path = moduleName.elementAt(id);
-        return (path.indexOf("-show") > -1);
-    }
-
-    private boolean getModuleParameterStart(int id)
-    {
-        String path = moduleName.elementAt(id);
-        return (path.indexOf("-start") > -1);
-    }
-
-    private String getGroupName(int id)
-    {
-        String name = null;
-        name = groupName.get(id);
-        int blank = name.lastIndexOf(' ');
-        name = name.substring(blank).toLowerCase();
-        return name;
-    }
-
-    private boolean isInGroup(int groupId, int moduleId)
-    {
-        int count = 0;
-        for (int i = 0; i < groupId; i++)
-        {
-            count = count + groupSizeInt[i];
-        }
-        if ((moduleId >= count) && (moduleId < count + groupSizeInt[groupId]))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    // alle ModuleFrame Positionen in ConfigurationFile schreiben!
-    private void writeConfig(BufferedWriter cfgWriter) throws IOException
-    {
-        System.out.println("Write config");
-        StringBuffer sb;
-        for (int i = 0; i < moduleNum; i++)
-        {
-            sb = new StringBuffer(moduleName.get(i));
-            int kAuf = sb.indexOf("(");
-            int kZu = sb.indexOf(")");
-
-            if (moduleFrame[i] != null)
-            {
-                if (moduleFrame[i].isIcon())
-                {
-                    try
-                    {
-                        moduleFrame[i].setIcon(false);
-                    }
-                    catch (PropertyVetoException e) {}
-                }
-
-                if (moduleFrame[i].isMaximum())
-                {
-                    try
-                    {
-                        moduleFrame[i].setMaximum(false);
-                    }
-                    catch (PropertyVetoException e) {}
-                }
-
-                if (moduleLocationSize[i] == null)
-                {
-                    moduleLocationSize[i] = new int[4];
-                }
-
-                System.out.println("moduleFrame[" + i + "] ! = null");
-                System.out.println("moduleLocationSize[" + i + "][0]"
-                        + moduleFrame[i].getLocation().x);
-                // System.out.println("moduleLocationSize["+i+"].toString="+moduleLocationSize[i].toString());
-                // hier moduleLocationSize[i][0] NullPointException !
-                moduleLocationSize[i][0] = moduleFrame[i].getLocation().x;
-                moduleLocationSize[i][1] = moduleFrame[i].getLocation().y;
-                moduleLocationSize[i][2] = moduleFrame[i].getSize().width;
-                moduleLocationSize[i][3] = moduleFrame[i].getSize().height;
-
-                sb = sb.replace(kAuf, kZu, "(" + moduleLocationSize[i][0]
-                        + "," + moduleLocationSize[i][1] + ";"
-                        + moduleLocationSize[i][2] + ","
-                        + moduleLocationSize[i][3]);
-            }
-            else
-            {
-                System.out.println("moduleFrame[" + i + "] = null");
-                System.out.println("test " + i);
-                moduleLocationSize[i] = null;
-                sb = sb.replace(kAuf, kZu, "(,;,");
-            }
-            for (int z = 0; z < cfgLines.size(); z++)
-            {
-                if (moduleName.get(i).equals(cfgLines.get(z)))
-                {
-                    cfgLines.set(z, sb.toString());
-                    System.out.println("moduleName:" + moduleName.get(i));
-                    System.out.println("configZeilen:"
-                            + cfgLines.get(z));
-                }
-            }
-        }
-        // um die mainFrameLocationSize abzuspeichen.
-        if(mainFrame != null)
-        {
-            mainFrameLocationSize[0] = mainFrame.getLocation().x;
-            mainFrameLocationSize[1] = mainFrame.getLocation().y;
-            mainFrameLocationSize[2] = mainFrame.getSize().width;
-            mainFrameLocationSize[3] = mainFrame.getSize().height;
-        }
-
-        String str = "//mainFrameLocationSize(" + mainFrame.getLocation().x
-                     + "," + mainFrame.getLocation().y + ";" + mainFrame.getSize().width
-                     + "," + mainFrame.getSize().height + ")";
-
-        if (cfgLines.get(0).startsWith(
-                "//mainFrameLocationSize"))
-        {
-            cfgLines.set(0, str);
-        }
-        else
-        {
-            cfgLines.insertElementAt(str, 0);
-        }
-
-        for (int z = 0; z < cfgLines.size(); z++)
-        {
-            System.out.println(cfgLines.get(z));
-            cfgWriter.write(cfgLines.get(z));
-            cfgWriter.newLine();
-        }
-
-        cfgWriter.close();
-    }
-
-    private RackModuleGui createModuleGui(int module)
-    {
-        // moduleGui werden erzeugt. Bevor moduleGui erzeugt werden, wurde
-        // moduleProxy erzeugt.
-        String str = null;
-        String moduleGuiName = null;
-        String moduleProxyName = null;
-        str = moduleName.get(module); // str enthaelt jetzt die
-                                                // entspr. zeile der gui.cfg
-                                                // -datei.
         // fuer den konstruktor ...(Proxy proxy)
         Class<?>[] guiConstrArgsTypes = new Class<?>[1];
         Object[] guiConstrArgs = new Object[1];
-        // fuer den konstruktor ...(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
-        Class<?>[] guiConstrArgsTypes2 = new Class<?>[4];
-        Object[] guiConstrArgs2 = new Object[4];
-
-        int blank = str.indexOf(' ');
-        System.out.println("str " + str);
-        moduleGuiName = str.substring(0, blank);
-        System.out.println("ModuleGuiName " + moduleGuiName);
-
-        moduleProxyName = getModuleParameter(module, "-proxy=");
-        if (moduleProxyName == "")
-        {
-            moduleProxyName = moduleGuiName;
-
-            if(moduleProxyName.endsWith("Gui") == true)
-            {
-                moduleProxyName = moduleProxyName.replaceAll("Gui", "Proxy");
-                moduleProxyName = moduleProxyName.replaceAll("gui.", "");
-            }
-        }
-        System.out.println("ModuleProxyName " + moduleProxyName);
+        // fuer den konstruktor ...(GuiElementDescriptor guiElement)
+        Class<?>[] guiConstrArgsTypes2 = new Class<?>[1];
+        Object[] guiConstrArgs2 = new Object[1];
 
         try
         {
-            moduleGuiClass = guiCL.loadClass(moduleGuiName);
+            moduleGuiClass = guiCL.loadClass(ge.guiClass);
         }
         catch (ClassNotFoundException e1)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load module gui.\n" +
-                    "\"" + moduleGuiName + "\"",
+                    "\"" + ge.guiClass + "\"",
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
-            return null;
+            return;
         }
 
         try
         {
-            guiConstrArgsTypes[0] = guiCL.loadClass(moduleProxyName);
+            guiConstrArgsTypes[0] = guiCL.loadClass(ge.proxyClass);
         }
         catch (ClassNotFoundException e1)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load module proxy.\n" + 
-                    "\"" + moduleProxyName + "\" class not found! \n" +
+                    "\"" + ge.proxyClass + "\" class not found! \n" +
                     "Tip: Use parameter \"-proxy=...\" in config-File.",
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
-            return null;
+            return;
         }
-        guiConstrArgs[0] = moduleProxy[module];
-        // try to create RackModuleGui instance with constructor:
-        // (Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
-        guiConstrArgs2[0] = new Integer(module);
-        guiConstrArgsTypes2[0] = Integer.class;
-        guiConstrArgs2[1] = moduleProxy;
-        guiConstrArgsTypes2[1] = RackProxy[].class;
-        guiConstrArgs2[2] = moduleGui;
-        guiConstrArgsTypes2[2] = RackModuleGui[].class;
-        guiConstrArgs2[3] = tims;
-        guiConstrArgsTypes2[3] = Tims.class;
+
+        guiConstrArgs2[0] = ge;
+        guiConstrArgsTypes2[0] = GuiElementDescriptor.class;
 
         try
         {
-            moduleGui[module] = (RackModuleGui) guiCL.loadClass(moduleGuiName)
-                                                     .getConstructor(guiConstrArgsTypes2)
-                                                     .newInstance(guiConstrArgs2);
+            ge.gui = (RackModuleGui) moduleGuiClass.getConstructor(guiConstrArgsTypes2)
+                                                   .newInstance(guiConstrArgs2);
         }
         catch (Exception e)
         {
         }
 
         // wenn das nicht klappt, dann den aelteren standart-konstuktor nehmen
-        if (moduleGui[module] == null)
+        if (ge.gui == null)
         {
+            guiConstrArgs[0] = ge.proxy;
+            
             try
             {
-                moduleGui[module] = (RackModuleGui) moduleGuiClass.getConstructor(guiConstrArgsTypes)
-                                                                  .newInstance(guiConstrArgs);
+                ge.gui = (RackModuleGui) moduleGuiClass.getConstructor(guiConstrArgsTypes)
+                                                       .newInstance(guiConstrArgs);
             }
             catch (IllegalArgumentException e)
             {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + moduleGuiName + "\" Illegal Argument!", 
+                        "\"" + ge.guiClass + "\" Illegal Argument!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return null;
+                return;
             }
             catch (InstantiationException e)
             {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + moduleGuiName + "\" Instantiation Exception!", 
+                        "\"" + ge.guiClass + "\" Instantiation Exception!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return null;
+                return;
             }
             catch (NoSuchMethodException e)
             {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + moduleGuiName + "\" No Such Method Exception!", 
+                        "\"" + ge.guiClass + "\" No Such Method Exception!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return null;
+                return;
             }
             catch (Exception e)
             {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + moduleGuiName + "\" getConstructor/newInstance Exception!", 
+                        "\"" + ge.guiClass + "\" getConstructor/newInstance Exception!", 
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return null;
+                return;
             }
         }
-        // dem modul den parameterstring (bzw. die ganze zeile) aus der gui.cfg
-        // uebergeben
-        return moduleGui[module];
     }
 
     private void initMbx() throws TimsException
@@ -766,10 +369,10 @@ public final class Gui extends Thread
         }
         try
         {
-            for (int i = 0; i < moduleNum; i++)
-                moduleReplyMbx[i] = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
+            for (int i = 0; i < elements.size(); i++)
+                elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
 
-            mapViewReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, moduleNum+1));
+            mapViewReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, elements.size()+1));
             if (inst == 0)
                 gdosMbx = tims.mbxInit(RackName.create(RackName.GDOS, inst));
         }
@@ -782,57 +385,35 @@ public final class Gui extends Thread
         }
     }
 
-    private void initModuleProxy() throws Exception
+    private void initProxies() throws Exception
     {
-        for (int i = 0; i < moduleNum; i++)
+        for (int i = 0; i < elements.size(); i++)
         {
-            moduleProxy[i] = createModuleProxy(i);
+            initProxy(elements.get(i));
         }
     }
 
-    private RackProxy createModuleProxy(int module) throws Exception
+    private void initProxy(GuiElementDescriptor ge) throws Exception
     {
-        // moduleProxy werden erzeugt.
-        String str = null;
-        String moduleProxyName = null;
-        str = moduleName.get(module);
-        int blank = str.indexOf(' ');
-        int k = str.indexOf('(');
-        int id = Integer.parseInt(str.substring(blank + 1, k).trim());
-
-        moduleProxyName = getModuleParameter(module, "-proxy=");
-        if (moduleProxyName == "")
-        {
-            moduleProxyName = str.substring(0, blank);
-
-            if(moduleProxyName.endsWith("Gui") == true)
-            {
-                moduleProxyName = moduleProxyName.replaceAll("Gui", "Proxy");
-                moduleProxyName = moduleProxyName.replaceAll("gui.", "");
-            }
-        }
-        System.out.println("ModuleProxyName " + moduleProxyName);
-
         Class<?>[] proxyConstrArgsTypes = new Class<?>[] { int.class, TimsMbx.class };
         Object[] proxyConstrArgs = new Object[2];
-        proxyConstrArgs[0] = new Integer(id);
-        proxyConstrArgs[1] = moduleReplyMbx[module];
+        proxyConstrArgs[0] = new Integer(ge.instance);
+        proxyConstrArgs[1] = ge.replyMbx;
 
         try
         {
-            moduleProxy[module] = (RackProxy) guiCL.loadClass(moduleProxyName)
-                                                   .getConstructor(proxyConstrArgsTypes)
-                                                   .newInstance(proxyConstrArgs);
+            ge.proxy = (RackProxy) guiCL.loadClass(ge.proxyClass)
+                                        .getConstructor(proxyConstrArgsTypes)
+                                        .newInstance(proxyConstrArgs);
         }
         catch (Exception e)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load module proxy.\n" +
-                    "\"" + str.substring(0, blank) + "\"",
+                    "\"" + ge.proxyClass + "\"",
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
             throw e;
         }
-        return moduleProxy[module];
     }
 
     private void initGui() throws Exception
@@ -852,64 +433,62 @@ public final class Gui extends Thread
 
         // create navigation panel (Module Monitor on the left border)
 
-        navigationPanel = new JPanel();
-        navigationInterPanel = new JPanel(new BorderLayout());
-        navigationInterPanel.add(BorderLayout.NORTH, navigationPanel);
+        navPanel = new JPanel();
+        navInterPanel = new JPanel(new BorderLayout());
+        navInterPanel.add(BorderLayout.NORTH, navPanel);
 
-        navigationScrollPanel = new JScrollPane(navigationInterPanel);
-        navigationScrollPanel
+        navScrollPanel = new JScrollPane(navInterPanel);
+        navScrollPanel
                 .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        navigationScrollPanel
+        navScrollPanel
                 .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        navigationScrollPanel.setPreferredSize(new Dimension(160, 10));
+        navScrollPanel.setPreferredSize(new Dimension(160, 10));
 
         // create groupsPanel
-        groupButton = new JButton[groupNum];
-        groupPanel = new JPanel[groupNum];
-        groupInterPanel = new JPanel[groupNum];
-        for (int i = 0; i < groupNum; i++)
+        for (int i = 0; i < groups.size(); i++)
         {
-            groupButton[i] = new JButton(getGroupName(i));
-            groupPanel[i] = new JPanel();
-            groupInterPanel[i] = new JPanel();
+            GuiGroupDescriptor gg = groups.get(i);
+            
+            gg.button        = new JButton(gg.name);
+            gg.panel         = new JPanel();
+            gg.interPanel    = new JPanel();
 
-            groupButton[i].addActionListener(new ActionListener()
+            gg.button.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent ae)
                 {
                     Object o = ae.getSource();
-                    int groupIndex = -1;
-                    for (int j = 0; j < groupNum; j++)
+                    GuiGroupDescriptor g = null;
+
+                    for (int i = 0; i < groups.size(); i++)
                     {
-                        if (o == groupButton[j])
+                        if (o == groups.get(i).button)
                         {
-                            groupIndex = j;
+                            g = groups.get(i);
                         }
                     }
-                    if (groupPanel[groupIndex].isShowing())
+                    if (g.panel.isShowing())
                     {
-                        groupPanel[groupIndex].setVisible(false);
+                        g.panel.setVisible(false);
                     }
                     else
                     {
-                        groupPanel[groupIndex].setVisible(true);
+                        g.panel.setVisible(true);
                     }
                 }
             });
 
-            groupButton[i].setHorizontalAlignment(SwingConstants.LEFT);
+            gg.button.setHorizontalAlignment(SwingConstants.LEFT);
 
-            groupPanel[i] = new JPanel(new GridLayout(0, 1));
-            groupPanel[i].setBorder(BorderFactory
-                    .createEmptyBorder(0, 10, 0, 0));
+            gg.panel = new JPanel(new GridLayout(0, 1));
+            gg.panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-            groupInterPanel[i] = new JPanel(new BorderLayout());
-            groupInterPanel[i].add(groupButton[i], BorderLayout.NORTH);
-            groupInterPanel[i].add(groupPanel[i], BorderLayout.CENTER);
+            gg.interPanel = new JPanel(new BorderLayout());
+            gg.interPanel.add(gg.button, BorderLayout.NORTH);
+            gg.interPanel.add(gg.panel, BorderLayout.CENTER);
 
-            navigationPanel.setLayout(new BoxLayout(navigationPanel,
-                    BoxLayout.Y_AXIS));
-            navigationPanel.add(groupInterPanel[i]);
+            navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
+            navPanel.add(gg.interPanel);
         }
 
         JButton allOffButton = new JButton("all off");
@@ -918,10 +497,9 @@ public final class Gui extends Thread
         {
             public void actionPerformed(ActionEvent ae)
             {
-                for (int i = moduleNum - 1; i >= 0; i--)
+                for (int i = elements.size() - 1; i >= 0; i--)
                 {
-
-                    moduleProxy[i].off();
+                    elements.get(i).proxy.off();
 
                     try
                     {
@@ -936,28 +514,29 @@ public final class Gui extends Thread
 
         JPanel allOffInterPanel = new JPanel(new BorderLayout());
         allOffInterPanel.add(allOffButton, BorderLayout.NORTH);
-        navigationPanel.add(allOffInterPanel);
+        navPanel.add(allOffInterPanel);
 
-        mainFrameContent.add(navigationScrollPanel, BorderLayout.WEST);
+        mainFrameContent.add(navScrollPanel, BorderLayout.WEST);
 
         // create work panel (Tabbed Panel in the center)
         jtp = new JTabbedPane();
-        jdp = new JDesktopPane[workspaceNum];
-        for (int i = 0; i < workspaceNum; i++)
+        for (int i = 0; i < workspaces.size(); i++)
         {
-        	jdp[i] = new JDesktopPane();
-         	jtp.add(workSpaceName.get(i),jdp[i]);
+            GuiWorkspaceDescriptor gw = workspaces.get(i);
+            
+        	gw.jdp = new JDesktopPane();
+         	jtp.add(gw.name, gw.jdp);
         }
         mainFrameContent.add(jtp, BorderLayout.CENTER);
 
         // create message frame as an internal frame
-        messageFrame = new JInternalFrame("GDOS Message", true, false, true, true);
+        gdosFrame = new JInternalFrame("GDOS Message", true, false, true, true);
         if (gdosMbx != null) {
             gdosGui = new GDOSGui(gdosMbx);
-            messageFrame.getContentPane().add(gdosGui.getComponent());
-            messageFrame.pack();
-            messageFrame.setVisible(true);
-            jdp[0].add(messageFrame);
+            gdosFrame.getContentPane().add(gdosGui.getComponent());
+            gdosFrame.pack();
+            gdosFrame.setVisible(true);
+            workspaces.get(0).jdp.add(gdosFrame);
             gdosGui.start();
         }
 
@@ -965,102 +544,40 @@ public final class Gui extends Thread
         {
             // create mapView panel as a tab
         	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
-            myMapViewGui = new MapViewGui(moduleGui, mapViewReplyMbx);
-        	mapViewFrame.getContentPane().add(myMapViewGui.getComponent());
+            mapViewGui = new MapViewGui(elements, mapViewReplyMbx);
+        	mapViewFrame.getContentPane().add(mapViewGui.getComponent());
         	mapViewFrame.pack();        	
         	mapViewFrame.setVisible(true);
-        	jdp[mapViewWorkSpace].add(mapViewFrame);
+            workspaces.get(mapViewWorkSpace).jdp.add(mapViewFrame);
         	mapViewFrame.setLocation(0, 0);
         	mapViewFrame.setSize(600, 400);
         }
         
-        mainFrameLocationSize = getMainFrameLocationSize(cfgLines);
-        if (mainFrameLocationSize == null)
-        {
-            mainFrameLocationSize = new int[4];
-            mainFrameLocationSize[0] = 0;
-            mainFrameLocationSize[1] = 0;
-            mainFrameLocationSize[2] = 800;
-            mainFrameLocationSize[3] = 600;
-        }
-
         mainFrameContent.setVisible(true);
     }
 
-    private int[] getMainFrameLocationSize(Vector<String> configZeilen)
+    private void initModule(GuiElementDescriptor ge)
     {
-        int[] locationSize = new int[4];
-        String path = configZeilen.get(0);
-        int kAuf = path.indexOf('(');
-        int komma1 = path.indexOf(',');
-        int b = path.indexOf(';');
-        int komma2 = path.indexOf(',', b);
-        // int komma2 = path.lastIndexOf(',');
-        int kZu = path.indexOf(')');
+        ge.navPanel = new JPanel(new BorderLayout());
 
-        if (kAuf < 0 && komma1 < 0 && b < 0 && komma2 < 0)
-        {
-            return null;
-        }
-        else if (path.substring(kAuf, kZu + 1).equals("(,;,)"))
-        {
-            return null;
-        }
-        else
-        {
-            // System.out.println(path.substring(kAuf,kZu+1)+" ;
-            // "+Integer.parseInt(path.substring(b+1,komma2).trim()));
-            try
-            {
-                // for the location
-                locationSize[0] = Integer.parseInt((path.substring(kAuf + 1,
-                        komma1)).trim());
-                locationSize[1] = Integer.parseInt((path.substring(komma1 + 1,
-                        b)).trim());
-
-                // for the size
-                locationSize[2] = Integer.parseInt((path.substring(b + 1,
-                        komma2)).trim());
-                locationSize[3] = Integer.parseInt((path.substring(komma2 + 1,
-                        kZu)).trim());
-                if (locationSize[2] < 0 || locationSize[3] < 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    return locationSize;
-                }
-            }
-            catch (Exception e)
-            {
-                e.toString();
-                return null;
-            }
-        }
-    }
-
-    private void initModule(int id)
-    {
-        modulePanel[id] = new JPanel(new BorderLayout());
-
-        statusButton[id] = new JRadioButton();
-        statusButton[id].setActionCommand(Integer.toString(id));
-        statusButton[id].addActionListener(new ActionListener()
+        ge.navStatusButton = new JRadioButton();
+        ge.navStatusButton.setActionCommand(Integer.toString(elements.indexOf(ge)));
+        ge.navStatusButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ae)
             {
                 try
                 {
                     int module = Integer.parseInt(ae.getActionCommand());
-
-                    if (statusButton[module].isSelected() == true)
+                    GuiElementDescriptor ge = elements.get(module);
+                    
+                    if (ge.navStatusButton.isSelected() == true)
                     {
-                        moduleProxy[module].on();
+                        ge.proxy.on();
                     }
                     else
                     {
-                        moduleProxy[module].off();
+                        ge.proxy.off();
                     }
                 }
                 catch (NumberFormatException e)
@@ -1070,34 +587,35 @@ public final class Gui extends Thread
         });
 
         // if (moduleGui[id] == null)
-        moduleButton[id] = new JButton(getModuleName(id));
-        moduleButton[id].setToolTipText(getModuleName(id));
+        ge.navButton = new JButton(ge.name);
+        ge.navButton.setToolTipText(ge.name);
         // else
         // moduleButton[id] = new JButton(moduleGui[id].getModuleName());
-        moduleButton[id].setHorizontalAlignment(SwingConstants.LEFT);
-        moduleButton[id].setActionCommand(Integer.toString(id));
-        moduleButton[id].addActionListener(new ActionListener()
+        ge.navButton.setHorizontalAlignment(SwingConstants.LEFT);
+        ge.navButton.setActionCommand(Integer.toString(elements.indexOf(ge)));
+        ge.navButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent ae)
             {
                 try
                 {
                     int module = Integer.parseInt(ae.getActionCommand());
+                    GuiElementDescriptor ge = elements.get(module);
 
                     if ((ae.getModifiers() & ActionEvent.CTRL_MASK) == 0)
                     {
-                        openModule(module, null);
-                        relocateModule(module);
+                        openModule(ge);
+                        relocateModule(ge);
                     }
                     else
                     {
-                        if (moduleStatus[module] == RackProxy.MSG_DISABLED)
+                        if (ge.status == RackProxy.MSG_DISABLED)
                         {
-                            moduleProxy[module].on();
+                            ge.proxy.on();
                         }
                         else
                         {
-                            moduleProxy[module].off();
+                            ge.proxy.off();
                         }
                     }
                 }
@@ -1107,35 +625,24 @@ public final class Gui extends Thread
             }
         });
 
-        modulePanel[id].add(BorderLayout.WEST, statusButton[id]);
-        modulePanel[id].add(BorderLayout.CENTER, moduleButton[id]);
+        ge.navPanel.add(BorderLayout.WEST, ge.navStatusButton);
+        ge.navPanel.add(BorderLayout.CENTER, ge.navButton);
         // System.out.println("modulelePanel[" + id + "] is ok");
 
-        for (int i = 0; i < groupNum; i++)
-        {
-            if (isInGroup(i, id))
-            {
-                groupPanel[i].add(modulePanel[id]);
-                // System.out.println(
-                // "modulelePanel[" + i + "] is in group[" + i + "]");
-                break;
-            }
-        }
-
+        ge.group.panel.add(ge.navPanel);
     }
 
-    private void openModule(int id, int[] moduleLocationSize)
+    private void openModule(GuiElementDescriptor ge)
     {
-        if (moduleGui[id] == null)
+        if (ge.gui == null)
         {
 
-            moduleGui[id] = createModuleGui(id); // gleichzeitig wird
-                                                    // moduleProxy[id] erzeugt .
-            moduleGui[id].start();
+            createModuleGui(ge); // gleichzeitig wird moduleProxy[id] erzeugt .
+            ge.gui.start();
 
-            moduleFrame[id] = new JInternalFrame(getModuleName(id), true, true,
-                    true, true);
-            moduleFrame[id].getContentPane().add(moduleGui[id].getComponent());
+            ge.frame = new JInternalFrame(ge.name, true, true, true, true);
+            ge.frame.getContentPane().add(ge.gui.getComponent());
+
             Action action = new AbstractAction()
             {
 				private static final long serialVersionUID = 1L;
@@ -1144,77 +651,77 @@ public final class Gui extends Thread
                 {
                 	if (fullScreenModule == -1)
                 	{
-    					JInternalFrame frame = jdp[jtp.getSelectedIndex()].getSelectedFrame();
+    					JInternalFrame frame = workspaces.get(jtp.getSelectedIndex()).jdp.getSelectedFrame();
                     	int module;
-    	                for (module = 0; module < moduleNum; module++)
+    	                for (module = 0; module < elements.size(); module++)
     	                {
-    	                    if (moduleFrame[module] == frame)
+    	                    if (elements.get(module).frame == frame)
                                 break;
     	                }
-    	                if (module == moduleNum)
+    	                if (module == elements.size())
     	                	return;
 
                 		fullScreenModule = module;
-	                    moduleGui[module].toggleFullScreen();
+                        elements.get(module).gui.toggleFullScreen();
                 	}
                 	else
                 	{
-                		moduleGui[fullScreenModule].toggleFullScreen();
+                        elements.get(fullScreenModule).gui.toggleFullScreen();
                 		fullScreenModule = -1;
                 	}
             	}
             };
-            moduleGui[id].getComponent().getInputMap().
+            ge.gui.getComponent().getInputMap().
                 put(KeyStroke.getKeyStroke("F11"), "fullScreen");
-            moduleGui[id].getComponent().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+            ge.gui.getComponent().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
             	put(KeyStroke.getKeyStroke("F11"), "fullScreen");
-            moduleGui[id].getComponent().getActionMap().put("fullScreen", action);
-            moduleFrame[id].addInternalFrameListener(new InternalFrameAdapter()
+            ge.gui.getComponent().getActionMap().put("fullScreen", action);
+            ge.frame.addInternalFrameListener(new InternalFrameAdapter()
             {
                 public void internalFrameClosing(InternalFrameEvent e)
                 {
                     Object o = e.getSource();
                     int module = -1;
-                    for (int j = 0; j < moduleNum; j++)
+                    for (int j = 0; j < elements.size(); j++)
                     {
-                        if (o == moduleFrame[j])
+                        if (o == elements.get(j).frame)
                         {
                             module = j;
                             break;
                         }
                     }
-                    if (moduleGui[module] != null)
+                    if (elements.get(module).gui != null)
                     {
-                        ((RackModuleGui) moduleGui[module]).terminate();
-                        moduleGui[module] = null;
+                        ((RackModuleGui) elements.get(module).gui).terminate();
+                        elements.get(module).gui = null;
                     }
-                    moduleFrame[module] = null;
+                    elements.get(module).frame = null;
 
                     // System.out.println("Internal frame is closing");
                 }
             });
-            moduleFrame[id].pack();
-            moduleFrame[id].setVisible(true);
-            if (moduleLocationSize == null)
+            ge.frame.pack();
+            ge.frame.setVisible(true);
+
+            if ((ge.size.width == 0) && (ge.size.height == 0))
             {
-                moduleFrame[id].setLocation(100 * (id / 10) + 20 * (id % 10),
+                int id = elements.indexOf(ge);
+                ge.frame.setLocation(100 * (id / 10) + 20 * (id % 10),
                         25 + 25 * (id % 10));
             }
             else
             {
-                moduleFrame[id].setLocation(moduleLocationSize[0],
-                        moduleLocationSize[1]);
-                moduleFrame[id].setSize(moduleLocationSize[2],
-                        moduleLocationSize[3]);
+                ge.frame.setLocation(ge.location);
+                ge.frame.setSize(ge.size);
             }
-            jdp[moduleWorkSpace.get(id).intValue()].add(moduleFrame[id]);
+            ge.workspace.jdp.add(ge.frame);
         }
 
         try
         {
-            moduleFrame[id].moveToFront();
-            moduleFrame[id].setSelected(true);
-            jtp.setSelectedIndex(moduleWorkSpace.get(id).intValue());
+            ge.frame.moveToFront();
+            ge.frame.setSelected(true);
+            jtp.setSelectedIndex(workspaces.indexOf(ge.workspace));
         }
         catch (java.beans.PropertyVetoException pe)
         {
@@ -1222,11 +729,11 @@ public final class Gui extends Thread
         }
     }
 
-    private void relocateModule(int id)
+    private void relocateModule(GuiElementDescriptor ge)
     {
-        Point pos = moduleFrame[id].getLocation();
-        Dimension size = moduleFrame[id].getSize();
-        Dimension paneSize = moduleFrame[id].getDesktopPane().getSize();
+        Point     pos       = ge.frame.getLocation();
+        Dimension size      = ge.frame.getSize();
+        Dimension paneSize  = ge.frame.getDesktopPane().getSize();
 
         if (pos.x < 0)
             pos.x = 0;
@@ -1238,41 +745,43 @@ public final class Gui extends Thread
         else if (pos.y + size.height > paneSize.height)
             pos.y = paneSize.height - size.height;
 
-        moduleFrame[id].setLocation(pos);
+        ge.frame.setLocation(pos);
     }
 
     private void updateAllStatus()
     {
-        groupError = new int[groupNum];
-        groupOn = new int[groupNum];
-        groupSum = new int[groupNum];
-
-        for (int i = 0; i < groupNum; i++)
+        for (int i = 0; i < groups.size(); i++)
         {
-            groupOn[i] = 0;
-            groupError[i] = 0;
-            groupSum[i] = 0;
+            GuiGroupDescriptor gg = groups.get(i);
+            
+            gg.on     = 0;
+            gg.error  = 0;
+            gg.sum    = 0;
         }
-        for (int i = 0; i < moduleNum; i++)
+
+        for (int i = 0; i < elements.size(); i++)
         {
-            moduleStatus[i] = RackProxy.MSG_TIMEOUT;
+            GuiElementDescriptor ge = elements.get(i); 
+
+            ge.status = RackProxy.MSG_TIMEOUT;
         }
 
         try
         {
-            if (getStatusSeqNo < 127)
-                getStatusSeqNo++;
-            else
-                getStatusSeqNo = -128;
+            getStatusSeqNr++;
+            if (getStatusSeqNr > 100)
+                getStatusSeqNr = 0;
 
-            for (int i = 0; i < moduleNum; i++)
+            for (int i = 0; i < elements.size(); i++)
             {
+                GuiElementDescriptor ge = elements.get(i);
+
                 // alle moduleProxy sind bei initModuleProxy schon vorhanden
 
                 getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
-                        moduleProxy[i].getCommandMbx(),
+                        ge.proxy.getCommandMbx(),
                         (byte) 0,
-                        (byte) getStatusSeqNo);
+                        (byte) getStatusSeqNr);
                 // ein bischen warten, um nicht stossweise last zu erzeugen.
                 try
                 {
@@ -1291,24 +800,27 @@ public final class Gui extends Thread
             {
                 // receive reply
                 reply = getStatusReplyMbx.receive(1000);
-                if (reply.seqNr == getStatusSeqNo)
+                if (reply.seqNr == getStatusSeqNr)
                 {
                     // update module status array
-                    for (int i = 0; i < moduleNum; i++)
+                    for (int i = 0; i < elements.size(); i++)
                     {
+                        GuiElementDescriptor ge = elements.get(i);
 
-                        if (moduleProxy[i].getCommandMbx() == reply.src)
+                        if (ge.proxy.getCommandMbx() == reply.src)
                         {
-                            moduleStatus[i] = reply.type;
+                            ge.status = reply.type;
                         }
                     }
                 }
 
                 // test if all replies are received
                 notAllReplies = false;
-                for (int i = 0; i < moduleNum; i++)
+                for (int i = 0; i < elements.size(); i++)
                 {
-                    if (moduleStatus[i] == RackProxy.MSG_TIMEOUT)
+                    GuiElementDescriptor ge = elements.get(i);
+
+                    if (ge.status == RackProxy.MSG_TIMEOUT)
                     {
                         notAllReplies = true;
                     }
@@ -1321,107 +833,87 @@ public final class Gui extends Thread
             // e.getMessage());
         }
 
-        if((statusButtonBG == null) & (statusButton[0] != null))
+        if(navStatusButtonBG == null)
         {
-            statusButtonBG = statusButton[0].getBackground();
+            navStatusButtonBG = groups.get(0).button.getBackground();
         }
             
-        for (int i = 0; i < moduleNum; i++)
+        for (int i = 0; i < elements.size(); i++)
         {
+            GuiElementDescriptor ge = elements.get(i);
+            
             // bei paramentern -show und -start soll trotzdem
             // der button angezeigt werden.
-            if (getModuleParameterShow(i)
-                    && moduleStatus[i] == RackProxy.MSG_NOT_AVAILABLE)
-                moduleStatus[i] = RackProxy.MSG_DISABLED;
-            if (getModuleParameterStart(i)
-                    && moduleStatus[i] == RackProxy.MSG_NOT_AVAILABLE)
-                moduleStatus[i] = RackProxy.MSG_DISABLED;
+            if (ge.show && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+            {
+                ge.status = RackProxy.MSG_DISABLED;
+            }
+            if (ge.start && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+            {
+                ge.status = RackProxy.MSG_DISABLED;
+            }
 
-            switch (moduleStatus[i])
+            switch (ge.status)
             {
                 case RackProxy.MSG_ERROR:
-                    if (modulePanel[i] == null)
+                    if (ge.navPanel == null)
                     {
-                        initModule(i);
+                        initModule(ge);
                     }
-                    statusButton[i].setEnabled(true);
-                    statusButton[i].setSelected(true);
-                    statusButton[i].setBackground(Color.RED);
-                    moduleButton[i].setEnabled(true);
+                    ge.navStatusButton.setEnabled(true);
+                    ge.navStatusButton.setSelected(true);
+                    ge.navStatusButton.setBackground(Color.RED);
+                    ge.navButton.setEnabled(true);
 
-                    for (int id = 0; id < groupNum; id++)
-                    {
-                        if (isInGroup(id, i))
-                        {
-                            groupSum[id]++;
-                            groupError[id]++;
-                            // System.out.println(
-                            // "groupSum[" + id + "]" + "=" + groupSum[id]);
-                        }
-                    }
+                    ge.group.sum++;
+                    ge.group.error++;
                     break;
 
                 case RackProxy.MSG_ENABLED:
-                    if (modulePanel[i] == null)
+                    if (ge.navPanel == null)
                     {
-                        initModule(i);
+                        initModule(ge);
                     }
-                    statusButton[i].setEnabled(true);
-                    statusButton[i].setSelected(true);
-                    statusButton[i].setBackground(Color.GREEN);
-                    moduleButton[i].setEnabled(true);
+                    ge.navStatusButton.setEnabled(true);
+                    ge.navStatusButton.setSelected(true);
+                    ge.navStatusButton.setBackground(Color.GREEN);
+                    ge.navButton.setEnabled(true);
 
-                    for (int id = 0; id < groupNum; id++)
-                    {
-                        if (isInGroup(id, i))
-                        {
-                            groupSum[id]++;
-                            groupOn[id]++;
-                            // System.out.println(
-                            // "groupSum[" + id + "]" + "=" + groupSum[id]);
-                        }
-                    }
-
+                    ge.group.sum++;
+                    ge.group.on++;
                     break;
+
                 case RackProxy.MSG_DISABLED:
-                    if (modulePanel[i] == null)
+                    if (ge.navPanel == null)
                     {
-                        initModule(i);
+                        initModule(ge);
                     }
-                    statusButton[i].setEnabled(true);
-                    statusButton[i].setSelected(false);
-                    statusButton[i].setBackground(statusButtonBG);
-                    moduleButton[i].setEnabled(true);
+                    ge.navStatusButton.setEnabled(true);
+                    ge.navStatusButton.setSelected(false);
+                    ge.navStatusButton.setBackground(navStatusButtonBG);
+                    ge.navButton.setEnabled(true);
 
-                    for (int id = 0; id < groupNum; id++)
-                    {
-                        if (isInGroup(id, i))
-                        {
-                            groupSum[id]++;
-                            // System.out.println(
-                            // "groupSum[" + id + "]" + "=" + groupSum[id]);
-                        }
-                    }
-
+                    ge.group.sum++;
                     break;
 
                 case RackProxy.MSG_NOT_AVAILABLE:
-                    if (modulePanel[i] != null)
+                    if (ge.navPanel != null)
                     {
-                        statusButton[i].setEnabled(false);
-                        statusButton[i].setSelected(false);
-                        statusButton[i].setBackground(statusButtonBG);
-                        moduleButton[i].setEnabled(false);
+                        ge.navStatusButton.setEnabled(false);
+                        ge.navStatusButton.setSelected(false);
+                        ge.navStatusButton.setBackground(navStatusButtonBG);
+                        ge.navButton.setEnabled(false);
                     }
                     break;
+
                 case RackProxy.MSG_TIMEOUT:
                 default:
-                    if (modulePanel[i] != null)
+                    if (ge.navPanel != null)
                     {
-                        statusButton[i].setEnabled(true);
-                        statusButton[i].setSelected(true);
-                        statusButton[i].setBackground(Color.ORANGE);
-                        moduleButton[i].setEnabled(false);
+                        ge.navStatusButton.setEnabled(true);
+                        ge.navStatusButton.setSelected(true);
+                        ge.navStatusButton.setBackground(Color.ORANGE);
+                        ge.navButton.setEnabled(false);
                     }
             }
         }
@@ -1433,26 +925,27 @@ public final class Gui extends Thread
         {
             updateAllStatus();
             
-            if((groupButtonFG == null) & (groupButton[0] != null))
+            if((navGroupButtonFG == null) & (groups.get(0) != null))
             {
-                groupButtonFG = groupButton[0].getForeground();
+                navGroupButtonFG = groups.get(0).button.getForeground();
             }
             
-            for (int i = 0; i < groupSize.size(); i++)
+            for (int i = 0; i < groups.size(); i++)
             {
-                if (groupError[i] > 0)
+                GuiGroupDescriptor gg = groups.get(i);
+                
+                if (gg.error > 0)
                 {
-                    groupButton[i].setForeground(Color.RED);
+                    gg.button.setForeground(Color.RED);
                 }
                 else
                 {
-                    groupButton[i].setForeground(groupButtonFG);
+                    gg.button.setForeground(navGroupButtonFG);
                 }
-                groupButton[i].setText(getGroupName(i) + " ("
-                        + groupError[i] + " , " + groupOn[i] + " , "
-                        + groupSum[i] + ")");
+                gg.button.setText(gg.name +
+                        " (" + gg.error + " , " + gg.on + " , " + gg.sum + ")");
             }
-            navigationPanel.revalidate();
+            navPanel.revalidate();
             try
             {
                 Thread.sleep(2000);
@@ -1477,17 +970,19 @@ public final class Gui extends Thread
         catch (Exception e) {}
         
         // terminate MapViewGui
-        if(myMapViewGui != null)
+        if(mapViewGui != null)
         {
-            myMapViewGui.terminate();
+            mapViewGui.terminate();
         }
 
         // terminate module guis
-        for (int i = 0; i < moduleNum; i++)
+        for (int i = 0; i < elements.size(); i++)
         {
-            if(moduleGui[i] != null)
+            GuiElementDescriptor ge = elements.get(i);
+
+            if(ge.gui != null)
             {
-                moduleGui[i].terminate();
+                ge.gui.terminate();
             }
         }
 
@@ -1503,9 +998,9 @@ public final class Gui extends Thread
             tims.terminate();
         }
 
-// JOptionPane.showMessageDialog(frame,
-// "GUI Terminated",
-// "RACK GUI", JOptionPane.INFORMATION_MESSAGE);
+        // JOptionPane.showMessageDialog(frame,
+        // "GUI Terminated",
+        // "RACK GUI", JOptionPane.INFORMATION_MESSAGE);
         System.out.println("GUI terminated");
     }
 
@@ -1537,7 +1032,7 @@ public final class Gui extends Thread
                     {
                         try
                         {
-                            mainGui.writeConfig(new BufferedWriter(new FileWriter(mainSaveConfigFile)));
+                            mainGui.cfg.writeConfig(new BufferedWriter(new FileWriter(mainSaveConfigFile)));
                         }
                         catch (IOException e)
                         {

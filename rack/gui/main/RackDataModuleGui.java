@@ -20,6 +20,7 @@ import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import rack.gui.GuiElementDescriptor;
 import rack.main.*;
 import rack.main.tims.*;
 
@@ -82,15 +83,15 @@ public abstract class RackDataModuleGui extends RackModuleGui
      * Initialisiert die Mailboxen des Moduls und startet die Task zum
      * Paketempfang
      */
-    public RackDataModuleGui(int commandMbxName, Tims tims)
+    public RackDataModuleGui(int moduleName, int instance, GuiElementDescriptor guiElement)
     {
-        this.tims = tims;
+        this.tims = guiElement.getMainGui().getTims();
 
         try
         {
-            commandMbx = tims.mbxInit(commandMbxName);
-            dataMbx    = tims.mbxInit(commandMbxName+1);
-            workMbx    = tims.mbxInit(commandMbxName+2);
+            commandMbx = tims.mbxInit(RackName.create(RackName.JOYSTICK, guiElement.getInstance(),0));
+            dataMbx    = tims.mbxInit(RackName.create(RackName.JOYSTICK, guiElement.getInstance(),1));
+            workMbx    = tims.mbxInit(RackName.create(RackName.JOYSTICK, guiElement.getInstance(),2));
 
             this.gdos = new GDOS(commandMbx, GDOS.WARNING);
 

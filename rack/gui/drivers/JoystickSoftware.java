@@ -21,8 +21,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.RackDataModuleGui;
-import rack.gui.main.RackModuleGui;
 import rack.main.*;
 import rack.main.tims.*;
 import rack.navigation.PilotProxy;
@@ -69,14 +69,21 @@ public class JoystickSoftware extends RackDataModuleGui
     protected JButton pilot2Button = new JButton("Pilot(2)");
     protected JButton noPilotButton = new JButton("No Pilot");
 
-    protected RackProxy[] rackProxyList;
+    protected ChassisProxy chassisProxy;
+    protected PilotProxy[] pilotProxy;
 
-    public JoystickSoftware(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
+    public JoystickSoftware(GuiElementDescriptor guiElement)
     {
-        super(RackName.create(RackName.JOYSTICK, proxyList[moduleIndex.intValue()].getInstanceId()), tims);
-        this.joystickProxy = (JoystickProxy)proxyList[moduleIndex.intValue()];
-        this.rackProxyList = proxyList;
+        super(RackName.JOYSTICK, guiElement.getInstance(), guiElement);
+
         this.periodTime = 100;
+        this.joystickProxy = (JoystickProxy)guiElement.getProxy();
+        
+        chassisProxy = (ChassisProxy)guiElement.getMainGui().getProxy(RackName.CHASSIS, 0);
+        pilotProxy = new PilotProxy[3];
+        pilotProxy[0] = (PilotProxy)guiElement.getMainGui().getProxy(RackName.PILOT, 0);
+        pilotProxy[1] = (PilotProxy)guiElement.getMainGui().getProxy(RackName.PILOT, 1);
+        pilotProxy[2] = (PilotProxy)guiElement.getMainGui().getProxy(RackName.PILOT, 2);
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -407,46 +414,25 @@ public class JoystickSoftware extends RackDataModuleGui
         // turn off pilots
         for(int i = 0; i < 3; i++)
         {
-            for(int j = 0; j < rackProxyList.length; j++)
-            {
-                if(rackProxyList[j].getCommandMbx() == RackName.create(RackName.PILOT, i))
-                {
-                    PilotProxy pilotProxy = (PilotProxy)rackProxyList[j];
-                    if(i != pilot)
-                        pilotProxy.off();
-                }
-            }
+            if((i != pilot) && (pilotProxy[i] != null))
+                pilotProxy[i].off();
         }
 
         // set active pilot
-        for(int j = 0; j < rackProxyList.length; j++)
+        if((pilot >= 0) && (chassisProxy != null))
         {
-            if(rackProxyList[j].getCommandMbx() == RackName.create(RackName.CHASSIS, 0))
-            {
-                ChassisProxy chassisProxy = (ChassisProxy)rackProxyList[j];
-                if(pilot >= 0)
-                {
-                    chassisProxy.on();
-                    chassisProxy.setActivePilot(RackName.create(RackName.PILOT, pilot));
-                }
-                else
-                {
-                    chassisProxy.setActivePilot(ChassisProxy.INVAL_PILOT);
-                }
-            }
+            chassisProxy.on();
+            chassisProxy.setActivePilot(RackName.create(RackName.PILOT, pilot));
+        }
+        else
+        {
+            chassisProxy.setActivePilot(ChassisProxy.INVAL_PILOT);
         }
 
         // turn on pilot
-        if(pilot >= 0)
+        if((pilot >= 0) && (pilotProxy[pilot] != null))
         {
-            for(int j = 0; j < rackProxyList.length; j++)
-            {
-                if(rackProxyList[j].getCommandMbx() == RackName.create(RackName.PILOT, pilot))
-                {
-                    PilotProxy pilotProxy = (PilotProxy)rackProxyList[j];
-                    pilotProxy.on();
-                }
-            }
+            pilotProxy[pilot].on();
         }
     }
 

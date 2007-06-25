@@ -21,6 +21,7 @@ import java.awt.geom.*;
 import java.util.*;
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.*;
 import rack.main.*;
 import rack.drivers.GpsDataMsg;
@@ -28,7 +29,6 @@ import rack.drivers.GpsProxy;
 
 import rack.main.defines.Position3d;
 import rack.main.defines.Position2d;
-import rack.main.tims.Tims;
 import rack.navigation.PositionDataMsg;
 import rack.navigation.PositionProxy;
 
@@ -59,15 +59,16 @@ public class PositionGui extends RackModuleGui implements ActionListener
     protected JLabel rhoLabel = new JLabel("-000.00");
 
     protected PositionProxy position;
-    protected RackProxy[] rackProxyList;
+    protected GpsProxy gps;
     private MapViewActionList mapViewActionList;
     private GeneralPath positionPath;
     private boolean drawPositionPath = false;
 
-    public PositionGui(Integer moduleIndex, RackProxy[] proxyList, RackModuleGui[] guiList, Tims tims)
+    public PositionGui(GuiElementDescriptor guiElement)
     {
-        position = (PositionProxy)proxyList[moduleIndex.intValue()];
-        rackProxyList = proxyList;
+        position = (PositionProxy)guiElement.getProxy();
+        
+        gps = (GpsProxy)guiElement.getMainGui().getProxy(RackName.GDOS, 0);
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -127,21 +128,21 @@ public class PositionGui extends RackModuleGui implements ActionListener
         {
             public void actionPerformed(ActionEvent e)
             {
-                for(int i = 0; i < rackProxyList.length; i++)
+                if(gps != null)
                 {
-                    if(rackProxyList[i].getCommandMbx() == RackName.create(RackName.GPS, 0))
+                    GpsDataMsg gpsData = gps.getData();
+                    if(gpsData != null)
                     {
-                        GpsProxy gps = (GpsProxy)rackProxyList[i];
-                        GpsDataMsg gpsData = gps.getData();
-                        if(gpsData != null)
-                        {
-                            position.update(gpsData.posGK, 0);
-                        }
-                        else
-                        {
-                            System.out.println("Can't read data from GPS(0)");
-                        }
+                        position.update(gpsData.posGK, 0);
                     }
+                    else
+                    {
+                        System.out.println("Can't read data from GPS(0)");
+                    }
+                }
+                else
+                {
+                    System.out.println("GPS(0) not available");
                 }
             }
         });
