@@ -52,12 +52,12 @@ public class TimsRawMsg extends TimsMsg
         return body.length;
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         return true;
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         if ((msglen - HEAD_LEN) > 0)
         {
@@ -71,7 +71,7 @@ public class TimsRawMsg extends TimsMsg
         }
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         out.write(body);
     }

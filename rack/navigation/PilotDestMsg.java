@@ -39,7 +39,7 @@ public class PilotDestMsg extends TimsMsg
         readTimsRawMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         if (type == RackProxy.MSG_DATA &&
             msglen == HEAD_LEN + getDataLen())
@@ -50,7 +50,7 @@ public class PilotDestMsg extends TimsMsg
             return false;
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
         if (bodyByteorder == BIG_ENDIAN)
@@ -68,7 +68,7 @@ public class PilotDestMsg extends TimsMsg
         bodyByteorder = BIG_ENDIAN;
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 

@@ -93,7 +93,7 @@ public class CameraDataMsg extends TimsMsg
         this.colorFilterId = 0;
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         if (type == RackProxy.MSG_DATA)
         {
@@ -342,7 +342,7 @@ public class CameraDataMsg extends TimsMsg
         return interpolatedImage;
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
         if (bodyByteorder == BIG_ENDIAN)

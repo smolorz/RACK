@@ -58,7 +58,7 @@ public class GpsDataMsg extends TimsMsg
         readTimsRawMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         if (type == RackProxy.MSG_DATA)
         {
@@ -70,7 +70,7 @@ public class GpsDataMsg extends TimsMsg
         }
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
 
@@ -101,7 +101,7 @@ public class GpsDataMsg extends TimsMsg
         bodyByteorder = BIG_ENDIAN;
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
       

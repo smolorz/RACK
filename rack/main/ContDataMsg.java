@@ -39,7 +39,7 @@ public class ContDataMsg extends TimsMsg
         readTimsRawMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         if ((type == RackProxy.MSG_CONT_DATA)
                 && (msglen == HEAD_LEN + getDataLen()))
@@ -52,7 +52,7 @@ public class ContDataMsg extends TimsMsg
         }
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
 
@@ -70,7 +70,7 @@ public class ContDataMsg extends TimsMsg
         bodyByteorder = BIG_ENDIAN;
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
         dataOut.writeInt(periodTime);

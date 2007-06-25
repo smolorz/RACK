@@ -45,12 +45,12 @@ public class GDOSDataMsg extends TimsMsg
         readTimsRawMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         return (true);
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
         int dataLen = msglen - HEAD_LEN;
@@ -169,7 +169,7 @@ TODO
         }
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 

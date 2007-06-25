@@ -31,13 +31,13 @@ import java.io.*;
 
 public abstract class TimsMsg
 {
-    protected static final int BIG_ENDIAN    = 0;         // network byteorder
-    protected static final int LITTLE_ENDIAN = 1;         // Intel byteorder
+    public static final int    BIG_ENDIAN    = 0;         // network byteorder
+    public static final int    LITTLE_ENDIAN = 1;         // Intel byteorder
 
-    protected static final int HEAD_LEN      = 16;        // length of message-head
+    public static final int    HEAD_LEN      = 16;        // length of message-head
 
-    protected int              headByteorder = BIG_ENDIAN;
-    protected int              bodyByteorder = BIG_ENDIAN;
+    public int                 headByteorder = BIG_ENDIAN;
+    public int                 bodyByteorder = BIG_ENDIAN;
 
     public byte                type          = 0;
     public byte                priority      = 0;         // 0 = less important message
@@ -56,7 +56,7 @@ public abstract class TimsMsg
         readTimsRawMsg(m);
     }
 
-    protected TimsMsg(InputStream in) throws IOException
+    public TimsMsg(InputStream in) throws IOException
     {
         readTimsMsg(in);
     }
@@ -110,7 +110,7 @@ public abstract class TimsMsg
         out.flush();
     }
 
-    protected void readTimsMsgHead(InputStream in) throws IOException
+    public void readTimsMsgHead(InputStream in) throws IOException
     {
         int flags = in.read();
 
@@ -138,7 +138,7 @@ public abstract class TimsMsg
         headByteorder = BIG_ENDIAN;
     }
 
-    protected void writeTimsMsgHead(OutputStream out) throws IOException
+    public void writeTimsMsgHead(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
@@ -153,11 +153,11 @@ public abstract class TimsMsg
         dataOut.writeInt(msglen);
     }
 
-    protected abstract boolean checkTimsMsgHead();
+    public abstract boolean checkTimsMsgHead();
 
-    protected abstract void readTimsMsgBody(InputStream in) throws IOException;
+    public abstract void readTimsMsgBody(InputStream in) throws IOException;
 
-    protected abstract void writeTimsMsgBody(OutputStream out) throws IOException;
+    public abstract void writeTimsMsgBody(OutputStream out) throws IOException;
 
     public abstract int getDataLen();
 

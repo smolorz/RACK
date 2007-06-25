@@ -43,7 +43,7 @@ public class DatalogDataMsg extends TimsMsg
         readTimsRawMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         if ((type == DatalogProxy.MSG_DATALOG_LOG_STATUS) |
            (type == RackProxy.MSG_DATA))
@@ -56,7 +56,7 @@ public class DatalogDataMsg extends TimsMsg
         }
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
         if (bodyByteorder == BIG_ENDIAN)
@@ -79,7 +79,7 @@ public class DatalogDataMsg extends TimsMsg
         bodyByteorder = BIG_ENDIAN;
     }
     
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
         

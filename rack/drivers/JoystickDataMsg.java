@@ -43,7 +43,7 @@ public class JoystickDataMsg extends TimsMsg
         readTimsRawMsg(p);
     }
 
-    protected boolean checkTimsMsgHead()
+    public boolean checkTimsMsgHead()
     {
         if ((type == RackProxy.MSG_DATA)
                 && (msglen == HEAD_LEN + getDataLen()))
@@ -56,7 +56,7 @@ public class JoystickDataMsg extends TimsMsg
         }
     }
 
-    protected void readTimsMsgBody(InputStream in) throws IOException
+    public void readTimsMsgBody(InputStream in) throws IOException
     {
         EndianDataInputStream dataIn;
         if (bodyByteorder == BIG_ENDIAN)
@@ -74,7 +74,7 @@ public class JoystickDataMsg extends TimsMsg
         bodyByteorder = BIG_ENDIAN;
     }
 
-    protected void writeTimsMsgBody(OutputStream out) throws IOException
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
