@@ -30,6 +30,7 @@ int32_t const scanningAngleS3000 = 190;
 int32_t const durationS3000 = 30;
 int32_t const maxRangeS3000 = 30000;
 
+int32_t const maxBaudrate = 500000;
 //
 // init data structures
 //
@@ -133,11 +134,11 @@ int  LadarSickS::moduleOn(void)
     switch(devNumber)
     {
         case 300:
-            setDataBufferPeriodTime(durationS300);
+            setDataBufferPeriodTime(maxBaudrate / baudrate * durationS300);
             break;
 
         case 3000:
-            setDataBufferPeriodTime(durationS3000);
+            setDataBufferPeriodTime(maxBaudrate / baudrate * durationS3000);
             break;
 
         default:
@@ -246,7 +247,7 @@ int  LadarSickS::moduleLoop(void)
             break;
 
         default:
-            GDOS_ERROR("Device family is not supported !\n", size);
+            GDOS_ERROR("Device family is not supported !\n");
             return -1;
     }
 
