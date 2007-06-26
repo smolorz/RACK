@@ -28,7 +28,7 @@
 
 #include <main/rack_proxy.h>
 
-#define CHASSIS_INVAL_PILOT            0xFFFFFFFF
+#define CHASSIS_INVAL_PILOT            0xFFFFFF00
 
 //######################################################################
 //# Chassis Message Types
