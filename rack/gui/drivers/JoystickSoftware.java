@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Oliver Wulf      <wulf@rts.uni-hannover.de>
+ *      Oliver Wulf      <oliver.wulf@web.de>
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
@@ -64,26 +64,36 @@ public class JoystickSoftware extends RackDataModuleGui
     protected JoystickDataMsg outputData = new JoystickDataMsg();
 
     protected JPanel pilotPanel;
-    protected JButton pilot0Button = new JButton("Pilot(0)");
-    protected JButton pilot1Button = new JButton("Pilot(1)");
-    protected JButton pilot2Button = new JButton("Pilot(2)");
-    protected JButton noPilotButton = new JButton("No Pilot");
+    protected JButton pilotButton[];
 
     protected ChassisProxy chassisProxy;
     protected PilotProxy[] pilotProxy;
+    protected String[]     pilotName;
 
     public JoystickSoftware(GuiElementDescriptor guiElement)
     {
-        super(RackName.JOYSTICK, guiElement.getInstance(), guiElement);
+        super(RackName.JOYSTICK, guiElement.getInstance(), 100, guiElement);
 
-        this.periodTime = 100;
-        this.joystickProxy = (JoystickProxy)guiElement.getProxy();
-        
-        chassisProxy = (ChassisProxy)guiElement.getMainGui().getProxy(RackName.CHASSIS, 0);
-        pilotProxy = new PilotProxy[3];
-        pilotProxy[0] = (PilotProxy)guiElement.getMainGui().getProxy(RackName.PILOT, 0);
-        pilotProxy[1] = (PilotProxy)guiElement.getMainGui().getProxy(RackName.PILOT, 1);
-        pilotProxy[2] = (PilotProxy)guiElement.getMainGui().getProxy(RackName.PILOT, 2);
+        joystickProxy = (JoystickProxy)proxy;
+
+        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, 0);
+
+        int i;
+        for(i = 0; i < 8; i++)
+        {
+            if(mainGui.getGuiElement(RackName.PILOT, i) == null)
+            {
+                break;
+            }
+        }
+        pilotProxy = new PilotProxy[i];
+        pilotName = new String[i];
+        for(i = 0; i < pilotProxy.length; i++)
+        {
+            GuiElementDescriptor ge = mainGui.getGuiElement(RackName.PILOT, i);
+            pilotProxy[i] = (PilotProxy)ge.getProxy();
+            pilotName[i] = ge.getName();
+        }
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -129,8 +139,6 @@ public class JoystickSoftware extends RackDataModuleGui
         outputData.position.x = 0;
         outputData.position.y = 0;
         outputData.buttons    = 0;
-
-        setEnabled(false);
 
         forwardButton.addActionListener(new ActionListener()
         {
@@ -184,47 +192,32 @@ public class JoystickSoftware extends RackDataModuleGui
         steeringPanel.add(new JLabel());
         // steeringPanel.setMaximumSize(new Dimension(200,200));
 
-        pilot0Button.addActionListener(new ActionListener()
+        ActionListener pilotButtonActionListener = new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                pilot(0);
+                int pilot = Integer.parseInt(e.getActionCommand());
+                activatePilot(pilot);
                 stopButton.grabFocus();
             }
-        });
-
-        pilot1Button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilot(1);
-                stopButton.grabFocus();
-            }
-        });
-
-        pilot2Button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilot(2);
-                stopButton.grabFocus();
-            }
-        });
-
-        noPilotButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilot(ChassisProxy.INVAL_PILOT);
-                stopButton.grabFocus();
-            }
-        });
+        };
 
         pilotPanel = new JPanel(new GridLayout(0, 1, 2, 2));
-        pilotPanel.add(pilot0Button);
-        pilotPanel.add(pilot1Button);
-        pilotPanel.add(pilot2Button);
-        pilotPanel.add(noPilotButton);
+        pilotButton = new JButton[pilotProxy.length + 1];
+        
+        for(i = 0; i < pilotProxy.length; i++)
+        {
+            pilotButton[i] = new JButton(pilotName[i]);
+            pilotButton[i].setActionCommand(Integer.toString(i));
+            pilotButton[i].addActionListener(pilotButtonActionListener);
+            pilotPanel.add(pilotButton[i]);
+        }
+
+        i = pilotProxy.length;
+        pilotButton[i] = new JButton("No Pilot");
+        pilotButton[i].setActionCommand(Integer.toString(ChassisProxy.INVAL_PILOT));
+        pilotButton[i].addActionListener(pilotButtonActionListener);
+        pilotPanel.add(pilotButton[i]);
 
         centerPanel = new JPanel(new BorderLayout(2, 2));
         centerPanel.add(labelPanel, BorderLayout.NORTH);
@@ -318,10 +311,12 @@ public class JoystickSoftware extends RackDataModuleGui
         rightButton.addKeyListener(keyListener);
         stopButton.addKeyListener(keyListener);
 
-        pilot0Button.addKeyListener(keyListener);
-        pilot1Button.addKeyListener(keyListener);
-        pilot2Button.addKeyListener(keyListener);
-        noPilotButton.addKeyListener(keyListener);
+        for(i = 0; i < pilotButton.length; i++)
+        {
+            pilotButton[i].addKeyListener(keyListener);
+        }
+
+        setEnabled(false);
     }
 
     public synchronized void forward()
@@ -407,12 +402,12 @@ public class JoystickSoftware extends RackDataModuleGui
         zero();
     }
 
-    public synchronized void pilot(int pilot)
+    public synchronized void activatePilot(int pilot)
     {
         zero();
 
         // turn off pilots
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < pilotProxy.length; i++)
         {
             if((i != pilot) && (pilotProxy[i] != null))
                 pilotProxy[i].off();
@@ -430,7 +425,7 @@ public class JoystickSoftware extends RackDataModuleGui
         }
 
         // turn on pilot
-        if((pilot >= 0) && (pilotProxy[pilot] != null))
+        if((pilot >= 0) && (pilot < pilotProxy.length))
         {
             pilotProxy[pilot].on();
         }
@@ -478,6 +473,16 @@ public class JoystickSoftware extends RackDataModuleGui
     {
         synchronized (this)
         {
+            boolean pilotButtonHasFocus = false;
+            for(int i = 0; i < pilotButton.length; i++)
+            {
+                if(pilotButton[i].hasFocus())
+                {
+                    pilotButtonHasFocus = true;
+                    break;
+                }
+            }
+
             if( !panel.hasFocus() &
                 !onButton.hasFocus() &
                 !offButton.hasFocus() &
@@ -486,10 +491,7 @@ public class JoystickSoftware extends RackDataModuleGui
                 !leftButton.hasFocus() &
                 !rightButton.hasFocus() &
                 !stopButton.hasFocus() &
-                !pilot0Button.hasFocus() &
-                !pilot1Button.hasFocus() &
-                !pilot2Button.hasFocus() &
-                !noPilotButton.hasFocus())
+                !pilotButtonHasFocus)
             {
                 zero();
             }
@@ -526,16 +528,6 @@ public class JoystickSoftware extends RackDataModuleGui
         return panel;
     }
 
-    public String getModuleName()
-    {
-        return "joystick";
-    }
-
-    public RackProxy getProxy()
-    {
-        return joystickProxy;
-    }
-
     public void setEnabled(boolean enabled)
     {
         xNameLabel.setEnabled(enabled);
@@ -551,9 +543,9 @@ public class JoystickSoftware extends RackDataModuleGui
         rightButton.setEnabled(enabled);
         stopButton.setEnabled(enabled);
 
-        pilot0Button.setEnabled(enabled);
-        pilot1Button.setEnabled(enabled);
-        pilot2Button.setEnabled(enabled);
-        noPilotButton.setEnabled(enabled);
+        for(int i = 0; i < pilotButton.length; i++)
+        {
+            pilotButton[i].setEnabled(enabled);
+        }
     }
 }
