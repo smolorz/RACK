@@ -20,7 +20,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
-import rack.gui.main.MapViewDrawContext;
+import rack.gui.MapViewDrawContext;
 import rack.gui.main.RackModuleGui;
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;

@@ -21,6 +21,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
+import rack.gui.MapViewDrawContext;
 import rack.gui.main.*;
 import rack.main.defines.*;
 import rack.perception.Scan2dDataMsg;

@@ -28,10 +28,6 @@ import java.awt.image.MemoryImageSource;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import rack.gui.main.MapViewActionEvent;
-import rack.gui.main.MapViewActionList;
-import rack.gui.main.MapViewCursorDrawContext;
-import rack.gui.main.MapViewDrawContext;
 
 /**
  * Diese Klasse ist die Superklasse aller GUI Elemente. Dadurch das die abtrakten Methoden implementiert werden muessen,

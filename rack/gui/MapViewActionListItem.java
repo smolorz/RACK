@@ -1,4 +1,4 @@
-package rack.gui.main;
+package rack.gui;
 
 public class MapViewActionListItem
 {

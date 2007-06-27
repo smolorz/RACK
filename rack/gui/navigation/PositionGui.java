@@ -23,6 +23,9 @@ import java.util.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
+import rack.gui.MapViewActionEvent;
+import rack.gui.MapViewActionList;
+import rack.gui.MapViewDrawContext;
 import rack.gui.main.*;
 import rack.main.*;
 import rack.drivers.GpsDataMsg;

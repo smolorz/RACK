@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.main;
+package rack.gui;
 
 import rack.main.defines.Position2d;
 

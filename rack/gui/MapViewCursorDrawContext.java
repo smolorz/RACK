@@ -13,26 +13,15 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.main;
+package rack.gui;
 
-import java.util.ArrayList;
+import java.awt.Graphics2D;
 
-public class MapViewActionList extends ArrayList<MapViewActionListItem>
+
+public interface MapViewCursorDrawContext extends MapViewDrawContext,
+        MapViewActionEvent
 {
-    public String title;
 
-    private static final long serialVersionUID = 1L;
+    public Graphics2D getCursorGraphics();
 
-    public MapViewActionList(String n_title)
-    {
-        title = n_title;
-    }
-
-    public MapViewActionListItem addItem(String title, String actionCommand)
-    {
-        MapViewActionListItem newItem = new MapViewActionListItem(title,
-                actionCommand);
-        this.add(newItem);
-        return newItem;
-    }
 }

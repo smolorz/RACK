@@ -26,7 +26,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.imageio.*;
 
-import rack.gui.main.*;
 import rack.main.defines.*;
 import rack.main.tims.*;
 import rack.drivers.*;
