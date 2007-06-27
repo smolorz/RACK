@@ -434,7 +434,7 @@ unsigned int  LadarSickLms200::norm_createLadarData(
                 serialBuffer[conf->serial_buffer_size - 1]);
     if (a != b)
     {
-        GDOS_ERROR("CRC check wrong: 0x%02x != 0x%02x\n", a, b);
+        GDOS_ERROR("CRC check wrong: %x != %x\n", a, b);
         return 0 ;
     }
 
@@ -731,7 +731,7 @@ unsigned int LadarSickLms200::int_createLadarData(
             b = MKSHORT(serialBuffer[365 + 7 - 2], serialBuffer[365 + 7 - 1]);
             if (a != b)
             {
-                GDOS_ERROR("CRC check wrong: 0x%02x != 0x%02x\n", a, b);
+                GDOS_ERROR("CRC check wrong: %x != %x\n", a, b);
                 return 0 ;
             }
 
