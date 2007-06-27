@@ -19,39 +19,41 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.RackModuleGui;
-import rack.main.*;
 import rack.drivers.OdometryDataMsg;
 import rack.drivers.OdometryProxy;
 
 public class OdometryGui extends RackModuleGui
 {
-    protected JButton onButton;
-    protected JButton offButton;
-    protected JButton resetButton = new JButton("Data Reset");
-    protected JPanel panel;
-    protected JPanel buttonPanel;
-    protected JPanel labelPanel;
+    protected JButton       onButton;
+    protected JButton       offButton;
+    protected JButton       resetButton  = new JButton("Data Reset");
+    protected JPanel        panel;
+    protected JPanel        buttonPanel;
+    protected JPanel        labelPanel;
 
-    protected JLabel xNameLabel = new JLabel("X [mm]", SwingConstants.RIGHT);
-    protected JLabel yNameLabel = new JLabel("Y [mm]", SwingConstants.RIGHT);
-    protected JLabel zNameLabel = new JLabel("Z [mm]", SwingConstants.RIGHT);
-    protected JLabel phiNameLabel = new JLabel("Phi", SwingConstants.RIGHT);
-    protected JLabel psiNameLabel = new JLabel("Psi", SwingConstants.RIGHT);
-    protected JLabel rhoNameLabel = new JLabel("Rho", SwingConstants.RIGHT);
+    protected JLabel        xNameLabel   = new JLabel("X [mm]", SwingConstants.RIGHT);
+    protected JLabel        yNameLabel   = new JLabel("Y [mm]", SwingConstants.RIGHT);
+    protected JLabel        zNameLabel   = new JLabel("Z [mm]", SwingConstants.RIGHT);
+    protected JLabel        phiNameLabel = new JLabel("Phi", SwingConstants.RIGHT);
+    protected JLabel        psiNameLabel = new JLabel("Psi", SwingConstants.RIGHT);
+    protected JLabel        rhoNameLabel = new JLabel("Rho", SwingConstants.RIGHT);
 
-    protected JLabel xLabel = new JLabel("-0000000");
-    protected JLabel yLabel = new JLabel("-0000000");
-    protected JLabel zLabel = new JLabel("-0000000");
-    protected JLabel phiLabel = new JLabel("-000.00 ");
-    protected JLabel psiLabel = new JLabel("-000.00 ");
-    protected JLabel rhoLabel = new JLabel("-000.00 ");
+    protected JLabel        xLabel       = new JLabel("-0000000");
+    protected JLabel        yLabel       = new JLabel("-0000000");
+    protected JLabel        zLabel       = new JLabel("-0000000");
+    protected JLabel        phiLabel     = new JLabel("-000.00 ");
+    protected JLabel        psiLabel     = new JLabel("-000.00 ");
+    protected JLabel        rhoLabel     = new JLabel("-000.00 ");
 
     protected OdometryProxy odometry;
 
-    public OdometryGui(OdometryProxy proxy)
+    public OdometryGui(GuiElementDescriptor guiElement)
     {
-        odometry = proxy;
+        super(guiElement);
+
+        odometry = (OdometryProxy) proxy;
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -65,24 +67,21 @@ public class OdometryGui extends RackModuleGui
         onButton = new JButton("On");
         offButton = new JButton("Off");
 
-        onButton.addActionListener(new ActionListener()
-        {
+        onButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 odometry.on();
             }
         });
 
-        offButton.addActionListener(new ActionListener()
-        {
+        offButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 odometry.off();
             }
         });
 
-        resetButton.addActionListener(new ActionListener()
-        {
+        resetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 odometry.reset();
@@ -118,16 +117,6 @@ public class OdometryGui extends RackModuleGui
         return (panel);
     }
 
-    public String getModuleName()
-    {
-        return ("Odometry");
-    }
-
-    public RackProxy getProxy()
-    {
-        return (odometry);
-    }
-
     public void run()
     {
         OdometryDataMsg data;
@@ -143,15 +132,9 @@ public class OdometryGui extends RackModuleGui
                     xLabel.setText(data.position.x + "");
                     yLabel.setText(data.position.y + "");
                     zLabel.setText(data.position.z + "");
-                    phiLabel.setText(Math.rint(Math
-                            .toDegrees(data.position.phi))
-                            + " ");
-                    psiLabel.setText(Math.rint(Math
-                            .toDegrees(data.position.psi))
-                            + " ");
-                    rhoLabel.setText(Math.rint(Math
-                            .toDegrees(data.position.rho))
-                            + " ");
+                    phiLabel.setText(Math.rint(Math.toDegrees(data.position.phi)) + " ");
+                    psiLabel.setText(Math.rint(Math.toDegrees(data.position.psi)) + " ");
+                    rhoLabel.setText(Math.rint(Math.toDegrees(data.position.rho)) + " ");
 
                     resetButton.setEnabled(true);
 

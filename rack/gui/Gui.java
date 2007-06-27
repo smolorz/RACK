@@ -26,12 +26,15 @@ import java.util.Vector;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import rack.gui.main.RackModuleGui;
 import rack.main.*;
 import rack.main.tims.*;
 
-public final class Gui extends Thread implements GuiInterface
+public final class Gui extends Thread
 {
+    //
+    // global variables
+    //
+    
     static final int GUI_MAX_INSTANCES = 4;
 
     // general
@@ -44,7 +47,7 @@ public final class Gui extends Thread implements GuiInterface
 
     GuiCfg                  cfg;
 
-    ClassLoader             guiCL = this.getContextClassLoader();
+    ClassLoader             guiCL;
 
     Tims                    tims;
     String                  timsClass = null;
@@ -79,6 +82,10 @@ public final class Gui extends Thread implements GuiInterface
     JInternalFrame          mapViewFrame;
     TimsMbx                 mapViewReplyMbx;
 
+    //
+    // constructor
+    //
+    
     public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader,
                String timsClass, String timsParam) throws Exception
     {
@@ -87,27 +94,19 @@ public final class Gui extends Thread implements GuiInterface
 
         try
         {
-            cfg = new GuiCfg(this);
-            
             // reading config file
+            cfg = new GuiCfg(this);
             cfg.readConfig(cfgReader);
 
-            if (elements.size() <= 0)
-            {
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "Config file empty.\n" + 
-                        "GUI config file has to contain at least one module",
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                throw new Exception("Config file empty");
-            }
-    
+            guiCL = this.getContextClassLoader();
+            
             // load additional jar files
             for (int i = 0; i < jarfiles.size(); i++)
             {
-                File jarfile = new File(jarfiles.get(i));
-                
                 try
                 {
+                    File jarfile = new File(jarfiles.get(i));
+                    
                     URL urls[] = new URL[] { jarfile.toURI().toURL() };
                     guiCL = new URLClassLoader(urls, guiCL);
 
@@ -116,7 +115,8 @@ public final class Gui extends Thread implements GuiInterface
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(mainFrameContent,
-                                    "Can't load jar file \"" + jarfile + "\"",
+                                    "Can't load jar file.\n" +
+                                    jarfiles.get(i),
                                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
                 }
@@ -134,7 +134,8 @@ public final class Gui extends Thread implements GuiInterface
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(mainFrameContent,
-                                    "Can't load RackName extension \"" + rackName + "\"",
+                                    "Can't load RackName extension.\n" +
+                                    rackName,
                                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw e;
                 }
@@ -184,20 +185,16 @@ public final class Gui extends Thread implements GuiInterface
                 throw e;
             }
     
-            System.out.println("Initializing mailboxes ...");
+            System.out.println("Initializing Proxies ...");
             initMbx();
+            initProxies();
     
             System.out.println("Initializing GUI ...");
             initGui();
-    
-            System.out.println("Initializing Proxies ...");
-            initProxies();
-    
-            System.out.println("Initializing layout ...");
-            loadLayout();
-    
-            System.out.println("Starting ...");
             start();
+
+            System.out.println("Restoring GuiElements ...");
+            restoreGuiElements();
 
             if(mainFrame != null)
             {
@@ -206,6 +203,7 @@ public final class Gui extends Thread implements GuiInterface
                 mainFrame.setSize(mainFrameSize);
                 mainFrame.setVisible(true);
             }
+            System.out.println("GUI started ...");
         }
         catch(Exception e)
         {
@@ -214,18 +212,36 @@ public final class Gui extends Thread implements GuiInterface
         }
     }
 
-    public RackProxy getProxy(int moduleName, int instance)
+    //
+    // public interface
+    //
+    
+    public GuiElementDescriptor getGuiElement(int moduleName, int instance)
     {
         for(int i = 0; i < elements.size(); i++)
         {
-            RackProxy proxy = elements.get(i).proxy;
+            GuiElementDescriptor ge = elements.get(i);
             
-            if(proxy.getCommandMbx() == RackName.create(moduleName, instance))
+            if((ge.proxy != null) && (ge.proxy.getCommandMbx() == RackName.create(moduleName, instance)))
             {
-                return proxy;
+                return ge;
             }
         }
         return null;
+    }
+
+    public RackProxy getProxy(int moduleName, int instance)
+    {
+        GuiElementDescriptor ge = getGuiElement(moduleName, instance);
+        
+        if(ge != null)
+        {
+            return ge.proxy;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public Tims getTims()
@@ -233,120 +249,11 @@ public final class Gui extends Thread implements GuiInterface
         return tims;
     }
 
-    private void loadLayout()
-    {
-        for (int i = 0; i < elements.size(); i++)
-        {
-            GuiElementDescriptor ge = elements.get(i);
-            
-            if ((ge.size.width != 0) && (ge.size.height != 0))
-            {
-                openModule(ge);
-                // System.out.println("module[" + i + "] is open");
-            }
-            else
-            {
-                // System.out.println("module[" + i + "] is not open");
-            }
-        }
-    }
-
-    private void createModuleGui(GuiElementDescriptor ge)
-    {
-        Class<?>                moduleGuiClass;
-
-        // fuer den konstruktor ...(Proxy proxy)
-        Class<?>[] guiConstrArgsTypes = new Class<?>[1];
-        Object[] guiConstrArgs = new Object[1];
-        // fuer den konstruktor ...(GuiElementDescriptor guiElement)
-        Class<?>[] guiConstrArgsTypes2 = new Class<?>[1];
-        Object[] guiConstrArgs2 = new Object[1];
-
-        try
-        {
-            moduleGuiClass = guiCL.loadClass(ge.guiClass);
-        }
-        catch (ClassNotFoundException e1)
-        {
-            JOptionPane.showMessageDialog(mainFrameContent,
-                    "Can't load module gui.\n" +
-                    "\"" + ge.guiClass + "\"",
-                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try
-        {
-            guiConstrArgsTypes[0] = guiCL.loadClass(ge.proxyClass);
-        }
-        catch (ClassNotFoundException e1)
-        {
-            JOptionPane.showMessageDialog(mainFrameContent,
-                    "Can't load module proxy.\n" + 
-                    "\"" + ge.proxyClass + "\" class not found! \n" +
-                    "Tip: Use parameter \"-proxy=...\" in config-File.",
-                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        guiConstrArgs2[0] = ge;
-        guiConstrArgsTypes2[0] = GuiElementDescriptor.class;
-
-        try
-        {
-            ge.gui = (RackModuleGui) moduleGuiClass.getConstructor(guiConstrArgsTypes2)
-                                                   .newInstance(guiConstrArgs2);
-        }
-        catch (Exception e)
-        {
-        }
-
-        // wenn das nicht klappt, dann den aelteren standart-konstuktor nehmen
-        if (ge.gui == null)
-        {
-            guiConstrArgs[0] = ge.proxy;
-            
-            try
-            {
-                ge.gui = (RackModuleGui) moduleGuiClass.getConstructor(guiConstrArgsTypes)
-                                                       .newInstance(guiConstrArgs);
-            }
-            catch (IllegalArgumentException e)
-            {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + ge.guiClass + "\" Illegal Argument!", 
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            catch (InstantiationException e)
-            {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + ge.guiClass + "\" Instantiation Exception!", 
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            catch (NoSuchMethodException e)
-            {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + ge.guiClass + "\" No Such Method Exception!", 
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "\"" + ge.guiClass + "\" getConstructor/newInstance Exception!", 
-                        "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-    }
-
-    private void initMbx() throws TimsException
+    //
+    // end public interface
+    //
+    
+    protected void initMbx() throws TimsException
     {
         int inst = 0;
 
@@ -385,38 +292,60 @@ public final class Gui extends Thread implements GuiInterface
         }
     }
 
-    private void initProxies() throws Exception
+    protected void initProxies() throws Exception
     {
         for (int i = 0; i < elements.size(); i++)
         {
-            initProxy(elements.get(i));
+            GuiElementDescriptor ge = elements.get(i);
+            
+            if(ge.proxyClass.length() > 0)
+            {
+                initProxy(elements.get(i));
+            }
         }
     }
 
-    private void initProxy(GuiElementDescriptor ge) throws Exception
+    protected void initProxy(GuiElementDescriptor ge) throws Exception
     {
-        Class<?>[] proxyConstrArgsTypes = new Class<?>[] { int.class, TimsMbx.class };
-        Object[] proxyConstrArgs = new Object[2];
-        proxyConstrArgs[0] = new Integer(ge.instance);
-        proxyConstrArgs[1] = ge.replyMbx;
+        Class<?> rackProxyClass;
 
         try
         {
-            ge.proxy = (RackProxy) guiCL.loadClass(ge.proxyClass)
-                                        .getConstructor(proxyConstrArgsTypes)
-                                        .newInstance(proxyConstrArgs);
+            rackProxyClass = guiCL.loadClass(ge.proxyClass);
         }
         catch (Exception e)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
-                    "Can't load module proxy.\n" +
-                    "\"" + ge.proxyClass + "\"",
+                    "Can't load RackProxy.\n" +
+                    ge.proxyClass,
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            throw e;
+        }
+        
+        Class<?>[] proxyConstrArgsTypes = new Class<?>[2];
+        Object[] proxyConstrArgs = new Object[2];
+
+        proxyConstrArgsTypes[0] = int.class;
+        proxyConstrArgs[0] = new Integer(ge.instance);
+        proxyConstrArgsTypes[1] = TimsMbx.class;
+        proxyConstrArgs[1] = ge.replyMbx;
+
+        try
+        {
+            ge.proxy = (RackProxy) rackProxyClass.getConstructor(proxyConstrArgsTypes)
+                                                 .newInstance(proxyConstrArgs);
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(mainFrameContent,
+                    "Can't create RackProxy instance.\n" +
+                    ge.cfg,
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
             throw e;
         }
     }
 
-    private void initGui() throws Exception
+    protected void initGui() throws Exception
     {
         try
         {
@@ -438,10 +367,8 @@ public final class Gui extends Thread implements GuiInterface
         navInterPanel.add(BorderLayout.NORTH, navPanel);
 
         navScrollPanel = new JScrollPane(navInterPanel);
-        navScrollPanel
-                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        navScrollPanel
-                .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        navScrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        navScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         navScrollPanel.setPreferredSize(new Dimension(160, 10));
 
         // create groupsPanel
@@ -556,7 +483,137 @@ public final class Gui extends Thread implements GuiInterface
         mainFrameContent.setVisible(true);
     }
 
-    private void initModule(GuiElementDescriptor ge)
+    protected void restoreGuiElements()
+    {
+        for (int i = 0; i < elements.size(); i++)
+        {
+            GuiElementDescriptor ge = elements.get(i);
+            
+            if ((ge.size.width != 0) && (ge.size.height != 0))
+            {
+                openGuiElement(ge);
+            }
+        }
+    }
+
+    protected void initGuiElement(GuiElementDescriptor ge)
+    {
+        Class<?> guiElementClass;
+
+        try
+        {
+            guiElementClass = guiCL.loadClass(ge.guiClass);
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainFrameContent,
+                    "Can't load GuiElement\n" +
+                    ge.guiClass,
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // fuer den konstruktor ...(GuiElementDescriptor guiElement)
+        Class<?>[] guiConstrArgsTypes = new Class<?>[1];
+        Object[] guiConstrArgs = new Object[1];
+
+        guiConstrArgsTypes[0] = GuiElementDescriptor.class;
+        guiConstrArgs[0] = ge;
+
+        try
+        {
+            ge.gui = (GuiElement) guiElementClass.getConstructor(guiConstrArgsTypes)
+                                                 .newInstance(guiConstrArgs);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(mainFrameContent,
+                    "Can't create GuiElement instance\n" +
+                    ge.cfg,
+                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        ge.gui.start();
+
+        ge.frame = new JInternalFrame(ge.name, true, true, true, true);
+        ge.frame.getContentPane().add(ge.gui.getComponent());
+
+        Action action = new AbstractAction()
+        {
+            private static final long serialVersionUID = 1L;
+
+            public void actionPerformed(ActionEvent e)
+            {
+                if (fullScreenModule == -1)
+                {
+                    JInternalFrame frame = workspaces.get(jtp.getSelectedIndex()).jdp.getSelectedFrame();
+                    int module;
+                    for (module = 0; module < elements.size(); module++)
+                    {
+                        if (elements.get(module).frame == frame)
+                            break;
+                    }
+                    if (module == elements.size())
+                        return;
+
+                    fullScreenModule = module;
+                    elements.get(module).gui.toggleFullScreen();
+                }
+                else
+                {
+                    elements.get(fullScreenModule).gui.toggleFullScreen();
+                    fullScreenModule = -1;
+                }
+            }
+        };
+
+        ge.gui.getComponent().getInputMap().
+            put(KeyStroke.getKeyStroke("F11"), "fullScreen");
+        ge.gui.getComponent().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+            put(KeyStroke.getKeyStroke("F11"), "fullScreen");
+        ge.gui.getComponent().getActionMap().put("fullScreen", action);
+
+        ge.frame.addInternalFrameListener(new InternalFrameAdapter()
+        {
+            public void internalFrameClosing(InternalFrameEvent e)
+            {
+                Object sourceFrame = e.getSource();
+                GuiElementDescriptor ge = null;
+
+                for (int i = 0; i < elements.size(); i++)
+                {
+                    ge = elements.get(i);
+                    if (sourceFrame == ge.frame)
+                    {
+                        break;
+                    }
+                }
+                ge.gui.terminate();
+                ge.gui = null;
+                ge.frame = null;
+            }
+        });
+        ge.frame.pack();
+        ge.frame.setVisible(true);
+
+        if ((ge.size.width == 0) && (ge.size.height == 0))
+        {
+            int id = elements.indexOf(ge);
+            ge.frame.setLocation(100 * (id / 10) + 20 * (id % 10),
+                    25 + 25 * (id % 10));
+        }
+        else
+        {
+            ge.frame.setLocation(ge.location);
+            ge.frame.setSize(ge.size);
+        }
+        ge.workspace.jdp.add(ge.frame);
+    }
+
+    protected void addNavPanel(GuiElementDescriptor ge)
     {
         ge.navPanel = new JPanel(new BorderLayout());
 
@@ -604,8 +661,8 @@ public final class Gui extends Thread implements GuiInterface
 
                     if ((ae.getModifiers() & ActionEvent.CTRL_MASK) == 0)
                     {
-                        openModule(ge);
-                        relocateModule(ge);
+                        openGuiElement(ge);
+                        relocateGuiElement(ge);
                     }
                     else
                     {
@@ -632,104 +689,28 @@ public final class Gui extends Thread implements GuiInterface
         ge.group.panel.add(ge.navPanel);
     }
 
-    private void openModule(GuiElementDescriptor ge)
+    protected void openGuiElement(GuiElementDescriptor ge)
     {
         if (ge.gui == null)
         {
-
-            createModuleGui(ge); // gleichzeitig wird moduleProxy[id] erzeugt .
-            ge.gui.start();
-
-            ge.frame = new JInternalFrame(ge.name, true, true, true, true);
-            ge.frame.getContentPane().add(ge.gui.getComponent());
-
-            Action action = new AbstractAction()
-            {
-				private static final long serialVersionUID = 1L;
-
-				public void actionPerformed(ActionEvent e)
-                {
-                	if (fullScreenModule == -1)
-                	{
-    					JInternalFrame frame = workspaces.get(jtp.getSelectedIndex()).jdp.getSelectedFrame();
-                    	int module;
-    	                for (module = 0; module < elements.size(); module++)
-    	                {
-    	                    if (elements.get(module).frame == frame)
-                                break;
-    	                }
-    	                if (module == elements.size())
-    	                	return;
-
-                		fullScreenModule = module;
-                        elements.get(module).gui.toggleFullScreen();
-                	}
-                	else
-                	{
-                        elements.get(fullScreenModule).gui.toggleFullScreen();
-                		fullScreenModule = -1;
-                	}
-            	}
-            };
-            ge.gui.getComponent().getInputMap().
-                put(KeyStroke.getKeyStroke("F11"), "fullScreen");
-            ge.gui.getComponent().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
-            	put(KeyStroke.getKeyStroke("F11"), "fullScreen");
-            ge.gui.getComponent().getActionMap().put("fullScreen", action);
-            ge.frame.addInternalFrameListener(new InternalFrameAdapter()
-            {
-                public void internalFrameClosing(InternalFrameEvent e)
-                {
-                    Object o = e.getSource();
-                    int module = -1;
-                    for (int j = 0; j < elements.size(); j++)
-                    {
-                        if (o == elements.get(j).frame)
-                        {
-                            module = j;
-                            break;
-                        }
-                    }
-                    if (elements.get(module).gui != null)
-                    {
-                        ((RackModuleGui) elements.get(module).gui).terminate();
-                        elements.get(module).gui = null;
-                    }
-                    elements.get(module).frame = null;
-
-                    // System.out.println("Internal frame is closing");
-                }
-            });
-            ge.frame.pack();
-            ge.frame.setVisible(true);
-
-            if ((ge.size.width == 0) && (ge.size.height == 0))
-            {
-                int id = elements.indexOf(ge);
-                ge.frame.setLocation(100 * (id / 10) + 20 * (id % 10),
-                        25 + 25 * (id % 10));
-            }
-            else
-            {
-                ge.frame.setLocation(ge.location);
-                ge.frame.setSize(ge.size);
-            }
-            ge.workspace.jdp.add(ge.frame);
+            initGuiElement(ge);
         }
 
-        try
+        if(ge.gui != null)
         {
-            ge.frame.moveToFront();
-            ge.frame.setSelected(true);
-            jtp.setSelectedIndex(workspaces.indexOf(ge.workspace));
-        }
-        catch (java.beans.PropertyVetoException pe)
-        {
-            pe.printStackTrace();
+            try
+            {
+                ge.frame.moveToFront();
+                ge.frame.setSelected(true);
+                jtp.setSelectedIndex(workspaces.indexOf(ge.workspace));
+            }
+            catch (java.beans.PropertyVetoException pe)
+            {
+            }
         }
     }
 
-    private void relocateModule(GuiElementDescriptor ge)
+    protected void relocateGuiElement(GuiElementDescriptor ge)
     {
         Point     pos       = ge.frame.getLocation();
         Dimension size      = ge.frame.getSize();
@@ -748,7 +729,7 @@ public final class Gui extends Thread implements GuiInterface
         ge.frame.setLocation(pos);
     }
 
-    private void updateAllStatus()
+    protected void updateAllStatus()
     {
         for (int i = 0; i < groups.size(); i++)
         {
@@ -768,6 +749,9 @@ public final class Gui extends Thread implements GuiInterface
 
         try
         {
+            //System.out.println("Get all status");
+            //int getAllStatusTime = (int)(System.nanoTime() / 1000000L);
+
             getStatusSeqNr++;
             if (getStatusSeqNr > 100)
                 getStatusSeqNr = 0;
@@ -802,6 +786,9 @@ public final class Gui extends Thread implements GuiInterface
                 reply = getStatusReplyMbx.receive(1000);
                 if (reply.seqNr == getStatusSeqNr)
                 {
+                    //int replyTime = (int)(System.nanoTime() / 1000000L);
+                    //System.out.println("Status reply: " + reply.toString() + " time " + (replyTime - getAllStatusTime));
+                    
                     // update module status array
                     for (int i = 0; i < elements.size(); i++)
                     {
@@ -858,7 +845,7 @@ public final class Gui extends Thread implements GuiInterface
                 case RackProxy.MSG_ERROR:
                     if (ge.navPanel == null)
                     {
-                        initModule(ge);
+                        addNavPanel(ge);
                     }
                     ge.navStatusButton.setEnabled(true);
                     ge.navStatusButton.setSelected(true);
@@ -872,7 +859,7 @@ public final class Gui extends Thread implements GuiInterface
                 case RackProxy.MSG_ENABLED:
                     if (ge.navPanel == null)
                     {
-                        initModule(ge);
+                        addNavPanel(ge);
                     }
                     ge.navStatusButton.setEnabled(true);
                     ge.navStatusButton.setSelected(true);
@@ -886,7 +873,7 @@ public final class Gui extends Thread implements GuiInterface
                 case RackProxy.MSG_DISABLED:
                     if (ge.navPanel == null)
                     {
-                        initModule(ge);
+                        addNavPanel(ge);
                     }
                     ge.navStatusButton.setEnabled(true);
                     ge.navStatusButton.setSelected(false);
@@ -965,7 +952,7 @@ public final class Gui extends Thread implements GuiInterface
         try
         {
             this.interrupt();
-            this.join(100);
+            this.join(1000);
         }
         catch (Exception e) {}
         
@@ -1008,8 +995,8 @@ public final class Gui extends Thread implements GuiInterface
     // Starting RACK GUI as an application
     //
     
-    private static File mainSaveConfigFile;
-    private static Gui mainGui;
+    protected static File mainSaveConfigFile;
+    protected static Gui mainGui;
 
     public static void main(String[] args)
     {

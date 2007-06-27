@@ -1,3 +1,18 @@
+/*
+ * RACK - Robotics Application Construction Kit
+ * Copyright (C) 2005-2007 University of Hannover
+ *                         Institute for Systems Engineering - RTS
+ *                         Professor Bernardo Wagner
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * Authors
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
+ *
+ */
 package rack.gui;
 
 import java.awt.Dimension;
@@ -8,41 +23,41 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import rack.gui.main.RackModuleGui;
 import rack.main.RackProxy;
+import rack.main.tims.Tims;
 import rack.main.tims.TimsMbx;
 
 public class GuiElementDescriptor
 {
     // general
-    String          name;
-    RackModuleGui   gui;
+    String                 name       = "";
+    GuiElement             gui;
 
-    RackProxy       proxy;
-    int             instance = -1;
-    int             status;
-    TimsMbx         replyMbx;
+    RackProxy              proxy;
+    int                    instance   = -1;
+    int                    status     = Tims.MSG_NOT_AVAILABLE;
+    TimsMbx                replyMbx;
 
     // gui.cfg
-    String          cfg;
-    String[]        cfgSplit;
-    String          guiClass;
-    String          proxyClass;
-    boolean         start;
-    boolean         show;
+    String                 cfg        = "";
+    String[]               cfgSplit   = new String[] {""};
+    String                 guiClass   = "";
+    String                 proxyClass = "";
+    boolean                start      = false;
+    boolean                show       = false;
 
     // swing
-    JInternalFrame  frame;
-    Point           location    = new Point();
-    Dimension       size        = new Dimension();
-    JPanel          navPanel;
-    JButton         navButton;
-    JRadioButton    navStatusButton;
+    JInternalFrame         frame;
+    Point                  location   = new Point();
+    Dimension              size       = new Dimension();
+    JPanel                 navPanel;
+    JButton                navButton;
+    JRadioButton           navStatusButton;
 
     // references
-    GuiInterface            mainGui;
-    GuiGroupDescriptor      group;
-    GuiWorkspaceDescriptor  workspace;
+    Gui                    mainGui;
+    GuiGroupDescriptor     group;
+    GuiWorkspaceDescriptor workspace;
 
     public String getName()
     {
@@ -59,7 +74,7 @@ public class GuiElementDescriptor
         return instance;
     }
     
-    public GuiInterface getMainGui()
+    public Gui getMainGui()
     {
         return mainGui;
     }

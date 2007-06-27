@@ -19,34 +19,37 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.RackModuleGui;
-import rack.main.*;
 import rack.drivers.LadarDataMsg;
 import rack.drivers.LadarProxy;
 
 public class LadarGui extends RackModuleGui
 {
-    public int maxDistance = 10000; // 10m
-    public LadarDataMsg ladarData;
-    protected LadarProxy ladar;
+    public int               maxDistance = 10000; // 10m
+    public LadarDataMsg      ladarData;
+    protected LadarProxy     ladar;
     protected LadarComponent ladarComponent;
 
-    protected JButton onButton;
-    protected JButton offButton;
-    protected JButton zoomOutButton;
-    protected JButton zoomInButton;
-    protected JPanel panel;
-    protected JPanel wButtonPanel;
-    protected JPanel eButtonPanel;
-    protected JPanel northPanel;
-    protected Point aktuellPoint;
-    protected Point mousePressedPoint;
-    protected Point mouseReleasedPoint;
-    protected Point mouseClickedPoint;
+    protected JButton        onButton;
+    protected JButton        offButton;
+    protected JButton        zoomOutButton;
+    protected JButton        zoomInButton;
+    protected JPanel         panel;
+    protected JPanel         wButtonPanel;
+    protected JPanel         eButtonPanel;
+    protected JPanel         northPanel;
+    protected Point          aktuellPoint;
+    protected Point          mousePressedPoint;
+    protected Point          mouseReleasedPoint;
+    protected Point          mouseClickedPoint;
 
-    public LadarGui(LadarProxy proxy)
+    public LadarGui(GuiElementDescriptor guiElement)
     {
-        ladar = proxy;
+        super(guiElement);
+
+        ladar = (LadarProxy) proxy;
+
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
@@ -60,8 +63,7 @@ public class LadarGui extends RackModuleGui
 
         ladarComponent = new LadarComponent(maxDistance);
 
-        ladarComponent.addMouseMotionListener(new MouseMotionListener()
-        {
+        ladarComponent.addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e)
             {
                 // if(e.getButton()==MouseEvent.BUTTON1 ){
@@ -75,8 +77,7 @@ public class LadarGui extends RackModuleGui
             }
         });
 
-        ladarComponent.addMouseListener(new MouseListener()
-        {
+        ladarComponent.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e)
             {
                 // if(e.getButton()==MouseEvent.BUTTON1 ){
@@ -111,8 +112,7 @@ public class LadarGui extends RackModuleGui
 
         ladarComponent.addKeyListener(new myKeyListener());
 
-        onButton.addActionListener(new ActionListener()
-        {
+        onButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 ladar.on();
@@ -121,8 +121,7 @@ public class LadarGui extends RackModuleGui
 
         onButton.addKeyListener(new myKeyListener());
 
-        offButton.addActionListener(new ActionListener()
-        {
+        offButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 ladar.off();
@@ -131,8 +130,7 @@ public class LadarGui extends RackModuleGui
 
         offButton.addKeyListener(new myKeyListener());
 
-        zoomOutButton.addActionListener(new ActionListener()
-        {
+        zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 maxDistance = maxDistance * 2;
@@ -142,8 +140,7 @@ public class LadarGui extends RackModuleGui
 
         zoomOutButton.addKeyListener(new myKeyListener());
 
-        zoomInButton.addActionListener(new ActionListener()
-        {
+        zoomInButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 maxDistance = maxDistance / 2;
@@ -169,16 +166,6 @@ public class LadarGui extends RackModuleGui
     public JComponent getComponent()
     {
         return panel;
-    }
-
-    public String getModuleName()
-    {
-        return ("Ladar");
-    }
-
-    public RackProxy getProxy()
-    {
-        return (ladar);
     }
 
     public void run()

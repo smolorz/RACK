@@ -30,6 +30,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSTable.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{Gui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GuiCfg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui{GuiElement.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GuiElementDescriptor.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GuiGroupDescriptor.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GuiWorkspaceDescriptor.java"/>

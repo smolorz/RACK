@@ -19,99 +19,83 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.MapViewDrawContext;
 import rack.gui.main.RackModuleGui;
-import rack.main.*;
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
 
 public class GpsGui extends RackModuleGui
 {
-    protected boolean       mapViewIsShowing=false;
-    protected GpsDataMsg    gpsData;
+    protected boolean    mapViewIsShowing = false;
+    protected GpsDataMsg gpsData;
 
-    protected JButton onButton;
-    protected JButton offButton;
+    protected JButton    onButton;
+    protected JButton    offButton;
 
-    protected JPanel panel;
-    protected JPanel buttonPanel;
-    protected JPanel labelPanel;
-    protected JPanel northPanel;
+    protected JPanel     panel;
+    protected JPanel     buttonPanel;
+    protected JPanel     labelPanel;
+    protected JPanel     northPanel;
 
-    protected JLabel modeLabel          = new JLabel();
-    protected JLabel modeNameLabel      = new JLabel("Mode",
-                                                     SwingConstants.RIGHT);
-    protected JLabel latLabel           = new JLabel();
-    protected JLabel latNameLabel       = new JLabel("Latitude",
-                                                     SwingConstants.RIGHT);
-    protected JLabel longLabel          = new JLabel();
-    protected JLabel longNameLabel      = new JLabel("Longitude",
-                                                     SwingConstants.RIGHT);
-    protected JLabel altLabel           = new JLabel();
-    protected JLabel altNameLabel       = new JLabel("Altitude",
-                                                     SwingConstants.RIGHT);
-    protected JLabel headLabel          = new JLabel();
-    protected JLabel headNameLabel      = new JLabel("Heading",
-                                                     SwingConstants.RIGHT);
-    protected JLabel speedLabel         = new JLabel();
-    protected JLabel speedNameLabel     = new JLabel("Speed",
-                                                     SwingConstants.RIGHT);
-    protected JLabel satNumLabel        = new JLabel();
-    protected JLabel satNumNameLabel    = new JLabel("Satellites",
-                                                     SwingConstants.RIGHT);
-    protected JLabel pdopLabel          = new JLabel();
-    protected JLabel pdopNameLabel      = new JLabel("PDOP",
-                                                     SwingConstants.RIGHT);
-    protected JLabel utcTimeLabel       = new JLabel();
-    protected JLabel utcTimeNameLabel   = new JLabel("UTC Time",
-                                                     SwingConstants.RIGHT);
-    protected JLabel xGKLabel           = new JLabel();
-    protected JLabel xGKNameLabel       = new JLabel("X",
-                                                     SwingConstants.RIGHT);
-    protected JLabel yGKLabel           = new JLabel();
-    protected JLabel yGKNameLabel       = new JLabel("Y",
-                                                     SwingConstants.RIGHT);
-    protected JLabel zGKLabel           = new JLabel();
-    protected JLabel zGKNameLabel       = new JLabel("Z",
-                                                     SwingConstants.RIGHT);
-    protected JLabel rhoGKLabel         = new JLabel();
-    protected JLabel rhoGKNameLabel     = new JLabel("Rho",
-                                                     SwingConstants.RIGHT);    
-    protected JLabel varXYLabel         = new JLabel();
-    protected JLabel varXYNameLabel     = new JLabel("Variance XY",
-                                                     SwingConstants.RIGHT); 
-    protected JLabel varZLabel          = new JLabel();
-    protected JLabel varZNameLabel      = new JLabel("Variance Z",
-                                                     SwingConstants.RIGHT);    
-    protected JLabel varRhoLabel        = new JLabel();
-    protected JLabel varRhoNameLabel    = new JLabel("Variance Rho",
-                                                     SwingConstants.RIGHT);    
-    public GpsProxy gps;
+    protected JLabel     modeLabel        = new JLabel();
+    protected JLabel     modeNameLabel    = new JLabel("Mode", SwingConstants.RIGHT);
+    protected JLabel     latLabel         = new JLabel();
+    protected JLabel     latNameLabel     = new JLabel("Latitude", SwingConstants.RIGHT);
+    protected JLabel     longLabel        = new JLabel();
+    protected JLabel     longNameLabel    = new JLabel("Longitude", SwingConstants.RIGHT);
+    protected JLabel     altLabel         = new JLabel();
+    protected JLabel     altNameLabel     = new JLabel("Altitude", SwingConstants.RIGHT);
+    protected JLabel     headLabel        = new JLabel();
+    protected JLabel     headNameLabel    = new JLabel("Heading", SwingConstants.RIGHT);
+    protected JLabel     speedLabel       = new JLabel();
+    protected JLabel     speedNameLabel   = new JLabel("Speed", SwingConstants.RIGHT);
+    protected JLabel     satNumLabel      = new JLabel();
+    protected JLabel     satNumNameLabel  = new JLabel("Satellites", SwingConstants.RIGHT);
+    protected JLabel     pdopLabel        = new JLabel();
+    protected JLabel     pdopNameLabel    = new JLabel("PDOP", SwingConstants.RIGHT);
+    protected JLabel     utcTimeLabel     = new JLabel();
+    protected JLabel     utcTimeNameLabel = new JLabel("UTC Time", SwingConstants.RIGHT);
+    protected JLabel     xGKLabel         = new JLabel();
+    protected JLabel     xGKNameLabel     = new JLabel("X", SwingConstants.RIGHT);
+    protected JLabel     yGKLabel         = new JLabel();
+    protected JLabel     yGKNameLabel     = new JLabel("Y", SwingConstants.RIGHT);
+    protected JLabel     zGKLabel         = new JLabel();
+    protected JLabel     zGKNameLabel     = new JLabel("Z", SwingConstants.RIGHT);
+    protected JLabel     rhoGKLabel       = new JLabel();
+    protected JLabel     rhoGKNameLabel   = new JLabel("Rho", SwingConstants.RIGHT);
+    protected JLabel     varXYLabel       = new JLabel();
+    protected JLabel     varXYNameLabel   = new JLabel("Variance XY", SwingConstants.RIGHT);
+    protected JLabel     varZLabel        = new JLabel();
+    protected JLabel     varZNameLabel    = new JLabel("Variance Z", SwingConstants.RIGHT);
+    protected JLabel     varRhoLabel      = new JLabel();
+    protected JLabel     varRhoNameLabel  = new JLabel("Variance Rho", SwingConstants.RIGHT);
+    public GpsProxy      gps;
 
-    public GpsGui(GpsProxy proxy)
+    public GpsGui(GuiElementDescriptor guiElement)
     {
-        gps = proxy;
+        super(guiElement);
 
-        panel = new JPanel(new BorderLayout(2,2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        gps = (GpsProxy) proxy;
 
-        buttonPanel = new JPanel(new GridLayout(0,2,4,2));
-        labelPanel  = new JPanel(new GridLayout(0,2,8,0));
-        northPanel  = new JPanel(new BorderLayout(2, 2));
+        panel = new JPanel(new BorderLayout(2, 2));
+        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
+        labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
+        northPanel = new JPanel(new BorderLayout(2, 2));
 
         onButton = new JButton("On");
         offButton = new JButton("Off");
 
-        onButton.addActionListener(new ActionListener()
-        {
+        onButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 gps.on();
             }
         });
 
-        offButton.addActionListener(new ActionListener()
-        {
+        offButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 gps.off();
@@ -120,8 +104,8 @@ public class GpsGui extends RackModuleGui
 
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
-        northPanel.add(new JLabel("gps"),BorderLayout.NORTH);
-        northPanel.add(buttonPanel,BorderLayout.CENTER);
+        northPanel.add(new JLabel("gps"), BorderLayout.NORTH);
+        northPanel.add(buttonPanel, BorderLayout.CENTER);
 
         labelPanel.add(modeNameLabel);
         labelPanel.add(modeLabel);
@@ -148,29 +132,20 @@ public class GpsGui extends RackModuleGui
         labelPanel.add(zGKNameLabel);
         labelPanel.add(zGKLabel);
         labelPanel.add(rhoGKNameLabel);
-        labelPanel.add(rhoGKLabel);        
+        labelPanel.add(rhoGKLabel);
         labelPanel.add(varXYNameLabel);
-        labelPanel.add(varXYLabel);      
+        labelPanel.add(varXYLabel);
         labelPanel.add(varZNameLabel);
-        labelPanel.add(varZLabel);        
+        labelPanel.add(varZLabel);
         labelPanel.add(varRhoNameLabel);
-        labelPanel.add(varRhoLabel);        
-        panel.add(northPanel,BorderLayout.NORTH);
-        panel.add(labelPanel,BorderLayout.CENTER);
+        labelPanel.add(varRhoLabel);
+        panel.add(northPanel, BorderLayout.NORTH);
+        panel.add(labelPanel, BorderLayout.CENTER);
     }
 
     public JComponent getComponent()
     {
-        return(panel);
-    }
-
-    public String getModuleName()
-    {
-        return("Gps");
-    }
-    public RackProxy getProxy()
-    {
-        return (gps);
+        return (panel);
     }
 
     public void run()
@@ -183,22 +158,21 @@ public class GpsGui extends RackModuleGui
         float altitude;
         float speed;
 
-
         while (terminate == false)
         {
-            if(panel.isShowing())
+            if (panel.isShowing())
             {
                 data = gps.getData();
 
-                if(data != null)
+                if (data != null)
                 {
-                    gpsData    = data;
+                    gpsData = data;
 
-                    latitude   = (float)Math.toDegrees(data.latitude);
-                    longitude  = (float)Math.toDegrees(data.longitude);
-                    heading    = (float)Math.toDegrees(data.heading);
-                    altitude   = (float)data.altitude / 1000;
-                    speed      = (float)data.speed / 1000;
+                    latitude = (float) Math.toDegrees(data.latitude);
+                    longitude = (float) Math.toDegrees(data.longitude);
+                    heading = (float) Math.toDegrees(data.heading);
+                    altitude = (float) data.altitude / 1000;
+                    speed = (float) data.speed / 1000;
 
                     if (data.mode == GpsDataMsg.MODE_2D)
                     {
@@ -215,36 +189,36 @@ public class GpsGui extends RackModuleGui
 
                     if (latitude >= 0.0)
                     {
-                        latLabel.setText(latitude+" deg N");
+                        latLabel.setText(latitude + " deg N");
                     }
                     else
                     {
-                        latLabel.setText(latitude+" deg S");
+                        latLabel.setText(latitude + " deg S");
                     }
 
                     if (longitude >= 0.0)
                     {
-                        longLabel.setText(longitude+" deg E");
+                        longLabel.setText(longitude + " deg E");
                     }
                     else
                     {
-                        longLabel.setText(longitude+" deg W");
+                        longLabel.setText(longitude + " deg W");
                     }
 
-                    altLabel.setText(altitude+" m");
-                    headLabel.setText(heading+" deg");
-                    speedLabel.setText(speed+" m/s");
+                    altLabel.setText(altitude + " m");
+                    headLabel.setText(heading + " deg");
+                    speedLabel.setText(speed + " m/s");
 
-                    satNumLabel.setText(data.satelliteNum+"");
-                    pdopLabel.setText(data.pdop+"");
-                    utcTimeLabel.setText(data.utcTime+" s");
-                    xGKLabel.setText(data.posGK.x+" mm");
-                    yGKLabel.setText(data.posGK.y+" mm");
-                    zGKLabel.setText(data.posGK.z+" mm");
-                    rhoGKLabel.setText((float)Math.toDegrees(data.posGK.rho)+" deg");
-                    varXYLabel.setText(data.varXY+" mm");
-                    varZLabel.setText(data.varZ+" mm");
-                    varRhoLabel.setText((float)Math.toDegrees(data.varRho)+" deg");
+                    satNumLabel.setText(data.satelliteNum + "");
+                    pdopLabel.setText(data.pdop + "");
+                    utcTimeLabel.setText(data.utcTime + " s");
+                    xGKLabel.setText(data.posGK.x + " mm");
+                    yGKLabel.setText(data.posGK.y + " mm");
+                    zGKLabel.setText(data.posGK.z + " mm");
+                    rhoGKLabel.setText((float) Math.toDegrees(data.posGK.rho) + " deg");
+                    varXYLabel.setText(data.varXY + " mm");
+                    varZLabel.setText(data.varZ + " mm");
+                    varRhoLabel.setText((float) Math.toDegrees(data.varRho) + " deg");
 
                     modeNameLabel.setEnabled(true);
                     modeLabel.setEnabled(true);
@@ -312,38 +286,37 @@ public class GpsGui extends RackModuleGui
                     varZNameLabel.setEnabled(false);
                     varZLabel.setEnabled(false);
                     varRhoNameLabel.setEnabled(false);
-                    varRhoLabel.setEnabled(false);                    
+                    varRhoLabel.setEnabled(false);
                 }
             }
             try
             {
                 Thread.sleep(1000);
             }
-            catch(InterruptedException e)
+            catch (InterruptedException e)
             {
             }
         }
     }
 
-    public boolean hasMapView() 
+    public boolean hasMapView()
     {
         return true;
     }
-    
 
-    public void paintMapView(MapViewDrawContext drawContext) 
+    public void paintMapView(MapViewDrawContext drawContext)
     {
         mapViewIsShowing = true;
-        
-        if (gpsData == null) return;
-        
+
+        if (gpsData == null)
+            return;
+
         Graphics2D worldGraphics = drawContext.getWorldGraphics();
 
         worldGraphics.setColor(Color.ORANGE);
-        worldGraphics.drawArc(gpsData.posGK.x - 10000, gpsData.posGK.y - 10000,
-                              20000, 20000, 0, 360);
-        worldGraphics.drawLine(gpsData.posGK.x, gpsData.posGK.y,
-                gpsData.posGK.x + (int)(10000 * Math.cos(gpsData.posGK.rho)),
-                gpsData.posGK.y + (int)(10000 * Math.sin(gpsData.posGK.rho)));
+        worldGraphics.drawArc(gpsData.posGK.x - 10000, gpsData.posGK.y - 10000, 20000, 20000, 0, 360);
+        worldGraphics.drawLine(gpsData.posGK.x, gpsData.posGK.y, gpsData.posGK.x
+                + (int) (10000 * Math.cos(gpsData.posGK.rho)), gpsData.posGK.y
+                + (int) (10000 * Math.sin(gpsData.posGK.rho)));
     }
 }

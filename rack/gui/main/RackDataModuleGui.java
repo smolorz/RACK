@@ -17,9 +17,6 @@ package rack.gui.main;
 
 import java.util.Vector;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-
 import rack.gui.GuiElementDescriptor;
 import rack.main.*;
 import rack.main.tims.*;
@@ -33,7 +30,6 @@ import rack.main.tims.*;
  */
 public abstract class RackDataModuleGui extends RackModuleGui
 {
-
     /** Modul hat ein ON-Kommandopaket empfangen und soll sich einschalten */
     public abstract boolean moduleOn();
 
@@ -49,55 +45,58 @@ public abstract class RackDataModuleGui extends RackModuleGui
     /** Modul empfaengt internes Paket */
     public abstract void moduleCommand(TimsRawMsg raw);
 
-    protected Tims tims;
-    protected GDOS gdos;
+    protected Tims            tims;
+    protected GDOS            gdos;
     /** Kommandomailbox */
-    protected TimsMbx commandMbx;
+    protected TimsMbx         commandMbx;
     /** Arbeitsmailbox */
-    protected TimsMbx workMbx;
+    protected TimsMbx         workMbx;
     /** Datenmailbox */
-    protected TimsMbx dataMbx;
-    
+    protected TimsMbx         dataMbx;
+
     /** Pause im disabled-Zustand in [ms] */
-    protected int disabledTime = 100;
+    protected int             disabledTime       = 100;
     /** Pause im error-Zustand in [ms] */
-    protected int errorTime = 1000;
+    protected int             errorTime          = 1000;
 
     /** Definiert in welchen Status sich das Modul befindet */
-    protected byte moduleStatus = RackProxy.MSG_DISABLED;
+    protected byte            moduleStatus       = RackProxy.MSG_DISABLED;
     /** Wunschstatus */
-    protected int moduleTargetStatus = RackProxy.MSG_DISABLED;
+    protected int             moduleTargetStatus = RackProxy.MSG_DISABLED;
     /** mailbox, in der On-Kommandos beantwortet werden */
-    protected int notifyIfOn = 0;
+    protected int             notifyIfOn         = 0;
     /** Merker der Packet-Id zur Notify-Antwort */
-    protected byte notifyIfOnId;
+    protected byte            notifyIfOnId;
 
     /** Liste der Zuhoerer von kontinuierlichen Daten */
-    protected Vector<Integer> dataListener = new Vector<Integer>();
-    protected TimsMsg dataMsg = null;
+    protected Vector<Integer> dataListener       = new Vector<Integer>();
+    protected TimsMsg         dataMsg            = null;
 
     /** Data module period time */
-    protected int periodTime = 100;
+    protected int             periodTime;
 
     /**
      * Initialisiert die Mailboxen des Moduls und startet die Task zum
      * Paketempfang
      */
-    public RackDataModuleGui(int moduleName, int instance, GuiElementDescriptor guiElement)
+    public RackDataModuleGui(int moduleName, int instance, int periodTime, GuiElementDescriptor guiElement)
     {
-        this.tims = guiElement.getMainGui().getTims();
+        super(guiElement);
+
+        this.periodTime = periodTime;
+        this.tims = mainGui.getTims();
 
         try
         {
-            commandMbx = tims.mbxInit(RackName.create(RackName.JOYSTICK, guiElement.getInstance(),0));
-            dataMbx    = tims.mbxInit(RackName.create(RackName.JOYSTICK, guiElement.getInstance(),1));
-            workMbx    = tims.mbxInit(RackName.create(RackName.JOYSTICK, guiElement.getInstance(),2));
+            commandMbx = tims.mbxInit(RackName.create(RackName.JOYSTICK, ge.getInstance(), 0));
+            dataMbx = tims.mbxInit(RackName.create(RackName.JOYSTICK, ge.getInstance(), 1));
+            workMbx = tims.mbxInit(RackName.create(RackName.JOYSTICK, ge.getInstance(), 2));
 
             this.gdos = new GDOS(commandMbx, GDOS.WARNING);
 
             DataThread dt = new DataThread();
             dt.setDaemon(true); // Thread beendet sich wenn Programm sich
-                                // beendet
+            // beendet
             dt.start();
         }
         catch (TimsException e)
@@ -113,15 +112,17 @@ public abstract class RackDataModuleGui extends RackModuleGui
 
         try
         {
-            if(commandMbx != null)
+            if (commandMbx != null)
                 tims.mbxDelete(commandMbx);
-            if(dataMbx != null)
+            if (dataMbx != null)
                 tims.mbxDelete(dataMbx);
-            if(workMbx != null)
+            if (workMbx != null)
                 tims.mbxDelete(workMbx);
         }
-        catch (TimsException e) {}
-        
+        catch (TimsException e)
+        {
+        }
+
         super.terminate();
     }
 
@@ -130,21 +131,12 @@ public abstract class RackDataModuleGui extends RackModuleGui
         gdos.setGdosLevel(gdosLevel);
     }
 
-    /**
-     * Gibt den container des GUIs zurueck Die Methode muss, wenn es ein Gui
-     * gibt, ueberschrieben werden
-     */
-    public JComponent getComponent()
-    {
-        return (new JLabel("No Gui implemented yet."));
-    }
-
     /** Sendet das uebergebene Paket an alle Listener */
     public void writeWorkMsg(TimsMsg msg)
     {
         dataMsg = msg;
 
-        synchronized(dataListener)
+        synchronized (dataListener)
         {
             for (int i = 0; i < dataListener.size(); i++)
             {
@@ -188,186 +180,178 @@ public abstract class RackDataModuleGui extends RackModuleGui
             switch (cmdMsg.type)
             {
 
-                case RackProxy.MSG_ON:
-                    switch (moduleTargetStatus)
-                    {
-                        case RackProxy.MSG_ENABLED:
-                            if (moduleStatus == RackProxy.MSG_ENABLED)
-                            {
-                                try
-                                {
-                                    commandMbx.sendReply0(
-                                            RackProxy.MSG_OK, cmdMsg);
-                                }
-                                catch (TimsException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    commandMbx.sendReply0(
-                                            RackProxy.MSG_ERROR, cmdMsg);
-                                }
-                                catch (TimsException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
-                            break;
-
-                        case RackProxy.MSG_DISABLED:
-                            moduleTargetStatus = RackProxy.MSG_ENABLED;
-                            notifyIfOn = cmdMsg.src;
-                            notifyIfOnId = cmdMsg.seqNr;
-                            break;
-
-                        default:
-                            try
-                            {
-                                commandMbx.sendReply0(RackProxy.MSG_ERROR,
-                                        cmdMsg);
-                            }
-                            catch (TimsException e2)
-                            {
-                                e2.printStackTrace();
-                            }
-                    }
-                    break;
-
-                case RackProxy.MSG_OFF:
-                    moduleTargetStatus = RackProxy.MSG_DISABLED;
-                    try
-                    {
-                        commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
-                    }
-                    catch (TimsException e3)
-                    {
-                        e3.printStackTrace();
-                    }
-                    if (notifyIfOn > 0)
+            case RackProxy.MSG_ON:
+                switch (moduleTargetStatus)
+                {
+                case RackProxy.MSG_ENABLED:
+                    if (moduleStatus == RackProxy.MSG_ENABLED)
                     {
                         try
                         {
-                            commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn,
-                                             (byte) 0, (byte) notifyIfOnId);
+                            commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
                         }
                         catch (TimsException e)
                         {
                             e.printStackTrace();
                         }
-                        notifyIfOn = 0;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            commandMbx.sendReply0(RackProxy.MSG_ERROR, cmdMsg);
+                        }
+                        catch (TimsException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                     break;
 
-                case RackProxy.MSG_GET_STATUS:
+                case RackProxy.MSG_DISABLED:
+                    moduleTargetStatus = RackProxy.MSG_ENABLED;
+                    notifyIfOn = cmdMsg.src;
+                    notifyIfOnId = cmdMsg.seqNr;
+                    break;
+
+                default:
                     try
                     {
-                        commandMbx.sendReply0(moduleStatus, cmdMsg);
+                        commandMbx.sendReply0(RackProxy.MSG_ERROR, cmdMsg);
+                    }
+                    catch (TimsException e2)
+                    {
+                        e2.printStackTrace();
+                    }
+                }
+                break;
+
+            case RackProxy.MSG_OFF:
+                moduleTargetStatus = RackProxy.MSG_DISABLED;
+                try
+                {
+                    commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
+                }
+                catch (TimsException e3)
+                {
+                    e3.printStackTrace();
+                }
+                if (notifyIfOn > 0)
+                {
+                    try
+                    {
+                        commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn, (byte) 0, (byte) notifyIfOnId);
                     }
                     catch (TimsException e)
                     {
                         e.printStackTrace();
                     }
-                    break;
+                    notifyIfOn = 0;
+                }
+                break;
 
-                case RackProxy.MSG_GET_DATA:
-                    try
-                    {
-                        if (dataMsg != null)
-                        {
-                            commandMbx.sendReply(RackProxy.MSG_DATA,
-                                    cmdMsg, dataMsg);
-                        }
-                        else
-                        {
-                            System.out.println(RackName.nameString(commandMbx.getName()) +
-                                    ": Im Java-Modul ist das Datenpacket nicht angelegt! (dataPackage == null)");
-                            commandMbx.sendReply0(RackProxy.MSG_ERROR,
-                                    cmdMsg);
-                        }
-                    }
-                    catch (TimsException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    break;
+            case RackProxy.MSG_GET_STATUS:
+                try
+                {
+                    commandMbx.sendReply0(moduleStatus, cmdMsg);
+                }
+                catch (TimsException e)
+                {
+                    e.printStackTrace();
+                }
+                break;
 
-                case RackProxy.MSG_GET_CONT_DATA:
-                    GetContDataMsg contPack;
-                    try
+            case RackProxy.MSG_GET_DATA:
+                try
+                {
+                    if (dataMsg != null)
                     {
-                        contPack = new GetContDataMsg(cmdMsg);
-                        
-                        synchronized(dataListener)
+                        commandMbx.sendReply(RackProxy.MSG_DATA, cmdMsg, dataMsg);
+                    }
+                    else
+                    {
+                        System.out.println(RackName.nameString(commandMbx.getName())
+                                + ": Im Java-Modul ist das Datenpacket nicht angelegt! (dataPackage == null)");
+                        commandMbx.sendReply0(RackProxy.MSG_ERROR, cmdMsg);
+                    }
+                }
+                catch (TimsException e)
+                {
+                    e.printStackTrace();
+                }
+                break;
+
+            case RackProxy.MSG_GET_CONT_DATA:
+                GetContDataMsg contPack;
+                try
+                {
+                    contPack = new GetContDataMsg(cmdMsg);
+
+                    synchronized (dataListener)
+                    {
+                        int i;
+                        boolean existent = false;
+
+                        // check listener first
+                        for (i = 0; i < dataListener.size(); i++)
                         {
-                            int i;
-                            boolean existent = false;
-    
-                            // check listener first
-                            for (i = 0; i < dataListener.size(); i++)
+                            int name = dataListener.elementAt(i).intValue();
+                            if (name == contPack.dataMbx)
                             {
-                                int name = dataListener.elementAt(i).intValue();
-                                if (name == contPack.dataMbx)
-                                {
-                                    existent = true;
-                                    break;
-                                }
+                                existent = true;
+                                break;
                             }
-                            if (!existent)
-                            {
-                                dataListener.addElement(new Integer(contPack.dataMbx));
-                            }
-
-                            ContDataMsg contData = new ContDataMsg();
-                            contData.periodTime = periodTime;
-
-                            commandMbx.sendReply(RackProxy.MSG_CONT_DATA,
-                                                 cmdMsg, contData);
                         }
-                    }
-                    catch (TimsException e4)
-                    {
-                        e4.printStackTrace();
-                    }
-                    break;
-
-                case RackProxy.MSG_STOP_CONT_DATA:
-                    StopContDataMsg stopPack;
-                    try
-                    {
-                        stopPack = new StopContDataMsg(cmdMsg);
-                        synchronized(dataListener)
+                        if (!existent)
                         {
-                            for (int i = 0; i < dataListener.size(); i++)
-                            {
-                                int name = dataListener.elementAt(i).intValue();
-                                if (name == stopPack.dataMbx)
-                                {
-                                    dataListener.removeElementAt(i);
-                                }
-                            }
-                            commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
+                            dataListener.addElement(new Integer(contPack.dataMbx));
                         }
-                    }
-                    catch (TimsException e5)
-                    {
-                        e5.printStackTrace();
-                    }
-                    break;
 
-                default: // Paket konnte nicht interpretiert werden...
-                    moduleCommand(cmdMsg); // ... dies wird nun dem
-                                            // entsprechenden Modul �berlassen
+                        ContDataMsg contData = new ContDataMsg();
+                        contData.periodTime = periodTime;
+
+                        commandMbx.sendReply(RackProxy.MSG_CONT_DATA, cmdMsg, contData);
+                    }
+                }
+                catch (TimsException e4)
+                {
+                    e4.printStackTrace();
+                }
+                break;
+
+            case RackProxy.MSG_STOP_CONT_DATA:
+                StopContDataMsg stopPack;
+                try
+                {
+                    stopPack = new StopContDataMsg(cmdMsg);
+                    synchronized (dataListener)
+                    {
+                        for (int i = 0; i < dataListener.size(); i++)
+                        {
+                            int name = dataListener.elementAt(i).intValue();
+                            if (name == stopPack.dataMbx)
+                            {
+                                dataListener.removeElementAt(i);
+                            }
+                        }
+                        commandMbx.sendReply0(RackProxy.MSG_OK, cmdMsg);
+                    }
+                }
+                catch (TimsException e5)
+                {
+                    e5.printStackTrace();
+                }
+                break;
+
+            default: // Paket konnte nicht interpretiert werden...
+                moduleCommand(cmdMsg); // ... dies wird nun dem
+                // entsprechenden Modul �berlassen
             }
         }
     }
 
     class DataThread extends Thread
     {
-
         public void run()
         {
             gdos.dbgInfo("Run data thread");
@@ -376,22 +360,55 @@ public abstract class RackDataModuleGui extends RackModuleGui
             {
                 switch (moduleStatus)
                 {
-                    case RackProxy.MSG_ENABLED:
+                case RackProxy.MSG_ENABLED:
 
-                        if (moduleTargetStatus == RackProxy.MSG_ENABLED)
+                    if (moduleTargetStatus == RackProxy.MSG_ENABLED)
+                    {
+                        if (!moduleLoop())
                         {
-                            if (!moduleLoop())
+                            gdos.error("Error");
+                            moduleStatus = RackProxy.MSG_ERROR;
+                            moduleOff();
+                        }
+                        if (notifyIfOn > 0)
+                        {
+                            try
                             {
-                                gdos.error("Error");
-                                moduleStatus = RackProxy.MSG_ERROR;
-                                moduleOff();
+                                commandMbx.send0(RackProxy.MSG_OK, notifyIfOn, (byte) 0, notifyIfOnId);
                             }
+                            catch (TimsException e)
+                            {
+                                e.printStackTrace();
+                            }
+                            notifyIfOn = 0;
+                        }
+                    }
+                    else
+                    {
+                        moduleStatus = RackProxy.MSG_DISABLED;
+                        gdos.dbgInfo("Turn off");
+                        moduleOff();
+                        gdos.print("Module off");
+                    }
+                    break;
+
+                case RackProxy.MSG_DISABLED:
+                    if (moduleTargetStatus == RackProxy.MSG_ENABLED)
+                    {
+                        synchronized (dataListener)
+                        {
+                            dataListener.removeAllElements();
+                        }
+                        gdos.dbgInfo("Turn on");
+                        if (moduleOn() == true)
+                        {
+                            gdos.print("Module on");
+                            moduleStatus = RackProxy.MSG_ENABLED;
                             if (notifyIfOn > 0)
                             {
                                 try
                                 {
-                                    commandMbx.send0(RackProxy.MSG_OK, notifyIfOn,
-                                                     (byte) 0, notifyIfOnId);
+                                    commandMbx.send0(RackProxy.MSG_OK, notifyIfOn, (byte) 0, notifyIfOnId);
                                 }
                                 catch (TimsException e)
                                 {
@@ -402,141 +419,101 @@ public abstract class RackDataModuleGui extends RackModuleGui
                         }
                         else
                         {
+                            gdos.error("Error");
+                            moduleTargetStatus = RackProxy.MSG_DISABLED;
                             moduleStatus = RackProxy.MSG_DISABLED;
-                            gdos.dbgInfo("Turn off");
                             moduleOff();
-                            gdos.print("Module off");
-                        }
-                        break;
-
-                    case RackProxy.MSG_DISABLED:
-                        if (moduleTargetStatus == RackProxy.MSG_ENABLED)
-                        {
-                            synchronized(dataListener)
+                            if (notifyIfOn > 0)
                             {
-                                dataListener.removeAllElements();
-                            }
-                            gdos.dbgInfo("Turn on");
-                            if (moduleOn() == true)
-                            {
-                                gdos.print("Module on");
-                                moduleStatus = RackProxy.MSG_ENABLED;
-                                if (notifyIfOn > 0)
+                                try
                                 {
-                                    try
-                                    {
-                                        commandMbx.send0(RackProxy.MSG_OK, notifyIfOn, 
-                                                         (byte) 0, notifyIfOnId);
-                                    }
-                                    catch (TimsException e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                    notifyIfOn = 0;
+                                    commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn, (byte) 0, notifyIfOnId);
                                 }
-                            }
-                            else
-                            {
-                                gdos.error("Error");
-                                moduleTargetStatus = RackProxy.MSG_DISABLED;
-                                moduleStatus = RackProxy.MSG_DISABLED;
-                                moduleOff();
-                                if (notifyIfOn > 0)
+                                catch (TimsException e)
                                 {
-                                    try
-                                    {
-                                        commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn,
-                                                         (byte) 0, notifyIfOnId);
-                                    }
-                                    catch (TimsException e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                    notifyIfOn = 0;
+                                    e.printStackTrace();
                                 }
+                                notifyIfOn = 0;
                             }
-
                         }
-                        else
-                        {
-                            try
-                            {
-                                Thread.sleep(disabledTime);
-                            }
-                            catch (InterruptedException e)
-                            {
-                            }
 
-                        }
-                        break;
-
-                    case RackProxy.MSG_ERROR:
+                    }
+                    else
+                    {
                         try
                         {
-                            Thread.sleep(errorTime);
+                            Thread.sleep(disabledTime);
                         }
                         catch (InterruptedException e)
                         {
                         }
 
-                        if (moduleTargetStatus == RackProxy.MSG_ENABLED)
+                    }
+                    break;
+
+                case RackProxy.MSG_ERROR:
+                    try
+                    {
+                        Thread.sleep(errorTime);
+                    }
+                    catch (InterruptedException e)
+                    {
+                    }
+
+                    if (moduleTargetStatus == RackProxy.MSG_ENABLED)
+                    {
+                        synchronized (dataListener)
                         {
-                            synchronized(dataListener)
-                            {
-                                dataListener.removeAllElements();
-                            }
-                            gdos.dbgInfo("Turn on");
-                            if (moduleOn())
-                            {
-                                gdos.print("Module on");
-                                moduleStatus = RackProxy.MSG_ENABLED;
+                            dataListener.removeAllElements();
+                        }
+                        gdos.dbgInfo("Turn on");
+                        if (moduleOn())
+                        {
+                            gdos.print("Module on");
+                            moduleStatus = RackProxy.MSG_ENABLED;
 
-                                if (notifyIfOn > 0)
-                                {
-                                    try
-                                    {
-                                        commandMbx.send0(RackProxy.MSG_OK, notifyIfOn,
-                                                         (byte) 0, notifyIfOnId);
-                                    }
-                                    catch (TimsException e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                    notifyIfOn = 0;
-                                }
-                            }
-                            else
+                            if (notifyIfOn > 0)
                             {
-                                gdos.dbgInfo("Turn off");
-                                moduleOff();
-
-                                if (notifyIfOn > 0)
+                                try
                                 {
-                                    try
-                                    {
-                                        commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn,
-                                                         (byte) 0, notifyIfOnId);
-                                    }
-                                    catch (TimsException e)
-                                    {
-                                        e.printStackTrace();
-                                    }
-                                    notifyIfOn = 0;
+                                    commandMbx.send0(RackProxy.MSG_OK, notifyIfOn, (byte) 0, notifyIfOnId);
                                 }
+                                catch (TimsException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                                notifyIfOn = 0;
                             }
                         }
                         else
                         {
-                            gdos.print("Module off");
-                            moduleStatus = RackProxy.MSG_DISABLED;
+                            gdos.dbgInfo("Turn off");
+                            moduleOff();
+
+                            if (notifyIfOn > 0)
+                            {
+                                try
+                                {
+                                    commandMbx.send0(RackProxy.MSG_ERROR, notifyIfOn, (byte) 0, notifyIfOnId);
+                                }
+                                catch (TimsException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                                notifyIfOn = 0;
+                            }
                         }
-                        break;
+                    }
+                    else
+                    {
+                        gdos.print("Module off");
+                        moduleStatus = RackProxy.MSG_DISABLED;
+                    }
+                    break;
 
-                    default:
-
+                default:
                 }
             }
         }
     }
-
 }

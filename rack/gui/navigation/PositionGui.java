@@ -10,6 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
+ *      Oliver Wulf      <oliver.wulf@web.de>
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
@@ -34,41 +35,60 @@ import rack.navigation.PositionProxy;
 
 public class PositionGui extends RackModuleGui implements ActionListener
 {
-    protected JButton onButton;
-    protected JButton offButton;
-    protected JButton manualUpdateButton = new JButton("Manual Update");
-    protected JButton gpsUpdateButton = new JButton("GPS Update");
-    private JCheckBox drawPosPathCheckBox;
+    protected JButton         onButton;
+    protected JButton         offButton;
+    protected JButton         manualUpdateButton = new JButton("Manual Update");
+    protected JButton         gpsUpdateButton[];
+    protected JCheckBox       drawPosPathCheckBox;
 
-    protected JPanel panel;
+    protected JPanel          panel;
 
-    protected JDialog updateDialog = new JDialog();
+    protected JDialog         updateDialog       = new JDialog();
 
-    protected JLabel xNameLabel = new JLabel("X [mm]", SwingConstants.RIGHT);
-    protected JLabel yNameLabel = new JLabel("Y [mm]", SwingConstants.RIGHT);
-    protected JLabel zNameLabel = new JLabel("Z [mm]", SwingConstants.RIGHT);
-    protected JLabel phiNameLabel = new JLabel("Phi [deg]", SwingConstants.RIGHT);
-    protected JLabel psiNameLabel = new JLabel("Psi [deg]", SwingConstants.RIGHT);
-    protected JLabel rhoNameLabel = new JLabel("Rho [deg]", SwingConstants.RIGHT);
+    protected JLabel          xNameLabel         = new JLabel("X [mm]", SwingConstants.RIGHT);
+    protected JLabel          yNameLabel         = new JLabel("Y [mm]", SwingConstants.RIGHT);
+    protected JLabel          zNameLabel         = new JLabel("Z [mm]", SwingConstants.RIGHT);
+    protected JLabel          phiNameLabel       = new JLabel("Phi [deg]", SwingConstants.RIGHT);
+    protected JLabel          psiNameLabel       = new JLabel("Psi [deg]", SwingConstants.RIGHT);
+    protected JLabel          rhoNameLabel       = new JLabel("Rho [deg]", SwingConstants.RIGHT);
 
-    protected JLabel xLabel = new JLabel("-0000000");
-    protected JLabel yLabel = new JLabel("-0000000");
-    protected JLabel zLabel = new JLabel("-0000000");
-    protected JLabel phiLabel = new JLabel("-000.00");
-    protected JLabel psiLabel = new JLabel("-000.00");
-    protected JLabel rhoLabel = new JLabel("-000.00");
+    protected JLabel          xLabel             = new JLabel("-0000000");
+    protected JLabel          yLabel             = new JLabel("-0000000");
+    protected JLabel          zLabel             = new JLabel("-0000000");
+    protected JLabel          phiLabel           = new JLabel("-000.00");
+    protected JLabel          psiLabel           = new JLabel("-000.00");
+    protected JLabel          rhoLabel           = new JLabel("-000.00");
 
-    protected PositionProxy position;
-    protected GpsProxy gps;
-    private MapViewActionList mapViewActionList;
-    private GeneralPath positionPath;
-    private boolean drawPositionPath = false;
+    protected PositionProxy   position;
+    protected GpsProxy[]      gpsProxy;
+    protected String[]        gpsName;
+
+    protected MapViewActionList mapViewActionList;
+    protected GeneralPath       positionPath;
+    protected boolean           drawPositionPath   = false;
 
     public PositionGui(GuiElementDescriptor guiElement)
     {
-        position = (PositionProxy)guiElement.getProxy();
-        
-        gps = (GpsProxy)guiElement.getMainGui().getProxy(RackName.GDOS, 0);
+        super(guiElement);
+
+        position = (PositionProxy) proxy;
+
+        int i;
+        for(i = 0; i < 4; i++)
+        {
+            if(mainGui.getGuiElement(RackName.GPS, i) == null)
+            {
+                break;
+            }
+        }
+        gpsProxy = new GpsProxy[i];
+        gpsName = new String[i];
+        for(i = 0; i < gpsProxy.length; i++)
+        {
+            GuiElementDescriptor ge = mainGui.getGuiElement(RackName.GPS, i);
+            gpsProxy[i] = (GpsProxy)ge.getProxy();
+            gpsName[i] = ge.getName();
+        }
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -82,70 +102,54 @@ public class PositionGui extends RackModuleGui implements ActionListener
         onButton = new JButton("On");
         offButton = new JButton("Off");
 
-        onButton.addActionListener(new ActionListener()
-        {
+        onButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 position.on();
             }
         });
 
-        offButton.addActionListener(new ActionListener()
-        {
+        offButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 position.off();
             }
         });
 
-        manualUpdateButton.addActionListener(new ActionListener()
-        {
+        manualUpdateButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                String s = (String) JOptionPane.showInputDialog(null,
-                        "The robot position is:\n" + "x,y,rho",
-                        "Estimated robot position", JOptionPane.PLAIN_MESSAGE,
-                        null, null, "0,0,0.0");
+                String s = (String) JOptionPane.showInputDialog(null, "The robot position is:\n" + "x,y,rho",
+                        "Estimated robot position", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0");
                 if ((s != null) && (s.length() > 0))
                 {
                     StringTokenizer st = new StringTokenizer(s, ",");
                     if (st.countTokens() == 3)
                     {
-                        Position3d robotPosition = new Position3d(
-                            Integer.parseInt(st.nextToken()),
-                            Integer.parseInt(st.nextToken()),
-                            0,
-                            0.0f,
-                            0.0f,
-                            (float) Math.toRadians(Float.parseFloat(st.nextToken())));
+                        Position3d robotPosition = new Position3d(Integer.parseInt(st.nextToken()), Integer.parseInt(st
+                                .nextToken()), 0, 0.0f, 0.0f, (float) Math.toRadians(Float.parseFloat(st.nextToken())));
                         position.update(robotPosition, 0);
                     }
                 }
             }
         });
 
-        gpsUpdateButton.addActionListener(new ActionListener()
-        {
+        ActionListener gpsActionListener = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                if(gps != null)
+                int gps = Integer.parseInt(e.getActionCommand());
+                
+                GpsDataMsg gpsData = gpsProxy[gps].getData();
+                if (gpsData != null)
                 {
-                    GpsDataMsg gpsData = gps.getData();
-                    if(gpsData != null)
-                    {
-                        position.update(gpsData.posGK, 0);
-                    }
-                    else
-                    {
-                        System.out.println("Can't read data from GPS(0)");
-                    }
+                    position.update(gpsData.posGK, 0);
                 }
                 else
                 {
-                    System.out.println("GPS(0) not available");
+                    System.out.println("Can't read data from GPS");
                 }
             }
-        });
+        };
 
         drawPosPathCheckBox = new JCheckBox("Draw path", drawPositionPath);
         drawPosPathCheckBox.setActionCommand("drawPath");
@@ -172,7 +176,15 @@ public class PositionGui extends RackModuleGui implements ActionListener
 
         southPanel.add(drawPosPathCheckBox);
         southPanel.add(manualUpdateButton);
-        southPanel.add(gpsUpdateButton);
+
+        gpsUpdateButton = new JButton[gpsProxy.length];
+        for(i = 0; i < gpsProxy.length; i++)
+        {
+            gpsUpdateButton[i] = new JButton(gpsName[i] + " Update");
+            gpsUpdateButton[i].setActionCommand(Integer.toString(i));
+            gpsUpdateButton[i].addActionListener(gpsActionListener);
+            southPanel.add(gpsUpdateButton[i]);
+        }
 
         panel.add(northPanel, BorderLayout.NORTH);
         panel.add(labelPanel, BorderLayout.CENTER);
@@ -181,23 +193,13 @@ public class PositionGui extends RackModuleGui implements ActionListener
         positionPath = new GeneralPath();
         positionPath.moveTo(0, 0);
 
-        mapViewActionList = new MapViewActionList(getModuleName());
+        mapViewActionList = new MapViewActionList(ge.getName());
         mapViewActionList.addItem("set position", "manualUpdate");
     }
 
     public JComponent getComponent()
     {
         return panel;
-    }
-
-    public String getModuleName()
-    {
-        return "Position";
-    }
-
-    public RackProxy getProxy()
-    {
-        return position;
     }
 
     public boolean hasMapView()
@@ -210,23 +212,23 @@ public class PositionGui extends RackModuleGui implements ActionListener
         if (drawPositionPath)
         {
             Graphics2D worldGraphics = drawContext.getWorldGraphics();
-            
+
             switch (position.getInstanceId())
             {
-            	case 1: 
-                    worldGraphics.setColor(Color.BLUE);
-                    break;
-            	case 2:
-                    worldGraphics.setColor(Color.RED);
-                    break;
-            	case 3:
-                    worldGraphics.setColor(Color.GREEN);
-                    break;
-                
-            	default:
-                    worldGraphics.setColor(Color.BLACK);                	
+            case 1:
+                worldGraphics.setColor(Color.BLUE);
+                break;
+            case 2:
+                worldGraphics.setColor(Color.RED);
+                break;
+            case 3:
+                worldGraphics.setColor(Color.GREEN);
+                break;
+
+            default:
+                worldGraphics.setColor(Color.BLACK);
             }
-            
+
             worldGraphics.draw(positionPath);
         }
     }
@@ -243,8 +245,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
             Position2d newPosition2d = event.getWorldCursorPos();
             Position3d newPosition3d;
 
-            newPosition3d = new Position3d(newPosition2d.x,
-                        newPosition2d.y, 0, 0, 0, newPosition2d.rho);
+            newPosition3d = new Position3d(newPosition2d.x, newPosition2d.y, 0, 0, 0, newPosition2d.rho);
             position.update(newPosition3d, 0);
         }
     }
@@ -276,30 +277,11 @@ public class PositionGui extends RackModuleGui implements ActionListener
                     xLabel.setText(data.pos.x + "");
                     yLabel.setText(data.pos.y + "");
                     zLabel.setText(data.pos.z + "");
-                    phiLabel.setText(
-                        Math.rint(Math.toDegrees(data.pos.phi)) + "");
-                    psiLabel.setText(
-                        Math.rint(Math.toDegrees(data.pos.psi)) + "");
-                    rhoLabel.setText(
-                        Math.rint(Math.toDegrees(data.pos.rho)) + "");
+                    phiLabel.setText(Math.rint(Math.toDegrees(data.pos.phi)) + "");
+                    psiLabel.setText(Math.rint(Math.toDegrees(data.pos.psi)) + "");
+                    rhoLabel.setText(Math.rint(Math.toDegrees(data.pos.rho)) + "");
 
-                    xNameLabel.setEnabled(true);
-                    yNameLabel.setEnabled(true);
-                    zNameLabel.setEnabled(true);
-                    phiNameLabel.setEnabled(true);
-                    psiNameLabel.setEnabled(true);
-                    rhoNameLabel.setEnabled(true);
-
-                    xLabel.setEnabled(true);
-                    yLabel.setEnabled(true);
-                    zLabel.setEnabled(true);
-                    phiLabel.setEnabled(true);
-                    psiLabel.setEnabled(true);
-                    rhoLabel.setEnabled(true);
-
-                    drawPosPathCheckBox.setEnabled(true);
-                    manualUpdateButton.setEnabled(true);
-                    gpsUpdateButton.setEnabled(true);
+                    setEnabled(true);
 
                     if (drawPositionPath)
                     {
@@ -312,23 +294,7 @@ public class PositionGui extends RackModuleGui implements ActionListener
                 }
                 else
                 {
-                    xNameLabel.setEnabled(false);
-                    yNameLabel.setEnabled(false);
-                    zNameLabel.setEnabled(false);
-                    phiNameLabel.setEnabled(false);
-                    psiNameLabel.setEnabled(false);
-                    rhoNameLabel.setEnabled(false);
-
-                    xLabel.setEnabled(false);
-                    yLabel.setEnabled(false);
-                    zLabel.setEnabled(false);
-                    phiLabel.setEnabled(false);
-                    psiLabel.setEnabled(false);
-                    rhoLabel.setEnabled(false);
-
-                    drawPosPathCheckBox.setEnabled(false);
-                    manualUpdateButton.setEnabled(false);
-                    gpsUpdateButton.setEnabled(false);
+                    setEnabled(false);
                 }
             }
 
@@ -339,6 +305,31 @@ public class PositionGui extends RackModuleGui implements ActionListener
             catch (InterruptedException e)
             {
             }
+        }
+    }
+    
+    protected void setEnabled(boolean enabled)
+    {
+        xNameLabel.setEnabled(enabled);
+        yNameLabel.setEnabled(enabled);
+        zNameLabel.setEnabled(enabled);
+        phiNameLabel.setEnabled(enabled);
+        psiNameLabel.setEnabled(enabled);
+        rhoNameLabel.setEnabled(enabled);
+
+        xLabel.setEnabled(enabled);
+        yLabel.setEnabled(enabled);
+        zLabel.setEnabled(enabled);
+        phiLabel.setEnabled(enabled);
+        psiLabel.setEnabled(enabled);
+        rhoLabel.setEnabled(enabled);
+
+        drawPosPathCheckBox.setEnabled(enabled);
+        manualUpdateButton.setEnabled(enabled);
+        
+        for(int i = 0; i < gpsProxy.length; i++)
+        {
+            gpsUpdateButton[i].setEnabled(enabled);
         }
     }
 }

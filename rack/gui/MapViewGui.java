@@ -1205,7 +1205,7 @@ public class MapViewGui extends Thread
             add(paintItem);
         }
 
-        public RackModuleGui getModuleGui()
+        public GuiElement getModuleGui()
         {
             return guiElement.get(moduleGuiIndex).gui;
         }
@@ -1223,7 +1223,7 @@ public class MapViewGui extends Thread
         public String toString()
         {
             if (isOn())
-                return getModuleGui().getModuleName();
+                return guiElement.get(moduleGuiIndex).name;
             else
                 return "";
         }

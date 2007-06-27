@@ -19,8 +19,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.RackModuleGui;
-import rack.main.*;
 import rack.drivers.JoystickDataMsg;
 import rack.drivers.JoystickProxy;
 
@@ -28,22 +28,24 @@ public class JoystickGui extends RackModuleGui
 {
     protected JoystickProxy joystick;
 
-    protected JPanel panel;
-    protected JPanel buttonPanel;
-    protected JPanel labelPanel;
+    protected JPanel        panel;
+    protected JPanel        buttonPanel;
+    protected JPanel        labelPanel;
 
-    protected JButton onButton;
-    protected JButton offButton;
+    protected JButton       onButton;
+    protected JButton       offButton;
 
-    protected JLabel xLabel = new JLabel("-000 %");
-    protected JLabel yLabel = new JLabel("-000 %");
+    protected JLabel        xLabel     = new JLabel("-000 %");
+    protected JLabel        yLabel     = new JLabel("-000 %");
 
-    protected JLabel xNameLabel = new JLabel("X", SwingConstants.RIGHT);
-    protected JLabel yNameLabel = new JLabel("Y", SwingConstants.RIGHT);
+    protected JLabel        xNameLabel = new JLabel("X", SwingConstants.RIGHT);
+    protected JLabel        yNameLabel = new JLabel("Y", SwingConstants.RIGHT);
 
-    public JoystickGui(JoystickProxy proxy)
+    public JoystickGui(GuiElementDescriptor guiElement)
     {
-        joystick = proxy;
+        super(guiElement);
+
+        joystick = (JoystickProxy) proxy;
 
         panel = new JPanel(new BorderLayout(2, 2));
         panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -57,16 +59,14 @@ public class JoystickGui extends RackModuleGui
         onButton = new JButton("On");
         offButton = new JButton("Off");
 
-        onButton.addActionListener(new ActionListener()
-        {
+        onButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 joystick.on();
             }
         });
 
-        offButton.addActionListener(new ActionListener()
-        {
+        offButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 joystick.off();
@@ -91,16 +91,6 @@ public class JoystickGui extends RackModuleGui
     public JComponent getComponent()
     {
         return (panel);
-    }
-
-    public String getModuleName()
-    {
-        return ("joystick");
-    }
-
-    public RackProxy getProxy()
-    {
-        return (joystick);
     }
 
     public void run()

@@ -20,137 +20,131 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import rack.gui.GuiElementDescriptor;
 import rack.gui.main.*;
-import rack.main.*;
 import rack.main.defines.*;
 import rack.perception.Scan2dDataMsg;
 import rack.perception.Scan2dProxy;
 
-
 public class Scan2dGui extends RackModuleGui
 {
-    protected boolean            mapViewIsShowing=false;
-    public    int                maxDistance=10000; // 10m
-    public    Scan2dDataMsg      scan2dData;
-    protected Scan2dProxy        scan2d;
-    protected Scan2dComponent    scan2dComponent;
+    protected boolean         mapViewIsShowing = false;
+    public int                maxDistance      = 10000; // 10m
+    public Scan2dDataMsg      scan2dData;
+    protected Scan2dProxy     scan2d;
+    protected Scan2dComponent scan2dComponent;
 
-    protected JButton onButton;
-    protected JButton offButton;
-    protected JButton zoomOutButton;
-    protected JButton zoomInButton;
-    protected JButton storeContOnButton;
-    protected JButton storeContOffButton;
-    public 	  JLabel  contStoringLabel;
-    protected int     contStoring = 0;
+    protected JButton         onButton;
+    protected JButton         offButton;
+    protected JButton         zoomOutButton;
+    protected JButton         zoomInButton;
+    protected JButton         storeContOnButton;
+    protected JButton         storeContOffButton;
+    public JLabel             contStoringLabel;
+    protected int             contStoring      = 0;
 
+    protected JPanel          panel;
+    protected JPanel          northPanel;
+    protected JPanel          wButtonPanel;
+    protected JPanel          eButtonPanel;
+    protected JPanel          sButtonPanel;
 
-    protected JPanel panel;
-    protected JPanel northPanel;
-    protected JPanel wButtonPanel;
-    protected JPanel eButtonPanel;
-    protected JPanel sButtonPanel;
+    protected Point           aktuellPoint;
+    protected Point           mousePressedPoint;
+    protected Point           mouseReleasedPoint;
+    protected Point           mouseClickedPoint;
 
-    protected Point aktuellPoint;
-    protected Point mousePressedPoint;
-    protected Point mouseReleasedPoint;
-    protected Point mouseClickedPoint;
-
-    public Scan2dGui(Scan2dProxy proxy)
+    public Scan2dGui(GuiElementDescriptor guiElement)
     {
-        scan2d = proxy;
-        panel       = new JPanel(new BorderLayout(2,2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        super(guiElement);
 
-        northPanel   = new JPanel(new BorderLayout(2,2));
-        wButtonPanel = new JPanel(new GridLayout(1,0,4,2));
-        eButtonPanel = new JPanel(new GridLayout(1,0,4,2));
-        sButtonPanel = new JPanel(new GridLayout(1,0,4,2));
+        scan2d = (Scan2dProxy) proxy;
 
-        onButton      = new JButton("On");
-        offButton     = new JButton("Off");
+        panel = new JPanel(new BorderLayout(2, 2));
+        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        northPanel = new JPanel(new BorderLayout(2, 2));
+        wButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+        eButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+        sButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+
+        onButton = new JButton("On");
+        offButton = new JButton("Off");
         zoomOutButton = new JButton("Zoom out");
-        zoomInButton  = new JButton("Zoom in");
-        storeContOnButton  = new JButton("StoreOn");
+        zoomInButton = new JButton("Zoom in");
+        storeContOnButton = new JButton("StoreOn");
         storeContOffButton = new JButton("StoreOff");
-        contStoringLabel   = new JLabel();
+        contStoringLabel = new JLabel();
         contStoringLabel.setText("Cont.storing off.");
-
 
         scan2dComponent = new Scan2dComponent(maxDistance);
 
-        scan2dComponent.addMouseListener(
-          new MouseListener() {
+        scan2dComponent.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e)
             {
-              mouseClickedPoint = e.getPoint();
-              scan2dComponent.setCenter(mouseClickedPoint);
+                mouseClickedPoint = e.getPoint();
+                scan2dComponent.setCenter(mouseClickedPoint);
             }
 
             public void mousePressed(MouseEvent e)
             {
-              mousePressedPoint = e.getPoint();
+                mousePressedPoint = e.getPoint();
             }
 
             public void mouseReleased(MouseEvent e)
             {
-              mouseReleasedPoint = e.getPoint();
-              //scan2dComponent.select(mousePressedPoint , mouseReleasedPoint);
+                mouseReleasedPoint = e.getPoint();
+                // scan2dComponent.select(mousePressedPoint , mouseReleasedPoint);
             }
 
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
-          }
-        );
+            public void mouseEntered(MouseEvent e)
+            {
+            }
 
-        onButton.addActionListener(
-          new ActionListener() {
+            public void mouseExited(MouseEvent e)
+            {
+            }
+        });
+
+        onButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 scan2d.on();
             }
-          }
-        );
+        });
 
         onButton.addKeyListener(new myKeyListener());
 
-        offButton.addActionListener(
-          new ActionListener() {
+        offButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 scan2d.off();
             }
-          }
-        );
+        });
 
         offButton.addKeyListener(new myKeyListener());
 
-        zoomOutButton.addActionListener(
-          new ActionListener() {
+        zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-              maxDistance = maxDistance * 2;
-              scan2dComponent.setMaxDistance(maxDistance);
+                maxDistance = maxDistance * 2;
+                scan2dComponent.setMaxDistance(maxDistance);
             }
-          }
-        );
+        });
 
         zoomOutButton.addKeyListener(new myKeyListener());
 
-        zoomInButton.addActionListener(
-          new ActionListener() {
+        zoomInButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-              maxDistance = maxDistance / 2;
-              scan2dComponent.setMaxDistance(maxDistance);
+                maxDistance = maxDistance / 2;
+                scan2dComponent.setMaxDistance(maxDistance);
             }
-          }
-        );
+        });
 
         zoomInButton.addKeyListener(new myKeyListener());
-        
-        storeContOnButton.addActionListener(new ActionListener()
-        {
+
+        storeContOnButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 contStoring = 1;
@@ -159,8 +153,7 @@ public class Scan2dGui extends RackModuleGui
             }
         });
 
-        storeContOffButton.addActionListener(new ActionListener()
-        {
+        storeContOffButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 contStoring = 0;
@@ -169,97 +162,92 @@ public class Scan2dGui extends RackModuleGui
             }
         });
 
-
         wButtonPanel.add(onButton);
         wButtonPanel.add(offButton);
         eButtonPanel.add(zoomOutButton);
         eButtonPanel.add(zoomInButton);
-        
+
         sButtonPanel.add(storeContOnButton, BorderLayout.WEST);
         sButtonPanel.add(storeContOffButton);
         sButtonPanel.add(contStoringLabel);
 
-        northPanel.add(wButtonPanel,BorderLayout.WEST);
-        northPanel.add(eButtonPanel,BorderLayout.EAST);
-        northPanel.add(sButtonPanel,BorderLayout.SOUTH);
+        northPanel.add(wButtonPanel, BorderLayout.WEST);
+        northPanel.add(eButtonPanel, BorderLayout.EAST);
+        northPanel.add(sButtonPanel, BorderLayout.SOUTH);
 
-        panel.add(northPanel,BorderLayout.NORTH);
-        panel.add(scan2dComponent,BorderLayout.CENTER);
+        panel.add(northPanel, BorderLayout.NORTH);
+        panel.add(scan2dComponent, BorderLayout.CENTER);
 
     }
 
     public JComponent getComponent()
     {
-      return panel;
-    }
-
-    public String getModuleName()
-    {
-      return "Scan2d";
-    }
-
-
-    public RackProxy getProxy()
-    {
-      return scan2d;
+        return panel;
     }
 
     public void run()
     {
-      Scan2dDataMsg data;
+        Scan2dDataMsg data;
 
-      while (terminate == false) {
-        if(panel.isShowing() | (mapViewIsShowing)) {
-          data = scan2d.getData();
-          if (data != null) {
-            scan2dData = data;
-            scan2dComponent.updateData(data);
-            if (contStoring == 1)
+        while (terminate == false)
+        {
+            if (panel.isShowing() | (mapViewIsShowing))
             {
-                scan2d.storeDataToFile("scan2d-"+System.currentTimeMillis()+".txt");
+                data = scan2d.getData();
+                if (data != null)
+                {
+                    scan2dData = data;
+                    scan2dComponent.updateData(data);
+                    if (contStoring == 1)
+                    {
+                        scan2d.storeDataToFile("scan2d-" + System.currentTimeMillis() + ".txt");
+                    }
+                }
+                mapViewIsShowing = false;
             }
-          }
-          mapViewIsShowing = false;
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e)
+            {
+            }
         }
-        try {
-          Thread.sleep(1000);
-        } catch(InterruptedException e) {}
-      }
     }
 
-    public boolean hasMapView() 
+    public boolean hasMapView()
     {
         return true;
     }
-    
 
-    public void paintMapView(MapViewDrawContext drawContext) 
+    public void paintMapView(MapViewDrawContext drawContext)
     {
         mapViewIsShowing = true;
-        
-        if (scan2dData == null) return;
-        
+
+        if (scan2dData == null)
+            return;
+
         Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2dData.recordingTime);
 
-        for (int i = 0; i < scan2dData.pointNum; i++) 
+        for (int i = 0; i < scan2dData.pointNum; i++)
         {
             ScanPoint point = scan2dData.point[i];
             int size = 100;
-            int dist;            
-            
-            if((point.type & ScanPoint.TYPE_INVALID) != 0)
-            {               
-            	robotGraphics.setColor(Color.GRAY);
-            }
-            else if((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
+            int dist;
+
+            if ((point.type & ScanPoint.TYPE_INVALID) != 0)
             {
-            	robotGraphics.setColor(Color.YELLOW);
+                robotGraphics.setColor(Color.GRAY);
             }
-            else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
+            else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
             {
-            	robotGraphics.setColor(Color.BLUE);
+                robotGraphics.setColor(Color.YELLOW);
             }
-            else if((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
+            else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
+            {
+                robotGraphics.setColor(Color.BLUE);
+            }
+            else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
             {
                 robotGraphics.setColor(Color.RED);
             }
@@ -269,20 +257,24 @@ public class Scan2dGui extends RackModuleGui
             }
 
             // draw scanpoints in mm
-            dist  = (int)Math.sqrt(point.x * point.x + point.y * point.y);
-            size += (int)(dist * 0.025);
-            robotGraphics.fillArc(point.x - size/2, point.y - size/2,
-                                  size, size, 0, 360);
+            dist = (int) Math.sqrt(point.x * point.x + point.y * point.y);
+            size += (int) (dist * 0.025);
+            robotGraphics.fillArc(point.x - size / 2, point.y - size / 2, size, size, 0, 360);
         }
-    }    
-    
-    class myKeyListener extends KeyAdapter {
-      public void keyPressed(KeyEvent e)
-      {
-        if(e.getKeyCode()==KeyEvent.VK_RIGHT) scan2dComponent.right();
-        if(e.getKeyCode()==KeyEvent.VK_DOWN)  scan2dComponent.down();
-        if(e.getKeyCode()==KeyEvent.VK_LEFT)  scan2dComponent.left();
-        if(e.getKeyCode()==KeyEvent.VK_UP)    scan2dComponent.up();
-      }
+    }
+
+    class myKeyListener extends KeyAdapter
+    {
+        public void keyPressed(KeyEvent e)
+        {
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+                scan2dComponent.right();
+            if (e.getKeyCode() == KeyEvent.VK_DOWN)
+                scan2dComponent.down();
+            if (e.getKeyCode() == KeyEvent.VK_LEFT)
+                scan2dComponent.left();
+            if (e.getKeyCode() == KeyEvent.VK_UP)
+                scan2dComponent.up();
+        }
     }
 }

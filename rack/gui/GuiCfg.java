@@ -1,3 +1,18 @@
+/*
+ * RACK - Robotics Application Construction Kit
+ * Copyright (C) 2005-2007 University of Hannover
+ *                         Institute for Systems Engineering - RTS
+ *                         Professor Bernardo Wagner
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * Authors
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
+ *
+ */
 package rack.gui;
 
 import java.awt.Dimension;
@@ -39,6 +54,7 @@ public class GuiCfg
             {
                 string.trim();
                 cfgLines.add(string);
+                System.out.println(string);
 
                 // Debug output
                 // System.out.println(string);
@@ -279,7 +295,7 @@ public class GuiCfg
 
         if (ge.name == "")
         {
-            System.out.println("cfgSplit " + ge.cfgSplit[0]);
+            //System.out.println("cfgSplit " + ge.cfgSplit[0]);
             int i = ge.cfgSplit[0].lastIndexOf(".");
             ge.name = ge.cfgSplit[0].substring(i+1);
 
@@ -287,11 +303,11 @@ public class GuiCfg
             {
                 ge.name = ge.name.replace("Gui", "");
             }
-            
-            if(ge.instance >= 0)
-            {
-                ge.name = ge.name + "(" + ge.instance + ")";
-            }
+        }
+
+        if(ge.instance >= 0)
+        {
+            ge.name = ge.name + "(" + ge.instance + ")";
         }
     }
 
