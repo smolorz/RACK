@@ -1,5 +1,6 @@
 
 SUBDIRS = \
+	. \
 	main \
 	drivers \
 	navigation \
@@ -10,7 +11,17 @@ if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA = \
 	Gui.java \
+	GuiCfg.java \
+	GuiElement.java \
+	GuiElementDescriptor.java \
+	GuiGroupDescriptor.java \
+	GuiWorkspaceDescriptor.java \
 	MapViewGui.java \
+	MapViewActionEvent.java \
+	MapViewActionList.java \
+	MapViewActionListItem.java \
+	MapViewCursorDrawContext.java \
+	MapViewDrawContext.java \
 	GDOSGui.java \
 	GDOSMessageRenderer.java \
 	GDOSTable.java \

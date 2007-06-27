@@ -54,8 +54,13 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
-am__dist_java_JAVA_DIST = Gui.java MapViewGui.java GDOSGui.java \
-	GDOSMessageRenderer.java GDOSTable.java AppletGui.java
+am__dist_java_JAVA_DIST = Gui.java GuiCfg.java GuiElement.java \
+	GuiElementDescriptor.java GuiGroupDescriptor.java \
+	GuiWorkspaceDescriptor.java MapViewGui.java \
+	MapViewActionEvent.java MapViewActionList.java \
+	MapViewActionListItem.java MapViewCursorDrawContext.java \
+	MapViewDrawContext.java GDOSGui.java GDOSMessageRenderer.java \
+	GDOSTable.java AppletGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -275,6 +280,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 SUBDIRS = \
+	. \
 	main \
 	drivers \
 	navigation \
@@ -283,7 +289,17 @@ SUBDIRS = \
 
 @CONFIG_RACK_JAVA_GUI_TRUE@dist_java_JAVA = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	Gui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GuiCfg.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GuiElement.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GuiElementDescriptor.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GuiGroupDescriptor.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GuiWorkspaceDescriptor.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionEvent.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionList.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionListItem.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewCursorDrawContext.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewDrawContext.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GDOSGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GDOSMessageRenderer.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java \
