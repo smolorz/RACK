@@ -43,7 +43,7 @@ public class GuiGroupDescriptor
     {
         try
         {
-            return name == ((GuiGroupDescriptor) o).name;
+            return name.matches(((GuiGroupDescriptor) o).name);
         }
         catch (Exception e)
         {

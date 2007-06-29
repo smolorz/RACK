@@ -105,7 +105,7 @@ public class GuiElementDescriptor
     {
         try
         {
-            return cfg == ((GuiElementDescriptor) o).cfg;
+            return cfg.matches(((GuiElementDescriptor) o).cfg);
         }
         catch (Exception e)
         {

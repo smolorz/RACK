@@ -32,7 +32,6 @@ public class GuiWorkspaceDescriptor
 
     public boolean equals(Object o)
     {
-        System.out.println(this.toString() + " equals " + o.toString());
         try
         {
             return name.matches(((GuiWorkspaceDescriptor) o).name);
