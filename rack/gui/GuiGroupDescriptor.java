@@ -37,7 +37,7 @@ public class GuiGroupDescriptor
     int     on;
     int     sum;
 
-    Vector<GuiElementDescriptor> element = new Vector<GuiElementDescriptor>();
+    Vector<GuiElementDescriptor> elements = new Vector<GuiElementDescriptor>();
 
     public boolean equals(Object o)
     {
@@ -49,5 +49,10 @@ public class GuiGroupDescriptor
         {
             return false;
         }
+    }
+
+    public String toString()
+    {
+        return "GROUP " + name;
     }
 }

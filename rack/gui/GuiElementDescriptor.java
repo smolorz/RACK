@@ -43,8 +43,6 @@ public class GuiElementDescriptor
     String[]               cfgSplit   = new String[] {""};
     String                 guiClass   = "";
     String                 proxyClass = "";
-    boolean                start      = false;
-    boolean                show       = false;
 
     // swing
     JInternalFrame         frame;
@@ -73,7 +71,31 @@ public class GuiElementDescriptor
     {
         return instance;
     }
-    
+
+    public boolean hasParameter(String parameter)
+    {
+        for(int i = 0; i < cfgSplit.length; i++)
+        {
+            if(cfgSplit[i].startsWith("-" + parameter))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getParameter(String parameter)
+    {
+        for(int i = 0; i < cfgSplit.length; i++)
+        {
+            if(cfgSplit[i].startsWith("-" + parameter + "="))
+            {
+                return cfgSplit[i].substring(parameter.length()+2);
+            }
+        }
+        return "";
+    }
+
     public Gui getMainGui()
     {
         return mainGui;

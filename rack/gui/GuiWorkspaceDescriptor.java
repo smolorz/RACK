@@ -28,17 +28,23 @@ public class GuiWorkspaceDescriptor
     String              name;
     JDesktopPane        jdp;
 
-    Vector<GuiElementDescriptor>  element = new Vector<GuiElementDescriptor>();
+    Vector<GuiElementDescriptor> elements = new Vector<GuiElementDescriptor>();
 
     public boolean equals(Object o)
     {
+        System.out.println(this.toString() + " equals " + o.toString());
         try
         {
-            return name == ((GuiWorkspaceDescriptor) o).name;
+            return name.matches(((GuiWorkspaceDescriptor) o).name);
         }
         catch (Exception e)
         {
             return false;
         }
+    }
+
+    public String toString()
+    {
+        return "WORKSPACE " + name;
     }
 }

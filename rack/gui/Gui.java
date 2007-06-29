@@ -831,11 +831,11 @@ public final class Gui extends Thread
             
             // bei paramentern -show und -start soll trotzdem
             // der button angezeigt werden.
-            if (ge.show && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+            if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
             {
                 ge.status = RackProxy.MSG_DISABLED;
             }
-            if (ge.start && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+            if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
             {
                 ge.status = RackProxy.MSG_DISABLED;
             }

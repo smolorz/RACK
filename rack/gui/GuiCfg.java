@@ -63,7 +63,7 @@ public class GuiCfg
                 {
                     if (string.startsWith("GROUP "))
                     {
-                        if((currentGroup.name == "") && (currentGroup.element.size() ==0))
+                        if((currentGroup.name == "") && (currentGroup.elements.size() ==0))
                         {
                             gui.groups.remove(currentGroup);
                         }
@@ -84,7 +84,7 @@ public class GuiCfg
                     }
                     else if (string.startsWith("JAR_FILES"))
                     {
-                        readMode = 4;
+                        readMode = 2;
                     }
                     else if (string.startsWith("RACK_NAME "))
                     {
@@ -107,25 +107,23 @@ public class GuiCfg
                         }
                         
                         string = string.substring(9).trim();
-                        if (string.length() > 0)
+
+                        GuiWorkspaceDescriptor newWorkspace = new GuiWorkspaceDescriptor(string);
+                        int index = gui.workspaces.indexOf(newWorkspace);
+                        
+                        if (index < 0)
                         {
-                            GuiWorkspaceDescriptor newWorkspace = new GuiWorkspaceDescriptor("string");
-                            int id = gui.workspaces.indexOf(newWorkspace);
-                            
-                            if (id < 0)
-                            {
-                                gui.workspaces.add(newWorkspace);
-                                currentWorkspace = newWorkspace;
-                            }
-                            else
-                            {
-                                currentWorkspace = gui.workspaces.get(id);
-                            }
+                            gui.workspaces.add(newWorkspace);
+                            currentWorkspace = newWorkspace;
+                        }
+                        else
+                        {
+                            currentWorkspace = gui.workspaces.get(index);
                         }
                     }
                     else // line starts without keyword
                     {
-                        if (readMode == 1) // module
+                        if (readMode == 1) // GuiElement
                         {
                             GuiElementDescriptor newElement = new GuiElementDescriptor();
 
@@ -140,15 +138,13 @@ public class GuiCfg
                             getName(newElement);
 
                             getLocationSize(newElement.cfg, newElement.location, newElement.size);
-                            getParameterShow(newElement);
-                            getParameterStart(newElement);
 
                             gui.elements.add(newElement);
 
-                            currentGroup.element.add(newElement);
-                            currentWorkspace.element.add(newElement);
+                            currentGroup.elements.add(newElement);
+                            currentWorkspace.elements.add(newElement);
                         }
-                        if (readMode == 4) // jar files
+                        if (readMode == 2) // jarfile
                         {
                             gui.jarfiles.add(string);
                         }
@@ -266,32 +262,11 @@ public class GuiCfg
         cfgWriter.close();
     }
 
-    private String getParameter(GuiElementDescriptor ge, String param)
-    {
-        String path = ge.cfg;
-        int a = path.indexOf(param);
-        if (a < 0)
-            return ""; // param not found
-
-        a += param.length();
-        char stop = ' ';
-        if (path.charAt(a) == '\"')
-        { // der name steht in anfuehrungszeichen
-            a += 1;
-            stop = '\"';
-        }
-        int e = path.indexOf(stop, a);
-        if (e <= a)
-            e = path.length();
-
-        return path.substring(a, e);
-    }
-
     private void getName(GuiElementDescriptor ge)
     {
         // erstmal sehen, ob der parameter "-name=..." in der gui.cfg benutzt
         // wurde
-        ge.name = getParameter(ge, "-name=");
+        ge.name = ge.getParameter("name");
 
         if (ge.name == "")
         {
@@ -313,14 +288,12 @@ public class GuiCfg
 
     private void getGuiProxyClass(GuiElementDescriptor ge)
     {
-        int blank = ge.cfg.indexOf(' ');
-        ge.guiClass = ge.cfg.substring(0, blank);
+        ge.guiClass = ge.cfgSplit[0];
         System.out.println("GuiClass:   " + ge.guiClass);
 
-        int k = ge.cfg.indexOf('(');
-        ge.instance = Integer.parseInt(ge.cfg.substring(blank + 1, k).trim());
+        ge.instance = Integer.parseInt(ge.cfgSplit[1]);
 
-        ge.proxyClass = getParameter(ge, "-proxy=");
+        ge.proxyClass = ge.getParameter("proxy");
         if (ge.proxyClass == "")
         {
             ge.proxyClass = ge.guiClass;
@@ -383,17 +356,5 @@ public class GuiCfg
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }
-
-    private void getParameterShow(GuiElementDescriptor ge)
-    {
-        String path = ge.cfg;
-        ge.show = (path.indexOf("-show") > -1);
-    }
-
-    private void getParameterStart(GuiElementDescriptor ge)
-    {
-        String path = ge.cfg;
-        ge.start = (path.indexOf("-start") > -1);
     }
 }
