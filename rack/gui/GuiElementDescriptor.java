@@ -101,18 +101,6 @@ public class GuiElementDescriptor
         return mainGui;
     }
     
-    public boolean equals(Object o)
-    {
-        try
-        {
-            return cfg.matches(((GuiElementDescriptor) o).cfg);
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-    }
-    
     public String toString()
     {
         return cfg;
