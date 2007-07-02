@@ -14,7 +14,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{OdometryDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsTcp.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSGui.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.main{GDOSGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{RackDataModuleGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{RackDataProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{Position2d.java"/>
@@ -27,7 +27,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{ChassisDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{EndianDataInputStream.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{Tims.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSTable.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.main{GDOSTable.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{Gui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GuiCfg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{GuiElement.java"/>
@@ -50,7 +50,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{ImageRect.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsRouterMbxMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{StopContDataMsg.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui{GDOSMessageRenderer.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.main{GDOSMessageRenderer.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{MapViewActionList.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui{MapViewActionListItem.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.perception{Scan2dGui.java"/>
@@ -82,7 +82,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsMbx.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsRouter.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{GpsProxy.java"/>
-<javaElement handleIdentifier="=rack/&lt;rack.gui{MapViewGui.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.gui.main{MapViewGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.drivers{CameraComponent.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{ContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{JoystickProxy.java"/>

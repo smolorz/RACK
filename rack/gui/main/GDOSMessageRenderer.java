@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui;
+package rack.gui.main;
 
 import java.awt.Color;
 import java.awt.Component;

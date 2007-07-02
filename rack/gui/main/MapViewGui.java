@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui;
+package rack.gui.main;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -26,69 +26,74 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.imageio.*;
 
+import rack.main.RackName;
 import rack.main.defines.*;
-import rack.main.tims.*;
 import rack.drivers.*;
+import rack.gui.GuiElement;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.MapViewActionEvent;
+import rack.gui.MapViewActionList;
+import rack.gui.MapViewActionListItem;
+import rack.gui.MapViewCursorDrawContext;
+import rack.gui.MapViewDrawContext;
 import rack.navigation.*;
 
-public class MapViewGui extends Thread
+public class MapViewGui extends GuiElement
 {
-    private Vector<GuiElementDescriptor> guiElement;
-    private ModuleGuiList   moduleGuiList;
+    private Vector<GuiElementDescriptor> guiElements;
+    private ModuleGuiList                moduleGuiList;
 
-    private boolean         updateNeeded = false;
-    private Position2d      viewPosition = new Position2d();
-    private double          viewZoom     = 0.02;
-    private int             viewGridDistance = 10000; // in mm
-    private boolean         mouseEntered = false;
+    private boolean                      updateNeeded           = false;
+    private Position2d                   viewPosition           = new Position2d();
+    private double                       viewZoom               = 0.02;
+    private int                          viewGridDistance       = 10000;                  // in mm
+    private boolean                      mouseEntered           = false;
 
-    private Position2d      robotPosition = new Position2d();
-    private PositionDataMsg[] robotPositionList;
-    private int             robotPositionListIndex = 0;
-    private Position2d      worldCursorPosition = new Position2d(0, 0, 0);
+    private Position2d                   robotPosition          = new Position2d();
+    private PositionDataMsg[]            robotPositionList;
+    private int                          robotPositionListIndex = 0;
+    private Position2d                   worldCursorPosition    = new Position2d(0, 0, 0);
 
     // basic Components
-    private ViewPanel       viewPanel;
-    private ActionCursor    actionCursor;
-    private MapNavigator    mapNavigator;
-    private JMenu           menuBar;
-    private JPanel          panel;
-    private BufferedImage   backGndImg;
-    private double          backGndResX,        // in mm/pixel
-                            backGndResY;        // in mm/pixel
-    private Position2d      backGndOffset = new Position2d();
+    private ViewPanel                    viewPanel;
+    private ActionCursor                 actionCursor;
+    private MapNavigator                 mapNavigator;
+    private JMenu                        menuBar;
+    private JPanel                       panel;
+    private BufferedImage                bgImg;
+    private double                       bgResX, bgResY;  // in mm/pixel
+    private Position2d                   bgOffset = new Position2d();
 
     // proxies
-    private PositionProxy   positionProxy;
-    private ChassisProxy    chassisProxy;
+    private PositionProxy                positionProxy;
+    private ChassisProxy                 chassisProxy;
 
     // Messages
-    private ChassisParamMsg chassisParam;
+    private ChassisParamMsg              chassisParam;
 
-    private boolean         terminate = false;
-    
+    private boolean                      terminate = false;
 
-    public MapViewGui(Vector<GuiElementDescriptor> element, TimsMbx workMbx)
+    public MapViewGui(GuiElementDescriptor guiElement)
     {
-        this.guiElement = element;
-        this.setPriority(Thread.MIN_PRIORITY);
+        super(guiElement);
+
+        guiElements = mainGui.getGuiElements();
 
         // create MapView proxies
-        positionProxy = new PositionProxy(0, workMbx);
-        chassisProxy  = new ChassisProxy(0, workMbx);
+        positionProxy = (PositionProxy) mainGui.getProxy(RackName.POSITION, 0);
+        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, 0);
 
         // get chassis parameter message
         if (chassisProxy != null)
         {
             chassisParam = chassisProxy.getParam();
         }
-        System.out.println("chassisParam="+chassisParam);
-        if(chassisParam == null)
+        if (chassisParam == null)
         {
             chassisParam = new ChassisParamMsg();
             chassisParam.boundaryFront = 400;
-            chassisParam.boundaryBack  = 400;
-            chassisParam.boundaryLeft  = 400;
+            chassisParam.boundaryBack = 400;
+            chassisParam.boundaryLeft = 400;
             chassisParam.boundaryRight = 400;
         }
 
@@ -100,46 +105,93 @@ public class MapViewGui extends Thread
         mapNavigator = new MapNavigator();
 
         // set MapView layout
-        panel = new JPanel(new BorderLayout(2,2));
-        panel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        panel.add(mapNavigator,BorderLayout.NORTH);
-        panel.add(viewPanel,BorderLayout.CENTER);;
+        panel = new JPanel(new BorderLayout(2, 2));
+        panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        panel.add(mapNavigator, BorderLayout.NORTH);
+        panel.add(viewPanel, BorderLayout.CENTER);
 
         // set MapView background
-        File file = new File("mapViewBackground.jpg");        
-/*        backGndOffset.x   = 106432;
-        backGndOffset.y   = 204500;
-//        backGndOffset.rho = (float)(-18.0 / 180.0 * Math.PI);
-        backGndOffset.rho = 0.0f;
-        backGndResX       = 220.0;
-        backGndResY       = 230.0;*/
-        backGndOffset.x   = 362800;
-        backGndOffset.y   = 96500;
-        backGndOffset.rho = (float)(-0.1/ 180.0 * Math.PI);
-//        backGndOffset.rho = 0.0f;
-        backGndResX       = 250.0;
-        backGndResY       = 250.0;
+        String param = ge.getParameter("bg");
+        if (param.length() > 0)
+        {
+            try
+            {
+                File file = new File(param);
+                bgImg = ImageIO.read(file);
+            }
+            catch (Exception e)
+            {
+                System.out.println("MapViewGui: Can't read background image \"" + param + "\"\n");
+            }
 
-        // read background image
-        try
-        {
-            backGndImg = ImageIO.read(file);
-        }
-        catch (Exception exc)
-        {
-            System.out.println("Can't read background image\n" + exc);
+            double ulx;
+            param = ge.getParameter("ulx");
+            if (param.length() > 0)
+                ulx = (double)Integer.parseInt(param);
+            else
+                ulx = 0;
+
+            double uly;
+            param = ge.getParameter("uly");
+            if (param.length() > 0)
+                uly = (double)Integer.parseInt(param);
+            else
+                uly = 0;
+
+            double llx;
+            param = ge.getParameter("llx");
+            if (param.length() > 0)
+                llx = (double)Integer.parseInt(param);
+            else
+                llx = 0;
+
+/*            double lly;
+            param = ge.getParameter("lly");
+            if (param.length() > 0)
+                lly = (double)Integer.parseInt(param);
+            else
+                lly = 0;
+*/
+
+/*            double urx;
+            param = ge.getParameter("urx");
+            if (param.length() > 0)
+                urx = (double)Integer.parseInt(param);
+            else
+                urx = 0;
+*/
+            double ury;
+            param = ge.getParameter("ury");
+            if (param.length() > 0)
+                ury = (double)Integer.parseInt(param);
+            else
+                ury = 0;
+
+            bgOffset.x = (int)ulx;
+            bgOffset.y = (int)uly;
+            bgOffset.rho = 0.0f;
+
+            if (llx != 0)
+                bgResX = (ulx - llx) / (double)bgImg.getHeight();
+            else
+                bgResX = 1;
+
+            if (ury != 0)
+                bgResY = (ury - uly) / (double)bgImg.getHeight();
+            else
+                bgResY = 1;
+            
+            System.out.println("offset x " + bgOffset.x + " y " + bgOffset.y + " rho " + bgOffset.rho);
+            System.out.println("resolution x " + bgResX + " y " + bgResY);
         }
 
         robotPositionList = new PositionDataMsg[25];
-        for(int i = 0; i < 25; i++)
+        for (int i = 0; i < 25; i++)
         {
             robotPositionList[i] = new PositionDataMsg();
         }
-
-        this.start();
     }
 
-    
     public void terminate()
     {
         terminate = true;
@@ -148,22 +200,21 @@ public class MapViewGui extends Thread
             this.interrupt();
             this.join(100);
         }
-        catch (Exception e) {}
+        catch (Exception e)
+        {
+        }
     }
 
-    
     public JComponent getComponent()
     {
         return panel;
     }
 
-
-    private void changePositionAndZoom(int changeX, int changeY, int changeRho,
-            int changeZoom)
+    private void changePositionAndZoom(int changeX, int changeY, int changeRho, int changeZoom)
     {
-        Position2d newCenter = getPosOnScreen(viewPanel.getWidth() / 2
-                + changeX * viewPanel.getWidth() / 5, viewPanel.getHeight() / 2
-                + changeY * viewPanel.getHeight() / 5);
+        Position2d newCenter = getPosOnScreen(viewPanel.getWidth() / 2 + changeX * viewPanel.getWidth() / 5, viewPanel
+                .getHeight()
+                / 2 + changeY * viewPanel.getHeight() / 5);
         viewPosition.rho += changeRho * Math.PI / 10;
         if (viewPosition.rho > Math.PI)
             viewPosition.rho -= (2 * Math.PI);
@@ -176,17 +227,13 @@ public class MapViewGui extends Thread
         setCenter(newCenter);
     }
 
-
     private void setCenter(Position2d newCenter)
     {
         Position2d screenCenter;
 
         // sets center on screen in world coordinates
-        screenCenter = (new Position2d((int)Math.round(-viewPanel.getHeight() /
-                                                       (2 * viewZoom)),
-                                       (int) Math.round(viewPanel.getWidth() /
-                                                       (2 * viewZoom)))).
-                                                  coordTrafo(viewPosition.rho);
+        screenCenter = (new Position2d((int) Math.round(-viewPanel.getHeight() / (2 * viewZoom)), (int) Math
+                .round(viewPanel.getWidth() / (2 * viewZoom)))).coordTrafo(viewPosition.rho);
 
         viewPosition.x = newCenter.x - screenCenter.x;
         viewPosition.y = newCenter.y - screenCenter.y;
@@ -197,28 +244,25 @@ public class MapViewGui extends Thread
         Position2d posOnScreen;
 
         // returns position in wold coordinates
-        posOnScreen = new Position2d((int) Math.round(-y / viewZoom),
-                                     (int) Math.round(x / viewZoom));
-        return posOnScreen.coordTrafo(viewPosition.rho, viewPosition.x,
-                                      viewPosition.y);
+        posOnScreen = new Position2d((int) Math.round(-y / viewZoom), (int) Math.round(x / viewZoom));
+        return posOnScreen.coordTrafo(viewPosition.rho, viewPosition.x, viewPosition.y);
     }
 
     private void updateRobotPosition()
     {
         try
         {
-        	PositionDataMsg position = new PositionDataMsg();
-        	
-        	if (positionProxy != null)
-        	    position = positionProxy.getData();
+            PositionDataMsg position = new PositionDataMsg();
 
-            robotPosition = new Position2d(position.pos.x, position.pos.y,
-                                           position.pos.rho);
+            if (positionProxy != null)
+                position = positionProxy.getData();
 
-            synchronized(robotPositionList)
+            robotPosition = new Position2d(position.pos.x, position.pos.y, position.pos.rho);
+
+            synchronized (robotPositionList)
             {
                 robotPositionListIndex++;
-                if(robotPositionListIndex >= 25)
+                if (robotPositionListIndex >= 25)
                     robotPositionListIndex = 0;
                 robotPositionList[robotPositionListIndex] = position;
             }
@@ -237,18 +281,14 @@ public class MapViewGui extends Thread
         // center mapView
         else
         {
-        	Position2d upLeftBound     = getPosOnScreen(viewPanel.getWidth() / 4,
-            										    viewPanel.getHeight() / 4);
-            Position2d lowRightBound   = getPosOnScreen(viewPanel.getWidth() - 
-            										    viewPanel.getWidth() / 4,
-            										    viewPanel.getHeight() -
-            										    viewPanel.getHeight() / 4);
-            if ((robotPosition.x > upLeftBound.x) |
-               (robotPosition.y < upLeftBound.y) |
-               (robotPosition.x < lowRightBound.x) |
-               (robotPosition.y > lowRightBound.y))
+            Position2d upLeftBound = getPosOnScreen(viewPanel.getWidth() / 4, viewPanel.getHeight() / 4);
+            Position2d lowRightBound = getPosOnScreen(viewPanel.getWidth() - viewPanel.getWidth() / 4, viewPanel
+                    .getHeight()
+                    - viewPanel.getHeight() / 4);
+            if ((robotPosition.x > upLeftBound.x) | (robotPosition.y < upLeftBound.y)
+                    | (robotPosition.x < lowRightBound.x) | (robotPosition.y > lowRightBound.y))
             {
-            	setCenter(robotPosition);
+                setCenter(robotPosition);
             }
         }
 
@@ -260,14 +300,8 @@ public class MapViewGui extends Thread
         wakeup();
     }
 
-
     public void run()
     {
-        Thread.yield();
-        Thread.yield();
-        Thread.yield();
-        setCenter(new Position2d());
-
         while (terminate == false)
         {
             do
@@ -306,16 +340,19 @@ public class MapViewGui extends Thread
                         exc.printStackTrace();
                     }
                 } // while
-              viewPanel.setDrawContext(drawContext);
-            }
-            while ((updateNeeded == true) && (terminate == false));
-            
-            try {
+                viewPanel.setDrawContext(drawContext);
+            } while ((updateNeeded == true) && (terminate == false));
+
+            try
+            {
                 sleep(200);
-            } catch (InterruptedException e) {}
+            }
+            catch (InterruptedException e)
+            {
+            }
         }
         System.out.println("MapViewGui terminated");
-    } // run()
+    }
 
     private synchronized void wakeup()
     {
@@ -325,19 +362,17 @@ public class MapViewGui extends Thread
     // *********************************************************
     // draw context
     // **********************************************************
-    private class DrawContext extends BufferedImage implements
-            MapViewDrawContext
+    private class DrawContext extends BufferedImage implements MapViewDrawContext
     {
 
-        private Graphics2D worldGraph;
-        private Graphics2D robotGraph;
-        private Position2d robotPosition;
+        private Graphics2D      worldGraph;
+        private Graphics2D      robotGraph;
+        private Position2d      robotPosition;
         private PositionDataMsg robotPositionList[];
 
         public DrawContext(Position2d robotPosition, PositionDataMsg[] robotPositionList)
         {
-            super(viewPanel.getWidth(), viewPanel.getHeight(),
-                    BufferedImage.TYPE_INT_RGB);
+            super(viewPanel.getWidth(), viewPanel.getHeight(), BufferedImage.TYPE_INT_RGB);
 
             this.robotPosition = robotPosition;
             this.robotPositionList = robotPositionList;
@@ -357,13 +392,13 @@ public class MapViewGui extends Thread
             robotGraph.translate(robotPosition.x, robotPosition.y);
             robotGraph.rotate(robotPosition.rho);
 
-            drawBackgndImg(backGndImg, backGndResX, backGndResY, backGndOffset);
+            drawBackground();
             drawGrid();
         }
 
         public Graphics2D getFrameGraphics()
         {
-            return (Graphics2D)this.getGraphics();
+            return (Graphics2D) this.getGraphics();
         }
 
         public Graphics2D getWorldGraphics()
@@ -398,27 +433,26 @@ public class MapViewGui extends Thread
 
         public Position2d getRobotPosition(int time)
         {
-            if(robotPositionList != null)
+            if (robotPositionList != null)
             {
                 Position2d robotPosition;
-                
-                synchronized(robotPositionList)
+
+                synchronized (robotPositionList)
                 {
                     int index = robotPositionListIndex;
                     int indexTimeDiff = Math.abs(time - robotPositionList[index].recordingTime);
-                    
-                    for(int i = 0; i < robotPositionList.length; i++)
+
+                    for (int i = 0; i < robotPositionList.length; i++)
                     {
                         int timeDiff = Math.abs(time - robotPositionList[i].recordingTime);
-                        if(timeDiff < indexTimeDiff)
+                        if (timeDiff < indexTimeDiff)
                         {
                             index = i;
                             indexTimeDiff = timeDiff;
                         }
                     }
-                    robotPosition = new Position2d(robotPositionList[index].pos.x,
-                                                   robotPositionList[index].pos.y,
-                                                   robotPositionList[index].pos.rho);
+                    robotPosition = new Position2d(robotPositionList[index].pos.x, robotPositionList[index].pos.y,
+                            robotPositionList[index].pos.rho);
                 }
                 return robotPosition;
             }
@@ -431,38 +465,33 @@ public class MapViewGui extends Thread
             Rectangle viewBounds = worldGraph.getClipBounds();
             worldGraph.setColor(Color.LIGHT_GRAY);
 
-            for (int x = (viewGridDistance * (int) (viewBounds.x / viewGridDistance));
-                 x < (viewBounds.x + viewBounds.width); x += viewGridDistance)
+            for (int x = (viewGridDistance * (int) (viewBounds.x / viewGridDistance)); x < (viewBounds.x + viewBounds.width); x += viewGridDistance)
             {
-                worldGraph.drawLine(x, viewBounds.y, x, viewBounds.y +
-                                                        viewBounds.height);
+                worldGraph.drawLine(x, viewBounds.y, x, viewBounds.y + viewBounds.height);
             }
 
-            for (int y = (viewGridDistance * (int) (viewBounds.y / viewGridDistance));
-                 y < (viewBounds.y + viewBounds.height); y += viewGridDistance)
+            for (int y = (viewGridDistance * (int) (viewBounds.y / viewGridDistance)); y < (viewBounds.y + viewBounds.height); y += viewGridDistance)
             {
-                worldGraph.drawLine(viewBounds.x, y, viewBounds.x +
-                                                     viewBounds.width, y);
+                worldGraph.drawLine(viewBounds.x, y, viewBounds.x + viewBounds.width, y);
             }
             worldGraph.setColor(Color.ORANGE);
             worldGraph.drawArc(-75, -75, 150, 150, 0, 270);
         }
 
-
-        private void drawBackgndImg(BufferedImage image,
-                                       double resX, double resY, Position2d pos)
+        private void drawBackground()
         {
             Rectangle viewBounds = worldGraph.getClipBounds();
             worldGraph.setBackground(Color.WHITE);
-            worldGraph.clearRect(viewBounds.x, viewBounds.y, viewBounds.width,
-                                 viewBounds.height);
-            if (image != null)
+            worldGraph.clearRect(viewBounds.x, viewBounds.y, viewBounds.width, viewBounds.height);
+
+            if (bgImg != null)
             {
                 AffineTransform at = new AffineTransform();
-                at.scale(resX, resY);
-                at.rotate(pos.rho + Math.PI/2);
-                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                worldGraph.drawImage(image, biop, pos.x, pos.y);
+                at.scale(bgResX, bgResY);
+                at.rotate(bgOffset.rho + Math.PI / 2);
+                //BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                worldGraph.drawImage(bgImg, biop, bgOffset.x, bgOffset.y);
             }
         }
     }
@@ -472,7 +501,7 @@ public class MapViewGui extends Thread
     // **********************************************************
     private class ViewPanel extends JPanel implements ComponentListener
     {
-        private DrawContext drawContext = null;
+        private DrawContext       drawContext      = null;
 
         private static final long serialVersionUID = 1L;
 
@@ -494,9 +523,9 @@ public class MapViewGui extends Thread
             {
                 return;
             }
-            
+
             onGraph.drawImage(drawContext, 0, 0, this);
-            
+
             if (mouseEntered)
             {
                 actionCursor.drawCursor((Graphics2D) onGraph, drawContext);
@@ -527,32 +556,32 @@ public class MapViewGui extends Thread
     // **********************************************************
     // Map Navigator
     // **********************************************************
-    private class MapNavigator extends JPanel implements ActionListener,
-            MouseWheelListener, MouseListener, MouseMotionListener, KeyListener
+    private class MapNavigator extends JPanel implements ActionListener, MouseWheelListener, MouseListener,
+            MouseMotionListener, KeyListener
     {
-        protected JPanel    eastPanel;
-        protected JPanel    centerPanel;
-        protected JPanel    westPanel;
-        private JButton     viewRobotButton;
-        private JButton     viewOriginButton;
-        private JLabel      coordinateLabel;
+        protected JPanel          eastPanel;
+        protected JPanel          centerPanel;
+        protected JPanel          westPanel;
+        private JButton           viewRobotButton;
+        private JButton           viewOriginButton;
+        private JLabel            coordinateLabel;
 
         private static final long serialVersionUID = 1L;
 
         public MapNavigator()
         {
-            this.setLayout(new BorderLayout(0,0));
-//            this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+            this.setLayout(new BorderLayout(0, 0));
+            //            this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
-         //   viewPanel.addMouseWheelListener(this);
+            //   viewPanel.addMouseWheelListener(this);
             viewPanel.addMouseListener(this);
             viewPanel.addKeyListener(this);
             viewPanel.addMouseMotionListener(this);
 
-           // command
+            // command
             westPanel = new JPanel();
-            westPanel.setLayout(new BorderLayout(2,2));
-            westPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+            westPanel.setLayout(new BorderLayout(2, 2));
+            westPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
             JMenuBar menu = new JMenuBar();
             menu.add(new CommandMenu());
@@ -561,7 +590,7 @@ public class MapViewGui extends Thread
             // coordinates
             centerPanel = new JPanel();
             centerPanel.setLayout(new BorderLayout(2, 2));
-            centerPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+            centerPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
             coordinateLabel = new JLabel("X: 0 mm , Y: 0 mm");
             centerPanel.add(coordinateLabel, BorderLayout.CENTER);
@@ -569,7 +598,7 @@ public class MapViewGui extends Thread
             // view
             eastPanel = new JPanel();
             eastPanel.setLayout(new BorderLayout(2, 2));
-            eastPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+            eastPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
             viewOriginButton = new JButton("Origin");
             viewOriginButton.setActionCommand("origin");
@@ -645,12 +674,10 @@ public class MapViewGui extends Thread
 
         public void mouseMoved(MouseEvent event)
         {
-            Position2d tempPosition = getPosOnScreen(event.getX(),
-                                                     event.getY());
-            worldCursorPosition.x   = tempPosition.x;
-            worldCursorPosition.y   = tempPosition.y;
-            coordinateLabel.setText("X: "+worldCursorPosition.x+" mm, " +
-                                    "Y: "+worldCursorPosition.y+" mm");
+            Position2d tempPosition = getPosOnScreen(event.getX(), event.getY());
+            worldCursorPosition.x = tempPosition.x;
+            worldCursorPosition.y = tempPosition.y;
+            coordinateLabel.setText("X: " + worldCursorPosition.x + " mm, " + "Y: " + worldCursorPosition.y + " mm");
         }
 
         public void mouseDragged(MouseEvent event)
@@ -696,32 +723,32 @@ public class MapViewGui extends Thread
         {
             switch (event.getKeyCode())
             {
-                case KeyEvent.VK_RIGHT:
-                    actionPerformed(new ActionEvent(this, 0, "east"));
-                    break;
-                case KeyEvent.VK_LEFT:
-                    actionPerformed(new ActionEvent(this, 0, "west"));
-                    break;
-                case KeyEvent.VK_UP:
-                    actionPerformed(new ActionEvent(this, 0, "north"));
-                    break;
-                case KeyEvent.VK_DOWN:
-                    actionPerformed(new ActionEvent(this, 0, "south"));
-                    break;
+            case KeyEvent.VK_RIGHT:
+                actionPerformed(new ActionEvent(this, 0, "east"));
+                break;
+            case KeyEvent.VK_LEFT:
+                actionPerformed(new ActionEvent(this, 0, "west"));
+                break;
+            case KeyEvent.VK_UP:
+                actionPerformed(new ActionEvent(this, 0, "north"));
+                break;
+            case KeyEvent.VK_DOWN:
+                actionPerformed(new ActionEvent(this, 0, "south"));
+                break;
 
-                case KeyEvent.VK_PLUS:
-                    actionPerformed(new ActionEvent(this, 0, "in"));
-                    break;
-                case KeyEvent.VK_MINUS:
-                    actionPerformed(new ActionEvent(this, 0, "out"));
-                    break;
+            case KeyEvent.VK_PLUS:
+                actionPerformed(new ActionEvent(this, 0, "in"));
+                break;
+            case KeyEvent.VK_MINUS:
+                actionPerformed(new ActionEvent(this, 0, "out"));
+                break;
 
-                case KeyEvent.VK_PAGE_UP:
-                    actionPerformed(new ActionEvent(this, 0, "left"));
-                    break;
-                case KeyEvent.VK_PAGE_DOWN:
-                    actionPerformed(new ActionEvent(this, 0, "right"));
-                    break;
+            case KeyEvent.VK_PAGE_UP:
+                actionPerformed(new ActionEvent(this, 0, "left"));
+                break;
+            case KeyEvent.VK_PAGE_DOWN:
+                actionPerformed(new ActionEvent(this, 0, "right"));
+                break;
             }
         }
 
@@ -737,7 +764,6 @@ public class MapViewGui extends Thread
         {
             return viewRobotButton.isSelected();
         }
-        
 
         private class CommandMenu extends JMenu implements MenuListener
         {
@@ -769,8 +795,7 @@ public class MapViewGui extends Thread
                     if (!moduleGuiProp.isOn())
                         continue;
 
-                    MapViewActionList actionList = moduleGuiProp.getModuleGui()
-                            .getMapViewActionList();
+                    MapViewActionList actionList = moduleGuiProp.getModuleGui().getMapViewActionList();
                     if (actionList == null)
                         continue;
 
@@ -780,8 +805,7 @@ public class MapViewGui extends Thread
                     ListIterator<MapViewActionListItem> actionListIterator = actionList.listIterator();
                     while (actionListIterator.hasNext())
                     {
-                        newSubmenu.add(new ModuleActionEvent(moduleGuiProp,
-                                      actionListIterator.next()));
+                        newSubmenu.add(new ModuleActionEvent(moduleGuiProp, actionListIterator.next()));
                     }
                 }
 
@@ -798,21 +822,15 @@ public class MapViewGui extends Thread
         } // commandMenu
     }
 
-
-
-
-
-
-
     // **********************************************************
     // Action Cursor
     // **********************************************************
-    private class ActionCursor extends JPanel implements MouseListener,
-            MouseMotionListener, MouseWheelListener, ActionListener
+    private class ActionCursor extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener,
+            ActionListener
     {
-        public boolean active = false;
-        private ModuleActionEvent actionEvent = null;
-        private float dRhoPerClick = (float)Math.toRadians(10.0);
+        public boolean            active           = false;
+        private ModuleActionEvent actionEvent      = null;
+        private float             dRhoPerClick     = (float) Math.toRadians(10.0);
 
         private static final long serialVersionUID = 1L;
 
@@ -826,7 +844,7 @@ public class MapViewGui extends Thread
         public boolean isSimRobotPosition()
         {
             return false;
-//            return simRobotPositionButton.isSelected();
+            //            return simRobotPositionButton.isSelected();
         }
 
         public void actionPerformed(ActionEvent event)
@@ -852,31 +870,24 @@ public class MapViewGui extends Thread
                 if (actionEvent != null && actionEvent.moduleGuiProp.isOn())
                 {
                     updateRobotPosition();
-                    actionEvent.updatePositions(robotPosition,
-                            worldCursorPosition);
-                    actionEvent.moduleGuiProp.getModuleGui()
-                            .mapViewActionPerformed(actionEvent);
+                    actionEvent.updatePositions(robotPosition, worldCursorPosition);
+                    actionEvent.moduleGuiProp.getModuleGui().mapViewActionPerformed(actionEvent);
                 }
                 active = true;
             }
         }
 
-        public synchronized void drawCursor(Graphics2D screenGraph,
-                DrawContext drawContext)
+        public synchronized void drawCursor(Graphics2D screenGraph, DrawContext drawContext)
         {
 
             if (active)
             {
-                CursorDrawContext cursorDrawContext = new CursorDrawContext(
-                        screenGraph, drawContext, actionEvent,
+                CursorDrawContext cursorDrawContext = new CursorDrawContext(screenGraph, drawContext, actionEvent,
                         worldCursorPosition);
-                if (actionEvent != null
-                        && actionEvent.moduleGuiProp.isOn()
-                        && actionEvent.moduleGuiProp.getModuleGui()
-                                .hasMapViewCursor())
+                if (actionEvent != null && actionEvent.moduleGuiProp.isOn()
+                        && actionEvent.moduleGuiProp.getModuleGui().hasMapViewCursor())
                 {
-                    actionEvent.moduleGuiProp.getModuleGui()
-                            .paintMapViewCursor(cursorDrawContext);
+                    actionEvent.moduleGuiProp.getModuleGui().paintMapViewCursor(cursorDrawContext);
                 }
                 else
                 {
@@ -887,61 +898,44 @@ public class MapViewGui extends Thread
 
         private void drawDefaultCursor(Graphics2D cursorGraphics, boolean filled)
         {
-            int chassisWidth = chassisParam.boundaryLeft +
-               chassisParam.boundaryRight;
-            int chassisLength = chassisParam.boundaryBack +
-                chassisParam.boundaryFront;
+            int chassisWidth = chassisParam.boundaryLeft + chassisParam.boundaryRight;
+            int chassisLength = chassisParam.boundaryBack + chassisParam.boundaryFront;
 
-            if(filled)
+            if (filled)
             {
                 cursorGraphics.setColor(Color.LIGHT_GRAY);
-                cursorGraphics.fillRect(-chassisParam.boundaryBack -
-                                         chassisParam.safetyMargin,
-                                        -chassisParam.boundaryLeft -
-                                         chassisParam.safetyMargin,
-                                         chassisLength + 2 * chassisParam.safetyMargin +
-                                         chassisParam.safetyMarginMove,
-                                         chassisWidth + 2 * chassisParam.safetyMargin);
-    
+                cursorGraphics.fillRect(-chassisParam.boundaryBack - chassisParam.safetyMargin,
+                        -chassisParam.boundaryLeft - chassisParam.safetyMargin, chassisLength + 2
+                                * chassisParam.safetyMargin + chassisParam.safetyMarginMove, chassisWidth + 2
+                                * chassisParam.safetyMargin);
+
                 cursorGraphics.setColor(Color.GRAY);
-                cursorGraphics.fillRect(-chassisParam.boundaryBack,
-                                        -chassisParam.boundaryLeft,
-                                         chassisLength, chassisWidth);
+                cursorGraphics.fillRect(-chassisParam.boundaryBack, -chassisParam.boundaryLeft, chassisLength,
+                        chassisWidth);
             }
 
             cursorGraphics.setColor(Color.BLACK);
-            cursorGraphics.drawRect(-chassisParam.boundaryBack,
-                                    -chassisParam.boundaryLeft,
-                                     chassisLength, chassisWidth);
-            cursorGraphics.drawLine(-chassisParam.boundaryBack +
-                                     (int)(chassisLength * 0.5),
-                                       -chassisParam.boundaryLeft,
-                                        chassisParam.boundaryFront,
-                                       -chassisParam.boundaryLeft +
-                                        (int)(chassisWidth * 0.5));
-            cursorGraphics.drawLine( chassisParam.boundaryFront,
-                                    -chassisParam.boundaryLeft +
-                                     (int)(chassisWidth * 0.5),
-                                    -chassisParam.boundaryBack +
-                                     (int)(chassisLength * 0.5),
-                                     chassisParam.boundaryRight);
+            cursorGraphics
+                    .drawRect(-chassisParam.boundaryBack, -chassisParam.boundaryLeft, chassisLength, chassisWidth);
+            cursorGraphics.drawLine(-chassisParam.boundaryBack + (int) (chassisLength * 0.5),
+                    -chassisParam.boundaryLeft, chassisParam.boundaryFront, -chassisParam.boundaryLeft
+                            + (int) (chassisWidth * 0.5));
+            cursorGraphics.drawLine(chassisParam.boundaryFront,
+                    -chassisParam.boundaryLeft + (int) (chassisWidth * 0.5), -chassisParam.boundaryBack
+                            + (int) (chassisLength * 0.5), chassisParam.boundaryRight);
         }
 
-        public Position2d translateRobotCursorPosition(
-                Position2d worldCursorPosition, Position2d robotPosition)
+        public Position2d translateRobotCursorPosition(Position2d worldCursorPosition, Position2d robotPosition)
         {
             Position2d robotCursorPosition = new Position2d();
             double sinRho = Math.sin(robotPosition.rho);
             double cosRho = Math.cos(robotPosition.rho);
-            double x      = (double)(worldCursorPosition.x - 
-                                      robotPosition.x);
-            double y      = (double)(worldCursorPosition.y - 
-                                      robotPosition.y);            
+            double x = (double) (worldCursorPosition.x - robotPosition.x);
+            double y = (double) (worldCursorPosition.y - robotPosition.y);
 
-            robotCursorPosition.x   = (int)(  x * cosRho + y * sinRho);
-            robotCursorPosition.y   = (int)(- x * sinRho + y * cosRho);
-            robotCursorPosition.rho = normalizeAngle(worldCursorPosition.rho - 
-                                      robotPosition.rho);
+            robotCursorPosition.x = (int) (x * cosRho + y * sinRho);
+            robotCursorPosition.y = (int) (-x * sinRho + y * cosRho);
+            robotCursorPosition.rho = normalizeAngle(worldCursorPosition.rho - robotPosition.rho);
             return robotCursorPosition;
         }
 
@@ -954,25 +948,23 @@ public class MapViewGui extends Thread
             return angle;
         }
 
-
         public void mouseDragged(MouseEvent event)
         {
             if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0)
             {
-                Position2d tempPosition = getPosOnScreen(event.getX(), event
-                        .getY());
+                Position2d tempPosition = getPosOnScreen(event.getX(), event.getY());
                 worldCursorPosition.x = tempPosition.x;
                 worldCursorPosition.y = tempPosition.y;
                 actionPerformed(new ActionEvent(this, 0, "execute"));
             }
-/*            if ((event.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) > 0)
-            {
-                Position2D mousePsition = getPosOnScreen(event.getX(), event
-                        .getY());
-                worldCursorPosition.rho = normalizeAngle((float) Math.atan2(
-                            mousePsition.y - worldCursorPosition.y,
-                            mousePsition.x - worldCursorPosition.x));
-            }*/
+            /*            if ((event.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) > 0)
+             {
+             Position2D mousePsition = getPosOnScreen(event.getX(), event
+             .getY());
+             worldCursorPosition.rho = normalizeAngle((float) Math.atan2(
+             mousePsition.y - worldCursorPosition.y,
+             mousePsition.x - worldCursorPosition.x));
+             }*/
 
             if (isSimRobotPosition())
                 updateNeeded();
@@ -982,9 +974,7 @@ public class MapViewGui extends Thread
 
         public void mouseWheelMoved(MouseWheelEvent event)
         {
-            worldCursorPosition.rho = normalizeAngle(
-                                      worldCursorPosition.rho +
-                                      event.getWheelRotation() * dRhoPerClick);
+            worldCursorPosition.rho = normalizeAngle(worldCursorPosition.rho + event.getWheelRotation() * dRhoPerClick);
             updateNeeded();
         }
 
@@ -1017,21 +1007,19 @@ public class MapViewGui extends Thread
     // **********************************************************
     // ModuleActionEvent
     // **********************************************************
-    private class ModuleActionEvent extends JMenuItem implements
-            MapViewActionEvent
+    private class ModuleActionEvent extends JMenuItem implements MapViewActionEvent
     {
 
-        public ModuleGuiProp moduleGuiProp = null;
-        public String actionCommand = "";
+        public ModuleGuiProp      moduleGuiProp    = null;
+        public String             actionCommand    = "";
 
-        public Position2d robotPosition;
-        public Position2d worldCursorPosition;
-        public Position2d robotCursorPosition;
+        public Position2d         robotPosition;
+        public Position2d         worldCursorPosition;
+        public Position2d         robotCursorPosition;
 
         private static final long serialVersionUID = 1L;
 
-        public ModuleActionEvent(ModuleGuiProp n_moduleGuiProp,
-                MapViewActionListItem listItem)
+        public ModuleActionEvent(ModuleGuiProp n_moduleGuiProp, MapViewActionListItem listItem)
         {
             super(listItem.title);
             setActionCommand("selectAction");
@@ -1041,13 +1029,11 @@ public class MapViewGui extends Thread
             actionCommand = listItem.actionCommand;
         }
 
-        public void updatePositions(Position2d robotPosition,
-                Position2d worldCursorPosition)
+        public void updatePositions(Position2d robotPosition, Position2d worldCursorPosition)
         {
             this.robotPosition = robotPosition;
             this.worldCursorPosition = worldCursorPosition;
-            robotCursorPosition = actionCursor.translateRobotCursorPosition(
-                    worldCursorPosition, robotPosition);
+            robotCursorPosition = actionCursor.translateRobotCursorPosition(worldCursorPosition, robotPosition);
         }
 
         public String getActionCommand()
@@ -1071,60 +1057,48 @@ public class MapViewGui extends Thread
         }
     }
 
-
-
-
-
     // **********************************************************
     // cursor draw context
     // **********************************************************
     private class CursorDrawContext implements MapViewCursorDrawContext
     {
 
-        private Graphics2D worldGraph;
-        private Graphics2D robotGraph;
-        private Graphics2D cursorGraph;
+        private Graphics2D        worldGraph;
+        private Graphics2D        robotGraph;
+        private Graphics2D        cursorGraph;
 
-        private Position2d robotPosition;
-        private Position2d worldCursorPosition;
-        private Position2d robotCursorPosition;
+        private Position2d        robotPosition;
+        private Position2d        worldCursorPosition;
+        private Position2d        robotCursorPosition;
 
         private ModuleActionEvent actionEvent;
 
-        public CursorDrawContext(Graphics2D screenGraph,
-                DrawContext drawContext, ModuleActionEvent actionEvent,
+        public CursorDrawContext(Graphics2D screenGraph, DrawContext drawContext, ModuleActionEvent actionEvent,
                 Position2d worldCursorPosition)
         {
 
             // prepare worldGraph
             worldGraph = (Graphics2D) screenGraph.create();
-            worldGraph.setClip(0, 0, drawContext.getWidth(), drawContext
-                    .getHeight());
-            worldGraph.setTransform(drawContext.getWorldGraphics()
-                    .getTransform());
+            worldGraph.setClip(0, 0, drawContext.getWidth(), drawContext.getHeight());
+            worldGraph.setTransform(drawContext.getWorldGraphics().getTransform());
 
             // prepare robotGraph
             robotGraph = (Graphics2D) screenGraph.create();
-            robotGraph.setClip(0, 0, drawContext.getWidth(), drawContext
-                    .getHeight());
-            robotGraph.setTransform(drawContext.getRobotGraphics()
-                    .getTransform());
+            robotGraph.setClip(0, 0, drawContext.getWidth(), drawContext.getHeight());
+            robotGraph.setTransform(drawContext.getRobotGraphics().getTransform());
 
             // prepare cursorGraph
             cursorGraph = (Graphics2D) screenGraph.create();
-            cursorGraph.setClip(0, 0, drawContext.getWidth(), drawContext
-                    .getHeight());
+            cursorGraph.setClip(0, 0, drawContext.getWidth(), drawContext.getHeight());
             cursorGraph.setTransform(worldGraph.getTransform());
-            cursorGraph.translate(worldCursorPosition.x,
-                                  worldCursorPosition.y);
+            cursorGraph.translate(worldCursorPosition.x, worldCursorPosition.y);
             cursorGraph.rotate(worldCursorPosition.rho);
 
             robotPosition = drawContext.getRobotPosition();
             this.worldCursorPosition = worldCursorPosition;
             this.actionEvent = actionEvent;
 
-            robotCursorPosition = actionCursor.translateRobotCursorPosition(
-                    worldCursorPosition, robotPosition);
+            robotCursorPosition = actionCursor.translateRobotCursorPosition(worldCursorPosition, robotPosition);
         }
 
         public Graphics2D getFrameGraphics()
@@ -1187,8 +1161,8 @@ public class MapViewGui extends Thread
     private class ModuleGuiProp extends JMenu implements ActionListener
     {
 
-        private JMenuItem paintItem;
-        private int moduleGuiIndex;
+        private JMenuItem         paintItem;
+        private int               moduleGuiIndex;
 
         private static final long serialVersionUID = 1L;
 
@@ -1206,7 +1180,7 @@ public class MapViewGui extends Thread
 
         public GuiElement getModuleGui()
         {
-            return guiElement.get(moduleGuiIndex).gui;
+            return guiElements.get(moduleGuiIndex).getGui();
         }
 
         public boolean isOn()
@@ -1222,7 +1196,7 @@ public class MapViewGui extends Thread
         public String toString()
         {
             if (isOn())
-                return guiElement.get(moduleGuiIndex).name;
+                return guiElements.get(moduleGuiIndex).getName();
             else
                 return "";
         }
@@ -1230,11 +1204,9 @@ public class MapViewGui extends Thread
         public void actionPerformed(ActionEvent event)
         {
             updateNeeded();
-
         }
 
     } // ModuleGuiProp
-
 
     // **********************************************************
     // ModuleGuiList
@@ -1242,15 +1214,15 @@ public class MapViewGui extends Thread
     private class ModuleGuiList extends ArrayList<ModuleGuiProp>
     {
 
-        private GuiListMenu guiListMenu;
+        private GuiListMenu       guiListMenu;
 
         private static final long serialVersionUID = 1L;
 
         public ModuleGuiList()
         {
-            super(guiElement.size());
+            super(guiElements.size());
 
-            for (int g = 0; g < guiElement.size(); g++)
+            for (int g = 0; g < guiElements.size(); g++)
             {
                 this.add(new ModuleGuiProp(g));
             }
@@ -1297,5 +1269,4 @@ public class MapViewGui extends Thread
             }
         }
     } // ModuleGuiList
-
 }

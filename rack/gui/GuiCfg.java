@@ -16,6 +16,7 @@
 package rack.gui;
 
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
 import java.io.BufferedReader;
@@ -38,7 +39,7 @@ public class GuiCfg
     
     void readConfig(BufferedReader configReader) throws IOException
     {
-        String string;
+        String cfg;
         try
         {
             GuiGroupDescriptor currentGroup = new GuiGroupDescriptor("");
@@ -48,67 +49,64 @@ public class GuiCfg
             GuiWorkspaceDescriptor currentWorkspace = new GuiWorkspaceDescriptor("workspace");
             gui.workspaces.add(currentWorkspace);
             
-            string = configReader.readLine();
+            cfg = configReader.readLine();
 
-            while (string != null)
+            while (cfg != null)
             {
-                string.trim();
-                cfgLines.add(string);
-                System.out.println(string);
+                cfgLines.add(cfg);
 
                 // Debug output
                 // System.out.println(string);
 
-                if (!string.startsWith("//") && string.length() != 0)
+                if (!cfg.startsWith("//") && cfg.length() > 0)
                 {
-                    if (string.startsWith("GROUP "))
+                    if(cfg.startsWith("MAIN_FRAME "))
+                    {
+                        getLocationSize(cfg, gui.mainFrameLocation, gui.mainFrameSize);
+                    }
+                    else if (cfg.startsWith("GROUP "))
                     {
                         if((currentGroup.name == "") && (currentGroup.elements.size() ==0))
                         {
                             gui.groups.remove(currentGroup);
                         }
-                        string = string.substring(6).trim();
-                        currentGroup = new GuiGroupDescriptor(string);
+                        cfg = cfg.substring(6).trim();
+                        currentGroup = new GuiGroupDescriptor(cfg);
                         gui.groups.add(currentGroup);
                         readMode = 1;
                     }
-                    else if (string.startsWith("TIMS_PARAM "))
+                    else if (cfg.startsWith("TIMS_PARAM "))
                     {
-                        string = string.substring(11).trim();  // cut TIMS_PARAM
-                        gui.timsParam = string;
+                        cfg = cfg.substring(11).trim();  // cut TIMS_PARAM
+                        gui.timsParam = cfg;
                     }
-                    else if (string.startsWith("TIMS "))
+                    else if (cfg.startsWith("TIMS "))
                     {
-                        string = string.substring(5).trim();  // cut TIMS
-                        gui.timsClass = string;
+                        cfg = cfg.substring(5).trim();  // cut TIMS
+                        gui.timsClass = cfg;
                     }
-                    else if (string.startsWith("JAR_FILES"))
+                    else if (cfg.startsWith("JAR_FILES"))
                     {
                         readMode = 2;
                     }
-                    else if (string.startsWith("RACK_NAME "))
+                    else if (cfg.startsWith("RACK_NAME "))
                     {
-                        string = string.substring(10);  // cut RACK_NAME
-                        if (string.length() > 0)
+                        cfg = cfg.substring(10);  // cut RACK_NAME
+                        if (cfg.length() > 0)
                         {
-                            gui.rackName = string.trim();
+                            gui.rackName = cfg.trim();
                         }
                     }
-                    else if (string.startsWith("MAPVIEW"))
-                    {
-                        gui.showMapView = true;
-                        gui.mapViewWorkSpace = gui.workspaces.indexOf(currentWorkspace);
-                    }
-                    else if (string.startsWith("WORKSPACE "))
+                    else if (cfg.startsWith("WORKSPACE "))
                     {
                         if (gui.elements.size() == 0)
                         {
                             gui.workspaces.remove(0);
                         }
                         
-                        string = string.substring(9).trim();
+                        cfg = cfg.substring(9).trim();
 
-                        GuiWorkspaceDescriptor newWorkspace = new GuiWorkspaceDescriptor(string);
+                        GuiWorkspaceDescriptor newWorkspace = new GuiWorkspaceDescriptor(cfg);
                         int index = gui.workspaces.indexOf(newWorkspace);
                         
                         if (index < 0)
@@ -127,8 +125,8 @@ public class GuiCfg
                         {
                             GuiElementDescriptor newElement = new GuiElementDescriptor();
 
-                            newElement.cfg = string;
-                            newElement.cfgSplit = string.split(" ");
+                            newElement.cfg = cfg;
+                            newElement.cfgSplit = cfg.split(" ");
                             
                             newElement.mainGui = gui;
                             newElement.group = currentGroup;
@@ -146,17 +144,12 @@ public class GuiCfg
                         }
                         if (readMode == 2) // jarfile
                         {
-                            gui.jarfiles.add(string);
+                            gui.jarfiles.add(cfg);
                         }
                     }
                 }
-                if(string.startsWith("//mainFrameLocationSize"))
-                {
-                    // getMainFrameLocationSize
-                    getLocationSize(string, gui.mainFrameLocation, gui.mainFrameSize);
-                }
                 // read next line
-                string = configReader.readLine();
+                cfg = configReader.readLine();
             }
             configReader.close();
         }
@@ -212,13 +205,13 @@ public class GuiCfg
                 if((ge.size.width != 0) && (ge.size.height != 0))
                 {
                     sb = sb.replace(kAuf, kZu, "(" +
-                            ge.location.x + "," + ge.location.y + ";" +
+                            ge.location.x + "," + ge.location.y + "," +
                             ge.size.width + "," + ge.size.height);
                 }
             }
             else
             {
-                sb = sb.replace(kAuf, kZu, "(,;,");
+                sb = sb.replace(kAuf, kZu, "(,,,");
             }
 
             for (int z = 0; z < cfgLines.size(); z++)
@@ -231,25 +224,26 @@ public class GuiCfg
                 }
             }
         }
-        // um die mainFrameLocationSize abzuspeichen.
+        
+        // write main frame location and size
         if(gui.mainFrame != null)
         {
+            gui.mainFrame.setExtendedState(Frame.NORMAL);
+
             gui.mainFrameLocation = gui.mainFrame.getLocation();
             gui.mainFrameSize = gui.mainFrame.getSize();
-        }
 
-        String str = "//mainFrameLocationSize(" +
-                gui.mainFrameLocation.x + "," + gui.mainFrameLocation.y + ";" +
-                gui.mainFrameSize.width + "," + gui.mainFrameSize.height + ")";
+            String str = "MAIN_FRAME (" +
+            gui.mainFrameLocation.x + "," + gui.mainFrameLocation.y + "," +
+            gui.mainFrameSize.width + "," + gui.mainFrameSize.height + ")";
 
-        if (cfgLines.get(0).startsWith(
-                "//mainFrameLocationSize"))
-        {
-            cfgLines.set(0, str);
-        }
-        else
-        {
-            cfgLines.insertElementAt(str, 0);
+            for (int z = 0; z < cfgLines.size(); z++)
+            {
+                if (cfgLines.get(z).startsWith("MAIN_FRAME "))
+                {
+                    cfgLines.set(z, str);
+                }
+            }
         }
 
         for (int z = 0; z < cfgLines.size(); z++)
@@ -291,20 +285,28 @@ public class GuiCfg
         ge.guiClass = ge.cfgSplit[0];
         System.out.println("GuiClass:   " + ge.guiClass);
 
-        ge.instance = Integer.parseInt(ge.cfgSplit[1]);
-
-        ge.proxyClass = ge.getParameter("proxy");
-        if (ge.proxyClass == "")
+        try
         {
-            ge.proxyClass = ge.guiClass;
-
-            if(ge.proxyClass.endsWith("Gui") == true)
+            ge.instance = Integer.parseInt(ge.cfgSplit[1]);
+    
+            ge.proxyClass = ge.getParameter("proxy");
+            if (ge.proxyClass == "")
             {
-                ge.proxyClass = ge.proxyClass.replaceAll("Gui", "Proxy");
-                ge.proxyClass = ge.proxyClass.replaceAll("gui.", "");
+                ge.proxyClass = ge.guiClass;
+    
+                if(ge.proxyClass.endsWith("Gui") == true)
+                {
+                    ge.proxyClass = ge.proxyClass.replaceAll("Gui", "Proxy");
+                    ge.proxyClass = ge.proxyClass.replaceAll("gui.", "");
+                }
             }
+            System.out.println("ProxyClass: " + ge.proxyClass + " Instance: " + ge.instance);
         }
-        System.out.println("ProxyClass: " + ge.proxyClass + " Instance: " + ge.instance);
+        catch (NumberFormatException e)
+        {
+            ge.instance = -1;
+            ge.proxyClass = "";
+        }
     }
 
     private void getLocationSize(String cfg, Point location, Dimension size)

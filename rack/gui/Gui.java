@@ -62,7 +62,7 @@ public final class Gui extends Thread
     Container               mainFrameContent;
     Point                   mainFrameLocation = new Point(0, 0);
     Dimension               mainFrameSize = new Dimension(800, 600);
-    int                     fullScreenModule = -1;
+    int                     fullScreenElement = -1;
     // navigation panel
     JPanel                  navPanel, navInterPanel;
     JScrollPane             navScrollPanel;
@@ -70,17 +70,6 @@ public final class Gui extends Thread
     Color                   navStatusButtonBG;
     // workspace
     JTabbedPane             jtp;
-
-    // special windows
-    GDOSGui                 gdosGui = null;
-    JInternalFrame          gdosFrame;
-    TimsMbx                 gdosMbx;
-    
-    boolean                 showMapView = false;
-    MapViewGui              mapViewGui = null;
-    int                     mapViewWorkSpace;
-    JInternalFrame          mapViewFrame;
-    TimsMbx                 mapViewReplyMbx;
 
     //
     // constructor
@@ -98,97 +87,19 @@ public final class Gui extends Thread
             cfg = new GuiCfg(this);
             cfg.readConfig(cfgReader);
 
-            guiCL = this.getContextClassLoader();
-            
-            // load additional jar files
-            for (int i = 0; i < jarfiles.size(); i++)
-            {
-                try
-                {
-                    File jarfile = new File(jarfiles.get(i));
-                    
-                    URL urls[] = new URL[] { jarfile.toURI().toURL() };
-                    guiCL = new URLClassLoader(urls, guiCL);
+            System.out.println("Initializing GuiClassLoader ...");
+            initClassLoader();
 
-                    System.out.println("File " + jarfile + " has been loaded");
-                }
-                catch (Exception e)
-                {
-                    JOptionPane.showMessageDialog(mainFrameContent,
-                                    "Can't load jar file.\n" +
-                                    jarfiles.get(i),
-                                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                    throw e;
-                }
-            }
-            
-            // load RackName extension
-            if(rackName.length() > 0)
-            {
-                try
-                {
-                    guiCL.loadClass(rackName)
-                        .getMethod("initClassStringTable", (Class<?>[])null)
-                        .invoke((Object)null, (Object[])null);
-                }
-                catch (Exception e)
-                {
-                    JOptionPane.showMessageDialog(mainFrameContent,
-                                    "Can't load RackName extension.\n" +
-                                    rackName,
-                                    "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                    throw e;
-                }
-            }
-            else
-            {
-                RackName.initClassStringTable();
-            }
+            System.out.println("Initializing RackName extension ...");
+            initRackName();
     
-            // connect to router ...
-    
-            // constructor parameter overwrites config file
-            if(timsClass != null)
-            {
-                this.timsClass = timsClass;
-            }
-            
-            if (this.timsClass == null)
-            {
-                this.timsClass = "rack.main.tims.TimsTcp";
-            }
-    
-            if(timsParam != "")
-            {
-                this.timsParam = timsParam;
-            }
-
-            System.out.println("Connect to TimsRouter \"" + this.timsClass + "\" param \"" + this.timsParam + "\"");
-
-            Class<?>[] timsConstrArgType = new Class<?>[] {String.class};
-            Object[] timsConstrArg = new Object[1];
-            timsConstrArg[0] = this.timsParam;
-
-            try
-            {
-               tims = (Tims) guiCL.loadClass(this.timsClass)
-                       .getConstructor(timsConstrArgType)
-                       .newInstance(timsConstrArg);
-            }
-            catch (Exception e)
-            {
-                JOptionPane.showMessageDialog(mainFrameContent,
-                        "Can't connect to TimsRouter\n" +
-                        "\"" + this.timsClass + "\" param \"" + this.timsParam + "\"\n",
-                        "RACK GUI",
-                        JOptionPane.ERROR_MESSAGE);
-                throw e;
-            }
+            System.out.println("Initializing Tims  ...");
+            initTims(timsClass, timsParam);
     
             System.out.println("Initializing Proxies ...");
             initMbx();
             initProxies();
-    
+
             System.out.println("Initializing GUI ...");
             initGui();
             start();
@@ -230,6 +141,11 @@ public final class Gui extends Thread
         return null;
     }
 
+    public Vector<GuiElementDescriptor> getGuiElements()
+    {
+        return elements;
+    }
+
     public RackProxy getProxy(int moduleName, int instance)
     {
         GuiElementDescriptor ge = getGuiElement(moduleName, instance);
@@ -252,7 +168,101 @@ public final class Gui extends Thread
     //
     // end public interface
     //
+
+    protected void initClassLoader() throws Exception
+    {
+        guiCL = this.getContextClassLoader();
+        
+        // load additional jar files
+        for (int i = 0; i < jarfiles.size(); i++)
+        {
+            try
+            {
+                File jarfile = new File(jarfiles.get(i));
+                
+                URL urls[] = new URL[] { jarfile.toURI().toURL() };
+                guiCL = new URLClassLoader(urls, guiCL);
     
+                System.out.println("File " + jarfile + " has been loaded");
+            }
+            catch (Exception e)
+            {
+                JOptionPane.showMessageDialog(mainFrameContent,
+                                "Can't load jar file.\n" +
+                                jarfiles.get(i),
+                                "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw e;
+            }
+        }
+    }
+    
+    protected void initRackName() throws Exception
+    {
+        // load RackName extension
+        if(rackName.length() > 0)
+        {
+            try
+            {
+                guiCL.loadClass(rackName)
+                    .getMethod("initClassStringTable", (Class<?>[])null)
+                    .invoke((Object)null, (Object[])null);
+            }
+            catch (Exception e)
+            {
+                JOptionPane.showMessageDialog(mainFrameContent,
+                                "Can't load RackName extension.\n" +
+                                rackName,
+                                "RACK GUI", JOptionPane.ERROR_MESSAGE);
+                throw e;
+            }
+        }
+        else
+        {
+            RackName.initClassStringTable();
+        }
+    }
+
+    protected void initTims(String timsClass, String timsParam) throws Exception
+    {
+        // constructor parameter overwrites config file
+        if(timsClass != null)
+        {
+            this.timsClass = timsClass;
+        }
+        
+        if (this.timsClass == null)
+        {
+            this.timsClass = "rack.main.tims.TimsTcp";
+        }
+    
+        if(timsParam != "")
+        {
+            this.timsParam = timsParam;
+        }
+    
+        System.out.println("Connect to TimsRouter \"" + this.timsClass + "\" param \"" + this.timsParam + "\"");
+    
+        Class<?>[] timsConstrArgType = new Class<?>[] {String.class};
+        Object[] timsConstrArg = new Object[1];
+        timsConstrArg[0] = this.timsParam;
+    
+        try
+        {
+           tims = (Tims) guiCL.loadClass(this.timsClass)
+                   .getConstructor(timsConstrArgType)
+                   .newInstance(timsConstrArg);
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(mainFrameContent,
+                    "Can't connect to TimsRouter\n" +
+                    "\"" + this.timsClass + "\" param \"" + this.timsParam + "\"\n",
+                    "RACK GUI",
+                    JOptionPane.ERROR_MESSAGE);
+            throw e;
+        }
+    }
+
     protected void initMbx() throws TimsException
     {
         int inst = 0;
@@ -278,10 +288,6 @@ public final class Gui extends Thread
         {
             for (int i = 0; i < elements.size(); i++)
                 elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
-
-            mapViewReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, elements.size()+1));
-            if (inst == 0)
-                gdosMbx = tims.mbxInit(RackName.create(RackName.GDOS, inst));
         }
         catch (TimsException e)
         {
@@ -298,7 +304,7 @@ public final class Gui extends Thread
         {
             GuiElementDescriptor ge = elements.get(i);
             
-            if(ge.proxyClass.length() > 0)
+            if(ge.instance >= 0)
             {
                 initProxy(elements.get(i));
             }
@@ -426,14 +432,18 @@ public final class Gui extends Thread
             {
                 for (int i = elements.size() - 1; i >= 0; i--)
                 {
-                    elements.get(i).proxy.off();
-
-                    try
+                    GuiElementDescriptor ge = elements.get(i);
+                    if(ge.instance >= 0)
                     {
-                        Thread.sleep(100);
-                    }
-                    catch (InterruptedException e)
-                    {
+                        ge.proxy.off();
+    
+                        try
+                        {
+                            Thread.sleep(100);
+                        }
+                        catch (InterruptedException e)
+                        {
+                        }
                     }
                 }
             }
@@ -456,30 +466,6 @@ public final class Gui extends Thread
         }
         mainFrameContent.add(jtp, BorderLayout.CENTER);
 
-        // create message frame as an internal frame
-        gdosFrame = new JInternalFrame("GDOS Message", true, false, true, true);
-        if (gdosMbx != null) {
-            gdosGui = new GDOSGui(gdosMbx);
-            gdosFrame.getContentPane().add(gdosGui.getComponent());
-            gdosFrame.pack();
-            gdosFrame.setVisible(true);
-            workspaces.get(0).jdp.add(gdosFrame);
-            gdosGui.start();
-        }
-
-        if (showMapView)
-        {
-            // create mapView panel as a tab
-        	mapViewFrame = new JInternalFrame("MapView", true, false, true, true);
-            mapViewGui = new MapViewGui(elements, mapViewReplyMbx);
-        	mapViewFrame.getContentPane().add(mapViewGui.getComponent());
-        	mapViewFrame.pack();        	
-        	mapViewFrame.setVisible(true);
-            workspaces.get(mapViewWorkSpace).jdp.add(mapViewFrame);
-        	mapViewFrame.setLocation(0, 0);
-        	mapViewFrame.setSize(600, 400);
-        }
-        
         mainFrameContent.setVisible(true);
     }
 
@@ -539,6 +525,23 @@ public final class Gui extends Thread
         ge.gui.start();
 
         ge.frame = new JInternalFrame(ge.name, true, true, true, true);
+        ge.frame.setResizable(true);
+        ge.frame.setMaximizable(true);
+        ge.frame.setIconifiable(true);
+
+        if(ge.instance >= 0)
+        {
+            // GuiElements with proxy can be closed and
+            // reopened with button in navigation panel
+            ge.frame.setClosable(true);
+        }
+        else
+        {
+            // GuiElements without proxy have got
+            // no button in navigation panel
+            ge.frame.setClosable(false);
+        }
+
         ge.frame.getContentPane().add(ge.gui.getComponent());
 
         Action action = new AbstractAction()
@@ -547,25 +550,25 @@ public final class Gui extends Thread
 
             public void actionPerformed(ActionEvent e)
             {
-                if (fullScreenModule == -1)
+                if (fullScreenElement == -1)
                 {
                     JInternalFrame frame = workspaces.get(jtp.getSelectedIndex()).jdp.getSelectedFrame();
-                    int module;
-                    for (module = 0; module < elements.size(); module++)
+                    int i;
+                    for (i = 0; i < elements.size(); i++)
                     {
-                        if (elements.get(module).frame == frame)
+                        if (elements.get(i).frame == frame)
                             break;
                     }
-                    if (module == elements.size())
+                    if (i == elements.size())
                         return;
 
-                    fullScreenModule = module;
-                    elements.get(module).gui.toggleFullScreen();
+                    fullScreenElement = i;
+                    elements.get(i).gui.toggleFullScreen();
                 }
                 else
                 {
-                    elements.get(fullScreenModule).gui.toggleFullScreen();
-                    fullScreenModule = -1;
+                    elements.get(fullScreenElement).gui.toggleFullScreen();
+                    fullScreenElement = -1;
                 }
             }
         };
@@ -625,8 +628,8 @@ public final class Gui extends Thread
             {
                 try
                 {
-                    int module = Integer.parseInt(ae.getActionCommand());
-                    GuiElementDescriptor ge = elements.get(module);
+                    int i = Integer.parseInt(ae.getActionCommand());
+                    GuiElementDescriptor ge = elements.get(i);
                     
                     if (ge.navStatusButton.isSelected() == true)
                     {
@@ -643,11 +646,8 @@ public final class Gui extends Thread
             }
         });
 
-        // if (moduleGui[id] == null)
         ge.navButton = new JButton(ge.name);
         ge.navButton.setToolTipText(ge.name);
-        // else
-        // moduleButton[id] = new JButton(moduleGui[id].getModuleName());
         ge.navButton.setHorizontalAlignment(SwingConstants.LEFT);
         ge.navButton.setActionCommand(Integer.toString(elements.indexOf(ge)));
         ge.navButton.addActionListener(new ActionListener()
@@ -656,8 +656,8 @@ public final class Gui extends Thread
             {
                 try
                 {
-                    int module = Integer.parseInt(ae.getActionCommand());
-                    GuiElementDescriptor ge = elements.get(module);
+                    int i = Integer.parseInt(ae.getActionCommand());
+                    GuiElementDescriptor ge = elements.get(i);
 
                     if ((ae.getModifiers() & ActionEvent.CTRL_MASK) == 0)
                     {
@@ -684,7 +684,6 @@ public final class Gui extends Thread
 
         ge.navPanel.add(BorderLayout.WEST, ge.navStatusButton);
         ge.navPanel.add(BorderLayout.CENTER, ge.navButton);
-        // System.out.println("modulelePanel[" + id + "] is ok");
 
         ge.group.panel.add(ge.navPanel);
     }
@@ -744,7 +743,14 @@ public final class Gui extends Thread
         {
             GuiElementDescriptor ge = elements.get(i); 
 
-            ge.status = RackProxy.MSG_TIMEOUT;
+            if(ge.instance >= 0)
+            {
+                ge.status = RackProxy.MSG_TIMEOUT;
+            }
+            else
+            {
+                ge.status = RackProxy.MSG_NOT_AVAILABLE;
+            }
         }
 
         try
@@ -760,19 +766,20 @@ public final class Gui extends Thread
             {
                 GuiElementDescriptor ge = elements.get(i);
 
-                // alle moduleProxy sind bei initModuleProxy schon vorhanden
-
-                getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
-                        ge.proxy.getCommandMbx(),
-                        (byte) 0,
-                        (byte) getStatusSeqNr);
-                // ein bischen warten, um nicht stossweise last zu erzeugen.
-                try
+                if(ge.instance >= 0)
                 {
-                    Thread.sleep(10);
-                }
-                catch (InterruptedException e)
-                {
+                    getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
+                            ge.proxy.getCommandMbx(),
+                            (byte) 0,
+                            (byte) getStatusSeqNr);
+                    // ein bischen warten, um nicht stossweise last zu erzeugen.
+                    try
+                    {
+                        Thread.sleep(10);
+                    }
+                    catch (InterruptedException e)
+                    {
+                    }
                 }
             }
 
@@ -794,9 +801,12 @@ public final class Gui extends Thread
                     {
                         GuiElementDescriptor ge = elements.get(i);
 
-                        if (ge.proxy.getCommandMbx() == reply.src)
+                        if(ge.instance >= 0)
                         {
-                            ge.status = reply.type;
+                            if (ge.proxy.getCommandMbx() == reply.src)
+                            {
+                                ge.status = reply.type;
+                            }
                         }
                     }
                 }
@@ -956,13 +966,7 @@ public final class Gui extends Thread
         }
         catch (Exception e) {}
         
-        // terminate MapViewGui
-        if(mapViewGui != null)
-        {
-            mapViewGui.terminate();
-        }
-
-        // terminate module guis
+        // terminate gui elements
         for (int i = 0; i < elements.size(); i++)
         {
             GuiElementDescriptor ge = elements.get(i);
@@ -971,12 +975,6 @@ public final class Gui extends Thread
             {
                 ge.gui.terminate();
             }
-        }
-
-        // terminate GDOSGui
-        if(gdosGui != null)
-        {
-            gdosGui.terminate();
         }
 
         // terminate connection to TimsRouter

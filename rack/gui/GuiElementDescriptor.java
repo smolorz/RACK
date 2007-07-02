@@ -72,6 +72,11 @@ public class GuiElementDescriptor
         return instance;
     }
 
+    public GuiElement getGui()
+    {
+        return gui;
+    }
+
     public boolean hasParameter(String parameter)
     {
         for(int i = 0; i < cfgSplit.length; i++)
