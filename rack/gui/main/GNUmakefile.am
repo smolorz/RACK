@@ -4,6 +4,10 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
+	GDOSGui.java \
+	GDOSMessageRenderer.java \
+	GDOSTable.java \
+	MapViewGui.java \
 	RackModuleGui.java \
 	RackDataModuleGui.java
 

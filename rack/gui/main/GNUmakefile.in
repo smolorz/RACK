@@ -36,6 +36,10 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSMessageRenderer.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GDOSTable.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	RackModuleGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	RackDataModuleGui.java
 
@@ -52,7 +56,9 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = RackModuleGui.java RackDataModuleGui.java
+am__dist_java_JAVA_DIST = GDOSGui.java GDOSMessageRenderer.java \
+	GDOSTable.java MapViewGui.java RackModuleGui.java \
+	RackDataModuleGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

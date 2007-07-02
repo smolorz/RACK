@@ -10,22 +10,18 @@ SUBDIRS = \
 if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA = \
+	AppletGui.java \
 	Gui.java \
 	GuiCfg.java \
 	GuiElement.java \
 	GuiElementDescriptor.java \
 	GuiGroupDescriptor.java \
 	GuiWorkspaceDescriptor.java \
-	MapViewGui.java \
 	MapViewActionEvent.java \
 	MapViewActionList.java \
 	MapViewActionListItem.java \
 	MapViewCursorDrawContext.java \
-	MapViewDrawContext.java \
-	GDOSGui.java \
-	GDOSMessageRenderer.java \
-	GDOSTable.java \
-	AppletGui.java
+	MapViewDrawContext.java
 
 endif
 
