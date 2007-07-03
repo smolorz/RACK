@@ -35,10 +35,10 @@
 //# Datalog Message Types
 //######################################################################
 
-#define MSG_DATALOG_SET_LOG             (RACK_PROXY_MSG_POS_OFFSET + 1)
-#define MSG_DATALOG_GET_LOG_STATUS      (RACK_PROXY_MSG_POS_OFFSET + 2)
-#define MSG_DATALOG_RESET               (RACK_PROXY_MSG_POS_OFFSET + 3)
-#define MSG_DATALOG_LOG_STATUS          (RACK_PROXY_MSG_NEG_OFFSET - 1)
+#define MSG_DATALOG_INIT_LOG            (RACK_PROXY_MSG_POS_OFFSET + 1)
+#define MSG_DATALOG_SET_LOG             (RACK_PROXY_MSG_POS_OFFSET + 2)
+#define MSG_DATALOG_GET_LOG_STATUS      (RACK_PROXY_MSG_POS_OFFSET + 3)
+#define MSG_DATALOG_LOG_STATUS          (RACK_PROXY_MSG_NEG_OFFSET - 3)
 
 
 
@@ -98,6 +98,7 @@ ACCESS: msg.data.logInfo[...] OR msg.logInfo[...];
 
 typedef struct {
     rack_time_t      recordingTime;
+    uint8_t          logPathName[40];
     int32_t          logNum;
     datalog_log_info logInfo[0];
 } __attribute__((packed)) datalog_data;
@@ -183,16 +184,13 @@ class DatalogProxy : public RackDataProxy {
                 rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
 
-
-// getLogStatus
-    int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen)
+// initLog
+    int initLog()
     {
-        return getLogStatus(recv_data, recv_datalen, dataTimeout);
+        return initLog(dataTimeout);
     }
 
-    int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
-                     uint64_t reply_timeout_ns);
-
+    int initLog(uint64_t reply_timeout_ns);
 
 // setLog
     int setLog(datalog_data *recv_data, ssize_t recv_datalen)
@@ -203,14 +201,14 @@ class DatalogProxy : public RackDataProxy {
     int setLog(datalog_data *recv_data, ssize_t recv_datalen,
                uint64_t reply_timeout_ns);
 
-
-// reset
-    int reset()
+// getLogStatus
+    int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen)
     {
-        return reset(dataTimeout);
+        return getLogStatus(recv_data, recv_datalen, dataTimeout);
     }
 
-    int reset(uint64_t reply_timeout_ns);
+    int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
+                     uint64_t reply_timeout_ns);
 };
 
 /*@}*/
