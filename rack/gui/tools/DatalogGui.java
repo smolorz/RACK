@@ -29,7 +29,6 @@ import rack.tools.DatalogDataMsg;
 public class DatalogGui extends RackModuleGui
 {
     protected JButton        logOnButton;
-    protected JButton        setLogButton;
     protected JButton        logOffButton;
 
     protected JPanel         panel;
@@ -43,16 +42,18 @@ public class DatalogGui extends RackModuleGui
 
     protected JLabel         logLabel;
     protected JLabel         frequencyLabel;
-    protected JLabel         saveNameLabel;
+    protected JLabel         fileNameLabel;
     protected JLabel         statusLabel;
     protected JLabel         pathNameLabel;
 
     protected JCheckBox[]    logCb;
     protected JTextField[]   logFrequency;
-    protected JTextField[]   saveName;
+    protected JTextField[]   fileName;
     protected JRadioButton[] status;
     protected JTextField     pathName;
-
+    
+    protected int            num;
+    protected int[]          moduleMbxLog;    
     protected DatalogDataMsg logStatus;
     protected DatalogDataMsg logData;
     public DatalogProxy      datalog;
@@ -61,8 +62,10 @@ public class DatalogGui extends RackModuleGui
     {
         super(guiElement);
 
-        datalog = (DatalogProxy) proxy;
+        datalog = (DatalogProxy)proxy;
 
+        datalog.initLog();
+        
         logStatus = new DatalogDataMsg();
         logStatus = datalog.getLogStatus();
 
@@ -72,7 +75,7 @@ public class DatalogGui extends RackModuleGui
             logStatus.logNum = 0;
         }
 
-        final int Num = logStatus.logNum;
+        num = logStatus.logNum;
 
         panel = new JPanel();
         panel.setLayout(new BorderLayout(10, 10));
@@ -107,9 +110,9 @@ public class DatalogGui extends RackModuleGui
 
         namePanel = new JPanel();
         namePanel.setLayout(new GridLayout(logStatus.logNum + 1, 1));
-        saveName = new JTextField[logStatus.logNum];
-        saveNameLabel = new JLabel("Filename", SwingConstants.LEFT);
-        namePanel.add(saveNameLabel);
+        fileName = new JTextField[logStatus.logNum];
+        fileNameLabel = new JLabel("Filename", SwingConstants.LEFT);
+        namePanel.add(fileNameLabel);
 
         statusPanel = new JPanel();
         statusPanel.setLayout(new GridLayout(logStatus.logNum + 1, 1));
@@ -117,10 +120,19 @@ public class DatalogGui extends RackModuleGui
         statusLabel = new JLabel("State", SwingConstants.LEFT);
         statusPanel.add(statusLabel);
 
-        final int[] moduleMbxLog = new int[logStatus.logNum];
+        moduleMbxLog = new int[logStatus.logNum];
         for (int i = 0; i < logStatus.logNum; i++)
         {
             logCb[i] = new JCheckBox(RackName.nameString(logStatus.logInfo[i].moduleMbx));
+            if (logStatus.logInfo[i].logEnable == 1)
+            {
+                logCb[i].setSelected(true);
+            }
+            else
+            {
+                logCb[i].setSelected(false);
+            }
+         
             moduleMbxLog[i] = logStatus.logInfo[i].moduleMbx;
             logFrequency[i] = new JTextField("max", 4);
             logFrequency[i].setHorizontalAlignment(JTextField.RIGHT);
@@ -131,73 +143,32 @@ public class DatalogGui extends RackModuleGui
                         (logStatus.logInfo[i].filename).length() - 1);
             }
 
-            saveName[i] = new JTextField(logStatus.logInfo[i].filename, 15);
+            fileName[i] = new JTextField(logStatus.logInfo[i].filename, 15);
             status[i] = new JRadioButton();
             status[i].setSelected(false);
             status[i].setForeground(Color.BLACK);
 
             logPanel.add(logCb[i]);
             frequencyPanel.add(logFrequency[i]);
-            namePanel.add(saveName[i]);
+            namePanel.add(fileName[i]);
             statusPanel.add(status[i]);
         }
 
-        setLogButton = new JButton("Set Log Data");
         logOnButton = new JButton("On");
         logOffButton = new JButton("Off");
 
-        setLogButton.addActionListener(new ActionListener() {
+        logOnButton.addActionListener(new ActionListener() 
+        {
             public void actionPerformed(ActionEvent e)
             {
-                getLogStatus();
-
-                logData = new DatalogDataMsg();
-
-                logData.logInfo = new DatalogLogInfo[Num];
-                logData.logNum = Num;
-
-                for (int i = 0; i < Num; i++)
-                {
-                    logData.logInfo[i] = new DatalogLogInfo();
-
-                    if (logCb[i].isSelected())
-                    {
-                        logData.logInfo[i].logEnable = 1;
-                    }
-                    else
-                    {
-                        logData.logInfo[i].logEnable = 0;
-                    }
-                    logData.logInfo[i].moduleMbx = moduleMbxLog[i];
-                    if (logFrequency[i].getText().equals("max"))
-                    {
-                        logData.logInfo[i].periodTime = 0;
-                    }
-                    else
-                    {
-                        logData.logInfo[i].periodTime = (int) (1000 / Double.valueOf(logFrequency[i].getText())
-                                .doubleValue());
-                    }
-                    logData.logInfo[i].filename = pathName.getText() + "/" + saveName[i].getText();
-                    logData.logInfo[i].maxDataLen = logStatus.logInfo[i].maxDataLen;
-
-                }
-
-                datalog.setLog(logData);
-
-                getLogStatus();
-            }
-        });
-
-        logOnButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
+                setLog();
                 datalog.on();
                 getLogStatus();
             }
         });
 
-        logOffButton.addActionListener(new ActionListener() {
+        logOffButton.addActionListener(new ActionListener() 
+        {
             public void actionPerformed(ActionEvent e)
             {
                 datalog.off();
@@ -205,7 +176,6 @@ public class DatalogGui extends RackModuleGui
             }
         });
 
-        buttonPanel.add(setLogButton);
         buttonPanel.add(logOnButton);
         buttonPanel.add(logOffButton);
 
@@ -238,7 +208,7 @@ public class DatalogGui extends RackModuleGui
             state = new DatalogDataMsg();
             state.logNum = 0;
         }
-
+        
         for (int j = 0; j < state.logNum; j++)
         {
             if (state.logInfo[j].logEnable == 1)
@@ -252,8 +222,57 @@ public class DatalogGui extends RackModuleGui
                 status[j].setForeground(Color.BLACK);
             }
         }
+        
+        System.out.println("logNum="+state.logNum);
     }
 
+    public void setLog() 
+    {
+        datalog.initLog();
+        getLogStatus();
+                                   
+        logData = new DatalogDataMsg();
+        logData.logPathName = pathName.getText();
+        if (!logData.logPathName.endsWith("/"))
+        {
+            logData.logPathName += "/";
+        }
+            
+        logData.logInfo = new DatalogLogInfo[num];
+        logData.logNum = num;
+                    
+        for (int i = 0; i < num; i++)
+        {
+            logData.logInfo[i] = new DatalogLogInfo();
+
+            if (logCb[i].isSelected())
+            {
+                logData.logInfo[i].logEnable = 1;
+            }
+            else
+            {
+                logData.logInfo[i].logEnable = 0;
+            }
+            logData.logInfo[i].moduleMbx = moduleMbxLog[i];
+            if (logFrequency[i].getText().equals("max"))
+            {
+                logData.logInfo[i].periodTime = 0;
+            }
+            else
+            {
+                logData.logInfo[i].periodTime = (int) (1000 / Double.valueOf(logFrequency[i].getText())
+                        .doubleValue());
+            }
+            logData.logInfo[i].filename   = fileName[i].getText();
+            logData.logInfo[i].maxDataLen = logStatus.logInfo[i].maxDataLen;
+        }
+
+        datalog.setLog(logData);
+
+        getLogStatus();
+    }
+    
+    
     public JComponent getComponent()
     {
         return panel;
