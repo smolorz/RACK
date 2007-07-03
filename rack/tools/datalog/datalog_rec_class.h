@@ -58,7 +58,6 @@ class DatalogRec : public RackDataModule {
         int         angleMax;
         uint32_t    dataSrcMbxAdr;
 
-        int         initLog;
         float       angleMinFloat;
         float       angleMaxFloat;
         float       ladarOffsetRhoFloat;

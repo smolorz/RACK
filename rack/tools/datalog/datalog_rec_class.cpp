@@ -41,10 +41,12 @@ int  DatalogRec::moduleOn(void)
     int         i, ret;
     int         init = 0;
     int         logEnable;
+    int         moduleMbx;
+    char        string[100];
     rack_time_t periodTime;
     rack_time_t realPeriodTime;
     rack_time_t datalogPeriodTime = 1000;
-    int         moduleMbx;
+
 
     GDOS_DBG_INFO("Turn on...\n");
 
@@ -75,8 +77,12 @@ int  DatalogRec::moduleOn(void)
 
         if (logEnable > 0)
         {
+            // concatenate filename
+            strcpy(string, (char *)datalogInfoMsg.data.logPathName);
+            strcat(string, (char *)datalogInfoMsg.logInfo[i].filename);
+
             // open log file
-            if ((fileptr[i] = fopen((char *)datalogInfoMsg.logInfo[i].filename, "w")) == NULL)
+            if ((fileptr[i] = fopen(string, "w")) == NULL)
             {
                 GDOS_ERROR("Can't open file %n...\n", moduleMbx);
                 return -EIO;
@@ -122,6 +128,7 @@ int  DatalogRec::moduleOn(void)
             {
                 datalogPeriodTime = realPeriodTime;
             }
+
         }
     }
 
@@ -171,9 +178,6 @@ void DatalogRec::moduleOff(void)
             }
         }
     }
-
-    // set log variable
-    initLog = 1;
 
     RackTask::enableRealtimeMode();
 }
@@ -250,6 +254,7 @@ int  DatalogRec::moduleLoop(void)
         (pDatalogData->logNum)++;
     }
 
+
     putDataBufferWorkSpace(sizeof(datalog_data)+
                            pDatalogData->logNum * sizeof(datalog_log_info));
     datalogMtx.unlock();
@@ -263,15 +268,18 @@ int  DatalogRec::moduleCommand(message_info *msgInfo)
 
     switch (msgInfo->type)
     {
-        case MSG_DATALOG_GET_LOG_STATUS:
-            if (initLog == 1)
+        case MSG_DATALOG_INIT_LOG:
+            if (status == MODULE_STATE_DISABLED)
             {
                 logInfoAllModules(&datalogInfoMsg.data);
-                datalogInfoMsg.data.logNum = logInfoCurrentModules(datalogInfoMsg.logInfo,
-                                                 datalogInfoMsg.data.logNum, datalogInfoMsg.logInfo,
-                                                 &workMbx, 1000000000ll);
-                initLog = 0;
             }
+            cmdMbx.sendMsgReply(MSG_OK, msgInfo);
+            break;
+
+        case MSG_DATALOG_GET_LOG_STATUS:
+             datalogInfoMsg.data.logNum = logInfoCurrentModules(datalogInfoMsg.logInfo,
+                                               datalogInfoMsg.data.logNum, datalogInfoMsg.logInfo,
+                                               &workMbx, 1000000000ll);
 
             cmdMbx.sendDataMsgReply(MSG_DATALOG_LOG_STATUS, msgInfo, 1, &datalogInfoMsg,
                                     sizeof(datalogInfoMsg));
@@ -408,8 +416,8 @@ int DatalogRec::logData(message_info *msgInfo)
                 case CAMERA:
                     cameraData = CameraData::parse(msgInfo);
 
-                    extFilenamePtr = strtok ((char *)datalogInfoMsg.logInfo[i].filename, ".");
-                    sprintf(extFilenameBuf, "%s", extFilenamePtr);
+                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                    extFilenamePtr = strtok((char *)extFilenameBuf, ".");
                     sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
 
@@ -588,8 +596,8 @@ int DatalogRec::logData(message_info *msgInfo)
                 case SCAN2D:
                     scan2dData = Scan2dData::parse(msgInfo);
 
-                    extFilenamePtr = strtok ((char *)datalogInfoMsg.logInfo[i].filename, ".");
-                    sprintf(extFilenameBuf, "%s", extFilenamePtr);
+                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                    extFilenamePtr = strtok((char *)extFilenameBuf, ".");
                     sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
                     strcat(extFilenameBuf, ".2d");
@@ -904,7 +912,6 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
 {
     int num;
 
-    GDOS_PRINT("logInfoAllModules called\n");
     for (num = 0; num < DATALOG_LOGNUM_MAX; num++)
     {
         data->logInfo[num].logEnable = 0;
@@ -1079,7 +1086,7 @@ int DatalogRec::logInfoCurrentModules(datalog_log_info *logInfoAll, int num,
 
         if ((status == MSG_ENABLED) || (status == MSG_DISABLED))
         {
-            memcpy(&logInfoCurrent[currNum].moduleMbx, &logInfoAll[i].moduleMbx,
+            memcpy(&logInfoCurrent[currNum], &logInfoAll[i],
                    sizeof(datalog_log_info));
             currNum++;
         }
@@ -1120,8 +1127,6 @@ int DatalogRec::moduleInit(void)
         GDOS_ERROR("Can't allocate smallContData buffer\n");
         return -ENOMEM;
     }
-    // set log variable
-    initLog = 1;
     initBits.setBit(INIT_BIT_SMALL_CONT_DATA_BUFFER);
 
     // allocate memory for largeContData buffer
@@ -1131,8 +1136,6 @@ int DatalogRec::moduleInit(void)
         GDOS_ERROR("Can't allocate largeContData buffer\n");
         return -ENOMEM;
     }
-    // set log variable
-    initLog = 1;
     initBits.setBit(INIT_BIT_LARGE_CONT_DATA_BUFFER);
 
     // work mailbox
