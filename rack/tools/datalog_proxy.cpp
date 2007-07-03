@@ -33,6 +33,19 @@ int DatalogProxy::getData(datalog_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
+int DatalogProxy::initLog(uint64_t reply_timeout_ns)
+{
+    return proxySendCmd(MSG_DATALOG_INIT_LOG, reply_timeout_ns);
+}
+
+int DatalogProxy::setLog(datalog_data *recv_data, ssize_t recv_datalen,
+                         uint64_t reply_timeout_ns)
+{
+    return proxySendDataCmd(MSG_DATALOG_SET_LOG, recv_data,
+                            recv_datalen,
+                            reply_timeout_ns);
+}
+
 int DatalogProxy::getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
                                uint64_t reply_timeout_ns)
 {
@@ -48,18 +61,5 @@ int DatalogProxy::getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
 
     recv_data = DatalogData::parse(&msgInfo);
     return 0;
-}
-
-int DatalogProxy::setLog(datalog_data *recv_data, ssize_t recv_datalen,
-                         uint64_t reply_timeout_ns)
-{
-    return proxySendDataCmd(MSG_DATALOG_SET_LOG, recv_data,
-                            recv_datalen,
-                            reply_timeout_ns);
-}
-
-int DatalogProxy::reset(uint64_t reply_timeout_ns)
-{
-    return proxySendCmd(MSG_DATALOG_RESET, reply_timeout_ns);
 }
 
