@@ -97,7 +97,7 @@ int  Position::moduleLoop(void)
 
     pPosition = (position_data *)getDataBufferWorkSpace();
 
-    ret = odometryMbx.recvDataMsgTimed(getDataBufferPeriodTime(0) * 2000000llu, &odometryData,
+    ret = odometryMbx.recvDataMsgTimed(getDataBufferPeriodTime(0) * 3000000llu, &odometryData,
                                       sizeof(odometryData), &msgInfo);
     if (ret)
     {
