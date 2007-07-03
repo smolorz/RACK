@@ -21,17 +21,16 @@ import rack.main.tims.*;
 
 public class DatalogProxy extends RackDataProxy
 {
-    public static final byte MSG_DATALOG_SET_LOG =
+    public static final byte MSG_DATALOG_INIT_LOG =
         RackProxy.MSG_POS_OFFSET + 1;
-
-    public static final byte MSG_DATALOG_GET_LOG_STATUS =
+    public static final byte MSG_DATALOG_SET_LOG =
         RackProxy.MSG_POS_OFFSET + 2;
 
-    public static final byte MSG_DATALOG_RESET =
+    public static final byte MSG_DATALOG_GET_LOG_STATUS =
         RackProxy.MSG_POS_OFFSET + 3;
 
     public static final byte MSG_DATALOG_LOG_STATUS =
-        RackProxy.MSG_NEG_OFFSET - 1;
+        RackProxy.MSG_NEG_OFFSET - 3;
 
     public DatalogProxy(int id, TimsMbx replyMbx)
     {
@@ -66,12 +65,12 @@ public class DatalogProxy extends RackDataProxy
         return (getData(0));
     }    
         
-    public synchronized void reset()
+    public synchronized void initLog()
     {
         currentSequenceNo++;
         try
         {
-            replyMbx.send0(MSG_DATALOG_RESET, commandMbx,
+            replyMbx.send0(MSG_DATALOG_INIT_LOG, commandMbx,
                            (byte) 0, currentSequenceNo);
 
             TimsRawMsg reply;
@@ -84,19 +83,19 @@ public class DatalogProxy extends RackDataProxy
             if (reply.type == RackProxy.MSG_OK)
             {
                 System.out.println(RackName.nameString(replyMbx.getName()) + ": "
-                        + RackName.nameString(commandMbx) + ".reset");
+                        + RackName.nameString(commandMbx) + ".initLog");
             }
             else
             {
                 System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                         + RackName.nameString(commandMbx)
-                        + ".reset replied error");
+                        + ".initLog replied error");
             }            
         }
         catch (TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx.getName()) + ": "
-                    + RackName.nameString(commandMbx) + ".reset " + e);
+                    + RackName.nameString(commandMbx) + ".initLog " + e);
         }
     }
 

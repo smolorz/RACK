@@ -25,12 +25,13 @@ import rack.tools.DatalogLogInfo;
 public class DatalogDataMsg extends TimsMsg
 {
     public int				recordingTime = 0;
-	public int              logNum = 0;
+    public String           logPathName = "";    
+    public int              logNum = 0;
     public DatalogLogInfo[] logInfo = new DatalogLogInfo[0];
 
     public int getDataLen()
     {
-        return (8 + logNum * DatalogLogInfo.getDataLen());
+        return (8 + 40 + logNum * DatalogLogInfo.getDataLen());
     }
 
     public DatalogDataMsg()
@@ -58,6 +59,7 @@ public class DatalogDataMsg extends TimsMsg
 
     public void readTimsMsgBody(InputStream in) throws IOException
     {
+        byte[] name = new byte[40];
         EndianDataInputStream dataIn;
         if (bodyByteorder == BIG_ENDIAN)
         {
@@ -69,6 +71,10 @@ public class DatalogDataMsg extends TimsMsg
         }
 
         recordingTime = dataIn.readInt();
+
+        dataIn.readFully(name);
+        logPathName   = new String(name);
+        
         logNum        = dataIn.readInt();
         logInfo       = new DatalogLogInfo[logNum];
         
@@ -84,6 +90,13 @@ public class DatalogDataMsg extends TimsMsg
         DataOutputStream dataOut = new DataOutputStream(out);
         
         dataOut.writeInt(recordingTime);
+        dataOut.writeBytes(logPathName);
+        
+        for (int i = 0; i < (40 - logPathName.length()); i++)
+        {
+            dataOut.writeByte(0);
+        }
+
         dataOut.writeInt(logNum);
 
         for (int i = 0; i < logNum; i++)
