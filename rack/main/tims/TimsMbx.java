@@ -103,6 +103,18 @@ public class TimsMbx extends Vector<TimsMsg>
         return tims.receive(this, timeout);
     }
 
+    public void delete()
+    {
+        try
+        {
+            tims.mbxDelete(this);
+        }
+        catch (TimsException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * TimsMbxs are equal if the mbxNames are equal.
      * 

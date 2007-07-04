@@ -110,18 +110,12 @@ public abstract class RackDataModuleGui extends RackModuleGui
     {
         moduleCleanup();
 
-        try
-        {
-            if (commandMbx != null)
-                tims.mbxDelete(commandMbx);
-            if (dataMbx != null)
-                tims.mbxDelete(dataMbx);
-            if (workMbx != null)
-                tims.mbxDelete(workMbx);
-        }
-        catch (TimsException e)
-        {
-        }
+        if (commandMbx != null)
+            commandMbx.delete();
+        if (dataMbx != null)
+            dataMbx.delete();
+        if (workMbx != null)
+            workMbx.delete();
 
         super.terminate();
     }
