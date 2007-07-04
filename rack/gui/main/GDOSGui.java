@@ -205,6 +205,10 @@ public class GDOSGui extends GuiElement
                 terminate = true;
             }
         }
+        
+        if(gdosMbx != null)
+            gdosMbx.delete();
+        
         System.out.println("GDOSGui terminated");
     }
 }

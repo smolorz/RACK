@@ -101,6 +101,7 @@ public class MapViewGui extends GuiElement
         menuBar = new JMenu();
         moduleGuiList = new ModuleGuiList();
         viewPanel = new ViewPanel();
+        viewPanel.setPreferredSize(new Dimension(400,400));
         actionCursor = new ActionCursor();
         mapNavigator = new MapNavigator();
 

@@ -460,7 +460,7 @@ public final class Gui extends Thread
                 for (int i = elements.size() - 1; i >= 0; i--)
                 {
                     GuiElementDescriptor ge = elements.get(i);
-                    if(ge.instance >= 0)
+                    if(ge.proxy != null)
                     {
                         ge.proxy.off();
     
@@ -663,31 +663,38 @@ public final class Gui extends Thread
     {
         ge.navPanel = new JPanel(new BorderLayout());
 
-        ge.navStatusButton = new JRadioButton();
-        ge.navStatusButton.setActionCommand(Integer.toString(elements.indexOf(ge)));
-        ge.navStatusButton.addActionListener(new ActionListener()
+        if(ge.proxy != null)
         {
-            public void actionPerformed(ActionEvent ae)
+            ge.navStatusButton = new JRadioButton();
+            ge.navStatusButton.setActionCommand(Integer.toString(elements.indexOf(ge)));
+            ge.navStatusButton.addActionListener(new ActionListener()
             {
-                try
+                public void actionPerformed(ActionEvent ae)
                 {
-                    int i = Integer.parseInt(ae.getActionCommand());
-                    GuiElementDescriptor ge = elements.get(i);
-                    
-                    if (ge.navStatusButton.isSelected() == true)
+                    try
                     {
-                        ge.proxy.on();
+                        int i = Integer.parseInt(ae.getActionCommand());
+                        GuiElementDescriptor ge = elements.get(i);
+                        
+                        if (ge.navStatusButton.isSelected() == true)
+                        {
+                            ge.proxy.on();
+                        }
+                        else
+                        {
+                            ge.proxy.off();
+                        }
                     }
-                    else
+                    catch (NumberFormatException e)
                     {
-                        ge.proxy.off();
                     }
                 }
-                catch (NumberFormatException e)
-                {
-                }
-            }
-        });
+            });
+        }
+        else
+        {
+            ge.navStatusButton = new JRadioButton("");
+        }
 
         ge.navButton = new JButton(ge.name);
         ge.navButton.setToolTipText(ge.name);
@@ -702,22 +709,8 @@ public final class Gui extends Thread
                     int i = Integer.parseInt(ae.getActionCommand());
                     GuiElementDescriptor ge = elements.get(i);
 
-                    if ((ae.getModifiers() & ActionEvent.CTRL_MASK) == 0)
-                    {
-                        openGuiElement(ge);
-                        relocateGuiElement(ge);
-                    }
-                    else
-                    {
-                        if (ge.status == RackProxy.MSG_DISABLED)
-                        {
-                            ge.proxy.on();
-                        }
-                        else
-                        {
-                            ge.proxy.off();
-                        }
-                    }
+                    openGuiElement(ge);
+                    relocateGuiElement(ge);
                 }
                 catch (NumberFormatException e)
                 {
@@ -758,15 +751,19 @@ public final class Gui extends Thread
         Dimension size      = ge.frame.getSize();
         Dimension paneSize  = ge.frame.getDesktopPane().getSize();
 
+        if (pos.x + size.width > paneSize.width)
+            pos.x = paneSize.width - size.width;
+
+        if (pos.y + size.height > paneSize.height)
+            pos.y = paneSize.height - size.height;
+
+        ge.frame.setLocation(pos);
+
         if (pos.x < 0)
             pos.x = 0;
-        else if (pos.x + size.width > paneSize.width)
-            pos.x = paneSize.width - size.width;
 
         if (pos.y < 0)
             pos.y = 0;
-        else if (pos.y + size.height > paneSize.height)
-            pos.y = paneSize.height - size.height;
 
         ge.frame.setLocation(pos);
     }
@@ -786,14 +783,7 @@ public final class Gui extends Thread
         {
             GuiElementDescriptor ge = elements.get(i); 
 
-            if(ge.instance >= 0)
-            {
-                ge.status = RackProxy.MSG_TIMEOUT;
-            }
-            else
-            {
-                ge.status = RackProxy.MSG_NOT_AVAILABLE;
-            }
+            ge.status = RackProxy.MSG_TIMEOUT;
         }
 
         try
@@ -809,7 +799,7 @@ public final class Gui extends Thread
             {
                 GuiElementDescriptor ge = elements.get(i);
 
-                if(ge.instance >= 0)
+                if(ge.proxy != null)
                 {
                     getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
                             ge.proxy.getCommandMbx(),
@@ -844,7 +834,7 @@ public final class Gui extends Thread
                     {
                         GuiElementDescriptor ge = elements.get(i);
 
-                        if(ge.instance >= 0)
+                        if(ge.proxy != null)
                         {
                             if (ge.proxy.getCommandMbx() == reply.src)
                             {
@@ -882,79 +872,94 @@ public final class Gui extends Thread
         {
             GuiElementDescriptor ge = elements.get(i);
             
-            // bei paramentern -show und -start soll trotzdem
-            // der button angezeigt werden.
-            if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+            if(ge.proxy != null)
             {
-                ge.status = RackProxy.MSG_DISABLED;
-            }
-            if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
-            {
-                ge.status = RackProxy.MSG_DISABLED;
-            }
-
-            switch (ge.status)
-            {
-                case RackProxy.MSG_ERROR:
-                    if (ge.navPanel == null)
-                    {
-                        addNavPanel(ge);
-                    }
-                    ge.navStatusButton.setEnabled(true);
-                    ge.navStatusButton.setSelected(true);
-                    ge.navStatusButton.setBackground(Color.RED);
-                    ge.navButton.setEnabled(true);
-
-                    ge.group.sum++;
-                    ge.group.error++;
-                    break;
-
-                case RackProxy.MSG_ENABLED:
-                    if (ge.navPanel == null)
-                    {
-                        addNavPanel(ge);
-                    }
-                    ge.navStatusButton.setEnabled(true);
-                    ge.navStatusButton.setSelected(true);
-                    ge.navStatusButton.setBackground(Color.GREEN);
-                    ge.navButton.setEnabled(true);
-
-                    ge.group.sum++;
-                    ge.group.on++;
-                    break;
-
-                case RackProxy.MSG_DISABLED:
-                    if (ge.navPanel == null)
-                    {
-                        addNavPanel(ge);
-                    }
-                    ge.navStatusButton.setEnabled(true);
-                    ge.navStatusButton.setSelected(false);
-                    ge.navStatusButton.setBackground(navStatusButtonBG);
-                    ge.navButton.setEnabled(true);
-
-                    ge.group.sum++;
-                    break;
-
-                case RackProxy.MSG_NOT_AVAILABLE:
-                    if (ge.navPanel != null)
-                    {
-                        ge.navStatusButton.setEnabled(false);
-                        ge.navStatusButton.setSelected(false);
-                        ge.navStatusButton.setBackground(navStatusButtonBG);
-                        ge.navButton.setEnabled(false);
-                    }
-                    break;
-
-                case RackProxy.MSG_TIMEOUT:
-                default:
-                    if (ge.navPanel != null)
-                    {
+                // bei paramentern -show und -start soll trotzdem
+                // der button angezeigt werden.
+                if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                {
+                    ge.status = RackProxy.MSG_DISABLED;
+                }
+                if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                {
+                    ge.status = RackProxy.MSG_DISABLED;
+                }
+    
+                switch (ge.status)
+                {
+                    case RackProxy.MSG_ERROR:
+                        if (ge.navPanel == null)
+                        {
+                            addNavPanel(ge);
+                        }
                         ge.navStatusButton.setEnabled(true);
                         ge.navStatusButton.setSelected(true);
-                        ge.navStatusButton.setBackground(Color.ORANGE);
-                        ge.navButton.setEnabled(false);
-                    }
+                        ge.navStatusButton.setBackground(Color.RED);
+                        ge.navButton.setEnabled(true);
+    
+                        ge.group.sum++;
+                        ge.group.error++;
+                        break;
+    
+                    case RackProxy.MSG_ENABLED:
+                        if (ge.navPanel == null)
+                        {
+                            addNavPanel(ge);
+                        }
+                        ge.navStatusButton.setEnabled(true);
+                        ge.navStatusButton.setSelected(true);
+                        ge.navStatusButton.setBackground(Color.GREEN);
+                        ge.navButton.setEnabled(true);
+    
+                        ge.group.sum++;
+                        ge.group.on++;
+                        break;
+    
+                    case RackProxy.MSG_DISABLED:
+                        if (ge.navPanel == null)
+                        {
+                            addNavPanel(ge);
+                        }
+                        ge.navStatusButton.setEnabled(true);
+                        ge.navStatusButton.setSelected(false);
+                        ge.navStatusButton.setBackground(navStatusButtonBG);
+                        ge.navButton.setEnabled(true);
+    
+                        ge.group.sum++;
+                        break;
+    
+                    case RackProxy.MSG_NOT_AVAILABLE:
+                        if (ge.navPanel != null)
+                        {
+                            ge.navStatusButton.setEnabled(false);
+                            ge.navStatusButton.setSelected(false);
+                            ge.navStatusButton.setBackground(navStatusButtonBG);
+                            ge.navButton.setEnabled(false);
+                        }
+                        break;
+    
+                    case RackProxy.MSG_TIMEOUT:
+                    default:
+                        if (ge.navPanel != null)
+                        {
+                            ge.navStatusButton.setEnabled(true);
+                            ge.navStatusButton.setSelected(true);
+                            ge.navStatusButton.setBackground(Color.ORANGE);
+                            ge.navButton.setEnabled(false);
+                        }
+                }
+            }
+            else
+            {
+                if (ge.navPanel == null)
+                {
+                    addNavPanel(ge);
+                }
+                
+                ge.navStatusButton.setEnabled(false);
+                ge.navStatusButton.setSelected(false);
+                ge.navStatusButton.setBackground(navStatusButtonBG);
+                ge.navButton.setEnabled(true);
             }
         }
     }
