@@ -19,6 +19,7 @@ package rack.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyVetoException;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -36,6 +37,12 @@ public final class Gui extends Thread
     //
     
     static final int GUI_MAX_INSTANCES = 4;
+
+    public static int FRAME_STATE_NORMAL    = 0;
+    public static int FRAME_STATE_MAX       = 1;
+    public static int FRAME_STATE_ICON      = 2;
+    public static int FRAME_STATE_FIXED     = 3;
+    public static int FRAME_STATE_FIXED_MAX = 4;
 
     // general
     Vector<GuiElementDescriptor>    elements    = new Vector<GuiElementDescriptor>();
@@ -62,6 +69,7 @@ public final class Gui extends Thread
     Container               mainFrameContent;
     Point                   mainFrameLocation = new Point(0, 0);
     Dimension               mainFrameSize = new Dimension(800, 600);
+    int                     mainFrameState = FRAME_STATE_NORMAL;
     int                     fullScreenElement = -1;
     // navigation panel
     JPanel                  navPanel, navInterPanel;
@@ -112,6 +120,25 @@ public final class Gui extends Thread
                 mainFrame.setTitle("RACK GUI (" + this.timsParam + ")");
                 mainFrame.setLocation(mainFrameLocation);
                 mainFrame.setSize(mainFrameSize);
+                if((mainFrameState == FRAME_STATE_MAX) ||
+                   (mainFrameState == FRAME_STATE_FIXED_MAX))
+                {
+                    mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+                }
+                if(mainFrameState == FRAME_STATE_ICON)
+                {
+                    mainFrame.setExtendedState(Frame.ICONIFIED);
+                }
+                
+                if(mainFrameState == FRAME_STATE_FIXED)
+                {
+                    mainFrame.setResizable(false);
+                }
+                
+                if(mainFrameState == FRAME_STATE_FIXED_MAX)
+                {
+                    mainFrame.setUndecorated(true);
+                }
                 mainFrame.setVisible(true);
             }
             System.out.println("GUI started ...");
@@ -529,19 +556,6 @@ public final class Gui extends Thread
         ge.frame.setMaximizable(true);
         ge.frame.setIconifiable(true);
 
-        if(ge.instance >= 0)
-        {
-            // GuiElements with proxy can be closed and
-            // reopened with button in navigation panel
-            ge.frame.setClosable(true);
-        }
-        else
-        {
-            // GuiElements without proxy have got
-            // no button in navigation panel
-            ge.frame.setClosable(false);
-        }
-
         ge.frame.getContentPane().add(ge.gui.getComponent());
 
         Action action = new AbstractAction()
@@ -597,6 +611,10 @@ public final class Gui extends Thread
                 ge.gui.terminate();
                 ge.gui = null;
                 ge.frame = null;
+                
+                ge.location = new Point();
+                ge.size = new Dimension();
+                ge.frameState = FRAME_STATE_NORMAL;
             }
         });
         ge.frame.pack();
@@ -613,7 +631,32 @@ public final class Gui extends Thread
             ge.frame.setLocation(ge.location);
             ge.frame.setSize(ge.size);
         }
+
         ge.workspace.jdp.add(ge.frame);
+
+        try
+        {
+            if((ge.frameState == FRAME_STATE_MAX) ||
+               (ge.frameState == FRAME_STATE_FIXED_MAX))
+            {
+                ge.frame.setMaximum(true);
+            }
+            if(ge.frameState == FRAME_STATE_ICON)
+            {
+                ge.frame.setIcon(true);
+            }
+            if((ge.frameState == FRAME_STATE_FIXED) ||
+               (ge.frameState == FRAME_STATE_FIXED_MAX))
+            {
+                ge.frame.setClosable(false);
+                ge.frame.setResizable(false);
+                ge.frame.setMaximizable(false);
+                ge.frame.setIconifiable(false);
+            }
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     protected void addNavPanel(GuiElementDescriptor ge)

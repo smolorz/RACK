@@ -48,6 +48,7 @@ public class GuiElementDescriptor
     JInternalFrame         frame;
     Point                  location   = new Point();
     Dimension              size       = new Dimension();
+    int                    frameState = Gui.FRAME_STATE_NORMAL;
     JPanel                 navPanel;
     JButton                navButton;
     JRadioButton           navStatusButton;

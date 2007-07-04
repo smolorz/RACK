@@ -62,7 +62,7 @@ public class GuiCfg
                 {
                     if(cfg.startsWith("MAIN_FRAME "))
                     {
-                        getLocationSize(cfg, gui.mainFrameLocation, gui.mainFrameSize);
+                        gui.mainFrameState = getLocationSizeState(cfg, gui.mainFrameLocation, gui.mainFrameSize);
                     }
                     else if (cfg.startsWith("GROUP "))
                     {
@@ -135,7 +135,7 @@ public class GuiCfg
                             getGuiProxyClass(newElement);
                             getName(newElement);
 
-                            getLocationSize(newElement.cfg, newElement.location, newElement.size);
+                            newElement.frameState = getLocationSizeState(newElement.cfg, newElement.location, newElement.size);
 
                             gui.elements.add(newElement);
 
@@ -179,39 +179,48 @@ public class GuiCfg
             int kAuf = sb.indexOf("(");
             int kZu = sb.indexOf(")");
 
-            if (ge.frame != null)
+            if((ge.frameState != Gui.FRAME_STATE_FIXED) &&
+               (ge.frameState != Gui.FRAME_STATE_FIXED_MAX))
             {
-                if (ge.frame.isIcon())
+                if (ge.frame != null)
                 {
-                    try
+                    ge.frameState = Gui.FRAME_STATE_NORMAL;
+                    
+                    if (ge.frame.isMaximum())
                     {
-                        ge.frame.setIcon(false);
+                        ge.frameState = Gui.FRAME_STATE_MAX;
+                        try
+                        {
+                            ge.frame.setMaximum(false);
+                        }
+                        catch (PropertyVetoException e) {}
                     }
-                    catch (PropertyVetoException e) {}
-                }
-
-                if (ge.frame.isMaximum())
-                {
-                    try
+    
+                    if (ge.frame.isIcon())
                     {
-                        ge.frame.setMaximum(false);
+                        ge.frameState = Gui.FRAME_STATE_ICON;
+                        try
+                        {
+                            ge.frame.setIcon(false);
+                        }
+                        catch (PropertyVetoException e) {}
                     }
-                    catch (PropertyVetoException e) {}
+    
+                    ge.location = ge.frame.getLocation();
+                    ge.size = ge.frame.getSize();
+    
+                    if((ge.size.width != 0) && (ge.size.height != 0))
+                    {
+                        sb = sb.replace(kAuf, kZu, "(" +
+                                ge.location.x + "," + ge.location.y + "," +
+                                ge.size.width + "," + ge.size.height + "," +
+                                ge.frameState);
+                    }
                 }
-
-                ge.location = ge.frame.getLocation();
-                ge.size = ge.frame.getSize();
-
-                if((ge.size.width != 0) && (ge.size.height != 0))
+                else
                 {
-                    sb = sb.replace(kAuf, kZu, "(" +
-                            ge.location.x + "," + ge.location.y + "," +
-                            ge.size.width + "," + ge.size.height);
+                    sb = sb.replace(kAuf, kZu, "(,,,,");
                 }
-            }
-            else
-            {
-                sb = sb.replace(kAuf, kZu, "(,,,");
             }
 
             for (int z = 0; z < cfgLines.size(); z++)
@@ -226,8 +235,21 @@ public class GuiCfg
         }
         
         // write main frame location and size
-        if(gui.mainFrame != null)
+        if((gui.mainFrame != null) &&
+           (gui.mainFrameState != Gui.FRAME_STATE_FIXED) &&
+           (gui.mainFrameState != Gui.FRAME_STATE_FIXED_MAX))
         {
+            gui.mainFrameState = Gui.FRAME_STATE_NORMAL;
+            if((gui.mainFrame.getExtendedState() & Frame.MAXIMIZED_BOTH) > 0)
+            {
+                gui.mainFrameState = Gui.FRAME_STATE_MAX;
+            }
+
+            if((gui.mainFrame.getExtendedState() & Frame.ICONIFIED) > 0)
+            {
+                gui.mainFrameState = Gui.FRAME_STATE_ICON;
+            }
+
             gui.mainFrame.setExtendedState(Frame.NORMAL);
 
             gui.mainFrameLocation = gui.mainFrame.getLocation();
@@ -235,7 +257,8 @@ public class GuiCfg
 
             String str = "MAIN_FRAME (" +
             gui.mainFrameLocation.x + "," + gui.mainFrameLocation.y + "," +
-            gui.mainFrameSize.width + "," + gui.mainFrameSize.height + ")";
+            gui.mainFrameSize.width + "," + gui.mainFrameSize.height + "," +
+            gui.mainFrameState + ")";
 
             for (int z = 0; z < cfgLines.size(); z++)
             {
@@ -309,8 +332,14 @@ public class GuiCfg
         }
     }
 
-    private void getLocationSize(String cfg, Point location, Dimension size)
+    private int getLocationSizeState(String cfg, Point location, Dimension size)
     {
+        location.x = 0;
+        location.y = 0;
+        size.width = 0;
+        size.height = 0;
+        int frameState = Gui.FRAME_STATE_NORMAL;
+
         //System.out.println("getLocationSize " + cfg);
 
         int open    = cfg.indexOf('(');
@@ -322,14 +351,7 @@ public class GuiCfg
 
         //System.out.println("locationSize " + locationSize);
 
-        if(locationSize.startsWith(",,,"))
-        {
-            location.x = 0;
-            location.y = 0;
-            size.width = 0;
-            size.height = 0;
-        }
-        else
+        if(!locationSize.startsWith(",,,"))
         {
             String[] coordinates = locationSize.split(",");
     
@@ -342,21 +364,24 @@ public class GuiCfg
                 // for the size
                 size.width = Integer.parseInt(coordinates[2].trim());
                 size.height = Integer.parseInt(coordinates[3].trim());
+                
+                frameState = Integer.parseInt(coordinates[4].trim());
             }
             catch (ArrayIndexOutOfBoundsException e)
             {
                 JOptionPane.showMessageDialog(gui.mainFrameContent,
-                        "Error reading location and size (1,2,3,4).\n" + 
+                        "Error reading location, size and state (x,y,width,height,frameState).\n" + 
                         "\"" + cfg + "\"",
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
             }
             catch (NumberFormatException e)
             {
                 JOptionPane.showMessageDialog(gui.mainFrameContent,
-                        "Error reading location and size (1,2,3,4).\n" + 
+                        "Error reading location, size and state (x,y,width,height,frameState).\n" + 
                         "\"" + cfg + "\"",
                         "RACK GUI", JOptionPane.ERROR_MESSAGE);
             }
         }
+        return frameState;
     }
 }
