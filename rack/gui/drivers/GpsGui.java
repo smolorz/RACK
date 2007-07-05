@@ -16,7 +16,6 @@
 package rack.gui.drivers;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
@@ -27,16 +26,9 @@ import rack.drivers.GpsProxy;
 
 public class GpsGui extends RackModuleGui
 {
-    protected boolean    mapViewIsShowing = false;
     protected GpsDataMsg gpsData;
 
-    protected JButton    onButton;
-    protected JButton    offButton;
-
-    protected JPanel     panel;
-    protected JPanel     buttonPanel;
-    protected JPanel     labelPanel;
-    protected JPanel     northPanel;
+    protected boolean    mapViewIsShowing;
 
     protected JLabel     modeLabel        = new JLabel();
     protected JLabel     modeNameLabel    = new JLabel("Mode", SwingConstants.RIGHT);
@@ -78,29 +70,9 @@ public class GpsGui extends RackModuleGui
 
         gps = (GpsProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
-        buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
-        labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
-        northPanel = new JPanel(new BorderLayout(2, 2));
-
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
-
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                gps.on();
-            }
-        });
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                gps.off();
-            }
-        });
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
+        JPanel labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
+        JPanel northPanel = new JPanel(new BorderLayout(2, 2));
 
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
@@ -139,16 +111,55 @@ public class GpsGui extends RackModuleGui
         labelPanel.add(varZLabel);
         labelPanel.add(varRhoNameLabel);
         labelPanel.add(varRhoLabel);
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(labelPanel, BorderLayout.CENTER);
+
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(labelPanel, BorderLayout.CENTER);
+        
+        setEnabled(false);
     }
 
-    public JComponent getComponent()
+    protected void setEnabled(boolean enabled)
     {
-        return (panel);
+        modeNameLabel.setEnabled(enabled);
+        modeLabel.setEnabled(enabled);
+        latNameLabel.setEnabled(enabled);
+        latLabel.setEnabled(enabled);
+        longNameLabel.setEnabled(enabled);
+        longLabel.setEnabled(enabled);
+        altNameLabel.setEnabled(enabled);
+        altLabel.setEnabled(enabled);
+        headNameLabel.setEnabled(enabled);
+        headLabel.setEnabled(enabled);
+        speedNameLabel.setEnabled(enabled);
+        speedLabel.setEnabled(enabled);
+        satNumNameLabel.setEnabled(enabled);
+        satNumLabel.setEnabled(enabled);
+        pdopNameLabel.setEnabled(enabled);
+        pdopLabel.setEnabled(enabled);
+        utcTimeNameLabel.setEnabled(enabled);
+        utcTimeLabel.setEnabled(enabled);
+        xGKNameLabel.setEnabled(enabled);
+        xGKLabel.setEnabled(enabled);
+        yGKNameLabel.setEnabled(enabled);
+        yGKLabel.setEnabled(enabled);
+        zGKNameLabel.setEnabled(enabled);
+        zGKLabel.setEnabled(enabled);
+        rhoGKNameLabel.setEnabled(enabled);
+        rhoGKLabel.setEnabled(enabled);
+        varXYNameLabel.setEnabled(enabled);
+        varXYLabel.setEnabled(enabled);
+        varZNameLabel.setEnabled(enabled);
+        varZLabel.setEnabled(enabled);
+        varRhoNameLabel.setEnabled(enabled);
+        varRhoLabel.setEnabled(enabled);
     }
 
-    public void run()
+    protected boolean needsDataUpdate()
+    {
+        return (rootPanel.isShowing() || mapViewIsShowing);
+    }
+    
+    protected void updateData()
     {
         GpsDataMsg data;
 
@@ -158,144 +169,72 @@ public class GpsGui extends RackModuleGui
         float altitude;
         float speed;
 
-        while (terminate == false)
+        data = gps.getData();
+
+        synchronized(this)
         {
-            if (panel.isShowing())
+            gpsData = data;
+        }
+
+        if (data != null)
+        {
+            latitude = (float) Math.toDegrees(data.latitude);
+            longitude = (float) Math.toDegrees(data.longitude);
+            heading = (float) Math.toDegrees(data.heading);
+            altitude = (float) data.altitude / 1000;
+            speed = (float) data.speed / 1000;
+
+            if (data.mode == GpsDataMsg.MODE_2D)
             {
-                data = gps.getData();
-
-                if (data != null)
-                {
-                    gpsData = data;
-
-                    latitude = (float) Math.toDegrees(data.latitude);
-                    longitude = (float) Math.toDegrees(data.longitude);
-                    heading = (float) Math.toDegrees(data.heading);
-                    altitude = (float) data.altitude / 1000;
-                    speed = (float) data.speed / 1000;
-
-                    if (data.mode == GpsDataMsg.MODE_2D)
-                    {
-                        modeLabel.setText("2D");
-                    }
-                    if (data.mode == GpsDataMsg.MODE_3D)
-                    {
-                        modeLabel.setText("3D");
-                    }
-                    else
-                    {
-                        modeLabel.setText("invalid");
-                    }
-
-                    if (latitude >= 0.0)
-                    {
-                        latLabel.setText(latitude + " deg N");
-                    }
-                    else
-                    {
-                        latLabel.setText(latitude + " deg S");
-                    }
-
-                    if (longitude >= 0.0)
-                    {
-                        longLabel.setText(longitude + " deg E");
-                    }
-                    else
-                    {
-                        longLabel.setText(longitude + " deg W");
-                    }
-
-                    altLabel.setText(altitude + " m");
-                    headLabel.setText(heading + " deg");
-                    speedLabel.setText(speed + " m/s");
-
-                    satNumLabel.setText(data.satelliteNum + "");
-                    pdopLabel.setText(data.pdop + "");
-                    utcTimeLabel.setText(data.utcTime + " s");
-                    xGKLabel.setText(data.posGK.x + " mm");
-                    yGKLabel.setText(data.posGK.y + " mm");
-                    zGKLabel.setText(data.posGK.z + " mm");
-                    rhoGKLabel.setText((float) Math.toDegrees(data.posGK.rho) + " deg");
-                    varXYLabel.setText(data.varXY + " mm");
-                    varZLabel.setText(data.varZ + " mm");
-                    varRhoLabel.setText((float) Math.toDegrees(data.varRho) + " deg");
-
-                    modeNameLabel.setEnabled(true);
-                    modeLabel.setEnabled(true);
-                    latNameLabel.setEnabled(true);
-                    latLabel.setEnabled(true);
-                    longNameLabel.setEnabled(true);
-                    longLabel.setEnabled(true);
-                    altNameLabel.setEnabled(true);
-                    altLabel.setEnabled(true);
-                    headNameLabel.setEnabled(true);
-                    headLabel.setEnabled(true);
-                    speedNameLabel.setEnabled(true);
-                    speedLabel.setEnabled(true);
-                    satNumNameLabel.setEnabled(true);
-                    satNumLabel.setEnabled(true);
-                    pdopNameLabel.setEnabled(true);
-                    pdopLabel.setEnabled(true);
-                    utcTimeNameLabel.setEnabled(true);
-                    utcTimeLabel.setEnabled(true);
-                    xGKNameLabel.setEnabled(true);
-                    xGKLabel.setEnabled(true);
-                    yGKNameLabel.setEnabled(true);
-                    yGKLabel.setEnabled(true);
-                    zGKNameLabel.setEnabled(true);
-                    zGKLabel.setEnabled(true);
-                    rhoGKNameLabel.setEnabled(true);
-                    rhoGKLabel.setEnabled(true);
-                    varXYNameLabel.setEnabled(true);
-                    varXYLabel.setEnabled(true);
-                    varZNameLabel.setEnabled(true);
-                    varZLabel.setEnabled(true);
-                    varRhoNameLabel.setEnabled(true);
-                    varRhoLabel.setEnabled(true);
-                }
-                else
-                {
-                    modeNameLabel.setEnabled(false);
-                    modeLabel.setEnabled(false);
-                    latNameLabel.setEnabled(false);
-                    latLabel.setEnabled(false);
-                    longNameLabel.setEnabled(false);
-                    longLabel.setEnabled(false);
-                    altNameLabel.setEnabled(false);
-                    altLabel.setEnabled(false);
-                    headNameLabel.setEnabled(false);
-                    headLabel.setEnabled(false);
-                    speedNameLabel.setEnabled(false);
-                    speedLabel.setEnabled(false);
-                    satNumNameLabel.setEnabled(false);
-                    satNumLabel.setEnabled(false);
-                    pdopNameLabel.setEnabled(false);
-                    pdopLabel.setEnabled(false);
-                    utcTimeNameLabel.setEnabled(false);
-                    utcTimeLabel.setEnabled(false);
-                    xGKNameLabel.setEnabled(false);
-                    xGKLabel.setEnabled(false);
-                    yGKNameLabel.setEnabled(false);
-                    yGKLabel.setEnabled(false);
-                    zGKNameLabel.setEnabled(false);
-                    zGKLabel.setEnabled(false);
-                    rhoGKNameLabel.setEnabled(false);
-                    rhoGKLabel.setEnabled(false);
-                    varXYNameLabel.setEnabled(false);
-                    varXYLabel.setEnabled(false);
-                    varZNameLabel.setEnabled(false);
-                    varZLabel.setEnabled(false);
-                    varRhoNameLabel.setEnabled(false);
-                    varRhoLabel.setEnabled(false);
-                }
+                modeLabel.setText("2D");
             }
-            try
+            if (data.mode == GpsDataMsg.MODE_3D)
             {
-                Thread.sleep(1000);
+                modeLabel.setText("3D");
             }
-            catch (InterruptedException e)
+            else
             {
+                modeLabel.setText("invalid");
             }
+
+            if (latitude >= 0.0)
+            {
+                latLabel.setText(latitude + " deg N");
+            }
+            else
+            {
+                latLabel.setText(latitude + " deg S");
+            }
+
+            if (longitude >= 0.0)
+            {
+                longLabel.setText(longitude + " deg E");
+            }
+            else
+            {
+                longLabel.setText(longitude + " deg W");
+            }
+
+            altLabel.setText(altitude + " m");
+            headLabel.setText(heading + " deg");
+            speedLabel.setText(speed + " m/s");
+
+            satNumLabel.setText(data.satelliteNum + "");
+            pdopLabel.setText(data.pdop + "");
+            utcTimeLabel.setText(data.utcTime + " s");
+            xGKLabel.setText(data.posGK.x + " mm");
+            yGKLabel.setText(data.posGK.y + " mm");
+            zGKLabel.setText(data.posGK.z + " mm");
+            rhoGKLabel.setText((float) Math.toDegrees(data.posGK.rho) + " deg");
+            varXYLabel.setText(data.varXY + " mm");
+            varZLabel.setText(data.varZ + " mm");
+            varRhoLabel.setText((float) Math.toDegrees(data.varRho) + " deg");
+
+            setEnabled(true);
+        }
+        else
+        {
+            setEnabled(false);
         }
     }
 

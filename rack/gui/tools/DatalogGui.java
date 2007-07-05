@@ -31,7 +31,6 @@ public class DatalogGui extends RackModuleGui
     protected JButton        logOnButton;
     protected JButton        logOffButton;
 
-    protected JPanel         panel;
     protected JPanel         buttonPanel;
     protected JPanel         logPanel;
     protected JPanel         frequencyPanel;
@@ -77,8 +76,8 @@ public class DatalogGui extends RackModuleGui
 
         num = logStatus.logNum;
 
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout(10, 10));
+        rootPanel = new JPanel();
+        rootPanel.setLayout(new BorderLayout(10, 10));
 
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
@@ -189,13 +188,12 @@ public class DatalogGui extends RackModuleGui
         mainPanel.add(statusPanel);
         mainPanel.add(Box.createRigidArea(new Dimension(15, 0)));
 
-        panel.add(buttonPanel, BorderLayout.NORTH);
-        panel.add(mainPanel, BorderLayout.CENTER);
-        panel.add(pathPanel, BorderLayout.SOUTH);
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        rootPanel.add(buttonPanel, BorderLayout.NORTH);
+        rootPanel.add(mainPanel, BorderLayout.CENTER);
+        rootPanel.add(pathPanel, BorderLayout.SOUTH);
+        rootPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         getLogStatus();
-
     }
 
     public void getLogStatus()
@@ -272,33 +270,14 @@ public class DatalogGui extends RackModuleGui
         getLogStatus();
     }
     
-    
-    public JComponent getComponent()
-    {
-        return panel;
-    }
-
-    public void run()
+    protected void updateData()
     {
         DatalogDataMsg data;
 
-        while (terminate == false)
-        {
-            if (panel.isShowing())
-            {
-                data = datalog.getData();
+        data = datalog.getData();
 
-                if (data != null)
-                {
-                }
-            }
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-            }
+        if (data != null)
+        {
         }
     }
 }

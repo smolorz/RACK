@@ -30,25 +30,17 @@ import rack.perception.Scan2dProxy;
 public class Scan2dGui extends RackModuleGui
 {
     protected boolean         mapViewIsShowing = false;
-    public int                maxDistance      = 10000; // 10m
-    public Scan2dDataMsg      scan2dData;
+    protected int             maxDistance      = 10000; // 10m
+    protected Scan2dDataMsg   scan2dData;
     protected Scan2dProxy     scan2d;
     protected Scan2dComponent scan2dComponent;
 
-    protected JButton         onButton;
-    protected JButton         offButton;
     protected JButton         zoomOutButton;
     protected JButton         zoomInButton;
     protected JButton         storeContOnButton;
     protected JButton         storeContOffButton;
     public JLabel             contStoringLabel;
     protected int             contStoring      = 0;
-
-    protected JPanel          panel;
-    protected JPanel          northPanel;
-    protected JPanel          wButtonPanel;
-    protected JPanel          eButtonPanel;
-    protected JPanel          sButtonPanel;
 
     protected Point           aktuellPoint;
     protected Point           mousePressedPoint;
@@ -61,16 +53,11 @@ public class Scan2dGui extends RackModuleGui
 
         scan2d = (Scan2dProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        JPanel northPanel = new JPanel(new BorderLayout(2, 2));
+        JPanel wButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+        JPanel eButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+        JPanel sButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
 
-        northPanel = new JPanel(new BorderLayout(2, 2));
-        wButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
-        eButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
-        sButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
-
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
         zoomOutButton = new JButton("Zoom out");
         zoomInButton = new JButton("Zoom in");
         storeContOnButton = new JButton("StoreOn");
@@ -107,22 +94,7 @@ public class Scan2dGui extends RackModuleGui
             }
         });
 
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                scan2d.on();
-            }
-        });
-
         onButton.addKeyListener(new myKeyListener());
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                scan2d.off();
-            }
-        });
-
         offButton.addKeyListener(new myKeyListener());
 
         zoomOutButton.addActionListener(new ActionListener() {
@@ -176,44 +148,52 @@ public class Scan2dGui extends RackModuleGui
         northPanel.add(eButtonPanel, BorderLayout.EAST);
         northPanel.add(sButtonPanel, BorderLayout.SOUTH);
 
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(scan2dComponent, BorderLayout.CENTER);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(scan2dComponent, BorderLayout.CENTER);
 
+        setEnabled(false);
     }
 
-    public JComponent getComponent()
+    protected void setEnabled(boolean enabled)
     {
-        return panel;
+        zoomOutButton.setEnabled(enabled);
+        zoomInButton.setEnabled(enabled);
+        storeContOnButton.setEnabled(enabled);
+        storeContOffButton.setEnabled(enabled);
+        contStoringLabel.setEnabled(enabled);
     }
 
-    public void run()
+    protected boolean needsDataUpdate()
+    {
+        return (rootPanel.isShowing() || mapViewIsShowing);
+    }
+    
+    protected void updateData()
     {
         Scan2dDataMsg data;
 
-        while (terminate == false)
+        data = scan2d.getData();
+
+        if (data != null)
         {
-            if (panel.isShowing() | (mapViewIsShowing))
+            synchronized(this)
             {
-                data = scan2d.getData();
-                if (data != null)
-                {
-                    scan2dData = data;
-                    scan2dComponent.updateData(data);
-                    if (contStoring == 1)
-                    {
-                        scan2d.storeDataToFile("scan2d-" + System.currentTimeMillis() + ".txt");
-                    }
-                }
-                mapViewIsShowing = false;
+                scan2dData = data;
             }
-            try
+            
+            scan2dComponent.updateData(data);
+            setEnabled(true);
+
+            if (contStoring == 1)
             {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
+                scan2d.storeDataToFile("scan2d-" + System.currentTimeMillis() + ".txt");
             }
         }
+        else
+        {
+            setEnabled(false);
+        }
+        mapViewIsShowing = false;
     }
 
     public boolean hasMapView()
@@ -225,42 +205,45 @@ public class Scan2dGui extends RackModuleGui
     {
         mapViewIsShowing = true;
 
-        if (scan2dData == null)
-            return;
-
-        Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2dData.recordingTime);
-
-        for (int i = 0; i < scan2dData.pointNum; i++)
+        synchronized(this)
         {
-            ScanPoint point = scan2dData.point[i];
-            int size = 100;
-            int dist;
-
-            if ((point.type & ScanPoint.TYPE_INVALID) != 0)
+            if (scan2dData == null)
+                return;
+    
+            Graphics2D robotGraphics = drawContext.getRobotGraphics(scan2dData.recordingTime);
+    
+            for (int i = 0; i < scan2dData.pointNum; i++)
             {
-                robotGraphics.setColor(Color.GRAY);
+                ScanPoint point = scan2dData.point[i];
+                int size = 100;
+                int dist;
+    
+                if ((point.type & ScanPoint.TYPE_INVALID) != 0)
+                {
+                    robotGraphics.setColor(Color.GRAY);
+                }
+                else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
+                {
+                    robotGraphics.setColor(Color.YELLOW);
+                }
+                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
+                {
+                    robotGraphics.setColor(Color.BLUE);
+                }
+                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
+                {
+                    robotGraphics.setColor(Color.RED);
+                }
+                else
+                {
+                    robotGraphics.setColor(Color.BLACK);
+                }
+    
+                // draw scanpoints in mm
+                dist = (int) Math.sqrt(point.x * point.x + point.y * point.y);
+                size += (int) (dist * 0.025);
+                robotGraphics.fillArc(point.x - size / 2, point.y - size / 2, size, size, 0, 360);
             }
-            else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
-            {
-                robotGraphics.setColor(Color.YELLOW);
-            }
-            else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
-            {
-                robotGraphics.setColor(Color.BLUE);
-            }
-            else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
-            {
-                robotGraphics.setColor(Color.RED);
-            }
-            else
-            {
-                robotGraphics.setColor(Color.BLACK);
-            }
-
-            // draw scanpoints in mm
-            dist = (int) Math.sqrt(point.x * point.x + point.y * point.y);
-            size += (int) (dist * 0.025);
-            robotGraphics.fillArc(point.x - size / 2, point.y - size / 2, size, size, 0, 360);
         }
     }
 

@@ -31,14 +31,8 @@ public class LadarGui extends RackModuleGui
     protected LadarProxy     ladar;
     protected LadarComponent ladarComponent;
 
-    protected JButton        onButton;
-    protected JButton        offButton;
     protected JButton        zoomOutButton;
     protected JButton        zoomInButton;
-    protected JPanel         panel;
-    protected JPanel         wButtonPanel;
-    protected JPanel         eButtonPanel;
-    protected JPanel         northPanel;
     protected Point          aktuellPoint;
     protected Point          mousePressedPoint;
     protected Point          mouseReleasedPoint;
@@ -47,17 +41,15 @@ public class LadarGui extends RackModuleGui
     public LadarGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
-
+        
         ladar = (LadarProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        updateTime = 200;
 
-        northPanel = new JPanel(new BorderLayout(2, 2));
-        wButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
-        eButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
+        JPanel northPanel = new JPanel(new BorderLayout(2, 2));
+        JPanel wButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+        JPanel eButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+
         zoomOutButton = new JButton("Zoom out");
         zoomInButton = new JButton("Zoom in");
 
@@ -112,22 +104,7 @@ public class LadarGui extends RackModuleGui
 
         ladarComponent.addKeyListener(new myKeyListener());
 
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                ladar.on();
-            }
-        });
-
         onButton.addKeyListener(new myKeyListener());
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                ladar.off();
-            }
-        });
-
         offButton.addKeyListener(new myKeyListener());
 
         zoomOutButton.addActionListener(new ActionListener() {
@@ -159,43 +136,33 @@ public class LadarGui extends RackModuleGui
         northPanel.add(wButtonPanel, BorderLayout.WEST);
         northPanel.add(eButtonPanel, BorderLayout.EAST);
 
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(ladarComponent, BorderLayout.CENTER);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(ladarComponent, BorderLayout.CENTER);
+        
+        setEnabled(false);
     }
 
-    public JComponent getComponent()
+    protected void setEnabled(boolean enabled)
     {
-        return panel;
+        zoomInButton.setEnabled(enabled);
+        zoomOutButton.setEnabled(enabled);
     }
-
-    public void run()
+    
+    protected void updateData()
     {
         LadarDataMsg data = null;
 
-        while (terminate == false)
+        data = ladar.getData();
+        if (data != null)
         {
-            if (panel.isShowing())
-            {
-                data = ladar.getData();
-                if (data != null)
-                {
-                    ladarData = data;
-                    ladarComponent.updateData(data);
-                }
-            }
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-
-            }
-            catch (Throwable t)
-            {
-                System.out.println(t);
-                t.printStackTrace();
-            }
+            ladarData = data;
+            ladarComponent.updateData(data);
+            
+            setEnabled(true);
+        }
+        else
+        {
+            setEnabled(false);
         }
     }
 

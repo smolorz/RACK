@@ -26,12 +26,7 @@ import rack.drivers.OdometryProxy;
 
 public class OdometryGui extends RackModuleGui
 {
-    protected JButton       onButton;
-    protected JButton       offButton;
     protected JButton       resetButton  = new JButton("Data Reset");
-    protected JPanel        panel;
-    protected JPanel        buttonPanel;
-    protected JPanel        labelPanel;
 
     protected JLabel        xNameLabel   = new JLabel("X [mm]", SwingConstants.RIGHT);
     protected JLabel        yNameLabel   = new JLabel("Y [mm]", SwingConstants.RIGHT);
@@ -55,31 +50,9 @@ public class OdometryGui extends RackModuleGui
 
         odometry = (OdometryProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
-
-        buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
-
-        labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
-
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
-
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                odometry.on();
-            }
-        });
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                odometry.off();
-            }
-        });
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
+        JPanel labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
 
         resetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -107,79 +80,52 @@ public class OdometryGui extends RackModuleGui
         labelPanel.add(rhoNameLabel);
         labelPanel.add(rhoLabel);
 
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(labelPanel, BorderLayout.CENTER);
-        panel.add(resetButton, BorderLayout.SOUTH);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(labelPanel, BorderLayout.CENTER);
+        rootPanel.add(resetButton, BorderLayout.SOUTH);
+        
+        setEnabled(false);
     }
 
-    public JComponent getComponent()
+    protected void setEnabled(boolean enabled)
     {
-        return (panel);
-    }
+        resetButton.setEnabled(enabled);
 
-    public void run()
+        xNameLabel.setEnabled(enabled);
+        yNameLabel.setEnabled(enabled);
+        zNameLabel.setEnabled(enabled);
+        phiNameLabel.setEnabled(enabled);
+        psiNameLabel.setEnabled(enabled);
+        rhoNameLabel.setEnabled(enabled);
+
+        xLabel.setEnabled(enabled);
+        yLabel.setEnabled(enabled);
+        zLabel.setEnabled(enabled);
+        phiLabel.setEnabled(enabled);
+        psiLabel.setEnabled(enabled);
+        rhoLabel.setEnabled(enabled);
+    }
+    
+    protected void updateData()
     {
         OdometryDataMsg data;
 
-        while (terminate == false)
+        data = odometry.getData();
+
+        if (data != null)
         {
-            if (panel.isShowing())
-            {
-                data = odometry.getData();
+            xLabel.setText(data.position.x + "");
+            yLabel.setText(data.position.y + "");
+            zLabel.setText(data.position.z + "");
+            phiLabel.setText(Math.rint(Math.toDegrees(data.position.phi)) + " ");
+            psiLabel.setText(Math.rint(Math.toDegrees(data.position.psi)) + " ");
+            rhoLabel.setText(Math.rint(Math.toDegrees(data.position.rho)) + " ");
 
-                if (data != null)
-                {
-                    xLabel.setText(data.position.x + "");
-                    yLabel.setText(data.position.y + "");
-                    zLabel.setText(data.position.z + "");
-                    phiLabel.setText(Math.rint(Math.toDegrees(data.position.phi)) + " ");
-                    psiLabel.setText(Math.rint(Math.toDegrees(data.position.psi)) + " ");
-                    rhoLabel.setText(Math.rint(Math.toDegrees(data.position.rho)) + " ");
-
-                    resetButton.setEnabled(true);
-
-                    xNameLabel.setEnabled(true);
-                    yNameLabel.setEnabled(true);
-                    zNameLabel.setEnabled(true);
-                    phiNameLabel.setEnabled(true);
-                    psiNameLabel.setEnabled(true);
-                    rhoNameLabel.setEnabled(true);
-
-                    xLabel.setEnabled(true);
-                    yLabel.setEnabled(true);
-                    zLabel.setEnabled(true);
-                    phiLabel.setEnabled(true);
-                    psiLabel.setEnabled(true);
-                    rhoLabel.setEnabled(true);
-
-                }
-                else
-                {
-                    resetButton.setEnabled(false);
-
-                    xNameLabel.setEnabled(false);
-                    yNameLabel.setEnabled(false);
-                    zNameLabel.setEnabled(false);
-                    phiNameLabel.setEnabled(false);
-                    psiNameLabel.setEnabled(false);
-                    rhoNameLabel.setEnabled(false);
-
-                    xLabel.setEnabled(false);
-                    yLabel.setEnabled(false);
-                    zLabel.setEnabled(false);
-                    phiLabel.setEnabled(false);
-                    psiLabel.setEnabled(false);
-                    rhoLabel.setEnabled(false);
-                }
-            }
-
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-            }
+            setEnabled(true);
+        }
+        else
+        {
+            setEnabled(false);
         }
     }
 }

@@ -38,15 +38,6 @@ public class JoystickSoftware extends RackDataModuleGui
 {
     protected JoystickProxy joystickProxy;
 
-    protected JPanel panel;
-    protected JPanel buttonPanel;
-    protected JPanel labelPanel;
-
-    protected JButton onButton;
-    protected JButton offButton;
-
-    protected JPanel centerPanel;
-
     protected JLabel xLabel = new JLabel("0%");
     protected JLabel yLabel = new JLabel("0%");
     protected JLabel buttonsLabel = new JLabel("00000000");
@@ -95,33 +86,9 @@ public class JoystickSoftware extends RackDataModuleGui
             pilotName[i] = ge.getName();
         }
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
-
-        buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
-
-        labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
-
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
-
-        onButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                joystickProxy.on();
-            }
-        });
-
-        offButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                joystickProxy.off();
-            }
-        });
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
+        JPanel labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
 
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
@@ -219,14 +186,14 @@ public class JoystickSoftware extends RackDataModuleGui
         pilotButton[i].addActionListener(pilotButtonActionListener);
         pilotPanel.add(pilotButton[i]);
 
-        centerPanel = new JPanel(new BorderLayout(2, 2));
+        JPanel centerPanel = new JPanel(new BorderLayout(2, 2));
         centerPanel.add(labelPanel, BorderLayout.NORTH);
         centerPanel.add(steeringPanel, BorderLayout.CENTER);
 
         // panel.add(Box.createRigidArea(new Dimension(0,20)));
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(centerPanel, BorderLayout.CENTER);
-        panel.add(pilotPanel, BorderLayout.SOUTH);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(centerPanel, BorderLayout.CENTER);
+        rootPanel.add(pilotPanel, BorderLayout.SOUTH);
 
         KeyListener keyListener = new KeyListener()
         {
@@ -300,7 +267,7 @@ public class JoystickSoftware extends RackDataModuleGui
             }
         };
 
-        panel.addKeyListener(keyListener);
+        rootPanel.addKeyListener(keyListener);
 
         onButton.addKeyListener(keyListener);
         offButton.addKeyListener(keyListener);
@@ -483,7 +450,7 @@ public class JoystickSoftware extends RackDataModuleGui
                 }
             }
 
-            if( !panel.hasFocus() &
+            if( !rootPanel.hasFocus() &
                 !onButton.hasFocus() &
                 !offButton.hasFocus() &
                 !forwardButton.hasFocus() &
@@ -521,11 +488,6 @@ public class JoystickSoftware extends RackDataModuleGui
 
     public void moduleCommand(TimsRawMsg raw)
     {
-    }
-
-    public JComponent getComponent()
-    {
-        return panel;
     }
 
     public void setEnabled(boolean enabled)

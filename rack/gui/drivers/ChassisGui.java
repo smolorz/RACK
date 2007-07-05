@@ -29,10 +29,8 @@ import rack.drivers.ChassisProxy;
 public class ChassisGui extends RackModuleGui
 {
     protected ChassisDataMsg chassisData;
+ 
     protected boolean        mapViewIsShowing;
-
-    protected JButton        onButton         = new JButton("On");
-    protected JButton        offButton        = new JButton("Off");
 
     protected JRadioButton   pilot0           = new JRadioButton("pilot(0)", false);
     protected JRadioButton   pilot1           = new JRadioButton("pilot(1)", false);
@@ -45,10 +43,6 @@ public class ChassisGui extends RackModuleGui
     protected JRadioButton   otherPilot       = new JRadioButton("other pilot", false);
     protected JRadioButton   disablePilot     = new JRadioButton("disabled", false);
     protected ButtonGroup    pilotGroup       = new ButtonGroup();
-
-    protected JPanel         panel;
-    protected JPanel         buttonPanel;
-    protected JPanel         labelPanel;
 
     protected JLabel         vxLabel          = new JLabel("-0.00 m/s");
     protected JLabel         vyLabel          = new JLabel("-0.00 m/s");
@@ -68,28 +62,9 @@ public class ChassisGui extends RackModuleGui
 
         chassis = (ChassisProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
-
-        buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
-
-        labelPanel = new JPanel(new GridLayout(0, 3, 8, 0));
-
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                chassis.on();
-            }
-        });
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                chassis.off();
-            }
-        });
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
+        JPanel labelPanel = new JPanel(new GridLayout(0, 3, 8, 0));
 
         disablePilot.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -192,128 +167,109 @@ public class ChassisGui extends RackModuleGui
         labelPanel.add(new JLabel());
         labelPanel.add(new JLabel());
 
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(labelPanel, BorderLayout.CENTER);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(labelPanel, BorderLayout.CENTER);
+        
+        setEnabled(false);
     }
 
-    public JComponent getComponent()
+    protected void setEnabled(boolean enabled)
     {
-        return (panel);
+        vxNameLabel.setEnabled(enabled);
+        vxLabel.setEnabled(enabled);
+        vyNameLabel.setEnabled(enabled);
+        vyLabel.setEnabled(enabled);
+        omegaNameLabel.setEnabled(enabled);
+        omegaLabel.setEnabled(enabled);
+        batteryNameLabel.setEnabled(enabled);
+        batteryLabel.setEnabled(enabled);
+        pilot0.setEnabled(enabled);
+        pilot1.setEnabled(enabled);
+        pilot2.setEnabled(enabled);
+        pilot3.setEnabled(enabled);
+        pilot4.setEnabled(enabled);
+        pilot5.setEnabled(enabled);
+        pilot6.setEnabled(enabled);
+        otherPilot.setEnabled(enabled);
+        disablePilot.setEnabled(enabled);
     }
-
-    public void run()
+    
+    protected boolean needsDataUpdate()
+    {
+        return (rootPanel.isShowing() || mapViewIsShowing);
+    }
+  
+    protected void updateData()
     {
         ChassisDataMsg data;
         float vx, vy;
         float omega;
         float battery;
 
-        while (terminate == false)
+        mapViewIsShowing = false;
+
+        data = chassis.getData();
+
+        synchronized (this)
         {
-            if (panel.isShowing() | (mapViewIsShowing))
+            chassisData = data;
+        }
+
+        if (data != null)
+        {
+            vx = data.vx;
+            vy = data.vy;
+            omega = data.omega;
+            battery = data.battery;
+
+            if (data.activePilot == RackName.create(RackName.PILOT, 0))
             {
-                data = chassis.getData();
-                synchronized (this)
-                {
-                    chassisData = data;
-                }
-
-                if (data != null)
-                {
-                    vx = data.vx;
-                    vy = data.vy;
-                    omega = data.omega;
-                    battery = data.battery;
-
-                    vxNameLabel.setEnabled(true);
-                    vyNameLabel.setEnabled(true);
-                    omegaNameLabel.setEnabled(true);
-                    batteryNameLabel.setEnabled(true);
-                    pilot0.setEnabled(true);
-                    pilot1.setEnabled(true);
-                    pilot2.setEnabled(true);
-                    pilot3.setEnabled(true);
-                    pilot4.setEnabled(true);
-                    pilot5.setEnabled(true);
-                    pilot6.setEnabled(true);
-                    otherPilot.setEnabled(true);
-                    disablePilot.setEnabled(true);
-
-                    if (data.activePilot == RackName.create(RackName.PILOT, 0))
-                    {
-                        pilot0.setSelected(true);
-                    }
-                    else if (data.activePilot == RackName.create(RackName.PILOT, 1))
-                    {
-                        pilot1.setSelected(true);
-                    }
-                    else if (data.activePilot == RackName.create(RackName.PILOT, 2))
-                    {
-                        pilot2.setSelected(true);
-                    }
-                    else if (data.activePilot == RackName.create(RackName.PILOT, 3))
-                    {
-                        pilot3.setSelected(true);
-                    }
-                    else if (data.activePilot == RackName.create(RackName.PILOT, 4))
-                    {
-                        pilot4.setSelected(true);
-                    }
-                    else if (data.activePilot == RackName.create(RackName.PILOT, 5))
-                    {
-                        pilot5.setSelected(true);
-                    }
-                    else if (data.activePilot == RackName.create(RackName.PILOT, 6))
-                    {
-                        pilot6.setSelected(true);
-                    }
-
-                    else if (data.activePilot < 0)
-                    {
-                        disablePilot.setSelected(true);
-                    }
-                    else
-                    {
-                        otherPilot.setSelected(true);
-                        otherPilot.setText("0x" + Integer.toHexString(data.activePilot));
-                    }
-                    vxLabel.setText(Math.rint(Math.round(vx / 10.0)) / 100.0 + " m/s");
-                    vyLabel.setText(Math.rint(Math.round(vy / 10.0)) / 100.0 + " m/s");
-                    omegaLabel.setText(Math.rint(Math.toDegrees(omega) * 100.0) / 100.0 + " deg/s");
-                    batteryLabel.setText(battery + "");
-                }
-                else
-                {
-                    vxLabel.setText("");
-                    vyLabel.setText("");
-                    omegaLabel.setText("");
-                    batteryLabel.setText("");
-
-                    vxNameLabel.setEnabled(false);
-                    vyNameLabel.setEnabled(false);
-                    omegaNameLabel.setEnabled(false);
-                    batteryNameLabel.setEnabled(false);
-                    disablePilot.setSelected(true);
-                    pilot0.setEnabled(false);
-                    pilot1.setEnabled(false);
-                    pilot2.setEnabled(false);
-                    pilot3.setEnabled(false);
-                    pilot4.setEnabled(false);
-                    pilot5.setEnabled(false);
-                    pilot6.setEnabled(false);
-                    otherPilot.setEnabled(false);
-                    disablePilot.setEnabled(false);
-                }
-
-                mapViewIsShowing = false;
+                pilot0.setSelected(true);
             }
-            try
+            else if (data.activePilot == RackName.create(RackName.PILOT, 1))
             {
-                Thread.sleep(500);
+                pilot1.setSelected(true);
             }
-            catch (InterruptedException e)
+            else if (data.activePilot == RackName.create(RackName.PILOT, 2))
             {
+                pilot2.setSelected(true);
             }
+            else if (data.activePilot == RackName.create(RackName.PILOT, 3))
+            {
+                pilot3.setSelected(true);
+            }
+            else if (data.activePilot == RackName.create(RackName.PILOT, 4))
+            {
+                pilot4.setSelected(true);
+            }
+            else if (data.activePilot == RackName.create(RackName.PILOT, 5))
+            {
+                pilot5.setSelected(true);
+            }
+            else if (data.activePilot == RackName.create(RackName.PILOT, 6))
+            {
+                pilot6.setSelected(true);
+            }
+
+            else if (data.activePilot < 0)
+            {
+                disablePilot.setSelected(true);
+            }
+            else
+            {
+                otherPilot.setSelected(true);
+                otherPilot.setText("0x" + Integer.toHexString(data.activePilot));
+            }
+            vxLabel.setText(Math.rint(Math.round(vx / 10.0)) / 100.0 + " m/s");
+            vyLabel.setText(Math.rint(Math.round(vy / 10.0)) / 100.0 + " m/s");
+            omegaLabel.setText(Math.rint(Math.toDegrees(omega) * 100.0) / 100.0 + " deg/s");
+            batteryLabel.setText(battery + "");
+            
+            setEnabled(true);
+        }
+        else
+        {
+            setEnabled(false);
         }
     }
 

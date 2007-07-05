@@ -33,11 +33,10 @@ public class CameraGui extends RackModuleGui
     public CameraGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
-
+        
         camera = (CameraProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        updateTime = 200;
 
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
 
@@ -45,25 +44,9 @@ public class CameraGui extends RackModuleGui
         switchBoxPanel = new JPanel(new GridLayout(0, 4, 4, 2));
         labelPanel = new JPanel(new GridLayout(0, 2, 4, 2));
 
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
         storeButton = new JButton("Store");
         storeContOnButton = new JButton("StoreOn");
         storeContOffButton = new JButton("StoreOff");
-
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                camera.on();
-            }
-        });
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                camera.off();
-            }
-        });
 
         storeContOnButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -169,50 +152,32 @@ public class CameraGui extends RackModuleGui
 
         JScrollPane scrollPane = new JScrollPane(cameraComponent);
 
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
-    public JComponent getComponent()
-    {
-        return (panel);
-    }
-
-    public void run()
+    protected void updateData()
     {
         CameraDataMsg data;
 
-        while (terminate == false)
-        {
-            if (panel.isShowing())
-            {
-                data = camera.getData();
+        data = camera.getData();
 
-                if (data != null)
-                {
-                    cameraComponent.transformImage(zoomRate, switchRotate, data);
-                    if ((contStoring == 1) || (singleStoring == 1))
-                    {
-                        data.storeDataToFile("camera" + System.currentTimeMillis() + ".png");
-                        singleStoring = 0;
-                    }
-                }
-                else
-                {
-                    // cameraComponent.img = null;
-                    // cameraComponent.repaint();
-                    try
-                    {
-                        Thread.sleep(200);
-                    }
-                    catch (InterruptedException e)
-                    {
-                    }
-                }
+        if (data != null)
+        {
+            cameraComponent.transformImage(zoomRate, switchRotate, data);
+            if ((contStoring == 1) || (singleStoring == 1))
+            {
+                data.storeDataToFile("camera" + System.currentTimeMillis() + ".png");
+                singleStoring = 0;
             }
+        }
+        else
+        {
+            // cameraComponent.img = null;
+            // cameraComponent.repaint();
             try
             {
-                Thread.sleep(200);
+                Thread.sleep(1000);
             }
             catch (InterruptedException e)
             {
@@ -220,8 +185,6 @@ public class CameraGui extends RackModuleGui
         }
     }
 
-    protected JButton         onButton;
-    protected JButton         offButton;
     protected JButton         storeButton;
     protected JButton         storeContOnButton;
     protected JButton         storeContOffButton;
@@ -232,12 +195,11 @@ public class CameraGui extends RackModuleGui
 
     public JLabel             mousePositionLabel;
     public JLabel             contStoringLabel;
-    protected JPanel          panel;
     protected JPanel          labelPanel;
     protected JPanel          buttonPanel;
     protected JPanel          switchBoxPanel;
     protected JComboBox       switchRotateComboBox;
-    protected String[]        switchRotateRates         = { "none", "90�right", "hor flip", "90� and hor flip" };
+    protected String[]        switchRotateRates         = { "none", "90 deg right", "hor flip", "90 deg and hor flip" };
     protected int             switchRotate;
     protected JComboBox       zoomRateComboBox;
     protected String[]        possibleZoomRates         = { "25", "50", "100", "200", "300", "400" };

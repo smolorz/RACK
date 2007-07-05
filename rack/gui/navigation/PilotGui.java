@@ -33,11 +33,6 @@ public class PilotGui extends RackModuleGui
     protected PilotProxy     pilot;
     protected PilotComponent pilotComponent;
 
-    protected JPanel         panel;
-    protected JPanel         buttonPanel;
-
-    protected JButton        onButton;
-    protected JButton        offButton;
     protected JButton        zoomOutButton;
     protected JButton        zoomInButton;
     protected JButton        destinationButton;
@@ -51,15 +46,9 @@ public class PilotGui extends RackModuleGui
 
         pilot = (PilotProxy) proxy;
 
-        panel = new JPanel(new BorderLayout(2, 2));
-        panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
 
-        buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
-
-        onButton = new JButton("On");
-        offButton = new JButton("Off");
         zoomOutButton = new JButton("Zoom out");
         zoomInButton = new JButton("Zoom in");
         destinationButton = new JButton("Set destination");
@@ -67,20 +56,7 @@ public class PilotGui extends RackModuleGui
         pilotComponent = new PilotComponent(maxDistance);
         pilotComponent.addKeyListener(new myKeyListener());
 
-        onButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilot.on();
-            }
-        });
         onButton.addKeyListener(new myKeyListener());
-
-        offButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilot.off();
-            }
-        });
         offButton.addKeyListener(new myKeyListener());
 
         zoomOutButton.addActionListener(new ActionListener() {
@@ -135,42 +111,33 @@ public class PilotGui extends RackModuleGui
         northPanel.add(buttonPanel, BorderLayout.CENTER);
         northPanel.add(destinationButton, BorderLayout.SOUTH);
 
-        panel.add(northPanel, BorderLayout.NORTH);
-        panel.add(pilotComponent, BorderLayout.CENTER);
+        rootPanel.add(northPanel, BorderLayout.NORTH);
+        rootPanel.add(pilotComponent, BorderLayout.CENTER);
+        
+        setEnabled(false);
     }
 
-    public JComponent getComponent()
+    protected void setEnabled(boolean enabled)
     {
-        return (panel);
+        zoomInButton.setEnabled(enabled);
+        zoomOutButton.setEnabled(enabled);
+        destinationButton.setEnabled(enabled);
     }
-
-    public void run()
+    
+    protected void updateData()
     {
         PilotDataMsg infoData;
 
-        while (terminate == false)
-        {
-            if (panel.isShowing())
-            {
-                infoData = pilot.getData();
+        infoData = pilot.getData();
 
-                if (infoData != null)
-                {
-                    pilotComponent.updateData(infoData);
-                    destinationButton.setEnabled(true);
-                }
-                else
-                {
-                    destinationButton.setEnabled(false);
-                }
-            }
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-            }
+        if (infoData != null)
+        {
+            pilotComponent.updateData(infoData);
+            setEnabled(true);
+        }
+        else
+        {
+            setEnabled(false);
         }
     }
 

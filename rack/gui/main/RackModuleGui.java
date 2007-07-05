@@ -15,18 +15,87 @@
  */
 package rack.gui.main;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
 import rack.gui.GuiElement;
 import rack.gui.GuiElementDescriptor;
 import rack.main.RackProxy;
 
 public abstract class RackModuleGui extends GuiElement
 {
+    public static int   DEFAULT_UPDATE_TIME = 500;
+
     protected RackProxy proxy;
+    protected int       updateTime;
+
+    protected JPanel    rootPanel;
+    protected JButton   onButton;
+    protected JButton   offButton;
 
     public RackModuleGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
         
         proxy = ge.getProxy();
+
+        updateTime = DEFAULT_UPDATE_TIME;
+        
+        rootPanel = new JPanel(new BorderLayout(2, 2));
+        rootPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        onButton = new JButton("On");
+        onButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                proxy.on();
+            }
+        });
+
+        offButton = new JButton("Off");
+        offButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                proxy.off();
+            }
+        });
+    }
+
+    public JComponent getComponent()
+    {
+        return rootPanel;
+    }
+
+    protected boolean needsDataUpdate()
+    {
+        return rootPanel.isShowing();
+    }
+    
+    protected void updateData()
+    {
+    }
+    
+    public void run()
+    {
+        while (terminate == false)
+        {
+            if (needsDataUpdate())
+            {
+                updateData();
+            }
+            try
+            {
+                Thread.sleep(updateTime);
+            }
+            catch (InterruptedException e)
+            {
+            }
+        }
     }
 }
