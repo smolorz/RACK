@@ -19,6 +19,7 @@ import java.io.*;
 
 import rack.main.RackProxy;
 import rack.main.defines.ScanPoint;
+import rack.main.defines.Position3d;
 import rack.main.tims.*;
 
 public class Scan2dDataMsg extends TimsMsg
@@ -27,11 +28,12 @@ public class Scan2dDataMsg extends TimsMsg
     public int duration = 0;
     public int maxRange = 0;
     public int pointNum = 0;
+    public Position3d refPos = new Position3d();  
     public ScanPoint[] point;
 
     public int getDataLen()
     {
-        return (16 + pointNum * ScanPoint.getDataLen());
+        return (16 + Position3d.getDataLen() + pointNum * ScanPoint.getDataLen());
     }
 
     public Scan2dDataMsg(TimsRawMsg p) throws TimsException
@@ -69,7 +71,7 @@ public class Scan2dDataMsg extends TimsMsg
         maxRange = dataIn.readInt();
         pointNum = dataIn.readInt();
 
-        point = new ScanPoint[pointNum];
+        refPos.readData(dataIn);
 
         for (int i = 0; i < pointNum; i++)
         {
@@ -86,6 +88,8 @@ public class Scan2dDataMsg extends TimsMsg
         dataOut.writeInt(duration);
         dataOut.writeInt(maxRange);
         dataOut.writeInt(pointNum);
+        
+        refPos.writeData(dataOut);
 
         for (int i = 0; i < pointNum; i++)
         {
