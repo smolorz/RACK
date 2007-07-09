@@ -270,7 +270,7 @@ public class DatalogGui extends RackModuleGui
         getLogStatus();
     }
     
-    protected void updateData()
+    protected void runData()
     {
         DatalogDataMsg data;
 

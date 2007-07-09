@@ -156,7 +156,7 @@ public class CameraGui extends RackModuleGui
         rootPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
-    protected void updateData()
+    protected void runData()
     {
         CameraDataMsg data;
 

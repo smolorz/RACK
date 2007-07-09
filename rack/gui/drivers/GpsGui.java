@@ -19,16 +19,18 @@ import java.awt.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
-import rack.gui.MapViewDrawContext;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewGraphics;
+import rack.gui.main.MapViewGui;
+import rack.gui.main.MapViewInterface;
 import rack.gui.main.RackModuleGui;
 import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
 
-public class GpsGui extends RackModuleGui
+public class GpsGui extends RackModuleGui implements MapViewInterface
 {
     protected GpsDataMsg gpsData;
-
-    protected boolean    mapViewIsShowing;
+    protected GpsProxy   gps;
 
     protected JLabel     modeLabel        = new JLabel();
     protected JLabel     modeNameLabel    = new JLabel("Mode", SwingConstants.RIGHT);
@@ -62,7 +64,9 @@ public class GpsGui extends RackModuleGui
     protected JLabel     varZNameLabel    = new JLabel("Variance Z", SwingConstants.RIGHT);
     protected JLabel     varRhoLabel      = new JLabel();
     protected JLabel     varRhoNameLabel  = new JLabel("Variance Rho", SwingConstants.RIGHT);
-    public GpsProxy      gps;
+
+    protected boolean    mapViewIsShowing;
+    protected MapViewGui mapViewGui;
 
     public GpsGui(GuiElementDescriptor guiElement)
     {
@@ -154,12 +158,29 @@ public class GpsGui extends RackModuleGui
         varRhoLabel.setEnabled(enabled);
     }
 
-    protected boolean needsDataUpdate()
+    protected void runStart()
     {
-        return (rootPanel.isShowing() || mapViewIsShowing);
+        mapViewGui = MapViewGui.findMapViewGui(ge);
+        if(mapViewGui != null)
+        {
+            mapViewGui.addMapView(this);
+        }
+    }
+
+    protected void runStop()
+    {
+        if(mapViewGui != null)
+        {
+            mapViewGui.removeMapView(this);
+        }
     }
     
-    protected void updateData()
+    protected boolean needsRunData()
+    {
+        return (super.needsRunData() || mapViewIsShowing);
+    }
+    
+    protected void runData()
     {
         GpsDataMsg data;
 
@@ -171,13 +192,13 @@ public class GpsGui extends RackModuleGui
 
         data = gps.getData();
 
-        synchronized(this)
-        {
-            gpsData = data;
-        }
-
         if (data != null)
         {
+            synchronized(this)
+            {
+                gpsData = data;
+            }
+            
             latitude = (float) Math.toDegrees(data.latitude);
             longitude = (float) Math.toDegrees(data.longitude);
             heading = (float) Math.toDegrees(data.heading);
@@ -236,26 +257,26 @@ public class GpsGui extends RackModuleGui
         {
             setEnabled(false);
         }
+        mapViewIsShowing = false;
     }
 
-    public boolean hasMapView()
-    {
-        return true;
-    }
-
-    public void paintMapView(MapViewDrawContext drawContext)
+    public void paintMapView(MapViewGraphics mvg)
     {
         mapViewIsShowing = true;
 
         if (gpsData == null)
             return;
 
-        Graphics2D worldGraphics = drawContext.getWorldGraphics();
+        Graphics2D worldGraphics = mvg.getWorldGraphics();
 
         worldGraphics.setColor(Color.ORANGE);
         worldGraphics.drawArc(gpsData.posGK.x - 10000, gpsData.posGK.y - 10000, 20000, 20000, 0, 360);
         worldGraphics.drawLine(gpsData.posGK.x, gpsData.posGK.y, gpsData.posGK.x
                 + (int) (10000 * Math.cos(gpsData.posGK.rho)), gpsData.posGK.y
                 + (int) (10000 * Math.sin(gpsData.posGK.rho)));
+    }
+
+    public void mapViewActionPerformed(MapViewActionEvent action)
+    {
     }
 }

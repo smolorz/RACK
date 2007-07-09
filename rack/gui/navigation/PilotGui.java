@@ -22,24 +22,31 @@ import java.util.StringTokenizer;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewComponent;
+import rack.gui.main.MapViewGraphics;
+import rack.gui.main.MapViewGui;
+import rack.gui.main.MapViewInterface;
 import rack.gui.main.RackModuleGui;
 import rack.main.defines.Position3d;
 import rack.navigation.PilotDataMsg;
 import rack.navigation.PilotProxy;
 import rack.navigation.PilotDestMsg;
 
-public class PilotGui extends RackModuleGui
+public class PilotGui extends RackModuleGui implements MapViewInterface
 {
-    protected PilotProxy     pilot;
-    protected PilotComponent pilotComponent;
+    protected PilotDataMsg     pilotData;
+    protected PilotProxy       pilot;
+    protected MapViewComponent mapComponent;
 
-    protected JButton        zoomOutButton;
-    protected JButton        zoomInButton;
-    protected JButton        destinationButton;
-    protected PilotDestMsg   pilotDest   = new PilotDestMsg();
+    protected JButton          destinationButton;
+    protected PilotDestMsg     pilotDest   = new PilotDestMsg();
 
-    public int               maxDistance = 1200;              // 1m
+    protected String           setDestinationCommand;
 
+    protected boolean          mapViewIsShowing;
+    protected MapViewGui       mapViewGui;
+    
     public PilotGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
@@ -49,32 +56,10 @@ public class PilotGui extends RackModuleGui
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
 
-        zoomOutButton = new JButton("Zoom out");
-        zoomInButton = new JButton("Zoom in");
+        mapComponent = new MapViewComponent();
+        mapComponent.addMapView(this);
+
         destinationButton = new JButton("Set destination");
-
-        pilotComponent = new PilotComponent(maxDistance);
-        pilotComponent.addKeyListener(new myKeyListener());
-
-        onButton.addKeyListener(new myKeyListener());
-        offButton.addKeyListener(new myKeyListener());
-
-        zoomOutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilotComponent.setMaxDistance(2.0);
-            }
-        });
-        zoomOutButton.addKeyListener(new myKeyListener());
-
-        zoomInButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                pilotComponent.setMaxDistance(0.5);
-            }
-        });
-        zoomInButton.addKeyListener(new myKeyListener());
-
         destinationButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -102,73 +87,134 @@ public class PilotGui extends RackModuleGui
             }
         });
 
+        destinationButton.addKeyListener(mapComponent.keyListener);
+        onButton.addKeyListener(mapComponent.keyListener);
+        offButton.addKeyListener(mapComponent.keyListener);
+
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
-        buttonPanel.add(zoomInButton);
-        buttonPanel.add(zoomOutButton);
         buttonPanel.add(destinationButton);
         northPanel.add(new JLabel("pilot"), BorderLayout.NORTH);
         northPanel.add(buttonPanel, BorderLayout.CENTER);
         northPanel.add(destinationButton, BorderLayout.SOUTH);
 
         rootPanel.add(northPanel, BorderLayout.NORTH);
-        rootPanel.add(pilotComponent, BorderLayout.CENTER);
+        rootPanel.add(mapComponent, BorderLayout.CENTER);
         
         setEnabled(false);
     }
 
     protected void setEnabled(boolean enabled)
     {
-        zoomInButton.setEnabled(enabled);
-        zoomOutButton.setEnabled(enabled);
+        mapComponent.setEnabled(enabled);
         destinationButton.setEnabled(enabled);
     }
     
-    protected void updateData()
+    protected void runStart()
     {
-        PilotDataMsg infoData;
-
-        infoData = pilot.getData();
-
-        if (infoData != null)
+        mapViewGui = MapViewGui.findMapViewGui(ge);
+        if(mapViewGui != null)
         {
-            pilotComponent.updateData(infoData);
+            mapViewGui.addMapView(this);
+            setDestinationCommand = this.getName() + " - set destination";
+            mapViewGui.addMapViewAction(setDestinationCommand, this);
+        }
+        
+        mapComponent.zoomCenter();
+    }
+
+    protected void runStop()
+    {
+        if(mapViewGui != null)
+        {
+            mapViewGui.removeMapView(this);
+            mapViewGui.removeMapViewActions(this);
+        }
+    }
+    
+    protected boolean needsRunData()
+    {
+        return (super.needsRunData() || mapViewIsShowing);
+    }
+    
+    protected void runData()
+    {
+        PilotDataMsg data;
+        
+        data = pilot.getData();
+        
+        if (data != null)
+        {
+            synchronized (this)
+            {
+                pilotData = data;
+            }
+            mapComponent.repaint();
+            
             setEnabled(true);
         }
         else
         {
             setEnabled(false);
         }
+        mapViewIsShowing = false;
     }
 
-    class myKeyListener implements KeyListener
+    public void mapViewActionPerformed(MapViewActionEvent event)
     {
-        public void keyPressed(KeyEvent e)
+        String command = event.getActionCommand();
+        
+        if(command.equals(setDestinationCommand))
         {
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-                pilotComponent.right();
-            if (e.getKeyCode() == KeyEvent.VK_DOWN)
-                pilotComponent.down();
-            if (e.getKeyCode() == KeyEvent.VK_LEFT)
-                pilotComponent.left();
-            if (e.getKeyCode() == KeyEvent.VK_UP)
-                pilotComponent.up();
-            if (e.getKeyCode() == KeyEvent.VK_PLUS)
-                pilotComponent.setMaxDistance(0.5);
-            if (e.getKeyCode() == KeyEvent.VK_MINUS)
-                pilotComponent.setMaxDistance(2.0);
-            if (e.getKeyCode() == KeyEvent.VK_SUBTRACT)
-                pilotComponent.setMaxDistance(0.5);
-            if (e.getKeyCode() == KeyEvent.VK_ADD)
-                pilotComponent.setMaxDistance(2.0);
-        }
+            System.out.println("Pilot set destination " + event.getWorldCursorPos());
+            
+            Position3d destination = new Position3d(event.getWorldCursorPos());
 
-        public void keyReleased(KeyEvent e)
-        {
+            pilot.setDestination(destination);
         }
+    }
 
-        public void keyTyped(KeyEvent e)
+    public synchronized void paintMapView(MapViewGraphics mvg)
+    {
+        mapViewIsShowing = true;
+
+        if (pilotData == null)
+            return;
+    
+        Graphics2D g = mvg.getRobotGraphics(pilotData.recordingTime);
+
+        g.setColor(Color.GREEN);
+        g.setStroke(new BasicStroke(200.0f));
+        
+        if(pilotData.curve > 0.0f)
         {
+            int radius = (int)(1.0f / pilotData.curve);
+            
+            if(pilotData.speed > 0)
+            {
+                g.drawArc(2*radius,0,2*radius,2*radius,0,180);
+            }
+            else
+            {
+                g.drawArc(0,0,2*radius,2*radius,0,180);
+            }
+        }
+        else if(pilotData.curve < 0.0f)
+        {
+            int radius = (int)(-1.0f / pilotData.curve);
+
+            if(pilotData.speed > 0)
+            {
+                g.drawArc(2*radius,-2*radius,2*radius,2*radius,0,180);
+            }
+            else
+            {
+                g.drawArc(0,-2*radius,2*radius,2*radius,0,180);
+            }
+        }
+        else //pilotData.curve == 0.0f
+        {
+            g.drawLine(0,0,pilotData.speed,0);
         }
     }
 }

@@ -106,7 +106,7 @@ public class OdometryGui extends RackModuleGui
         rhoLabel.setEnabled(enabled);
     }
     
-    protected void updateData()
+    protected void runData()
     {
         OdometryDataMsg data;
 

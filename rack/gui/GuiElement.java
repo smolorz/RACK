@@ -28,7 +28,6 @@ import java.awt.image.MemoryImageSource;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
 /**
  * Diese Klasse ist die Superklasse aller GUI Elemente. Dadurch das die abtrakten Methoden implementiert werden muessen,
  * enthaelt jedes GUI Standardeigenschaften die von dem MainGUI genutzt werden.
@@ -66,6 +65,7 @@ public abstract class GuiElement extends Thread
     {
         ge = guiElement;
         mainGui = ge.getMainGui();
+        this.setName(ge.getName());
     }
 
     public abstract JComponent getComponent();
@@ -84,56 +84,6 @@ public abstract class GuiElement extends Thread
         catch (Exception e)
         {
         }
-    }
-
-    /**
-     * Legt fest of dieses Gui eine Kartendarstellung hat, Diese Funktion muss gegebenenfals ueberschrieben werden.
-     */
-    public boolean hasMapView()
-    {
-        return false;
-    }
-
-    /**
-     * Legt fest of dieses Gui einen Cursor fuer die Kartendarstellung hat, Diese Funktion muss gegebenenfals
-     * ueberschrieben werden.
-     */
-    public boolean hasMapViewCursor()
-    {
-        return false;
-    }
-
-    /**
-     * ModulGui wird aufgeforder seine Representation in den drawContext zu Zeichnen
-     */
-    public void paintMapView(MapViewDrawContext drawContext)
-    {
-    }
-
-    /**
-     * ModulGui wird aufgeforder seine Cursor in den cursorDrawContext zu Zeichnen
-     */
-    public void paintMapViewCursor(MapViewCursorDrawContext cursorDrawContext)
-    {
-    }
-
-    /**
-     * Gibt an welche Aktionen dieses Gui dem MapViewer anbietet siehe auch Benutzung in
-     * rcc.navigation.localisation.LocalisationGui
-     * 
-     * dort: private MapViewActionList mapViewActionList; mapViewActionList = new MapViewActionList(getModuleName());
-     * mapViewActionList.addItem("set position", "setPosition");
-     */
-    public MapViewActionList getMapViewActionList()
-    {
-        return null;
-    }
-
-    /**
-     * Wird vom mapViewer aufgerufen, wenn eine Aktion auf der Karte ausgefuehrt wird
-     */
-    public void mapViewActionPerformed(MapViewActionEvent event)
-    {
     }
 
     /**

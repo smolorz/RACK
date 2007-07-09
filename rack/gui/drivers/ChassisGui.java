@@ -20,7 +20,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
-import rack.gui.MapViewDrawContext;
 import rack.gui.main.*;
 import rack.main.*;
 import rack.drivers.ChassisDataMsg;
@@ -28,10 +27,6 @@ import rack.drivers.ChassisProxy;
 
 public class ChassisGui extends RackModuleGui
 {
-    protected ChassisDataMsg chassisData;
- 
-    protected boolean        mapViewIsShowing;
-
     protected JRadioButton   pilot0           = new JRadioButton("pilot(0)", false);
     protected JRadioButton   pilot1           = new JRadioButton("pilot(1)", false);
     protected JRadioButton   pilot2           = new JRadioButton("pilot(2)", false);
@@ -54,7 +49,7 @@ public class ChassisGui extends RackModuleGui
     protected JLabel         omegaNameLabel   = new JLabel("omega:", SwingConstants.RIGHT);
     protected JLabel         batteryNameLabel = new JLabel("battery:", SwingConstants.RIGHT);
 
-    public ChassisProxy      chassis;
+    protected ChassisProxy   chassis;
 
     public ChassisGui(GuiElementDescriptor guiElement)
     {
@@ -194,26 +189,14 @@ public class ChassisGui extends RackModuleGui
         disablePilot.setEnabled(enabled);
     }
     
-    protected boolean needsDataUpdate()
-    {
-        return (rootPanel.isShowing() || mapViewIsShowing);
-    }
-  
-    protected void updateData()
+    protected void runData()
     {
         ChassisDataMsg data;
         float vx, vy;
         float omega;
         float battery;
 
-        mapViewIsShowing = false;
-
         data = chassis.getData();
-
-        synchronized (this)
-        {
-            chassisData = data;
-        }
 
         if (data != null)
         {
@@ -270,61 +253,6 @@ public class ChassisGui extends RackModuleGui
         else
         {
             setEnabled(false);
-        }
-    }
-
-    public void paintMapView(MapViewDrawContext drawContext)
-    {
-        mapViewIsShowing = true;
-
-        synchronized (this)
-        {
-            if (chassisData == null)
-                return;
-
-            Graphics2D graphics = drawContext.getFrameGraphics();
-
-            graphics.setColor(Color.LIGHT_GRAY);
-            graphics.fillRect(10, 30, 10, 200);
-            graphics.fillRect(30, 10, 200, 10);
-
-            graphics.setColor(Color.RED);
-            int vx = (int) (chassisData.vx / 10.0f);
-
-            if (vx > 100)
-                vx = 100;
-            if (vx < -100)
-                vx = -100;
-
-            if (vx > 0)
-            {
-                graphics.fillRect(10, 130 - vx, 10, vx);
-            }
-            if (vx < 0)
-            {
-                graphics.fillRect(10, 130, 10, -vx);
-            }
-
-            graphics.setColor(Color.RED);
-            int omega = (int) (Math.toDegrees((double) chassisData.omega) * 5.0);
-
-            if (omega > 100)
-                omega = 100;
-            if (omega < -100)
-                omega = -100;
-
-            if (omega > 0)
-            {
-                graphics.fillRect(130, 10, omega, 10);
-            }
-            if (omega < 0)
-            {
-                graphics.fillRect(130 + omega, 10, -omega, 10);
-            }
-
-            graphics.setColor(Color.BLACK);
-            graphics.drawLine(10, 130, 19, 130);
-            graphics.drawLine(130, 10, 130, 19);
         }
     }
 }

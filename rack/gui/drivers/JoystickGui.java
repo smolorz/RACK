@@ -68,7 +68,7 @@ public class JoystickGui extends RackModuleGui
         yLabel.setEnabled(enabled);
     }
 
-    protected void updateData()
+    protected void runData()
     {
         JoystickDataMsg data;
 

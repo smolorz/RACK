@@ -40,6 +40,16 @@ public class Position3d
         this.rho = rho;
     }
 
+    public Position3d(Position2d position2d)
+    {
+        this.x   = position2d.x;
+        this.y   = position2d.y;
+        this.z   = 0;
+        this.phi = 0.0f;
+        this.psi = 0.0f;
+        this.rho = position2d.rho;
+    }
+
     public Position3d()
     {
         this.x = 0;

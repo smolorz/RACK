@@ -72,22 +72,37 @@ public abstract class RackModuleGui extends GuiElement
         return rootPanel;
     }
 
-    protected boolean needsDataUpdate()
+    protected void runStart()
+    {
+    }
+
+    protected boolean needsRunData()
     {
         return rootPanel.isShowing();
     }
     
-    protected void updateData()
+    protected void runData()
     {
+    }
+
+    protected void runStop()
+    {
+    }
+    
+    public void start()
+    {
+        terminate = false;
+        runStart();
+        super.start();
     }
     
     public void run()
     {
         while (terminate == false)
         {
-            if (needsDataUpdate())
+            if (needsRunData())
             {
-                updateData();
+                runData();
             }
             try
             {
@@ -97,5 +112,6 @@ public abstract class RackModuleGui extends GuiElement
             {
             }
         }
+        runStop();
     }
 }

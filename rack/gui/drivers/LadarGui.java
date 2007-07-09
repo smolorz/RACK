@@ -16,27 +16,22 @@
 package rack.gui.drivers;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewComponent;
+import rack.gui.main.MapViewGraphics;
+import rack.gui.main.MapViewInterface;
 import rack.gui.main.RackModuleGui;
 import rack.drivers.LadarDataMsg;
 import rack.drivers.LadarProxy;
 
-public class LadarGui extends RackModuleGui
+public class LadarGui extends RackModuleGui implements MapViewInterface
 {
-    public int               maxDistance = 10000; // 10m
-    public LadarDataMsg      ladarData;
-    protected LadarProxy     ladar;
-    protected LadarComponent ladarComponent;
-
-    protected JButton        zoomOutButton;
-    protected JButton        zoomInButton;
-    protected Point          aktuellPoint;
-    protected Point          mousePressedPoint;
-    protected Point          mouseReleasedPoint;
-    protected Point          mouseClickedPoint;
+    protected LadarDataMsg     ladarData;
+    protected LadarProxy       ladar;
+    protected MapViewComponent mapComponent;
 
     public LadarGui(GuiElementDescriptor guiElement)
     {
@@ -48,115 +43,43 @@ public class LadarGui extends RackModuleGui
 
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
         JPanel wButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
-        JPanel eButtonPanel = new JPanel(new GridLayout(1, 0, 4, 2));
 
-        zoomOutButton = new JButton("Zoom out");
-        zoomInButton = new JButton("Zoom in");
+        mapComponent = new MapViewComponent();
+        mapComponent.addMapView(this);
 
-        ladarComponent = new LadarComponent(maxDistance);
-
-        ladarComponent.addMouseMotionListener(new MouseMotionListener() {
-            public void mouseDragged(MouseEvent e)
-            {
-                // if(e.getButton()==MouseEvent.BUTTON1 ){
-                aktuellPoint = e.getPoint();
-                ladarComponent.drawRec(mousePressedPoint, aktuellPoint);
-                // }
-            }
-
-            public void mouseMoved(MouseEvent e)
-            {
-            }
-        });
-
-        ladarComponent.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e)
-            {
-                // if(e.getButton()==MouseEvent.BUTTON1 ){
-                mouseClickedPoint = e.getPoint();
-                ladarComponent.setCenter(mouseClickedPoint);
-                // }
-            }
-
-            public void mousePressed(MouseEvent e)
-            {
-                // if(e.getButton()==MouseEvent.BUTTON1 ){
-                mousePressedPoint = e.getPoint();
-                // }
-            }
-
-            public void mouseReleased(MouseEvent e)
-            {
-                // if(e.getButton()==MouseEvent.BUTTON1 ){
-                mouseReleasedPoint = e.getPoint();
-                ladarComponent.select(mousePressedPoint, mouseReleasedPoint);
-                // }
-            }
-
-            public void mouseEntered(MouseEvent e)
-            {
-            }
-
-            public void mouseExited(MouseEvent e)
-            {
-            }
-        });
-
-        ladarComponent.addKeyListener(new myKeyListener());
-
-        onButton.addKeyListener(new myKeyListener());
-        offButton.addKeyListener(new myKeyListener());
-
-        zoomOutButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                maxDistance = maxDistance * 2;
-                ladarComponent.setMaxDistance(maxDistance);
-            }
-        });
-
-        zoomOutButton.addKeyListener(new myKeyListener());
-
-        zoomInButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                maxDistance = maxDistance / 2;
-                ladarComponent.setMaxDistance(maxDistance);
-            }
-        });
-
-        zoomInButton.addKeyListener(new myKeyListener());
+        onButton.addKeyListener(mapComponent.keyListener);
+        offButton.addKeyListener(mapComponent.keyListener);
 
         wButtonPanel.add(onButton);
         wButtonPanel.add(offButton);
-        eButtonPanel.add(zoomOutButton);
-        eButtonPanel.add(zoomInButton);
 
-        // northPanel.add(new JLabel("ladar"),BorderLayout.NORHT);
         northPanel.add(wButtonPanel, BorderLayout.WEST);
-        northPanel.add(eButtonPanel, BorderLayout.EAST);
+        northPanel.add(mapComponent.zoomPanel, BorderLayout.EAST);
 
         rootPanel.add(northPanel, BorderLayout.NORTH);
-        rootPanel.add(ladarComponent, BorderLayout.CENTER);
+        rootPanel.add(mapComponent, BorderLayout.CENTER);
         
         setEnabled(false);
     }
 
     protected void setEnabled(boolean enabled)
     {
-        zoomInButton.setEnabled(enabled);
-        zoomOutButton.setEnabled(enabled);
+        mapComponent.setEnabled(enabled);
     }
     
-    protected void updateData()
+    protected void runData()
     {
         LadarDataMsg data = null;
 
         data = ladar.getData();
+
         if (data != null)
         {
-            ladarData = data;
-            ladarComponent.updateData(data);
+            synchronized(this)
+            {
+                ladarData = data;
+            }
+            mapComponent.repaint();
             
             setEnabled(true);
         }
@@ -166,18 +89,38 @@ public class LadarGui extends RackModuleGui
         }
     }
 
-    class myKeyListener extends KeyAdapter
+    public void mapViewActionPerformed(MapViewActionEvent action)
     {
-        public void keyPressed(KeyEvent e)
+    }
+
+    public void paintMapView(MapViewGraphics mvg)
+    {
+        if(ladarData == null)
+            return;
+        
+        Graphics2D g = mvg.getWorldGraphics();
+
+        int x, y;
+        float angle = ladarData.startAngle;
+        
+        for (int i = 0; i < ladarData.distanceNum; i++)
         {
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT)
-                ladarComponent.right();
-            if (e.getKeyCode() == KeyEvent.VK_DOWN)
-                ladarComponent.down();
-            if (e.getKeyCode() == KeyEvent.VK_LEFT)
-                ladarComponent.left();
-            if (e.getKeyCode() == KeyEvent.VK_UP)
-                ladarComponent.up();
+            if (ladarData.distance[i] >= 0)
+            {
+                g.setColor(Color.RED);
+            }
+            else
+            {
+                ladarData.distance[i] = -ladarData.distance[i];
+                g.setColor(Color.BLUE);
+            }
+
+            x = (int)((double)ladarData.distance[i] * Math.cos(angle));
+            y = (int)((double)ladarData.distance[i] * -Math.sin(angle));
+
+            g.fillRect(x - 1, y - 1, 3, 3);
+            
+            angle += ladarData.angleResolution;
         }
     }
 }

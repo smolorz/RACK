@@ -23,9 +23,6 @@ import java.util.*;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
-import rack.gui.MapViewActionEvent;
-import rack.gui.MapViewActionList;
-import rack.gui.MapViewDrawContext;
 import rack.gui.main.*;
 import rack.main.*;
 import rack.drivers.GpsDataMsg;
@@ -36,11 +33,10 @@ import rack.main.defines.Position2d;
 import rack.navigation.PositionDataMsg;
 import rack.navigation.PositionProxy;
 
-public class PositionGui extends RackModuleGui implements ActionListener
+public class PositionGui extends RackModuleGui implements MapViewInterface, ActionListener
 {
     protected JButton         manualUpdateButton = new JButton("Manual Update");
     protected JButton         gpsUpdateButton[];
-    protected JCheckBox       drawPosPathCheckBox;
 
     protected JDialog         updateDialog       = new JDialog();
 
@@ -62,10 +58,11 @@ public class PositionGui extends RackModuleGui implements ActionListener
     protected GpsProxy[]      gpsProxy;
     protected String[]        gpsName;
 
-    protected MapViewActionList mapViewActionList;
-    protected GeneralPath       positionPath;
-    protected boolean           drawPositionPath   = false;
+    protected GeneralPath     positionPath;
 
+    protected boolean         mapViewIsShowing;
+    protected MapViewGui      mapViewGui;
+    
     public PositionGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
@@ -130,10 +127,6 @@ public class PositionGui extends RackModuleGui implements ActionListener
             }
         };
 
-        drawPosPathCheckBox = new JCheckBox("Draw path", drawPositionPath);
-        drawPosPathCheckBox.setActionCommand("drawPath");
-        drawPosPathCheckBox.addActionListener(this);
-
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
 
@@ -153,7 +146,6 @@ public class PositionGui extends RackModuleGui implements ActionListener
         labelPanel.add(rhoNameLabel);
         labelPanel.add(rhoLabel);
 
-        southPanel.add(drawPosPathCheckBox);
         southPanel.add(manualUpdateButton);
 
         gpsUpdateButton = new JButton[gpsProxy.length];
@@ -169,12 +161,6 @@ public class PositionGui extends RackModuleGui implements ActionListener
         rootPanel.add(labelPanel, BorderLayout.CENTER);
         rootPanel.add(southPanel, BorderLayout.SOUTH);
 
-        positionPath = new GeneralPath();
-        positionPath.moveTo(0, 0);
-
-        mapViewActionList = new MapViewActionList(ge.getName());
-        mapViewActionList.addItem("set position", "manualUpdate");
-        
         setEnabled(false);
     }
 
@@ -194,7 +180,6 @@ public class PositionGui extends RackModuleGui implements ActionListener
         psiLabel.setEnabled(enabled);
         rhoLabel.setEnabled(enabled);
 
-        drawPosPathCheckBox.setEnabled(enabled);
         manualUpdateButton.setEnabled(enabled);
         
         for(int i = 0; i < gpsProxy.length; i++)
@@ -203,7 +188,29 @@ public class PositionGui extends RackModuleGui implements ActionListener
         }
     }
     
-    protected void updateData()
+    protected void runStart()
+    {
+        mapViewGui = MapViewGui.findMapViewGui(ge);
+        if(mapViewGui != null)
+        {
+            mapViewGui.addMapView(this);
+        }
+    }
+
+    protected void runStop()
+    {
+        if(mapViewGui != null)
+        {
+            mapViewGui.removeMapView(this);
+        }
+    }
+    
+    protected boolean needsRunData()
+    {
+        return (super.needsRunData() || mapViewIsShowing);
+    }
+    
+    protected void runData()
     {
         PositionDataMsg data;
 
@@ -218,16 +225,18 @@ public class PositionGui extends RackModuleGui implements ActionListener
             psiLabel.setText(Math.rint(Math.toDegrees(data.pos.psi)) + "");
             rhoLabel.setText(Math.rint(Math.toDegrees(data.pos.rho)) + "");
 
-            setEnabled(true);
-
-            if (drawPositionPath)
+            if(positionPath != null)
             {
                 positionPath.lineTo(data.pos.x, data.pos.y);
             }
             else
             {
+                positionPath = new GeneralPath();
                 positionPath.moveTo(data.pos.x, data.pos.y);
             }
+
+            setEnabled(true);
+
         }
         else
         {
@@ -235,40 +244,30 @@ public class PositionGui extends RackModuleGui implements ActionListener
         }
     }
     
-    public boolean hasMapView()
+    public void paintMapView(MapViewGraphics mvg)
     {
-        return true;
-    }
+        if(positionPath == null)
+            return;
+        
+        Graphics2D g = mvg.getWorldGraphics();
 
-    public void paintMapView(MapViewDrawContext drawContext)
-    {
-        if (drawPositionPath)
+        switch (position.getInstanceId())
         {
-            Graphics2D worldGraphics = drawContext.getWorldGraphics();
+        case 1:
+            g.setColor(Color.BLUE);
+            break;
+        case 2:
+            g.setColor(Color.RED);
+            break;
+        case 3:
+            g.setColor(Color.GREEN);
+            break;
 
-            switch (position.getInstanceId())
-            {
-            case 1:
-                worldGraphics.setColor(Color.BLUE);
-                break;
-            case 2:
-                worldGraphics.setColor(Color.RED);
-                break;
-            case 3:
-                worldGraphics.setColor(Color.GREEN);
-                break;
-
-            default:
-                worldGraphics.setColor(Color.BLACK);
-            }
-
-            worldGraphics.draw(positionPath);
+        default:
+            g.setColor(Color.BLACK);
         }
-    }
 
-    public MapViewActionList getMapViewActionList()
-    {
-        return mapViewActionList;
+        g.draw(positionPath);
     }
 
     public void mapViewActionPerformed(MapViewActionEvent event)
@@ -285,14 +284,5 @@ public class PositionGui extends RackModuleGui implements ActionListener
 
     public void actionPerformed(ActionEvent event)
     {
-        if (event.getActionCommand().equals("drawPath"))
-        {
-            drawPositionPath = drawPosPathCheckBox.isSelected();
-            if (!drawPositionPath)
-            {
-                positionPath.reset();
-                positionPath.moveTo(0, 0);
-            }
-        }
     }
 }

@@ -49,18 +49,13 @@ public class Position2d implements Serializable, Cloneable
         this.rho = rho;
     }
   
-    /**
-     * Constructor Position2D.
-     * @param x
-     * @param y
-     */
-    public Position2d(int x, int y) 
+    public Position2d(Position3d position3d)
     {
-        this.x   = x;
-        this.y   = y;
-        this.rho = 0.0f;
+        this.x   = position3d.x;
+        this.y   = position3d.y;
+        this.rho = position3d.rho;
     }
-  
+
     /**
      * Constructor Position2D.
      */
@@ -158,7 +153,7 @@ public class Position2d implements Serializable, Cloneable
         double c = Math.cos(ang);
         
         return new Position2d((int) Math.round(x * c - y * s) + ptransX,
-                              (int) Math.round(x * s + y * c) + ptransY);
+                              (int) Math.round(x * s + y * c) + ptransY, 0.0f);
     }
 
     // das hab ich so gemacht, weil ich es nicht besser wusste. wer mehr 
