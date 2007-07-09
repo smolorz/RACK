@@ -65,13 +65,13 @@ static ladar_sick_lms200_config config_sick_norm =
     cmd_sendData:           ladar_cmd_sendData_norm,
     baudrate:               9600,
     protocol:               normal,
-    serial_buffer_size:     725 + 7,
+    serial_buffer_size:     0,
     periodTime:             213, // sampling_rate = 4.7
-    messageDistanceNum:     361,
-    startAngle:             (90.0 * M_PI/180.0),
-    angleResolution:        (-0.5 * M_PI/180.0),
-    duration:               20,
-    maxRange:               80000,
+    messageDistanceNum:     0, 
+    startAngle:             0.0,
+    angleResolution:        0.0,
+    duration:               0,
+    maxRange:               0,
     wait_for_ack:             60000000ll,   // 60ms
     wait_for_modechange:    1000000000ll,   //  1 s
     wait_after_modechange:    30000000ll    // 30ms
@@ -84,13 +84,13 @@ static ladar_sick_lms200_config config_sick_interlaced =
     cmd_sendData:           ladar_cmd_sendData_int,
     baudrate:               9600,
     protocol:               interlaced,
-    serial_buffer_size:     365 + 7,
+    serial_buffer_size:     0,
     periodTime:             13,    // sampling_rate = 75.0,
-    messageDistanceNum:     181,
+    messageDistanceNum:     0,
     startAngle:             0.0,
     angleResolution:        0.0,
-    duration:               6,
-    maxRange:               80000,
+    duration:               0,
+    maxRange:               0,
     wait_for_ack:            60000000ll,
     wait_for_modechange:    3000000000ll,
     wait_after_modechange:    30000000ll
@@ -103,13 +103,13 @@ static ladar_sick_lms200_config config_sick_fast =
     cmd_sendData:           ladar_cmd_sendData_norm,
     baudrate:               9600,
     protocol:               fast,
-    serial_buffer_size:     365 + 7,
-    periodTime:             13,    // sampling_rate = 75.0,
-    messageDistanceNum:     181,
-    startAngle:             (45.0 * M_PI/180.0),
-    angleResolution:        (-0.5 * M_PI/180.0),
-    duration:               6,
-    maxRange:               80000,
+    serial_buffer_size:     0,
+    periodTime:             212, //13,    // sampling_rate = 75.0,
+    messageDistanceNum:     0,
+    startAngle:             0.0,
+    angleResolution:        0.0,
+    duration:               0,
+    maxRange:               0,
     wait_for_ack:             60000000ll, // 60ms
     wait_for_modechange:    1000000000ll, // 1s
     wait_after_modechange:    30000000ll  // 30ms
@@ -148,69 +148,76 @@ void LadarSickLms200::moduleOff(void)
 
 int  LadarSickLms200::moduleLoop(void)
 {
-    int         ret           = 0;
-    int         dataFormat    = 0;
-    int         distanceUnit  = 0;
-    rack_time_t   time          = 0;
-    uint32_t    bytes         = 0;
-    ladar_data  *p_data       = NULL;
+    short         a             = 0;
+    short         b             = 0;
+    int           ret           = 0;
+    int           headLength    = 4;
+    int           dataLength    = 0;
+    int           crcLength     = 2;
+    rack_time_t   timeStamp;
+    ladar_data    *p_data       = NULL;
+    unsigned char serialBuffer[820];
 
-    unsigned char serialBuffer[conf->serial_buffer_size];
 
     // get datapointer from databuffer
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
-    // init values
-    p_data->startAngle      = conf->startAngle;
-    p_data->angleResolution = conf->angleResolution;
-    p_data->distanceNum     = conf->messageDistanceNum;
-    p_data->duration        = conf->duration;
-    p_data->maxRange        = conf->maxRange;
-
     // read head with timestamp
-    ret = serialPort.recv(serialBuffer, 7, &time,
+    ret = serialPort.recv(&serialBuffer[0], headLength, &timeStamp, 
                           2 * rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
-        GDOS_ERROR("loop: ERROR: can't read data head from rtser%d (7 bytes), "
+        GDOS_ERROR("loop: ERROR: can't read message head from rtser%d (4 bytes), "
                    "code = %d\n", conf->serDev, ret );
         return ret;
     }
 
-    // check head
-    ret = loopCheckHead(serialBuffer);
+    // check for start byte
+    if (serialBuffer[0] != 0x02)
+    {
+        GDOS_ERROR("loop: ERROR: wrong start byte %x, required %x\n", serialBuffer[0], 0x02);
+        return -EBADMSG;
+    }
+
+
+    // read data with checksum
+    dataLength = MKSHORT(serialBuffer[2], serialBuffer[3]);
+    ret = serialPort.recv(&serialBuffer[4], dataLength + crcLength, NULL, 
+                          2 * rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
-        GDOS_ERROR("loop: ERROR: command head wrong\n");
+        GDOS_ERROR("loop: ERROR: can't read message data from rtser%d (%d bytes), "
+                   "code = %d\n", conf->serDev, dataLength + crcLength, ret );
         return ret;
     }
 
-    // get data format and set distance unit
-    dataFormat = MKSHORT(serialBuffer[5], serialBuffer[6]);
-    if ((dataFormat & 0xc000) == 0x0000)        // distance unit cm
+    // checksum
+    a = crcCheck(serialBuffer, headLength + dataLength);
+    b = MKSHORT(serialBuffer[headLength + dataLength],
+                serialBuffer[headLength + dataLength + 1]);
+    if (a != b)
     {
-        distanceUnit = 10;
-    }
-    else if ((dataFormat & 0xc000) == 0x8000)   // distance unit 10cm
-    {
-        distanceUnit = 100;
-    }
-    else // distance unit mm
-    {
-        distanceUnit = 1;
+        GDOS_ERROR("CRC check wrong: %x != %x\n", a, b);
+        return -EINVAL ;
     }
 
-    bytes = createLadarData(serialBuffer, p_data, distanceUnit, time);
 
-    if (bytes > 0 && bytes <= getDataBufferMaxDataSize() )
+    // decode data
+    switch (serialBuffer[4])
     {
-        putDataBufferWorkSpace(bytes);
-        GDOS_DBG_DETAIL("Data recordingtime %i distanceNum %i\n", p_data->recordingTime, p_data->distanceNum);
-        return 0;
-    }
+        // distance measurements
+        case 0xb0:
+            analyseLadarData(serialBuffer, p_data, timeStamp, conf->protocol);
+            putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int) * p_data->distanceNum);
+            GDOS_DBG_DETAIL("Data recordingtime %i distanceNum %i\n", 
+                            p_data->recordingTime, p_data->distanceNum);
+            break;
 
-    GDOS_ERROR("Can't create ladar data -> too many bytes\n");
-    return -ENOSPC;
+        default:
+            GDOS_ERROR("loop: ERROR: command %x not implemented\n", serialBuffer[4]);
+            return -EINVAL;
+    }
+    return 0;
 }
 
 int  LadarSickLms200::moduleCommand(message_info *p_msginfo)
@@ -219,9 +226,160 @@ int  LadarSickLms200::moduleCommand(message_info *p_msginfo)
   return RackDataModule::moduleCommand(p_msginfo);
 }
 
-// functions for the normal protocol
 
-int  LadarSickLms200::norm_exchangeCommand(char* command, int commandLen)
+// returns datalen (0=ERROR)
+void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
+                                       ladar_data *data, rack_time_t timeStamp,
+                                       int protocol)
+{
+    int           n              = 0;
+    int           reflector      = 0;
+    int           dataFormat     = 0;
+    int           distanceNum    = 0;
+    int           subScanNum     = 0;
+    int           subScanFlag    = 0;
+    int           distanceUnit   = 0;
+
+
+    // get data format
+    dataFormat = MKSHORT(serialBuffer[5], serialBuffer[6]);
+
+
+    // number of distance measurements  (bit 0...9)
+    distanceNum = dataFormat & 0x3ff;
+
+    // scan part number (bit 11...12)
+    subScanNum = ((dataFormat & 0x1800) >> 11);
+
+    // sub scan flag    (bit 13)
+    subScanFlag = ((dataFormat & 0x2000) >> 13);
+
+    // distance unit    (bit 14...15)
+    distanceUnit = ((dataFormat & 0xc000) >> 14);
+
+    // analyse data bytes of the scan
+    for (n = 0; n < distanceNum; n++) 
+    {
+        data->distance[n] = *(unsigned short*)&serialBuffer[7 + 2*n];
+
+        // cm mode 80m, 13bit distance 3Bit reflector
+        if (distanceUnit == 0)
+        {
+            reflector = data->distance[n] & 0xe000; // 1110 0000 0000 0000
+            data->distance[n] = data->distance[n] & 0x1fff;
+            data->distance[n] = data->distance[n] * 10;
+
+            if (reflector != 0)
+            {
+                data->distance[n] = -data->distance[n];
+            }
+        }
+
+        // mm mode 36m, 15bit distance 1Bit reflector
+        else
+        {
+            reflector = data->distance[n] & 0x8000; // 1000 0000 0000 0000
+            data->distance[n] = data->distance[n] & 0x7fff;
+
+            if (reflector != 0)
+            {
+                data->distance[n] = -data->distance[n];
+            }
+        }
+    }
+
+    data->distanceNum = distanceNum;
+
+    // set max range
+    if (distanceUnit == 0)
+    {
+        data->maxRange = 80000;     // 80m (cm mode)
+    }
+    else
+    {
+        data->maxRange = 36000;     // 36m (mm mode)
+    }
+
+    // The turn around time of the scanner is 13.3ms 75Hz
+    // a scan with 0.5 resolution takes two turns 26.6ms
+    // --__--__--__--  (-- = scan) (__ = pause)
+    // 1.  2.  3.  4.
+    //       ^ receive data from 1. and 2.
+    switch (distanceNum)
+    {
+        // interlaced, x.25, x.50, x.75 deg, 100 deg open angle
+        case 100:
+            data->duration          = 1000 * 100 / (75 * 360);      // 1 round, 100 deg
+            data->recordingTime     = timeStamp - data->duration / 2;
+            data->startAngle        = (50.0 - 0.25 * subScanNum) * M_PI / 180.0;
+            data->angleResolution   = -1.0 * M_PI/180.0;
+        break;
+
+        // standard/interlaced, x.00 deg, 100 deg open angle
+        case 101:
+            data->duration          = 1000 * 100 / (75 * 360);      // 1 round, 100 deg
+            data->recordingTime     = timeStamp - data->duration / 2;
+            data->startAngle        = 50.0 * M_PI / 180.0;
+            data->angleResolution   = -1.0 * M_PI/180.0;
+        break;
+
+        // interlaced, x.25, x.50, x.75 deg, 180 deg open angle
+        case 180:
+            data->duration          = 1000 * 180 / (75 * 360);      // 1 round, 180 deg
+            data->recordingTime     = timeStamp - data->duration / 2;
+            data->startAngle        = (90.0 - 0.25 * subScanNum) * M_PI / 180.0;
+            data->angleResolution   = -1.0 * M_PI/180.0;
+        break;
+
+        // standard/interlaced/fast
+        case 181:
+            // fast, x.50 deg, 90 deg open angle
+            if (protocol == fast)
+            {
+                data->duration          = 1000 * 180 / (75 * 360);      // 1 round, 180 deg
+                data->recordingTime     = timeStamp - data->duration / 2;
+                data->startAngle        = 45.0 * M_PI / 180.0;
+                data->angleResolution   = -0.5 * M_PI/180.0;
+            }
+            // standard/interlaced x.00 deg, 180 deg open angle
+            else
+            {
+                data->duration          = 1000 * 180 / (75 * 360);      // 1 round, 180 deg
+                data->recordingTime     = timeStamp - data->duration / 2;
+                data->startAngle        = 90.0 * M_PI / 180.0;
+                data->angleResolution   = -1.0 * M_PI/180.0;
+            }
+        break;
+
+        // standard, 0.5 deg resolution, 100 deg open angle
+        case 201:
+            data->duration          = 1000 * 460 / (75 * 360);      // 2 round, 360 + 100 deg
+            data->recordingTime     = timeStamp - data->duration / 2;
+            data->startAngle        = 50.0 * M_PI / 180.0;
+            data->angleResolution   = -0.5 * M_PI/180.0;
+        break;
+
+        // standard, 0.5 deg resolution, 180 deg open angle
+        case 361:
+            data->duration          = 1000 * 540 / (75 * 360);      // 2 round, 360 + 180 deg
+            data->recordingTime     = timeStamp - data->duration / 2;
+            data->startAngle        = 90.0 * M_PI / 180.0;
+            data->angleResolution   = -0.5 * M_PI/180.0;
+        break;
+
+        // standard, 0.25 deg resolution, 100 deg open angle
+        case 401:
+            data->duration          = 1000 * 1180 / (75 * 360);     // 4 round, 3 * 360 + 100 deg
+            data->recordingTime     = timeStamp - data->duration / 2;
+            data->startAngle        = 50.0 * M_PI / 180.0;
+            data->angleResolution   = -0.25 * M_PI/180.0;
+        break;
+    }
+}
+
+
+// functions for the normal protocol
+int  LadarSickLms200::normExchangeCommand(char* command, int commandLen)
 {
     unsigned char buffer = 0;
     int ret              = 0;
@@ -388,91 +546,11 @@ int  LadarSickLms200::norm_exchangeCommand(char* command, int commandLen)
     return -ETIMEDOUT;
 }
 
-int  LadarSickLms200::norm_loopCheckHead(unsigned char* serialBuffer)
-{
-    if ((serialBuffer[0] != 0x02) ||
-        (serialBuffer[4] != 0xb0))
-    {
-        GDOS_ERROR("loop: ERROR: command head wrong\n");
-        return -EBADMSG;
-    }
-    return 0;
-}
-
-// returns datalen (0=ERROR)
-unsigned int  LadarSickLms200::norm_createLadarData(
-                                              unsigned char* serialBuffer,
-                                              ladar_data *p_data,
-                                              int distanceUnit, rack_time_t time)
-{
-    int n         = 0;
-    int reflector = 0;
-    int ret       = 0;
-    short a       = 0;
-    short b       = 0;
-
-    // The turn around time of the scanner is 13.3ms 75Hz
-    // a scan with 0.5 resolution takes two turns 26.6ms
-    // --__--__--__--  (-- = scan) (__ = pause)
-    // 1.  2.  3.  4.
-    //       ^ receive data from 1. and 2.
-    p_data->recordingTime = time - 13 * 3/4;
-
-    // get data
-    ret = serialPort.recv(serialBuffer + 7, conf->serial_buffer_size - 7,
-                          NULL, rackTime.toNano(getDataBufferPeriodTime(0)));
-    if (ret)
-    {
-        GDOS_ERROR("Can't read data body from rtser%d (%d bytes), code = %d\n",
-                   conf->serDev, conf->serial_buffer_size - 7, ret );
-        return 0;
-    }
-
-    // data checksum
-    a = crc_check(serialBuffer, conf->serial_buffer_size - 2);
-    b = MKSHORT(serialBuffer[conf->serial_buffer_size - 2],
-                serialBuffer[conf->serial_buffer_size - 1]);
-    if (a != b)
-    {
-        GDOS_ERROR("CRC check wrong: %x != %x\n", a, b);
-        return 0 ;
-    }
-
-    p_data->distanceNum = conf->messageDistanceNum;
-
-    for (n = 0; n < conf->messageDistanceNum; n++) // Datenbytes des Scans lesen
-    {
-        // Datenbytes in interner Struktur speichern
-        p_data->distance[n] = *(unsigned short*)&serialBuffer[2*n + 7];
-        if (distanceUnit == 10) // cm mode 80m, 13bit distance 3Bit reflector
-        {
-            reflector = p_data->distance[n] & 0xe000; // 1110 0000 0000 0000
-            p_data->distance[n] = p_data->distance[n] & 0x1fff;
-            p_data->distance[n] = p_data->distance[n] * 10;
-            if (reflector != 0)
-            {
-                p_data->distance[n] = -p_data->distance[n];
-            }
-        }
-        else // mm mode 36m, 15bit distance 1Bit reflector
-        {
-            reflector = p_data->distance[n] & 0x8000; // 1000 0000 0000 0000
-            p_data->distance[n] = p_data->distance[n] & 0x7fff;
-            if (reflector != 0)
-            {
-                p_data->distance[n] = -p_data->distance[n];
-            }
-        }
-    }
-    return (sizeof(ladar_data) +  p_data->distanceNum * sizeof(int));
-}
-
 
 //
 // functions for the interlaced protocol
 //
-
-int  LadarSickLms200::int_exchangeCommand(char* command, int commandLen)
+int  LadarSickLms200::intExchangeCommand(char* command, int commandLen)
 {
     unsigned char buffer = 0;
     int ret              = 0;
@@ -628,159 +706,11 @@ int  LadarSickLms200::int_exchangeCommand(char* command, int commandLen)
     return -ETIMEDOUT;
 }
 
-int  LadarSickLms200::int_loopCheckHead(unsigned char* serialBuffer)
-{
-    if ((serialBuffer[0] != 0x02) ||
-        (serialBuffer[4] != 0xb0))
-    {
-        return -EBADMSG;
-    }
-    return 0;
-}
-
-// returns datalen (0=ERROR)
-unsigned int LadarSickLms200::int_createLadarData(
-                                            unsigned char* serialBuffer,
-                                            ladar_data *p_data,
-                                            int distanceUnit, rack_time_t time)
-{
-    int n         = 0;
-    int reflector = 0;
-    int ret       = 0;
-    short a       = 0;
-    short b       = 0;
-    int len       = 0;
-
-    // The turn around time of the scanner is 13.3ms 75Hz
-    // --__--__--__--  (-- = scan) (__ = pause)
-    // 1.  2.  3.  4.
-    //   ^ receive data from 1.
-    p_data->recordingTime = time - 13 * 1/4;
-
-    len = MKSHORT(serialBuffer[2], serialBuffer[3]);
-    switch(len)
-    {
-        case 364:    // 180 Messwerte von Teilscan X.50
-
-            // get data
-            ret = serialPort.recv(serialBuffer + 7, 363, NULL,
-                            2 * rackTime.toNano(getDataBufferPeriodTime(0)));
-            if (ret)
-            {
-                GDOS_ERROR("Can't read data body from rtser%d (%d bytes), "
-                           "code = %d\n", conf->serDev, 363, ret );
-                return 0;
-            }
-
-            // data checksum
-            a = crc_check(serialBuffer, 363 + 7 - 2);
-            b = MKSHORT(serialBuffer[363 + 7 - 2], serialBuffer[363 + 7 - 1]);
-            if (a != b)
-            {
-                GDOS_ERROR("CRC check wrong: %x != %x\n", a, b);
-                return 0 ;
-            }
-
-            p_data->startAngle      = 89.5 * M_PI/180.0;
-            p_data->angleResolution = -1.0 * M_PI/180.0;
-            p_data->distanceNum     = 180;
-
-            for (n=0; n<180; n++) { // Datenbytes des Scans lesen
-                // Datenbytes in interner Struktur speichern
-                p_data->distance[n] = *(unsigned short*)&serialBuffer[2*n + 7];
-
-                if (distanceUnit == 10)
-                {
-                    // cm mode 80m, 13bit distance 3Bit reflector
-                    reflector = p_data->distance[n] & 0xe000;
-                    p_data->distance[n] = p_data->distance[n] & 0x1fff;
-                    p_data->distance[n] = p_data->distance[n] * 10;
-
-                    if (reflector != 0)
-                    {
-                        p_data->distance[n] = -p_data->distance[n];
-                    }
-                }
-                else
-                {
-                    // mm mode 36m, 15bit distance 1Bit reflector
-                    reflector = p_data->distance[n] & 0x8000;
-                    p_data->distance[n] = p_data->distance[n] & 0x7fff;
-                    if (reflector != 0)
-                    {
-                        p_data->distance[n] = -p_data->distance[n];
-                    }
-                }
-            }
-            return (sizeof(ladar_data) +  p_data->distanceNum * sizeof(int));
-
-        case 366:    // 181 Messwerte von Teilscan X.00
-
-            // get data
-            ret = serialPort.recv(serialBuffer + 7, 365, NULL,
-                               2 * rackTime.toNano(getDataBufferPeriodTime(0)));
-            if (ret)
-            {
-                GDOS_ERROR("Can't read data body from rtser%d (%d bytes), "
-                           "code = %d\n", conf->serDev, 365, ret);
-                return 0;
-            }
-
-            // data checksum
-            a = crc_check(serialBuffer, 365 + 7 - 2);
-            b = MKSHORT(serialBuffer[365 + 7 - 2], serialBuffer[365 + 7 - 1]);
-            if (a != b)
-            {
-                GDOS_ERROR("CRC check wrong: %x != %x\n", a, b);
-                return 0 ;
-            }
-
-            p_data->startAngle      = 90.0 * M_PI/180.0;
-            p_data->angleResolution = -1.0 * M_PI/180.0;
-            p_data->distanceNum     = 181;
-
-            for (n=0; n<181; n++) // Datenbytes des Scans lesen
-            {
-                // Datenbytes in interner Struktur speichern
-                p_data->distance[n] = *(unsigned short*)&serialBuffer[2*n + 7];
-
-                if (distanceUnit == 10)
-                {
-                    // cm mode 80m, 13bit distance 3Bit reflector
-                    reflector = p_data->distance[n] & 0xe000; // 1110 0000 0000 0000
-                    p_data->distance[n] = p_data->distance[n] & 0x1fff;
-                    p_data->distance[n] = p_data->distance[n] * 10;
-                    if (reflector != 0)
-                    {
-                        p_data->distance[n] = -p_data->distance[n];
-                    }
-                }
-                else
-                {
-                    // mm mode 36m, 15bit distance 1Bit reflector
-                    // 1000 0000 0000 0000
-                    reflector = p_data->distance[n] & 0x8000;
-                    p_data->distance[n] = p_data->distance[n] & 0x7fff;
-                    if (reflector != 0)
-                    {
-                        p_data->distance[n] = -p_data->distance[n];
-                    }
-                }
-            }
-            return (sizeof(ladar_data) +  p_data->distanceNum * sizeof(int));
-
-        default:
-            GDOS_ERROR("loop: ERROR: Data body len wrong (%d bytes)\n", len);
-            return 0;
-    }
-}
-
 
 //
 // functions for the fast protocol
 //
-
-int  LadarSickLms200::fast_exchangeCommand(char* command, int commandLen)
+int  LadarSickLms200::fastExchangeCommand(char* command, int commandLen)
 {
     unsigned char buffer = 0;
     int ret              = 0;
@@ -938,62 +868,6 @@ int  LadarSickLms200::fast_exchangeCommand(char* command, int commandLen)
     return -ETIMEDOUT;
 }
 
-int  LadarSickLms200::fast_loopCheckHead(unsigned char* serialBuffer)
-{
-    if ((serialBuffer[0] != 0x02) ||
-        (MKSHORT(serialBuffer[2], serialBuffer[3]) != 366) ||
-        (serialBuffer[4] != 0xb0))
-    {
-        return -EBADMSG;
-    }
-    return 0;
-}
-
-unsigned int LadarSickLms200::fast_createLadarData(
-                                             unsigned char* serialBuffer,
-                                             ladar_data *p_data,
-                                             int distanceUnit, rack_time_t time)
-{
-    int n         = 0;
-    int ret       = 0;
-    short a       = 0;
-    short b       = 0;
-
-    // The turn around time of the scanner is 13.3ms 75Hz
-    // --__--__--__--  (-- = scan) (__ = pause)
-    // 1.  2.  3.  4.
-    p_data->recordingTime = time - 13 * 1/4;
-
-    // get data
-    ret = serialPort.recv(serialBuffer + 7, conf->serial_buffer_size - 7,
-                            NULL, rackTime.toNano(getDataBufferPeriodTime(0)));
-    if (ret)
-    {
-        GDOS_ERROR("loop: ERROR: can't read data body from rtser%d (%d bytes), "
-                   "code = %d\n",
-                    conf->serDev, conf->serial_buffer_size - 7, ret );
-        return 0;
-    }
-
-    // checksum
-    a = crc_check(serialBuffer, conf->serial_buffer_size - 2);
-    b = MKSHORT(serialBuffer[conf->serial_buffer_size - 2],
-                serialBuffer[conf->serial_buffer_size - 1]);
-    if (a != b)
-    {
-        GDOS_ERROR("loop: ERROR: CRC check wrong: %x != %x\n", a, b);
-        return 0 ;
-    }
-
-    p_data->distanceNum = conf->messageDistanceNum;
-    for (n=0; n < conf->messageDistanceNum; n++) // Datenbytes des Scans lesen
-    {
-        p_data->distance[n] = *(unsigned short*)&serialBuffer[2*n + 7] *
-                              distanceUnit;
-    }
-
-    return (sizeof(ladar_data) +  p_data->distanceNum * sizeof(int));
-}
 
 //
 // wrapper
@@ -1002,43 +876,13 @@ int LadarSickLms200::exchangeCommand(char* command, int commandLen)
 {
   switch(conf->protocol) {
     case normal:
-      return norm_exchangeCommand(command, commandLen);
+      return normExchangeCommand(command, commandLen);
     case interlaced:
-      return int_exchangeCommand(command, commandLen);
+      return intExchangeCommand(command, commandLen);
     case fast:
-      return fast_exchangeCommand(command, commandLen);
+      return fastExchangeCommand(command, commandLen);
     default:
       return -EINVAL;
-  }
-}
-
-int LadarSickLms200::loopCheckHead(unsigned char* serialBuffer)
-{
-  switch(conf->protocol) {
-    case normal:
-      return norm_loopCheckHead(serialBuffer);
-    case interlaced:
-      return int_loopCheckHead(serialBuffer);
-    case fast:
-      return fast_loopCheckHead(serialBuffer);
-    default:
-      return -EINVAL;
-  }
-}
-
-unsigned int LadarSickLms200::createLadarData(unsigned char* serialBuffer,
-                                        ladar_data *p_data,
-                                        int distanceUnit, rack_time_t time)
-{
-  switch(conf->protocol) {
-    case normal:
-      return norm_createLadarData(serialBuffer, p_data, distanceUnit, time);
-    case interlaced:
-      return int_createLadarData(serialBuffer, p_data, distanceUnit, time);
-    case fast:
-      return fast_createLadarData(serialBuffer, p_data, distanceUnit, time);
-    default:
-      return 0;
   }
 }
 
@@ -1126,7 +970,7 @@ int LadarSickLms200::disconnect(void)
     return 0;
 }
 
-unsigned short LadarSickLms200::crc_check(unsigned char* data, int len)
+unsigned short LadarSickLms200::crcCheck(unsigned char* data, int len)
 {
     unsigned short CRC16_GEN_POL = 0x8005;    // CRC-Polynom: x^16+x^15+x^2+1
                                               // (mit x^16 im CARRY-Flag)
@@ -1294,7 +1138,7 @@ LadarSickLms200::LadarSickLms200(void)
 
   // set dataBuffer size
   dataSize = sizeof(ladar_data) +
-             sizeof(int32_t) * conf->messageDistanceNum;
+             sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
   setDataBufferMaxDataSize(dataSize);
 
   // set databuffer period time

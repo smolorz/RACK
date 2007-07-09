@@ -110,38 +110,23 @@ static char ladar_cmd_hardreset[] = {0x02,0x00,0x01,0x00,0x10,0x34,0x12};
 
 class LadarSickLms200 : public RackDataModule {
     private:
-
         SerialPort  serialPort;
 
-        unsigned short crc_check(unsigned char* data, int len);
+        unsigned short crcCheck(unsigned char* data, int len);
 
         int connect(void);
         int disconnect(void);
         int resetLadar(void);
 
-        int norm_exchangeCommand(char* command, int commandLen);
-        int norm_loopCheckHead(unsigned char* serialBuffer);
-        unsigned int norm_createLadarData(unsigned char* serialBuffer,
-                                          ladar_data *p_data, int distanceUnit,
-                                          rack_time_t time);
-
-        int int_exchangeCommand(char* command, int commandLen);
-        int int_loopCheckHead(unsigned char* serialBuffer);
-        unsigned int int_createLadarData(unsigned char* serialBuffer,
-                                         ladar_data *p_data, int distanceUnit,
-                                         rack_time_t time);
-
-        int fast_exchangeCommand(char* command, int commandLen);
-        int fast_loopCheckHead(unsigned char* serialBuffer);
-        unsigned int fast_createLadarData(unsigned char* serialBuffer,
-                                          ladar_data *p_data, int distanceUnit,
-                                          rack_time_t time);
+        int normExchangeCommand(char* command, int commandLen);
+        int intExchangeCommand(char* command, int commandLen);
+        int fastExchangeCommand(char* command, int commandLen);
 
         int exchangeCommand(char* command, int commandLen);
-        int loopCheckHead(unsigned char* serialBuffer);
-        unsigned int createLadarData(unsigned char* serialBuffer,
-                                     ladar_data *p_data, int distanceUnit,
-                                     rack_time_t time);
+
+        void analyseLadarData(unsigned char* serialBuffer,
+                              ladar_data *data, rack_time_t timeStamp,
+                              int protocol);
 
     protected:
         // -> realtime context
