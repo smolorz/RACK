@@ -29,6 +29,8 @@
 #include <main/rack_proxy.h>
 
 #include <main/defines/scan_point.h>
+#include <main/defines/position3d.h>
+
 
 #define SCAN2D_POINT_MAX 720
 
@@ -54,6 +56,7 @@ typedef struct {
     rack_time_t     duration;
     int32_t         maxRange;
     int32_t         pointNum;
+    position_3d     refPos;         // position of the reference cooridnate system
     scan_point      point[0];
 } __attribute__((packed)) scan2d_data;
 
@@ -68,6 +71,7 @@ class Scan2dData
             data->duration      = __le32_to_cpu(data->duration);
             data->maxRange      = __le32_to_cpu(data->maxRange);
             data->pointNum      = __le32_to_cpu(data->pointNum);
+            Position3D::le_to_cpu(&data->refPos);
             for (i=0; i< data->pointNum; i++) {
                 ScanPoint::le_to_cpu(&data->point[i]);
             }
@@ -81,6 +85,7 @@ class Scan2dData
             data->duration      = __be32_to_cpu(data->duration);
             data->maxRange      = __be32_to_cpu(data->maxRange);
             data->pointNum      = __be32_to_cpu(data->pointNum);
+            Position3D::be_to_cpu(&data->refPos);
             for (i=0; i< data->pointNum; i++) {
                 ScanPoint::be_to_cpu(&data->point[i]);
             }
