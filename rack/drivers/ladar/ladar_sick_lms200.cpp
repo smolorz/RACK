@@ -104,7 +104,7 @@ static ladar_sick_lms200_config config_sick_fast =
     baudrate:               9600,
     protocol:               fast,
     serial_buffer_size:     0,
-    periodTime:             212, //13,    // sampling_rate = 75.0,
+    periodTime:             13,    // sampling_rate = 75.0,
     messageDistanceNum:     0,
     startAngle:             0.0,
     angleResolution:        0.0,
@@ -300,11 +300,14 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
         data->maxRange = 36000;     // 36m (mm mode)
     }
 
+    // scan duration calculation
+    //
     // The turn around time of the scanner is 13.3ms 75Hz
     // a scan with 0.5 resolution takes two turns 26.6ms
     // --__--__--__--  (-- = scan) (__ = pause)
     // 1.  2.  3.  4.
     //       ^ receive data from 1. and 2.
+    //
     switch (distanceNum)
     {
         // interlaced, x.25, x.50, x.75 deg, 100 deg open angle
