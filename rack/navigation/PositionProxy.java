@@ -23,6 +23,15 @@ public class PositionProxy extends RackDataProxy
 {
     public static final byte MSG_POSITION_UPDATE =
         RackProxy.MSG_POS_OFFSET + 1;
+    public static final byte MSG_POSITION_WGS84_TO_POS =
+        RackProxy.MSG_POS_OFFSET + 2;
+    public static final byte MSG_POSITION_POS_TO_WGS84 =
+        RackProxy.MSG_POS_OFFSET + 3;
+    
+    public static final byte MSG_POSITION_POS =
+        RackProxy.MSG_NEG_OFFSET - 2;
+    public static final byte MSG_POSITION_WGS84 =
+        RackProxy.MSG_NEG_OFFSET - 3;
 
     public PositionProxy(int id , TimsMbx replyMbx)
     {
@@ -89,6 +98,67 @@ public class PositionProxy extends RackDataProxy
         }
     }
 
+    public synchronized PositionDataMsg wgs84ToPos(PositionWgs84DataMsg posWgs84)
+    {
+        currentSequenceNo++;
+
+        try {
+            replyMbx.send(MSG_POSITION_WGS84_TO_POS,
+                               commandMbx,
+                               (byte)0,
+                               (byte)currentSequenceNo,
+                               posWgs84);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(1000);
+            }
+            while((reply.seqNr != currentSequenceNo)
+                   & (reply.type == MSG_POSITION_POS));
+            
+            PositionDataMsg data = new PositionDataMsg(reply);
+            return data;
+        }
+        catch(TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".wgs84ToPos " + e);
+            return null;
+        }
+    }
+    
+    public synchronized PositionWgs84DataMsg posToWgs84(PositionDataMsg posData)
+    {
+        currentSequenceNo++;
+
+        try {
+            replyMbx.send(MSG_POSITION_POS_TO_WGS84,
+                               commandMbx,
+                               (byte)0,
+                               (byte)currentSequenceNo,
+                               posData);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(1000);
+            }
+            while ((reply.seqNr != currentSequenceNo)
+                    & (reply.type == MSG_POSITION_WGS84));
+            
+            PositionWgs84DataMsg data = new PositionWgs84DataMsg(reply);
+            return data;
+        }
+        catch(TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".posToWgs84 " + e);
+            return null;
+        }
+    }
+
+    
     public PositionDataMsg readContinuousData(int timeOut) {
         if (dataMbx == null) {
             System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".readContinuousData: Keine Datenmailbox eingerichtet."  );
