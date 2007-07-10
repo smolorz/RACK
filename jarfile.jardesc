@@ -86,6 +86,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.main{GetContDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{GetDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PositionDataMsg.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.navigation{PositionWgs84DataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.tools{DatalogGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{Camera2PngConverter.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.tools{DatalogLogInfo.java"/>
