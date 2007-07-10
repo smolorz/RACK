@@ -119,8 +119,6 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
             setDestinationCommand = this.getName() + " - set destination";
             mapViewGui.addMapViewAction(setDestinationCommand, this);
         }
-        
-        mapComponent.zoomCenter();
     }
 
     protected void runStop()
@@ -166,8 +164,6 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         
         if(command.equals(setDestinationCommand))
         {
-            System.out.println("Pilot set destination " + event.getWorldCursorPos());
-            
             Position3d destination = new Position3d(event.getWorldCursorPos());
 
             pilot.setDestination(destination);

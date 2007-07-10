@@ -15,6 +15,7 @@
  */
 package rack.gui.main;
 
+import rack.main.AngleTool;
 import rack.main.defines.Position2d;
 
 public class MapViewActionEvent
@@ -42,7 +43,20 @@ public class MapViewActionEvent
 
     public Position2d getRobotCursorPos()
     {
-        return cursorPosition;
+        Position2d robotCursorPos = new Position2d();
+        
+        double x = (double)(cursorPosition.x - robotPosition.x);
+        double y = (double)(cursorPosition.y - robotPosition.y);
+        float rho = cursorPosition.rho - robotPosition.rho;
+
+        double cosRho = Math.cos(robotPosition.rho);
+        double sinRho = Math.sin(robotPosition.rho);
+        
+        robotCursorPos.x = (int)(  x * cosRho + y * sinRho);
+        robotCursorPos.y = (int)(- x * sinRho + y * cosRho);
+        robotCursorPos.rho = AngleTool.normaliseSym0(rho);
+        
+        return robotCursorPos;
     }
 
     public Position2d getRobotPosition()

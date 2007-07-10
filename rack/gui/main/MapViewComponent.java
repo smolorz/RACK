@@ -15,6 +15,7 @@
  */
 package rack.gui.main;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -32,20 +33,24 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import rack.main.AngleTool;
+import rack.main.defines.Position2d;
 import rack.navigation.PositionDataMsg;
 
 public class MapViewComponent extends JComponent
 {
     private static final long          serialVersionUID = 1L;
 
-    public static double               ZOOM_FACTOR = 1.141;
-    public static double               VISIBLE_RANGE = 5000.0;
+    public static double               ZOOM_FACTOR      = 1.141;
+    public static double               VISIBLE_RANGE    = 5000.0;
 
     protected Vector<MapViewInterface> mapViews         = new Vector<MapViewInterface>();
 
@@ -53,16 +58,21 @@ public class MapViewComponent extends JComponent
     protected double                   visibleRange;
     protected double                   centerX;
     protected double                   centerY;
-    
+    protected AffineTransform          world2frame      = new AffineTransform();
+
+    protected boolean                  showGrid;
+    protected boolean                  showCursor;
+
     public JPanel                      zoomPanel;
     public JButton                     zoomInButton;
     public JButton                     zoomOutButton;
     public JButton                     zoomCenterButton;
 
     protected Point                    mousePressed;
+    protected float                    cursorRho        = 0.0f;
 
-    public MouseListener               mouseListener = new MapViewComponentMouseListener();
-    public KeyListener                 keyListener = new MapViewComponentKeyListener();
+    public MouseListener               mouseListener    = new MapViewComponentMouseListener();
+    public KeyListener                 keyListener      = new MapViewComponentKeyListener();
     
     public MapViewComponent()
     {
@@ -70,6 +80,8 @@ public class MapViewComponent extends JComponent
         this.setBackground(Color.WHITE);
         this.setPreferredSize(new Dimension(400, 400));
         this.visibleRange = VISIBLE_RANGE;
+        this.showGrid = true;
+        this.showCursor = false;
 
         this.robotPosition = new Vector<PositionDataMsg>();
         robotPosition.add(new PositionDataMsg());
@@ -84,7 +96,7 @@ public class MapViewComponent extends JComponent
         zoomInButton.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                zoomIn();
+                zoomIn(ZOOM_FACTOR);
             }
         });
 
@@ -93,7 +105,7 @@ public class MapViewComponent extends JComponent
         zoomOutButton.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                zoomOut();
+                zoomOut(ZOOM_FACTOR);
             }
         });
         
@@ -121,19 +133,72 @@ public class MapViewComponent extends JComponent
     
     public void addMapView(MapViewInterface mapView)
     {
-        this.mapViews.add(mapView);
+        mapViews.add(mapView);
     }
     
     public void removeMapView(MapViewInterface mapView)
     {
-        this.mapViews.remove(mapView);
+        mapViews.remove(mapView);
     }
 
     public Vector<PositionDataMsg> getRobotPositionVector()
     {
         return robotPosition;
     }
+
+    public Position2d getCursorPosition()
+    {
+        Position2d cursorPosition = new Position2d();
+        
+        cursorPosition = frame2world(getMousePosition());
+
+        cursorRho = AngleTool.normalise(cursorRho);
+        cursorPosition.rho = cursorRho;
+
+        return cursorPosition;
+    }
     
+    protected Position2d frame2world(Point framePoint)
+    {
+        Point worldPoint = new Point();
+
+        synchronized(world2frame)
+        {
+            try
+            {
+                world2frame.inverseTransform(framePoint, worldPoint);
+            }
+            catch (NoninvertibleTransformException e)
+            {
+            }
+        }
+        
+        return new Position2d(worldPoint.x, worldPoint.y, 0.0f);
+    }
+    
+    protected Point world2frame(Position2d worldPosition)
+    {
+        Point worldPoint = new Point(worldPosition.x, worldPosition.y);
+        Point framePoint = new Point();
+        
+        synchronized(world2frame)
+        {
+            world2frame.transform(worldPoint, framePoint);
+        }
+        
+        return framePoint;
+    }
+    
+    protected void paintCrosshairCursor(Graphics2D cg)
+    {
+        cg.setColor(Color.RED);
+        cg.setStroke(new BasicStroke(5.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        cg.drawLine(-50, 0, 50, 0);
+        cg.drawLine(0, -50, 0, 50);
+        cg.drawLine(40, -10, 50, 0);
+        cg.drawLine(40, 10, 50, 0);
+    }
+
     protected void paintGrid(Graphics2D g, Color color, int num, int step)
     {
         g.setColor(color);
@@ -151,83 +216,98 @@ public class MapViewComponent extends JComponent
 
     protected void paintComponent(Graphics g)
     {
-        if (isOpaque()) // paint background
-        {
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-        }
+        g.setColor(getBackground()); // paint background
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         Graphics2D frame = (Graphics2D)g.create();
         Graphics2D world = (Graphics2D)g.create();
-
-        Dimension size = this.getSize();
-
-        world.translate(centerX, centerY);
-        world.rotate(-Math.PI/2.0);
-
-        double scale;
-        if(size.height > size.width)
+        
+        synchronized(world2frame)
         {
-            scale = (double)size.width / 2.0 / visibleRange;
+            world2frame.setToIdentity();
+            
+            world2frame.translate((double)getWidth() / 2.0, (double)getHeight() / 2.0);
+            world2frame.translate(centerX, centerY);
+            world2frame.rotate(-Math.PI/2.0);
+            
+            double scale;
+            if(getHeight() > getWidth())
+            {
+                scale = (double)getWidth() / 2.0 / visibleRange;
+            }
+            else
+            {
+                scale = (double)getHeight() / 2.0 / visibleRange;
+            }
+            world2frame.scale(scale, scale);
+            
+            world.transform(world2frame);
         }
-        else
-        {
-            scale = (double)size.height / 2.0 / visibleRange;
-        }
-        world.scale(scale, scale);
 
-        paintGrid(world, Color.LIGHT_GRAY, 100, 1000);  // 100 * 1m
-        paintGrid(world, Color.BLACK, 10, 10000);  // 10 * 10m
+        if(showGrid)
+        {
+            paintGrid(world, Color.LIGHT_GRAY, 100, 1000);  // 100 * 1m
+            paintGrid(world, Color.BLACK, 10, 10000);  // 10 * 10m
+        }
 
         for(int i = 0; i < mapViews.size(); i++)
         {
             mapViews.get(i).paintMapView(new MapViewGraphics(frame, world, robotPosition));
         }
+
+        if(showCursor)
+        {
+            Point cursorPoint = getMousePosition();
+    
+            if(cursorPoint != null)
+            {
+                Graphics2D cursor = (Graphics2D)g.create();
+
+                cursor.translate(cursorPoint.x, cursorPoint.y);
+                cursor.rotate(cursorRho - Math.PI/2.0);
+    
+                paintCrosshairCursor(cursor);
+
+                cursor.dispose();
+            }
+        }
         
         world.dispose(); // clean up
+        frame.dispose();
     }
 
-    public void zoomIn()
+    public void zoomIn(double zoomFactor)
     {
-        visibleRange = visibleRange / ZOOM_FACTOR;
-
-        Dimension size = this.getSize();
-
-        double windowCenterX = (double)size.width / 2.0;
-        double windowCenterY = (double)size.height / 2.0;
-
-        centerX = ((centerX - windowCenterX) * ZOOM_FACTOR) + windowCenterX;
-        centerY = ((centerY - windowCenterY) * ZOOM_FACTOR) + windowCenterY;
-
-        repaint();
+        if(visibleRange > 1000)
+        {
+            visibleRange = visibleRange / zoomFactor;
+    
+            centerX = centerX * zoomFactor;
+            centerY = centerY * zoomFactor;
+    
+            repaint();
+        }
     }
     
-    public void zoomOut()
+    public void zoomOut(double zoomFactor)
     {
-        visibleRange = visibleRange * ZOOM_FACTOR;
-
-        Dimension size = this.getSize();
-
-        double windowCenterX = (double)size.width / 2.0;
-        double windowCenterY = (double)size.height / 2.0;
-
-        centerX = ((centerX - windowCenterX) / ZOOM_FACTOR) + windowCenterX;
-        centerY = ((centerY - windowCenterY) / ZOOM_FACTOR) + windowCenterY;
-
-        repaint();
+        if(visibleRange < 1000000)
+        {
+            visibleRange = visibleRange * zoomFactor;
+    
+            centerX = centerX / zoomFactor;
+            centerY = centerY / zoomFactor;
+    
+            repaint();
+        }
     }
     
     public void zoomCenter()
     {
         visibleRange = VISIBLE_RANGE;
 
-        Dimension size = this.getSize();
-
-        double windowCenterX = (double)size.width / 2.0;
-        double windowCenterY = (double)size.height / 2.0;
-
-        centerX = windowCenterX;
-        centerY = windowCenterY;
+        centerX = 0;
+        centerY = 0;
 
         repaint();
     }
@@ -243,6 +323,12 @@ public class MapViewComponent extends JComponent
         public void mousePressed(MouseEvent e)
         {
             mousePressed = e.getPoint();
+            
+            int button13 = MouseEvent.BUTTON1_DOWN_MASK | MouseEvent.BUTTON3_DOWN_MASK;
+            if((e.getModifiersEx() & button13) == button13)
+            {
+                zoomCenter();
+            }
         }
 
         public void mouseReleased(MouseEvent e)
@@ -255,8 +341,26 @@ public class MapViewComponent extends JComponent
             if(mousePressed != null)
             {
                 Point mouse = e.getPoint();
-                centerX += (double)(mouse.x - mousePressed.x);
-                centerY += (double)(mouse.y - mousePressed.y);
+
+                double dx = (double)(mouse.x - mousePressed.x);
+                double dy = (double)(mouse.y - mousePressed.y);
+                    
+                if((e.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) == MouseEvent.BUTTON3_DOWN_MASK)
+                {
+                    if(dy > 0)
+                    {
+                        zoomIn(1.0 + dy / 100.0);
+                    }
+                    if(dy < 0)
+                    {
+                        zoomOut(1.0 - dy / 100.0);
+                    }
+                }
+                else
+                {
+                    centerX += dx;
+                    centerY += dy;
+                }
                 mousePressed = mouse;
                 repaint();
             }
@@ -264,18 +368,30 @@ public class MapViewComponent extends JComponent
 
         public void mouseMoved(MouseEvent e)
         {
+            if(showCursor)
+            {
+                repaint();
+            }
         }
         
         public void mouseWheelMoved(MouseWheelEvent e)
         {
-            if(e.getWheelRotation() > 0)
+            if(showCursor)
             {
-                zoomIn();
+                cursorRho += Math.toRadians(10.0) * e.getWheelRotation();
             }
-            else if(e.getWheelRotation() < 0)
+            else
             {
-                zoomOut();
+                if(e.getWheelRotation() > 0)
+                {
+                    zoomIn(ZOOM_FACTOR);
+                }
+                else
+                {
+                    zoomOut(ZOOM_FACTOR);
+                }
             }
+            repaint();
         }
     };
 
@@ -288,33 +404,59 @@ public class MapViewComponent extends JComponent
                 centerY += 10;
                 repaint();
             }
-            if (e.getKeyCode() == KeyEvent.VK_DOWN)
+            else if (e.getKeyCode() == KeyEvent.VK_DOWN)
             {
                 centerY -= 10;
                 repaint();
             }
-            if (e.getKeyCode() == KeyEvent.VK_LEFT)
+            else if (e.getKeyCode() == KeyEvent.VK_LEFT)
             {
                 centerX += 10;
                 repaint();
             }
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+            else if (e.getKeyCode() == KeyEvent.VK_RIGHT)
             {
                 centerX -= 10;
                 repaint();
             }
-            if (e.getKeyCode() == KeyEvent.VK_PLUS)
+            else if ((e.getKeyCode() == KeyEvent.VK_PLUS) ||
+                (e.getKeyCode() == KeyEvent.VK_ADD))
             {
-                zoomIn();
+                zoomIn(ZOOM_FACTOR);
             }
-            if (e.getKeyCode() == KeyEvent.VK_MINUS)
+            else if ((e.getKeyCode() == KeyEvent.VK_MINUS) ||
+                (e.getKeyCode() == KeyEvent.VK_SUBTRACT))
             {
-                zoomOut();
+                zoomOut(ZOOM_FACTOR);
             }
-            if (e.getKeyCode() == KeyEvent.VK_HOME)
+            else if (e.getKeyCode() == KeyEvent.VK_HOME)
             {
-                centerX = 0;
-                centerY = 0;
+                zoomCenter();
+            }
+            else if ((e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) ||
+                     (e.getKeyCode() == KeyEvent.VK_H))
+            {
+                if(showCursor)
+                {
+                    cursorRho += Math.toRadians(10.0);
+                }
+                else
+                {
+                    zoomIn(ZOOM_FACTOR);
+                }
+                repaint();
+            }
+            else if ((e.getKeyCode() == KeyEvent.VK_PAGE_UP) ||
+                     (e.getKeyCode() == KeyEvent.VK_G))
+            {
+                if(showCursor)
+                {
+                    cursorRho -= Math.toRadians(10.0);
+                }
+                else
+                {
+                    zoomOut(ZOOM_FACTOR);
+                }
                 repaint();
             }
         }

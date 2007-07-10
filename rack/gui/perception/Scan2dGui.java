@@ -120,8 +120,6 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         {
             mapViewGui.addMapView(this);
         }
-        
-        mapComponent.zoomCenter();
     }
 
     protected void runEnd()

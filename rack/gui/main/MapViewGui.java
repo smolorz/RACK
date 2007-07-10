@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.imageio.*;
 
 import rack.main.RackName;
@@ -33,16 +35,6 @@ import rack.navigation.*;
 
 public class MapViewGui extends GuiElement implements MapViewInterface
 {
-    protected boolean                      updateNeeded           = false;
-    protected Position2d                   viewPosition           = new Position2d();
-    protected double                       viewZoom               = 0.02;
-    protected int                          viewGridDistance       = 10000;                  // in mm
-    protected boolean                      mouseEntered           = false;
-
-    protected Vector<PositionDataMsg>      robotPosition;
-    protected Position2d                   worldCursorPosition    = new Position2d(0, 0, 0);
-
-    // basic Components
     protected JPanel                       rootPanel;
     protected JPanel                       northPanel;
     protected MapViewComponent             mapComponent;
@@ -51,6 +43,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected Vector<String>               actionCommands = new Vector<String>();
     protected Vector<MapViewInterface>     actionTargets = new Vector<MapViewInterface>();
     protected MapViewMouseListener         mouseListener = new MapViewMouseListener();
+    protected ActionMenuListener           actionMenuListener = new ActionMenuListener();
 
     protected String                       positionUpdateCommand;
     
@@ -58,11 +51,9 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected double                       bgResX, bgResY;  // in mm/pixel
     protected Position2d                   bgOffset = new Position2d();
 
-    // proxies
     protected PositionProxy                positionProxy;
+    protected Vector<PositionDataMsg>      robotPosition;
     protected ChassisProxy                 chassisProxy;
-
-    // Messages
     protected ChassisParamMsg              chassisParam;
 
     protected boolean                      terminate = false;
@@ -93,10 +84,11 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         mapComponent = new MapViewComponent();
         mapComponent.addMouseListener(mouseListener);
         mapComponent.setPreferredSize(new Dimension(600,400));
-        mapComponent.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        mapComponent.showCursor = true;
 
         actionMenu = new JComboBox();
         actionMenu.addKeyListener(mapComponent.keyListener);
+        actionMenu.addPopupMenuListener(actionMenuListener);
 
         // set MapView layout
         rootPanel = new JPanel(new BorderLayout(2, 2));
@@ -182,6 +174,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             
             System.out.println("offset x " + bgOffset.x + " y " + bgOffset.y + " rho " + bgOffset.rho);
             System.out.println("resolution x " + bgResX + " y " + bgResY);
+            
+            mapComponent.zoomCenterButton.grabFocus();
         }
     }
 
@@ -203,6 +197,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         actionTargets.add(mapView);
         
         actionMenu = new JComboBox(actionCommands);
+        actionMenu.addPopupMenuListener(actionMenuListener);
+        
         northPanel.add(actionMenu, BorderLayout.CENTER);
     }
     
@@ -219,6 +215,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         }
         
         actionMenu = new JComboBox(actionCommands);
+        actionMenu.addPopupMenuListener(actionMenuListener);
+        
         northPanel.add(actionMenu, BorderLayout.CENTER);
     }
     
@@ -254,7 +252,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         
         addMapView(this);  // paint current robot position 
         
-        addMapViewAction("--- Choose action command ---", this);
+        addMapViewAction("Choose action command", this);
         positionUpdateCommand = "Position - update";
         addMapViewAction(positionUpdateCommand, this);
 
@@ -297,15 +295,13 @@ public class MapViewGui extends GuiElement implements MapViewInterface
 
     public synchronized void paintMapView(MapViewGraphics mvg)
     {
-        Graphics2D g = mvg.getRobotGraphics();
-        
-        paintRobot(g,true);
+        Graphics2D rg = mvg.getRobotGraphics();
+        paintRobot(rg);
     }
 
     public void mapViewActionPerformed(MapViewActionEvent event)
     {
         String command = event.getActionCommand();
-        System.out.println("MapViewActionPerformed " + command);
         
         if(command.equals(positionUpdateCommand))
         {
@@ -318,30 +314,27 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                 positionProxy.update(position, 0);
             }
         }
-        else if(command.matches("--- Choose action command ---"))
-        {
-            System.out.println("action command " + event.getWorldCursorPos() + " " + event.getRobotCursorPos() + " " + event.getRobotPosition());
-        }
+        //else if(command.matches("Choose action command"))
+        //{
+        //    System.out.println("action command " + event.getWorldCursorPos() + " " + event.getRobotCursorPos() + " " + event.getRobotPosition());
+        //}
     }
 
-    protected void paintRobot(Graphics2D g, boolean filled)
+    protected void paintRobot(Graphics2D g)
     {
         int chassisWidth = chassisParam.boundaryLeft + chassisParam.boundaryRight;
         int chassisLength = chassisParam.boundaryBack + chassisParam.boundaryFront;
 
-        if (filled)
-        {
-            g.setColor(Color.LIGHT_GRAY);
-            g.fillRect(-chassisParam.boundaryBack - chassisParam.safetyMargin,
-                       -chassisParam.boundaryLeft - chassisParam.safetyMargin,
-                       chassisLength + 2 * chassisParam.safetyMargin + chassisParam.safetyMarginMove,
-                       chassisWidth + 2 * chassisParam.safetyMargin);
+        g.setColor(Color.LIGHT_GRAY);
+        g.fillRect(-chassisParam.boundaryBack - chassisParam.safetyMargin,
+                   -chassisParam.boundaryLeft - chassisParam.safetyMargin,
+                   chassisLength + 2 * chassisParam.safetyMargin + chassisParam.safetyMarginMove,
+                   chassisWidth + 2 * chassisParam.safetyMargin);
 
-            g.setColor(Color.GRAY);
-            g.fillRect(-chassisParam.boundaryBack,
-                       -chassisParam.boundaryLeft,
-                       chassisLength, chassisWidth);
-        }
+        g.setColor(Color.GRAY);
+        g.fillRect(-chassisParam.boundaryBack,
+                   -chassisParam.boundaryLeft,
+                   chassisLength, chassisWidth);
 
         g.setColor(Color.BLACK);
         g.drawRect(-chassisParam.boundaryBack,
@@ -364,8 +357,6 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         {
             if(e.getClickCount() == 2)
             {
-                Point mouse = e.getPoint();
-                
                 String command;
                 MapViewInterface mapView;
 
@@ -377,8 +368,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                     mapView = actionTargets.elementAt(index);
                 }
 
-                Position2d cursorPosition2d;
-                cursorPosition2d = new Position2d(mouse.x, mouse.y, 0.0f);
+                Position2d cursorPosition2d = mapComponent.getCursorPosition();
 
                 PositionDataMsg robot = robotPosition.lastElement();
                 Position2d robotPosition2d;
@@ -390,4 +380,31 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             }
         }
     }
+    
+    protected class ActionMenuListener implements PopupMenuListener
+    {
+        public void popupMenuCanceled(PopupMenuEvent arg0)
+        {
+        }
+
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
+        {
+            System.out.println("invisible");
+
+            if(actionMenu.getSelectedIndex() > 0)
+            {
+                mapComponent.showCursor = true;
+            }
+            else
+            {
+                mapComponent.showCursor = false;
+            }
+
+            mapComponent.zoomCenterButton.grabFocus();
+        }
+
+        public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)
+        {
+        }
+    };
 }

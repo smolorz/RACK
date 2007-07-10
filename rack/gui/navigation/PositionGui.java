@@ -29,11 +29,10 @@ import rack.drivers.GpsDataMsg;
 import rack.drivers.GpsProxy;
 
 import rack.main.defines.Position3d;
-import rack.main.defines.Position2d;
 import rack.navigation.PositionDataMsg;
 import rack.navigation.PositionProxy;
 
-public class PositionGui extends RackModuleGui implements MapViewInterface, ActionListener
+public class PositionGui extends RackModuleGui implements MapViewInterface
 {
     protected JButton         manualUpdateButton = new JButton("Manual Update");
     protected JButton         gpsUpdateButton[];
@@ -271,18 +270,6 @@ public class PositionGui extends RackModuleGui implements MapViewInterface, Acti
     }
 
     public void mapViewActionPerformed(MapViewActionEvent event)
-    {
-        if (event.getActionCommand().equals("manualUpdate"))
-        {
-            Position2d newPosition2d = event.getWorldCursorPos();
-            Position3d newPosition3d;
-
-            newPosition3d = new Position3d(newPosition2d.x, newPosition2d.y, 0, 0, 0, newPosition2d.rho);
-            position.update(newPosition3d, 0);
-        }
-    }
-
-    public void actionPerformed(ActionEvent event)
     {
     }
 }

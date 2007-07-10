@@ -61,7 +61,7 @@ public class MapViewGraphics
         return getRobotGraphics();
     }
 
-    protected Position2d getRobotPosition()
+    public Position2d getRobotPosition()
     {
         return new Position2d();
     }
