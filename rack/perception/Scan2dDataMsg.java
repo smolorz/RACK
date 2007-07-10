@@ -70,9 +70,10 @@ public class Scan2dDataMsg extends TimsMsg
         duration = dataIn.readInt();
         maxRange = dataIn.readInt();
         pointNum = dataIn.readInt();
-
         refPos.readData(dataIn);
 
+        point = new ScanPoint[pointNum];
+        
         for (int i = 0; i < pointNum; i++)
         {
             point[i] = new ScanPoint(dataIn);
