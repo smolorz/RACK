@@ -34,6 +34,11 @@
 //######################################################################
 
 #define MSG_POSITION_UPDATE              (RACK_PROXY_MSG_POS_OFFSET + 1)
+#define MSG_POSITION_WGS84_TO_POS        (RACK_PROXY_MSG_POS_OFFSET + 2)
+#define MSG_POSITION_POS_TO_WGS84        (RACK_PROXY_MSG_POS_OFFSET + 3)
+
+#define MSG_POSITION_POS                 (RACK_PROXY_MSG_NEG_OFFSET - 2)
+#define MSG_POSITION_WGS84               (RACK_PROXY_MSG_NEG_OFFSET - 3)
 
 //######################################################################
 //# Position Data (static size - MESSAGE)
@@ -80,6 +85,55 @@ class PositionData
 };
 
 //######################################################################
+//# Position WGS84 Data (static size - MESSAGE)
+//######################################################################
+typedef struct{
+    double        latitude;       // rad
+    double        longitude;      // rad
+    int32_t       altitude;       // mm over mean sea level
+    float         heading;        // rad
+} __attribute__((packed)) position_wgs84_data;
+
+class PositionWgs84Data
+{
+    public:
+        static void le_to_cpu(position_wgs84_data *data)
+        {
+            data->latitude      = __le64_float_to_cpu(data->latitude);
+            data->longitude     = __le64_float_to_cpu(data->longitude);
+            data->altitude      = __le32_to_cpu(data->altitude);
+            data->heading       = __le32_float_to_cpu(data->heading);
+        }
+
+        static void be_to_cpu(position_wgs84_data *data)
+        {
+            data->latitude      = __be64_float_to_cpu(data->latitude);
+            data->longitude     = __be64_float_to_cpu(data->longitude);
+            data->altitude      = __be32_to_cpu(data->altitude);
+            data->heading       = __be32_float_to_cpu(data->heading);
+        }
+
+        static position_wgs84_data* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            position_wgs84_data *p_data = (position_wgs84_data *)msgInfo->p_data;
+
+            if (isDataByteorderLe(msgInfo)) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            setDataByteorder(msgInfo);
+            return p_data;
+        }
+};
+
+//######################################################################
 //# Position Proxy Functions
 //######################################################################
 
@@ -109,11 +163,29 @@ class PositionProxy : public RackDataProxy {
             return getData(recv_data, recv_datalen, timeStamp, dataTimeout);
         }
 
+
         int update(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns);
 
         int update(position_3d *pos, rack_time_t recordingTime)
         {
             return update(pos, recordingTime, dataTimeout);
+        }
+
+
+        int wgs84ToPos(position_wgs84_data *wgs84Data, position_data *posData,
+                       uint64_t reply_timeout_ns);
+
+        int wgs84ToPos(position_wgs84_data *wgs84Data, position_data *posData)
+        {
+            return wgs84ToPos(wgs84Data, posData, dataTimeout);
+        }
+
+        int posToWgs84(position_data *posData, position_wgs84_data *wgs84Data,
+                       uint64_t reply_timeout_ns);
+
+        int posToWgs84(position_data *posData, position_wgs84_data *wgs84Data)
+        {
+            return posToWgs84(posData, wgs84Data, dataTimeout);
         }
 };
 

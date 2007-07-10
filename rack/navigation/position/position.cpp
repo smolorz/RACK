@@ -198,9 +198,13 @@ int  Position::moduleLoop(void)
 
 int  Position::moduleCommand(message_info *msgInfo)
 {
-    position_data *pUpdate, *pPosOldRef;
-    odometry_data odometryData;
-    int ret, posOldRefIndex;
+    position_data       *pUpdate, *pPosOldRef;
+    position_data       posData;
+    position_data       *pPosData;
+    position_wgs84_data posWgs84Data;
+    position_wgs84_data *pPosWgs84Data;
+    odometry_data       odometryData;
+    int                 ret, posOldRefIndex;
 
     switch(msgInfo->type)
     {
@@ -271,6 +275,34 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
+
+        case MSG_POSITION_WGS84_TO_POS:
+            pPosWgs84Data = PositionWgs84Data::parse(msgInfo);
+
+            posData.pos.x       = (int)rint(pPosWgs84Data->latitude * 180.0 / M_PI);
+            posData.pos.y       = (int)rint(pPosWgs84Data->longitude * 180.0 / M_PI);
+            posData.pos.z       = pPosWgs84Data->altitude;
+            posData.pos.phi     = 0.0f;
+            posData.pos.psi     = 0.0f;
+            posData.pos.rho     = pPosWgs84Data->heading;
+
+            cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
+                                    sizeof(position_data));
+            break;
+
+        case MSG_POSITION_POS_TO_WGS84:
+            pPosData = PositionData::parse(msgInfo);
+
+            posWgs84Data.latitude  = ((double)pPosData->pos.x * M_PI / 180.0);
+            posWgs84Data.longitude = ((double)pPosData->pos.y * M_PI / 180.0);
+            posWgs84Data.altitude  = pPosData->pos.z;
+            posWgs84Data.heading   = pPosData->pos.rho;
+
+            cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
+                                    sizeof(position_wgs84_data));
+            break;
+
+        break;
 
         default:
             // not for me -> ask RackDataModule

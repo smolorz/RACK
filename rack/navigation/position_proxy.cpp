@@ -46,3 +46,40 @@ int PositionProxy::update(position_3d *pos, rack_time_t recordingTime, uint64_t 
     return proxySendDataCmd(MSG_POSITION_UPDATE, &sendData,
                             sizeof(position_data), reply_timeout_ns);
 }
+
+int PositionProxy::wgs84ToPos(position_wgs84_data *wgs84Data, position_data *posData,
+                                   uint64_t reply_timeout_ns)
+{
+    message_info msgInfo;
+
+    int ret = proxySendRecvDataCmd(MSG_POSITION_WGS84_TO_POS, (void *)wgs84Data, 
+                              sizeof(position_wgs84_data),MSG_POSITION_POS,
+                              (void *)posData, sizeof(position_data),
+                              reply_timeout_ns, &msgInfo);
+
+    if (ret)
+    {
+        return ret;
+    }
+
+    posData = PositionData::parse(&msgInfo);
+    return 0;
+}
+
+int PositionProxy::posToWgs84(position_data *posData, position_wgs84_data *wgs84Data,
+                                   uint64_t reply_timeout_ns)
+{
+    message_info msgInfo;
+
+    int ret = proxySendRecvDataCmd(MSG_POSITION_POS_TO_WGS84, (void *)posData,
+                              sizeof(position_data),MSG_POSITION_WGS84,
+                              (void *)wgs84Data, sizeof(position_wgs84_data),
+                              reply_timeout_ns, &msgInfo);
+    if (ret)
+    {
+        return ret;
+    }
+
+    wgs84Data = PositionWgs84Data::parse(&msgInfo);
+    return 0;
+}
