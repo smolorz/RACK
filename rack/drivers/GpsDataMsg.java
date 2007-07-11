@@ -33,7 +33,7 @@ public class GpsDataMsg extends TimsMsg
     public int          satelliteNum  = 0;
     public long         utcTime       = 0;  // POSIX time in sec since 1.1.1970
     public float        pdop          = 0;
-    public Position3d   posGK  		  = new Position3d();
+    public Position3d   pos  		  = new Position3d();
     public int			varXY		  = 0;	// variance of xy position in mm
     public int			varZ	      = 0;	// variance of  z position in mm
     public float		varRho		  = 0;	// variance of heading in rad
@@ -93,7 +93,7 @@ public class GpsDataMsg extends TimsMsg
         satelliteNum  = dataIn.readInt();
         utcTime       = dataIn.readLong();
         pdop          = dataIn.readFloat();
-        posGK.readData(dataIn);
+        pos.readData(dataIn);
         varXY	      = dataIn.readInt();
         varZ		  = dataIn.readInt();
         varRho		  = dataIn.readFloat();
@@ -115,7 +115,7 @@ public class GpsDataMsg extends TimsMsg
         dataOut.writeInt(satelliteNum);
         dataOut.writeLong(utcTime);
         dataOut.writeFloat(pdop);
-        posGK.writeData(dataOut);
+        pos.writeData(dataOut);
         dataOut.writeInt(varXY);
         dataOut.writeInt(varZ);
         dataOut.writeFloat(varRho);

@@ -117,7 +117,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
                 GpsDataMsg gpsData = gpsProxy[gps].getData();
                 if (gpsData != null)
                 {
-                    position.update(gpsData.posGK, 0);
+                    position.update(gpsData.pos, 0);
                 }
                 else
                 {
