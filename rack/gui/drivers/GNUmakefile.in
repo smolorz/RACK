@@ -43,7 +43,6 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@	JoystickGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	JoystickSoftware.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	LadarGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	LadarComponent.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	OdometryGui.java
 
 subdir = gui/drivers
@@ -61,8 +60,7 @@ SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = CameraComponent.java CameraGui.java \
 	ChassisGui.java GpsGui.java JoystickGui.java \
-	JoystickSoftware.java LadarGui.java LadarComponent.java \
-	OdometryGui.java
+	JoystickSoftware.java LadarGui.java OdometryGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

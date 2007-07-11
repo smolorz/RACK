@@ -38,6 +38,7 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_1 = jpeg_data_dst_mem.h
 @CONFIG_RACK_JAVA_TRUE@am__append_2 = \
+@CONFIG_RACK_JAVA_TRUE@	AngleTool.java \
 @CONFIG_RACK_JAVA_TRUE@	RackName.java \
 @CONFIG_RACK_JAVA_TRUE@	RackProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	RackDataProxy.java \
@@ -68,7 +69,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
-am__dist_java_JAVA_DIST = RackName.java RackProxy.java \
+am__dist_java_JAVA_DIST = AngleTool.java RackName.java RackProxy.java \
 	RackDataProxy.java GetDataMsg.java GetContDataMsg.java \
 	StopContDataMsg.java ContDataMsg.java GDOSDataMsg.java \
 	GDOS.java

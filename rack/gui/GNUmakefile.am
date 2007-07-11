@@ -16,12 +16,7 @@ dist_java_JAVA = \
 	GuiElement.java \
 	GuiElementDescriptor.java \
 	GuiGroupDescriptor.java \
-	GuiWorkspaceDescriptor.java \
-	MapViewActionEvent.java \
-	MapViewActionList.java \
-	MapViewActionListItem.java \
-	MapViewCursorDrawContext.java \
-	MapViewDrawContext.java
+	GuiWorkspaceDescriptor.java
 
 endif
 

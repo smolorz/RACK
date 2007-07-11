@@ -56,10 +56,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 am__dist_java_JAVA_DIST = AppletGui.java Gui.java GuiCfg.java \
 	GuiElement.java GuiElementDescriptor.java \
-	GuiGroupDescriptor.java GuiWorkspaceDescriptor.java \
-	MapViewActionEvent.java MapViewActionList.java \
-	MapViewActionListItem.java MapViewCursorDrawContext.java \
-	MapViewDrawContext.java
+	GuiGroupDescriptor.java GuiWorkspaceDescriptor.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -293,12 +290,7 @@ SUBDIRS = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GuiElement.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GuiElementDescriptor.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GuiGroupDescriptor.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GuiWorkspaceDescriptor.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionEvent.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionList.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewActionListItem.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewCursorDrawContext.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	MapViewDrawContext.java
+@CONFIG_RACK_JAVA_GUI_TRUE@	GuiWorkspaceDescriptor.java
 
 EXTRA_DIST = \
 	gui.manifest

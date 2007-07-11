@@ -4,8 +4,7 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
-        Scan2dGui.java \
-        Scan2dComponent.java
+        Scan2dGui.java
 
 endif
 

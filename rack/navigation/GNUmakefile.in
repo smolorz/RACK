@@ -41,7 +41,8 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	PilotDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	PilotDestMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	PositionProxy.java \
-@CONFIG_RACK_JAVA_TRUE@	PositionDataMsg.java
+@CONFIG_RACK_JAVA_TRUE@	PositionDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	PositionWgs84DataMsg.java
 
 subdir = navigation
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(navinclude_HEADERS) \
@@ -63,7 +64,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
 am__dist_java_JAVA_DIST = PilotProxy.java PilotDataMsg.java \
-	PilotDestMsg.java PositionProxy.java PositionDataMsg.java
+	PilotDestMsg.java PositionProxy.java PositionDataMsg.java \
+	PositionWgs84DataMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

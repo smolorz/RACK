@@ -36,8 +36,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
-@CONFIG_RACK_JAVA_GUI_TRUE@        Scan2dGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@        Scan2dComponent.java
+@CONFIG_RACK_JAVA_GUI_TRUE@        Scan2dGui.java
 
 subdir = gui/perception
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
@@ -52,7 +51,7 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = Scan2dGui.java Scan2dComponent.java
+am__dist_java_JAVA_DIST = Scan2dGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

@@ -18,7 +18,8 @@ dist_java_JAVA += \
 	PilotDataMsg.java \
 	PilotDestMsg.java \
 	PositionProxy.java \
-	PositionDataMsg.java
+	PositionDataMsg.java \
+	PositionWgs84DataMsg.java
 
 endif
 

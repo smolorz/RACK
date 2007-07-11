@@ -5,7 +5,6 @@ if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
 	PilotGui.java \
-	PilotComponent.java \
 	PositionGui.java
 
 endif

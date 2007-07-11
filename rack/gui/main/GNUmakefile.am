@@ -7,7 +7,11 @@ dist_java_JAVA += \
 	GDOSGui.java \
 	GDOSMessageRenderer.java \
 	GDOSTable.java \
+	MapViewActionEvent.java \
+	MapViewComponent.java \
+	MapViewGraphics.java \
 	MapViewGui.java \
+	MapViewInterface.java \
 	RackModuleGui.java \
 	RackDataModuleGui.java
 

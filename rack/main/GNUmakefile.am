@@ -32,6 +32,7 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
+	AngleTool.java \
 	RackName.java \
 	RackProxy.java \
 	RackDataProxy.java \
