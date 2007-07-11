@@ -232,7 +232,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             try
             {
                 mapViewGui = (MapViewGui) guiElements.get(i).getGui();
-                return mapViewGui;
+                if(mapViewGui != null)
+                    return mapViewGui;
             }
             catch(ClassCastException e)
             {
