@@ -334,7 +334,7 @@ int DatalogRec::initLogFile()
                     ret = fprintf(fileptr[i], "%% Gps(%i)\n"
                                   "%% recordingTime mode latitude longitude"
                                   " altitude heading speed satelliteNum utcTime pdop"
-                                  " posGK.x posGK.y posGK.z posGK.phi posGK.psi posGK.rho"
+                                  " pos.x pos.y pos.z pos.phi pos.psi pos.rho"
                                   " varXY varZ varRho\n",
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
@@ -487,12 +487,12 @@ int DatalogRec::logData(message_info *msgInfo)
                         gpsData->satelliteNum,
                         (long int)gpsData->utcTime,
                         gpsData->pdop,
-                        gpsData->posGK.x,
-                        gpsData->posGK.y,
-                        gpsData->posGK.z,
-                        gpsData->posGK.phi,
-                        gpsData->posGK.psi,
-                        gpsData->posGK.rho,
+                        gpsData->pos.x,
+                        gpsData->pos.y,
+                        gpsData->pos.z,
+                        gpsData->pos.phi,
+                        gpsData->pos.psi,
+                        gpsData->pos.rho,
                         gpsData->varXY,
                         gpsData->varZ,
                         gpsData->varRho);
