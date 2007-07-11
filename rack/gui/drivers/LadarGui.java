@@ -116,7 +116,7 @@ public class LadarGui extends RackModuleGui implements MapViewInterface
             }
 
             x = (int)((double)ladarData.distance[i] * Math.cos(angle));
-            y = (int)((double)ladarData.distance[i] * -Math.sin(angle));
+            y = (int)((double)ladarData.distance[i] * Math.sin(angle));
 
             g.fillRect(x - 25, y - 25, 50, 50);
             
