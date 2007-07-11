@@ -35,6 +35,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -63,6 +66,12 @@ public class MapViewComponent extends JComponent
     protected boolean                  showGrid;
     protected boolean                  showCursor;
 
+    protected BufferedImage            bgImg;
+    protected int                      bgX;
+    protected int                      bgY;
+    protected int                      bgW;
+    protected int                      bgH;
+    
     public JPanel                      zoomPanel;
     public JButton                     zoomInButton;
     public JButton                     zoomOutButton;
@@ -141,6 +150,15 @@ public class MapViewComponent extends JComponent
         mapViews.remove(mapView);
     }
 
+    public synchronized void setBackgroundImage(BufferedImage bgImg, int bgX, int bgY, int bgW, int bgH)
+    {
+        this.bgImg = bgImg;
+        this.bgX = bgX;
+        this.bgY = bgY;
+        this.bgW = bgW;
+        this.bgH = bgH;
+    }
+    
     public Vector<PositionDataMsg> getRobotPositionVector()
     {
         return robotPosition;
@@ -244,10 +262,23 @@ public class MapViewComponent extends JComponent
             world.transform(world2frame);
         }
 
+        synchronized(this)
+        {
+            if (bgImg != null)
+            {
+                AffineTransform at = new AffineTransform();
+                at.scale(bgW / bgImg.getWidth(), bgH / bgImg.getHeight());
+                at.rotate( Math.PI / 2);
+                //BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                world.drawImage(bgImg, biop, bgX + bgH / 2, bgY - bgW / 2);
+            }
+        }
+        
         if(showGrid)
         {
-            paintGrid(world, Color.LIGHT_GRAY, 100, 1000);  // 100 * 1m
-            paintGrid(world, Color.BLACK, 10, 10000);  // 10 * 10m
+            //paintGrid(world, Color.LIGHT_GRAY, 100, 10000);  // 100 * 10m
+            paintGrid(world, Color.GRAY, 10, 100000);  // 10 * 100m
         }
 
         for(int i = 0; i < mapViews.size(); i++)

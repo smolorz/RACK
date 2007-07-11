@@ -48,8 +48,10 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected String                       positionUpdateCommand;
     
     protected BufferedImage                bgImg;
-    protected double                       bgResX, bgResY;  // in mm/pixel
-    protected Position2d                   bgOffset = new Position2d();
+    protected int                          bgX;
+    protected int                          bgY;
+    protected int                          bgW;
+    protected int                          bgH;
 
     protected PositionProxy                positionProxy;
     protected Vector<PositionDataMsg>      robotPosition;
@@ -84,7 +86,6 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         mapComponent = new MapViewComponent();
         mapComponent.addMouseListener(mouseListener);
         mapComponent.setPreferredSize(new Dimension(600,400));
-        mapComponent.showCursor = true;
 
         actionMenu = new JComboBox();
         actionMenu.addKeyListener(mapComponent.keyListener);
@@ -115,68 +116,34 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                 System.out.println("MapViewGui: Can't read background image \"" + param + "\"\n");
             }
 
-            double ulx;
-            param = ge.getParameter("ulx");
+            param = ge.getParameter("bgX");
             if (param.length() > 0)
-                ulx = (double)Integer.parseInt(param);
+                bgX = Integer.parseInt(param);
             else
-                ulx = 0;
+                bgX = 0;
 
-            double uly;
-            param = ge.getParameter("uly");
+            param = ge.getParameter("bgY");
             if (param.length() > 0)
-                uly = (double)Integer.parseInt(param);
+                bgY = Integer.parseInt(param);
             else
-                uly = 0;
+                bgY = 0;
 
-            double llx;
-            param = ge.getParameter("llx");
+            param = ge.getParameter("bgW");
             if (param.length() > 0)
-                llx = (double)Integer.parseInt(param);
+                bgW = Integer.parseInt(param);
             else
-                llx = 0;
+                bgW = 100000;
 
-/*            double lly;
-            param = ge.getParameter("lly");
+            param = ge.getParameter("bgH");
             if (param.length() > 0)
-                lly = (double)Integer.parseInt(param);
+                bgH = Integer.parseInt(param);
             else
-                lly = 0;
-*/
+                bgH = 100000;
 
-/*            double urx;
-            param = ge.getParameter("urx");
-            if (param.length() > 0)
-                urx = (double)Integer.parseInt(param);
-            else
-                urx = 0;
-*/
-            double ury;
-            param = ge.getParameter("ury");
-            if (param.length() > 0)
-                ury = (double)Integer.parseInt(param);
-            else
-                ury = 0;
-
-            bgOffset.x = (int)ulx;
-            bgOffset.y = (int)uly;
-            bgOffset.rho = 0.0f;
-
-            if (llx != 0)
-                bgResX = (ulx - llx) / (double)bgImg.getHeight();
-            else
-                bgResX = 1;
-
-            if (ury != 0)
-                bgResY = (ury - uly) / (double)bgImg.getHeight();
-            else
-                bgResY = 1;
-            
-            System.out.println("offset x " + bgOffset.x + " y " + bgOffset.y + " rho " + bgOffset.rho);
-            System.out.println("resolution x " + bgResX + " y " + bgResY);
-            
-            mapComponent.zoomCenterButton.grabFocus();
+            mapComponent.setBackgroundImage(bgImg, bgX, bgY, bgW, bgH);
         }
+        
+        mapComponent.zoomCenterButton.grabFocus();
     }
 
     public void addMapView(MapViewInterface mapView)
