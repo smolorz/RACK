@@ -29,6 +29,13 @@
 
 class Position : public RackDataModule {
     private:
+        unsigned int        odometryInst;
+        unsigned int        updateInterpol;
+        double              offsetLatitude;
+        double              offsetLongitude;
+        int                 scaleLatitude;
+        int                 scaleLongitude;
+
         position_3d         refPos;
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;
@@ -36,9 +43,6 @@ class Position : public RackDataModule {
         position_3d         interpolDiff;           // for update interpolation
         rack_time_t         interpolStartTime;
         RackMutex           refPosMtx;
-
-        uint32_t            odometryInst;
-        uint32_t            updateInterpol;
 
         // mailboxes
         RackMailbox         odometryMbx;

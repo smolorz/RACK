@@ -37,6 +37,18 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "updateInterpol", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Time constant for update interpolation (default 0)", { 0 } },
 
+    { ARGOPT_OPT, "offsetLatitude", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
+      "Latitude Offset for the global cartesian coordinate system in deg, default 0", { 0 } },
+
+    { ARGOPT_OPT, "offsetLongitude", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
+      "Longitude offset for the global cartesian coordinate system in deg, default 0", { 0 } },
+
+    { ARGOPT_OPT, "scaleLatitude", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Latitude scale in m / deg, default 0", { 0 } },
+
+    { ARGOPT_OPT, "scaleLongitude", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Longitude scale in m / deg, default 0", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -205,6 +217,7 @@ int  Position::moduleCommand(message_info *msgInfo)
     position_wgs84_data *pPosWgs84Data;
     odometry_data       odometryData;
     int                 ret, posOldRefIndex;
+    double              diffLat, diffLon;
 
     switch(msgInfo->type)
     {
@@ -279,9 +292,12 @@ int  Position::moduleCommand(message_info *msgInfo)
         case MSG_POSITION_WGS84_TO_POS:
             pPosWgs84Data = PositionWgs84Data::parse(msgInfo);
 
-            posData.pos.x       = (int)rint(pPosWgs84Data->latitude * 180.0 / M_PI);
-            posData.pos.y       = (int)rint(pPosWgs84Data->longitude * 180.0 / M_PI);
-            posData.pos.z       = pPosWgs84Data->altitude;
+            diffLat  = pPosWgs84Data->latitude - offsetLatitude;
+            diffLon  = pPosWgs84Data->longitude - offsetLongitude;
+
+            posData.pos.x       = (int)rint(diffLat * scaleLatitude * 1000.0);
+            posData.pos.y       = (int)rint(diffLon * scaleLongitude * 1000.0);
+            posData.pos.z       = -pPosWgs84Data->altitude;
             posData.pos.phi     = 0.0f;
             posData.pos.psi     = 0.0f;
             posData.pos.rho     = pPosWgs84Data->heading;
@@ -293,9 +309,27 @@ int  Position::moduleCommand(message_info *msgInfo)
         case MSG_POSITION_POS_TO_WGS84:
             pPosData = PositionData::parse(msgInfo);
 
-            posWgs84Data.latitude  = ((double)pPosData->pos.x * M_PI / 180.0);
-            posWgs84Data.longitude = ((double)pPosData->pos.y * M_PI / 180.0);
-            posWgs84Data.altitude  = pPosData->pos.z;
+            if (scaleLatitude != 0)
+            {
+                diffLat = ((double)pPosData->pos.x / scaleLatitude) / 1000.0;
+            }
+            else
+            {
+                diffLat = 0.0;
+            }
+
+            if (scaleLongitude != 0)
+            {
+                diffLon = ((double)pPosData->pos.y / scaleLongitude) / 1000.0;
+            }
+            else
+            {
+                diffLon = 0;
+            }
+
+            posWgs84Data.latitude  = offsetLatitude + diffLat;
+            posWgs84Data.longitude = offsetLongitude + diffLon;
+            posWgs84Data.altitude  = -pPosData->pos.z;
             posWgs84Data.heading   = pPosData->pos.rho;
 
             cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
@@ -423,6 +457,10 @@ Position::Position()
     // get value(s) out of your argument table
     odometryInst    = getIntArg("odometryInst", argTab);
     updateInterpol  = getIntArg("updateInterpol", argTab);
+    offsetLatitude  = (double)getFltArg("offsetLatitude", argTab) * M_PI / 180.0;
+    offsetLongitude = (double)getFltArg("offsetLongitude", argTab) * M_PI / 180.0;
+    scaleLatitude   = getIntArg("scaleLatitude", argTab);
+    scaleLongitude  = getIntArg("scaleLongitude", argTab);
 
     refPos.x   = 0;
     refPos.y   = 0;
