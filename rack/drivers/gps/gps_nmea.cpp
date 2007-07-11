@@ -20,6 +20,8 @@
 // init_flags (for init and cleanup)
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_SERIALPORT_OPEN            1
+#define INIT_BIT_MBX_WORK                   2
+#define INIT_BIT_PROXY_POSITION             3
 
 //
 // data structures
@@ -32,6 +34,9 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
 
+    { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the position module", { 0 } },
+
     { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Baudrate of serial device, default 4800", { 4800 } },
 
@@ -40,14 +45,6 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "trigMsg", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "NMEA-message to trigger (RMC = 0, GGA = 1, GSA = 2), default RMC (0)",
-      { 0 } },
-
-    { ARGOPT_OPT, "posGKOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "X-Offset for position in Gauss-Krueger coordinates (in mm), default 0",
-      { 0 } },
-
-    { ARGOPT_OPT, "posGKOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Y-Offset for position in Gauss-Krueger coordinates (in mm), default 0",
       { 0 } },
 
     { ARGOPT_OPT, "varXY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -112,10 +109,11 @@ void GpsNmea::moduleOff(void)
 // realtime context
 int GpsNmea::moduleLoop(void)
 {
-    gps_data*       p_data;
-    gps_nmea_pos_3d posLLA, posGK;
-    int             nmeaMsg = -1;
-    int             ret;
+    int                 ret;
+    int                 nmeaMsg = -1;
+    gps_data*           p_data;
+    position_wgs84_data posWgs84Data;
+    position_data       posData;
 
     // get datapointer from rackdatabuffer
     p_data = (gps_data *)getDataBufferWorkSpace();
@@ -160,12 +158,12 @@ int GpsNmea::moduleLoop(void)
                 gpsData.satelliteNum  = 0;
                 gpsData.utcTime       = 0;
                 gpsData.pdop          = 0.0f;
-                gpsData.posGK.x       = 0;
-                gpsData.posGK.y       = 0;
-                gpsData.posGK.z       = 0;
-                gpsData.posGK.phi     = 0.0f;
-                gpsData.posGK.psi     = 0.0f;
-                gpsData.posGK.rho     = 0.0f;
+                gpsData.pos.x         = 0;
+                gpsData.pos.y         = 0;
+                gpsData.pos.z         = 0;
+                gpsData.pos.phi       = 0.0f;
+                gpsData.pos.psi       = 0.0f;
+                gpsData.pos.rho       = 0.0f;
                 gpsData.varXY         = (int)1e12;
                 gpsData.varZ          = (int)1e12;
                 gpsData.varRho        = 1e12;
@@ -174,41 +172,18 @@ int GpsNmea::moduleLoop(void)
             // gps data valid
             else
             {
-                // calculate global position and orientation in Gauss-Krueger coordinates
-                posLLA.x = gpsData.latitude;
-                posLLA.y = gpsData.longitude;
-                posLLA.z = gpsData.altitude / 1000.0;
+                // calculate position and orientation in global cartesian coordinates
+                posWgs84Data.latitude  = gpsData.latitude;
+                posWgs84Data.longitude = gpsData.longitude;
+                posWgs84Data.altitude  = gpsData.altitude;
+                posWgs84Data.heading   = gpsData.heading;
 
-                posWGS84ToGK(&posLLA, &posGK);
+                position->wgs84ToPos(&posWgs84Data, &posData);
 
-                gpsData.posGK.phi     = 0.0f;
-                gpsData.posGK.psi     = 0.0f;
-                gpsData.posGK.rho     = normaliseAngle(atan2(posGK.y - posGKOld.y,
-                                                             posGK.x - posGKOld.x));
-                memcpy(&posGKOld, &posGK, sizeof(gps_nmea_pos_3d));
-
-                GDOS_DBG_INFO("posGK.x %f posGK.y %f posGK.z %f posGK.rho %a speed %i satNum %i\n",
-                               posGK.x, posGK.y, posGK.z, gpsData.posGK.rho,
-                               gpsData.speed, gpsData.satelliteNum);
-
-                // subtract local position offset
-                if (fabs(posGK.x - (double)posGKOffsetX) < 2000000.0)
-                {
-                    gpsData.posGK.x = (int)rint((posGK.x -
-                                                (double)posGKOffsetX) * 1000.0);
-                }
-
-                if (fabs(posGK.y - (double)posGKOffsetY) < 2000000.0)
-                {
-                    gpsData.posGK.y = (int)rint((posGK.y -
-                                                (double)posGKOffsetY) * 1000.0);
-                }
-
-                if (fabs(posGK.z) < 2000000000.0)
-                {
-                    gpsData.posGK.z = (int)rint(posGK.z * 1000.0);
-                }
-
+                memcpy(&gpsData.pos, &posData.pos, sizeof(position_3d));
+                gpsData.pos.rho = normaliseAngle(atan2(posData.pos.y - posDataOld.pos.y,
+                                                       posData.pos.x - posDataOld.pos.x));
+                memcpy(&posDataOld, &posData, sizeof(position_data));
 
                 // estimate GPS position variance
                 if (gpsData.satelliteNum >= 6)
@@ -322,12 +297,12 @@ int GpsNmea::moduleLoop(void)
         gpsData.satelliteNum  = 0;
         gpsData.utcTime       = 0;
         gpsData.pdop          = 0.0f;
-        gpsData.posGK.x       = 0;
-        gpsData.posGK.y       = 0;
-        gpsData.posGK.z       = 0;
-        gpsData.posGK.phi     = 0.0f;
-        gpsData.posGK.psi     = 0.0f;
-        gpsData.posGK.rho     = 0.0f;
+        gpsData.pos.x         = 0;
+        gpsData.pos.y         = 0;
+        gpsData.pos.z         = 0;
+        gpsData.pos.phi       = 0.0f;
+        gpsData.pos.psi       = 0.0f;
+        gpsData.pos.rho       = 0.0f;
         gpsData.varXY         = (int)1e12;
         gpsData.varZ          = (int)1e12;
         gpsData.varRho        = 1e12;
@@ -1128,6 +1103,33 @@ int GpsNmea::moduleInit(void)
     GDOS_DBG_INFO("serialDev %d has been opened \n", serialDev);
     initBits.setBit(INIT_BIT_SERIALPORT_OPEN);
 
+    //
+    // create mailboxes
+    //
+
+    // work mailbox
+    ret = createMbx(&workMbx, 1, 128,
+                    MBX_IN_KERNELSPACE | MBX_SLOT);
+    if (ret)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_MBX_WORK);
+
+    //
+    // create Proxies
+    //
+
+    // position
+    position = new PositionProxy(&workMbx, 0, positionInst);
+    if (!position)
+    {
+        ret = -ENOMEM;
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_PROXY_POSITION);
+
+
     return 0;
 
 init_error:
@@ -1138,6 +1140,19 @@ init_error:
 void GpsNmea::moduleCleanup(void)
 {
     int ret;
+
+    // free position proxy
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION))
+    {
+        delete position;
+    }
+
+    // delete work mailbox
+    if (initBits.testAndClearBit(INIT_BIT_MBX_WORK))
+    {
+        destroyMbx(&workMbx);
+    }
+
     if (initBits.testAndClearBit(INIT_BIT_SERIALPORT_OPEN))
     {
         ret = serialPort.close();
@@ -1166,6 +1181,7 @@ GpsNmea::GpsNmea()
                       10)               // data buffer listener
 {
     // get value(s) out of your argument table
+    positionInst = getIntArg("positionInst", argTab);
     serialDev    = getIntArg("serialDev", argTab);
     periodTime   = getIntArg("periodTime", argTab);
     trigMsg      = getIntArg("trigMsg", argTab);

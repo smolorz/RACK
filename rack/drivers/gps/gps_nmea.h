@@ -20,6 +20,7 @@
 #include <main/serial_port.h>
 #include <main/angle_tool.h>
 #include <drivers/gps_proxy.h>
+#include <navigation/position_proxy.h>
 #include <time.h>
 
 // define module class
@@ -43,7 +44,7 @@ typedef struct
 typedef struct
 {
     rack_time_t        recordingTime;
-    char             data[1024];
+    char               data[1024];
 } gps_nmea;
 
 //######################################################################
@@ -52,6 +53,7 @@ typedef struct
 
 class GpsNmea : public RackDataModule {
     private:
+        int             positionInst;
         int             serialDev;
         int             periodTime;
         int             trigMsg;
@@ -67,9 +69,12 @@ class GpsNmea : public RackDataModule {
 
         SerialPort      serialPort;
         gps_nmea        nmea;
-        gps_nmea_pos_3d posGKOld;
         gps_data        gpsData;
+        position_data   posDataOld;
+        PositionProxy   *position;
 
+        // additional mailboxes
+        RackMailbox     workMbx;
 
         // -> realtime context
         int readNMEAMessage();
