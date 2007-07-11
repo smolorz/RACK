@@ -243,10 +243,10 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
             satNumLabel.setText(data.satelliteNum + "");
             pdopLabel.setText(data.pdop + "");
             utcTimeLabel.setText(data.utcTime + " s");
-            xGKLabel.setText(data.posGK.x + " mm");
-            yGKLabel.setText(data.posGK.y + " mm");
-            zGKLabel.setText(data.posGK.z + " mm");
-            rhoGKLabel.setText((float) Math.toDegrees(data.posGK.rho) + " deg");
+            xGKLabel.setText(data.pos.x + " mm");
+            yGKLabel.setText(data.pos.y + " mm");
+            zGKLabel.setText(data.pos.z + " mm");
+            rhoGKLabel.setText((float) Math.toDegrees(data.pos.rho) + " deg");
             varXYLabel.setText(data.varXY + " mm");
             varZLabel.setText(data.varZ + " mm");
             varRhoLabel.setText((float) Math.toDegrees(data.varRho) + " deg");
@@ -270,10 +270,10 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
         Graphics2D worldGraphics = mvg.getWorldGraphics();
 
         worldGraphics.setColor(Color.ORANGE);
-        worldGraphics.drawArc(gpsData.posGK.x - 10000, gpsData.posGK.y - 10000, 20000, 20000, 0, 360);
-        worldGraphics.drawLine(gpsData.posGK.x, gpsData.posGK.y, gpsData.posGK.x
-                + (int) (10000 * Math.cos(gpsData.posGK.rho)), gpsData.posGK.y
-                + (int) (10000 * Math.sin(gpsData.posGK.rho)));
+        worldGraphics.drawArc(gpsData.pos.x - 10000, gpsData.pos.y - 10000, 20000, 20000, 0, 360);
+        worldGraphics.drawLine(gpsData.pos.x, gpsData.pos.y, gpsData.pos.x
+                + (int) (10000 * Math.cos(gpsData.pos.rho)), gpsData.pos.y
+                + (int) (10000 * Math.sin(gpsData.pos.rho)));
     }
 
     public void mapViewActionPerformed(MapViewActionEvent action)
