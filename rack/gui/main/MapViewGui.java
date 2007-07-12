@@ -45,6 +45,11 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected MapViewMouseListener         mouseListener = new MapViewMouseListener();
     protected ActionMenuListener           actionMenuListener = new ActionMenuListener();
 
+    protected JRadioButton                 worldButton;
+    protected JRadioButton                 chaseButton;
+    protected JRadioButton                 robotButton;
+    protected ButtonGroup                  viewGroup = new ButtonGroup();
+
     protected String                       positionUpdateCommand;
     
     protected BufferedImage                bgImg;
@@ -91,11 +96,27 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         actionMenu.addKeyListener(mapComponent.keyListener);
         actionMenu.addPopupMenuListener(actionMenuListener);
 
+        worldButton = new JRadioButton("world", true);
+        chaseButton = new JRadioButton("chase", false);
+        robotButton = new JRadioButton("robot", false);
+        viewGroup.add(worldButton);
+        viewGroup.add(chaseButton);
+        viewGroup.add(robotButton);
+        worldButton.addKeyListener(mapComponent.keyListener);
+        chaseButton.addKeyListener(mapComponent.keyListener);
+        robotButton.addKeyListener(mapComponent.keyListener);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
+        buttonPanel.add(worldButton);
+        buttonPanel.add(chaseButton);
+        buttonPanel.add(robotButton);
+
         // set MapView layout
         rootPanel = new JPanel(new BorderLayout(2, 2));
         rootPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
         northPanel = new JPanel(new BorderLayout(2, 2));
+        northPanel.add(buttonPanel, BorderLayout.WEST);
         northPanel.add(actionMenu, BorderLayout.CENTER);
         northPanel.add(mapComponent.zoomPanel, BorderLayout.EAST);
 
@@ -143,7 +164,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             mapComponent.setBackgroundImage(bgImg, bgX, bgY, bgW, bgH);
         }
         
-        mapComponent.zoomCenterButton.grabFocus();
+        worldButton.grabFocus();
     }
 
     public void addMapView(MapViewInterface mapView)
@@ -243,6 +264,22 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                     {
                         robotPosition.removeElementAt(0);
                     }
+                    
+                    Position2d worldCenter;
+                    if(chaseButton.isSelected())
+                    {
+                        worldCenter = new Position2d(position.pos);
+                        worldCenter.rho = 0.0f;
+                    }
+                    else if(robotButton.isSelected())
+                    {
+                        worldCenter = new Position2d(position.pos);
+                    }
+                    else
+                    {
+                        worldCenter = new Position2d();
+                    }
+                    mapComponent.setWorldCenter(worldCenter);
                 }
                 
                 mapComponent.repaint();
@@ -368,7 +405,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                 mapComponent.showCursor = false;
             }
 
-            mapComponent.zoomCenterButton.grabFocus();
+            worldButton.grabFocus();
         }
 
         public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)

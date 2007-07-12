@@ -61,6 +61,7 @@ public class MapViewComponent extends JComponent
     protected double                   visibleRange;
     protected double                   centerX;
     protected double                   centerY;
+    protected Position2d               worldCenter      = new Position2d();
     protected AffineTransform          world2frame      = new AffineTransform();
 
     protected boolean                  showGrid;
@@ -158,6 +159,14 @@ public class MapViewComponent extends JComponent
         this.bgW = bgW;
         this.bgH = bgH;
     }
+
+    public void setWorldCenter(Position2d worldCenter)
+    {
+        synchronized(world2frame)
+        {
+            this.worldCenter   = worldCenter;
+        }
+    }
     
     public Vector<PositionDataMsg> getRobotPositionVector()
     {
@@ -171,7 +180,7 @@ public class MapViewComponent extends JComponent
         cursorPosition = frame2world(getMousePosition());
 
         cursorRho = AngleTool.normalise(cursorRho);
-        cursorPosition.rho = cursorRho;
+        cursorPosition.rho = AngleTool.normalise(cursorRho + worldCenter.rho);
 
         return cursorPosition;
     }
@@ -188,6 +197,7 @@ public class MapViewComponent extends JComponent
             }
             catch (NoninvertibleTransformException e)
             {
+                world2frame.setToIdentity();
             }
         }
         
@@ -259,6 +269,9 @@ public class MapViewComponent extends JComponent
             }
             world2frame.scale(scale, scale);
             
+            world2frame.rotate(-worldCenter.rho);
+            world2frame.translate(-worldCenter.x, -worldCenter.y);
+
             world.transform(world2frame);
         }
 
