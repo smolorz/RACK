@@ -91,6 +91,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         mapComponent = new MapViewComponent();
         mapComponent.addMouseListener(mouseListener);
         mapComponent.setPreferredSize(new Dimension(600,400));
+        mapComponent.setDefaultVisibleRange(10000.0);
 
         actionMenu = new JComboBox();
         actionMenu.addKeyListener(mapComponent.keyListener);

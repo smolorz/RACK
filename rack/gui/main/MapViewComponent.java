@@ -50,19 +50,22 @@ import rack.navigation.PositionDataMsg;
 
 public class MapViewComponent extends JComponent
 {
-    private static final long          serialVersionUID = 1L;
+    private static final long          serialVersionUID      = 1L;
 
-    public static double               ZOOM_FACTOR      = 1.141;
-    public static double               VISIBLE_RANGE    = 5000.0;
+    public static double               DEFAULT_ZOOM_FACTOR   = 1.141;
+    public static double               DEFAULT_VISIBLE_RANGE = 5000.0;
 
-    protected Vector<MapViewInterface> mapViews         = new Vector<MapViewInterface>();
+    protected double                   defaultZoomFactor     = DEFAULT_ZOOM_FACTOR;
+    protected double                   defaultVisibleRange   = DEFAULT_VISIBLE_RANGE;
+
+    protected Vector<MapViewInterface> mapViews              = new Vector<MapViewInterface>();
 
     protected Vector<PositionDataMsg>  robotPosition;
     protected double                   visibleRange;
     protected double                   centerX;
     protected double                   centerY;
-    protected Position2d               worldCenter      = new Position2d();
-    protected AffineTransform          world2frame      = new AffineTransform();
+    protected Position2d               worldCenter           = new Position2d();
+    protected AffineTransform          world2frame           = new AffineTransform();
 
     protected boolean                  showGrid;
     protected boolean                  showCursor;
@@ -72,24 +75,24 @@ public class MapViewComponent extends JComponent
     protected int                      bgY;
     protected int                      bgW;
     protected int                      bgH;
-    
+
     public JPanel                      zoomPanel;
     public JButton                     zoomInButton;
     public JButton                     zoomOutButton;
     public JButton                     zoomCenterButton;
 
     protected Point                    mousePressed;
-    protected float                    cursorRho        = 0.0f;
+    protected float                    cursorRho             = 0.0f;
 
-    public MouseListener               mouseListener    = new MapViewComponentMouseListener();
-    public KeyListener                 keyListener      = new MapViewComponentKeyListener();
+    public MouseListener               mouseListener         = new MapViewComponentMouseListener();
+    public KeyListener                 keyListener           = new MapViewComponentKeyListener();
     
     public MapViewComponent()
     {
         this.setDoubleBuffered(true);
         this.setBackground(Color.WHITE);
         this.setPreferredSize(new Dimension(400, 400));
-        this.visibleRange = VISIBLE_RANGE;
+        this.visibleRange = DEFAULT_VISIBLE_RANGE;
         this.showGrid = true;
         this.showCursor = false;
 
@@ -106,7 +109,7 @@ public class MapViewComponent extends JComponent
         zoomInButton.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                zoomIn(ZOOM_FACTOR);
+                zoomIn(defaultZoomFactor);
             }
         });
 
@@ -115,7 +118,7 @@ public class MapViewComponent extends JComponent
         zoomOutButton.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                zoomOut(ZOOM_FACTOR);
+                zoomOut(defaultZoomFactor);
             }
         });
         
@@ -166,6 +169,12 @@ public class MapViewComponent extends JComponent
         {
             this.worldCenter   = worldCenter;
         }
+    }
+
+    public void setDefaultVisibleRange(double visibleRange)
+    {
+        this.defaultVisibleRange = visibleRange;
+        this.visibleRange = visibleRange;
     }
     
     public Vector<PositionDataMsg> getRobotPositionVector()
@@ -348,7 +357,7 @@ public class MapViewComponent extends JComponent
     
     public void zoomCenter()
     {
-        visibleRange = VISIBLE_RANGE;
+        visibleRange = defaultVisibleRange;
 
         centerX = 0;
         centerY = 0;
@@ -428,11 +437,11 @@ public class MapViewComponent extends JComponent
             {
                 if(e.getWheelRotation() > 0)
                 {
-                    zoomIn(ZOOM_FACTOR);
+                    zoomIn(defaultZoomFactor);
                 }
                 else
                 {
-                    zoomOut(ZOOM_FACTOR);
+                    zoomOut(defaultZoomFactor);
                 }
             }
             repaint();
@@ -466,12 +475,12 @@ public class MapViewComponent extends JComponent
             else if ((e.getKeyCode() == KeyEvent.VK_PLUS) ||
                 (e.getKeyCode() == KeyEvent.VK_ADD))
             {
-                zoomIn(ZOOM_FACTOR);
+                zoomIn(defaultZoomFactor);
             }
             else if ((e.getKeyCode() == KeyEvent.VK_MINUS) ||
                 (e.getKeyCode() == KeyEvent.VK_SUBTRACT))
             {
-                zoomOut(ZOOM_FACTOR);
+                zoomOut(defaultZoomFactor);
             }
             else if (e.getKeyCode() == KeyEvent.VK_HOME)
             {
@@ -486,7 +495,7 @@ public class MapViewComponent extends JComponent
                 }
                 else
                 {
-                    zoomIn(ZOOM_FACTOR);
+                    zoomIn(defaultZoomFactor);
                 }
                 repaint();
             }
@@ -499,7 +508,7 @@ public class MapViewComponent extends JComponent
                 }
                 else
                 {
-                    zoomOut(ZOOM_FACTOR);
+                    zoomOut(defaultZoomFactor);
                 }
                 repaint();
             }
