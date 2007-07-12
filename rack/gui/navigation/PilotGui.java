@@ -58,6 +58,8 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
 
         mapComponent = new MapViewComponent();
         mapComponent.addMapView(this);
+        mapComponent.setPreferredSize(new Dimension(200,200));
+        mapComponent.setDefaultVisibleRange(5000.0);
 
         destinationButton = new JButton("Set destination");
         destinationButton.addActionListener(new ActionListener() {
