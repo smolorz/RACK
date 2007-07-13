@@ -295,8 +295,8 @@ int  Position::moduleCommand(message_info *msgInfo)
             diffLat  = pPosWgs84Data->latitude - offsetLatitude;
             diffLon  = pPosWgs84Data->longitude - offsetLongitude;
 
-            posData.pos.x       = (int)rint(diffLat * scaleLatitude * 1000.0);
-            posData.pos.y       = (int)rint(diffLon * scaleLongitude * 1000.0);
+            posData.pos.x       = (int)rint((diffLat * 180.0 / M_PI) * scaleLatitude * 1000.0);
+            posData.pos.y       = (int)rint((diffLon * 180.0 / M_PI) * scaleLongitude * 1000.0);
             posData.pos.z       = -pPosWgs84Data->altitude;
             posData.pos.phi     = 0.0f;
             posData.pos.psi     = 0.0f;
@@ -311,7 +311,7 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             if (scaleLatitude != 0)
             {
-                diffLat = ((double)pPosData->pos.x / scaleLatitude) / 1000.0;
+                diffLat = (((double)pPosData->pos.x / scaleLatitude) / 1000.0) * M_PI / 180.0;
             }
             else
             {
@@ -320,7 +320,7 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             if (scaleLongitude != 0)
             {
-                diffLon = ((double)pPosData->pos.y / scaleLongitude) / 1000.0;
+                diffLon = (((double)pPosData->pos.y / scaleLongitude) / 1000.0) * M_PI / 180.0;
             }
             else
             {
