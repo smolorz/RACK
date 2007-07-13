@@ -174,45 +174,195 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
 
     public synchronized void paintMapView(MapViewGraphics mvg)
     {
+        double openAngle;
+        double startAngle;
+        double angleOffset;
+        int	  r;
+    	
         mapViewIsShowing = true;
 
         if (pilotData == null)
             return;
     
-        Graphics2D g = mvg.getRobotGraphics(pilotData.recordingTime);
-
-        g.setColor(Color.GREEN);
-        g.setStroke(new BasicStroke(200.0f));
+        Graphics2D g = mvg.getWorldGraphics();        
+        g.setStroke(new BasicStroke(100.0f));
         
-        if(pilotData.curve > 0.0f)
+        // draw path
+        g.setColor(Color.BLUE);
+        for (int i = 0; i < pilotData.splineNum; i++)
         {
-            int radius = (int)(1.0f / pilotData.curve);
-            
-            if(pilotData.speed > 0)
+            // direct line
+            if (pilotData.spline[i].radius == 0)
             {
-                g.drawArc(2*radius,0,2*radius,2*radius,0,180);
+            	g.drawLine(pilotData.spline[i].startPos.x, pilotData.spline[i].startPos.y,
+            			   pilotData.spline[i].endPos.x, pilotData.spline[i].endPos.y);
             }
-            else
-            {
-                g.drawArc(0,0,2*radius,2*radius,0,180);
-            }
-        }
-        else if(pilotData.curve < 0.0f)
-        {
-            int radius = (int)(-1.0f / pilotData.curve);
 
-            if(pilotData.speed > 0)
-            {
-                g.drawArc(2*radius,-2*radius,2*radius,2*radius,0,180);
-            }
+            // curved spline
             else
             {
-                g.drawArc(0,-2*radius,2*radius,2*radius,0,180);
+                openAngle = (float)Math.abs((double)pilotData.spline[i].length /
+                  						    (double)pilotData.spline[i].radius);
+                
+                if (pilotData.spline[i].length < 0)
+                {
+                	if (pilotData.spline[i].radius > 0)
+                	{
+                		startAngle = (float)Math.toDegrees(
+                                 	 normAngle(Math.PI / 2 -
+                                     pilotData.spline[i].startPos.rho));
+                	}
+                	else
+                	{
+                		startAngle = (float)Math.toDegrees(
+                                 	  normAngle(
+                                      -pilotData.spline[i].endPos.rho - Math.PI / 2));
+                	}
+                }
+                else
+                {
+                	if (pilotData.spline[i].radius > 0)
+                	{
+                		startAngle = (float) Math.toDegrees(
+                                 	  normAngle(Math.PI / 2 -
+                                      pilotData.spline[i].startPos.rho -
+                                      openAngle));
+                	}
+                	else
+                	{
+                		startAngle = (float)Math.toDegrees(
+                                 	  normAngle(
+                                      -pilotData.spline[i].endPos.rho -
+                                      openAngle - Math.PI / 2));
+                	}
+                }
+                r = Math.abs(pilotData.spline[i].radius);
+                g.drawArc(pilotData.spline[i].centerPos.x - r,
+                          pilotData.spline[i].centerPos.y - r, 2 * r, 2 * r,
+                          (int) Math.round(startAngle),
+                          (int) Math.round((float)Math.toDegrees(normAngle(openAngle))));
             }
-        }
-        else //pilotData.curve == 0.0f
+        }        
+
+        // draw current robot movement        
+        g.setColor(Color.GREEN);
+
+        float radius = 1.0f / pilotData.curve;
+        if ((radius > 100000) | (radius < -100000))
         {
-            g.drawLine(0,0,pilotData.speed,0);
+            radius = 0;
         }
+
+        // curved spline
+        if (radius != 0)
+        {
+            openAngle = Math.abs(pilotData.speed * pilotData.curve);
+
+            if (openAngle > Math.PI)
+                openAngle = Math.PI;
+
+            if (pilotData.curve > 0)
+                angleOffset = Math.PI * 0.5;
+            else
+                angleOffset = Math.PI * 1.5;
+
+/*            route.centerPos.x = transformToXWindow(
+                                    controlInfo.pos.x +
+                                    Math.cos(angleOffset +
+                                    (double)controlInfo.pos.rho) /
+                                    Math.abs(controlInfo.curve),
+                                    -(controlInfo.pos.y +
+                                    Math.sin(angleOffset +
+                                    (double)controlInfo.pos.rho) /
+                                    Math.abs(controlInfo.curve)));
+            route.centerPos.y = transformToYWindow(
+                                    controlInfo.pos.x +
+                                    Math.cos(angleOffset +
+                                    (double)controlInfo.pos.rho) /
+                                    Math.abs(controlInfo.curve),
+                                    -(controlInfo.pos.y +
+                                    Math.sin(angleOffset +
+                                    (double)controlInfo.pos.rho) /
+                                    Math.abs(controlInfo.curve)));
+
+            route.radius = (int)Math.round(Math.abs(mmToPixel /
+                                                controlInfo.curve));*/
+
+            // backward movement
+            if (pilotData.speed < 0)
+            {
+                if (pilotData.curve > 0)
+                    startAngle = (float)Math.toDegrees(
+                                    	normAngle(Math.PI / 2 -
+                                        pilotData.pos.rho));
+                else
+                    startAngle = (float)Math.toDegrees(
+                                        normAngle(-pilotData.pos.rho -
+                                        openAngle - Math.PI / 2));
+            }
+            // forward movement
+            else
+            {
+                if (pilotData.curve > 0)
+                {
+                    startAngle = (float)Math.toDegrees(
+                                        normAngle(Math.PI / 2 -
+                                        pilotData.pos.rho - openAngle));
+                }
+                else
+                {
+                    startAngle = (float)Math.toDegrees(
+                                        normAngle(-pilotData.pos.rho - Math.PI / 2));
+                }
+            }
+
+            r = (int)Math.round(Math.abs(radius));
+            g.drawArc(pilotData.pos.x + (int)(Math.cos(angleOffset +
+                      (double)pilotData.pos.rho) / Math.abs(pilotData.curve)) - r,
+                      pilotData.pos.y + (int)(Math.sin(angleOffset +
+                      (double)pilotData.pos.rho) / Math.abs(pilotData.curve)) - r,
+                       r * 2, r * 2, (int)Math.round(startAngle),
+                      (int)Math.toDegrees(normAngle(openAngle)));
+        }
+        // direct line
+        else
+        {
+ /*           int length = controlInfo.speed;
+
+            route.startPos.x = transformToXWindow(
+                                 controlInfo.pos.x,
+                                 -controlInfo.pos.y);
+            route.startPos.y = transformToYWindow(
+                                 controlInfo.pos.x,
+                                 -controlInfo.pos.y);
+            route.endPos.x = transformToXWindow(
+                                 controlInfo.pos.x +
+                                 length * Math.cos(
+                                 (double)controlInfo.pos.rho),
+                                 -(controlInfo.pos.y +
+                                 length * Math.sin(
+                                 (double)controlInfo.pos.rho)));
+            route.endPos.y = transformToYWindow(
+                                 controlInfo.pos.x +
+                                 length* Math.cos(
+                                 (double)controlInfo.pos.rho),
+                                 -(controlInfo.pos.y +
+                                 length * Math.sin(
+                                 (double)controlInfo.pos.rho)));*/
+
+            g.setColor(Color.GREEN);
+            g.drawLine(pilotData.pos.x, pilotData.pos.y,
+                       pilotData.pos.x + (int)(pilotData.speed * Math.cos(pilotData.pos.rho)),
+                       pilotData.pos.y + (int)(pilotData.speed * Math.sin(pilotData.pos.rho)));
+        }        
+    }
+    
+    public static double normAngle(double x)
+    {
+        while (x < 0)
+            x = x + 2 * Math.PI;
+        while (x > 2 * Math.PI)
+            x = x - 2 * Math.PI;
+        return x;
     }
 }
