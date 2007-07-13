@@ -267,13 +267,30 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
         if (gpsData == null)
             return;
 
+        int   radius    = gpsData.varXY / 2;
+        float openAngle = gpsData.varRho / 2.0f;
+        
+        if (gpsData.varXY > 100000)
+            radius = 100000 / 2;                            // max varXY 100m
+        
+        if (gpsData.varRho > Math.toRadians(90.0))
+            openAngle = (float)Math.toRadians(90.0) / 2;    // max varRho 90 deg
+        
         Graphics2D worldGraphics = mvg.getWorldGraphics();
-
+           
         worldGraphics.setColor(Color.ORANGE);
-        worldGraphics.drawArc(gpsData.pos.x - 10000, gpsData.pos.y - 10000, 20000, 20000, 0, 360);
+        worldGraphics.setStroke(new BasicStroke(100.0f));
+        worldGraphics.drawArc(gpsData.pos.x - radius, gpsData.pos.y - radius, 
+                              2 * radius, 2 * radius, 0, 360);
         worldGraphics.drawLine(gpsData.pos.x, gpsData.pos.y, gpsData.pos.x
-                + (int) (10000 * Math.cos(gpsData.pos.rho)), gpsData.pos.y
-                + (int) (10000 * Math.sin(gpsData.pos.rho)));
+                + (int) (radius * Math.cos(gpsData.pos.rho - openAngle)), gpsData.pos.y
+                + (int) (radius * Math.sin(gpsData.pos.rho - openAngle)));
+        worldGraphics.drawLine(gpsData.pos.x, gpsData.pos.y, gpsData.pos.x
+                + (int) (radius * Math.cos(gpsData.pos.rho)), gpsData.pos.y
+                + (int) (radius * Math.sin(gpsData.pos.rho)));
+        worldGraphics.drawLine(gpsData.pos.x, gpsData.pos.y, gpsData.pos.x
+                + (int) (radius * Math.cos(gpsData.pos.rho + openAngle)), gpsData.pos.y
+                + (int) (radius * Math.sin(gpsData.pos.rho + openAngle)));        
     }
 
     public void mapViewActionPerformed(MapViewActionEvent action)
