@@ -173,17 +173,29 @@ int GpsNmea::moduleLoop(void)
             else
             {
                 // calculate position and orientation in global cartesian coordinates
-                posWgs84Data.latitude  = gpsData.latitude;
-                posWgs84Data.longitude = gpsData.longitude;
-                posWgs84Data.altitude  = gpsData.altitude;
-                posWgs84Data.heading   = gpsData.heading;
+                if (gpsData.satelliteNum >= 3)
+                {
+                    posWgs84Data.latitude  = gpsData.latitude;
+                    posWgs84Data.longitude = gpsData.longitude;
+                    posWgs84Data.altitude  = gpsData.altitude;
+                    posWgs84Data.heading   = gpsData.heading;
 
-                position->wgs84ToPos(&posWgs84Data, &posData);
+                    position->wgs84ToPos(&posWgs84Data, &posData);
 
-                memcpy(&gpsData.pos, &posData.pos, sizeof(position_3d));
-                gpsData.pos.rho = normaliseAngle(atan2(posData.pos.y - posDataOld.pos.y,
-                                                       posData.pos.x - posDataOld.pos.x));
-                memcpy(&posDataOld, &posData, sizeof(position_data));
+                    memcpy(&gpsData.pos, &posData.pos, sizeof(position_3d));
+                    gpsData.pos.rho = normaliseAngle(atan2(posData.pos.y - posDataOld.pos.y,
+                                                        posData.pos.x - posDataOld.pos.x));
+                    memcpy(&posDataOld, &posData, sizeof(position_data));
+                }
+                else
+                {
+                    gpsData.pos.x   = 0;
+                    gpsData.pos.y   = 0;
+                    gpsData.pos.z   = 0;
+                    gpsData.pos.phi = 0.0f;
+                    gpsData.pos.psi = 0.0f;
+                    gpsData.pos.rho = 0.0f;
+                }
 
                 // estimate GPS position variance
                 if (gpsData.satelliteNum >= 6)
