@@ -208,9 +208,8 @@ void data_task_proc(void *arg)
                     if (ret)
                     {
                         GDOS_ERROR("Can't turn on module\n");
-                        p_mod->targetStatus = MODULE_TSTATE_OFF;
+                        p_mod->status = MODULE_STATE_ERROR;
                         p_mod->moduleOff();
-                        GDOS_DBG_INFO("Module off \n");
                         notify(MSG_ERROR, p_mod);
                     }
                     else    // module is on now
