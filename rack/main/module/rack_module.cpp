@@ -76,6 +76,9 @@ argTable_t module_argTab[] = {
   {ARGOPT_OPT, "gdosLevel", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "GDOS level (0:print, 1:error, 2:warning, 3:info, 4:detail) [2]", { 2 } },
 
+  {ARGOPT_OPT, "targetStatus", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "target status (0:off, 1:on) [0])", { 0 } },
+
   {0, "", 0, 0, "", { 0 } }
 };
 
@@ -309,8 +312,7 @@ RackModule::RackModule( uint32_t class_id,
 {
     // get instance from module_argTab
     inst                      = getIntArg("instance", module_argTab);
-    gdosLevel                 = GDOS_MSG_DEBUG_BEGIN -
-                                getIntArg("gdosLevel", module_argTab);
+    gdosLevel                 = GDOS_MSG_DEBUG_BEGIN - getIntArg("gdosLevel", module_argTab);
     cmdTaskPrio               = getIntArg("cmdTaskPrio", module_argTab);
     dataTaskPrio              = getIntArg("dataTaskPrio", module_argTab);
 
@@ -335,8 +337,16 @@ RackModule::RackModule( uint32_t class_id,
 
     terminate                 = 0;
     status                    = MODULE_STATE_DISABLED;
-    targetStatus              = MODULE_TSTATE_OFF;
     initializing              = 1;
+
+    if(getIntArg("targetStatus", module_argTab) > 0)
+    {
+        targetStatus = MODULE_TSTATE_ON;
+    }
+    else
+    {
+        targetStatus = MODULE_TSTATE_OFF;
+    }
 
     clearMsgInfo(&replyMsgInfo);
 
