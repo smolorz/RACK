@@ -242,6 +242,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
         if (c != 0)
         {
             printf("Invalid option -> exit \n");
+            argUsage(p_argdesc);
             return -EARGOPT_INVAL;
         }
 

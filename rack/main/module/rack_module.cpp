@@ -636,8 +636,10 @@ int       RackModule::moduleInit(void)
     return 0;
 
 exit_error:
-    GDOS_ERROR("Error while initializing module. Internal initBits = 0x%x\n",
-               modBits.getBits());
+    GDOS_ERROR("+++++++++++++++++++++++++++++++++++\n");
+    GDOS_ERROR("+ Error while initializing module +\n");
+    GDOS_ERROR("+++++++++++++++++++++++++++++++++++\n");
+    GDOS_ERROR("Internal initBits = 0x%x\n", modBits.getBits());
 
     // !!! call local cleanup function !!!
     RackModule::moduleCleanup();
