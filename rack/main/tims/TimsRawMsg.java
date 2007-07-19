@@ -32,7 +32,7 @@ public class TimsRawMsg extends TimsMsg
         readTimsMsg(in);
     }
 
-    protected TimsRawMsg(TimsMsg m, InputStream in) throws IOException
+    public TimsRawMsg(TimsMsg m, InputStream in) throws IOException
     {
         // copy message head
         headByteorder   = m.headByteorder;

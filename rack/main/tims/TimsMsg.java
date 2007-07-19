@@ -44,7 +44,7 @@ public abstract class TimsMsg
     public byte                seqNr         = 0;
     public int                 dest          = 0;
     public int                 src           = 0;
-    protected int              msglen        = 0;
+    public int                 msglen        = 0;
 
     public TimsMsg()
     {
