@@ -244,7 +244,9 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
             }
         }        
 
-        // draw current robot movement        
+        // draw current robot movement
+        g = mvg.getRobotGraphics();        
+        g.setStroke(new BasicStroke(100.0f));        
         g.setColor(Color.GREEN);
 
         float radius = 1.0f / pilotData.curve;
@@ -265,28 +267,6 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
                 angleOffset = Math.PI * 0.5;
             else
                 angleOffset = Math.PI * 1.5;
-
-/*            route.centerPos.x = transformToXWindow(
-                                    controlInfo.pos.x +
-                                    Math.cos(angleOffset +
-                                    (double)controlInfo.pos.rho) /
-                                    Math.abs(controlInfo.curve),
-                                    -(controlInfo.pos.y +
-                                    Math.sin(angleOffset +
-                                    (double)controlInfo.pos.rho) /
-                                    Math.abs(controlInfo.curve)));
-            route.centerPos.y = transformToYWindow(
-                                    controlInfo.pos.x +
-                                    Math.cos(angleOffset +
-                                    (double)controlInfo.pos.rho) /
-                                    Math.abs(controlInfo.curve),
-                                    -(controlInfo.pos.y +
-                                    Math.sin(angleOffset +
-                                    (double)controlInfo.pos.rho) /
-                                    Math.abs(controlInfo.curve)));
-
-            route.radius = (int)Math.round(Math.abs(mmToPixel /
-                                                controlInfo.curve));*/
 
             // backward movement
             if (pilotData.speed < 0)
@@ -327,29 +307,6 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         // direct line
         else
         {
- /*           int length = controlInfo.speed;
-
-            route.startPos.x = transformToXWindow(
-                                 controlInfo.pos.x,
-                                 -controlInfo.pos.y);
-            route.startPos.y = transformToYWindow(
-                                 controlInfo.pos.x,
-                                 -controlInfo.pos.y);
-            route.endPos.x = transformToXWindow(
-                                 controlInfo.pos.x +
-                                 length * Math.cos(
-                                 (double)controlInfo.pos.rho),
-                                 -(controlInfo.pos.y +
-                                 length * Math.sin(
-                                 (double)controlInfo.pos.rho)));
-            route.endPos.y = transformToYWindow(
-                                 controlInfo.pos.x +
-                                 length* Math.cos(
-                                 (double)controlInfo.pos.rho),
-                                 -(controlInfo.pos.y +
-                                 length * Math.sin(
-                                 (double)controlInfo.pos.rho)));*/
-
             g.setColor(Color.GREEN);
             g.drawLine(pilotData.pos.x, pilotData.pos.y,
                        pilotData.pos.x + (int)(pilotData.speed * Math.cos(pilotData.pos.rho)),
