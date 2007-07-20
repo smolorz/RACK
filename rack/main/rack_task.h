@@ -11,18 +11,19 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
 #ifndef __RACK_TASK_H__
 #define __RACK_TASK_H__
+
+#if defined (__XENO__) || defined (__KERNEL__)
 
  /*!
  * @ingroup rackos
  * @defgroup task Rack Task
  * @{
  */
-
-#include <inttypes.h>
 
 #include <native/task.h>
 
@@ -34,7 +35,8 @@
 #define RACK_NONBLOCK       TM_NONBLOCK
 #endif
 
-typedef RT_TASK RACK_TASK;
+#define RACK_TASK_FPU       T_FPU
+#define RACK_TASK_JOINABLE  T_JOINABLE
 
 class RackTask
 {
@@ -205,6 +207,7 @@ class RackTask
 /*@}*/
         int join(void)
         {
+            //rt_task_unblock()
             return rt_task_join(&task);
         }
 
@@ -378,5 +381,79 @@ class RackTask
 };
 
 /** @} */
+
+#else // !__XENO__ && !__KERNEL__
+
+#include <pthread.h>
+#include <errno.h>
+
+#define RACK_TASK_FPU       1
+#define RACK_TASK_JOINABLE  2
+
+class RackTask
+{
+    private:
+        int init;
+        pthread_t task;
+
+    public:
+
+        RackTask()
+        {
+        }
+
+        ~RackTask()
+        {
+        }
+
+        int create(const char *name, int stksize, int prio, int mode)
+        {
+            return 0;
+        }
+
+        int destroy(void)
+        {
+            return 0;
+        }
+
+        int start(void (*fun)(void *cookie), void *cookie)
+        {
+            return pthread_create(&task, NULL, (void *(*)(void *))fun, cookie);
+        }
+
+        int join(void)
+        {
+            //pthread_cancel
+            return pthread_join(task, NULL);
+        }
+
+        static int setMode(int clrmask, int setmask, int *mode_r)
+        {
+            return 0;
+        }
+
+        static int sleep(uint64_t delay)
+        {
+            return usleep(delay / (uint64_t)1000);
+        }
+
+        static int sleepUntil(int64_t date)
+        {
+            return -1;//return rt_task_sleep_until(date);
+        }
+
+        static int enableRealtimeMode()
+        {
+            return 0;
+        }
+
+        static int disableRealtimeMode()
+        {
+            return 0;
+        }
+
+};
+
+#endif // __XENO__ || __KERNEL__
 
 #endif

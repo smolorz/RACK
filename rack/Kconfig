@@ -6,19 +6,21 @@ mainmenu "RACK configuration"
 
 menu "Build options"
 
-config RACK_INSTALLDIR
-    string "Installation directory"
-    default "/usr/local/rack"
-    help
-    This option defines the directory where the various RACK
-    files will be installed on your system.
-    The default installation directory is
-    /usr/local/rack.
-    LiRE gcchost users use
-    /home/`whoami`/rack_install
+choice
+    prompt "Target OS"
+    default RACK_OS_XENOMAI
+
+config RACK_OS_XENOMAI
+    bool "Xenomai"
+
+config RACK_OS_LINUX
+    bool "Linux"
+
+endchoice
 
 config RACK_XENOMAIDIR
     string "Xenomai installation tree"
+    depends on RACK_OS_XENOMAI
     default "/usr/xenomai"
     help
     This option defines the directory where Xenomai is installed
@@ -29,6 +31,7 @@ config RACK_XENOMAIDIR
 
 config RACK_BUILD_KMOD
     bool "Build kernel modules"
+    depends on RACK_OS_XENOMAI
     default y
 
 config RACK_LINUXDIR
@@ -41,6 +44,17 @@ config RACK_LINUXDIR
     /lib/modules/`uname -r`/build
     LiRE gcchost users use
     /usr/src/LiRE/linux/src
+
+config RACK_INSTALLDIR
+    string "Installation directory"
+    default "/usr/local/rack"
+    help
+    This option defines the directory where the various RACK
+    files will be installed on your system.
+    The default installation directory is
+    /usr/local/rack.
+    LiRE gcchost users use
+    /home/`whoami`/rack_install
 
 config RACK_JAVA
     bool "Rack Java"
@@ -58,6 +72,7 @@ config RACK_DOC_DOX
 menu "External Dependencies"
 
 config RACK_RTNET_SUPPORT
+    depends on RACK_OS_XENOMAI
     bool "Enable RTnet support"
 
 config RACK_RTNETDIR

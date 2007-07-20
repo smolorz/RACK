@@ -11,10 +11,13 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
 #ifndef __RACK_MUTEX_H__
 #define __RACK_MUTEX_H__
+
+#if defined (__XENO__) || defined (__KERNEL__)
 
 #include <native/mutex.h>
 
@@ -238,5 +241,82 @@ class RackMutex
 };
 
 /*@}*/
+
+#else // !__XENO__ && !__KERNEL__
+
+#include <semaphore.h>
+#include <errno.h>
+
+#ifndef RACK_INFINITE
+#define RACK_INFINITE       -1
+//#define RACK_INFINITE       TM_INFINITE
+#endif
+
+#ifndef RACK_NONBLOCK
+#define RACK_NONBLOCK       0
+//#define RACK_NONBLOCK       TM_NONBLOCK
+#endif
+
+class RackMutex
+{
+    private:
+        sem_t   sem;
+
+    public:
+
+        RackMutex()
+        {
+        }
+
+        ~RackMutex()
+        {
+            destroy();
+        }
+
+        int create(void)
+        {
+            int ret;
+
+            ret = sem_init(&sem, 0, 1);
+
+            if(ret)
+            {
+                return errno;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        int destroy(void)
+        {
+
+            int ret;
+
+            ret = sem_destroy(&sem);
+
+            if(ret)
+            {
+                return errno;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        int lock(int64_t timeout)
+        {
+            return sem_wait(&sem);
+        }
+
+        int unlock(void)
+        {
+            return sem_post(&sem);
+        }
+};
+
+#endif // __XENO__ || __KERNEL__
 
 #endif // __RACK_MUTEX_H__

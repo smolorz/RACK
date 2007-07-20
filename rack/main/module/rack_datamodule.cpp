@@ -611,7 +611,7 @@ int         RackDataModule::moduleOn(void)
 // realtime context (dataTask)
 void        RackDataModule::moduleOff(void)
 {
-    RackModule::moduleOff();          // have to be first command
+    RackModule::moduleOff();          // has to be first command
 
     listenerMtx.lock(RACK_INFINITE);
 

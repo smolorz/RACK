@@ -109,17 +109,16 @@ void cmd_task_proc(void *arg)
     GDOS_DBG_INFO("cmdTask: run\n");
     while (p_mod->terminate == 0)
     {
-        ret = p_mod->cmdMbx.recvDataMsg(recv_data, p_mod->cmdMbxMsgDataSize, &msgInfo);
+        ret = p_mod->cmdMbx.recvDataMsgTimed(500000000llu, recv_data, p_mod->cmdMbxMsgDataSize, &msgInfo);
         if (ret)
         {
-            if (p_mod->terminate == 0)
+            if(ret != -EWOULDBLOCK)
             {
-                GDOS_ERROR("cmdTask: can't receive message on cmd mbx\n");
-                RackTask::sleep(p_mod->cmdTaskErrorTime_ns);
-            }
-            else
-            {
-                goto cmd_task_exit;
+                if(p_mod->terminate == 0)
+                {
+                    GDOS_ERROR("cmdTask: can't receive message on cmd mbx\n");
+                    p_mod->terminate = 1;
+                }
             }
         }
         else
@@ -132,9 +131,7 @@ void cmd_task_proc(void *arg)
         }
     } // while()
 
-cmd_task_exit:
     GDOS_DBG_INFO("cmdTask: terminate\n");
-    p_mod->cmdTaskRunning = 0;
 }
 
 //
@@ -159,8 +156,6 @@ void data_task_proc(void *arg)
     GdosMailbox*    gdos  = p_mod->gdos;
 
     RackTask::enableRealtimeMode();
-
-    p_mod->dataTaskRunning = 1;
 
     GDOS_DBG_INFO("dataTask: run\n");
 
@@ -264,10 +259,9 @@ void data_task_proc(void *arg)
                 p_mod->moduleOff();
                 GDOS_DBG_INFO("Module off\n");
         }
-    }
+    } // while()
 
     GDOS_DBG_INFO("dataTask: terminate\n");
-    p_mod->dataTaskRunning = 0;
 }
 
  /*!
@@ -349,9 +343,6 @@ RackModule::RackModule( uint32_t class_id,
     }
 
     clearMsgInfo(&replyMsgInfo);
-
-    cmdTaskRunning  = 0;
-    dataTaskRunning = 0;
 }
 
 RackModule::~RackModule()
@@ -582,7 +573,7 @@ int       RackModule::moduleInit(void)
     modBits.setBit(INIT_BIT_CMDMBX_CREATED);
     GDOS_DBG_INFO("Command mailbox created\n");
 
-    // create gdos mailbox --> Messages were transmitted to GUI now
+    // create gdos mailbox --> Messages are transmitted to GUI now
     gdos = new GdosMailbox(&cmdMbx, gdosLevel);
     if (!gdos)
     {
@@ -612,7 +603,7 @@ int       RackModule::moduleInit(void)
     // create command task
     snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%dC", classname, inst);
 
-    ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio, T_FPU | T_JOINABLE);
+    ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio, RACK_TASK_FPU | RACK_TASK_JOINABLE);
     if (ret)
     {
         GDOS_ERROR("Can't init command task, code = %d\n", ret);
@@ -624,7 +615,7 @@ int       RackModule::moduleInit(void)
     // create data task
     snprintf(dataTaskName, sizeof(dataTaskName), "%.28s%dD", classname, inst);
 
-    ret = dataTask.create(dataTaskName, 0, dataTaskPrio, T_FPU | T_JOINABLE);
+    ret = dataTask.create(dataTaskName, 0, dataTaskPrio, RACK_TASK_FPU | RACK_TASK_JOINABLE);
     if (ret)
     {
         GDOS_ERROR("Can't init data task, code = %d\n", ret);

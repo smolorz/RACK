@@ -26,13 +26,19 @@ librack_la_SOURCES = \
 	\
 	$(top_srcdir)/main/argopts/argopts.cpp \
 	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
-	$(top_srcdir)/main/serialport/serial_port.cpp \
-	$(top_srcdir)/main/canport/can_port.cpp \
 	\
 	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
 	$(top_srcdir)/main/module/rack_datamodule.cpp \
 	$(top_srcdir)/main/module/rack_module.cpp \
 	$(top_srcdir)/main/proxy/rack_proxy.cpp
+
+if CONFIG_RACK_OS_XENOMAI
+
+librack_la_SOURCES += \
+	$(top_srcdir)/main/serialport/serial_port.cpp \
+	$(top_srcdir)/main/canport/can_port.cpp
+
+endif
 
 librack_la_CPPFLAGS =
 

@@ -25,17 +25,20 @@
 
 // TimsClient -> TcpRouter
 #define TIMS_MSG_ROUTER_LOGIN                  10
-#define TIMS_MSG_ROUTER_MBX_INIT               11 // ohne Quittung
-#define TIMS_MSG_ROUTER_MBX_DELETE             12 // ohne Quittung
-#define TIMS_MSG_ROUTER_MBX_INIT_WITH_REPLY    13 // Sendet TIMS_MSG_OK oder TIMS_MSG_ERROR zurueck
-#define TIMS_MSG_ROUTER_MBX_DELETE_WITH_REPLY  14 // Sendet TIMS_MSG_OK oder TIMS_MSG_ERROR zurueck
-#define TIMS_MSG_ROUTER_MBX_PURGE              15
+#define TIMS_MSG_ROUTER_MBX_INIT               11 // without reply
+#define TIMS_MSG_ROUTER_MBX_DELETE             12 // without reply
+#define TIMS_MSG_ROUTER_MBX_INIT_WITH_REPLY    13 // replies TIMS_MSG_OK or TIMS_MSG_ERROR
+#define TIMS_MSG_ROUTER_MBX_DELETE_WITH_REPLY  14 // replies TIMS_MSG_OK or TIMS_MSG_ERROR
+#define TIMS_MSG_ROUTER_MBX_PURGE              15 // remove all mailboxes belonging to this connection
 
 // TimsDriver -> TimsRtPipe
 #define TIMS_MSG_ROUTER_GET_CONFIG             16
 
 // TcpRouter -> TimsClient
-#define TIMS_MSG_ROUTER_GET_STATUS             17 // Client -> TCP Router TIMS_MSG_OK
+#define TIMS_MSG_ROUTER_GET_STATUS             17 // Client -> TCP Router TIMS_MSG_OK (used by router watchdog)
+
+#define TIMS_MSG_ROUTER_ENABLE_WATCHDOG        18 // use router watchdog for this connection (default)
+#define TIMS_MSG_ROUTER_DISABLE_WATCHDOG       19 // don't use router watchdog
 
 //
 //  return / reply message types ( <=0 )

@@ -11,6 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
 #ifndef __RACK_DEBUG_H__
@@ -21,7 +22,6 @@
 
 #include <main/rack_mailbox.h>
 #include <main/rack_name.h>
-#include <main/rack_task.h>
 
 #define GDOS_MAX_MSG_SIZE   256     // size for message string and variables
 
@@ -34,15 +34,6 @@
 
 #define GDOS_MSG_DEBUG_BEGIN    GDOS_MSG_PRINT
 #define GDOS_MSG_DEBUG_DEFAULT    GDOS_MSG_WARNING
-
-// non realtime / realtime context
-static inline int in_rt_context(void)
-{
-    int ret = RackTask::sleep(0);
-    if (ret == -EPERM)
-        return 0;
-    return 1;
-}
 
 //
 // debug functions
@@ -63,33 +54,63 @@ static inline int in_rt_context(void)
                         printf(tfmt, ##__VA_ARGS__);                    \
                     } while(0)
 
-#define rack_print(level, fmt, ...)                                     \
-              do                                                        \
-              {                                                         \
-                  if (in_rt_context())                                  \
-                  {                                                     \
-                      if (gdos)                                         \
-                      {                                                 \
-                          gdos->print(level, "RT : "fmt, ##__VA_ARGS__);\
-                      }                                                 \
-                      else                                              \
-                      {                                                 \
-                        /* do nothing */                                \
-                      }                                                 \
-                  }                                                     \
-                  else                                                  \
-                  {                                                     \
-                      if (gdos)                                         \
-                      {                                                 \
-                          gdos->print(level, "NRT: "fmt, ##__VA_ARGS__);\
-                      }                                                 \
-                      else                                              \
-                      {                                                 \
-                          printf_level(level, "NRT: "fmt, ##__VA_ARGS__);\
-                      }                                                 \
-                  }                                                     \
-               }                                                        \
-               while(0)
+#if defined (__XENO__) || defined (__KERNEL__)
+
+#include <main/rack_task.h>
+
+// non realtime / realtime context
+static inline int in_rt_context(void)
+{
+    int ret = RackTask::sleep(0);
+    if (ret == -EPERM)
+        return 0;
+    return 1;
+}
+
+#define rack_print(level, fmt, ...)                                   \
+            do                                                        \
+            {                                                         \
+                if (in_rt_context())                                  \
+                {                                                     \
+                    if (gdos)                                         \
+                    {                                                 \
+                        gdos->print(level, "RT : "fmt, ##__VA_ARGS__);\
+                    }                                                 \
+                    else                                              \
+                    {                                                 \
+                        /* do nothing */                              \
+                    }                                                 \
+                }                                                     \
+                else                                                  \
+                {                                                     \
+                    if (gdos)                                         \
+                    {                                                 \
+                        gdos->print(level, "NRT: "fmt, ##__VA_ARGS__);\
+                    }                                                 \
+                    else                                              \
+                    {                                                 \
+                        printf_level(level, "NRT: "fmt, ##__VA_ARGS__);\
+                    }                                                 \
+                }                                                     \
+            }                                                         \
+            while(0)
+
+#else // !__XENO__ && !__KERNEL__
+
+#define rack_print(level, fmt, ...)                                   \
+            do                                                        \
+            {                                                         \
+                if (gdos)                                             \
+                {                                                     \
+                    gdos->print(level, "NRT: "fmt, ##__VA_ARGS__);    \
+                }                                                     \
+                else                                                  \
+                {                                                     \
+                    printf_level(level, "NRT: "fmt, ##__VA_ARGS__);   \
+                }                                                     \
+            }                                                         \
+            while(0)
+#endif // __XENO__ || __KERNEL__
 
 #define GDOS_PRINT(fmt, ...)       rack_print(GDOS_MSG_PRINT, fmt, ##__VA_ARGS__)
 #define GDOS_ERROR(fmt, ...)       rack_print(GDOS_MSG_ERROR, fmt, ##__VA_ARGS__)

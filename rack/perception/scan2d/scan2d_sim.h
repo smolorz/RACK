@@ -43,6 +43,9 @@ class Scan2DSim : public RackDataModule {
         // proxies
         OdometryProxy  *odometry;
 
+        // buffer
+        odometry_data  odometryData;
+
     protected:
         // -> realtime context
         int  moduleOn(void);

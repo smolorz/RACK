@@ -1,13 +1,9 @@
-xeno_dir = @XENO_USER_PREFIX@
-xeno_lib_dir = @XENO_LIBRARIES@
 
 bin_PROGRAMS = \
 	tims_client \
 	tims_router_tcp
 
-CFLAGS = \
-	-I$(top_srcdir) \
-	-I$(xeno_dir)/include
+CFLAGS = -I$(top_srcdir)
 
 ### tims_client ########################################
 

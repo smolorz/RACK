@@ -115,7 +115,8 @@ int  Scan2DSim::moduleLoop(void)
     data2D = (scan2d_data *)getDataBufferWorkSpace();
 
     // get Odometry data
-    ret = odometryMbx.peekTimed(1000000000llu, &msgInfo); // 1s
+    ret = odometryMbx.recvDataMsgTimed(1000000000llu, &odometryData,
+                                       sizeof(odometryData), &msgInfo);
     if (ret)
     {
         GDOS_ERROR("Can't receive odometry data on DATA_MBX, "
@@ -129,7 +130,6 @@ int  Scan2DSim::moduleLoop(void)
         GDOS_ERROR("Received unexpected message from %n to %n type %d on "
                    "data mailbox\n", msgInfo.src, msgInfo.dest, msgInfo.type);
 
-        odometryMbx.peekEnd();
         return -EINVAL;
     }
 
@@ -219,7 +219,6 @@ int  Scan2DSim::moduleLoop(void)
     GDOS_DBG_DETAIL("RecordingTime %u pointNum %d\n",
                     data2D->recordingTime, data2D->pointNum);
 
-    odometryMbx.peekEnd();
     putDataBufferWorkSpace(datalength);
     return 0;
 }

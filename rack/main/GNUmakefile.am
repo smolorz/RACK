@@ -1,13 +1,6 @@
-OPTHEADERS =
-
 mainincludedir = $(pkgincludedir)/main
 
-if CONFIG_RACK_LIBJPEG_SUPPORT
-OPTHEADERS += jpeg_data_dst_mem.h
-endif
-
 maininclude_HEADERS = \
-	$(OPTHEADERS) \
 	angle_tool.h \
 	argopts.h \
 	dxf_map.h \
@@ -23,9 +16,22 @@ maininclude_HEADERS = \
 	rack_proxy.h \
 	rack_time.h \
 	rack_task.h \
-	rack_rtmac.h \
+	rack_rtmac.h
+
+if CONFIG_RACK_OS_XENOMAI
+
+maininclude_HEADERS += \
 	can_port.h \
 	serial_port.h
+
+endif
+
+if CONFIG_RACK_LIBJPEG_SUPPORT
+
+maininclude_HEADERS += \
+	jpeg_data_dst_mem.h
+
+endif
 
 dist_java_JAVA =
 
@@ -48,8 +54,6 @@ endif
 install-dist_javaJAVA: classdist_java.stamp
 
 SUBDIRS = \
-	canport \
-	serialport \
 	tims \
 	defines \
 	mailbox \
@@ -58,3 +62,11 @@ SUBDIRS = \
 	argopts \
 	dxfmap \
 	lib
+
+if CONFIG_RACK_OS_XENOMAI
+
+SUBDIRS += \
+	canport \
+	serialport
+
+endif

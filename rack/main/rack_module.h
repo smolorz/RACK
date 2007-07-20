@@ -14,6 +14,7 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
 #ifndef __RACK_MODULE_H__

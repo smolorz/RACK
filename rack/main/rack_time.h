@@ -13,6 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
 
@@ -31,7 +32,7 @@
 #define RACK_TIME_MAX           0x7fffffff
 
 /** RACK time factor (1 ms) */
-#define RACK_TIME_FACTOR          1000000
+#define RACK_TIME_FACTOR          1000000llu
 
 /** RACK time (32 Bit) */
 typedef uint32_t rack_time_t;
@@ -213,8 +214,59 @@ public:
     }
 };
 
-#endif // __XENO__ || __KERNEL__
-
 /** @} */
+
+#else // !__XENO__ && !__KERNEL__
+
+#include <sys/time.h>
+
+class RackTime
+{
+
+public:
+
+    RackTime()
+    {
+    }
+
+    int init(int tims_fd)
+    {
+        return 0;
+    }
+
+    rack_time_t fromNano(uint64_t ntime)
+    {
+        return (rack_time_t)(ntime / RACK_TIME_FACTOR);
+    }
+
+    uint64_t toNano(rack_time_t rtime)
+    {
+        return (uint64_t)(rtime * RACK_TIME_FACTOR) ;
+    }
+
+    rack_time_t get(void)
+    {
+        return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
+    }
+
+    uint64_t getNano(void)
+    {
+        struct timeval time;
+        uint64_t nanoTime;
+
+        gettimeofday(&time, NULL);
+
+        nanoTime = (uint64_t) time.tv_sec * 1000000000llu + (uint64_t) time.tv_usec * 1000llu;
+
+        return nanoTime;
+    }
+
+    int64_t getOffset(void)
+    {
+        return 0;
+    }
+};
+
+#endif // __XENO__ || __KERNEL__
 
 #endif // __RACK_TIME_H__

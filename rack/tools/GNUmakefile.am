@@ -1,16 +1,7 @@
 
-bin_PROGRAMS = \
-	RackLogger
-
-
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
-
-
-RackLogger_SOURCES = \
-	racklogger.cpp
-
 
 toolincludedir = $(pkgincludedir)/tools
 
@@ -19,7 +10,6 @@ toolinclude_HEADERS = \
 
 SUBDIRS = \
         datalog 
-
 
 dist_java_JAVA =
 
@@ -40,10 +30,3 @@ EXTRA_DIST = \
         Kconfig \
         \
         datalog_proxy.cpp
-
-
-
-
-
-
-

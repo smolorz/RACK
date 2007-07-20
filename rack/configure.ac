@@ -218,6 +218,11 @@ AC_ARG_WITH(xeno-user-dir,
     CONFIG_RACK_XENOMAIDIR="$withval"
     ])
 
+XENO_USER_PREFIX=""
+XENO_LIBRARIES=""
+
+if test "${CONFIG_RACK_XENOMAIDIR}" \!= "" ; then
+
 dnl -----------------------------------------------------------------
 dnl  try to find Xenomai config
 dnl -----------------------------------------------------------------
@@ -261,6 +266,8 @@ dnl  get some more information about Xenomai
 dnl -----------------------------------------------------------------
 
 XENO_LIBRARIES="`${XENO_USER_CONFIG} --library-dir`"
+
+fi
 
 dnl -----------------------------------------------------------------
 dnl export xenomai values
@@ -793,7 +800,7 @@ dnl -----------------------------------------------------------------
 
 AC_MSG_CHECKING([build DatalogRec])
 AC_ARG_ENABLE(datalog-rec,
-    AS_HELP_STRING([--enable-datalog-rec], [building DatalogRec]),   
+    AS_HELP_STRING([--enable-datalog-rec], [building DatalogRec]),
     [case "$enableval" in
         y | yes) CONFIG_DATALOG_REC=y ;;
         *) CONFIG_DATALOG_REC=n ;;
@@ -816,13 +823,46 @@ dnl
 dnl  depends on nothing
 dnl
 
+AC_MSG_CHECKING([target os xenomai])
+AC_MSG_RESULT([${CONFIG_RACK_OS_XENOMAI}])
+
+XENOMAI_CPPFLAGS=""
+XENOMAI_LDFLAGS=""
+XENOMAI_LIBS=""
+
+if test x"${CONFIG_RACK_OS_XENOMAI}" = x"y"; then
+
 XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags` -D__XENO__"
 XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
 XENOMAI_LIBS="-lnative -lrtdm"
 
+fi
+
 AC_SUBST(XENOMAI_CPPFLAGS)
 AC_SUBST(XENOMAI_LDFLAGS)
 AC_SUBST(XENOMAI_LIBS)
+
+AM_CONDITIONAL(CONFIG_RACK_OS_XENOMAI,
+               [test x"${CONFIG_RACK_OS_XENOMAI}" = "xy"])
+
+dnl ----- Linux --------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl
+
+AC_MSG_CHECKING([target os linux])
+AC_MSG_RESULT([${CONFIG_RACK_OS_LINUX}])
+
+LINUX_CPPFLAGS=""
+LINUX_LDFLAGS=""
+LINUX_LIBS="-lpthread"
+
+AC_SUBST(LINUX_CPPFLAGS)
+AC_SUBST(LINUX_LDFLAGS)
+AC_SUBST(LINUX_LIBS)
+
+AM_CONDITIONAL(CONFIG_RACK_OS_LINUX,
+               [test x"${CONFIG_RACK_O_LINUX}" = "xy"])
 
 dnl ----- rtnet ----------------------------------------------------------------
 dnl
@@ -831,11 +871,11 @@ dnl  provides headers: yes
 dnl  provides libs:    no
 dnl
 
-AC_MSG_CHECKING([rtnet support is needed])
+AC_MSG_CHECKING([rtnet support])
 AC_MSG_RESULT([${CONFIG_RACK_RTNET_SUPPORT}])
 
 RTNET_CPPFLAGS=""
-    
+
 if test x"${CONFIG_RACK_RTNET_SUPPORT}" = x"y"; then
 
     cppflags_backup="${CPPFLAGS}"
@@ -884,7 +924,7 @@ if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
     libs_backup="${LIBS}"
-    
+
     if test x${CONFIG_RACK_LIBRAW1394DIR} != "x"; then
         AC_MSG_CHECKING([libraw1394 directory])
         if test -d ${CONFIG_RACK_LIBRAW1394DIR}; then
@@ -1181,15 +1221,30 @@ dnl ======================================================================
 dnl  set flags / libs
 dnl ======================================================================
 
-dnl ---- cppflags --------------------------------------------------------------
-
 RACK_GLOBAL_CPPFLAGS="-Wall -pipe -O2 -fstrict-aliasing"
-AC_SUBST(RACK_GLOBAL_CPPFLAGS)
-
-dnl ---- ldflags ---------------------------------------------------------------
-
 RACK_GLOBAL_LDFLAGS="--export-dynamic"
+
+AC_SUBST(RACK_GLOBAL_CPPFLAGS)
 AC_SUBST(RACK_GLOBAL_LDFLAGS)
+
+if test x"${CONFIG_RACK_OS_XENOMAI}" = x"y"; then
+
+RACK_CPPFLAGS="-D__IN_RACK__ -I\${top_srcdir} -I\${top_builddir} ${XENOMAI_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
+RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${XENOMAI_LDFLAGS} ${RACK_GLOBAL_LDFLAGS}"
+RACK_LIBS="-l${PROJNAME} ${XENOMAI_LIBS}"
+
+else
+
+RACK_CPPFLAGS="-D__IN_RACK__ -I\${top_srcdir} -I\${top_builddir} ${LINUX_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
+RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${LINUX_LDFLAGS} ${RACK_GLOBAL_LDFLAGS}"
+RACK_LIBS="-l${PROJNAME} ${LINUX_LIBS}"
+
+fi
+
+AC_SUBST(RACK_CPPFLAGS)
+AC_SUBST(RACK_LDFLAGS)
+AC_SUBST(RACK_LIBS)
+
 
 dnl ======================================================================
 dnl  current project
@@ -1197,14 +1252,6 @@ dnl ======================================================================
 
 RACK_SUPPORTS="${PROJNAME} ${RACK_SUPPORTS}"
 AC_SUBST(RACK_SUPPORTS)
-
-RACK_CPPFLAGS="-D__IN_RACK__ -I\${top_srcdir} -I\${top_builddir} ${XENOMAI_CPPFLAGS} ${RACK_GLOBAL_CPPFLAGS}"
-RACK_LDFLAGS="-L\$(top_builddir)/main/lib/.libs ${XENOMAI_LDFLAGS} ${RACK_GLOBAL_LDFLAGS}"
-RACK_LIBS="-l${PROJNAME} ${XENOMAI_LIBS}"
-
-AC_SUBST(RACK_CPPFLAGS)
-AC_SUBST(RACK_LDFLAGS)
-AC_SUBST(RACK_LIBS)
 
 
 dnl ======================================================================

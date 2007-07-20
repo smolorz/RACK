@@ -90,12 +90,13 @@ typedef struct {
     struct sockaddr_in  addr;
     socklen_t           addrLen;
     pthread_t           conThread;
+    int                 watchdogEnabled;
     int                 watchdog;
     sem_t               sendSem;
 } connection_t;
 
 // if MAX_CONNECTIONS > 32 -> look @ sem_flags
-#define MAX_CONNECTIONS 8
+#define MAX_CONNECTIONS 32
 
 connection_t conList[MAX_CONNECTIONS];
 
@@ -129,10 +130,11 @@ connection_t* connection_getFree(connection_t* newCon)
         if (conList[i].socket == -1)    // free socket
         {
             memcpy(&conList[i].addr, &newCon->addr, sizeof(newCon->addr));
-            conList[i].addrLen  = newCon->addrLen;
-            conList[i].socket   = newCon->socket;
-            conList[i].index    = i;
-            conList[i].watchdog = 0;
+            conList[i].addrLen          = newCon->addrLen;
+            conList[i].socket           = newCon->socket;
+            conList[i].index            = i;
+            conList[i].watchdogEnabled  = 1;
+            conList[i].watchdog         = 0;
             return &conList[i];
         }
     }
@@ -611,6 +613,16 @@ void tcpConnection_task_proc(void *arg)
                     mailbox_purge(con);
                     break;
 
+                case TIMS_MSG_ROUTER_ENABLE_WATCHDOG:
+                    con->watchdogEnabled = 1;
+                    con->watchdog        = 0;
+                    break;
+
+                case TIMS_MSG_ROUTER_DISABLE_WATCHDOG:
+                    con->watchdogEnabled = 0;
+                    con->watchdog        = 0;
+                    break;
+
                 default:
                     tims_print("con[%02d]: %s: received unexpected TiMS "
                                "Message %x -> %x type %i msglen %i\n", idx,
@@ -739,7 +751,7 @@ void watchdog_task_proc(void *arg)
     {
         for (i = 0; i < MAX_CONNECTIONS; i++)
         {
-            if (conList[i].socket >= 0)
+            if ((conList[i].socket >= 0) && (conList[i].watchdogEnabled == 1))
             {
                 conList[i].watchdog = 1;
                 sndTcpTimsMsg(&conList[i], &lifesignMsg);
@@ -780,8 +792,7 @@ int init()
         ret = sched_setscheduler(0, SCHED_FIFO, &sched_param);
         if (ret)
         {
-            tims_print("[INIT] ERROR: can't raise priority\n");
-            return ret;
+            tims_print("[INIT] WARNING: can't raise priority\n");
         }
     }
 
