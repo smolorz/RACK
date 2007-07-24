@@ -351,6 +351,7 @@ static inline int tims_peek_end(int fd)
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/uio.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <stdio.h>
@@ -368,13 +369,13 @@ static inline ssize_t tims_sendmsg(int fd, tims_msg_head *p_head,
 {
     int ret, i;
 
-    //printf("Tims: %8x --(%4d)--> %8x, send msg (%u bytes)\n", p_head->src, p_head->type, p_head->dest, p_head->msglen);
+    //printf("Tims: %8x --(%4d)--> %8x, send msg (%u bytes)\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest, (unsigned int)p_head->msglen);
 
     ret = send(fd, p_head, TIMS_HEADLEN, 0);
     if(ret < (int)TIMS_HEADLEN)
     {
         printf("Tims: %8x --(%4d)--> %8x, (%u bytes), "
-                   "send ERROR, (%s)\n", p_head->src, p_head->type, p_head->dest, p_head->msglen, strerror(errno));
+                   "send ERROR, (%s)\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest, (unsigned int)p_head->msglen, strerror(errno));
         return ret;
     }
 
@@ -384,7 +385,7 @@ static inline ssize_t tims_sendmsg(int fd, tims_msg_head *p_head,
         if(ret < (int)vec[i].iov_len)
         {
             printf("Tims: %8x --(%4d)--> %8x, (%u bytes), "
-                       "send ERROR, (%s)\n", p_head->src, p_head->type, p_head->dest, p_head->msglen, strerror(errno));
+                       "send ERROR, (%s)\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest, (unsigned int)p_head->msglen, strerror(errno));
             return ret;
         }
     }
@@ -460,8 +461,8 @@ static inline int tims_recvmsg_timed(int fd, tims_msg_head *p_head, void *p_data
         {
             close(fd);
             printf("Tims: %8x --(%4d)--> %8x, recv ERROR, message "
-                       "(%u bytes) is too big for buffer (%u bytes)\n", p_head->src, p_head->type, p_head->dest,
-                       p_head->msglen, maxdatalen + TIMS_HEADLEN);
+                       "(%u bytes) is too big for buffer (%u bytes)\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest,
+                       (unsigned int)p_head->msglen, (unsigned int)(maxdatalen + TIMS_HEADLEN));
             return -1;
         }
 
@@ -476,7 +477,7 @@ static inline int tims_recvmsg_timed(int fd, tims_msg_head *p_head, void *p_data
                 {
                     close(fd);
                     printf("Tims: %8x --(%4d)--> %8x, recv body "
-                               "ERROR, (%s)\n", p_head->src, p_head->type, p_head->dest,
+                               "ERROR, (%s)\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest,
                                strerror(errno));
                     return -1;
                 }
@@ -485,13 +486,13 @@ static inline int tims_recvmsg_timed(int fd, tims_msg_head *p_head, void *p_data
                 {
                     close(fd);
                     printf("Tims: %8x --(%4d)--> %8x, recv body "
-                               "ERROR, socket closed\n", p_head->src, p_head->type, p_head->dest);
+                               "ERROR, socket closed\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest);
                     return -1;
                 }
                 len += ret;
             }
         }
-        //printf("Tims: %8x --(%4d)--> %8x, recv msg (%u bytes)\n", p_head->src, p_head->type, p_head->dest, p_head->msglen);
+        //printf("Tims: %8x --(%4d)--> %8x, recv msg (%u bytes)\n", (unsigned int)p_head->src, p_head->type, (unsigned int)p_head->dest, (unsigned int)p_head->msglen);
 
         if(p_head->type == TIMS_MSG_ROUTER_GET_STATUS)
         {
@@ -594,12 +595,12 @@ static inline int tims_mbx_create(uint32_t address, int messageSlots,
     }
     if(msg.type != TIMS_MSG_OK)
     {
-        printf("Tims ERROR: Can't ini mbx(%x)\n", address);
+        printf("Tims ERROR: Can't ini mbx(%x)\n", (unsigned int)address);
         close(fd);
         return -1;
     }
 
-    //printf("Tims: Connected to TimsRouterTcp (mbx %x)\n", address);
+    //printf("Tims: Connected to TimsRouterTcp (mbx %x)\n", (unsigned int)address);
 
     return fd;
 }

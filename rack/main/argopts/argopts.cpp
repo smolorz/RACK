@@ -15,8 +15,9 @@
  */
 #include <main/argopts.h>
 
+#define ARGOPTS_MAX_ENTRIES 127
+
 //#define ARG_DEBUG
-#undef ARG_DEBUG
 #ifdef ARG_DEBUG
 # define ADBG(fmt,args...) printf("ARGOPTS: "fmt,##args)
 #else
@@ -113,6 +114,8 @@ void argUsage(argDescriptor_t *p_argdesc)
     printf("\n");
 }
 
+struct option         long_option[ARGOPTS_MAX_ENTRIES];
+struct argTab_longTab atlt[ARGOPTS_MAX_ENTRIES];
 
 int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
             const char *classname)
@@ -154,8 +157,11 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
     ADBG("%d entries found in all tables\n", tab_entries);
 
     // create long_option table
-    struct option         long_option[tab_entries+1];
-    struct argTab_longTab atlt[tab_entries+1];
+    if(tab_entries > ARGOPTS_MAX_ENTRIES)
+    {
+        printf("reduce arg table to %d entries\n", ARGOPTS_MAX_ENTRIES);
+        tab_entries = ARGOPTS_MAX_ENTRIES;
+    }
 
     tab_entry = 0;
     for (tab=0; tab <tables; tab++)
@@ -173,7 +179,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
             atlt[tab_entry].index = tabidx;
             atlt[tab_entry].tab   = descTab;
 
-            ADBG("*** NEW OPTION *** \n",__FUNCTION__);
+            ADBG("*** NEW OPTION *** \n");
             ADBG("index table    : %d \n", tabidx);
             ADBG("index complete : %d \n", tab_entry);
             ADBG("required       : %s \n", descTab[tabidx].arg_type == ARGOPT_REQ ?
@@ -186,7 +192,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
                                            "required" : "optional");
             ADBG("value type     : %s \n", descTab[tabidx].val_type == ARGOPT_VAL_INT ?
                                            "Integer" : "String");
-            ADBG("value default  : %d \n", descTab[tabidx].val);
+            ADBG("value default  : %d \n", descTab[tabidx].val.i);
             ADBG("value address  : %p \n", &descTab[tabidx].val);
 
             tab_entry++;

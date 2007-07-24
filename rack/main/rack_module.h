@@ -20,9 +20,6 @@
 #ifndef __RACK_MODULE_H__
 #define __RACK_MODULE_H__
 
-#include <signal.h>
-#include <execinfo.h>
-
 #include <main/tims/tims.h>
 
 #include <main/rack_debug.h>
@@ -307,14 +304,9 @@ class RackModule {
 // signal handler shutdown function
 //
     public:
-        void moduleShutdown()
+        void moduleTerminate(void)
         {
             terminate = 1;
-
-            if (status == MODULE_STATE_ENABLED)
-                moduleOff();
-
-            moduleCleanup();
         }
 
 //

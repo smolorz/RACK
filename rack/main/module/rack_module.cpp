@@ -17,6 +17,10 @@
 #include <sys/mman.h>
 #include <typeinfo>
 #include <string>
+#include <signal.h>
+#ifdef __XENO__
+#include <execinfo.h>
+#endif
 
 #include <main/rack_module.h>
 #include <main/rack_datamodule.h>
@@ -261,6 +265,9 @@ void data_task_proc(void *arg)
         }
     } // while()
 
+    if (p_mod->status == MODULE_STATE_ENABLED)
+        p_mod->moduleOff();
+
     GDOS_DBG_INFO("dataTask: terminate\n");
 }
 
@@ -361,7 +368,7 @@ void      RackModule::mailboxList(void)
   printf("  Address |   prev     |    this    |    next    \n");
   printf("--------------------------------------------------\n");
   while(p_list != &mbxList) {
-    printf(" %8x | 0x%08x | 0x%08x | 0x%08x |\n", p_list->p_mbx->getAdr(),
+    printf(" %8x | 0x%08x | 0x%08x | 0x%08x |\n", (unsigned int)p_list->p_mbx->getAdr(),
            (unsigned int)p_list->prev, (unsigned int)p_list,
            (unsigned int)p_list->next );
     p_list = (MbxListHead *)p_list->next;
@@ -553,8 +560,10 @@ int       RackModule::moduleInit(void)
 
     GDOS_DBG_DETAIL("RackModule::moduleInit ... \n");
 
+#ifdef __XENO__
     // disable memory swapping for this program
     mlockall(MCL_CURRENT | MCL_FUTURE);
+#endif
 
     // init signal handler
     ret = init_signal_handler(this);
@@ -594,14 +603,14 @@ int       RackModule::moduleInit(void)
 
     offset = rackTime.getOffset();
     if (offset)
-        GDOS_PRINT("Using global time, offset: %.2f ms\n",
+        GDOS_DBG_INFO("Using global time, offset: %.2f ms\n",
                    (double)offset / 1000000);
     else
-        GDOS_PRINT("Using local time\n");
+        GDOS_DBG_INFO("Using local time\n");
 
 
     // create command task
-    snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%dC", classname, inst);
+    snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%uC", classname, (unsigned int)inst);
 
     ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio, RACK_TASK_FPU | RACK_TASK_JOINABLE);
     if (ret)
@@ -613,7 +622,7 @@ int       RackModule::moduleInit(void)
     GDOS_DBG_INFO("Command task created \n");
 
     // create data task
-    snprintf(dataTaskName, sizeof(dataTaskName), "%.28s%dD", classname, inst);
+    snprintf(dataTaskName, sizeof(dataTaskName), "%.28s%uD", classname, (unsigned int)inst);
 
     ret = dataTask.create(dataTaskName, 0, dataTaskPrio, RACK_TASK_FPU | RACK_TASK_JOINABLE);
     if (ret)
@@ -679,16 +688,6 @@ void      RackModule::moduleCleanup(void)
         cmdTask.destroy();
         GDOS_DBG_DETAIL("Command task deleted\n");
     }
-
-    //TODO
-    // free all created mutexes
-
-    //TODO
-    // free all created tasks
-
-    //TODO
-    // free all opened devices
-
 }
 
 // realtime context
@@ -834,34 +833,25 @@ void save_argTab(argTable_t* p_tab, const char* name)
 static RackModule *p_signal_module = NULL;
 static int signal_flags = 0;
 
-#define DISABLE_SIGXCPU         0x0001
-#define HANDLING_TERM           0x0002
+#define HANDLING_TERM           0x0001
+#define HANDLING_SEGV           0x0002
 
 void signal_handler(int sig)
 {
+#ifdef __XENO__
     int nentries;
     void *array[10];
     char **strings;
     int i;
+#endif
 
-    if (!p_signal_module)
-    {
-        printf("SIGNAL_HANDLER: can't calling cleanup function. "
-               "Pointer invalid \n");
-        return;
-    }
+    printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
 
     switch(sig)
     {
-#ifndef PRINTF_DEBUG
         case SIGXCPU:
-
-            if (signal_flags & HANDLING_TERM) // ignore while cleaning up
-                return;
-
-            printf("\n");
-            printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
             printf(" -> SIGXCPU (%02d)\n", sig);
+#ifdef __XENO__
             printf(" !!! WARNING unexpected switch to secondary mode !!!\n");
             nentries = backtrace (array, 10);
             strings = backtrace_symbols (array, nentries);
@@ -869,15 +859,23 @@ void signal_handler(int sig)
             {
                 printf ("  %s\n", strings[i]);
             }
-            free (strings);
-            printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
-            return;
+            free (strings)
+#else
+            printf(" -> NOT HANDLED\n");
 #endif
+            break;
 
         case SIGSEGV:
-            printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
             printf(" -> SIGSEGV (%02d)\n", sig);
             printf(" -> Segmentation fault \n");
+            
+            if ((signal_flags & HANDLING_SEGV) || // handle segmentation fault only once
+                (signal_flags & HANDLING_TERM))   // handle segmentation fault only if module is not terminated
+                break;
+
+            signal_flags |= HANDLING_SEGV;
+
+#ifdef __XENO__
             nentries = backtrace (array, 10);
             strings = backtrace_symbols (array, nentries);
             for (i = 0; i < nentries; i++)
@@ -885,58 +883,44 @@ void signal_handler(int sig)
                 printf ("  %s\n", strings[i]);
             }
             free (strings);
+#endif
 
-            // shutdown module
-            p_signal_module->moduleShutdown();
-
-            printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
-            return;
+            printf(" -> terminate module\n");
+            p_signal_module->moduleTerminate();
+            break;
 
         case SIGTERM:
         case SIGINT:
-            if (signal_flags & HANDLING_TERM) // ignore while cleaning up
-                return;
+            printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
+            
+            if (signal_flags & HANDLING_TERM) // call moduleCleanup only once
+                break;
 
             signal_flags |= HANDLING_TERM;
 
-            printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
-            printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
-            printf(" -> calling cleanup function of RackModule class %p\n",
-                   p_signal_module);
-
-            // shutdown module
-            p_signal_module->moduleShutdown();
-
-            printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
-            return;
+            printf(" -> terminate module\n");
+            p_signal_module->moduleTerminate();
+            printf(" -> cleanup module\n");
+            p_signal_module->moduleCleanup();
+            break;
 
         default:
-            printf("------------ SIGNAL_HANDLER START -----------------\n");
-            printf(" -> (%02d)\n", sig);
+            printf(" -> SIGNAL (%02d)\n", sig);
             printf(" -> NOT HANDLED\n");
-            printf("------------ SIGNAL_HANDLER STOP ------------------\n");
-            return;
     }
+    printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
+    return;
 }
 
 int init_signal_handler(RackModule *p_mod)
 {
-    if (!p_mod)
-    {
-        printf("SIGNAL_HANDLER: invalid module class pointer\n");
-        return -EINVAL;
-    }
-
     if (p_signal_module)
     {
-        printf("SIGNAL_HANDLER: there is already a pointer to a class (%p)\n",
-               p_signal_module);
+        printf("signal handler is allready defined\n");
         return -EBUSY;
     }
 
     p_signal_module = p_mod;
-
-    printf("SIGNAL_HANDLER: get module class pointer %p \n", p_signal_module);
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT,  signal_handler);
@@ -945,4 +929,3 @@ int init_signal_handler(RackModule *p_mod)
 
     return 0;
 }
-
