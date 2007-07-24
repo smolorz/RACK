@@ -862,7 +862,7 @@ AC_SUBST(LINUX_LDFLAGS)
 AC_SUBST(LINUX_LIBS)
 
 AM_CONDITIONAL(CONFIG_RACK_OS_LINUX,
-               [test x"${CONFIG_RACK_O_LINUX}" = "xy"])
+               [test x"${CONFIG_RACK_OS_LINUX}" = "xy"])
 
 dnl ----- rtnet ----------------------------------------------------------------
 dnl
