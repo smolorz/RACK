@@ -20117,7 +20117,7 @@ LINUX_LIBS="-lpthread"
 
 
 
-if test x"${CONFIG_RACK_O_LINUX}" = "xy"; then
+if test x"${CONFIG_RACK_OS_LINUX}" = "xy"; then
   CONFIG_RACK_OS_LINUX_TRUE=
   CONFIG_RACK_OS_LINUX_FALSE='#'
 else

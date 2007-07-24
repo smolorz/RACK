@@ -112,11 +112,11 @@ void cmd_task_proc(void *arg)
         ret = p_mod->cmdMbx.recvDataMsgTimed(500000000llu, recv_data, p_mod->cmdMbxMsgDataSize, &msgInfo);
         if (ret)
         {
-            if(ret != -EWOULDBLOCK)
+            if((ret != -EWOULDBLOCK) && (ret != -ETIMEDOUT))
             {
                 if(p_mod->terminate == 0)
                 {
-                    GDOS_ERROR("cmdTask: can't receive message on cmd mbx\n");
+                    GDOS_ERROR("cmdTask: can't receive message on cmd mbx (code %i)\n", ret);
                     p_mod->terminate = 1;
                 }
             }
