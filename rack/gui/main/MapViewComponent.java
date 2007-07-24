@@ -71,10 +71,10 @@ public class MapViewComponent extends JComponent
     protected boolean                  showCursor;
 
     protected BufferedImage            bgImg;
-    protected int                      bgX;
-    protected int                      bgY;
-    protected int                      bgW;
-    protected int                      bgH;
+    protected double                   bgX;
+    protected double                   bgY;
+    protected double                   bgW;
+    protected double                   bgH;
 
     public JPanel                      zoomPanel;
     public JButton                     zoomInButton;
@@ -157,10 +157,10 @@ public class MapViewComponent extends JComponent
     public synchronized void setBackgroundImage(BufferedImage bgImg, int bgX, int bgY, int bgW, int bgH)
     {
         this.bgImg = bgImg;
-        this.bgX = bgX;
-        this.bgY = bgY;
-        this.bgW = bgW;
-        this.bgH = bgH;
+        this.bgX = (double)bgX;
+        this.bgY = (double)bgY;
+        this.bgW = (double)bgW;
+        this.bgH = (double)bgH;
     }
 
     public void setWorldCenter(Position2d worldCenter)
@@ -289,11 +289,12 @@ public class MapViewComponent extends JComponent
             if (bgImg != null)
             {
                 AffineTransform at = new AffineTransform();
-                at.scale(bgW / bgImg.getWidth(), bgH / bgImg.getHeight());
+                at.scale(bgW / (double)bgImg.getWidth(), bgH / (double)bgImg.getHeight());
                 at.rotate( Math.PI / 2);
+                at.translate(-bgImg.getWidth()/ 2.0, -bgImg.getHeight() / 2.0);                
                 //BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                 BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
-                world.drawImage(bgImg, biop, bgX + bgH / 2, bgY - bgW / 2);
+                world.drawImage(bgImg, biop, 0, 0);
             }
         }
         
