@@ -52,8 +52,8 @@ argTable_t argTab[] = {
       { 20000 } },
 
     { ARGOPT_OPT, "varRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "variance of heading in deg [default 90 deg]",
-      { 90 } },
+      "variance of heading in deg [default 20 deg]",
+      { 20 } },
 
   { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -474,7 +474,7 @@ int GpsNmea::analyseRMC(gps_data *data)
             else
                 buffer[j]  = currChar;
         }
-       
+
          if (strlen(buffer) > 0)
         {
             // Decode message
@@ -484,49 +484,49 @@ int GpsNmea::analyseRMC(gps_data *data)
                 case 1:
                     sscanf(buffer, "%f", &utcTime);
                     break;
-    
+
                 // Latitude [xxmm.dddd]
                 case 3:
                     sscanf(buffer, "%lf", &dNum);
                     data->latitude = degHMStoRad(dNum);
                     break;
-    
+
                 // Latitude north / south adjustment [N|S]
                 case 4:
                     if (buffer[0] == 'S')
                         data->latitude *= -1.0;
                     break;
-    
+
                 // Longitude [yyymm.dddd]
                 case 5:
                     sscanf(buffer, "%lf", &dNum);
                     data->longitude = degHMStoRad(dNum);
                     break;
-    
+
                 // Longitude east / west adjustment [E|W]
                 case 6:
                     if (buffer[0] == 'W')
                         data->longitude *= -1.0;
                     break;
-    
+
                 // Speed [s.s]
                 case 7:
                     sscanf(buffer, "%f", &fNum);
                     data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
                     break;
-    
+
                 // Heading[h.h]
                 case 8:
                     sscanf(buffer, "%f", &fNum);
                     data->heading = fNum * M_PI / 180.0;
                     break;
-    
+
                 // Date [ddmmyy]
                 case 9:
                     sscanf(buffer, "%d", &date);
                     data->utcTime = toCalendarTime(utcTime, date);
                     break;
-    
+
                 default:
                     break;
             }
@@ -625,42 +625,42 @@ int GpsNmea::analyseGGA(gps_data *data)
                 case 1:
                     sscanf(buffer, "%f", &utcTime);
                     break;
-    
+
                 // Latitude [xxmm.dddd]
                 case 2:
                     sscanf(buffer, "%lf", &dNum);
                     data->latitude = degHMStoRad(dNum);
                     break;
-    
+
                 // Latitude north / south adjustment [N|S]
                 case 3:
                     if (buffer[0] == 'S')
                         data->latitude *= -1.0;
                     break;
-    
+
                 // Longitude [yyymm.dddd]
                 case 4:
                     sscanf(buffer, "%lf", &dNum);
                     data->longitude = degHMStoRad(dNum);
                     break;
-    
+
                 // Longitude east / west adjustment [E|W]
                 case 5:
                     if (buffer[0] == 'W')
                         data->longitude *= -1.0;
                     break;
-    
+
                 // Number of satellites used in position fix
                 case 7:
                     sscanf(buffer, "%d", &data->satelliteNum);
                     break;
-    
+
                 // Altitude [h.h]
                 case 9:
                     sscanf(buffer, "%f", &fNum);
                     data->altitude = (int)rint(fNum * 1000.0f);     // in mm
                     break;
-    
+
                 default:
                     break;
             }
@@ -760,12 +760,12 @@ int GpsNmea::analyseGSA(gps_data *data)
                 case 2:
                     sscanf(buffer, "%d", &data->mode);
                     break;
-    
+
                 // PDOP
                 case 15:
                     sscanf(buffer, "%f", &data->pdop);
                     break;
-    
+
                 default:
                     break;
             }
@@ -856,19 +856,19 @@ int GpsNmea::analyseVTG(gps_data *data)
                     sscanf(buffer, "%f", &fNum);
                     data->heading = fNum * M_PI / 180.0;
                     break;
-    
+
                 // Speed [s.s] knots
                 case 5:
                     sscanf(buffer, "%f", &fNum);
                     data->speed = (int)rint(fNum * KNOTS_TO_MS * 1000.0);
                     break;
-    
+
                 // Speed [s.s] km/h
                 case 7:
                     sscanf(buffer, "%f", &fNum);
                     data->speed = (int)rint(fNum * 1000.0 / 3.6);
                     break;
-    
+
                 default:
                     break;
             }
