@@ -92,30 +92,20 @@ class RackModule {
 //
 // init bits
 //
+    private:
+        RackBits  moduleInitBits;       // internal rack_module init bits
     protected:
-        RackBits  modBits;      // internal rack module init bits
-    public:
-        /** Bits to save the state of the initialisation */
-        RackBits  initBits;     // high level driver init bits
+        RackBits  initBits;             // custom init bits
 
 //
 // command task
 //
     protected:
         RackTask  cmdTask;
-        int8_t    cmdTaskRunning;
         int8_t    cmdTaskPrio;
         char      cmdTaskName[50];
-        uint64_t  cmdTaskErrorTime_ns;
 
         int       cmdTaskJoin();
-
-    public:
-        /** Get the priority of the command task */
-        int8_t    getCmdTaskPrio(void)
-        {
-            return cmdTaskPrio;
-        }
 
     friend void   cmd_task_proc(void *arg);
 
@@ -124,20 +114,11 @@ class RackModule {
 //
     protected:
         RackTask  dataTask;
-        int8_t    dataTaskRunning;
         int8_t    dataTaskPrio;
         char      dataTaskName[50];
         uint64_t  dataTaskErrorTime_ns;
-        uint64_t  dataTaskDisableTime_ns;
 
         int       dataTaskJoin();
-
-    public:
-        /** Get the priority of the data task */
-        int8_t    getDataTaskPrio(void)
-        {
-            return dataTaskPrio;
-        }
 
     friend void   data_task_proc(void *arg);
     friend void   notify(int8_t type, RackModule *p_mod);
@@ -155,13 +136,6 @@ class RackModule {
 
         /** Module state */
         int status;
-
-        /** Get the terminate value.
-         * If this value is not zero all tasks will terminate */
-        int term(void)
-        {
-            return terminate;
-        };
 
 //
 // mailboxes
@@ -206,22 +180,6 @@ class RackModule {
         /** Debugging level */
         char          gdosLevel;
 
-    public:
-        /** Get the pointer of the debugging mailbox */
-        GdosMailbox* getGdosMbx(void)
-        {
-            return gdos;
-        }
-
-        /** Set the debugging level */
-        void setGdosLevel(int8_t newLevel)
-        {
-            if (gdos) // mailbox exists
-                gdos->setGdosLevel(newLevel);
-            else
-                gdosLevel = newLevel;
-        }
-
         /** Delete the debugging mailbox */
         void deleteGdosMbx();
 
@@ -260,9 +218,7 @@ class RackModule {
         }
 
         RackModule(uint32_t class_id,
-                   uint64_t cmdTaskErrorTime_ns,
-                   uint64_t dataTaskErrorTime_ns,
-                   uint64_t dataTaskDisableTime_ns,
+                   uint64_t dataTaskErrorTime_ns,   // datatask error sleep time
                    int32_t  cmdMbxMsgSlots,         // command mailbox slots
                    uint32_t cmdMbxMsgDataSize,      // command mailbox data size
                    uint32_t cmdMbxFlags);           // command mailbox create flags
@@ -306,6 +262,8 @@ class RackModule {
     public:
         void moduleTerminate(void)
         {
+            GDOS_PRINT("Terminate\n");
+            targetStatus = MODULE_TSTATE_OFF;
             terminate = 1;
         }
 

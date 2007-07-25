@@ -253,8 +253,6 @@ int Scan2DSim::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    GDOS_DBG_DETAIL("Scan2DSim::moduleInit ... \n");
-
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
@@ -298,7 +296,11 @@ init_error:
 
 void Scan2DSim::moduleCleanup(void)
 {
-    GDOS_DBG_DETAIL("Scan2DSim::moduleCleanup ... \n");
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
 
     // free proxies
     if (initBits.testAndClearBit(INIT_BIT_PROXY_ODOMETRY))
@@ -316,19 +318,11 @@ void Scan2DSim::moduleCleanup(void)
     {
         destroyMbx(&odometryMbx);
     }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 Scan2DSim::Scan2DSim(void)
       : RackDataModule( MODULE_CLASS_ID,
-                    5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
@@ -355,7 +349,7 @@ int  main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "Scan2DSim");
+    ret = RackModule::getArgs(argc, argv, argTab, "Scan2dSim");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");

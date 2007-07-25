@@ -13,7 +13,7 @@
 #ifndef __PILOT_WALL_FOLLOWING_H__
 #define __PILOT_WALL_FOLLOWING_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 
 #include <navigation/pilot_proxy.h>
 #include <main/pilot_tool.h>

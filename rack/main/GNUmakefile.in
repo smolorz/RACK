@@ -89,7 +89,7 @@ JAVAROOT = $(top_builddir)
 am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(mainincludedir)"
 am__maininclude_HEADERS_DIST = angle_tool.h argopts.h dxf_map.h \
 	image_tool.h pilot_tool.h rack_byteorder.h rack_debug.h \
-	rack_mailbox.h rack_mutex.h rack_module.h rack_datamodule.h \
+	rack_mailbox.h rack_mutex.h rack_module.h rack_data_module.h \
 	rack_name.h rack_proxy.h rack_time.h rack_task.h rack_rtmac.h \
 	can_port.h serial_port.h jpeg_data_dst_mem.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -325,7 +325,7 @@ target_alias = @target_alias@
 mainincludedir = $(pkgincludedir)/main
 maininclude_HEADERS = angle_tool.h argopts.h dxf_map.h image_tool.h \
 	pilot_tool.h rack_byteorder.h rack_debug.h rack_mailbox.h \
-	rack_mutex.h rack_module.h rack_datamodule.h rack_name.h \
+	rack_mutex.h rack_module.h rack_data_module.h rack_name.h \
 	rack_proxy.h rack_time.h rack_task.h rack_rtmac.h \
 	$(am__append_1) $(am__append_2)
 dist_java_JAVA = $(am__append_3)

@@ -16,7 +16,7 @@
 #ifndef __GPS_NMEA_H__
 #define __GPS_NMEA_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <main/serial_port.h>
 #include <main/angle_tool.h>
 #include <drivers/gps_proxy.h>

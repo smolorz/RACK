@@ -515,8 +515,8 @@ int CameraDcam::setupCaptureFormat7()
  *   !!! REALTIME CONTEXT !!!
  *
  *   moduleOn,
- *      moduleOff,
- *      moduleLoop,
+ *   moduleOff,
+ *   moduleLoop,
  *   moduleCommand,
  *
  *   own realtime user functions
@@ -842,21 +842,18 @@ int CameraDcam::moduleInit(void)
 
 void CameraDcam::moduleCleanup(void)
 {
-    //raw1394_destroy_handle( porthandle[dc1394CameraPortNo] );
-
     // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
     }
-}
 
+    //raw1394_destroy_handle( porthandle[dc1394CameraPortNo] );
+}
 
 CameraDcam::CameraDcam()
         : RackDataModule( MODULE_CLASS_ID,
-                      5000000000llu,        // 5s cmdtask error sleep time
                       5000000000llu,        // 5s datatask error sleep time
-                      100000000llu,         // 100ms datatask disable sleep time
                       16,                   // command mailbox slots
                       48,                   // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags //## it should be user space

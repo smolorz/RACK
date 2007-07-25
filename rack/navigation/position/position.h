@@ -16,7 +16,7 @@
 #ifndef __POSITION_H__
 #define __POSITION_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <navigation/position_proxy.h>
 #include <drivers/odometry_proxy.h>
 

@@ -280,7 +280,11 @@ init_error:
 
 void Scan2d::moduleCleanup(void)
 {
-    GDOS_DBG_DETAIL("Scan2d::moduleCleanup ... \n");
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
 
     // free proxies
     if (initBits.testAndClearBit(INIT_BIT_PROXY_LADAR))
@@ -298,19 +302,11 @@ void Scan2d::moduleCleanup(void)
     {
         destroyMbx(&ladarMbx);
     }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 Scan2d::Scan2d(void)
       : RackDataModule( MODULE_CLASS_ID,
-                    5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags

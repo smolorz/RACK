@@ -16,7 +16,7 @@
 #ifndef __SCAN_2D_SIM_H__
 #define __SCAN_2D_SIM_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <main/dxf_map.h>
 #include <perception/scan2d_proxy.h>
 #include <drivers/odometry_proxy.h>

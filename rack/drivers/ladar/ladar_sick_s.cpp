@@ -122,7 +122,7 @@ const struct rtser_config ladar_serial_config =
 int  LadarSickS::moduleOn(void)
 {
     int ret;
- 
+
     ret = serialPort.clean();
     if (ret)
     {
@@ -358,33 +358,22 @@ init_error:
 
 void LadarSickS::moduleCleanup(void)
 {
-    int ret;
-
-    GDOS_DBG_DETAIL("LadarSick::moduleCleanup ... \n");
-
-    // close rtserial port
-    if (initBits.testAndClearBit(INIT_BIT_RTSERIAL_OPENED))
-    {
-        ret = serialPort.close();
-        if (!ret)
-            GDOS_DBG_DETAIL("Serial port closed \n");
-        else
-            GDOS_ERROR("Can't close serial port %d, code = %d \n",
-                      serialDev, ret);
-    }
-
     // call RackDataModule cleanup function (last command in cleanup)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
     }
+
+    // close rtserial port
+    if (initBits.testAndClearBit(INIT_BIT_RTSERIAL_OPENED))
+    {
+        serialPort.close();
+    }
 }
 
 LadarSickS::LadarSickS(void)
       : RackDataModule( MODULE_CLASS_ID,
-                    1000000000llu,    // 1s cmdtask error sleep time
                     1000000000llu,    // 1s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags

@@ -16,7 +16,7 @@
 #ifndef __DUMMY_ABC_H__
 #define __DUMMY_ABC_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include "skel/dummy_proxy.h"
 
 // define module class

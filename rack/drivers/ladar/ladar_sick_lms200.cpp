@@ -67,7 +67,7 @@ static ladar_sick_lms200_config config_sick_norm =
     protocol:               normal,
     serial_buffer_size:     0,
     periodTime:             213, // sampling_rate = 4.7
-    messageDistanceNum:     0, 
+    messageDistanceNum:     0,
     startAngle:             0.0,
     angleResolution:        0.0,
     duration:               0,
@@ -163,7 +163,7 @@ int  LadarSickLms200::moduleLoop(void)
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
     // read head with timestamp
-    ret = serialPort.recv(&serialBuffer[0], headLength, &timeStamp, 
+    ret = serialPort.recv(&serialBuffer[0], headLength, &timeStamp,
                           2 * rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
@@ -182,7 +182,7 @@ int  LadarSickLms200::moduleLoop(void)
 
     // read data with checksum
     dataLength = MKSHORT(serialBuffer[2], serialBuffer[3]);
-    ret = serialPort.recv(&serialBuffer[4], dataLength + crcLength, NULL, 
+    ret = serialPort.recv(&serialBuffer[4], dataLength + crcLength, NULL,
                           2 * rackTime.toNano(getDataBufferPeriodTime(0)));
     if (ret)
     {
@@ -209,7 +209,7 @@ int  LadarSickLms200::moduleLoop(void)
         case 0xb0:
             analyseLadarData(serialBuffer, p_data, timeStamp, conf->protocol);
             putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int) * p_data->distanceNum);
-            GDOS_DBG_DETAIL("Data recordingtime %i distanceNum %i\n", 
+            GDOS_DBG_DETAIL("Data recordingtime %i distanceNum %i\n",
                             p_data->recordingTime, p_data->distanceNum);
             break;
 
@@ -258,7 +258,7 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
     distanceUnit = ((dataFormat & 0xc000) >> 14);
 
     // analyse data bytes of the scan
-    for (n = 0; n < distanceNum; n++) 
+    for (n = 0; n < distanceNum; n++)
     {
         data->distance[n] = *(unsigned short*)&serialBuffer[7 + 2*n];
 
@@ -1045,40 +1045,27 @@ init_error:
 
 void LadarSickLms200::moduleCleanup(void)
 {
-    int ret;
-
-    GDOS_DBG_DETAIL("LadarSick::moduleCleanup ... \n");
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
 
     // close rtserial port
     if (initBits.testAndClearBit(INIT_BIT_RTSERIAL_OPENED))
     {
-        ret = serialPort.close();
-        if (!ret)
-            GDOS_DBG_DETAIL("Serial port closed \n");
-        else
-            GDOS_ERROR("Can't close serial port %d, code = %d \n",
-                       conf->serDev, ret);
-    }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
+        serialPort.close();
     }
 }
 
 LadarSickLms200::LadarSickLms200(void)
       : RackDataModule( MODULE_CLASS_ID,
-                    1000000000llu,    // 1s cmdtask error sleep time
                     1000000000llu,    // 1s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     3,                // max buffer entries
                     10)               // data buffer listener
-
-
 {
   size_t dataSize;
 

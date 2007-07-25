@@ -16,7 +16,7 @@
 #ifndef __SCAN2D_MERGE_H__
 #define __SCAN2D_MERGE_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <drivers/odometry_proxy.h>
 #include <perception/scan2d_proxy.h>
 

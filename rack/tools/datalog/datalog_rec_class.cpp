@@ -1118,8 +1118,6 @@ int DatalogRec::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    GDOS_DBG_DETAIL("DatalogRec::moduleInit ... \n");
-
     // allocate memory for smallContData buffer
     smallContDataPtr = malloc(DATALOG_SMALL_MBX_SIZE_MAX);
     if (smallContDataPtr == NULL)
@@ -1182,7 +1180,11 @@ init_error:
 
 void DatalogRec::moduleCleanup(void)
 {
-    GDOS_DBG_DETAIL("DatalogRec::moduleCleanup ... \n");
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
 
     // destroy mutex
     if (initBits.testAndClearBit(INIT_BIT_MTX_CREATED))
@@ -1215,19 +1217,11 @@ void DatalogRec::moduleCleanup(void)
     {
         free(smallContDataPtr);
     }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 DatalogRec::DatalogRec(void)
       : RackDataModule( MODULE_CLASS_ID,
-                    5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     sizeof(datalog_data) + // command mailbox data size per slot
                     DATALOG_LOGNUM_MAX * sizeof(datalog_log_info),

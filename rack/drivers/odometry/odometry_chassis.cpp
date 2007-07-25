@@ -224,6 +224,12 @@ init_error:
 
 void OdometryChassis::moduleCleanup(void)
 {
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
+
     // free proxy
     if (initBits.testAndClearBit(INIT_BIT_PROXY_CHASSIS))
     {
@@ -241,19 +247,11 @@ void OdometryChassis::moduleCleanup(void)
     {
         destroyMbx(&workMbx);
     }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 OdometryChassis::OdometryChassis()
       : RackDataModule( MODULE_CLASS_ID,
-                    2000000000llu,    // 2s cmdtask error sleep time
                     2000000000llu,    // 2s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags

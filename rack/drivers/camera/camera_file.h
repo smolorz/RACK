@@ -16,7 +16,7 @@
 #ifndef __CAMERA_FILE_H__
 #define __CAMERA_FILE_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>

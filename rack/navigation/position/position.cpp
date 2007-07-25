@@ -146,7 +146,7 @@ int  Position::moduleLoop(void)
         if(updateInterpol != 0)
         {
             interpolFactor = 1.0 - (((double)odometryData.recordingTime - (double)interpolStartTime) / (double)updateInterpol);
-    
+
             if(interpolFactor > 1.0)
             {
                 interpolFactor = 1.0;
@@ -155,12 +155,12 @@ int  Position::moduleLoop(void)
             {
                 interpolFactor = 0.0;
             }
-    
+
             refPosI.x   = refPos.x + (int)(interpolFactor * interpolDiff.x);
             refPosI.y   = refPos.y + (int)(interpolFactor * interpolDiff.y);
             refPosI.z   = refPos.z + (int)(interpolFactor * interpolDiff.z);
             refPosI.rho = refPos.rho + (interpolFactor * interpolDiff.rho);
-    
+
             sinRefPosI  = sin(refPosI.rho);
             cosRefPosI  = cos(refPosI.rho);
         }
@@ -170,7 +170,7 @@ int  Position::moduleLoop(void)
             refPosI.y   = refPos.y;
             refPosI.z   = refPos.z;
             refPosI.rho = refPos.rho;
-    
+
             sinRefPosI  = sin(refPosI.rho);
             cosRefPosI  = cos(refPosI.rho);
         }
@@ -243,11 +243,11 @@ int  Position::moduleCommand(message_info *msgInfo)
             if(updateInterpol != 0)
             {
                 posOldRefIndex = getDataBufferIndex(pUpdate->recordingTime);
-                
+
                 if(posOldRefIndex >= 0)
                 {
                     pPosOldRef = ((position_data*)dataBuffer[posOldRefIndex].pData);
-        
+
                     interpolDiff.x = pPosOldRef->pos.x - pUpdate->pos.x;
                     interpolDiff.y = pPosOldRef->pos.y - pUpdate->pos.y;
                     interpolDiff.z = pPosOldRef->pos.z - pUpdate->pos.z;
@@ -263,7 +263,7 @@ int  Position::moduleCommand(message_info *msgInfo)
                 interpolStartTime = rackTime.get();
             }
 
-            // store new reference position            
+            // store new reference position
             refPos.x   = pUpdate->pos.x;
             refPos.y   = pUpdate->pos.y;
             refPos.z   = pUpdate->pos.z;
@@ -283,7 +283,7 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             refPosMtx.unlock();
             GDOS_DBG_INFO("update recordingTime %i x %i y %i z %i phi %a psi %a rho %a\n",
-                           (int)refTime, refPos.x, refPos.y, refPos.z, 
+                           (int)refTime, refPos.x, refPos.y, refPos.z,
                            refPos.phi, refPos.psi, refPos.rho);
 
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
@@ -412,6 +412,12 @@ init_error:
 
 void Position::moduleCleanup(void)
 {
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
+
     // destroy mutex
     if (initBits.testAndClearBit(INIT_BIT_MTX_CREATED))
     {
@@ -435,19 +441,11 @@ void Position::moduleCleanup(void)
     {
         destroyMbx(&workMbx);
     }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 Position::Position()
       : RackDataModule( MODULE_CLASS_ID,
-                    2000000000llu,    // 2s cmdtask error sleep time
                     2000000000llu,    // 2s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
@@ -486,7 +484,7 @@ Position::Position()
     interpolDiff.phi = 0;
     interpolDiff.psi = 0;
     interpolDiff.rho = 0;
-    
+
     interpolStartTime = 0;
 
     // set dataBuffer size

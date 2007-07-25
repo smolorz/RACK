@@ -16,7 +16,7 @@
 #ifndef __CHASSIS_SIM_H__
 #define __CHASSIS_SIM_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <drivers/chassis_proxy.h>
 
 // define module class

@@ -17,7 +17,7 @@
 #ifndef __LADAR_IBEO_H__
 #define __LADAR_IBEO_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <main/can_port.h>
 
 #include <drivers/ladar_proxy.h>

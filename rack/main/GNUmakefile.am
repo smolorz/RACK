@@ -11,7 +11,7 @@ maininclude_HEADERS = \
 	rack_mailbox.h \
 	rack_mutex.h \
 	rack_module.h \
-	rack_datamodule.h \
+	rack_data_module.h \
 	rack_name.h \
 	rack_proxy.h \
 	rack_time.h \

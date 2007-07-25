@@ -17,7 +17,7 @@
 #ifndef __DATALOG_REC_H__
 #define __DATALOG_REC_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <tools/datalog_proxy.h>
 
 #include <drivers/camera_proxy.h>

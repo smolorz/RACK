@@ -392,8 +392,8 @@ int CameraV4L::moduleCommand(message_info *msgInfo)
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
- *      moduleCleanup,
- *      Constructor,
+ *   moduleCleanup,
+ *   Constructor,
  *   Destructor,
  *   main,
  *
@@ -419,8 +419,7 @@ int CameraV4L::moduleInit(void)
 
 void CameraV4L::moduleCleanup(void)
 {
-
-    // call RackDataModule cleanup function (last command in cleanup)
+    // call RackDataModule cleanup function
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
@@ -430,24 +429,22 @@ void CameraV4L::moduleCleanup(void)
 
 CameraV4L::CameraV4L()
         : RackDataModule( MODULE_CLASS_ID,
-                      5000000000llu,        // 5s cmdtask error sleep time
                       5000000000llu,        // 5s datatask error sleep time
-                      100000000llu,         // 100ms datatask disable sleep time
                       16,                   // command mailbox slots
                       48,                   // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags //## it should be user space
                       20,                   // max buffer entries
                       10)                   // data buffer listener
 {
-    width              = getIntArg("width", argTab);
-    height           = getIntArg("height", argTab);
-    depth            = getIntArg("depth", argTab);
-    mode            = getIntArg("mode", argTab);
-    videoId            = getIntArg("videoId", argTab);
-    minHue          = getIntArg("minHue", argTab);
-    maxHue           = getIntArg("maxHue", argTab);
-    gainMult          = getIntArg("gainMult", argTab);
-    autoBrightnessSize    = getIntArg("autoBrightnessSize", argTab);
+    width               = getIntArg("width", argTab);
+    height              = getIntArg("height", argTab);
+    depth               = getIntArg("depth", argTab);
+    mode                = getIntArg("mode", argTab);
+    videoId             = getIntArg("videoId", argTab);
+    minHue              = getIntArg("minHue", argTab);
+    maxHue              = getIntArg("maxHue", argTab);
+    gainMult            = getIntArg("gainMult", argTab);
+    autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(camera_data_msg));

@@ -16,7 +16,7 @@
 #ifndef __CHASSIS_PIONEER_H__
 #define __CHASSIS_PIONEER_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 
 #include <main/serial_port.h>
 #include <drivers/chassis_proxy.h>

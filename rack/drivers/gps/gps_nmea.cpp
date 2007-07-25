@@ -1151,7 +1151,11 @@ init_error:
 
 void GpsNmea::moduleCleanup(void)
 {
-    int ret;
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
 
     // free position proxy
     if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION))
@@ -1167,25 +1171,13 @@ void GpsNmea::moduleCleanup(void)
 
     if (initBits.testAndClearBit(INIT_BIT_SERIALPORT_OPEN))
     {
-        ret = serialPort.close();
-        if (ret)
-        {
-            GDOS_WARNING("Can't close serialDev %i, code=%d\n", serialDev, ret);
-        }
-    }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
+        serialPort.close();
     }
 }
 
 GpsNmea::GpsNmea()
         : RackDataModule( MODULE_CLASS_ID,
-                      5000000000llu,    // 5s cmdtask error sleep time
                       5000000000llu,    // 5s datatask error sleep time
-                      100000000llu,     // 100ms datatask disable sleep time
                       16,               // command mailbox slots
                       48,               // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags

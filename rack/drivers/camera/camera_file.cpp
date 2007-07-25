@@ -277,7 +277,11 @@ init_error:
 // non realtime context
 void CameraFile::moduleCleanup(void)
 {
-    GDOS_DBG_INFO("Cleaning image recordingtime array... \n");
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
 
     if (initBits.testAndClearBit(INIT_BIT_LIST_CREATED))
     {
@@ -288,19 +292,11 @@ void CameraFile::moduleCleanup(void)
     {
         imageFileList.close();
     }
-
-        // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 CameraFile::CameraFile()
       : RackDataModule( MODULE_CLASS_ID,
-                    5000000000llu,    // 5s cmdtask error sleep time
                     5000000000llu,    // 5s datatask error sleep time
-                     100000000llu,    // 100ms datatask disable sleep time
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags

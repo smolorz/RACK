@@ -284,11 +284,11 @@ int ChassisSim::moduleInit(void)
 {
     int ret;
 
-    // call RackDataModule init function (first command in init)
+    // call RackDataModule init function
     ret = RackDataModule::moduleInit();
     if (ret)
     {
-        return ret;
+        goto init_error;
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
@@ -310,24 +310,22 @@ init_error:
 
 void ChassisSim::moduleCleanup(void)
 {
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
+
     // destroy mutex
     if (initBits.testAndClearBit(INIT_BIT_MTX_CREATED))
     {
         mtx.destroy();
     }
-
-    // call RackDataModule cleanup function (last command in cleanup)
-    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
-    {
-        RackDataModule::moduleCleanup();
-    }
 }
 
 ChassisSim::ChassisSim()
         : RackDataModule( MODULE_CLASS_ID,
-                      5000000000llu,    // 5s cmdtask error sleep time
                       5000000000llu,    // 5s datatask error sleep time
-                      100000000llu,     // 100ms datatask disable sleep time
                       16,               // command mailbox slots
                       48,               // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
@@ -354,7 +352,7 @@ ChassisSim::ChassisSim()
     param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
-    
+
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 

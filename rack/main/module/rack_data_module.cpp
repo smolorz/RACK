@@ -11,13 +11,14 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 #include <main/rack_proxy.h>
 
 // init bits
-#define INIT_BIT_RACKMODULE                 0
+#define INIT_BIT_RACK_MODULE                0
 #define INIT_BIT_ENTRIES_CREATED            1
 #define INIT_BIT_LISTENER_CREATED           2
 #define INIT_BIT_BUFFER_CREATED             3
@@ -30,18 +31,14 @@
 
 // non realtime context
 RackDataModule::RackDataModule( uint32_t class_id,                // class ID
-                        uint64_t cmdTaskErrorTime_ns,     // cmdtask error sleep time
                         uint64_t dataTaskErrorTime_ns,    // datatask error sleep time
-                        uint64_t dataTaskDisableTime_ns,  // datatask disable sleep time
                         int32_t  cmdMbxMsgSlots,          // command mailbox slots
                         uint32_t cmdMbxMsgDataSize,       // command mailbox data size
                         uint32_t cmdMbxFlags,             // command mailbox create flags
                         uint32_t maxDataBufferEntries,    // max buffer entries
                         uint32_t maxDataBufferListener)   // data buffer listener
                         : RackModule(class_id,
-                                     cmdTaskErrorTime_ns,
                                      dataTaskErrorTime_ns,
-                                     dataTaskDisableTime_ns,
                                      cmdMbxMsgSlots,
                                      cmdMbxMsgDataSize,
                                      cmdMbxFlags)
@@ -61,7 +58,7 @@ RackDataModule::RackDataModule( uint32_t class_id,                // class ID
     dataBuffer              = NULL;
     listener                = NULL;
 
-    dataModBits.clearAllBits();
+    dataModuleInitBits.clearAllBits();
 }
 
 RackDataModule::~RackDataModule()
@@ -319,7 +316,7 @@ uint32_t    RackDataModule::getDataBufferMaxDataSize(void)
 
 void        RackDataModule::setDataBufferMaxDataSize(uint32_t dataSize)
 {
-    if (dataModBits.testBit(INIT_BIT_BUFFER_CREATED))
+    if (dataModuleInitBits.testBit(INIT_BIT_BUFFER_CREATED))
     {
         return;
     }
@@ -350,7 +347,7 @@ rack_time_t   RackDataModule::getDataBufferPeriodTime(uint32_t dataMbx)
 
 void RackDataModule::setDataBufferPeriodTime(rack_time_t periodTime)
 {
-    GDOS_PRINT("Setting local period time to %d ms \n", periodTime);
+    GDOS_DBG_INFO("Setting local period time to %d ms \n", periodTime);
     dataBufferPeriodTime = periodTime;
 }
 
@@ -438,7 +435,7 @@ int         RackDataModule::moduleInit(void)
     {
           return ret;
     }
-    dataModBits.setBit(INIT_BIT_RACKMODULE);
+    dataModuleInitBits.setBit(INIT_BIT_RACK_MODULE);
 
     // now the command mailbox exists
     dataBufferSendMbx = getCmdMbx();
@@ -468,7 +465,7 @@ int         RackDataModule::moduleInit(void)
         GDOS_ERROR("RackDataModule: DataBuffer entries not created !\n");
         goto init_error;
     }
-    dataModBits.setBit(INIT_BIT_ENTRIES_CREATED);
+    dataModuleInitBits.setBit(INIT_BIT_ENTRIES_CREATED);
     GDOS_DBG_DETAIL("DataBuffer dataBuffer table created @ %p\n", dataBuffer);
 
     for (i=0; i<dataBufferMaxEntries; i++)
@@ -486,12 +483,12 @@ int         RackDataModule::moduleInit(void)
         else
         {
             memset(dataBuffer[i].pData, 0, dataBufferMaxDataSize);
-            GDOS_DBG_DETAIL("DataBuffer dataBuffer @ %p (%d bytes) created\n",
-                            dataBuffer[i].pData, dataBufferMaxDataSize);
+            //GDOS_DBG_DETAIL("DataBuffer dataBuffer @ %p (%d bytes) created\n",
+            //                dataBuffer[i].pData, dataBufferMaxDataSize);
         }
         dataBuffer[i].dataSize = 0;
     }
-    dataModBits.setBit(INIT_BIT_BUFFER_CREATED);
+    dataModuleInitBits.setBit(INIT_BIT_BUFFER_CREATED);
     GDOS_DBG_DETAIL("Memory for DataBuffer entries allocated\n");
 
     // create listener data structures
@@ -502,7 +499,7 @@ int         RackDataModule::moduleInit(void)
         GDOS_ERROR("RackDataModule: listener table not created !\n");
         goto init_error;
     }
-    dataModBits.setBit(INIT_BIT_LISTENER_CREATED);
+    dataModuleInitBits.setBit(INIT_BIT_LISTENER_CREATED);
     GDOS_DBG_DETAIL("DataBuffer listener table created @ %p\n", listener);
 
 
@@ -511,7 +508,7 @@ int         RackDataModule::moduleInit(void)
         GDOS_ERROR("Error while creating bufferMtx, code = %d \n", ret);
         goto init_error;
     }
-    dataModBits.setBit(INIT_BIT_BUFFER_MTX_CREATED);
+    dataModuleInitBits.setBit(INIT_BIT_BUFFER_MTX_CREATED);
     GDOS_DBG_DETAIL("DataBuffer buffer mutex created\n");
 
     ret = listenerMtx.create();
@@ -519,7 +516,7 @@ int         RackDataModule::moduleInit(void)
         GDOS_ERROR("Error while creating listenerMtx, code = %d \n", ret);
         goto init_error;
     }
-    dataModBits.setBit(INIT_BIT_LISTENER_MTX_CREATED);
+    dataModuleInitBits.setBit(INIT_BIT_LISTENER_MTX_CREATED);
     GDOS_DBG_DETAIL("DataBuffer listener mutex created\n");
 
     return 0;
@@ -538,44 +535,46 @@ void        RackDataModule::moduleCleanup(void)
 
     GDOS_DBG_DETAIL("RackDataModule::moduleCleanup ... \n");
 
-    if (dataModBits.testAndClearBit(INIT_BIT_LISTENER_MTX_CREATED))
+    if (dataModuleInitBits.testAndClearBit(INIT_BIT_RACK_MODULE))
+    {
+        RackModule::moduleCleanup();
+    }
+
+    if (dataModuleInitBits.testAndClearBit(INIT_BIT_LISTENER_MTX_CREATED))
     {
         GDOS_DBG_DETAIL("Deleting dataBuffer listener mutex\n");
         listenerMtx.destroy();
     }
 
-    if (dataModBits.testAndClearBit(INIT_BIT_BUFFER_MTX_CREATED))
+    if (dataModuleInitBits.testAndClearBit(INIT_BIT_BUFFER_MTX_CREATED))
     {
         GDOS_DBG_DETAIL("Deleting dataBuffer buffer mutex\n");
         bufferMtx.destroy();
     }
 
-    if (dataModBits.testAndClearBit(INIT_BIT_LISTENER_CREATED))
+    if (dataModuleInitBits.testAndClearBit(INIT_BIT_LISTENER_CREATED))
     {
         GDOS_DBG_DETAIL("Deleting dataBuffer listener table @ %p\n", listener);
         delete[] listener;
         listener = NULL;
     }
 
-    if (dataModBits.testAndClearBit(INIT_BIT_BUFFER_CREATED))
+    if (dataModuleInitBits.testAndClearBit(INIT_BIT_BUFFER_CREATED))
     {
-        for (i=0; i<dataBufferMaxEntries; i++)
+       for (i=0; i<dataBufferMaxEntries; i++)
         {
-            GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer @ %p (%d bytes)\n",
-                            dataBuffer[i].pData, dataBufferMaxDataSize);
+            //GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer @ %p (%d bytes)\n",
+            //                dataBuffer[i].pData, dataBufferMaxDataSize);
             free(dataBuffer[i].pData);
         }
     }
 
-    if (dataModBits.testAndClearBit(INIT_BIT_ENTRIES_CREATED))
+    if (dataModuleInitBits.testAndClearBit(INIT_BIT_ENTRIES_CREATED))
     {
         GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer table @ %p\n", dataBuffer);
         delete[] dataBuffer;
         dataBuffer = NULL;
     }
-
-    // cleanunp module (last command)
-    RackModule::moduleCleanup();
 }
 
 // realtime context (dataTask)

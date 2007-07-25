@@ -16,7 +16,7 @@
 #ifndef __CAMERA_JPEG_H__
 #define __CAMERA_JPEG_H__
 
-#include <main/rack_datamodule.h>
+#include <main/rack_data_module.h>
 
 #include <drivers/camera_proxy.h>
 

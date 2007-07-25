@@ -11,10 +11,11 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
-#ifndef __RACK_DATAMODULE_H__
-#define __RACK_DATAMODULE_H__
+#ifndef __RACK_DATA_MODULE_H__
+#define __RACK_DATA_MODULE_H__
 
 /*!
  * \ingroup module
@@ -77,8 +78,10 @@ class ListenerEntry {
 
 class RackDataModule : public RackModule
 {
+    private:
+        RackBits            dataModuleInitBits;   // internal rack_data_module init bits
+
     protected:
-        RackBits            dataModBits;   // rack datamodule init bits
         uint32_t            index;
         uint32_t            globalDataCount;
         uint32_t            listenerNum;
@@ -112,10 +115,8 @@ class RackDataModule : public RackModule
 
   public:
 
-    RackDataModule(uint32_t class_id,               // class ID
-               uint64_t cmdTaskErrorTime_ns,    // cmdtask error sleep time
+    RackDataModule(uint32_t class_id,           // class ID
                uint64_t dataTaskErrorTime_ns,   // datatask error sleep time
-               uint64_t dataTaskDisableTime_ns, // datatask disable sleep time
                int32_t  cmdMbxMsgSlots,         // command mailbox slots
                uint32_t cmdMbxMsgDataSize,      // command mailbox data size
                uint32_t cmdMbxFlags,            // command mailbox create flags
@@ -126,9 +127,6 @@ class RackDataModule : public RackModule
 
     uint32_t  getDataBufferMaxDataSize(void);
     void      setDataBufferMaxDataSize(uint32_t dataSize);
-
-//    float     getDataBufferSampleRate(void);
-//    int       setDataBufferSampleRate(float sampleRate);
 
     rack_time_t getDataBufferPeriodTime(uint32_t dataMbx);
     void      setDataBufferPeriodTime(rack_time_t periodTime);
@@ -152,4 +150,4 @@ class RackDataModule : public RackModule
 
 /*@}*/
 
-#endif // __RACK_DATAMODULE_H_
+#endif // __RACK_DATA_MODULE_H_
