@@ -110,12 +110,12 @@ int  LadarHokuyoUrg::moduleOn(void)
         return ret;
     }
 
-    return RackDataModule::moduleOn();   // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();   // has to be last command in moduleOn();
 }
 
 void LadarHokuyoUrg::moduleOff(void)
 {
-    RackDataModule::moduleOff();         // have to be first command in moduleOff();
+    RackDataModule::moduleOff();         // has to be first command in moduleOff();
 
     GDOS_DBG_INFO("Disconnect\n");
 

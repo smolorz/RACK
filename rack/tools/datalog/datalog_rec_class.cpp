@@ -141,7 +141,7 @@ int  DatalogRec::moduleOn(void)
         return ret;
     }
 
-    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 void DatalogRec::moduleOff(void)
@@ -151,7 +151,7 @@ void DatalogRec::moduleOff(void)
     rack_time_t periodTime;
     int         moduleMbx;
 
-    RackDataModule::moduleOff();        // have to be first command in moduleOff();
+    RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     GDOS_DBG_INFO("Turn off...\n");
 

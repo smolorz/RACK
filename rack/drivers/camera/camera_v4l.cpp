@@ -253,13 +253,13 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
         GDOS_WARNING("Not enough memory map buffers %i < 2. Using read\n", camera.m_buf.frames);
     }
 
-    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 
 void CameraV4L::moduleOff(void)
 {
-   RackDataModule::moduleOff();        // have to be first command in moduleOff();
+   RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     GDOS_DBG_INFO("camera_v4l off\n");
 

@@ -626,13 +626,13 @@ int CameraDcam::setupCaptureFormat7()
     GDOS_DBG_INFO("set u:%i v:%i \n", uuValue, uvValue);
 
 
-    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 
 void CameraDcam::moduleOff(void)
 {
-   RackDataModule::moduleOff();        // have to be first command in moduleOff();
+   RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
 
    if ( dc1394_stop_iso_transmission( porthandle[dc1394CameraPortNo],dc1394Camera.node ) != DC1394_SUCCESS )

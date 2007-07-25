@@ -351,13 +351,13 @@ chassis_param_data param = {
 
     serialPort.setRxTimeout(200000000llu);
 
-    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 // realtime context
 void ChassisPioneer::moduleOff(void)
 {
-    RackDataModule::moduleOff();        // have to be first command in moduleOff();
+    RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     activePilot = CHASSIS_INVAL_PILOT;
 

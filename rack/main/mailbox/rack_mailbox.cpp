@@ -76,7 +76,7 @@ RackMailbox::RackMailbox()
  * @brief Create a mailbox
  *
  * This function creates a mailbox to send and receive messages.
- * Using this function a unique mailbox address have to be given.
+ * Using this function a unique mailbox address has to be given.
  * The class Module privides an additional function createMailbox() to
  * set this mailbox address automatically.
  *

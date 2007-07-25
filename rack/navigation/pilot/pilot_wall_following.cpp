@@ -155,12 +155,12 @@ argTable_t argTab[] = {
     GDOS_PRINT("maxSpeed %f m/s, Scan2d(%i)\n",
                 (float)maxSpeed / 1000.0f, scan2dInst);
 
-    return RackDataModule::moduleOn(); // have to be last command in moduleOn();
+    return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
 
 void PilotWallFollowing::moduleOff(void)
 {
-    RackDataModule::moduleOff();        // have to be first command in moduleOff();
+    RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     chassis->moveRadius(0, 0);
     scan2d->stopContData(&scan2dDataMbx);

@@ -90,12 +90,12 @@ argTable_t argTab[] = {
 
     setDataBufferPeriodTime(realPeriodTime);
 
-    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 void Scan2DSim::moduleOff(void)
 {
-    RackDataModule::moduleOff();        // have to be first command in moduleOff();
+    RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     odometry->stopContData(&odometryMbx);
 }

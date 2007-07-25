@@ -146,12 +146,12 @@ int  LadarSickS::moduleOn(void)
             return -1;
     }
 
-    return RackDataModule::moduleOn();  // have to be last command in moduleOn();
+    return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
 void LadarSickS::moduleOff(void)
 {
-  RackDataModule::moduleOff();          // have to be first command in moduleOff();
+  RackDataModule::moduleOff();          // has to be first command in moduleOff();
 }
 
 int  LadarSickS::moduleLoop(void)

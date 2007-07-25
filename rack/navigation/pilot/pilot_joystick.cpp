@@ -169,12 +169,12 @@ argTable_t argTab[] = {
                 (float)maxSpeed / 1000.0f,
                 (float)chasParData.minTurningRadius / 1000.0f, scan2dInst);
 
-    return RackDataModule::moduleOn(); // have to be last command in moduleOn();
+    return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
 
 void PilotJoystick::moduleOff(void)
 {
-    RackDataModule::moduleOff();        // have to be first command in moduleOff();
+    RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     chassis->moveCurve(0, joystickCurve);
     joystick->stopContData(&joystickMbx);
