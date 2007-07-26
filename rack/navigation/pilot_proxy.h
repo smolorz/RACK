@@ -57,6 +57,7 @@ ACCESS: msg.data.spline[...] OR msg.spline[...];
 typedef struct{
     rack_time_t     recordingTime;
     position_3d     pos;
+    position_3d     dest;
     int32_t         speed;
     float           curve;
     int32_t         distanceToDest;
@@ -72,6 +73,7 @@ class PilotData
             int i;
             data->recordingTime     = __le32_to_cpu(data->recordingTime);
             Position3D::le_to_cpu(&data->pos);
+            Position3D::le_to_cpu(&data->dest);
             data->speed             = __le32_to_cpu(data->speed);
             data->curve             = __le32_float_to_cpu(data->curve);
             data->distanceToDest    = __le32_to_cpu(data->distanceToDest);
@@ -87,6 +89,7 @@ class PilotData
             int i;
             data->recordingTime     = __be32_to_cpu(data->recordingTime);
             Position3D::be_to_cpu(&data->pos);
+            Position3D::be_to_cpu(&data->dest);
             data->speed             = __be32_to_cpu(data->speed);
             data->curve             = __be32_float_to_cpu(data->curve);
             data->distanceToDest    = __be32_to_cpu(data->distanceToDest);

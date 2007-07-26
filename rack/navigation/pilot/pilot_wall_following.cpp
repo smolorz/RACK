@@ -182,6 +182,12 @@ int  PilotWallFollowing::moduleLoop(void)
                                          &scan2dMsg.data,
                                          sizeof(scan2dMsg),
                                          &msgInfo);
+    if (ret)
+    {
+        GDOS_ERROR("Can't read continuous data from Scan2d(%d), code = %d\n", scan2dInst, ret);
+        return ret;
+    }
+
     //scan2d data received
     if (msgInfo.type == MSG_DATA &&
         msgInfo.src  == scan2d->getDestAdr())
@@ -257,6 +263,7 @@ int  PilotWallFollowing::moduleLoop(void)
 
         pilotData->recordingTime = scan2dMsg.data.recordingTime;
         memset(&(pilotData->pos), 0, sizeof(pilotData->pos));
+        memset(&(pilotData->dest), 0, sizeof(pilotData->dest));
         pilotData->speed     = speed;
 
         if (speed != 0)
@@ -267,7 +274,9 @@ int  PilotWallFollowing::moduleLoop(void)
         {
             pilotData->curve     = 0.0f;
         }
-        pilotData->splineNum = 0;
+
+        pilotData->distanceToDest = 0;
+        pilotData->splineNum      = 0;
 
         putDataBufferWorkSpace(sizeof(pilot_data));
     }

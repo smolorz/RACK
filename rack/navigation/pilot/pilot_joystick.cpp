@@ -345,6 +345,7 @@ int  PilotJoystick::moduleLoop(void)
 
     pilotData->recordingTime = rackTime.get();
     memset(&(pilotData->pos), 0, sizeof(pilotData->pos));
+    memset(&(pilotData->dest), 0, sizeof(pilotData->dest));
     pilotData->speed     = speed;
     if(speed != 0)
     {
@@ -354,6 +355,7 @@ int  PilotJoystick::moduleLoop(void)
     {
         pilotData->curve     = 0.0f;
     }
+
     pilotData->distanceToDest = 0;
     pilotData->splineNum      = 0;
 
