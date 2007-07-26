@@ -31,7 +31,8 @@ import rack.main.defines.PolarSpline;
 public class PilotDataMsg extends TimsMsg
 {
     public int           recordingTime = 0;
-    public Position3d    pos = new Position3d(0,0,0,0.0f,0.0f,0.0f);
+    public Position3d    pos   = new Position3d(0,0,0,0.0f,0.0f,0.0f);
+    public Position3d    dest  = new Position3d(0,0,0,0.0f,0.0f,0.0f);
     public int           speed = 0;
     public float         curve = 0;
     public int           distanceToDest = 0;    
@@ -40,7 +41,7 @@ public class PilotDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-        return (20 + Position3d.getDataLen() +
+        return (20 + 2 * Position3d.getDataLen() +
                 splineNum * PolarSpline.getDataLen());
     }
 
@@ -81,6 +82,7 @@ public class PilotDataMsg extends TimsMsg
         recordingTime = dataIn.readInt();
 
         pos.readData(dataIn);
+        dest.readData(dataIn);
         speed                     = dataIn.readInt();
         curve                     = dataIn.readFloat();
         distanceToDest			  = dataIn.readInt();
@@ -101,6 +103,7 @@ public class PilotDataMsg extends TimsMsg
         dataOut.writeInt(recordingTime);
 
         pos.writeData(dataOut);
+        dest.writeData(dataOut);
         dataOut.writeInt(speed);
         dataOut.writeFloat(curve);
         dataOut.writeInt(distanceToDest);
