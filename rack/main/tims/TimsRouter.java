@@ -24,4 +24,6 @@ public class TimsRouter
     public static final byte MBX_DELETE_WITH_REPLY = 14;
     public static final byte MBX_PURGE             = 15;
     public static final byte GET_STATUS            = 17;
+    public static final byte ENABLE_WATCHDOG       = 18;
+    public static final byte DISABLE_WATCHDOG      = 19;
 }
