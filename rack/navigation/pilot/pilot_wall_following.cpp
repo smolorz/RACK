@@ -275,7 +275,7 @@ int  PilotWallFollowing::moduleLoop(void)
             pilotData->curve     = 0.0f;
         }
 
-        pilotData->distanceToDest = 0;
+        pilotData->distanceToDest = -1;
         pilotData->splineNum      = 0;
 
         putDataBufferWorkSpace(sizeof(pilot_data));
