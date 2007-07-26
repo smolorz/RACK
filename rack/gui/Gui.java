@@ -735,6 +735,10 @@ public final class Gui extends Thread
         {
             try
             {
+                if(ge.frame.isIcon())
+                {
+                    ge.frame.setIcon(false);
+                }
                 ge.frame.moveToFront();
                 ge.frame.setSelected(true);
                 jtp.setSelectedIndex(workspaces.indexOf(ge.workspace));
