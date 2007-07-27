@@ -27,6 +27,7 @@
  *@{*/
 
 #include <main/tims/tims.h>
+#include <main/rack_mutex.h>
 
 //######################################################################
 //# message_info
@@ -108,6 +109,9 @@ class RackMailbox {
         int             fd;
         uint32_t        adr;
         uint8_t         sendPrio;
+
+        RackMutex       sendMtx;
+        RackMutex       recvMtx;
 
         void            fillMessageRecvInfo(message_info *msgInfo, void *p_data);
         void            fillMessagePeekInfo(message_info *msgInfo, tims_msg_head* p_peek_head);

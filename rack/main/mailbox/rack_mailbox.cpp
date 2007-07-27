@@ -107,12 +107,18 @@ int RackMailbox::create(uint32_t address, int messageSlots,
 {
     ssize_t maxMsglen = maxDatalen + TIMS_HEADLEN;
 
+    sendMtx.create();
+    recvMtx.create();
+
     fd = tims_mbx_create(address, messageSlots, maxMsglen, buffer, bufferSize);
 
     if (fd < 0)
     {
         adr         = 0;
         sendPrio    = 0;
+
+        sendMtx.destroy();
+        recvMtx.destroy();
 
         return fd;
     }
@@ -149,6 +155,9 @@ int RackMailbox::remove(void)
     adr         = 0;
     sendPrio    = 0;
 
+    sendMtx.destroy();
+    recvMtx.destroy();
+
     return ret;
 }
 
@@ -169,7 +178,15 @@ int RackMailbox::remove(void)
  */
 int RackMailbox::clean(void)
 {
-    return tims_mbx_clean(fd);
+    int ret;
+    
+    recvMtx.lock();
+    
+    ret = tims_mbx_clean(fd);
+    
+    recvMtx.unlock();
+
+    return ret;
 }
 
 //
@@ -200,9 +217,13 @@ int RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seqNr)
     tims_msg_head head;
     int ret;
 
+    sendMtx.lock();
+
     tims_fill_head(&head, type, dest, adr, sendPrio, seqNr, 0, TIMS_HEADLEN);
 
     ret = tims_sendmsg(fd, &head, NULL, 0, 0);
+
+    sendMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -236,9 +257,13 @@ int RackMailbox::sendMsgReply(int8_t type, message_info* msgInfo)
     tims_msg_head head;
     int ret;
 
+    sendMtx.lock();
+
     tims_fill_head(&head, type, msgInfo->src, adr, msgInfo->priority, msgInfo->seq_nr, 0, TIMS_HEADLEN);
 
     ret = tims_sendmsg(fd, &head, NULL, 0, 0);
+
+    sendMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -282,6 +307,8 @@ int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seqNr,
     tims_msg_head head;
     struct iovec iov[dataPointers];
 
+    sendMtx.lock();
+
     iov[0].iov_base = data1;
     iov[0].iov_len  = datalen1;
     msglen = datalen1 + TIMS_HEADLEN;
@@ -301,6 +328,8 @@ int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seqNr,
     tims_fill_head(&head, type, dest, adr, sendPrio, seqNr, 0, msglen);
 
     ret = tims_sendmsg(fd, &head, iov, dataPointers, 0);
+
+    sendMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -340,6 +369,8 @@ int RackMailbox::sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data
     int ret;
     struct iovec iov[dataPointers];
 
+    sendMtx.lock();
+
     iov[0].iov_base = data1;
     iov[0].iov_len  = datalen1;
     msglen = datalen1 + TIMS_HEADLEN;
@@ -359,6 +390,8 @@ int RackMailbox::sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data
     p_head->msglen = msglen;
 
     ret = tims_sendmsg(fd, p_head, iov, dataPointers, 0);
+
+    sendMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -401,6 +434,8 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
     tims_msg_head   head;
     struct iovec    iov[dataPointers];
 
+    sendMtx.lock();
+
     iov[0].iov_base = data1;
     iov[0].iov_len  = datalen1;
     msglen = datalen1 + TIMS_HEADLEN;
@@ -420,6 +455,8 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
     tims_fill_head(&head, type, msgInfo->src, adr, msgInfo->priority, msgInfo->seq_nr, 0, msglen);
 
     ret = tims_sendmsg(fd, &head, iov, dataPointers, 0);
+
+    sendMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -472,10 +509,15 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
     tims_msg_head *p_peek_head;
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_peek_timed(fd, &p_peek_head, TIMS_INFINITE);
 
     if (ret < 0)
+    {
+        recvMtx.unlock();
         return ret;
+    }
 
     fillMessagePeekInfo(msgInfo, p_peek_head);
     return 0;
@@ -519,10 +561,15 @@ int RackMailbox::peekTimed(uint64_t timeout_ns, message_info *msgInfo)
     tims_msg_head *p_peek_head;
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_peek_timed(fd, &p_peek_head, timeout_ns);
 
     if (ret < 0)
+    {
+        recvMtx.unlock();
         return ret;
+    }
 
     fillMessagePeekInfo(msgInfo, p_peek_head);
     return 0;
@@ -565,10 +612,15 @@ int RackMailbox::peekIf(message_info *msgInfo)
     tims_msg_head *p_peek_head;
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_peek_timed(fd, &p_peek_head, TIMS_NONBLOCK);
 
     if (ret < 0)
+    {
+        recvMtx.unlock();
         return ret;
+    }
 
     fillMessagePeekInfo(msgInfo, p_peek_head);
     return 0;
@@ -592,7 +644,13 @@ int RackMailbox::peekIf(message_info *msgInfo)
  */
 int RackMailbox::peekEnd(void)
 {
-    return tims_peek_end(fd);
+    int ret;
+    
+    ret = tims_peek_end(fd);
+    
+    recvMtx.unlock();
+
+    return ret;
 }
 
 //
@@ -628,7 +686,11 @@ int RackMailbox::recvMsg(message_info *msgInfo)
 {
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, NULL, 0, TIMS_INFINITE, 0);
+
+    recvMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -667,7 +729,11 @@ int RackMailbox::recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo)
 {
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, NULL, 0, timeout_ns, 0);
+
+    recvMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -705,7 +771,11 @@ int     RackMailbox::recvMsgIf(message_info *msgInfo)
 {
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, NULL, 0, TIMS_NONBLOCK, 0);
+
+    recvMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -745,7 +815,11 @@ int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, message_info
 {
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, p_data, maxDatalen, TIMS_INFINITE, 0);
+
+    recvMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -786,7 +860,11 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_
 {
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, p_data, maxDatalen, timeout_ns, 0);
+
+    recvMtx.unlock();
 
     if (ret < 0)
         return ret;
@@ -826,7 +904,11 @@ int     RackMailbox::recvDataMsgIf(void *p_data, uint32_t maxDatalen, message_in
 {
     int ret;
 
+    recvMtx.lock();
+
     ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, p_data, maxDatalen, TIMS_NONBLOCK, 0);
+
+    recvMtx.unlock();
 
     if (ret < 0)
         return ret;
