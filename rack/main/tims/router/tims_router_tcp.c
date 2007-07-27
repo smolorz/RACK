@@ -677,6 +677,7 @@ void tcpServer_task_proc(void *arg)
 {
     connection_t newCon;
     connection_t *freeCon;
+    socklen_t    bufSize = maxMsgSize;
     int i;
     int ret;
 
@@ -701,6 +702,9 @@ void tcpServer_task_proc(void *arg)
             return;
         }
 
+        setsockopt(newCon.socket, SOL_SOCKET, SO_RCVBUF, &bufSize, sizeof(bufSize));
+        setsockopt(newCon.socket, SOL_SOCKET, SO_SNDBUF, &bufSize, sizeof(bufSize));
+        
         freeCon = connection_getFree(&newCon);
         if (!freeCon)
         {
