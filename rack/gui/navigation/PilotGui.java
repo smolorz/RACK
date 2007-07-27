@@ -186,7 +186,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
     
         Graphics2D g = mvg.getWorldGraphics();        
         g.setStroke(new BasicStroke(100.0f));
-        
+      
         // draw path
         g.setColor(Color.BLUE);
         for (int i = 0; i < pilotData.splineNum; i++)
@@ -311,7 +311,16 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
             g.drawLine(pilotData.pos.x, pilotData.pos.y,
                        pilotData.pos.x + (int)(pilotData.speed * Math.cos(pilotData.pos.rho)),
                        pilotData.pos.y + (int)(pilotData.speed * Math.sin(pilotData.pos.rho)));
-        }        
+        }
+        
+        // draw destination
+        if (pilotData.distanceToDest > 0)
+        {
+            g = mvg.getWorldGraphics();        
+            g.setStroke(new BasicStroke(200.0f));        	
+        	g.setColor(Color.BLUE);
+        	g.drawArc(pilotData.dest.x- 5000, pilotData.dest.y - 5000, 10000, 10000, 0, 360);
+        }
     }
     
     public static double normAngle(double x)
