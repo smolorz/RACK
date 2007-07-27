@@ -205,6 +205,11 @@ class RackMutex
             return rt_mutex_lock(&mutex, timeout);
         }
 
+        int lock(void)
+        {
+            return lock(RACK_INFINITE);
+        }
+
 /**
  * @brief Unlock mutex.
  *
@@ -309,6 +314,11 @@ class RackMutex
         int lock(int64_t timeout)
         {
             return sem_wait(&sem);
+        }
+
+        int lock(void)
+        {
+            return lock(RACK_INFINITE);
         }
 
         int unlock(void)
