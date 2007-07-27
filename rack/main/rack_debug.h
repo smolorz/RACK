@@ -33,7 +33,7 @@
 #define GDOS_MSG_DBG_DETAIL -128    // detailed debug information
 
 #define GDOS_MSG_DEBUG_BEGIN    GDOS_MSG_PRINT
-#define GDOS_MSG_DEBUG_DEFAULT    GDOS_MSG_WARNING
+#define GDOS_MSG_DEBUG_DEFAULT  GDOS_MSG_WARNING
 
 //
 // debug functions
@@ -74,7 +74,7 @@ static inline int in_rt_context(void)
                 {                                                     \
                     if (gdos)                                         \
                     {                                                 \
-                        gdos->print(level, "RT : "fmt, ##__VA_ARGS__);\
+                        gdos->print(level, fmt, ##__VA_ARGS__);       \
                     }                                                 \
                     else                                              \
                     {                                                 \
@@ -85,11 +85,11 @@ static inline int in_rt_context(void)
                 {                                                     \
                     if (gdos)                                         \
                     {                                                 \
-                        gdos->print(level, "NRT: "fmt, ##__VA_ARGS__);\
+                        gdos->print(level, fmt, ##__VA_ARGS__);       \
                     }                                                 \
                     else                                              \
                     {                                                 \
-                        printf_level(level, "NRT: "fmt, ##__VA_ARGS__);\
+                        printf_level(level, fmt, ##__VA_ARGS__);      \
                     }                                                 \
                 }                                                     \
             }                                                         \
@@ -102,11 +102,11 @@ static inline int in_rt_context(void)
             {                                                         \
                 if (gdos)                                             \
                 {                                                     \
-                    gdos->print(level, "NRT: "fmt, ##__VA_ARGS__);    \
+                    gdos->print(level, fmt, ##__VA_ARGS__);           \
                 }                                                     \
                 else                                                  \
                 {                                                     \
-                    printf_level(level, "NRT: "fmt, ##__VA_ARGS__);   \
+                    printf_level(level, fmt, ##__VA_ARGS__);          \
                 }                                                     \
             }                                                         \
             while(0)
@@ -281,7 +281,6 @@ class GdosMailbox
 
             sendMbx->sendDataMsg(&head, 1, &buffer, datasize);
         }
-
 };
 
 #endif  // __RACK_DEBUG_H__
