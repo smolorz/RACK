@@ -36,10 +36,10 @@ Scan2DSim *p_inst;
 
 argTable_t argTab[] = {
 
-    { ARGOPT_REQ, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+    { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry module", { -1 } },
 
-    { ARGOPT_REQ, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+    { ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum laser range", { 10000 } },
 
     { ARGOPT_OPT, "mapOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -104,8 +104,8 @@ int  Scan2DSim::moduleLoop(void)
 {
     scan2d_data*    data2D       = NULL;
     odometry_data*  dataOdometry = NULL;
-    message_info     msgInfo;
-    ssize_t         datalength = 0;
+    message_info    msgInfo;
+    ssize_t         datalength;
     double          angle, angleResolution, distance;
     double          cosRho, sinRho, featureDistance, a;
     double          x1, x2, x3, x4, y1, y2, y3, y4, denominator;
@@ -170,24 +170,23 @@ int  Scan2DSim::moduleLoop(void)
             // calculating distance = b
             denominator = (x4 * y2) - (y4 * x2);
 
-            if ( denominator != 0 )
+            if ( ( denominator > 0.0001 ) || ( denominator < -0.0001 ) )
             {
                 featureDistance = ((x2 * y3) + (x1 * y2) - (y1 * x2) - (x3 * y2)) / denominator;   // intersection
 
                 if ( (featureDistance < distance) && (featureDistance >= 0) )    // considering the working range of the scanner
                 {
-                    if ( x2 == 0 )
+                    if ( (x2 > -0.5 ) && (x2 < 0.5) )
                     {
                         a = ( y3 + (featureDistance * y4) - y1 ) / y2;
                     }
-
                     else
                     {
                         a = ( x3 + (featureDistance * x4) - x1 ) / x2;
                     }
 
                     // to determine if the intersection is out of the start or end point
-                    if ( (a >= 0) && (a <= 1) )
+                    if ( (a >= 0.0) && (a <= 1.0) )
                     {
                         distance = featureDistance;
                     }
