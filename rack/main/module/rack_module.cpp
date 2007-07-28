@@ -834,9 +834,9 @@ void signal_handler(int sig)
 
     switch(sig)
     {
+#ifdef __XENO__
         case SIGXCPU:
             printf(" -> SIGXCPU (%02d)\n", sig);
-#ifdef __XENO__
             printf(" !!! WARNING unexpected switch to secondary mode !!!\n");
             nentries = backtrace (array, 10);
             strings = backtrace_symbols (array, nentries);
@@ -845,9 +845,6 @@ void signal_handler(int sig)
                 printf ("  %s\n", strings[i]);
             }
             free (strings);
-#else
-            printf(" -> NOT HANDLED\n");
-#endif
             break;
 
         case SIGSEGV:
@@ -860,7 +857,6 @@ void signal_handler(int sig)
 
             signal_flags |= HANDLING_SEGV;
 
-#ifdef __XENO__
             nentries = backtrace (array, 10);
             strings = backtrace_symbols (array, nentries);
             for (i = 0; i < nentries; i++)
@@ -868,12 +864,11 @@ void signal_handler(int sig)
                 printf ("  %s\n", strings[i]);
             }
             free (strings);
-#endif
 
             printf(" -> terminate module\n");
             p_signal_module->moduleTerminate();
             break;
-
+#endif
         case SIGTERM:
         case SIGINT:
             printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
@@ -909,8 +904,10 @@ int init_signal_handler(RackModule *p_mod)
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT,  signal_handler);
+#ifdef __XENO__
     signal(SIGXCPU, signal_handler);
     signal(SIGSEGV, signal_handler);
-
+#endif
+    
     return 0;
 }
