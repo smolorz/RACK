@@ -63,10 +63,10 @@ public class OdometryProxy extends RackDataProxy
 
         if (reply.type == RackProxy.MSG_OK) {
           System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
-                             RackName.nameString(commandMbx) + ".enableMotor");
+                             RackName.nameString(commandMbx) + ".reset");
         } else {
           System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
-                             RackName.nameString(commandMbx) + ".enableMotor replied error");
+                             RackName.nameString(commandMbx) + ".reset replied error");
         }
       } catch(TimsException e) {
         System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
