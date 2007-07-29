@@ -64,6 +64,11 @@ public class GuiCfg
                     {
                         gui.mainFrameState = getLocationSizeState(cfg, gui.mainFrameLocation, gui.mainFrameSize);
                     }
+                    else if (cfg.startsWith("NAV_UPDATE "))
+                    {
+                        cfg = cfg.substring(11).trim();
+                        gui.navUpdate = Integer.parseInt(cfg);
+                    }
                     else if (cfg.startsWith("GROUP "))
                     {
                         if((currentGroup.name == "") && (currentGroup.elements.size() ==0))

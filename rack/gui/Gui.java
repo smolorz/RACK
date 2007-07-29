@@ -74,8 +74,8 @@ public final class Gui extends Thread
     // navigation panel
     JPanel                  navPanel, navInterPanel;
     JScrollPane             navScrollPanel;
-    Color                   navGroupButtonFG;
     Color                   navStatusButtonBG;
+    int                     navUpdate = 2000;
     // workspace
     JTabbedPane             jtp;
 
@@ -772,234 +772,193 @@ public final class Gui extends Thread
         ge.frame.setLocation(pos);
     }
 
-    protected void updateAllStatus()
+    public void run()
     {
-        for (int i = 0; i < groups.size(); i++)
+        GuiElementDescriptor ge; 
+        int i;
+        
+        navStatusButtonBG = groups.get(0).button.getBackground();
+
+        if(navUpdate <= 0)  // no nav update
         {
-            GuiGroupDescriptor gg = groups.get(i);
-            
-            gg.on     = 0;
-            gg.error  = 0;
-            gg.sum    = 0;
-        }
-
-        for (int i = 0; i < elements.size(); i++)
-        {
-            GuiElementDescriptor ge = elements.get(i); 
-
-            ge.status = RackProxy.MSG_TIMEOUT;
-        }
-
-        try
-        {
-            //System.out.println("Get all status");
-            //int getAllStatusTime = (int)(System.nanoTime() / 1000000L);
-
-            getStatusSeqNr++;
-            if (getStatusSeqNr > 100)
-                getStatusSeqNr = 0;
-
-            for (int i = 0; i < elements.size(); i++)
+            for (int j = 0; j < elements.size(); j++)
             {
-                GuiElementDescriptor ge = elements.get(i);
-
-                if(ge.proxy != null)
-                {
-                    getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
-                            ge.proxy.getCommandMbx(),
-                            (byte) 0,
-                            (byte) getStatusSeqNr);
-                    // ein bischen warten, um nicht stossweise last zu erzeugen.
-                    try
-                    {
-                        Thread.sleep(10);
-                    }
-                    catch (InterruptedException e)
-                    {
-                    }
-                }
-            }
-
-            TimsRawMsg reply;
-            boolean notAllReplies = true;
-
-            // wait for all replies or timeout
-            while (notAllReplies)
-            {
-                // receive reply
-                reply = getStatusReplyMbx.receive(1000);
-                if (reply.seqNr == getStatusSeqNr)
-                {
-                    //int replyTime = (int)(System.nanoTime() / 1000000L);
-                    //System.out.println("Status reply: " + reply.toString() + " time " + (replyTime - getAllStatusTime));
-                    
-                    // update module status array
-                    for (int i = 0; i < elements.size(); i++)
-                    {
-                        GuiElementDescriptor ge = elements.get(i);
-
-                        if(ge.proxy != null)
-                        {
-                            if (ge.proxy.getCommandMbx() == reply.src)
-                            {
-                                ge.status = reply.type;
-                            }
-                        }
-                    }
-                }
-
-                // test if all replies are received
-                notAllReplies = false;
-                for (int i = 0; i < elements.size(); i++)
-                {
-                    GuiElementDescriptor ge = elements.get(i);
-
-                    if (ge.status == RackProxy.MSG_TIMEOUT)
-                    {
-                        notAllReplies = true;
-                    }
-                }
-            }
-        }
-        catch (TimsException e)
-        {
-            // System.out.println("Java Gui getStatus error: " +
-            // e.getMessage());
-        }
-
-        if(navStatusButtonBG == null)
-        {
-            navStatusButtonBG = groups.get(0).button.getBackground();
-        }
-            
-        for (int i = 0; i < elements.size(); i++)
-        {
-            GuiElementDescriptor ge = elements.get(i);
-            
-            if(ge.proxy != null)
-            {
-                // bei paramentern -show und -start soll trotzdem
-                // der button angezeigt werden.
-                if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
-                {
-                    ge.status = RackProxy.MSG_DISABLED;
-                }
-                if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
-                {
-                    ge.status = RackProxy.MSG_DISABLED;
-                }
-    
-                switch (ge.status)
-                {
-                    case RackProxy.MSG_ERROR:
-                        if (ge.navPanel == null)
-                        {
-                            addNavPanel(ge);
-                        }
-                        ge.navStatusButton.setEnabled(true);
-                        ge.navStatusButton.setSelected(true);
-                        ge.navStatusButton.setBackground(Color.RED);
-                        ge.navButton.setEnabled(true);
-    
-                        ge.group.sum++;
-                        ge.group.error++;
-                        break;
-    
-                    case RackProxy.MSG_ENABLED:
-                        if (ge.navPanel == null)
-                        {
-                            addNavPanel(ge);
-                        }
-                        ge.navStatusButton.setEnabled(true);
-                        ge.navStatusButton.setSelected(true);
-                        ge.navStatusButton.setBackground(Color.GREEN);
-                        ge.navButton.setEnabled(true);
-    
-                        ge.group.sum++;
-                        ge.group.on++;
-                        break;
-    
-                    case RackProxy.MSG_DISABLED:
-                        if (ge.navPanel == null)
-                        {
-                            addNavPanel(ge);
-                        }
-                        ge.navStatusButton.setEnabled(true);
-                        ge.navStatusButton.setSelected(false);
-                        ge.navStatusButton.setBackground(navStatusButtonBG);
-                        ge.navButton.setEnabled(true);
-    
-                        ge.group.sum++;
-                        break;
-    
-                    case RackProxy.MSG_NOT_AVAILABLE:
-                        if (ge.navPanel != null)
-                        {
-                            ge.navStatusButton.setEnabled(false);
-                            ge.navStatusButton.setSelected(false);
-                            ge.navStatusButton.setBackground(navStatusButtonBG);
-                            ge.navButton.setEnabled(false);
-                        }
-                        break;
-    
-                    case RackProxy.MSG_TIMEOUT:
-                    default:
-                        if (ge.navPanel != null)
-                        {
-                            ge.navStatusButton.setEnabled(true);
-                            ge.navStatusButton.setSelected(true);
-                            ge.navStatusButton.setBackground(Color.ORANGE);
-                            ge.navButton.setEnabled(false);
-                        }
-                }
-            }
-            else
-            {
-                if (ge.navPanel == null)
-                {
-                    addNavPanel(ge);
-                }
+                ge = elements.get(j); 
+                ge.status = RackProxy.MSG_DISABLED;
                 
+                addNavPanel(ge);
+                ge.navStatusButton.setEnabled(false);
+                ge.navStatusButton.setSelected(false);
+                ge.navStatusButton.setBackground(navStatusButtonBG);
+                ge.navButton.setEnabled(true);
+            }
+            
+            navPanel.revalidate();
+
+            while (terminate == false)
+            {
+                try
+                {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {}
+            }
+        } // no nav update
+
+        for (int j = 0; j < elements.size(); j++)
+        {
+            ge = elements.get(j); 
+            ge.status = RackProxy.MSG_NOT_AVAILABLE;
+            
+            if(ge.proxy == null)
+            {
+                addNavPanel(ge);
                 ge.navStatusButton.setEnabled(false);
                 ge.navStatusButton.setSelected(false);
                 ge.navStatusButton.setBackground(navStatusButtonBG);
                 ge.navButton.setEnabled(true);
             }
         }
-    }
 
-    public void run()
-    {
+        getStatusSeqNr = 1;
+        i = 0;
+        
         while (terminate == false)
         {
-            updateAllStatus();
-            
-            if((navGroupButtonFG == null) & (groups.get(0) != null))
+            ge = elements.get(i); 
+
+            if(ge.proxy != null)
             {
-                navGroupButtonFG = groups.get(0).button.getForeground();
-            }
-            
-            for (int i = 0; i < groups.size(); i++)
-            {
-                GuiGroupDescriptor gg = groups.get(i);
+                if(ge.status == RackProxy.MSG_TIMEOUT)
+                {
+                    // no reply since last get status
+                    if (ge.navPanel != null)
+                    {
+                        ge.navStatusButton.setEnabled(true);
+                        ge.navStatusButton.setSelected(false);
+                        ge.navStatusButton.setBackground(Color.ORANGE);
+                        ge.navButton.setEnabled(false);
+                    }
+                }
                 
-                if (gg.error > 0)
+                try
                 {
-                    gg.button.setForeground(Color.RED);
+                    getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
+                            ge.proxy.getCommandMbx(),
+                            (byte) 0,
+                            (byte) getStatusSeqNr);
                 }
-                else
-                {
-                    gg.button.setForeground(navGroupButtonFG);
-                }
-                gg.button.setText(gg.name +
-                        " (" + gg.error + " , " + gg.on + " , " + gg.sum + ")");
+                catch (TimsException e) {}
+                
+                ge.status = RackProxy.MSG_TIMEOUT;
             }
-            navPanel.revalidate();
+
             try
             {
-                Thread.sleep(2000);
+                Thread.sleep(navUpdate/elements.size());
             }
             catch (InterruptedException e) {}
+            
+            try
+            {
+                TimsMsg reply = getStatusReplyMbx.receive(1);
+                
+                if (reply.seqNr == getStatusSeqNr)
+                {
+                    // update module status array
+                    for (int j = 0; j < elements.size(); j++)
+                    {
+                        ge = elements.get(j);
+
+                        if(ge.proxy != null)
+                        {
+                            if (ge.proxy.getCommandMbx() == reply.src)
+                            {
+                                ge.status = reply.type;
+
+                                // always show navButton of GuiElements with parameter -show and -start
+                                if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                                {
+                                    ge.status = RackProxy.MSG_DISABLED;
+                                }
+                                if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                                {
+                                    ge.status = RackProxy.MSG_DISABLED;
+                                }
+                    
+                                switch (ge.status)
+                                {
+                                    case RackProxy.MSG_ERROR:
+                                        if (ge.navPanel == null)
+                                        {
+                                            addNavPanel(ge);
+                                        }
+                                        ge.navStatusButton.setEnabled(true);
+                                        ge.navStatusButton.setSelected(true);
+                                        ge.navStatusButton.setBackground(Color.RED);
+                                        ge.navButton.setEnabled(true);
+                                        break;
+                    
+                                    case RackProxy.MSG_ENABLED:
+                                        if (ge.navPanel == null)
+                                        {
+                                            addNavPanel(ge);
+                                        }
+                                        ge.navStatusButton.setEnabled(true);
+                                        ge.navStatusButton.setSelected(true);
+                                        ge.navStatusButton.setBackground(Color.GREEN);
+                                        ge.navButton.setEnabled(true);
+                                        break;
+                    
+                                    case RackProxy.MSG_DISABLED:
+                                        if (ge.navPanel == null)
+                                        {
+                                            addNavPanel(ge);
+                                        }
+                                        ge.navStatusButton.setEnabled(true);
+                                        ge.navStatusButton.setSelected(false);
+                                        ge.navStatusButton.setBackground(navStatusButtonBG);
+                                        ge.navButton.setEnabled(true);
+                                        break;
+                    
+                                    case RackProxy.MSG_NOT_AVAILABLE:
+                                        if (ge.navPanel != null)
+                                        {
+                                            ge.navStatusButton.setEnabled(false);
+                                            ge.navStatusButton.setSelected(false);
+                                            ge.navStatusButton.setBackground(navStatusButtonBG);
+                                            ge.navButton.setEnabled(false);
+                                        }
+                                        break;
+                    
+                                    case RackProxy.MSG_TIMEOUT:
+                                    default:
+                                        if (ge.navPanel != null)
+                                        {
+                                            ge.navStatusButton.setEnabled(true);
+                                            ge.navStatusButton.setSelected(false);
+                                            ge.navStatusButton.setBackground(Color.ORANGE);
+                                            ge.navButton.setEnabled(false);
+                                        }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (TimsException e)
+            {}
+            
+            navPanel.revalidate();
+
+            i++;
+            if(i >= elements.size())
+            {
+                i = 0;
+                getStatusSeqNr++;
+                if (getStatusSeqNr > 100)
+                    getStatusSeqNr = 1;
+            }
         }
     }
 

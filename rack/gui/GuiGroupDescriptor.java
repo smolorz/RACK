@@ -33,10 +33,6 @@ public class GuiGroupDescriptor
     JPanel  interPanel;
     JButton button;
 
-    int     error;
-    int     on;
-    int     sum;
-
     Vector<GuiElementDescriptor> elements = new Vector<GuiElementDescriptor>();
 
     public boolean equals(Object o)
