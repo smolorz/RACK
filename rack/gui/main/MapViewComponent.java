@@ -292,8 +292,8 @@ public class MapViewComponent extends JComponent
                 at.scale(bgW / (double)bgImg.getWidth(), bgH / (double)bgImg.getHeight());
                 at.rotate( Math.PI / 2);
                 at.translate(-bgImg.getWidth()/ 2.0, -bgImg.getHeight() / 2.0);                
-                //BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                //BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
                 world.drawImage(bgImg, biop, 0, 0);
             }
         }
