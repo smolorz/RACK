@@ -167,8 +167,35 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         if(command.equals(setDestinationCommand))
         {
             Position3d destination = new Position3d(event.getWorldCursorPos());
+            pilotDest.pos = destination;
 
-            pilot.setDestination(destination);
+            System.out.println("robotCursorPos = "+event.getRobotCursorPos());
+            
+            // set movement direction
+            if (event.getRobotCursorPos().x >= 0)
+            {
+                if (Math.abs(event.getRobotCursorPos().rho) <= Math.toRadians(130.0))
+                {
+                    pilotDest.moveDir = 0.0f;
+                }
+                else
+                {
+                    pilotDest.moveDir = (float) Math.PI;
+                }
+            }
+            else
+            {
+                if (Math.abs(event.getRobotCursorPos().rho) <= Math.toRadians(130.0))
+                {
+                    pilotDest.moveDir = (float) Math.PI;
+                }
+                else
+                {
+                    pilotDest.moveDir = 0.0f;
+                }
+            }
+
+            pilot.setDestination(pilotDest);
         }
     }
 
