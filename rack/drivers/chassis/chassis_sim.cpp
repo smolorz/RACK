@@ -86,6 +86,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "pilotVTransMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotVTransMax, default 200", { 200 } },
 
+    { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+        "1 / sampling rate in ms, default 100", { 100 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -164,9 +167,9 @@ int ChassisSim::moduleLoop(void)
     p_data->vx            = (float)commandData.vx;    // in mm/s
     p_data->vy            = (float)commandData.vy;    // in mm/s
     p_data->omega         = (float)commandData.omega; // in rad/s
-    p_data->deltaX        = p_data->vx / 10.0f;       // in mm
-    p_data->deltaY        = p_data->vy / 10.0f;       // in mm
-    p_data->deltaRho      = p_data->omega / 10.0f;    // in rad
+    p_data->deltaX        = p_data->vx * (float)periodTime / 1000.0f;       // in mm
+    p_data->deltaY        = p_data->vy * (float)periodTime / 1000.0f;       // in mm
+    p_data->deltaRho      = p_data->omega * (float)periodTime / 1000.0f;    // in rad
     p_data->battery       = 0.0f;
     p_data->activePilot   = activePilot;
 
@@ -180,7 +183,7 @@ int ChassisSim::moduleLoop(void)
                     p_data->vx, p_data->vy, p_data->omega,
                     p_data->recordingTime);
 
-    RackTask::sleep(100000000llu);
+    RackTask::sleep(periodTime * 1000000llu);
 
     return 0;
 }
@@ -352,12 +355,13 @@ ChassisSim::ChassisSim()
     param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
-
+    periodTime              = getIntArg("periodTime", argTab);
+    
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 
     // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    setDataBufferPeriodTime(periodTime); // default 10Hz
 }
 
 int main(int argc, char *argv[])

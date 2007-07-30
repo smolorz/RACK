@@ -28,6 +28,7 @@
 
 class ChassisSim : public RackDataModule {
   private:
+      rack_time_t       periodTime;
     chassis_move_data   commandData;
     uint32_t            activePilot;
     RackMutex           mtx;
