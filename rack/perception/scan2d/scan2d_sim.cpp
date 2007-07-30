@@ -51,6 +51,9 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "filename of the DXF map to load", { 0 } },
 
+    { ARGOPT_OPT, "angleRes", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+        "angle resolution, default 1 deg", { 1 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -138,10 +141,10 @@ int  Scan2DSim::moduleLoop(void)
     data2D->recordingTime = dataOdometry->recordingTime;
     data2D->duration = getDataBufferPeriodTime(0);
     data2D->maxRange = maxRange;
-    data2D->pointNum = 361;
+    data2D->pointNum = (360 / angleRes) + 1;
 
     angle           = -180.0 * M_PI / 180.0;
-    angleResolution = 1.0 * M_PI / 180.0;
+    angleResolution = (double)angleRes * M_PI / 180.0;
 
     for (i = 0; i < data2D->pointNum; i ++)
     {
@@ -337,6 +340,7 @@ Scan2DSim::Scan2DSim(void)
     mapOffsetX   = getIntArg("mapOffsetX", argTab);
     mapOffsetY   = getIntArg("mapOffsetY", argTab);
     dxfMapFile   = getStrArg("mapFile", argTab);
+    angleRes     = getIntArg("angleRes", argTab);
 
 
     // set dataBuffer size
