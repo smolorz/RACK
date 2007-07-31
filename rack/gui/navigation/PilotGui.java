@@ -65,15 +65,15 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         destinationButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                String s = (String) JOptionPane.showInputDialog(null, "Destination is:\n" + "x, y, rho, moveDir",
-                        "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0,0");
+                String s = (String) JOptionPane.showInputDialog(null, "Destination is:\n" + "x, y, z, rho, moveDir",
+                        "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0,0.0,0");
                 if ((s != null) && (s.length() > 0))
                 {
                     StringTokenizer st = new StringTokenizer(s, ",");
-                    if (st.countTokens() == 4)
+                    if (st.countTokens() == 5)
                     {
                         Position3d destination = new Position3d(Integer.parseInt(st.nextToken()), Integer.parseInt(st
-                                .nextToken()), 0, 0.0f, 0.0f, (float) Math.toRadians(Float.parseFloat(st.nextToken())));
+                                .nextToken()), Integer.parseInt(st.nextToken()), 0.0f, 0.0f, (float) Math.toRadians(Float.parseFloat(st.nextToken())));
 
                         pilotDest.pos = destination;
 
