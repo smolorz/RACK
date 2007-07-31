@@ -109,24 +109,13 @@ int SerialPort::setBaudrate(int baudrate)
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONFIG, &setbaud_cfg);
 }
 
-int SerialPort::setRxTimeout(int64_t timeout)
+int SerialPort::setRecvTimeout(int64_t timeout)
 {
     struct rtser_config settime_cfg;
 
     // setting timeout
-    settime_cfg.config_mask = RTSER_SET_TIMEOUT_RX;
+    settime_cfg.config_mask = RTSER_SET_TIMEOUT_RX | RTSER_SET_TIMEOUT_EVENT;
     settime_cfg.rx_timeout  = timeout;
-
-    return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONFIG, &settime_cfg);
-}
-
-int SerialPort::setEventTimeout(int64_t timeout)
-{
-    struct rtser_config settime_cfg;
-
-    // setting timeout
-    settime_cfg.config_mask   = RTSER_SET_TIMEOUT_EVENT;
-    settime_cfg.event_timeout = timeout;
 
     return rt_dev_ioctl(fd, RTSER_RTIOC_SET_CONFIG, &settime_cfg);
 }
@@ -194,23 +183,11 @@ int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp,
 {
     int ret;
 
-    ret = setRxTimeout(timeout_ns);
+    ret = setRecvTimeout(timeout_ns);
     if (ret)
         return ret;
 
     return recv(data, dataLen, timestamp);
-}
-
-
-int SerialPort::recv_pending(void *data, int maxdataLen)
-{
-    int ret;
-
-    ret = setRxTimeout(-1);    // NONBLOCK
-    if (ret)
-        return ret;
-
-    return rt_dev_read(fd, data, maxdataLen);
 }
 
 int SerialPort::clean(void)

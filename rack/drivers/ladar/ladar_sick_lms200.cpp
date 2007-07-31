@@ -136,6 +136,8 @@ int  LadarSickLms200::moduleOn(void)
         return ret;
     }
 
+    serialPort.setRecvTimeout(2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
@@ -163,8 +165,7 @@ int  LadarSickLms200::moduleLoop(void)
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
     // read head with timestamp
-    ret = serialPort.recv(&serialBuffer[0], headLength, &timeStamp,
-                          2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+    ret = serialPort.recv(&serialBuffer[0], headLength, &timeStamp);
     if (ret)
     {
         GDOS_ERROR("loop: ERROR: can't read message head from rtser%d (4 bytes), "
@@ -182,8 +183,7 @@ int  LadarSickLms200::moduleLoop(void)
 
     // read data with checksum
     dataLength = MKSHORT(serialBuffer[2], serialBuffer[3]);
-    ret = serialPort.recv(&serialBuffer[4], dataLength + crcLength, NULL,
-                          2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+    ret = serialPort.recv(&serialBuffer[4], dataLength + crcLength);
     if (ret)
     {
         GDOS_ERROR("loop: ERROR: can't read message data from rtser%d (%d bytes), "
@@ -407,7 +407,7 @@ int  LadarSickLms200::normExchangeCommand(char* command, int commandLen)
         }
 
         // set ack receive timeout
-        ret = serialPort.setRxTimeout(conf->wait_for_ack);
+        ret = serialPort.setRecvTimeout(conf->wait_for_ack);
         if (ret)
         {
             GDOS_ERROR("Can't set read timeout for ack, code = %d \n", ret);
@@ -459,7 +459,7 @@ int  LadarSickLms200::normExchangeCommand(char* command, int commandLen)
         }
 
         // set modechange receive timeout
-        ret = serialPort.setRxTimeout(conf->wait_for_modechange);
+        ret = serialPort.setRecvTimeout(conf->wait_for_modechange);
         if (ret)
         {
             GDOS_ERROR("Can't set read timeout for mode change \n");
@@ -576,7 +576,7 @@ int  LadarSickLms200::intExchangeCommand(char* command, int commandLen)
         }
 
         // set ack receive timeout
-        ret = serialPort.setRxTimeout(conf->wait_for_ack);
+        ret = serialPort.setRecvTimeout(conf->wait_for_ack);
         if (ret)
         {
             GDOS_ERROR("Can't set read timeout for ack, code = %d \n", ret);
@@ -618,7 +618,7 @@ int  LadarSickLms200::intExchangeCommand(char* command, int commandLen)
         }
 
         // set modechange receive timeout
-        ret = serialPort.setRxTimeout(conf->wait_for_modechange);
+        ret = serialPort.setRecvTimeout(conf->wait_for_modechange);
         if (ret)
         {
             GDOS_ERROR("Can't set read timeout for modechange, code = %d\n",
@@ -736,7 +736,7 @@ int  LadarSickLms200::fastExchangeCommand(char* command, int commandLen)
         }
 
         // set ack receive timeout
-        ret = serialPort.setRxTimeout(conf->wait_for_ack);
+        ret = serialPort.setRecvTimeout(conf->wait_for_ack);
         if (ret)
         {
             GDOS_ERROR("Can't set read timeout for ack, code = %d \n", ret);
@@ -779,14 +779,13 @@ int  LadarSickLms200::fastExchangeCommand(char* command, int commandLen)
         }
 
         // set modechange receive timeout
-        ret = serialPort.setRxTimeout(conf->wait_for_modechange);
+        ret = serialPort.setRecvTimeout(conf->wait_for_modechange);
         if (ret)
         {
             GDOS_ERROR("Can't set read timeout for modechange, code = %d \n",
                        ret);
             return ret;
         }
-
 
         byteCount      = 0;
         totalByteCount = 0;

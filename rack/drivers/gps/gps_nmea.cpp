@@ -67,7 +67,7 @@ struct rtser_config gps_serial_config = {
     stop_bits         : RTSER_1_STOPB,
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : 200000000llu,
+    rx_timeout        : RTSER_DEF_TIMEOUT,
     tx_timeout        : RTSER_DEF_TIMEOUT,
     event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
@@ -89,7 +89,7 @@ int GpsNmea::moduleOn(void)
 {
     serialPort.clean();
     // set rx timeout 2 * periodTime in ns
-    serialPort.setRxTimeout((int64_t)periodTime * 2000000llu);
+    serialPort.setRecvTimeout((int64_t)periodTime * 2000000llu);
 
     // set values
     utcTime               = 0.0f;

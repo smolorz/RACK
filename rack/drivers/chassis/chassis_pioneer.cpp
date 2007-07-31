@@ -132,7 +132,7 @@ const struct rtser_config pioneer_serial_config = {
     stop_bits         : RTSER_1_STOPB,
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : 200000000llu,
+    rx_timeout        : RTSER_DEF_TIMEOUT,
     tx_timeout        : RTSER_DEF_TIMEOUT,
     event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
@@ -188,7 +188,6 @@ chassis_param_data param = {
     int ret;
 
     serialPort.clean();
-    serialPort.setRxTimeout(200000000llu);
 
     // check if server connection is already open
     if (receivePackage(buffer, NULL) == 0)
@@ -211,7 +210,7 @@ chassis_param_data param = {
     }
     else  // open new connection to server
     {
-        serialPort.setRxTimeout(1000000000llu);
+        serialPort.setRecvTimeout(1000000000llu);
         //sync0
         ret = sendPackage(sync0Command, sizeof(sync0Command));
         if (ret)
@@ -349,7 +348,7 @@ chassis_param_data param = {
         return ret;
     }
 
-    serialPort.setRxTimeout(200000000llu);
+    serialPort.setRecvTimeout(200000000llu);
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }

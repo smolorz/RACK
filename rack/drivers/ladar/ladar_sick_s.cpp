@@ -146,6 +146,8 @@ int  LadarSickS::moduleOn(void)
             return -1;
     }
 
+    serialPort.setRecvTimeout(2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
@@ -170,8 +172,7 @@ int  LadarSickS::moduleLoop(void)
 
     for(i = 0; i < 10; i++)
     {
-        ret = serialPort.recv(&serialBuffer[i], 1, &time,
-                          2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+        ret = serialPort.recv(&serialBuffer[i], 1, &time);
         if (ret)
         {
             GDOS_ERROR("Can't read from serial dev %i\n", serialDev);
@@ -212,8 +213,7 @@ int  LadarSickS::moduleLoop(void)
 
     size = MKSHORT(serialBuffer[7], serialBuffer[6]);
 
-    ret = serialPort.recv(&serialBuffer[i], (size-3)*2, &time,
-                          2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+    ret = serialPort.recv(&serialBuffer[i], (size-3)*2);
     if (ret)
     {
         GDOS_ERROR("Can't read data body from serial dev %i\n", serialDev);

@@ -74,8 +74,6 @@ int  LadarHokuyoUrg::moduleOn(void)
 
     RackTask::sleep(50000000); // 50 ms
 
-    serialPort.setRxTimeout(200000000llu);
-
     ret = serialPort.send(sCommand115200, 15);
     if (ret)
     {

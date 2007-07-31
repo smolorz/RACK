@@ -37,9 +37,9 @@ struct rtser_config urg_serial_config = {
     stop_bits         : RTSER_1_STOPB,
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : 50000000llu,
+    rx_timeout        : 200000000llu,
     tx_timeout        : RTSER_DEF_TIMEOUT,
-    event_timeout     : RTSER_DEF_TIMEOUT,
+    event_timeout     : 200000000llu,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
     event_mask        : RTSER_EVENT_RXPEND
 };

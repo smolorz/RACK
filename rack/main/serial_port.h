@@ -44,8 +44,7 @@ class SerialPort
 
         int setConfig(const rtser_config *config);
         int setBaudrate(int baudrate);
-        int setRxTimeout(int64_t timeout);
-        int setEventTimeout(int64_t timeout);
+        int setRecvTimeout(int64_t timeout);
         int getControl(int32_t *bitmask);
         int setControl(int32_t bitmask);
         int getStatus(struct rtser_status *status);
@@ -56,8 +55,6 @@ class SerialPort
         int recv(void *data, int dataLen, rack_time_t *timestamp);
         int recv(void *data, int dataLen, rack_time_t *timestamp,
                  int64_t timeout_ns);
-
-        int recv_pending(void *data, int maxdataLen);
 
         int clean(void);
 };
