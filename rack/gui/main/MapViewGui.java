@@ -289,11 +289,15 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         {
             if(rootPanel.isShowing())
             {
-                PositionDataMsg position = null;//positionProxy.getData(); 
-
-                if(position != null)
+                PositionDataMsg position;
+                if(positionProxy != null)
                 {
-                    addRobotPosition(position);
+                    position = positionProxy.getData(); 
+
+                    if(position != null)
+                    {
+                        addRobotPosition(position);
+                    }
                 }
                 
                 position = robotPosition.lastElement();
