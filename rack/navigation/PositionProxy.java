@@ -47,10 +47,7 @@ public class PositionProxy extends RackDataProxy
     {
         try
         {
-            long timeA = System.currentTimeMillis();
             TimsRawMsg raw = getRawData(recordingTime);
-            long timeB = System.currentTimeMillis();
-            System.out.println("Position.getData() " + (timeB - timeA) + "ms");
             
             if (raw!=null) {
                 PositionDataMsg data = new PositionDataMsg(raw);
