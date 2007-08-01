@@ -103,6 +103,11 @@ public class TimsMbx extends Vector<TimsMsg>
         return tims.receive(this, timeout);
     }
 
+    public TimsRawMsg receiveIf() throws TimsException
+    {
+        return tims.receive(this, 1);
+    }
+
     public void delete()
     {
         try
