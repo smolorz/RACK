@@ -19,16 +19,29 @@ import rack.main.tims.*;
 
 public abstract class RackDataProxy extends RackProxy
 {
-    public RackDataProxy(int commandMbx, TimsMbx replyMbx, int onTimeout,
-            int offTimeout, int dataTimeout)
+    protected TimsMbx dataMbx;
+    protected int maxPeriodTime;
+    protected int nextDataTimeout;
+
+    public RackDataProxy(int commandMbx, TimsMbx replyMbx, int maxPeriodTime)
     {
-        super(commandMbx, replyMbx, onTimeout, offTimeout, dataTimeout);
+        super(commandMbx, replyMbx);
+        this.maxPeriodTime = maxPeriodTime;
+        
+        nextDataTimeout = 2 * maxPeriodTime;
+        if(nextDataTimeout < replyTimeout)
+            nextDataTimeout = replyTimeout;
     }
 
-    public RackDataProxy(int commandMbx, TimsMbx replyMbx, TimsMbx dataMbx,
-            int onTimeout, int offTimeout, int dataTimeout)
+    public RackDataProxy(int commandMbx, TimsMbx replyMbx, TimsMbx dataMbx, int maxPeriodTime)
     {
-        super(commandMbx, replyMbx, dataMbx, onTimeout, offTimeout, dataTimeout);
+        super(commandMbx, replyMbx);
+        this.dataMbx = dataMbx;
+        this.maxPeriodTime = maxPeriodTime;
+        
+        nextDataTimeout = 2 * maxPeriodTime;
+        if(nextDataTimeout < replyTimeout)
+            nextDataTimeout = replyTimeout;
     }
 
     protected synchronized TimsRawMsg getRawData(int recordingTime)
@@ -48,7 +61,7 @@ public abstract class RackDataProxy extends RackProxy
             do
             {
 
-                reply = replyMbx.receive(dataTimeout);
+                reply = replyMbx.receive(replyTimeout);
 
             }
             while (reply.seqNr != currentSequenceNo);
@@ -84,12 +97,10 @@ public abstract class RackDataProxy extends RackProxy
                           (byte) 0, currentSequenceNo);
 
             TimsRawMsg reply;
-
+            
             do
             {
-
-                reply = replyMbx.receive(onTimeout);
-
+                reply = replyMbx.receive(nextDataTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -138,7 +149,7 @@ public abstract class RackDataProxy extends RackProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(dataTimeout);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -176,7 +187,7 @@ public abstract class RackDataProxy extends RackProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(dataTimeout);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -189,5 +200,14 @@ public abstract class RackDataProxy extends RackProxy
             System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".stopContData " + e);
         }
+    }
+
+    public void setReplyTimeout(int replyTimeout)
+    {
+        this.replyTimeout = replyTimeout;
+        
+        nextDataTimeout = 2 * maxPeriodTime;
+        if(nextDataTimeout < replyTimeout)
+            nextDataTimeout = replyTimeout;
     }
 }

@@ -34,8 +34,7 @@ public class DatalogProxy extends RackDataProxy
 
     public DatalogProxy(int id, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.DATALOG, id), replyMbx, 10000, 5000, 5000);
-        this.id = id;
+        super(RackName.create(RackName.DATALOG, id), replyMbx, 1000);
     }
     
     public synchronized DatalogDataMsg getData(int recordingTime)
@@ -76,7 +75,7 @@ public class DatalogProxy extends RackDataProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
                     
@@ -110,7 +109,7 @@ public class DatalogProxy extends RackDataProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
             }
             while ((reply.seqNr != currentSequenceNo) &
                    (reply.type == MSG_DATALOG_LOG_STATUS));
@@ -138,7 +137,7 @@ public class DatalogProxy extends RackDataProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
             }
             while(reply.seqNr != currentSequenceNo);
 
@@ -159,10 +158,5 @@ public class DatalogProxy extends RackDataProxy
             System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".setLog " + e);
         }
-    }
-
-    public int getCommandMbx()
-    {
-        return(RackName.create(RackName.DATALOG, id));
     }
 }

@@ -36,8 +36,7 @@ public class CameraProxy extends RackDataProxy {
 
     public CameraProxy(int id, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.CAMERA, id), replyMbx, 5000, 1000, 5000);
-        this.id = id;
+        super(RackName.create(RackName.CAMERA, id), replyMbx, 2500);
     }
 
     public synchronized CameraDataMsg getData(int recordingTime)
@@ -102,7 +101,7 @@ public class CameraProxy extends RackDataProxy {
             TimsRawMsg reply;
 
             do {
-                reply = replyMbx.receive(dataTimeout);
+                reply = replyMbx.receive(replyTimeout);
             } while (reply.seqNr != currentSequenceNo);
 
             if (reply.type == RackProxy.MSG_OK) {
@@ -119,10 +118,5 @@ public class CameraProxy extends RackDataProxy {
             System.out.println(RackName.nameString(replyMbx.getName()) +
                     ": cameraProxy setFormat " + e);
         }
-    }
-
-    public int getCommandMbx()
-    {
-        return(RackName.create(RackName.CAMERA, id));
     }
 }

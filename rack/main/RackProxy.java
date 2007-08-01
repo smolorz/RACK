@@ -43,38 +43,18 @@ public abstract class RackProxy
     public static final byte MSG_POS_OFFSET = 20;
     public static final byte MSG_NEG_OFFSET = -20;
 
-    protected int commandMbx;
-    protected TimsMbx replyMbx;
+    protected int            commandMbx;
+    protected TimsMbx        replyMbx;
 
-    /** zum Empfang von kontinuierlichen Daten */
-    protected TimsMbx dataMbx;
-    protected int id = 0;
+    public static int        DEFAULT_REPLY_TIMEOUT = 1000;
+    protected int            replyTimeout          = DEFAULT_REPLY_TIMEOUT;
 
-    protected int onTimeout = 0;
-    protected int offTimeout = 0;
-    protected int dataTimeout = 0;
-
-    protected byte currentSequenceNo = 0;
-
-    public RackProxy(int commandMbx, TimsMbx replyMbx, int onTimeout,
-            int offTimeout, int dataTimeout)
+    protected byte           currentSequenceNo     = 0;
+    
+    public RackProxy(int commandMbx, TimsMbx replyMbx)
     {
         this.commandMbx = commandMbx;
         this.replyMbx = replyMbx;
-        this.onTimeout = onTimeout;
-        this.offTimeout = offTimeout;
-        this.dataTimeout = dataTimeout;
-    }
-
-    public RackProxy(int commandMbx, TimsMbx replyMbx, TimsMbx dataMbx, int onTimeout,
-            int offTimeout, int dataTimeout)
-    {
-        this.commandMbx = commandMbx;
-        this.replyMbx = replyMbx;
-        this.dataMbx = dataMbx;
-        this.onTimeout = onTimeout;
-        this.offTimeout = offTimeout;
-        this.dataTimeout = dataTimeout;
     }
 
     public synchronized void on()
@@ -88,7 +68,7 @@ public abstract class RackProxy
 
             do
             {
-                reply = replyMbx.receive(onTimeout);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -113,7 +93,7 @@ public abstract class RackProxy
 
             do
             {
-                reply = replyMbx.receive(offTimeout);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -138,7 +118,7 @@ public abstract class RackProxy
 
             do
             {
-                reply = replyMbx.receive(dataTimeout);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -182,14 +162,29 @@ public abstract class RackProxy
         }
     }
 
+    public void setReplyTimeout(int replyTimeout)
+    {
+        this.replyTimeout = replyTimeout;
+    }
+    
     /**
      * @return instanceId
      */
     public int getInstanceId()
     {
-        return id;
+        return RackName.instanceId(commandMbx);
     }
 
-    public abstract int getCommandMbx();
+    /**
+     * @return classId
+     */
+    public int getClassId()
+    {
+        return RackName.classId(commandMbx);
+    }
 
+    public final int getCommandMbx()
+    {
+        return commandMbx;
+    }
 }

@@ -35,21 +35,23 @@ public class PositionProxy extends RackDataProxy
 
     public PositionProxy(int id , TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.POSITION, id), replyMbx, 5000, 1000, 1000);
-        this.id = id;
+        super(RackName.create(RackName.POSITION, id), replyMbx, 500);
     }
 
     public PositionProxy(int id , TimsMbx replyMbx, TimsMbx dataMbx)
     {
-        super(RackName.create(RackName.POSITION, id), replyMbx, dataMbx, 5000, 1000, 1000);
-        this.id = id;
+        super(RackName.create(RackName.POSITION, id), replyMbx, dataMbx, 500);
     }
 
     public synchronized PositionDataMsg getData(int recordingTime)
     {
         try
         {
+            long timeA = System.currentTimeMillis();
             TimsRawMsg raw = getRawData(recordingTime);
+            long timeB = System.currentTimeMillis();
+            System.out.println("Position.getData() " + (timeB - timeA) + "ms");
+            
             if (raw!=null) {
                 PositionDataMsg data = new PositionDataMsg(raw);
                 return(data);
@@ -87,7 +89,7 @@ public class PositionProxy extends RackDataProxy
 
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
                 System.out.println(RackName.nameString(replyMbx.getName()) + ": " + reply.type + " " + reply.seqNr);
             }
             while(reply.seqNr != currentSequenceNo);
@@ -113,7 +115,7 @@ public class PositionProxy extends RackDataProxy
 
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
             }
             while((reply.seqNr != currentSequenceNo)
                    & (reply.type == MSG_POSITION_POS));
@@ -143,7 +145,7 @@ public class PositionProxy extends RackDataProxy
 
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
             }
             while ((reply.seqNr != currentSequenceNo)
                     & (reply.type == MSG_POSITION_WGS84));
@@ -177,10 +179,5 @@ public class PositionProxy extends RackDataProxy
             return(null);
         }
 
-    }
-
-    public int getCommandMbx()
-    {
-        return(RackName.create(RackName.POSITION, id));
     }
 }

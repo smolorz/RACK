@@ -22,8 +22,7 @@ public class LadarProxy extends RackDataProxy
 {
     public LadarProxy(int id, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.LADAR, id), replyMbx, 10000, 5000, 1000);
-        this.id = id;
+        super(RackName.create(RackName.LADAR, id), replyMbx, 500);
     }
 
     public synchronized LadarDataMsg getData(int recordingTime)
@@ -71,10 +70,5 @@ public class LadarProxy extends RackDataProxy
             System.out.println(e.toString());
             return null;
         }
-    }
-
-    public int getCommandMbx()
-    {
-        return (RackName.create(RackName.LADAR, id));
     }
 }

@@ -23,9 +23,8 @@ public class GpsProxy extends RackDataProxy
 
     public GpsProxy(int id, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.GPS, id), replyMbx, 5000, 1000, 1000);
-        this.id = id;
-    }    
+        super(RackName.create(RackName.GPS, id), replyMbx, 1000);
+    }
 
     public synchronized GpsDataMsg getData(int recordingTime)
     {
@@ -54,9 +53,4 @@ public class GpsProxy extends RackDataProxy
     {
         return(getData(0));
     }    
-
-    public int getCommandMbx()
-    {
-        return(RackName.create(RackName.GPS, id));
-    }
 }

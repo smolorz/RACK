@@ -22,9 +22,7 @@ public class JoystickProxy extends RackDataProxy
 {
     public JoystickProxy(int id, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.JOYSTICK, id), replyMbx, 2000, 1000,
-                1000);
-        this.id = id;
+        super(RackName.create(RackName.JOYSTICK, id), replyMbx, 1000);
     }
 
     public synchronized JoystickDataMsg getData(int recordingTime)
@@ -52,10 +50,5 @@ public class JoystickProxy extends RackDataProxy
     public synchronized JoystickDataMsg getData()
     {
         return (getData(0));
-    }
-
-    public int getCommandMbx()
-    {
-        return (RackName.create(RackName.JOYSTICK, id));
     }
 }

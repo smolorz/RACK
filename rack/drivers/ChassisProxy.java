@@ -37,8 +37,7 @@ public class ChassisProxy extends RackDataProxy
 
     public ChassisProxy(int id, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.CHASSIS, id), replyMbx, 5000, 1000, 1000);
-        this.id = id;
+        super(RackName.create(RackName.CHASSIS, id), replyMbx, 500);
     }
 
     public synchronized ChassisDataMsg getData(int recordingTime)
@@ -79,7 +78,7 @@ public class ChassisProxy extends RackDataProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(1000);
+                reply = replyMbx.receive(replyTimeout);
             }
             while ((reply.seqNr != currentSequenceNo)
                     & (reply.type == MSG_CHASSIS_PARAMETER));
@@ -108,7 +107,7 @@ public class ChassisProxy extends RackDataProxy
             TimsRawMsg reply;
             do
             {
-                reply = replyMbx.receive(onTimeout);
+                reply = replyMbx.receive(replyTimeout);
             }
             while (reply.seqNr != currentSequenceNo);
 
@@ -129,10 +128,5 @@ public class ChassisProxy extends RackDataProxy
             System.out.println(RackName.nameString(replyMbx.getName()) + ": "
                     + RackName.nameString(commandMbx) + ".on " + e);
         }
-    }
-
-    public int getCommandMbx()
-    {
-        return (RackName.create(RackName.CHASSIS, id));
     }
 }

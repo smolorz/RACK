@@ -26,13 +26,7 @@ public class PilotProxy extends RackDataProxy
 	  
   public PilotProxy(int id, TimsMbx replyMbx)
   {
-    super(RackName.create(RackName.PILOT, id), replyMbx, 5000, 1000, 1000);
-    this.id = id;
-  }
-
-  public int getCommandMbx()
-  {
-    return(RackName.create(RackName.PILOT, id));
+    super(RackName.create(RackName.PILOT, id), replyMbx, 500);
   }
 
   public synchronized PilotDataMsg getData(int recordingTime)
@@ -88,7 +82,7 @@ public class PilotProxy extends RackDataProxy
           TimsRawMsg reply;
           do
           {
-            reply = replyMbx.receive(1000);
+            reply = replyMbx.receive(replyTimeout);
           }
           while(reply.seqNr != currentSequenceNo);
       }

@@ -27,8 +27,7 @@ public class Scan2dProxy extends RackDataProxy
 {
   public Scan2dProxy(int id, TimsMbx replyMbx)
   {
-    super(RackName.create(RackName.SCAN2D, id), replyMbx, 10000, 5000, 5000);
-    this.id = id;
+    super(RackName.create(RackName.SCAN2D, id), replyMbx, 2500);
   }
 
   public synchronized Scan2dDataMsg getData(int recordingTime)
@@ -50,8 +49,14 @@ public class Scan2dProxy extends RackDataProxy
 
   public synchronized Scan2dDataMsg getData()
   {
+      long timeA, timeB;
+      
     try {
-      TimsRawMsg raw = getNextData();
+        timeA = System.currentTimeMillis();
+//      TimsRawMsg raw = getNextData();
+      TimsRawMsg raw = getRawData(0);
+      timeB = System.currentTimeMillis();
+      System.out.println("get data " + (timeB - timeA) + "ms");
 
       if (raw != null) {
         Scan2dDataMsg data = new Scan2dDataMsg(raw);
@@ -65,11 +70,6 @@ public class Scan2dProxy extends RackDataProxy
     }
   }
 
-  public int getCommandMbx()
-  {
-    return(RackName.create(RackName.SCAN2D, id));
-  }
-  
   public int storeDataToFile(String filename, Scan2dDataMsg scan2dData)
   {
       if(scan2dData != null)
