@@ -861,10 +861,10 @@ public final class Gui extends Thread
             
             try
             {
-                TimsMsg reply = getStatusReplyMbx.receive(1);
-                
-                if (reply.seqNr == getStatusSeqNr)
+                while (true)
                 {
+                    TimsMsg reply = getStatusReplyMbx.receiveIf();
+                    
                     // update module status array
                     for (int j = 0; j < elements.size(); j++)
                     {
