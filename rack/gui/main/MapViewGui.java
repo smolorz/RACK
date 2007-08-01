@@ -57,7 +57,9 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected int                          bgY;
     protected int                          bgW;
     protected int                          bgH;
+    protected boolean                      bgBicubic;
 
+    protected int                          positionInst;
     protected PositionProxy                positionProxy;
     protected Vector<PositionDataMsg>      robotPosition;
     protected ChassisProxy                 chassisProxy;
@@ -69,8 +71,15 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     {
         super(guiElement);
 
+        String param = ge.getParameter("positionInst");
+        if (param.length() > 0)
+            positionInst = Integer.parseInt(param);
+        else
+            positionInst = 0;
+
         // create MapView proxies
-        positionProxy = (PositionProxy) mainGui.getProxy(RackName.POSITION, 0);
+        if(positionInst >= 0)
+            positionProxy = (PositionProxy) mainGui.getProxy(RackName.POSITION, positionInst);
         chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, 0);
 
         // get chassis parameter message
@@ -125,7 +134,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         rootPanel.add(mapComponent, BorderLayout.CENTER);
 
         // set MapView background
-        String param = ge.getParameter("bg");
+        param = ge.getParameter("bg");
         if (param.length() > 0)
         {
             try
@@ -162,7 +171,16 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             else
                 bgH = 100000;
 
-            mapComponent.setBackgroundImage(bgImg, bgX, bgY, bgW, bgH);
+            param = ge.getParameter("bgBicubic");
+            if (param.length() > 0)
+                if(Integer.parseInt(param) > 0)
+                    bgBicubic = true;
+                else
+                    bgBicubic = false;
+            else
+                bgBicubic = false;
+
+            mapComponent.setBackgroundImage(bgImg, bgX, bgY, bgW, bgH, bgBicubic);
         }
         
         worldButton.grabFocus();
@@ -231,6 +249,22 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         return null;
     }
 
+    public void addRobotPosition(PositionDataMsg position)
+    {
+        PositionDataMsg lastPosition = robotPosition.lastElement();
+        
+        if(position.recordingTime > lastPosition.recordingTime)
+        {
+            // add new position data
+            robotPosition.add(position);
+            
+            while(robotPosition.size() > 50)
+            {
+                robotPosition.removeElementAt(0);
+            }
+        }
+    }
+    
     public JComponent getComponent()
     {
         return rootPanel;
@@ -255,33 +289,30 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         {
             if(rootPanel.isShowing())
             {
-                PositionDataMsg position = positionProxy.getData(); 
+                PositionDataMsg position = null;//positionProxy.getData(); 
 
                 if(position != null)
                 {
-                    robotPosition.add(position);
-                    
-                    while(robotPosition.size() > 50)
-                    {
-                        robotPosition.removeElementAt(0);
-                    }
-                    
-                    Position2d worldCenter;
-                    if(chaseButton.isSelected())
-                    {
-                        worldCenter = new Position2d(position.pos);
-                        worldCenter.rho = 0.0f;
-                    }
-                    else if(robotButton.isSelected())
-                    {
-                        worldCenter = new Position2d(position.pos);
-                    }
-                    else
-                    {
-                        worldCenter = new Position2d();
-                    }
-                    mapComponent.setWorldCenter(worldCenter);
+                    addRobotPosition(position);
                 }
+                
+                position = robotPosition.lastElement();
+                
+                Position2d worldCenter;
+                if(chaseButton.isSelected())
+                {
+                    worldCenter = new Position2d(position.pos);
+                    worldCenter.rho = 0.0f;
+                }
+                else if(robotButton.isSelected())
+                {
+                    worldCenter = new Position2d(position.pos);
+                }
+                else
+                {
+                    worldCenter = new Position2d();
+                }
+                mapComponent.setWorldCenter(worldCenter);
                 
                 mapComponent.repaint();
             }

@@ -75,6 +75,7 @@ public class MapViewComponent extends JComponent
     protected double                   bgY;
     protected double                   bgW;
     protected double                   bgH;
+    protected boolean                  bgBicubic;
 
     public JPanel                      zoomPanel;
     public JButton                     zoomInButton;
@@ -154,13 +155,14 @@ public class MapViewComponent extends JComponent
         mapViews.remove(mapView);
     }
 
-    public synchronized void setBackgroundImage(BufferedImage bgImg, int bgX, int bgY, int bgW, int bgH)
+    public synchronized void setBackgroundImage(BufferedImage bgImg, int bgX, int bgY, int bgW, int bgH, boolean bgBicubic)
     {
         this.bgImg = bgImg;
         this.bgX = (double)bgX;
         this.bgY = (double)bgY;
         this.bgW = (double)bgW;
         this.bgH = (double)bgH;
+        this.bgBicubic = bgBicubic;
     }
 
     public void setWorldCenter(Position2d worldCenter)
@@ -291,9 +293,16 @@ public class MapViewComponent extends JComponent
                 AffineTransform at = new AffineTransform();
                 at.scale(bgW / (double)bgImg.getWidth(), bgH / (double)bgImg.getHeight());
                 at.rotate( Math.PI / 2);
-                at.translate(-bgImg.getWidth()/ 2.0, -bgImg.getHeight() / 2.0);                
-                BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                //BufferedImageOp biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                at.translate(-bgImg.getWidth()/ 2.0, -bgImg.getHeight() / 2.0);
+                BufferedImageOp biop;
+                if(bgBicubic)
+                {
+                    biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                }
+                else
+                {
+                    biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                }
                 world.drawImage(bgImg, biop, 0, 0);
             }
         }
