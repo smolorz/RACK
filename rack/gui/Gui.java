@@ -303,6 +303,7 @@ public final class Gui extends Thread
             }
             catch (TimsException e)
             {
+                System.out.println(e);
                 if (++inst == GUI_MAX_INSTANCES) {
                     JOptionPane.showMessageDialog(mainFrameContent,
                             "Can't create Mailbox\n" + e.getMessage(),
