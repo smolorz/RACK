@@ -356,7 +356,8 @@ int DatalogRec::initLogFile()
                 case PILOT:
                     ret = fprintf(fileptr[i], "%% Pilot(%i)\n"
                                   "%% recordingTime pos.x pos.y pos.z"
-                                  " pos.phi pos.psi pos.rho speed curve splineNum"
+                                  " pos.phi pos.psi pos.rho dest.x dest.y dest.z"
+                                  " dest.phi dest.psi dest.rho speed curve distanceToDest splineNum"
                                   " spline[0].startPos.x spline[0].startPos.y"
                                   " spline[0].startPos.rho spline[0].endPos.x"
                                   " spline[0].endPos.y spline[0].endPos.rho"
@@ -539,7 +540,7 @@ int DatalogRec::logData(message_info *msgInfo)
 
                 case PILOT:
                     pilotData = PilotData::parse(msgInfo);
-                    bytes = fprintf(fileptr[i], "%u %i %i %i %f %f %f %i %f %i",
+                    bytes = fprintf(fileptr[i], "%u %i %i %i %f %f %f %i %i %i %f %f %f %i %f %i %i",
                         (unsigned int)pilotData->recordingTime,
                         pilotData->pos.x,
                         pilotData->pos.y,
@@ -547,8 +548,15 @@ int DatalogRec::logData(message_info *msgInfo)
                         pilotData->pos.phi,
                         pilotData->pos.psi,
                         pilotData->pos.rho,
+                        pilotData->dest.x,
+                        pilotData->dest.y,
+                        pilotData->dest.z,
+                        pilotData->dest.phi,
+                        pilotData->dest.psi,
+                        pilotData->dest.rho,
                         pilotData->speed,
                         pilotData->curve,
+                        pilotData->distanceToDest,
                         pilotData->splineNum);
 
                     for (j = 0; j < pilotData->splineNum; j++)
