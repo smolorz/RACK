@@ -14,6 +14,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.navigation{PilotProxy.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{OdometryDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsTcp.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.tims{TimsDataRate.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main{AngleTool.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{GDOSGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{RackDataModuleGui.java"/>
