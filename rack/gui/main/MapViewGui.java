@@ -18,7 +18,7 @@ package rack.gui.main;
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -70,7 +70,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     public MapViewGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
-
+        
         String param = ge.getParameter("positionInst");
         if (param.length() > 0)
             positionInst = Integer.parseInt(param);
@@ -265,6 +265,31 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         }
     }
     
+    public void repaint()
+    {
+        PositionDataMsg position;
+
+        position = robotPosition.lastElement();
+        
+        Position2d worldCenter;
+        if(chaseButton.isSelected())
+        {
+            worldCenter = new Position2d(position.pos);
+            worldCenter.rho = 0.0f;
+        }
+        else if(robotButton.isSelected())
+        {
+            worldCenter = new Position2d(position.pos);
+        }
+        else
+        {
+            worldCenter = new Position2d();
+        }
+        mapComponent.setWorldCenter(worldCenter);
+
+        mapComponent.repaint();
+    }
+
     public JComponent getComponent()
     {
         return rootPanel;
@@ -299,26 +324,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                         addRobotPosition(position);
                     }
                 }
-                
-                position = robotPosition.lastElement();
-                
-                Position2d worldCenter;
-                if(chaseButton.isSelected())
-                {
-                    worldCenter = new Position2d(position.pos);
-                    worldCenter.rho = 0.0f;
-                }
-                else if(robotButton.isSelected())
-                {
-                    worldCenter = new Position2d(position.pos);
-                }
-                else
-                {
-                    worldCenter = new Position2d();
-                }
-                mapComponent.setWorldCenter(worldCenter);
-                
-                mapComponent.repaint();
+                repaint();
             }
             
             try
