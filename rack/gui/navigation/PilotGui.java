@@ -143,14 +143,14 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         
         data = pilot.getData();
         
+        synchronized (this)
+        {
+            pilotData = data;
+        }
+        mapComponent.repaint();
+
         if (data != null)
         {
-            synchronized (this)
-            {
-                pilotData = data;
-            }
-            mapComponent.repaint();
-            
             setEnabled(true);
         }
         else
