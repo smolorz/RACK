@@ -186,17 +186,42 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
             {
                 g.setColor(Color.YELLOW);
             }
-            else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
+            else if(point.segment == 0)
             {
-                g.setColor(Color.BLUE);
+                if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
+                {
+                    g.setColor(Color.BLUE);
+                }
+                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
+                {
+                    g.setColor(Color.RED);
+                }
+                else
+                {
+                    g.setColor(Color.BLACK);
+                }
             }
-            else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
+            else // segment != 0
             {
-                g.setColor(Color.RED);
-            }
-            else
-            {
-                g.setColor(Color.BLACK);
+                int seg = (point.segment - 1) % 5;
+                switch(seg)
+                {
+                case 0:
+                    g.setColor(Color.CYAN);
+                    break;
+                case 1:
+                    g.setColor(Color.GREEN);
+                    break;
+                case 2:
+                    g.setColor(Color.MAGENTA);
+                    break;
+                case 3:
+                    g.setColor(Color.ORANGE);
+                    break;
+                case 4:
+                    g.setColor(Color.PINK);
+                    break;
+                }
             }
 
             // draw scanpoints in mm
