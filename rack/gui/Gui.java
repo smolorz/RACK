@@ -117,7 +117,7 @@ public final class Gui extends Thread
 
             if(mainFrame != null)
             {
-                mainFrame.setTitle("RACK GUI (" + this.timsParam + ")");
+                mainFrame.setTitle("RACK GUI " + timsParam);
                 mainFrame.setLocation(mainFrameLocation);
                 mainFrame.setSize(mainFrameSize);
                 if((mainFrameState == FRAME_STATE_MAX) ||
@@ -956,6 +956,12 @@ public final class Gui extends Thread
             if(i >= elements.size())
             {
                 i = 0;
+
+                if(mainFrame != null)
+                {
+                    mainFrame.setTitle("RACK GUI " + timsParam + " " + tims.getDataRate());
+                }
+                
                 getStatusSeqNr++;
                 if (getStatusSeqNr > 100)
                     getStatusSeqNr = 1;

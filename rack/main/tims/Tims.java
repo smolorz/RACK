@@ -19,12 +19,13 @@ package rack.main.tims;
 public abstract class Tims extends Thread
 {
     // Tims return types / reply message types
-    public static final byte MSG_OK             = 0;
-    public static final byte MSG_ERROR          = -1;
-    public static final byte MSG_TIMEOUT        = -2;
-    public static final byte MSG_NOT_AVAILABLE  = -3;
+    public static final byte MSG_OK            = 0;
+    public static final byte MSG_ERROR         = -1;
+    public static final byte MSG_TIMEOUT       = -2;
+    public static final byte MSG_NOT_AVAILABLE = -3;
 
-    protected boolean terminate = false;
+    protected boolean        terminate         = false;
+    public TimsDataRate      dataRate          = new TimsDataRate();
 
     public Tims()
     {
@@ -63,5 +64,24 @@ public abstract class Tims extends Thread
 
     public abstract void mbxClean(TimsMbx mbx) throws TimsException;
 
-    public abstract int getDataRate();
+    public TimsDataRate getDataRate()
+    {
+        TimsDataRate reply;
+
+        synchronized (dataRate)
+        {
+            long currentTime = System.currentTimeMillis();
+            dataRate.endTime = currentTime;
+            
+            reply = new TimsDataRate(dataRate);
+            
+            dataRate.sendBytes = 0;
+            dataRate.sendMessages = 0;
+            dataRate.receivedBytes = 0;
+            dataRate.receivedMessages = 0;
+            dataRate.startTime = currentTime;
+            dataRate.endTime = currentTime;
+        }
+        return reply;
+    }
 }

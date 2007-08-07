@@ -26,12 +26,9 @@ public class TimsTcp extends Tims
     protected InputStream          tcpIn         = null;
     protected BufferedOutputStream tcpOut        = null;
     protected TimsMbx              routerMbx;
-    protected Object               dataCountSync = new Object();
     protected Vector<TimsMbx>      mbxList       = new Vector<TimsMbx>();
     protected InetAddress          addr;
     protected int                  port;
-    protected int                  dataCount;
-    protected long                 dataCountTime;
 
     public TimsTcp(String tcpParam) throws TimsException
     {
@@ -88,6 +85,12 @@ public class TimsTcp extends Tims
         try
         {
             m.writeTimsMsg(out);
+
+            synchronized (dataRate)
+            {
+                dataRate.sendBytes += m.msglen;
+                dataRate.sendMessages++;
+            }
         }
         catch (IOException e)
         {
@@ -140,6 +143,12 @@ public class TimsTcp extends Tims
                 {
                     m = new TimsRawMsg(in);
 
+                    synchronized (dataRate)
+                    {
+                        dataRate.receivedBytes += m.msglen;
+                        dataRate.receivedMessages++;
+                    }
+
                     if ((m.dest == 0) && (m.src == 0) && (m.type == TimsRouter.GET_STATUS))
                     {
                         // reply to lifesign
@@ -158,11 +167,6 @@ public class TimsTcp extends Tims
                     }
                     else
                     {
-                        synchronized (dataCountSync)
-                        {
-                            dataCount += m.getDataLen();
-                        }
-
                         mbx = getMbx(m.dest);
                         if (mbx != null)
                         {
@@ -369,22 +373,6 @@ public class TimsTcp extends Tims
             mbx.clear();
             mbx.notifyAll();
         }
-    }
-
-    public int getDataRate()
-    {
-        int dataRate, deltaT;
-        long newTime;
-
-        synchronized (dataCountSync)
-        {
-            newTime = System.currentTimeMillis();
-            deltaT = (int) (newTime - dataCountTime);
-            dataRate = 1000 * dataCount / deltaT / 1024;
-            dataCount = 0;
-            dataCountTime = newTime;
-        }
-        return dataRate;
     }
 
     protected TimsMbx getMbx(int mbxName)
