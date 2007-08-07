@@ -42,6 +42,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	EndianDataInputStream.java \
 @CONFIG_RACK_JAVA_TRUE@	LittleEndianDataInputStream.java \
 @CONFIG_RACK_JAVA_TRUE@	Tims.java \
+@CONFIG_RACK_JAVA_TRUE@	TimsDataRate.java \
 @CONFIG_RACK_JAVA_TRUE@	TimsRawMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	TimsMbx.java \
 @CONFIG_RACK_JAVA_TRUE@	TimsMsg.java \
@@ -72,9 +73,9 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 am__dist_java_JAVA_DIST = BigEndianDataInputStream.java \
 	EndianDataInputStream.java LittleEndianDataInputStream.java \
-	Tims.java TimsRawMsg.java TimsMbx.java TimsMsg.java \
-	TimsRouter.java TimsRouterMbxMsg.java TimsTcp.java \
-	TimsException.java TimsTimeoutException.java
+	Tims.java TimsDataRate.java TimsRawMsg.java TimsMbx.java \
+	TimsMsg.java TimsRouter.java TimsRouterMbxMsg.java \
+	TimsTcp.java TimsException.java TimsTimeoutException.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
