@@ -46,7 +46,7 @@ public abstract class RackProxy
     protected int            commandMbx;
     protected TimsMbx        replyMbx;
 
-    public static int        DEFAULT_REPLY_TIMEOUT = 1000;
+    public static int        DEFAULT_REPLY_TIMEOUT = 2000;
     protected int            replyTimeout          = DEFAULT_REPLY_TIMEOUT;
 
     protected byte           currentSequenceNo     = 0;
