@@ -100,14 +100,14 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         mapComponent = new MapViewComponent();
         mapComponent.addMouseListener(mouseListener);
         mapComponent.setPreferredSize(new Dimension(600,400));
-        mapComponent.setDefaultVisibleRange(10000.0);
+        mapComponent.setDefaultVisibleRange(50000.0);
 
         actionMenu = new JComboBox();
         actionMenu.addKeyListener(mapComponent.keyListener);
         actionMenu.addPopupMenuListener(actionMenuListener);
 
-        worldButton = new JRadioButton("world", true);
-        chaseButton = new JRadioButton("chase", false);
+        worldButton = new JRadioButton("world", false);
+        chaseButton = new JRadioButton("chase", true);
         robotButton = new JRadioButton("robot", false);
         viewGroup.add(worldButton);
         viewGroup.add(chaseButton);
