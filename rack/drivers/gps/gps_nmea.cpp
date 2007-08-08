@@ -1189,8 +1189,6 @@ GpsNmea::GpsNmea()
     serialDev    = getIntArg("serialDev", argTab);
     periodTime   = getIntArg("periodTime", argTab);
     trigMsg      = getIntArg("trigMsg", argTab);
-    posGKOffsetX = getIntArg("posGKOffsetX", argTab);
-    posGKOffsetY = getIntArg("posGKOffsetY", argTab);
     gps_serial_config.baud_rate  = getIntArg("baudrate", argTab);
     varXY        = getIntArg("varXY", argTab);
     varRho       = (float)(getIntArg("varRho", argTab) * M_PI / 180.0);
