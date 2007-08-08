@@ -239,29 +239,18 @@ int ChassisSim::moduleCommand(message_info *msgInfo)
         case MSG_CHASSIS_SET_ACTIVE_PILOT:
             p_pilot = ChassisSetActivePilotData::parse(msgInfo);
 
-            if (((msgInfo->src & pilot_mask) == RackName::create(GUI, 0)) ||
-                ((msgInfo->src & pilot_mask) == RackName::create(PILOT, 0)))
-            {
-                mtx.lock(RACK_INFINITE);
+            mtx.lock(RACK_INFINITE);
 
-                activePilot = p_pilot->activePilot & pilot_mask;
+            activePilot = p_pilot->activePilot & pilot_mask;
 
-                commandData.vx    = 0;
-                commandData.vy    = 0;
-                commandData.omega = 0;
+            commandData.vx    = 0;
+            commandData.vy    = 0;
+            commandData.omega = 0;
 
-                mtx.unlock();
+            mtx.unlock();
 
-                GDOS_DBG_INFO("%x Changed active pilot to %x",
-                            msgInfo->src, activePilot);
-                cmdMbx.sendMsgReply(MSG_OK, msgInfo);
-            }
-            else
-            {
-                GDOS_ERROR("%x has no permission to change active pilot to %x",
-                        msgInfo->src, p_pilot->activePilot);
-                cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
-            }
+            GDOS_PRINT("%n changed active pilot to %n", msgInfo->src, activePilot);
+            cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
 
         default:
@@ -356,7 +345,7 @@ ChassisSim::ChassisSim()
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
     periodTime              = getIntArg("periodTime", argTab);
-    
+
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 

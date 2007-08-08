@@ -543,20 +543,12 @@ int ChassisPioneer::moduleCommand(message_info *msgInfo)
     case MSG_CHASSIS_SET_ACTIVE_PILOT:
         p_pilot = ChassisSetActivePilotData::parse(msgInfo);
 
-        if (((msgInfo->src & pilot_mask) == RackName::create(GUI, 0)) ||
-                ((msgInfo->src & pilot_mask) == RackName::create(PILOT, 0)))
-        {
-            activePilot = p_pilot->activePilot & pilot_mask;
-            sendMovePackage(0, 0);
-            GDOS_DBG_INFO("%x Changed active pilot to %x", msgInfo->src, activePilot);
-            cmdMbx.sendMsgReply(MSG_OK, msgInfo);
-        }
-        else
-        {
-            GDOS_ERROR("%x has no permission to change active pilot to %x",
-                       msgInfo->src, p_pilot->activePilot);
-            cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
-        }
+        activePilot = p_pilot->activePilot & pilot_mask;
+
+        sendMovePackage(0, 0);
+
+        GDOS_PRINT("%n nhanged active pilot to %n", msgInfo->src, activePilot);
+        cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         break;
 
     default:
