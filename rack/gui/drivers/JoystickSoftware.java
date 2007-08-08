@@ -237,8 +237,12 @@ public class JoystickSoftware extends RackDataModuleGui
                     case KeyEvent.VK_F4:
                         f4Down();
                         break;
+                    case KeyEvent.VK_SPACE:
+                        zero();
+                        break;
                     default:
                         zero();
+                        activatePilot(ChassisProxy.INVAL_PILOT);
                 }
                 stopButton.grabFocus();
             }
