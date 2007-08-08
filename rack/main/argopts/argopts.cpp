@@ -307,7 +307,7 @@ arg_value_t __getArg(char* argname, argTable_t *p_tab)
         idx++;
     }
     printf("\n");
-    printf("WARNING: %s: getArg -> Invalid argname \n", arg_classname);
+    printf("WARNING: %s: getArg -> Invalid argname %s\n", arg_classname, argname);
 
     return (arg_value_t){ 0 };
 }
