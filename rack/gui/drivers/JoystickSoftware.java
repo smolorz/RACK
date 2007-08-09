@@ -199,50 +199,58 @@ public class JoystickSoftware extends RackDataModuleGui
         {
             public void keyPressed(KeyEvent e)
             {
-                switch (e.getKeyCode())
+                if((e.getKeyCode() >= KeyEvent.VK_1) && (e.getKeyCode() <= KeyEvent.VK_9))
                 {
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_KP_UP:
-                    case KeyEvent.VK_NUMPAD8:
-                        forward();
-                        break;
-                    case KeyEvent.VK_DOWN:
-                    case KeyEvent.VK_KP_DOWN:
-                    case KeyEvent.VK_NUMPAD2:
-                        backward();
-                        break;
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_KP_LEFT:
-                    case KeyEvent.VK_NUMPAD4:
-                        left();
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_KP_RIGHT:
-                    case KeyEvent.VK_NUMPAD6:
-                        right();
-                        break;
-                    case KeyEvent.VK_SHIFT:
-                    case KeyEvent.VK_NUMPAD5:
-                        streight();
-                        break;
-                    case KeyEvent.VK_F1:
-                        f1Down();
-                        break;
-                    case KeyEvent.VK_F2:
-                        f2Down();
-                        break;
-                    case KeyEvent.VK_F3:
-                        f3Down();
-                        break;
-                    case KeyEvent.VK_F4:
-                        f4Down();
-                        break;
-                    case KeyEvent.VK_SPACE:
-                        zero();
-                        break;
-                    default:
-                        zero();
-                        activatePilot(ChassisProxy.INVAL_PILOT);
+                    zero();
+                    activatePilot(e.getKeyCode() - KeyEvent.VK_1);
+                }
+                else
+                {
+                    switch (e.getKeyCode())
+                    {
+                        case KeyEvent.VK_UP:
+                        case KeyEvent.VK_KP_UP:
+                        case KeyEvent.VK_NUMPAD8:
+                            forward();
+                            break;
+                        case KeyEvent.VK_DOWN:
+                        case KeyEvent.VK_KP_DOWN:
+                        case KeyEvent.VK_NUMPAD2:
+                            backward();
+                            break;
+                        case KeyEvent.VK_LEFT:
+                        case KeyEvent.VK_KP_LEFT:
+                        case KeyEvent.VK_NUMPAD4:
+                            left();
+                            break;
+                        case KeyEvent.VK_RIGHT:
+                        case KeyEvent.VK_KP_RIGHT:
+                        case KeyEvent.VK_NUMPAD6:
+                            right();
+                            break;
+                        case KeyEvent.VK_SHIFT:
+                        case KeyEvent.VK_NUMPAD5:
+                            streight();
+                            break;
+                        case KeyEvent.VK_F1:
+                            f1Down();
+                            break;
+                        case KeyEvent.VK_F2:
+                            f2Down();
+                            break;
+                        case KeyEvent.VK_F3:
+                            f3Down();
+                            break;
+                        case KeyEvent.VK_F4:
+                            f4Down();
+                            break;
+                        case KeyEvent.VK_SPACE:
+                            zero();
+                            break;
+                        default:
+                            zero();
+                            activatePilot(ChassisProxy.INVAL_PILOT);
+                    }
                 }
                 stopButton.grabFocus();
             }
