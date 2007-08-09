@@ -35,16 +35,15 @@ import rack.main.*;
  */
 public class GDOSMessageRenderer extends JLabel implements TableCellRenderer
 {
+    public static Color       COLOR_PRINT      = Color.WHITE;
+    public static Color       COLOR_ERROR      = new Color(1.0f, 0.8f, 0.8f); // light red
+    public static Color       COLOR_WARNING    = new Color(1.0f, 1.0f, 0.8f); // light yellow
+    public static Color       COLOR_INFO       = new Color(0.8f, 1.0f, 0.8f); // light green
+    public static Color       COLOR_DETAIL     = new Color(0.9f, 0.9f, 0.9f); // light gray
 
-    protected Color colorPrint = Color.WHITE;
-    protected Color colorError = new Color(1.0f, 0.8f, 0.8f); // light red
-    protected Color colorWarning = new Color(1.0f, 1.0f, 0.8f); // light yellow
-    protected Color colorInfo = new Color(0.8f, 1.0f, 0.8f); // light green
-    protected Color colorDetail = new Color(0.9f, 0.9f, 0.9f); // light gray
-
-    protected Border unselectedBorder = null;
-    protected Border selectedBorder = null;
-    protected boolean isBordered = true;
+    protected Border          unselectedBorder = null;
+    protected Border          selectedBorder   = null;
+    protected boolean         isBordered       = true;
 
     private static final long serialVersionUID = 1L;
 
@@ -80,20 +79,20 @@ public class GDOSMessageRenderer extends JLabel implements TableCellRenderer
         switch (gdosMsg.type)
         {
             case GDOS.WARNING:
-                setBackground(colorWarning);
+                setBackground(COLOR_WARNING);
                 break;
             case GDOS.ERROR:
-                setBackground(colorError);
+                setBackground(COLOR_ERROR);
                 break;
             case GDOS.DBG_INFO:
-                setBackground(colorInfo);
+                setBackground(COLOR_INFO);
                 break;
             case GDOS.DBG_DETAIL:
-                setBackground(colorDetail);
+                setBackground(COLOR_DETAIL);
                 break;
             default:
             case GDOS.PRINT:
-                setBackground(colorPrint);
+                setBackground(COLOR_PRINT);
                 break;
         }
 

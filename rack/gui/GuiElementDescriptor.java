@@ -15,6 +15,7 @@
  */
 package rack.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -52,6 +53,7 @@ public class GuiElementDescriptor
     JPanel                 navPanel;
     JButton                navButton;
     JRadioButton           navStatusButton;
+    Color                  navButtonBackground;
 
     // references
     Gui                    mainGui;
@@ -110,5 +112,22 @@ public class GuiElementDescriptor
     public String toString()
     {
         return cfg;
+    }
+    
+    public void setNavButtonBackground(Color color)
+    {
+        if(navButtonBackground == null)
+        {
+            navButtonBackground = navButton.getBackground();
+        }
+        
+        if(color != null)
+        {
+            navButton.setBackground(color);
+        }
+        else
+        {
+            navButton.setBackground(navButtonBackground);
+        }
     }
 }

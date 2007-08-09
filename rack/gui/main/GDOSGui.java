@@ -49,6 +49,9 @@ public class GDOSGui extends GuiElement
     // Abbruchbedingung
     protected boolean      terminate        = false;
 
+    protected long         lastError;
+    protected long         lastWarning;
+    
     public GDOSGui(GuiElementDescriptor guiElement) throws TimsException
     {
         super(guiElement);
@@ -144,6 +147,9 @@ public class GDOSGui extends GuiElement
 
         panel.add(panelNorth, BorderLayout.NORTH);
         panel.add(jsp, BorderLayout.CENTER);
+        
+        lastError = System.currentTimeMillis() - 10000;
+        lastWarning = System.currentTimeMillis() - 10000;
     }
 
     public JComponent getComponent()
@@ -181,13 +187,23 @@ public class GDOSGui extends GuiElement
                 {
                     data = null;
                 }
-
+               
                 if (data != null)
                 {
                     // print GDOS message
                     gdosTableModel.addGDOSMsg(data);
                     jsb.setValue(jsb.getMaximum());
                     firstTimeout = true;
+                    
+                    if(data.type == GDOS.ERROR)
+                    {
+                        lastError = System.currentTimeMillis();
+                    }
+
+                    if(data.type == GDOS.WARNING)
+                    {
+                        lastWarning = System.currentTimeMillis();
+                    }
                 }
                 else
                 {
@@ -203,6 +219,20 @@ public class GDOSGui extends GuiElement
             {
                 e.printStackTrace();
                 terminate = true;
+            }
+
+            long time = System.currentTimeMillis();
+            if(time < (lastError + 2000))
+            {
+                ge.setNavButtonBackground(Color.RED/*GDOSMessageRenderer.COLOR_ERROR*/);
+            }
+            else if(time < (lastWarning + 2000))
+            {
+                ge.setNavButtonBackground(Color.ORANGE/*GDOSMessageRenderer.COLOR_WARNING*/);
+            }
+            else
+            {
+                ge.setNavButtonBackground(null);
             }
         }
         
