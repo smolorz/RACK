@@ -798,6 +798,11 @@ public final class Gui extends Thread
 
             while (terminate == false)
             {
+                if(mainFrame != null)
+                {
+                    mainFrame.setTitle("RACK GUI " + timsParam + " " + tims.getDataRate());
+                }
+                
                 try
                 {
                     Thread.sleep(1000);
