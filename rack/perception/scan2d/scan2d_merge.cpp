@@ -287,7 +287,8 @@ int  Scan2dMerge::moduleLoop(void)
                                                         + (int)(y * sinRho);
                         mergeData->point[j].y         = - (int)(x * sinRho)
                                                         + (int)(y * cosRho);
-                        mergeData->point[j].z         = scanBuffer[k].point[i].z;
+                        mergeData->point[j].z         =   (int)sqrt(mergeData->point[j].x * mergeData->point[j].x +
+                                                                    mergeData->point[j].y * mergeData->point[j].y);
                         mergeData->point[j].type      = scanBuffer[k].point[i].type;
                         mergeData->point[j].segment   = scanBuffer[k].point[i].segment;
                         mergeData->point[j].intensity = scanBuffer[k].point[i].intensity;
