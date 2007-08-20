@@ -394,7 +394,7 @@ int DatalogRec::logData(message_info *msgInfo)
     int             bytes;
     int             bytesMax;
     char*           extFilenamePtr;
-    char            extFilenameBuf[40];
+    char            extFilenameBuf[100];
     char            fileNumBuf[20];
     FILE*           extFileptr;
 
@@ -417,7 +417,8 @@ int DatalogRec::logData(message_info *msgInfo)
                 case CAMERA:
                     cameraData = CameraData::parse(msgInfo);
 
-                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.data.logPathName);
+                    strcat(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
                     extFilenamePtr = strtok((char *)extFilenameBuf, ".");
                     sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
@@ -604,7 +605,8 @@ int DatalogRec::logData(message_info *msgInfo)
                 case SCAN2D:
                     scan2dData = Scan2dData::parse(msgInfo);
 
-                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.data.logPathName);
+                    strcat(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
                     extFilenamePtr = strtok((char *)extFilenameBuf, ".");
                     sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
