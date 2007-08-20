@@ -17,7 +17,6 @@ package rack.navigation;
 
 import java.io.*;
 
-import rack.main.RackProxy;
 import rack.main.tims.*;
 
 public class PositionWgs84DataMsg extends TimsMsg
@@ -44,7 +43,7 @@ public class PositionWgs84DataMsg extends TimsMsg
 
     public boolean checkTimsMsgHead()
     {
-        if (type == RackProxy.MSG_DATA &&
+        if (type == PositionProxy.MSG_POSITION_WGS84 &&
             msglen == HEAD_LEN + getDataLen())
         {
             return true;
