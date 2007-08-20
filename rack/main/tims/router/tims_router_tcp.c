@@ -537,6 +537,23 @@ void cleanup(void)
 
 void signal_handler(int arg)
 {
+    switch(arg)
+    {
+        case SIGHUP:
+            tims_print("SIGHUP (%d)\n", arg);
+            break;
+        case SIGINT:
+            tims_print("SIGINT (%d)\n", arg);
+            break;
+        case SIGTERM:
+            tims_print("SIGTERM (%d)\n", arg);
+            break;
+        case SIGPIPE:
+            tims_print("SIGPIPE (%d)\n", arg);
+        break;
+        default:
+            tims_print("unknown signal (%d)\n", arg);
+    }
     cleanup();
 }
 
@@ -556,7 +573,7 @@ void tcpConnection_task_proc(void *arg)
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
     signal(SIGTERM, signal_handler);
-    signal(SIGPIPE, signal_handler);
+    signal(SIGPIPE, SIG_IGN);
 
     idx = con->index;
 
@@ -702,9 +719,14 @@ void tcpServer_task_proc(void *arg)
             return;
         }
 
+        struct timeval timeo;
+        timeo.tv_sec  = 2;
+        timeo.tv_usec = 0;
+        setsockopt(newCon.socket, SOL_SOCKET, SO_SNDTIMEO, &timeo, sizeof(timeo));
+
         setsockopt(newCon.socket, SOL_SOCKET, SO_RCVBUF, &bufSize, sizeof(bufSize));
         setsockopt(newCon.socket, SOL_SOCKET, SO_SNDBUF, &bufSize, sizeof(bufSize));
-        
+
         freeCon = connection_getFree(&newCon);
         if (!freeCon)
         {
@@ -744,7 +766,7 @@ void watchdog_task_proc(void *arg)
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
     signal(SIGTERM, signal_handler);
-    signal(SIGPIPE, signal_handler);
+    signal(SIGPIPE, SIG_IGN);
 
     tims_dbg("watchdog task: start\n");
 
@@ -840,6 +862,9 @@ int init()
         goto init_error;
     }
 
+    int reuseaddr = 1;
+    setsockopt(tcpServerSocket, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
+
     ret = bind(tcpServerSocket, (struct sockaddr *)&tcpServerAddr,
                sizeof(tcpServerAddr));
     if (ret)
@@ -933,7 +958,7 @@ int main(int argc, char* argv[])
     signal(SIGHUP,  signal_handler);
     signal(SIGINT,  signal_handler);
     signal(SIGTERM, signal_handler);
-    signal(SIGPIPE, signal_handler);
+    signal(SIGPIPE, SIG_IGN);
 
     ret = init();
     if (ret)
