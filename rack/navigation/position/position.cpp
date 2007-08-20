@@ -65,13 +65,22 @@ argTable_t argTab[] = {
 
 int  Position::moduleOn(void)
 {
-    int       ret = 0;
-    rack_time_t realPeriodTime = 0;
+    int           ret = 0;
+    rack_time_t   realPeriodTime = 0;
+    odometry_data odometryData;
 
     ret = odometry->on();
     if (ret)
     {
         GDOS_ERROR("Can't switch on odometry(%i), code = %d\n", odometryInst, ret);
+        return ret;
+    }
+
+    //get actual odometry data
+    ret = odometry->getData(&odometryData, sizeof(odometry_data), 0);
+    if (ret)
+    {
+        GDOS_ERROR("Can't get data from Odometry(%i), code = %d\n", odometryInst, ret);
         return ret;
     }
 
@@ -82,6 +91,11 @@ int  Position::moduleOn(void)
                    "code = %d\n", odometryInst, ret);
         return ret;
     }
+
+    memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
+    memcpy(&refPos, &odometryData.pos, sizeof(position_3d));
+    sinRefOdo = sin(refOdo.rho);
+    cosRefOdo = cos(refOdo.rho);
 
     setDataBufferPeriodTime(realPeriodTime);
 
