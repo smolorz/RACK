@@ -214,8 +214,6 @@ public:
     }
 };
 
-/** @} */
-
 #else // !__XENO__ && !__KERNEL__
 
 #include <sys/time.h>
@@ -268,5 +266,7 @@ public:
 };
 
 #endif // __XENO__ || __KERNEL__
+
+/** @} */
 
 #endif // __RACK_TIME_H__

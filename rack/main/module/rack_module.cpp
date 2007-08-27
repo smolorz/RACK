@@ -288,15 +288,13 @@ void data_task_proc(void *arg)
 //# class RackModule
 //######################################################################
 
-/**
+/*
  * @brief RackModule constructor
  *
  * This function creates a RackModule with all needed mailboxes and tasks.
  *
  * @param class_id
  * @param cmdTaskErrorTime_ns
- * @param dataTaskErrorTime_ns
- * @param dataTaskDisableTime_ns
  * @param cmdMbxMsgSlots
  * @param cmdMbxMsgDataSize
  * @param cmdMbxFlags
@@ -908,6 +906,6 @@ int init_signal_handler(RackModule *p_mod)
     signal(SIGXCPU, signal_handler);
     signal(SIGSEGV, signal_handler);
 #endif
-    
+
     return 0;
 }

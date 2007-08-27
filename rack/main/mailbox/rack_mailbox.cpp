@@ -83,11 +83,11 @@ RackMailbox::RackMailbox()
  * @param address Mailbox address of the mailbox.
  * @param messageSlots Number of message slots. If this value is 0 a FIFO
  *                     mailbox is created (but not supported yet).
- * @param messageDataSize Number of maximum data bytes in one slot.
+ * @param maxDatalen Number of maximum data bytes in one slot.
  * @param buffer Pointer to an own created mailbox buffer. If the pointer
  *               is NULL Rack creates the needed buffer with the given
  *               @a buffer_size.
- * @param buffer_size Size of the mailbox buffer (in bytes). This value is
+ * @param bufferSize Size of the mailbox buffer (in bytes). This value is
  *                    only needed if the buffer pointer is not NULL.
  * @param sendPriority Message priority of all sent messages.
  *
@@ -179,11 +179,11 @@ int RackMailbox::remove(void)
 int RackMailbox::clean(void)
 {
     int ret;
-    
+
     recvMtx.lock();
-    
+
     ret = tims_mbx_clean(fd);
-    
+
     recvMtx.unlock();
 
     return ret;
@@ -200,7 +200,7 @@ int RackMailbox::clean(void)
  *
  * @param type Message type
  * @param dest Destination mailbox address
- * @param seq_nr Sequence number
+ * @param seqNr Sequence number
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -281,7 +281,7 @@ int RackMailbox::sendMsgReply(int8_t type, message_info* msgInfo)
  *
  * @param type Message type
  * @param dest Destination mailbox address
- * @param seq_nr Sequence number
+ * @param seqNr Sequence number
  * @param dataPointers Number of data pointers to data buffers which
  *                     have to send.
  * @param data1 Pointer to first data buffer
@@ -645,9 +645,9 @@ int RackMailbox::peekIf(message_info *msgInfo)
 int RackMailbox::peekEnd(void)
 {
     int ret;
-    
+
     ret = tims_peek_end(fd);
-    
+
     recvMtx.unlock();
 
     return ret;
@@ -798,7 +798,7 @@ int     RackMailbox::recvMsgIf(message_info *msgInfo)
  * a message is received.
  *
  * @param p_data Pointer to the receive data buffer
- * @param maxdatalen Size of the receive data buffer
+ * @param maxDatalen Size of the receive data buffer
  * @param msgInfo Pointer to a @a message_info
  *
  * @return 0 on success, otherwise negative error code
@@ -843,7 +843,7 @@ int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, message_info
  *
  * @param timeout_ns Receive timeout in nanoceconds
  * @param p_data Pointer to the receive data buffer
- * @param maxdatalen Size of the receive data buffer
+ * @param maxDatalen Size of the receive data buffer
  * @param msgInfo Pointer to a @a message_info
  *
  * @return 0 on success, otherwise negative error code
@@ -887,7 +887,7 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_
  * with the returncode -EWOULDBLOCK.
 *
  * @param p_data Pointer to the receive data buffer
- * @param maxdatalen Size of the receive data buffer
+ * @param maxDatalen Size of the receive data buffer
  * @param msgInfo Pointer to a @a message_info
  *
  * @return 0 on success, otherwise negative error code
