@@ -53,8 +53,8 @@ DISTCLEANFILES = \
 	.cfchanged \
 	symbols
 
-reconfig xconfig gconfig mconfig menuconfig config oldconfig help:
+reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig oldconfig help:
 	@$(MAKE) -f $(srcdir)/makefile $@ \
 	srctree=$(srcdir) ARCH=@RACK_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
 
-.PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help
+.PHONY: reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig help

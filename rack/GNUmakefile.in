@@ -782,11 +782,11 @@ uninstall-info: uninstall-info-recursive
 clean-local:
 	rm -f $(JARFILE)
 
-reconfig xconfig gconfig mconfig menuconfig config oldconfig help:
+reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig help:
 	@$(MAKE) -f $(srcdir)/makefile $@ \
 	srctree=$(srcdir) ARCH=@RACK_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
 
-.PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help
+.PHONY: reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig help
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

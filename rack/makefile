@@ -37,6 +37,8 @@ gconfig: gconf config-script
 
 mconfig menuconfig: mconf config-script
 
+winconfig: winconf config-script
+
 config: conf config-script
 
 oldconfig: oldconf config-script
@@ -92,6 +94,11 @@ mconf: $(KCONFIG_DIR)
 	-f $(srctree)/$(KCONFIG_DIR)/Makefile.kconfig menuconfig \
 	srctree=$(srctree) ARCH=$(ARCH)
 
+winconf: $(KCONFIG_DIR)
+	@$(MAKE) -C $(KCONFIG_DIR) \
+	-f $(srctree)/$(KCONFIG_DIR)/Makefile.kconfig winconfig \
+	srctree=$(srctree) ARCH=$(ARCH)
+
 conf: $(KCONFIG_DIR)
 	@$(MAKE) -C $(KCONFIG_DIR) \
 	-f $(srctree)/$(KCONFIG_DIR)/Makefile.kconfig config \
@@ -140,4 +147,4 @@ all %::
 	echo "*** Please configure RACK first (running 'make help' in RACK's toplevel dir might help)." ; \
 	exit 1; fi
 
-.PHONY: config-script reconfig xconfig gconfig mconfig menuconfig config oldconfig qconf mconf conf clean distclean help
+.PHONY: config-script reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig qconf mconf winconf conf clean distclean help

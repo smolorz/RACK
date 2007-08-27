@@ -45,6 +45,9 @@ gconfig: gconf
 menuconfig mconfig: mconf
 	@./mconf $(srctree)/Kconfig
 
+winconfig: winconf
+	@./winconf $(srctree)/Kconfig
+
 config: conf
 	@./conf $(srctree)/Kconfig
 
@@ -72,6 +75,9 @@ gbuild: gconf.o kconfig_load.o libkconfig.so
 mconf: lxdialog/lxdialog mconf.o libkconfig.so
 	$(CC) -o $@ mconf.o libkconfig.so -Wl,-rpath,$(this_dir)
 
+winconf: lxdialog/lxdialog mconf.o libkconfig.dll
+	$(CC) -o $@ mconf.o libkconfig.dll -Wl,-rpath,$(this_dir) -lintl
+
 mconf.o: $(srcdir)/mconf.c
 	$(CC) $(CFLAGS) -I$(srcdir) -c $<
 
@@ -83,6 +89,9 @@ conf.o: $(srcdir)/conf.c
 
 libkconfig.so: zconf.tab.o
 	$(CC) -shared -o $@ $<
+
+libkconfig.dll: zconf.tab.o
+	$(CC) -shared -o $@ $< -lintl
 
 lkc_defs.h: $(srcdir)/lkc_proto.h
 	@sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
@@ -177,10 +186,10 @@ $(LXDIALOG_OBJS): %.o: $(srcdir)/%.c
 	@touch $@
 
 clean:
-	rm -f *.o *.so lkc_defs.h qconf gconf zconf.tab.[ch] lex.zconf.c conf
-	rm -f *.moc .qtinst .gtkinst mconf lxdialog/*.o lxdialog/lxdialog .ncurses
+	rm -f *.o *.so *.dll *.exe lkc_defs.h qconf gconf zconf.tab.[ch] lex.zconf.c conf
+	rm -f *.moc .qtinst .gtkinst mconf lxdialog/*.o lxdialog/*.exe lxdialog/lxdialog .ncurses
 
 distclean: clean
 	rm -f $(distdir)/*~ $(distdir)/#*#
 
-.PHONY: xconfig gconfig menuconfig mconfig clean distclean
+.PHONY: xconfig gconfig menuconfig mconfig winconfig clean distclean
