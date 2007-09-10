@@ -188,6 +188,7 @@ chassis_param_data param = {
     int ret;
 
     serialPort.clean();
+    serialPort.setRecvTimeout(200000000llu);
 
     // check if server connection is already open
     if (receivePackage(buffer, NULL) == 0)
@@ -492,6 +493,8 @@ int ChassisPioneer::moduleLoop(void)
 
         hwMtx.unlock();
     }
+
+    RackTask::sleep(50000000llu);   //50ms
 
     return 0;
 }
