@@ -56,6 +56,7 @@ class CameraDcam : public RackDataModule {
     int      bytesPerPixel;
     int      vValue;
     int      uValue;
+    int      whitebalanceMode;
     int      whitebalanceCols;
     int      whitebalanceRows;
     char     *dataBuffer;

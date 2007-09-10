@@ -18,6 +18,9 @@
 /* building CameraV4l */
 #undef CONFIG_RACK_CAMERA_V4L
 
+/* building ChassisER1 */
+#undef CONFIG_RACK_CHASSIS_ER1
+
 /* building ChassisPioneer */
 #undef CONFIG_RACK_CHASSIS_PIONEER
 

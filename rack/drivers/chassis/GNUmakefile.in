@@ -36,9 +36,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__append_1 = ChassisSim
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__append_2 = ChassisPioneer
+@CONFIG_RACK_CHASSIS_ER1_TRUE@am__append_3 = ChassisER1
 subdir = drivers/chassis
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -52,9 +53,14 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__EXEEXT_1 = ChassisSim$(EXEEXT)
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__EXEEXT_2 =  \
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@	ChassisPioneer$(EXEEXT)
+@CONFIG_RACK_CHASSIS_ER1_TRUE@am__EXEEXT_3 = ChassisER1$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+am_ChassisER1_OBJECTS = chassis_er1.$(OBJEXT)
+ChassisER1_OBJECTS = $(am_ChassisER1_OBJECTS)
+ChassisER1_LDADD = $(LDADD)
+ChassisER1_DEPENDENCIES =
 am_ChassisPioneer_OBJECTS = chassis_pioneer.$(OBJEXT)
 ChassisPioneer_OBJECTS = $(am_ChassisPioneer_OBJECTS)
 ChassisPioneer_LDADD = $(LDADD)
@@ -82,8 +88,10 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(ChassisPioneer_SOURCES) $(ChassisSim_SOURCES)
-DIST_SOURCES = $(ChassisPioneer_SOURCES) $(ChassisSim_SOURCES)
+SOURCES = $(ChassisER1_SOURCES) $(ChassisPioneer_SOURCES) \
+	$(ChassisSim_SOURCES)
+DIST_SOURCES = $(ChassisER1_SOURCES) $(ChassisPioneer_SOURCES) \
+	$(ChassisSim_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -117,6 +125,8 @@ CONFIG_RACK_CAMERA_JPEG_FALSE = @CONFIG_RACK_CAMERA_JPEG_FALSE@
 CONFIG_RACK_CAMERA_JPEG_TRUE = @CONFIG_RACK_CAMERA_JPEG_TRUE@
 CONFIG_RACK_CAMERA_V4L_FALSE = @CONFIG_RACK_CAMERA_V4L_FALSE@
 CONFIG_RACK_CAMERA_V4L_TRUE = @CONFIG_RACK_CAMERA_V4L_TRUE@
+CONFIG_RACK_CHASSIS_ER1_FALSE = @CONFIG_RACK_CHASSIS_ER1_FALSE@
+CONFIG_RACK_CHASSIS_ER1_TRUE = @CONFIG_RACK_CHASSIS_ER1_TRUE@
 CONFIG_RACK_CHASSIS_PIONEER_FALSE = @CONFIG_RACK_CHASSIS_PIONEER_FALSE@
 CONFIG_RACK_CHASSIS_PIONEER_TRUE = @CONFIG_RACK_CHASSIS_PIONEER_TRUE@
 CONFIG_RACK_CHASSIS_SIM_FALSE = @CONFIG_RACK_CHASSIS_SIM_FALSE@
@@ -313,6 +323,10 @@ ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
 
+ChassisER1_SOURCES = \
+	chassis_er1.h \
+	chassis_er1.cpp
+
 EXTRA_DIST = \
 	Kconfig
 
@@ -377,6 +391,9 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+ChassisER1$(EXEEXT): $(ChassisER1_OBJECTS) $(ChassisER1_DEPENDENCIES) 
+	@rm -f ChassisER1$(EXEEXT)
+	$(CXXLINK) $(ChassisER1_LDFLAGS) $(ChassisER1_OBJECTS) $(ChassisER1_LDADD) $(LIBS)
 ChassisPioneer$(EXEEXT): $(ChassisPioneer_OBJECTS) $(ChassisPioneer_DEPENDENCIES) 
 	@rm -f ChassisPioneer$(EXEEXT)
 	$(CXXLINK) $(ChassisPioneer_LDFLAGS) $(ChassisPioneer_OBJECTS) $(ChassisPioneer_LDADD) $(LIBS)
@@ -390,6 +407,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_er1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_pioneer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_sim.Po@am__quote@
 

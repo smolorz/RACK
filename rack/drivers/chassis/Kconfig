@@ -6,3 +6,8 @@ config RACK_CHASSIS_SIM
 config RACK_CHASSIS_PIONEER
     bool "Chassis - Pioneer"
     default y
+
+config RACK_CHASSIS_ER1
+    bool "Chassis - ER1"
+    default y
+

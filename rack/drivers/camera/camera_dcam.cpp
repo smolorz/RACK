@@ -29,6 +29,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "mode", { CAMERA_MODE_YUV422 } },
 
+    { ARGOPT_OPT, "fps", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "frames per second [1, 10] default 10", { 10 } },
+
     { ARGOPT_OPT, "lossrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "lossrate", { 1 } },
 
@@ -37,6 +40,9 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "vValue", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "vValue", { 120 } },
+
+    { ARGOPT_OPT, "whitebalanceMode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "whitebalanceMode 0=none, 1=auto, 2=on turn on (default=1)", { 1 } },
 
     { ARGOPT_OPT, "whitebalanceCols", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "whitebalanceCols", { 20 } },
@@ -110,6 +116,9 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
 
         uDiff = round(uDiff / diffPoints);
         vDiff = round(vDiff / diffPoints);
+
+        if ((uDiff < 2) && (vDiff < 2) && (whitebalanceMode == 2))
+            whitebalanceMode = 0; 
 
         if (dc1394_get_white_balance(porthandle[dc1394CameraPortNo], camera_node, &uuValue, &uvValue) != DC1394_SUCCESS)
         {
@@ -736,7 +745,7 @@ int CameraDcam::moduleLoop(void)
         //doing auto shutter / gain / brightness control
         autoBrightness(p_data);
 
-        if ((whitebalanceCols > 0) && ((whitebalanceRows > 0)))
+        if (whitebalanceMode > 0)
         {
             autoWhitebalance(p_data);
         }
@@ -872,16 +881,19 @@ CameraDcam::CameraDcam()
     uValue              = getIntArg("uValue", argTab);
     minHue              = getIntArg("minHue", argTab);
     maxHue              = getIntArg("maxHue", argTab);
+    fps                 = getIntArg("fps", argTab);
     gainMult            = getIntArg("gainMult", argTab);
     shutterMult         = getIntArg("shutterMult", argTab);
     lossRate            = getIntArg("lossrate", argTab);
     autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
+    whitebalanceMode    = getIntArg("whitebalanceMode", argTab);
     whitebalanceRows    = getIntArg("whitebalanceRows", argTab);
     whitebalanceCols    = getIntArg("whitebalanceCols", argTab);
     intrParFile         = getStrArg("intrParFile", argTab);
     extrParFile         = getStrArg("extrParFile", argTab);
 
-                        //fps[i]    is handled as global parameter
+    if (fps > 10)
+        fps = 10;
 
     format7image.mode              = MODE_FORMAT7_0;//fixed!!
     format7image.bytesPerPacket    = USE_MAX_AVAIL;
@@ -896,8 +908,7 @@ CameraDcam::CameraDcam()
     setDataBufferMaxDataSize(sizeof(camera_data_msg));
 
     // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
-    fps = 10;
+    setDataBufferPeriodTime(1000 / fps); // 100 ms (10 per sec)
 }
 
 int main(int argc, char *argv[])

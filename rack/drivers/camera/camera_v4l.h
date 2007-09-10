@@ -24,7 +24,10 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <linux/videodev.h>//Video4Linux
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+    
 #include "creative_calibration_parameter_lr0.h"
 
 // define module class

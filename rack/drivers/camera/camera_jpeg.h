@@ -36,7 +36,7 @@ class CameraJpeg : public RackDataModule {
 
     // your values
     //variables for common control
-    RTIME timeCount1s;
+    rack_time_t                 timeCount1s;
     uint8_t*                    rgbByteArray; //converted to char later on
     char*                       jpegBuffer;//char enforced by jpegLib
     struct jpeg_compress_struct cinfo;

@@ -9,6 +9,10 @@ if CONFIG_RACK_CHASSIS_PIONEER
 bin_PROGRAMS += ChassisPioneer
 endif
 
+if CONFIG_RACK_CHASSIS_ER1
+bin_PROGRAMS += ChassisER1
+endif
+
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -23,6 +27,10 @@ ChassisSim_SOURCES = \
 ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
+
+ChassisER1_SOURCES = \
+	chassis_er1.h \
+	chassis_er1.cpp
 
 
 EXTRA_DIST = \
