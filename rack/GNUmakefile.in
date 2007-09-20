@@ -784,7 +784,7 @@ uninstall-info: uninstall-info-recursive
 clean-local:
 	rm -f $(JARFILE)
 
-reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig oldconfig help:
+reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig help:
 	@$(MAKE) -f $(srcdir)/makefile $@ \
 	srctree=$(srcdir) ARCH=@RACK_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
 
