@@ -250,18 +250,22 @@ class ChassisER1 : public RackDataModule {
     char           *serialDev;
     int             axisWidth;
 
-    long pwdreply_status(PWDReply *r);
-    long pwdreply_checksum(PWDReply *r);
-    void pwdreply_print(PWDReply *r);
-    int  sendMovePackage(int vx, float omega);
-
     int             watchdogCounter;
     RackMutex       hwMtx;
 
     float           battery;
     uint32_t        activePilot;
     struct Rcm      rcm;
+    double          speedLeft, speedRight; //in mm per sec
+    rack_time_t     oldTime;
 
+
+    int  getPositionPackage(int *leftPos, int *rightPos);
+    long pwdreply_status(PWDReply *r);
+    long pwdreply_checksum(PWDReply *r);
+    void pwdreply_print(PWDReply *r);
+    int  pwdreply_data(PWDReply *r);
+    int  sendMovePackage(int vx, float omega);
 
     void rcm_WheelUpdate();
     void rcm_WheelSetPower(long);
@@ -270,16 +274,14 @@ class ChassisER1 : public RackDataModule {
     void rcm_WheelSetVelocity_LR(long,long);
     void rcm_WheelSetTurn(long);
 
-
-
-PWDCmd   SetCmd(unsigned char  paddress, unsigned char pcode);
-PWDCmd   SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode, int  wData1);
-PWDCmd   SetCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
-PWDReply _SendCmd(PWDCmd *cmd);
-PWDReply SendCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
-PWDReply SendCmd_with_arg(unsigned char paddress, unsigned char pcode, int wData1);
-PWDReply SendCmd(unsigned char paddress, unsigned char pcode);
-PWDReply SendCmd_long(unsigned char paddress, unsigned char pcode, long dwData);
+    PWDCmd   SetCmd(unsigned char  paddress, unsigned char pcode);
+    PWDCmd   SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode, int  wData1);
+    PWDCmd   SetCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
+    PWDReply _SendCmd(PWDCmd *cmd);
+    PWDReply SendCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
+    PWDReply SendCmd_with_arg(unsigned char paddress, unsigned char pcode, int wData1);
+    PWDReply SendCmd(unsigned char paddress, unsigned char pcode);
+    PWDReply SendCmd_long(unsigned char paddress, unsigned char pcode, long dwData);
 
   protected:
 

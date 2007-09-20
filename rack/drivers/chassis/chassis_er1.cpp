@@ -29,7 +29,8 @@
 #define MAX_SIP_PACKAGE_SIZE 208
 
 #define SAMPLING_RATE   10
-#define TICKS_PER_MM    1234//durch messung. bei 3bar reifendruck rechnerisch: x.0 / (208.0 * M_PI) ;
+#define TICKS_PER_MM    -70
+#define CALIBRATION_ROT 1 
 
 
 ChassisER1 *p_inst;
@@ -40,13 +41,13 @@ argTable_t argTab[] = {
       "Serial device number", { 0 } },
 
     { ARGOPT_OPT, "axisWidth", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "width of the driven axis, default 300 mm", { 300 } },
+      "width of the driven axis, default 380 mm", { 380 } },
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "max vehicle velocity in x direction, default 700 m/s", { 700 } },
+      "max vehicle velocity in x direction, default 350 mm/s", { 1200 } },
 
     { ARGOPT_OPT, "vxMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "min vehicle velocity in x direction, default 50 m/s)", { 50 } },
+      "min vehicle velocity in x direction, default 10 mm/s)", { 80 } },
 
     { ARGOPT_OPT, "axMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "max vehicle acceleration in x direction, default 500", { 500 } },
@@ -82,13 +83,13 @@ argTable_t argTab[] = {
       "right, default 250 (mm)", { 250 } },
 
     { ARGOPT_OPT, "wheelBase", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "wheel distance, default 280 (mm)", { 280 } },
+      "wheel distance, default 380 (mm)", { 380 } },
 
     { ARGOPT_OPT, "wheelRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "wheelRadius, default 110 (mm)", { 110 } },
+      "wheelRadius, default 50 (mm)", { 50 } },
 
     { ARGOPT_OPT, "trackWidth", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "trackWidth, default 280 (mm)", { 280 } },
+      "trackWidth, default 380 (mm)", { 380 } },
 
     { ARGOPT_OPT, "pilotParameterA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotParameterA, default 10 (0.001f)", { 10 } },
@@ -102,30 +103,14 @@ argTable_t argTab[] = {
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
-//config struct not used here!!
-/*const struct rtser_config pioneer_serial_config = {
-    config_mask       : 0xFFFF,
-    baud_rate         : 250000,
-    parity            : RTSER_NO_PARITY,
-    data_bits         : RTSER_8_BITS,
-    stop_bits         : RTSER_1_STOPB,
-    handshake         : RTSER_DEF_HAND,
-    fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : RTSER_DEF_TIMEOUT,
-    tx_timeout        : RTSER_DEF_TIMEOUT,
-    event_timeout     : RTSER_DEF_TIMEOUT,
-    timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
-    event_mask        : RTSER_EVENT_RXPEND
-};*/
-
 // vehicle parameter
 
 chassis_param_data param = {
-    vxMax:            700,                  // mm/s
+    vxMax:            1200,                  // mm/s
     vyMax:            0,
-    vxMin:            50,                   // mm/s
+    vxMin:            80,                   // mm/s
     vyMin:            0,
-    axMax:            500,                  // mm/s
+    axMax:            200,                  // mm/s
     ayMax:            0,
     omegaMax:         (30.0 * M_PI / 180.0),// rad/s
     minTurningRadius: 200,                  // mm
@@ -140,9 +125,9 @@ chassis_param_data param = {
     boundaryLeft:     250,                  // mm
     boundaryRight:    250,                  // mm
 
-    wheelBase:        280,                  // mm
-    wheelRadius:      110,                  // mm
-    trackWidth:       280,
+    wheelBase:        380,                  // mm
+    wheelRadius:       50,                  // mm
+    trackWidth:       380,
 
     pilotParameterA:  0.001f,
     pilotParameterB:  2.0f,
@@ -162,11 +147,20 @@ chassis_param_data param = {
 
  int ChassisER1::moduleOn(void)
 {
+    RackTask::disableRealtimeMode();
+    GDOS_DBG_DETAIL("calling wheel init");
+ 
+    SendCmd(1,Reset);
+//    pwdreply_print(&(SendCmd(1,Reset)));
+    
     rcm_WheelInit();
+    GDOS_DBG_DETAIL("finished wheel init");
 
     watchdogCounter = 0;
     activePilot     = CHASSIS_INVAL_PILOT;
-
+    
+    GDOS_DBG_DETAIL("calling modul on");
+    
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
@@ -187,12 +181,41 @@ int ChassisER1::moduleLoop(void)
 {
     chassis_data*   p_data = NULL;
     ssize_t         datalength = 0;
-    int             ret;
+    rack_time_t     time;
+    float           deltaT;
+
 
     // get datapointer from rackdatabuffer
-//    p_data = (chassis_data *)getDataBufferWorkSpace();
+//    GDOS_DBG_DETAIL("modul loop starting");
+    p_data = (chassis_data *)getDataBufferWorkSpace();
 
+    time    = rackTime.get();
+    deltaT  = (float)(time - oldTime) / 1000.0;
+    oldTime = time;
+    
+    p_data->deltaX   = deltaT * (speedLeft + speedRight) / 2 ;
+    p_data->deltaY   = 0.0f;
+    p_data->deltaRho = deltaT * (speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT;
 
+    p_data->vx    = (speedLeft + speedRight) / 2.0;
+    p_data->vy    = 0.0f;
+    p_data->omega = (speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT;
+
+    p_data->recordingTime = rackTime.get();
+    p_data->battery       = battery;
+    p_data->activePilot   = activePilot;
+
+    datalength = sizeof(chassis_data);
+
+    putDataBufferWorkSpace(datalength);
+
+/*    GDOS_DBG_DETAIL("lEncoder=%i rEncoder=%i vx=%f mm/s omega=%a deg/s\n",
+//                    leftEncoderNew, rightEncoderNew,
+                    speedLeft,speedRight,
+                    p_data->vx, p_data->omega);
+*/
+    RackTask::sleep(100000000llu);   //100ms
+    
     return 0;
 }
 
@@ -204,6 +227,8 @@ int ChassisER1::moduleCommand(message_info *msgInfo)
                               RackName::getInstMask();
     chassis_move_data               *p_move;
     chassis_set_active_pilot_data   *p_pilot;
+
+    RackTask::disableRealtimeMode();
 
     switch (msgInfo->type)
     {
@@ -448,24 +473,62 @@ exit_error:
     return ret;
 }
 
+int ChassisER1::getPositionPackage(int *leftPos, int *rightPos)
+{
+    PWDReply replyL , replyR; 
+
+    GDOS_DBG_DETAIL("requesting position from er1\n");
+    
+    hwMtx.lock(RACK_INFINITE);
+    
+    replyL     = SendCmd(0,GetPostion);
+    replyR     = SendCmd(1,GetPostion);
+
+    hwMtx.unlock();
+
+    pwdreply_print(&replyL);
+    *leftPos  = pwdreply_data(&replyL);
+    
+    pwdreply_print(&replyR);
+    *rightPos  = pwdreply_data(&replyR);
+
+    return 0;
+}
+
+
 int ChassisER1::sendMovePackage(int vx, float omega)
 {
-    double speedLeft, speedRight;
     long   speedLeftL, speedRightL;
 
-    speedLeft  = (float)vx * TICKS_PER_MM / SAMPLING_RATE;
-    speedRight = (float)vx * TICKS_PER_MM / SAMPLING_RATE;
+    speedLeft  = (float)vx;
+    speedRight = (float)vx;
 
-    speedLeft  += (omega *((float)axisWidth / 2.0f)) * TICKS_PER_MM / SAMPLING_RATE;
-    speedRight -= (omega *((float)axisWidth / 2.0f)) * TICKS_PER_MM / SAMPLING_RATE;
+    speedLeft  += (omega *((float)axisWidth / 2.0f));
+    speedRight -= (omega *((float)axisWidth / 2.0f));
 
-    speedLeftL  = (long) speedLeft;
-    speedRightL = (long) speedRight;
-
+    speedLeftL  = (long) (speedLeft  * TICKS_PER_MM / SAMPLING_RATE);
+    speedRightL = (long) (speedRight * TICKS_PER_MM / SAMPLING_RATE);
+    
+    GDOS_DBG_DETAIL("vx= %d setting rcm wheel velocity to: %d %d\n", vx, speedLeftL, speedRightL);
+    
     hwMtx.lock(RACK_INFINITE);
 
     rcm_WheelSetVelocity_LR(speedLeftL, speedRightL);
+    rcm_WheelUpdate();
 
+/*    if (speedLeftL != 0)
+    {
+        PWDReply replyL , replyR; 
+        GDOS_DBG_DETAIL("requesting position from er1\n");    
+        replyL     = SendCmd(0,GetVelocity);
+    //    replyR     = SendCmd(1,GetPostion);
+        GDOS_DBG_DETAIL("outputting answer\n");    
+        pwdreply_print(&replyL);
+        GDOS_DBG_DETAIL("parsing answer\n");    
+      //  pwdreply_print(&replyR);
+        GDOS_DBG_DETAIL("returned int values: %d \n",pwdreply_data(&replyL));    
+    }
+*/
     hwMtx.unlock();
 
     return 0;
@@ -622,6 +685,9 @@ void ChassisER1::rcm_WheelSetVelocity(long dwSpeed)
 
 void ChassisER1::rcm_WheelSetVelocity_LR(long left,long right){
   rcm_WheelSetPower(0x4CC0);
+//  GDOS_DBG_DETAIL("setting velocity to: %d %d\n", left, right);
+//  pwdreply_print(&SendCmd_long(1, SetVelocity, right));
+//  pwdreply_print(&SendCmd_long(0, SetVelocity, -left));
   SendCmd_long(1, SetVelocity, right);
   SendCmd_long(0, SetVelocity, -left);
 }
@@ -657,11 +723,27 @@ void ChassisER1::pwdreply_print(PWDReply *r)
 {
     int i;
 
-    printf("Reply Status=%2x, Checksum=%2x, Data=",
-           r->data[STATUS], r->data[CHECKSUM]);
+    printf("Reply Status=%2x, Checksum=%2x, size=%ld, Data=",
+           r->data[STATUS], r->data[CHECKSUM], r->dwSize);
     for ( i = DATA_START ; i < r->dwSize ; i++ ){
         printf("%2x ",r->data[i]);
     }
     printf("\n");
 
 }
+
+int ChassisER1::pwdreply_data(PWDReply *r)
+{
+    char hexString[4+r->dwSize];
+    int number; 
+//    const char* rdata = (char*)  r->data;
+    sscanf((char*)  r->data, "0x00%s", hexString ); 
+    printf("hexString: ");
+    printf(hexString);
+    printf("\n");
+    number = atoi(hexString);
+    printf("int=%d \n", number);
+
+    return number; 
+}
+
