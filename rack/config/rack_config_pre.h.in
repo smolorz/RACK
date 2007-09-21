@@ -63,6 +63,9 @@
 /* building PilotJoystick */
 #undef CONFIG_RACK_PILOT_JOYSTICK
 
+/* building PilotLab */
+#undef CONFIG_RACK_PILOT_LAB
+
 /* building PilotWallFollowing */
 #undef CONFIG_RACK_PILOT_WALL_FOLLOWING
 
@@ -71,6 +74,9 @@
 
 /* building Scan2d */
 #undef CONFIG_RACK_SCAN2D
+
+/* building Scan2dLab */
+#undef CONFIG_RACK_SCAN2D_LAB
 
 /* building Scan2dMerge */
 #undef CONFIG_RACK_SCAN2D_MERGE

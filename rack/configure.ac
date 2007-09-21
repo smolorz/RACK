@@ -727,6 +727,24 @@ if test "$CONFIG_RACK_PILOT_WALL_FOLLOWING" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  navigation - PilotLab
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build PilotLab])
+AC_ARG_ENABLE(pilot-lab,
+    AS_HELP_STRING([--enable-pilot-lab], [building PilotLab]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_PILOT_LAB=y ;;
+        *) CONFIG_RACK_PILOT_LAB=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_PILOT_LAB:-n}])
+AM_CONDITIONAL(CONFIG_RACK_PILOT_LAB,[test "$CONFIG_RACK_PILOT_LAB" = "y"])
+if test "$CONFIG_RACK_PILOT_LAB" = "y"; then
+    AC_DEFINE(CONFIG_RACK_PILOT_LAB,1,[building PilotLab])
+fi
+
+
+dnl -----------------------------------------------------------------
 dnl  navigation - Position
 dnl -----------------------------------------------------------------
 
@@ -792,6 +810,23 @@ AC_MSG_RESULT([${CONFIG_RACK_SCAN2D_SIM:-n}])
 AM_CONDITIONAL(CONFIG_RACK_SCAN2D_SIM,[test "$CONFIG_RACK_SCAN2D_SIM" = "y"])
 if test "$CONFIG_RACK_SCAN2D_SIM" = "y"; then
     AC_DEFINE(CONFIG_RACK_SCAN2D_SIM,1,[building Scan2dSim])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  perception - Scan2dLab
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Scan2dLab])
+AC_ARG_ENABLE(scan2d-lab,
+    AS_HELP_STRING([--enable-scan2d-lab], [building Scan2dLab]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_SCAN2D_LAB=y ;;
+        *) CONFIG_RACK_SCAN2D_LAB=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN2D_LAB:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN2D_LAB,[test "$CONFIG_RACK_SCAN2D_LAB" = "y"])
+if test "$CONFIG_RACK_SCAN2D_LAB" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN2D_LAB,1,[building Scan2dLab])
 fi
 
 dnl -----------------------------------------------------------------

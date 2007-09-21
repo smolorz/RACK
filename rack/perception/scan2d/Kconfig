@@ -10,3 +10,8 @@ config RACK_SCAN2D_MERGE
 config RACK_SCAN2D_SIM
     bool "Scan2d - Sim"
     default y
+
+config RACK_SCAN2D_LAB
+    bool "Scan2d - Lab"
+    default y
+

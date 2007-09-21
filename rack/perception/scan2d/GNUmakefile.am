@@ -13,6 +13,10 @@ if CONFIG_RACK_SCAN2D_SIM
 bin_PROGRAMS += Scan2dSim
 endif
 
+if CONFIG_RACK_SCAN2D_LAB
+bin_PROGRAMS += Scan2dLab
+endif
+
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
@@ -28,6 +32,10 @@ Scan2dMerge_SOURCES = \
 Scan2dSim_SOURCES = \
 	scan2d_sim.h \
 	scan2d_sim.cpp
+
+Scan2dLab_SOURCES = \
+	scan2d_lab.h \
+	scan2d_lab.cpp
 
 EXTRA_DIST = \
 	Kconfig

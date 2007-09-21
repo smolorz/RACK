@@ -9,6 +9,11 @@ if CONFIG_RACK_PILOT_WALL_FOLLOWING
 bin_PROGRAMS += PilotWallFollowing
 endif
 
+if CONFIG_RACK_PILOT_LAB
+bin_PROGRAMS += PilotLab
+endif
+
+
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -22,6 +27,10 @@ PilotJoystick_SOURCES = \
 PilotWallFollowing_SOURCES = \
 	pilot_wall_following.h \
 	pilot_wall_following.cpp
+
+PilotLab_SOURCES = \
+	pilot_lab.h \
+	pilot_lab.cpp
 
 EXTRA_DIST = \
 	Kconfig

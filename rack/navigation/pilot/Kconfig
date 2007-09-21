@@ -6,3 +6,8 @@ config RACK_PILOT_JOYSTICK
 config RACK_PILOT_WALL_FOLLOWING
     bool "Pilot - WallFollowing"
     default y
+
+config RACK_PILOT_LAB
+    bool "Pilot - Laboratory"
+    default y
+
