@@ -123,6 +123,12 @@ class RackModule {
     friend void   data_task_proc(void *arg);
     friend void   notify(int8_t type, RackModule *p_mod);
 
+    public:
+        int8_t    getDataTaskPrio(void)
+        {
+            return dataTaskPrio;
+        }
+
 //
 // common task values
 //
@@ -265,6 +271,11 @@ class RackModule {
             GDOS_PRINT("Terminate\n");
             targetStatus = MODULE_TSTATE_OFF;
             terminate = 1;
+        }
+
+        int isTerminated(void)
+        {
+            return terminate;
         }
 
 //
