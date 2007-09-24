@@ -591,6 +591,23 @@ if test "$CONFIG_RACK_CHASSIS_SIM" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - ChassisRoomba
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ChassisRoomba])
+AC_ARG_ENABLE(chassis-roomba,
+    AS_HELP_STRING([--enable-chassis-roomba], [building ChassisRoomba]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CHASSIS_ROOMBA=y ;;
+        *) CONFIG_RACK_CHASSIS_ROOMBA=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_ROOMBA:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CHASSIS_ROOMBA,[test "$CONFIG_RACK_CHASSIS_ROOMBA" = "y"])
+if test "$CONFIG_RACK_CHASSIS_ROOMBA" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CHASSIS_ROOMBA,1,[building ChassisRoomba])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - GpsNmea
 dnl -----------------------------------------------------------------
 
