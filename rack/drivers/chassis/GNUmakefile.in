@@ -36,10 +36,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
+	$(am__EXEEXT_4)
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__append_1 = ChassisSim
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__append_2 = ChassisPioneer
 @CONFIG_RACK_CHASSIS_ER1_TRUE@am__append_3 = ChassisER1
+@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__append_4 = ChassisRoomba
 subdir = drivers/chassis
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -54,6 +56,8 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__EXEEXT_2 =  \
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@	ChassisPioneer$(EXEEXT)
 @CONFIG_RACK_CHASSIS_ER1_TRUE@am__EXEEXT_3 = ChassisER1$(EXEEXT)
+@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__EXEEXT_4 =  \
+@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@	ChassisRoomba$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -65,6 +69,10 @@ am_ChassisPioneer_OBJECTS = chassis_pioneer.$(OBJEXT)
 ChassisPioneer_OBJECTS = $(am_ChassisPioneer_OBJECTS)
 ChassisPioneer_LDADD = $(LDADD)
 ChassisPioneer_DEPENDENCIES =
+am_ChassisRoomba_OBJECTS = chassis_roomba.$(OBJEXT)
+ChassisRoomba_OBJECTS = $(am_ChassisRoomba_OBJECTS)
+ChassisRoomba_LDADD = $(LDADD)
+ChassisRoomba_DEPENDENCIES =
 am_ChassisSim_OBJECTS = chassis_sim.$(OBJEXT)
 ChassisSim_OBJECTS = $(am_ChassisSim_OBJECTS)
 ChassisSim_LDADD = $(LDADD)
@@ -89,9 +97,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(ChassisER1_SOURCES) $(ChassisPioneer_SOURCES) \
-	$(ChassisSim_SOURCES)
+	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES)
 DIST_SOURCES = $(ChassisER1_SOURCES) $(ChassisPioneer_SOURCES) \
-	$(ChassisSim_SOURCES)
+	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -129,6 +137,8 @@ CONFIG_RACK_CHASSIS_ER1_FALSE = @CONFIG_RACK_CHASSIS_ER1_FALSE@
 CONFIG_RACK_CHASSIS_ER1_TRUE = @CONFIG_RACK_CHASSIS_ER1_TRUE@
 CONFIG_RACK_CHASSIS_PIONEER_FALSE = @CONFIG_RACK_CHASSIS_PIONEER_FALSE@
 CONFIG_RACK_CHASSIS_PIONEER_TRUE = @CONFIG_RACK_CHASSIS_PIONEER_TRUE@
+CONFIG_RACK_CHASSIS_ROOMBA_FALSE = @CONFIG_RACK_CHASSIS_ROOMBA_FALSE@
+CONFIG_RACK_CHASSIS_ROOMBA_TRUE = @CONFIG_RACK_CHASSIS_ROOMBA_TRUE@
 CONFIG_RACK_CHASSIS_SIM_FALSE = @CONFIG_RACK_CHASSIS_SIM_FALSE@
 CONFIG_RACK_CHASSIS_SIM_TRUE = @CONFIG_RACK_CHASSIS_SIM_TRUE@
 CONFIG_RACK_DOC_DOX_FALSE = @CONFIG_RACK_DOC_DOX_FALSE@
@@ -331,6 +341,10 @@ ChassisER1_SOURCES = \
 	chassis_er1.h \
 	chassis_er1.cpp
 
+ChassisRoomba_SOURCES = \
+	chassis_roomba.h \
+	chassis_roomba.cpp
+
 EXTRA_DIST = \
 	Kconfig
 
@@ -401,6 +415,9 @@ ChassisER1$(EXEEXT): $(ChassisER1_OBJECTS) $(ChassisER1_DEPENDENCIES)
 ChassisPioneer$(EXEEXT): $(ChassisPioneer_OBJECTS) $(ChassisPioneer_DEPENDENCIES) 
 	@rm -f ChassisPioneer$(EXEEXT)
 	$(CXXLINK) $(ChassisPioneer_LDFLAGS) $(ChassisPioneer_OBJECTS) $(ChassisPioneer_LDADD) $(LIBS)
+ChassisRoomba$(EXEEXT): $(ChassisRoomba_OBJECTS) $(ChassisRoomba_DEPENDENCIES) 
+	@rm -f ChassisRoomba$(EXEEXT)
+	$(CXXLINK) $(ChassisRoomba_LDFLAGS) $(ChassisRoomba_OBJECTS) $(ChassisRoomba_LDADD) $(LIBS)
 ChassisSim$(EXEEXT): $(ChassisSim_OBJECTS) $(ChassisSim_DEPENDENCIES) 
 	@rm -f ChassisSim$(EXEEXT)
 	$(CXXLINK) $(ChassisSim_LDFLAGS) $(ChassisSim_OBJECTS) $(ChassisSim_LDADD) $(LIBS)
@@ -413,6 +430,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_er1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_pioneer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_roomba.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_sim.Po@am__quote@
 
 .cpp.o:

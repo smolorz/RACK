@@ -24,6 +24,9 @@
 /* building ChassisPioneer */
 #undef CONFIG_RACK_CHASSIS_PIONEER
 
+/* building ChassisRoomba */
+#undef CONFIG_RACK_CHASSIS_ROOMBA
+
 /* building ChassisSim */
 #undef CONFIG_RACK_CHASSIS_SIM
 
