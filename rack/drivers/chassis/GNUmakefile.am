@@ -13,6 +13,10 @@ if CONFIG_RACK_CHASSIS_ER1
 bin_PROGRAMS += ChassisER1
 endif
 
+if CONFIG_RACK_CHASSIS_ROOMBA
+bin_PROGRAMS += ChassisRoomba
+endif
+
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -23,7 +27,6 @@ ChassisSim_SOURCES = \
 	chassis_sim.h \
 	chassis_sim.cpp
 
-
 ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
@@ -31,6 +34,10 @@ ChassisPioneer_SOURCES = \
 ChassisER1_SOURCES = \
 	chassis_er1.h \
 	chassis_er1.cpp
+
+ChassisRoomba_SOURCES = \
+	chassis_roomba.h \
+	chassis_roomba.cpp
 
 
 EXTRA_DIST = \
