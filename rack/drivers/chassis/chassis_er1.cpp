@@ -30,7 +30,7 @@
 
 #define SAMPLING_RATE   10
 #define TICKS_PER_MM    -70
-#define CALIBRATION_ROT 1 
+#define CALIBRATION_ROT 0.82 
 
 
 ChassisER1 *p_inst;
@@ -53,7 +53,10 @@ argTable_t argTab[] = {
       "max vehicle acceleration in x direction, default 500", { 500 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "omegaMax, default 30 deg/s", { 30 } },
+      "omegaMax, default 30 deg/s", { 150 } },
+
+    { ARGOPT_OPT, "omegaMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "omegaMin, default 15 deg/s", { 15 } },
 
     { ARGOPT_OPT, "minTurningRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min vehicle turning radius, default 200 (mm)", { 200 } },
@@ -112,7 +115,7 @@ chassis_param_data param = {
     vyMin:            0,
     axMax:            200,                  // mm/s
     ayMax:            0,
-    omegaMax:         (30.0 * M_PI / 180.0),// rad/s
+    omegaMax:         (150.0 * M_PI / 180.0),// rad/s
     minTurningRadius: 200,                  // mm
 
     breakConstant:    1.0f,                 // mm/mm/s
@@ -195,11 +198,19 @@ int ChassisER1::moduleLoop(void)
     
     p_data->deltaX   = deltaT * (speedLeft + speedRight) / 2 ;
     p_data->deltaY   = 0.0f;
-    p_data->deltaRho = deltaT * (speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT;
+    
+    if (fabs((speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT) < omegaMin)
+    {
+        p_data->deltaRho = 0;
+        p_data->omega    = 0;
+    } else
+    {
+        p_data->deltaRho = (deltaT * (speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT);
+        p_data->omega    = (          speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT;
+    }
 
     p_data->vx    = (speedLeft + speedRight) / 2.0;
     p_data->vy    = 0.0f;
-    p_data->omega = (speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT;
 
     p_data->recordingTime = rackTime.get();
     p_data->battery       = battery;
@@ -426,6 +437,7 @@ ChassisER1::ChassisER1()
     param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
+    omegaMin                = (int) (getIntArg("omegaMin", argTab) * M_PI) / 180;
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
@@ -503,8 +515,8 @@ int ChassisER1::sendMovePackage(int vx, float omega)
     speedLeft  = (float)vx;
     speedRight = (float)vx;
 
-    speedLeft  += (omega *((float)axisWidth / 2.0f));
-    speedRight -= (omega *((float)axisWidth / 2.0f));
+    speedLeft  -= (omega *((float)axisWidth / 2.0f));
+    speedRight += (omega *((float)axisWidth / 2.0f));
 
     speedLeftL  = (long) (speedLeft  * TICKS_PER_MM / SAMPLING_RATE);
     speedRightL = (long) (speedRight * TICKS_PER_MM / SAMPLING_RATE);

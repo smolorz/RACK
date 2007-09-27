@@ -251,6 +251,7 @@ class ChassisER1 : public RackDataModule {
     int             axisWidth;
 
     int             watchdogCounter;
+    int             omegaMin;
     RackMutex       hwMtx;
 
     float           battery;
