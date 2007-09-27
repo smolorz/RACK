@@ -8,6 +8,6 @@ config RACK_PILOT_WALL_FOLLOWING
     default y
 
 config RACK_PILOT_LAB
-    bool "Pilot - Laboratory"
+    bool "Pilot - Lab
     default y
 
