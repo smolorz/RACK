@@ -62,7 +62,7 @@ argTable_t argTab[] = {
       "min vehicle turning radius, default 200 (mm)", { 200 } },
 
     { ARGOPT_OPT, "breakConstant", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "breakConstant, default 100 (1.0f)", { 100 } },
+      "breakConstant, default 100 (1.0f)", { 40 } },
 
     { ARGOPT_OPT, "safetyMargin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "safetyMargin, default 50 (mm)", { 50 } },
@@ -95,10 +95,10 @@ argTable_t argTab[] = {
       "trackWidth, default 380 (mm)", { 380 } },
 
     { ARGOPT_OPT, "pilotParameterA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "pilotParameterA, default 10 (0.001f)", { 10 } },
+      "pilotParameterA, default 4 (0.0004f)", { 4 } },
 
     { ARGOPT_OPT, "pilotParameterB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "pilotParameterB, default 200 (2.0f)", { 200 } },
+      "pilotParameterB, default 50 (0.5f)", { 50 } },
 
     { ARGOPT_OPT, "pilotVTransMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotVTransMax, default 200", { 200 } },
@@ -118,7 +118,7 @@ chassis_param_data param = {
     omegaMax:         (150.0 * M_PI / 180.0),// rad/s
     minTurningRadius: 200,                  // mm
 
-    breakConstant:    1.0f,                 // mm/mm/s
+    breakConstant:    0.4f,                 // mm/mm/s
     safetyMargin:     50,                   // mm
     safetyMarginMove: 200,                  // mm
     comfortMargin:    300,                  // mm
@@ -132,8 +132,8 @@ chassis_param_data param = {
     wheelRadius:       50,                  // mm
     trackWidth:       380,
 
-    pilotParameterA:  0.001f,
-    pilotParameterB:  2.0f,
+    pilotParameterA:  0.0004f,
+    pilotParameterB:  0.5f,
     pilotVTransMax:   200,                  // mm/s
 };
 
