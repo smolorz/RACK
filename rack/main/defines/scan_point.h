@@ -28,11 +28,12 @@
 #define TYPE_MASK               0x0003
 
 #define TYPE_UNKNOWN            0x0000
-#define TYPE_OBJECT             0x0001
+#define TYPE_OBJECT             0x0001  // 3d scan
 #define TYPE_GROUND             0x0002  // 3d scan
 #define TYPE_CEILING            0x0003  // 3d scan
 #define TYPE_LANDMARK           0x0001  // 2d scan
 #define TYPE_OBSTACLE           0x0002  // 2d scan
+#define TYPE_DYN_OBSTACLE       0x0003  // 2d scan
 
 //######################################################################
 //# ScanPoint (static size - no message )
