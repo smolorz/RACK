@@ -176,6 +176,8 @@ chassis_param_data param = {
 
     activePilot      = CHASSIS_INVAL_PILOT;
     recordingTimeOld = rackTime.get();
+    speed            = 0;
+    omega            = 0.0f;
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -185,7 +187,9 @@ void ChassisRoomba::moduleOff(void)
 {
     RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
-    sendMoveCommand(0,0.0);
+    speed = 0;
+    omega = 0.0f;
+    sendMoveCommand(speed, omega);
     activePilot = CHASSIS_INVAL_PILOT;
 }
 
@@ -200,13 +204,26 @@ int ChassisRoomba::moduleLoop(void)
     // get datapointer from rackdatabuffer
     p_data = (chassis_data *)getDataBufferWorkSpace();
 
-    printf("\n lock loop %d\n", rackTime.get());
+
+    // move roomba
     hwMtx.lock(RACK_INFINITE);
+
+    ret = sendMoveCommand(speed, omega);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send move command to roomba, code = %d\n", ret);
+        hwMtx.unlock();
+        return ret;
+    }
+
+    hwMtx.unlock();
+    RackTask::sleep((getDataBufferPeriodTime(0) / 2) * 1000000llu);     // periodTime / 2
+
+
+    // get sensor data from roomba
     ret = readSensorData(&sensorData);
     if (ret)
     {
-        printf("\n unlock loop error %d\n", rackTime.get());
-        hwMtx.unlock();
         return ret;
     }
 
@@ -227,10 +244,6 @@ int ChassisRoomba::moduleLoop(void)
 
     datalength = sizeof(chassis_data);
     putDataBufferWorkSpace(datalength);
-    printf("\n unlock loop %d\n", rackTime.get());
-    hwMtx.unlock();
-
-    RackTask::sleep(getDataBufferPeriodTime(0) * 1000000llu);
 
     return 0;
 }
@@ -267,13 +280,11 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
         if ((p_move->vx < 0) && (p_move->vx > -param.vxMin))
             p_move->vx = -param.vxMin;
 
-        // 
-        ret = sendMoveCommand(p_move->vx, p_move->omega);
-        if (ret)
-        {
-            cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
-            break;
-        }
+        // store speed values
+        hwMtx.lock(RACK_INFINITE);
+        speed = p_move->vx;
+        omega = p_move->omega;
+        hwMtx.unlock();
 
         cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         break;
@@ -311,9 +322,6 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
 {
     int             ret;
     int             radius;
-
-    printf("\n lock sendMove %d\n", rackTime.get());
-    hwMtx.lock(RACK_INFINITE);
 
     if (omega != 0)
     {
@@ -354,11 +362,6 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
     {
         GDOS_ERROR("Can't send DRIVE-COMMAND to roomba, code = %d\n", ret);
     }
-
-    RackTask::sleep(10000000llu);           // 10ms
-    printf("\n unlock sendMove %d\n", rackTime.get());
-    hwMtx.unlock();
-
     return ret;
 }
 
@@ -377,7 +380,7 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
         return ret;
     }
 
-    RackTask::sleep(30000000llu);           // 50ms
+    RackTask::sleep((getDataBufferPeriodTime(0) / 2) * 1000000llu);     // periodTime / 2
 
 
     // receive sensor data
@@ -413,6 +416,7 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     sensor->batteryTemperature = (int)serialBuffer[21];
     sensor->batteryCharge      = (int)((serialBuffer[22] << 8) | (serialBuffer[23] & 0xff));
     sensor->batteryCapacity    = (int)((serialBuffer[24] << 8) | (serialBuffer[25] & 0xff));
+
     return 0;
 }
 

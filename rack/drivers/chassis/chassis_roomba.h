@@ -60,24 +60,23 @@ typedef struct {
 //######################################################################
 //# class ChassisRoombaModule
 //######################################################################
-
 class ChassisRoomba : public RackDataModule {
   private:
 
     // your values
-    int             serialDev;
-    SerialPort      serialPort;
+    int                         serialDev;
+    SerialPort                  serialPort;
 
 
     char                        serialBuffer[30];
     rack_time_t                 recordingTimeOld;
     chassis_roomba_sensor_data  sensorData;
 
-    RackMutex       hwMtx;
+    RackMutex                   hwMtx;
 
-
-    float           battery;
-    uint32_t        activePilot;
+    uint32_t                    activePilot;
+    int                         speed;
+    float                       omega;
 
   protected:
 
