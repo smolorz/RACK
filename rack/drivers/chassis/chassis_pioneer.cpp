@@ -494,7 +494,7 @@ int ChassisPioneer::moduleLoop(void)
         hwMtx.unlock();
     }
 
-    RackTask::sleep(50000000llu);   //50ms
+  //  RackTask::sleep(50000000llu);   //50ms
 
     return 0;
 }
