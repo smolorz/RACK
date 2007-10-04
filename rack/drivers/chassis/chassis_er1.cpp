@@ -44,7 +44,7 @@ argTable_t argTab[] = {
       "width of the driven axis, default 380 mm", { 380 } },
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "max vehicle velocity in x direction, default 350 mm/s", { 1200 } },
+      "max vehicle velocity in x direction, default 1200 mm/s", { 1200 } },
 
     { ARGOPT_OPT, "vxMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min vehicle velocity in x direction, default 10 mm/s)", { 80 } },
@@ -62,7 +62,7 @@ argTable_t argTab[] = {
       "min vehicle turning radius, default 200 (mm)", { 200 } },
 
     { ARGOPT_OPT, "breakConstant", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "breakConstant, default 100 (1.0f)", { 40 } },
+      "breakConstant, default 40 (0.4f)", { 40 } },
 
     { ARGOPT_OPT, "safetyMargin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "safetyMargin, default 50 (mm)", { 50 } },
@@ -74,16 +74,16 @@ argTable_t argTab[] = {
       "comfortMargin, default 300 (mm)", { 300 } },
 
     { ARGOPT_OPT, "front", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "front, default 250 (mm)", { 250 } },
+      "front, default 80 (mm)", { 80 } },
 
     { ARGOPT_OPT, "back", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "back, default 250 (mm)", { 250 } },
+      "back, default 350 (mm)", { 350 } },
 
     { ARGOPT_OPT, "left", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "left, default 250 (mm)", { 250 } },
+      "left, default 250 (mm)", { 210 } },
 
     { ARGOPT_OPT, "right", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "right, default 250 (mm)", { 250 } },
+      "right, default 250 (mm)", { 210 } },
 
     { ARGOPT_OPT, "wheelBase", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "wheel distance, default 380 (mm)", { 380 } },
@@ -102,7 +102,10 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "pilotVTransMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotVTransMax, default 200", { 200 } },
-
+      
+    { ARGOPT_OPT, "velFactor", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "1/100", { 764 } },
+      
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -111,7 +114,7 @@ argTable_t argTab[] = {
 chassis_param_data param = {
     vxMax:            1200,                  // mm/s
     vyMax:            0,
-    vxMin:            80,                   // mm/s
+    vxMin:            50,                   // mm/s
     vyMin:            0,
     axMax:            200,                  // mm/s
     ayMax:            0,
@@ -123,10 +126,10 @@ chassis_param_data param = {
     safetyMarginMove: 200,                  // mm
     comfortMargin:    300,                  // mm
 
-    boundaryFront:    250,                  // mm
-    boundaryBack:     250,                  // mm
-    boundaryLeft:     250,                  // mm
-    boundaryRight:    250,                  // mm
+    boundaryFront:    80,                  // mm
+    boundaryBack:     350,                  // mm
+    boundaryLeft:     210,                  // mm
+    boundaryRight:    210,                  // mm
 
     wheelBase:        380,                  // mm
     wheelRadius:       50,                  // mm
@@ -187,9 +190,6 @@ int ChassisER1::moduleLoop(void)
     rack_time_t     time;
     float           deltaT;
 
-
-    // get datapointer from rackdatabuffer
-//    GDOS_DBG_DETAIL("modul loop starting");
     p_data = (chassis_data *)getDataBufferWorkSpace();
 
     time    = rackTime.get();
@@ -198,16 +198,9 @@ int ChassisER1::moduleLoop(void)
     
     p_data->deltaX   = deltaT * (speedLeft + speedRight) / 2 ;
     p_data->deltaY   = 0.0f;
-    
-    if (fabs((speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT) < omegaMin)
-    {
-        p_data->deltaRho = 0;
-        p_data->omega    = 0;
-    } else
-    {
-        p_data->deltaRho = (deltaT * (speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT);
-        p_data->omega    = (          speedLeft - speedRight) / 2.0 / 200.0 * CALIBRATION_ROT;
-    }
+
+    p_data->deltaRho = deltaT * (float)(speedRight - speedLeft) / (float)axisWidth;
+    p_data->omega    = (float)(speedRight - speedLeft) / (float)axisWidth;
 
     p_data->vx    = (speedLeft + speedRight) / 2.0;
     p_data->vy    = 0.0f;
@@ -259,10 +252,20 @@ int ChassisER1::moduleCommand(message_info *msgInfo)
 
         // set min speed
         if ((p_move->vx > 0) && (p_move->vx < param.vxMin))
+        {
             p_move->vx = param.vxMin;
-        if ((p_move->vx < 0) && (p_move->vx > -param.vxMin))
+        }
+        else if ((p_move->vx < 0) && (p_move->vx > -param.vxMin))
+        {
             p_move->vx = -param.vxMin;
-
+        }
+        
+        if ((p_move->vx == 0) && (p_move->omega < omegaMin ) &&
+            (p_move->omega > -omegaMin ))
+        {
+            p_move->omega = 0.0f;
+        }
+        
         if (sendMovePackage(p_move->vx, p_move->omega))
         {
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
@@ -421,7 +424,7 @@ ChassisER1::ChassisER1()
     param.vxMax             = getIntArg("vxMax", argTab);
     param.vxMin             = getIntArg("vxMin", argTab);
     param.axMax             = getIntArg("axMax", argTab);
-    param.omegaMax          = getIntArg("omegaMax", argTab) * M_PI / 180.0;
+    param.omegaMax          = (float)getIntArg("omegaMax", argTab) * M_PI / 180.0f;
     param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
     param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
     param.safetyMargin      = getIntArg("safetyMargin", argTab);
@@ -437,8 +440,9 @@ ChassisER1::ChassisER1()
     param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
-    omegaMin                = (int) (getIntArg("omegaMin", argTab) * M_PI) / 180;
-
+    omegaMin                = (float) getIntArg("omegaMin", argTab) * M_PI / 180.0f;
+    velFactor               = (float) getIntArg("velFactor", argTab) / 100.0f;
+    
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 
@@ -518,10 +522,10 @@ int ChassisER1::sendMovePackage(int vx, float omega)
     speedLeft  -= (omega *((float)axisWidth / 2.0f));
     speedRight += (omega *((float)axisWidth / 2.0f));
 
-    speedLeftL  = (long) (speedLeft  * TICKS_PER_MM / SAMPLING_RATE);
-    speedRightL = (long) (speedRight * TICKS_PER_MM / SAMPLING_RATE);
+    speedLeftL  = (long) (velFactor * speedLeft);
+    speedRightL = (long) (velFactor * speedRight);
     
-    GDOS_DBG_DETAIL("vx= %d setting rcm wheel velocity to: %d %d\n", vx, speedLeftL, speedRightL);
+    GDOS_DBG_DETAIL("vx= %d omega= %f setting rcm wheel velocity to: %d %d\n", vx, omega,  speedLeftL, speedRightL);
     
     hwMtx.lock(RACK_INFINITE);
 
@@ -700,8 +704,8 @@ void ChassisER1::rcm_WheelSetVelocity_LR(long left,long right){
 //  GDOS_DBG_DETAIL("setting velocity to: %d %d\n", left, right);
 //  pwdreply_print(&SendCmd_long(1, SetVelocity, right));
 //  pwdreply_print(&SendCmd_long(0, SetVelocity, -left));
-  SendCmd_long(1, SetVelocity, right);
-  SendCmd_long(0, SetVelocity, -left);
+  SendCmd_long(1, SetVelocity, -right);
+  SendCmd_long(0, SetVelocity, left);
 }
 
 // +ve for left, -ve for right
