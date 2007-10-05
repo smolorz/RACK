@@ -53,7 +53,7 @@ argTable_t argTab[] = {
       "max vehicle acceleration in x direction, default 500", { 500 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "omegaMax, default 30 deg/s", { 150 } },
+      "omegaMax, default 150 deg/s", { 150 } },
 
     { ARGOPT_OPT, "omegaMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "omegaMin, default 15 deg/s", { 15 } },
@@ -105,6 +105,12 @@ argTable_t argTab[] = {
       
     { ARGOPT_OPT, "velFactor", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "1/100", { 764 } },
+      
+    { ARGOPT_OPT, "odoFactorA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "1/100", { 117 } },
+      
+    { ARGOPT_OPT, "odoFactorB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Offsetfactor velcocity", { 40 } },
       
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -189,20 +195,40 @@ int ChassisER1::moduleLoop(void)
     ssize_t         datalength = 0;
     rack_time_t     time;
     float           deltaT;
-
+    float           speedOdoLeft = 0.0f;
+    float           speedOdoRight = 0.0f;
+    
     p_data = (chassis_data *)getDataBufferWorkSpace();
 
     time    = rackTime.get();
     deltaT  = (float)(time - oldTime) / 1000.0;
     oldTime = time;
     
-    p_data->deltaX   = deltaT * (speedLeft + speedRight) / 2 ;
+    if (speedLeft > 0)
+    {
+        speedOdoLeft = odoFactorA * speedLeft - odoFactorB;
+    }
+    else if (speedLeft < 0)
+    {
+        speedOdoLeft = odoFactorA * speedLeft + odoFactorB;
+    }
+
+    if (speedRight > 0)
+    {
+        speedOdoRight = odoFactorA * speedRight - odoFactorB;
+    }
+    else if (speedRight < 0)
+    {
+        speedOdoRight = odoFactorA * speedRight + odoFactorB;
+    }
+
+    p_data->deltaX   = deltaT * (speedOdoLeft + speedOdoRight) / 2.0f ;
     p_data->deltaY   = 0.0f;
 
-    p_data->deltaRho = deltaT * (float)(speedRight - speedLeft) / (float)axisWidth;
-    p_data->omega    = (float)(speedRight - speedLeft) / (float)axisWidth;
+    p_data->deltaRho = deltaT * (float)(speedOdoRight - speedOdoLeft) / (float)axisWidth;
+    p_data->omega    = (float)(speedOdoRight - speedOdoLeft) / (float)axisWidth;
 
-    p_data->vx    = (speedLeft + speedRight) / 2.0;
+    p_data->vx    = (speedOdoLeft + speedOdoRight) / 2.0f;
     p_data->vy    = 0.0f;
 
     p_data->recordingTime = rackTime.get();
@@ -442,6 +468,8 @@ ChassisER1::ChassisER1()
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
     omegaMin                = (float) getIntArg("omegaMin", argTab) * M_PI / 180.0f;
     velFactor               = (float) getIntArg("velFactor", argTab) / 100.0f;
+    odoFactorA              = (float) getIntArg("odoFactorA", argTab) / 100.0f;
+    odoFactorB              = (float) getIntArg("odoFactorB", argTab);
     
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));

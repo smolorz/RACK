@@ -254,10 +254,12 @@ class ChassisER1 : public RackDataModule {
     float           omegaMin;
     RackMutex       hwMtx;
     float           velFactor;
+    float           odoFactorA;
+    float           odoFactorB;
     float           battery;
     uint32_t        activePilot;
     struct Rcm      rcm;
-    double          speedLeft, speedRight; //in mm per sec
+    float           speedLeft, speedRight; //in mm per sec
     rack_time_t     oldTime;
 
 
