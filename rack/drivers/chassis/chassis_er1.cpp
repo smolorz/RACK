@@ -30,7 +30,7 @@
 
 #define SAMPLING_RATE   10
 #define TICKS_PER_MM    -70
-#define CALIBRATION_ROT 0.82 
+#define CALIBRATION_ROT 0.82
 
 
 ChassisER1 *p_inst;
@@ -44,7 +44,7 @@ argTable_t argTab[] = {
       "width of the driven axis, default 380 mm", { 380 } },
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "max vehicle velocity in x direction, default 1200 mm/s", { 1200 } },
+      "max vehicle velocity in x direction, default 1000 mm/s", { 1000 } },
 
     { ARGOPT_OPT, "vxMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min vehicle velocity in x direction, default 10 mm/s)", { 80 } },
@@ -95,23 +95,23 @@ argTable_t argTab[] = {
       "trackWidth, default 380 (mm)", { 380 } },
 
     { ARGOPT_OPT, "pilotParameterA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "pilotParameterA, default 4 (0.0004f)", { 4 } },
+      "pilotParameterA, default 10 (0.001f)", { 10 } },
 
     { ARGOPT_OPT, "pilotParameterB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "pilotParameterB, default 50 (0.5f)", { 50 } },
+      "pilotParameterB, default 100 (1.0f)", { 100 } },
 
     { ARGOPT_OPT, "pilotVTransMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotVTransMax, default 200", { 200 } },
-      
+
     { ARGOPT_OPT, "velFactor", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "1/100", { 764 } },
-      
+
     { ARGOPT_OPT, "odoFactorA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "1/100", { 117 } },
-      
+
     { ARGOPT_OPT, "odoFactorB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Offsetfactor velcocity", { 40 } },
-      
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -161,18 +161,18 @@ chassis_param_data param = {
 {
     RackTask::disableRealtimeMode();
     GDOS_DBG_DETAIL("calling wheel init");
- 
+
     SendCmd(1,Reset);
 //    pwdreply_print(&(SendCmd(1,Reset)));
-    
+
     rcm_WheelInit();
     GDOS_DBG_DETAIL("finished wheel init");
 
     watchdogCounter = 0;
     activePilot     = CHASSIS_INVAL_PILOT;
-    
+
     GDOS_DBG_DETAIL("calling modul on");
-    
+
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
@@ -197,13 +197,13 @@ int ChassisER1::moduleLoop(void)
     float           deltaT;
     float           speedOdoLeft = 0.0f;
     float           speedOdoRight = 0.0f;
-    
+
     p_data = (chassis_data *)getDataBufferWorkSpace();
 
     time    = rackTime.get();
     deltaT  = (float)(time - oldTime) / 1000.0;
     oldTime = time;
-    
+
     if (speedLeft > 0)
     {
         speedOdoLeft = odoFactorA * speedLeft - odoFactorB;
@@ -245,7 +245,7 @@ int ChassisER1::moduleLoop(void)
                     p_data->vx, p_data->omega);
 */
     RackTask::sleep(100000000llu);   //100ms
-    
+
     return 0;
 }
 
@@ -285,13 +285,13 @@ int ChassisER1::moduleCommand(message_info *msgInfo)
         {
             p_move->vx = -param.vxMin;
         }
-        
+
         if ((p_move->vx == 0) && (p_move->omega < omegaMin ) &&
             (p_move->omega > -omegaMin ))
         {
             p_move->omega = 0.0f;
         }
-        
+
         if (sendMovePackage(p_move->vx, p_move->omega))
         {
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
@@ -470,7 +470,7 @@ ChassisER1::ChassisER1()
     velFactor               = (float) getIntArg("velFactor", argTab) / 100.0f;
     odoFactorA              = (float) getIntArg("odoFactorA", argTab) / 100.0f;
     odoFactorB              = (float) getIntArg("odoFactorB", argTab);
-    
+
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 
@@ -519,12 +519,12 @@ exit_error:
 
 int ChassisER1::getPositionPackage(int *leftPos, int *rightPos)
 {
-    PWDReply replyL , replyR; 
+    PWDReply replyL , replyR;
 
     GDOS_DBG_DETAIL("requesting position from er1\n");
-    
+
     hwMtx.lock(RACK_INFINITE);
-    
+
     replyL     = SendCmd(0,GetPostion);
     replyR     = SendCmd(1,GetPostion);
 
@@ -532,7 +532,7 @@ int ChassisER1::getPositionPackage(int *leftPos, int *rightPos)
 
     pwdreply_print(&replyL);
     *leftPos  = pwdreply_data(&replyL);
-    
+
     pwdreply_print(&replyR);
     *rightPos  = pwdreply_data(&replyR);
 
@@ -552,9 +552,9 @@ int ChassisER1::sendMovePackage(int vx, float omega)
 
     speedLeftL  = (long) (velFactor * speedLeft);
     speedRightL = (long) (velFactor * speedRight);
-    
+
     GDOS_DBG_DETAIL("vx= %d omega= %f setting rcm wheel velocity to: %d %d\n", vx, omega,  speedLeftL, speedRightL);
-    
+
     hwMtx.lock(RACK_INFINITE);
 
     rcm_WheelSetVelocity_LR(speedLeftL, speedRightL);
@@ -562,15 +562,15 @@ int ChassisER1::sendMovePackage(int vx, float omega)
 
 /*    if (speedLeftL != 0)
     {
-        PWDReply replyL , replyR; 
-        GDOS_DBG_DETAIL("requesting position from er1\n");    
+        PWDReply replyL , replyR;
+        GDOS_DBG_DETAIL("requesting position from er1\n");
         replyL     = SendCmd(0,GetVelocity);
     //    replyR     = SendCmd(1,GetPostion);
-        GDOS_DBG_DETAIL("outputting answer\n");    
+        GDOS_DBG_DETAIL("outputting answer\n");
         pwdreply_print(&replyL);
-        GDOS_DBG_DETAIL("parsing answer\n");    
+        GDOS_DBG_DETAIL("parsing answer\n");
       //  pwdreply_print(&replyR);
-        GDOS_DBG_DETAIL("returned int values: %d \n",pwdreply_data(&replyL));    
+        GDOS_DBG_DETAIL("returned int values: %d \n",pwdreply_data(&replyL));
     }
 */
     hwMtx.unlock();
@@ -779,15 +779,15 @@ void ChassisER1::pwdreply_print(PWDReply *r)
 int ChassisER1::pwdreply_data(PWDReply *r)
 {
     char hexString[4+r->dwSize];
-    int number; 
+    int number;
 //    const char* rdata = (char*)  r->data;
-    sscanf((char*)  r->data, "0x00%s", hexString ); 
+    sscanf((char*)  r->data, "0x00%s", hexString );
     printf("hexString: ");
     printf(hexString);
     printf("\n");
     number = atoi(hexString);
     printf("int=%d \n", number);
 
-    return number; 
+    return number;
 }
 
