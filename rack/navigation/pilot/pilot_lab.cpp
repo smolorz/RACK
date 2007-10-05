@@ -44,16 +44,16 @@ argTable_t argTab[] = {
       "Maximum speed in mm/s, default 300 mm/s", { 300 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Maximum angular velocity in deg/s, default 20 deg/s", { 20 } },
+      "Maximum angular velocity in deg/s, default 50 deg/s", { 50 } },
 
     { ARGOPT_OPT, "varDistance", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Distance variance in mm, default 200 mm", { 200 } },
+      "Distance variance in mm, default 1000 mm", { 1000 } },
 
     { ARGOPT_OPT, "varRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Angular variance in deg, default 5 deg/s", { 5 } },
+      "Angular variance in deg, default 15 deg/s", { 15 } },
 
     { ARGOPT_OPT, "distanceMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Minimum distance to maintain to obstacles, default 250 mm", { 250 } },
+      "Minimum distance to maintain to obstacles, default 350 mm", { 350 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -132,7 +132,7 @@ argTable_t argTab[] = {
     omega           = 0.0f;
     chassisBound    = chasParData.boundaryRight + chasParData.safetyMargin;
     comfortDistance = (int)(1.5f * (float)distanceMin + (float)chassisBound);
-    distanceMin     = distanceMin + chassisBound;
+    zMin            = distanceMin + chassisBound;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -251,8 +251,16 @@ int  PilotLab::moduleLoop(void)
         memcpy(&(pilotData->dest), &pilotDest.pos, sizeof(pilotData->dest));
         pilotData->speed            = speed;
         pilotData->curve            = curve;
-        pilotData->distanceToDest   = -1;
         pilotData->splineNum        = 0;
+
+        if (pilotState == PILOT_STATE_IDLE)
+        {
+            pilotData->distanceToDest   = -1;
+        }
+        else
+        {
+            pilotData->distanceToDest   = 1;
+        }
 
         putDataBufferWorkSpace(sizeof(pilot_data));
     }

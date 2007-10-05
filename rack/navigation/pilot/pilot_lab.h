@@ -52,7 +52,7 @@ class PilotLab : public RackDataModule {
         float               omegaMax;
         int                 varDistance;
         float               varRho;
-       int                 distanceMin;
+        int                 distanceMin;
 
         // mailboxes
         RackMailbox         workMbx;                // communication
@@ -71,6 +71,7 @@ class PilotLab : public RackDataModule {
 
         // variables
         int                 comfortDistance;
+        int                 zMin;
         int                 pilotState;
         int                 speed;
         float               omega;
