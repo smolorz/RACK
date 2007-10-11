@@ -253,7 +253,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     {
         PositionDataMsg lastPosition = robotPosition.lastElement();
         
-        if(position.recordingTime > lastPosition.recordingTime)
+        if((position.recordingTime > lastPosition.recordingTime) ||
+                robotPosition.isEmpty());
         {
             // add new position data
             robotPosition.add(position);
