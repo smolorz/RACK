@@ -95,7 +95,7 @@ argTable_t argTab[] = {
 const struct rtser_config ladar_serial_config =
 {
     config_mask       : 0xFFFF,
-    baud_rate         : 500000,
+    baud_rate         : 9600,
     parity            : RTSER_NO_PARITY,
     data_bits         : RTSER_8_BITS,
     stop_bits         : RTSER_1_STOPB,
