@@ -196,6 +196,10 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
                 {
                     g.setColor(Color.RED);
                 }
+                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_DYN_OBSTACLE)
+                {
+                    g.setColor(Color.ORANGE);
+                }
                 else
                 {
                     g.setColor(Color.BLACK);
