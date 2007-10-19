@@ -26,8 +26,9 @@
 
 #define CHASSIS_ROOMBA_ROI_START       0x80
 #define CHASSIS_ROOMBA_ROI_CONTROL     0x82
+#define CHASSIS_ROOMBA_ROI_FULL        0x84
 #define CHASSIS_ROOMBA_ROI_DRIVE       0x89
-#define CHASSIS_ROOMBA_ROI_CLEAN       0x8A
+#define CHASSIS_ROOMBA_ROI_MOTORS      0x8A
 #define CHASSIS_ROOMBA_ROI_SENSORS     0x8E
 
 #define CHASSIS_ROOMBA_RADIUS_MAX      2000                     // mm
@@ -62,10 +63,14 @@ typedef struct {
 //######################################################################
 class ChassisRoomba : public RackDataModule {
   private:
+    int                         motorMainBrush;
+    int                         motorVacuum;
+    int                         motorSideBrush;
 
     // your values
     int                         serialDev;
     SerialPort                  serialPort;
+    
 
 
     char                        serialBuffer[30];
@@ -89,6 +94,7 @@ class ChassisRoomba : public RackDataModule {
     // -> non realtime context
     void moduleCleanup(void);
 
+    int setCleaningMotor(int mainBrush, int vacuum, int sideBrush);
     int sendMoveCommand(int speed, float omega);
     int readSensorData(chassis_roomba_sensor_data *sensor);
 

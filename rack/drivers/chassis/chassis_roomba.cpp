@@ -62,25 +62,25 @@ argTable_t argTab[] = {
       "comfortMargin, default 300 (mm)", { 300 } },
 
     { ARGOPT_OPT, "front", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "front, default 250 (mm)", { 250 } },
+      "front, default 170 (mm)", { 170 } },
 
     { ARGOPT_OPT, "back", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "back, default 250 (mm)", { 250 } },
+      "back, default 170 (mm)", { 170 } },
 
     { ARGOPT_OPT, "left", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "left, default 250 (mm)", { 250 } },
+      "left, default 170 (mm)", { 170 } },
 
     { ARGOPT_OPT, "right", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "right, default 250 (mm)", { 250 } },
+      "right, default 170 (mm)", { 170 } },
 
     { ARGOPT_OPT, "wheelBase", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "wheel distance, default 280 (mm)", { 280 } },
+      "wheel distance, default 258 (mm)", { 258 } },
 
     { ARGOPT_OPT, "wheelRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "wheelRadius, default 110 (mm)", { 110 } },
 
     { ARGOPT_OPT, "trackWidth", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "trackWidth, default 280 (mm)", { 280 } },
+      "trackWidth, default 258 (mm)", { 258 } },
 
     { ARGOPT_OPT, "pilotParameterA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotParameterA, default 10 (0.001f)", { 10 } },
@@ -90,6 +90,15 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "pilotVTransMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "pilotVTransMax, default 200", { 200 } },
+
+    { ARGOPT_OPT, "motorMainBrush", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "State of the main brush motor, 0 = off, 1 = on, default 0", { 0 } },
+
+    { ARGOPT_OPT, "motorVacuum", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "State of the vacuum motor, 0 = off, 1 = on, default 0", { 0 } },
+
+    { ARGOPT_OPT, "motorSideBrush", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "State of the side brush motor, 0 = off, 1 = on, default 0", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -103,7 +112,7 @@ const struct rtser_config roomba_serial_config = {
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
     rx_timeout        : 50000000llu,
-    tx_timeout        : RTSER_DEF_TIMEOUT,
+    tx_timeout        : 20000000llu,
     event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
     event_mask        : RTSER_EVENT_RXPEND
@@ -163,6 +172,7 @@ chassis_param_data param = {
         GDOS_ERROR("Can't send START-COMMAND to roomba, code = %d\n", ret);
         return ret;
     }
+    RackTask::sleep(20000000llu);   // 20ms
 
     serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_CONTROL;
     ret = serialPort.send(serialBuffer, 1);
@@ -171,8 +181,23 @@ chassis_param_data param = {
         GDOS_ERROR("Can't send CONTROL-COMMAND to roomba, code = %d\n", ret);
         return ret;
     }
+    RackTask::sleep(20000000llu);  // 20ms
 
-    RackTask::sleep(100000000llu);  // 100ms
+    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_FULL;
+    ret = serialPort.send(serialBuffer, 1);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send FULL-COMMAND to roomba, code = %d\n", ret);
+        return ret;
+    }
+    RackTask::sleep(20000000llu);  // 20ms
+
+    // set cleaning motor    
+    ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
+    if (ret)
+    {
+        return ret;
+    }
 
     activePilot      = CHASSIS_INVAL_PILOT;
     recordingTimeOld = rackTime.get();
@@ -189,8 +214,13 @@ void ChassisRoomba::moduleOff(void)
 
     speed = 0;
     omega = 0.0f;
-    sendMoveCommand(speed, omega);
     activePilot = CHASSIS_INVAL_PILOT;
+
+    sendMoveCommand(speed, omega);
+
+    RackTask::sleep(20000000llu);   // 20 ms
+
+    setCleaningMotor(0, 0, 0);
 }
 
 // realtime context
@@ -217,7 +247,7 @@ int ChassisRoomba::moduleLoop(void)
     }
 
     hwMtx.unlock();
-    RackTask::sleep((getDataBufferPeriodTime(0) / 2) * 1000000llu);     // periodTime / 2
+    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
 
 
     // get sensor data from roomba
@@ -306,7 +336,7 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
             break;
         }
 
-        GDOS_PRINT("%n nhanged active pilot to %n", msgInfo->src, activePilot);
+        GDOS_PRINT("%n Changed active pilot to %n", msgInfo->src, activePilot);
         cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         break;
 
@@ -317,6 +347,44 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
     return 0;
 }
 
+
+int ChassisRoomba::setCleaningMotor(int mainBrush, int vacuum, int sideBrush)
+{
+    int             ret;
+
+    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_MOTORS;
+    serialBuffer[1] = (char)0x0;
+
+    // main brush
+    if (mainBrush)
+    {
+        serialBuffer[1] |= (char)0x04;
+    }
+
+    // vacuum
+    if (vacuum)
+    {
+        serialBuffer[1] |= (char)0x02;
+    }
+
+    // side brush
+    if (sideBrush)
+    {
+        serialBuffer[1] |= (char)0x01;
+    }
+
+    GDOS_DBG_DETAIL("Time %d, Sending MOTORS-COMMAND, mainBrush %d, vacuum %d, sideBrush %d\n", 
+                    rackTime.get(), mainBrush, vacuum, sideBrush);
+    ret = serialPort.send(serialBuffer, 2);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send MOTORS-COMMAND to roomba, code = %d\n", ret);
+    }
+
+    RackTask::sleep(20000000llu);       //20 ms
+
+    return ret;
+}
 
 int ChassisRoomba::sendMoveCommand(int speed, float omega)
 {
@@ -357,6 +425,7 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
     serialBuffer[3] = (char)(radius >> 8);
     serialBuffer[4] = (char)(radius & 0xff);
 
+    GDOS_DBG_DETAIL("Time %d, Sending DRIVE-COMMAND, speed %d, radius %d\n", rackTime.get(), speed, radius);
     ret = serialPort.send(serialBuffer, 5);
     if (ret)
     {
@@ -373,6 +442,7 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_SENSORS;
     serialBuffer[1] = (char)0x0;
 
+    GDOS_DBG_DETAIL("Time %d, Sending SENSORS-COMMAND\n", rackTime.get());
     ret = serialPort.send(serialBuffer, 2);
     if (ret)
     {
@@ -380,16 +450,18 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
         return ret;
     }
 
-    RackTask::sleep((getDataBufferPeriodTime(0) / 2) * 1000000llu);     // periodTime / 2
+    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
 
 
     // receive sensor data
-    ret = serialPort.recv(serialBuffer, 26, &(sensor->recordingTime));
+    GDOS_DBG_DETAIL("Time %d, Receiving sensor-data\n", rackTime.get());
+    ret = serialPort.recv(serialBuffer, 26, &(sensor->recordingTime), 50000000llu);
     if (ret)
     {
         GDOS_ERROR("Error on receiving sensor data from roomba, code = %d\n", ret);
         return ret;
     }
+    GDOS_DBG_DETAIL("Time %d, Received %d bytes\n", rackTime.get(), ret);
 
     // physical sensors
     sensor->bumpAndWheeldrop   = (int)serialBuffer[0];
@@ -416,6 +488,8 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     sensor->batteryTemperature = (int)serialBuffer[21];
     sensor->batteryCharge      = (int)((serialBuffer[22] << 8) | (serialBuffer[23] & 0xff));
     sensor->batteryCapacity    = (int)((serialBuffer[24] << 8) | (serialBuffer[25] & 0xff));
+
+    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
 
     return 0;
 }
@@ -519,12 +593,15 @@ ChassisRoomba::ChassisRoomba()
     param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
+    motorMainBrush          = getIntArg("motorMainBrush", argTab);
+    motorVacuum             = getIntArg("motorVacuum", argTab);
+    motorSideBrush          = getIntArg("motorSideBrush", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
 
     // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    setDataBufferPeriodTime(200); // 200 ms (5 per sec)
 }
 
 int main(int argc, char *argv[])
