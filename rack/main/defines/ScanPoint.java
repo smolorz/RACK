@@ -39,6 +39,7 @@ public class ScanPoint {
     public static final int TYPE_CEILING          = 0x0003;  // 3d scan
     public static final int TYPE_LANDMARK         = 0x0001;  // 2d scan
     public static final int TYPE_OBSTACLE         = 0x0002;  // 2d scan
+    public static final int TYPE_DYN_OBSTACLE     = 0x0003;  // 2d scan
 
     public int x              = 0;    // 4 Bytes
     public int y              = 0;    // 4 Bytes
