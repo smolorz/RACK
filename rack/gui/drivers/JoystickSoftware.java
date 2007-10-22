@@ -56,7 +56,8 @@ public class JoystickSoftware extends RackDataModuleGui
 
     protected JPanel pilotPanel;
     protected JButton pilotButton[];
-
+    
+    protected int          chassisInst;
     protected ChassisProxy chassisProxy;
     protected PilotProxy[] pilotProxy;
     protected String[]     pilotName;
@@ -67,7 +68,13 @@ public class JoystickSoftware extends RackDataModuleGui
 
         joystickProxy = (JoystickProxy)proxy;
 
-        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, 0);
+        String param = ge.getParameter("chassisInst");
+        if (param.length() > 0)
+            chassisInst = Integer.parseInt(param);
+        else
+            chassisInst = 0;
+        
+        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, chassisInst);
 
         int i;
         for(i = 0; i < 8; i++)
