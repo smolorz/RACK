@@ -66,10 +66,14 @@ class DxfMap
         double yMax;
 
         int save(char *filename);
-        int load(char *filename, double mapOffsetX, double mapOffsetY);
+        int load(char *filename, double mapOffsetX, double mapOffsetY, double scaleFactor);
+        int load(char *filename, double mapOffsetX, double mapOffsetY)
+        {
+            return load(filename, mapOffsetX, mapOffsetY, 1000.0);
+        }
         int load(char *filename)
         {
-            return load(filename, 0.0, 0.0);
+            return load(filename, 0.0, 0.0, 1000.0);
         }
 };
 

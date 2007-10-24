@@ -243,7 +243,7 @@ int DxfMap::read_line(FILE *fp)
     }
 }
 
-int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY)
+int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double scaleFactor)
 {
     FILE   *fp;
     int    groupCode;
@@ -257,10 +257,10 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY)
     if ((fp = fopen(filename, "r")) == NULL)
     {
         printf("Can't open dxf file \"%s\"\n", filename);
-        featureNum = 0;
         return -EIO;
     }
 
+    featureNum = 0;
     line = 0;
 
     while ((groupCode = read_group(fp, string, &number, &real, &line)) >= 0)
@@ -291,13 +291,13 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY)
 
     for (i = 0; i < featureNum; i++)
     {
-        x = (feature[i].y - mapOffsetX) * 1000.0;
-        y = (feature[i].x - mapOffsetY) * 1000.0;
+        x = (feature[i].y - mapOffsetX) * scaleFactor;
+        y = (feature[i].x - mapOffsetY) * scaleFactor;
         feature[i].x = x;
         feature[i].y = y;
 
-        x = (feature[i].y2 - mapOffsetX) * 1000.0;
-        y = (feature[i].x2 - mapOffsetY) * 1000.0;
+        x = (feature[i].y2 - mapOffsetX) * scaleFactor;
+        y = (feature[i].x2 - mapOffsetY) * scaleFactor;
         feature[i].x2 = x;
         feature[i].y2 = y;
 
