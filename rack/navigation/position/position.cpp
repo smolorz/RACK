@@ -22,6 +22,7 @@
 #define INIT_BIT_MBX_WORK               2
 #define INIT_BIT_PROXY_ODOMETRY         3
 #define INIT_BIT_MTX_CREATED            4
+#define INIT_BIT_PT_CREATED             5
 
 //
 // data structures
@@ -48,6 +49,15 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "scaleLongitude", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Longitude scale in m / deg, default 0", { 0 } },
+
+    { ARGOPT_OPT, "offsetNorthing", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Northing offset for Gauss Krueger coordinates in in m, default 0", { 0 } },
+
+    { ARGOPT_OPT, "offsetEasting", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Easting offset for Gauss Krueger coordinates in in m, default 0", { 0 } },
+
+    { ARGOPT_OPT, "positionReference", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Position reference frame, 0 = wgs84, 1 = Gauss Krueger, default 0", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -229,6 +239,7 @@ int  Position::moduleCommand(message_info *msgInfo)
     position_data       *pPosData;
     position_wgs84_data posWgs84Data;
     position_wgs84_data *pPosWgs84Data;
+    position_gk_data    posGk;
     odometry_data       odometryData;
     int                 ret, posOldRefIndex;
     double              diffLat, diffLon;
@@ -306,48 +317,95 @@ int  Position::moduleCommand(message_info *msgInfo)
         case MSG_POSITION_WGS84_TO_POS:
             pPosWgs84Data = PositionWgs84Data::parse(msgInfo);
 
-            diffLat  = pPosWgs84Data->latitude - offsetLatitude;
-            diffLon  = pPosWgs84Data->longitude - offsetLongitude;
+            // position reference is Gauss-Krueger
+            if (positionReference == POSITION_REFERENCE_GK)
+            {
+                positionTool->wgs84ToGk(pPosWgs84Data, &posGk);
 
-            posData.pos.x       = (int)rint((diffLat * 180.0 / M_PI) * scaleLatitude * 1000.0);
-            posData.pos.y       = (int)rint((diffLon * 180.0 / M_PI) * scaleLongitude * 1000.0);
-            posData.pos.z       = -pPosWgs84Data->altitude;
-            posData.pos.phi     = 0.0f;
-            posData.pos.psi     = 0.0f;
-            posData.pos.rho     = pPosWgs84Data->heading;
+                posData.pos.x   =  (int)rint(posGk.northing - offsetNorthing);
+                posData.pos.y   =  (int)rint(posGk.easting - offsetEasting);
+                posData.pos.z   = -(int)rint(posGk.altitude);
+                posData.pos.phi = 0.0f;
+                posData.pos.psi = 0.0f;
+                posData.pos.rho = pPosWgs84Data->heading;
 
-            cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
-                                    sizeof(position_data));
+                GDOS_DBG_INFO("Wgs84 lat %a, lon %a, alt %d, Gauss-Krueger north %f, east %f, alt %f\n",
+                               pPosWgs84Data->latitude, pPosWgs84Data->longitude, pPosWgs84Data->altitude,
+                               posGk.northing, posGk.easting, posGk.altitude);
+
+                cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
+                                        sizeof(position_data));
+            }
+
+            // position reference is Wgs84
+            else
+            {
+                diffLat  = pPosWgs84Data->latitude - offsetLatitude;
+                diffLon  = pPosWgs84Data->longitude - offsetLongitude;
+
+                posData.pos.x       = (int)rint((diffLat * 180.0 / M_PI) * scaleLatitude * 1000.0);
+                posData.pos.y       = (int)rint((diffLon * 180.0 / M_PI) * scaleLongitude * 1000.0);
+                posData.pos.z       = -pPosWgs84Data->altitude;
+                posData.pos.phi     = 0.0f;
+                posData.pos.psi     = 0.0f;
+                posData.pos.rho     = pPosWgs84Data->heading;
+
+                cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
+                                        sizeof(position_data));
+            }
             break;
 
         case MSG_POSITION_POS_TO_WGS84:
             pPosData = PositionData::parse(msgInfo);
 
-            if (scaleLatitude != 0)
+            // position reference is Gauss-Krueger
+            if (positionReference == POSITION_REFERENCE_GK)
             {
-                diffLat = (((double)pPosData->pos.x / scaleLatitude) / 1000.0) * M_PI / 180.0;
+                posGk.northing         =  (double)pPosData->pos.x + offsetNorthing;
+                posGk.easting          =  (double)pPosData->pos.y + offsetEasting;
+                posGk.altitude         = -(double)pPosData->pos.z;
+
+                positionTool->gkToWgs84(&posGk, &posWgs84Data);
+
+                posWgs84Data.heading   = pPosData->pos.rho;
+
+                GDOS_DBG_INFO("Gauss-Krueger north %d, east %d, alt %d, Wgs84 lat %a, lon %a, alt %d\n",
+                               posGk.northing, posGk.easting, posGk.altitude, posWgs84Data.latitude,
+                               posWgs84Data.longitude, posWgs84Data.altitude);
+
+                cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
+                                        sizeof(position_wgs84_data));
             }
+
+            // position reference is Wgs84
             else
             {
-                diffLat = 0.0;
-            }
+                if (scaleLatitude != 0)
+                {
+                    diffLat = (((double)pPosData->pos.x / scaleLatitude) / 1000.0) * M_PI / 180.0;
+                }
+                else
+                {
+                    diffLat = 0.0;
+                }
 
-            if (scaleLongitude != 0)
-            {
-                diffLon = (((double)pPosData->pos.y / scaleLongitude) / 1000.0) * M_PI / 180.0;
-            }
-            else
-            {
-                diffLon = 0;
-            }
+                if (scaleLongitude != 0)
+                {
+                    diffLon = (((double)pPosData->pos.y / scaleLongitude) / 1000.0) * M_PI / 180.0;
+                }
+                else
+                {
+                    diffLon = 0;
+                }
 
-            posWgs84Data.latitude  = offsetLatitude + diffLat;
-            posWgs84Data.longitude = offsetLongitude + diffLon;
-            posWgs84Data.altitude  = -pPosData->pos.z;
-            posWgs84Data.heading   = pPosData->pos.rho;
+                posWgs84Data.latitude  = offsetLatitude + diffLat;
+                posWgs84Data.longitude = offsetLongitude + diffLon;
+                posWgs84Data.altitude  = -pPosData->pos.z;
+                posWgs84Data.heading   = pPosData->pos.rho;
 
-            cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
-                                    sizeof(position_wgs84_data));
+                cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
+                                        sizeof(position_wgs84_data));
+            }
             break;
 
         break;
@@ -417,6 +475,14 @@ int  Position::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_MTX_CREATED);
 
+    // init positionTool
+    positionTool = new PositionTool(getCmdMbx(), gdosLevel);
+    if (!positionTool)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_PT_CREATED);
+
     return 0;
 
 init_error:
@@ -430,6 +496,12 @@ void Position::moduleCleanup(void)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
+    }
+
+    // destroy positionTool
+    if (initBits.testAndClearBit(INIT_BIT_PT_CREATED))
+    {
+        delete positionTool;
     }
 
     // destroy mutex
@@ -467,12 +539,15 @@ Position::Position()
                     10)               // data buffer listener
 {
     // get value(s) out of your argument table
-    odometryInst    = getIntArg("odometryInst", argTab);
-    updateInterpol  = getIntArg("updateInterpol", argTab);
-    offsetLatitude  = (double)getFltArg("offsetLatitude", argTab) * M_PI / 180.0;
-    offsetLongitude = (double)getFltArg("offsetLongitude", argTab) * M_PI / 180.0;
-    scaleLatitude   = getIntArg("scaleLatitude", argTab);
-    scaleLongitude  = getIntArg("scaleLongitude", argTab);
+    odometryInst      = getIntArg("odometryInst", argTab);
+    updateInterpol    = getIntArg("updateInterpol", argTab);
+    offsetLatitude    = (double)getFltArg("offsetLatitude", argTab) * M_PI / 180.0;
+    offsetLongitude   = (double)getFltArg("offsetLongitude", argTab) * M_PI / 180.0;
+    scaleLatitude     = getIntArg("scaleLatitude", argTab);
+    scaleLongitude    = getIntArg("scaleLongitude", argTab);
+    offsetNorthing    = (double)getIntArg("offsetNorthing", argTab);
+    offsetEasting     = (double)getIntArg("offsetEasting", argTab);
+    positionReference = getIntArg("positionReference", argTab);
 
     refPos.x   = 0;
     refPos.y   = 0;

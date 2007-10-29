@@ -1527,6 +1527,7 @@ AC_CONFIG_FILES([GNUmakefile \
     main/mailbox/GNUmakefile \
     main/module/GNUmakefile \
     main/proxy/GNUmakefile \
+    main/position_tool/GNUmakefile \
     main/canport/GNUmakefile \
     main/serialport/GNUmakefile \
     main/tims/GNUmakefile \

@@ -26,6 +26,7 @@ librack_la_SOURCES = \
 	\
 	$(top_srcdir)/main/argopts/argopts.cpp \
 	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
+	$(top_srcdir)/main/position_tool/position_tool.cpp \
 	\
 	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
 	$(top_srcdir)/main/module/rack_module.cpp \

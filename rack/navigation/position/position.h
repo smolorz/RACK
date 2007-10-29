@@ -17,11 +17,15 @@
 #define __POSITION_H__
 
 #include <main/rack_data_module.h>
+#include <main/position_tool.h>
 #include <navigation/position_proxy.h>
 #include <drivers/odometry_proxy.h>
 
 // define module class
 #define MODULE_CLASS_ID                 POSITION
+
+#define POSITION_REFERENCE_WGS84        0
+#define POSITION_REFERENCE_GK           1
 
 //######################################################################
 //# class Position
@@ -35,6 +39,9 @@ class Position : public RackDataModule {
         double              offsetLongitude;
         int                 scaleLatitude;
         int                 scaleLongitude;
+        double              offsetNorthing;
+        double              offsetEasting;
+        int                 positionReference;
 
         position_3d         refPos;
         position_3d         refOdo;
@@ -43,6 +50,7 @@ class Position : public RackDataModule {
         position_3d         interpolDiff;           // for update interpolation
         rack_time_t         interpolStartTime;
         RackMutex           refPosMtx;
+        PositionTool        *positionTool;
 
         // mailboxes
         RackMailbox         odometryMbx;

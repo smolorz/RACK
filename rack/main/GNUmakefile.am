@@ -6,6 +6,7 @@ maininclude_HEADERS = \
 	dxf_map.h \
 	image_tool.h \
 	pilot_tool.h \
+	position_tool.h \
 	rack_byteorder.h \
 	rack_debug.h \
 	rack_mailbox.h \
@@ -61,7 +62,8 @@ SUBDIRS = \
 	module \
 	argopts \
 	dxfmap \
-	lib
+	lib \
+	position_tool
 
 if CONFIG_RACK_OS_XENOMAI
 

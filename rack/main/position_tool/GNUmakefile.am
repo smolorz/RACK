@@ -1,0 +1,7 @@
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+EXTRA_DIST = \
+	position_tool.cpp
