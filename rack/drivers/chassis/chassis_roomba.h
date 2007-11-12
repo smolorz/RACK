@@ -25,10 +25,13 @@
 #define MODULE_CLASS_ID     CHASSIS
 
 #define CHASSIS_ROOMBA_ROI_START       0x80
+#define CHASSIS_ROOMBA_ROI_BAUD        0x81
 #define CHASSIS_ROOMBA_ROI_CONTROL     0x82
 #define CHASSIS_ROOMBA_ROI_FULL        0x84
 #define CHASSIS_ROOMBA_ROI_DRIVE       0x89
 #define CHASSIS_ROOMBA_ROI_MOTORS      0x8A
+#define CHASSIS_ROOMBA_ROI_SONG        0x8C
+#define CHASSIS_ROOMBA_ROI_PLAY        0x8D
 #define CHASSIS_ROOMBA_ROI_SENSORS     0x8E
 
 #define CHASSIS_ROOMBA_RADIUS_MAX      2000                     // mm
@@ -94,6 +97,10 @@ class ChassisRoomba : public RackDataModule {
     // -> non realtime context
     void moduleCleanup(void);
 
+    int setBaudrate(int baudNum);
+    int setMode(int mode);
+    int playNote(int songNum, int note, int duration);
+    int playSong(int songNum);
     int setCleaningMotor(int mainBrush, int vacuum, int sideBrush);
     int sendMoveCommand(int speed, float omega);
     int readSensorData(chassis_roomba_sensor_data *sensor);

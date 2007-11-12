@@ -111,12 +111,13 @@ const struct rtser_config roomba_serial_config = {
     stop_bits         : RTSER_1_STOPB,
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : 50000000llu,
-    tx_timeout        : 20000000llu,
-    event_timeout     : RTSER_DEF_TIMEOUT,
+    rx_timeout        : 500000000llu,
+    tx_timeout        : RTSER_DEF_TIMEOUT,
+    event_timeout     : 500000000llu,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
     event_mask        : RTSER_EVENT_RXPEND
 };
+
 
 // vehicle parameter
 chassis_param_data param = {
@@ -134,14 +135,14 @@ chassis_param_data param = {
     safetyMarginMove: 200,                  // mm
     comfortMargin:    300,                  // mm
 
-    boundaryFront:    250,                  // mm
-    boundaryBack:     250,                  // mm
-    boundaryLeft:     250,                  // mm
-    boundaryRight:    250,                  // mm
+    boundaryFront:    170,                  // mm
+    boundaryBack:     170,                  // mm
+    boundaryLeft:     170,                  // mm
+    boundaryRight:    170,                  // mm
 
-    wheelBase:        280,                  // mm
+    wheelBase:        258,                  // mm
     wheelRadius:      110,                  // mm
-    trackWidth:       280,
+    trackWidth:       258,
 
     pilotParameterA:  0.001f,
     pilotParameterB:  2.0f,
@@ -162,37 +163,44 @@ chassis_param_data param = {
 {
     int ret;
 
+    // turn on roomba
+    ret = setMode(CHASSIS_ROOMBA_ROI_START);
+    if (ret)
+    {
+        return ret;
+    }
+
+    // switch roomba baudrate to 19200
+    ret = setBaudrate(7);
+    if (ret)
+    {
+        return ret;
+    }
+
+    // switch SPB baudrate
+    ret = serialPort.setBaudrate(19200);
+    if (ret)
+    {
+        return ret;
+    }
+    RackTask::sleep(100000000llu);   // 100ms
     serialPort.clean();
 
-    // turn on roomba and active external control
-    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_START;
-    ret = serialPort.send(serialBuffer, 1);
+    // active external control
+    ret = setMode(CHASSIS_ROOMBA_ROI_CONTROL);
     if (ret)
     {
-        GDOS_ERROR("Can't send START-COMMAND to roomba, code = %d\n", ret);
         return ret;
     }
-    RackTask::sleep(20000000llu);   // 20ms
 
-    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_CONTROL;
-    ret = serialPort.send(serialBuffer, 1);
+    // play note
+    ret = playNote(15, 72, 200);
     if (ret)
     {
-        GDOS_ERROR("Can't send CONTROL-COMMAND to roomba, code = %d\n", ret);
         return ret;
     }
-    RackTask::sleep(20000000llu);  // 20ms
 
-    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_FULL;
-    ret = serialPort.send(serialBuffer, 1);
-    if (ret)
-    {
-        GDOS_ERROR("Can't send FULL-COMMAND to roomba, code = %d\n", ret);
-        return ret;
-    }
-    RackTask::sleep(20000000llu);  // 20ms
-
-    // set cleaning motor    
+    // set cleaning motor
     ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
     if (ret)
     {
@@ -217,10 +225,8 @@ void ChassisRoomba::moduleOff(void)
     activePilot = CHASSIS_INVAL_PILOT;
 
     sendMoveCommand(speed, omega);
-
-    RackTask::sleep(20000000llu);   // 20 ms
-
     setCleaningMotor(0, 0, 0);
+    playNote(15, 72, 200);
 }
 
 // realtime context
@@ -234,10 +240,7 @@ int ChassisRoomba::moduleLoop(void)
     // get datapointer from rackdatabuffer
     p_data = (chassis_data *)getDataBufferWorkSpace();
 
-
     // move roomba
-    hwMtx.lock(RACK_INFINITE);
-
     ret = sendMoveCommand(speed, omega);
     if (ret)
     {
@@ -245,10 +248,6 @@ int ChassisRoomba::moduleLoop(void)
         hwMtx.unlock();
         return ret;
     }
-
-    hwMtx.unlock();
-    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
-
 
     // get sensor data from roomba
     ret = readSensorData(&sensorData);
@@ -261,15 +260,12 @@ int ChassisRoomba::moduleLoop(void)
     p_data->deltaRho      = -(float)sensorData.angle * CHASSIS_ROOMBA_DEGREES_PER_MM * M_PI / 180.0f;
     p_data->deltaX        =  (float)sensorData.distance;
     p_data->deltaY        =  0.0f;
-
     dT                    = (int)(p_data->recordingTime - recordingTimeOld);
     p_data->vx            = p_data->deltaX * 1000.0f / dT;
     p_data->vy            = 0.0f;
     p_data->omega         = p_data->deltaRho * 1000.0f / dT;
-
     p_data->battery       = (float)sensorData.batteryVoltage / 1000.0f;
     p_data->activePilot   = activePilot;
-
     recordingTimeOld      = p_data->recordingTime;
 
     datalength = sizeof(chassis_data);
@@ -347,6 +343,74 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
     return 0;
 }
 
+int ChassisRoomba::setBaudrate(int baudNum)
+{
+    int ret;
+
+    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_BAUD;
+    serialBuffer[1] = (char)(baudNum & 0xff);
+
+    ret = serialPort.send(serialBuffer, 2);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send BAUD-COMMAND to roomba, code = %d\n", ret);
+    }
+    RackTask::sleep(250000000llu);   // 250ms
+    return ret;
+}
+
+int ChassisRoomba::setMode(int mode)
+{
+    int ret;
+
+    serialBuffer[0] = (char)(mode & 0xff);
+    ret = serialPort.send(serialBuffer, 1);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send mode coomand %x to roomba, code = %d\n", mode, ret);
+    }
+    RackTask::sleep(20000000llu);   // 20ms
+
+    return ret;
+}
+
+int ChassisRoomba::playNote(int songNum, int note, int duration)
+{
+    int ret;
+
+    // define note
+    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_SONG;
+    serialBuffer[1] = (char)(songNum & 0xff); 
+    serialBuffer[2] = (char)1;                                  // song length
+    serialBuffer[3] = (char)(note & 0xff);
+    serialBuffer[4] = (char)((duration * 64 / 1000) & 0xff);    // from ms to 1/64 s
+
+    ret = serialPort.send(serialBuffer, 5);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send SONG-COMMAND to roomba, code = %d\n", ret);
+        return ret;
+    }
+
+    // play note
+    ret = playSong(songNum);
+    return ret;
+}
+
+int ChassisRoomba::playSong(int songNum)
+{
+    int ret;
+
+    serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_PLAY;
+    serialBuffer[1] = (char)(songNum & 0xff);
+
+    ret = serialPort.send(serialBuffer, 2);
+    if (ret)
+    {
+        GDOS_ERROR("Can't send PLAY-COMMAND to roomba, code = %d\n", ret);
+    }
+    return ret;
+}
 
 int ChassisRoomba::setCleaningMotor(int mainBrush, int vacuum, int sideBrush)
 {
@@ -373,8 +437,6 @@ int ChassisRoomba::setCleaningMotor(int mainBrush, int vacuum, int sideBrush)
         serialBuffer[1] |= (char)0x01;
     }
 
-    GDOS_DBG_DETAIL("Time %d, Sending MOTORS-COMMAND, mainBrush %d, vacuum %d, sideBrush %d\n", 
-                    rackTime.get(), mainBrush, vacuum, sideBrush);
     ret = serialPort.send(serialBuffer, 2);
     if (ret)
     {
@@ -390,6 +452,8 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
 {
     int             ret;
     int             radius;
+
+    hwMtx.lock(RACK_INFINITE);
 
     if (omega != 0)
     {
@@ -425,24 +489,27 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
     serialBuffer[3] = (char)(radius >> 8);
     serialBuffer[4] = (char)(radius & 0xff);
 
-    GDOS_DBG_DETAIL("Time %d, Sending DRIVE-COMMAND, speed %d, radius %d\n", rackTime.get(), speed, radius);
     ret = serialPort.send(serialBuffer, 5);
     if (ret)
     {
         GDOS_ERROR("Can't send DRIVE-COMMAND to roomba, code = %d\n", ret);
     }
+
+    hwMtx.unlock();
+
+    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
     return ret;
 }
 
 int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
 {
-    int     ret;
+    int             ret;
+    rack_time_t     timestamp;
 
     //request all sensor data
     serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_SENSORS;
     serialBuffer[1] = (char)0x0;
 
-    GDOS_DBG_DETAIL("Time %d, Sending SENSORS-COMMAND\n", rackTime.get());
     ret = serialPort.send(serialBuffer, 2);
     if (ret)
     {
@@ -454,16 +521,15 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
 
 
     // receive sensor data
-    GDOS_DBG_DETAIL("Time %d, Receiving sensor-data\n", rackTime.get());
-    ret = serialPort.recv(serialBuffer, 26, &(sensor->recordingTime), 50000000llu);
+    ret = serialPort.recv(serialBuffer, 26, &timestamp);
     if (ret)
     {
         GDOS_ERROR("Error on receiving sensor data from roomba, code = %d\n", ret);
         return ret;
     }
-    GDOS_DBG_DETAIL("Time %d, Received %d bytes\n", rackTime.get(), ret);
 
     // physical sensors
+    sensor->recordingTime      = timestamp;
     sensor->bumpAndWheeldrop   = (int)serialBuffer[0];
     sensor->wall               = (int)serialBuffer[1];
     sensor->cliffLeft          = (int)serialBuffer[2];
@@ -505,7 +571,6 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
  *
  *   own non realtime user functions
  ******************************************************************************/
-
 int ChassisRoomba::moduleInit(void)
 {
     int ret;
@@ -601,7 +666,7 @@ ChassisRoomba::ChassisRoomba()
     setDataBufferMaxDataSize(sizeof(chassis_data));
 
     // set databuffer period time
-    setDataBufferPeriodTime(200); // 200 ms (5 per sec)
+    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
 }
 
 int main(int argc, char *argv[])
