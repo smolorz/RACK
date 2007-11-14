@@ -267,14 +267,14 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
         if (gpsData == null)
             return;
 
-        int   radius    = gpsData.varXY / 2;
-        float openAngle = gpsData.varRho / 2.0f;
+        int   radius    = gpsData.varXY;
+        float openAngle = gpsData.varRho;
         
         if (gpsData.varXY > 100000)
-            radius = 100000 / 2;                            // max varXY 100m
+            radius = 100000;                            // max varXY 100m
         
         if (gpsData.varRho > Math.toRadians(90.0))
-            openAngle = (float)Math.toRadians(90.0) / 2;    // max varRho 90 deg
+            openAngle = (float)Math.toRadians(90.0);    // max varRho 90 deg
         
         Graphics2D worldGraphics = mvg.getWorldGraphics();
            
