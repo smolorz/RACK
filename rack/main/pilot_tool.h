@@ -84,6 +84,7 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
     int     sign;
     int     vMax, vMaxX, vMaxY;
     float   rotationSpeed;
+    float   breakConstant;
 
     // set parameters for forward movement
 
@@ -176,11 +177,20 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
         if (((scan->point[i].type & TYPE_INVALID) == 0) &
             ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
         {
+            if ((scan->point[i].type & TYPE_MASK) == TYPE_DYN_OBSTACLE)
+            {
+                breakConstant = param->breakConstant * 3.0f;
+            }
+            else
+            {
+                breakConstant = param->breakConstant;
+            }
+
             // check x-coordinate
               if (scan->point[i].x > xMax)
               {
                 if (sign > 0)
-                    vMaxX = (int)rint((float)abs(scan->point[i].x - xMax) / param->breakConstant);
+                    vMaxX = (int)rint((float)abs(scan->point[i].x - xMax) / breakConstant);
                 else
                     vMaxX = speed;
             }
@@ -189,7 +199,7 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
                 if (sign > 0)
                     vMaxX = speed;
                 else
-                    vMaxX = (int)rint((float)abs(scan->point[i].x - xMin) / param->breakConstant);
+                    vMaxX = (int)rint((float)abs(scan->point[i].x - xMin) / breakConstant);
             }
             else
             {
@@ -200,11 +210,11 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
             // check y coordinate
             if (scan->point[i].y > yMax)
             {
-                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) * 2.0f / param->breakConstant);
+                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) * 2.0f / breakConstant);
             }
             else if (scan->point[i].y < yMin)
             {
-                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) * 2.0f / param->breakConstant);
+                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) * 2.0f / breakConstant);
             }
             else
             {
