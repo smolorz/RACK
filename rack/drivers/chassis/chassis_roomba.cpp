@@ -22,9 +22,11 @@
 //
 
 // init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_RTSERIAL_OPENED            1
-#define INIT_BIT_MTX_CREATED                2
+#define INIT_BIT_MBX_WORK                   0
+#define INIT_BIT_DATA_MODULE                1
+#define INIT_BIT_RTSERIAL_OPENED            2
+#define INIT_BIT_PROXY_SCAN2D               3
+#define INIT_BIT_MTX_CREATED                4
 
 
 ChassisRoomba *p_inst;
@@ -33,6 +35,9 @@ argTable_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
+
+    { ARGOPT_OPT, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Instance for the bumper and wall sensor data relay, default -1", { -1 } },
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "max vehicle velocity in x direction, default 500 m/s", { 500 } },
@@ -56,7 +61,7 @@ argTable_t argTab[] = {
       "safetyMargin, default 50 (mm)", { 50 } },
 
     { ARGOPT_OPT, "safetyMarginMove", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "safety margin in move directiom, default 200 (mm)", { 200 } },
+      "safety margin in move directiom, default 0 (mm)", { 0 } },
 
     { ARGOPT_OPT, "comfortMargin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "comfortMargin, default 300 (mm)", { 300 } },
@@ -163,6 +168,29 @@ chassis_param_data param = {
 {
     int ret;
 
+    if (scan2dInst >= 0)
+    {
+        // init scan2d values and send first dataMsg
+        scan2dDataMsg.data.recordingTime = rackTime.get();
+        scan2dDataMsg.data.pointNum      = 0;
+
+        ret = workMbx.sendDataMsg(MSG_DATA, scan2dMbxAdr + 1, 1, 1,
+                                 &scan2dDataMsg, sizeof(scan2d_data));
+        if (ret)
+        {
+            GDOS_WARNING("Error while sending first scan2d data from %x to %x (bytes %d)\n",
+                         workMbx.getAdr(), scan2dMbxAdr, sizeof(scan2d_data));
+        }
+
+        GDOS_DBG_DETAIL("Turn on Scan2d(%d)\n", scan2dInst);
+        ret = scan2d->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on Scan2d(%i), code = %d\n", scan2dInst, ret);
+            return ret;
+        }
+    }
+
     // turn on roomba
     ret = setMode(CHASSIS_ROOMBA_ROI_START);
     if (ret)
@@ -207,10 +235,11 @@ chassis_param_data param = {
         return ret;
     }
 
-    activePilot      = CHASSIS_INVAL_PILOT;
-    recordingTimeOld = rackTime.get();
-    speed            = 0;
-    omega            = 0.0f;
+    activePilot        = CHASSIS_INVAL_PILOT;
+    recordingTimeOld   = rackTime.get();
+    speed              = 0;
+    omega              = 0.0f;
+    overcurrentCounter = 0;
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -270,6 +299,65 @@ int ChassisRoomba::moduleLoop(void)
 
     datalength = sizeof(chassis_data);
     putDataBufferWorkSpace(datalength);
+
+
+    // send scan2d data
+    if (scan2dInst >= 0)
+    {
+        createScan2d(&sensorData, &scan2dDataMsg.data);
+        datalength =  sizeof(scan2d_data) + scan2dDataMsg.data.pointNum * sizeof(scan_point);
+
+        ret = workMbx.sendDataMsg(MSG_DATA, scan2dMbxAdr + 1, 1, 1,
+                                 &scan2dDataMsg, datalength);
+        if (ret)
+        {
+            GDOS_ERROR("Error while sending scan2d data from %x to %x (bytes %d)\n",
+                       workMbx.getAdr(), scan2dMbxAdr, datalength);
+            return ret;
+        }
+    }
+
+    // overcurrent protection
+    if (sensorData.motorOvercurrents)
+    {
+        if ((sensorData.motorOvercurrents & 0x1) == 0x1)
+        {
+            GDOS_ERROR("Overcurrent in motor for side brush!\n");
+        }
+
+        if ((sensorData.motorOvercurrents & 0x2) == 0x2)
+        {
+            GDOS_ERROR("Overcurrent in motor for vacuum!\n");
+        }
+
+        if ((sensorData.motorOvercurrents & 0x3) == 0x3)
+        {
+            GDOS_ERROR("Overcurrent in motor for main brush!\n");
+        }
+
+        if ((sensorData.motorOvercurrents & 0x4) == 0x4)
+        {
+            GDOS_ERROR("Overcurrent in drive right!\n");
+        }
+
+        if ((sensorData.motorOvercurrents & 0x5) == 0x5)
+        {
+            GDOS_ERROR("Overcurrent in drive left!\n");
+        }
+
+        overcurrentCounter++;
+
+        // overcurrent for 1s
+        if (overcurrentCounter >= 10)
+        {
+            GDOS_ERROR("Shutting down...\n");
+            return -EIO;
+        }
+    }
+    else
+    {
+        overcurrentCounter = 0;
+    }
 
     return 0;
 }
@@ -560,6 +648,119 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     return 0;
 }
 
+void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data *scan2d)
+{
+    // init values
+    scan2d->recordingTime = sensor->recordingTime;
+    scan2d->duration      = getDataBufferPeriodTime(0);
+    scan2d->maxRange      = 0;
+    scan2d->refPos.x      = 0;
+    scan2d->refPos.y      = 0;
+    scan2d->refPos.z      = 0;
+    scan2d->refPos.phi    = 0;
+    scan2d->refPos.psi    = 0;
+    scan2d->refPos.rho    = 0;
+    scan2d->pointNum      = 0;
+
+    if (sensor->wall == 1)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_WALL_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_WALL_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 0;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+
+    if (sensor->cliffLeft == 1)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_CLIFF_LEFT_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_CLIFF_LEFT_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 1;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+
+    if (sensor->cliffFrontLeft == 1)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_CLIFF_FRONTLEFT_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_CLIFF_FRONTLEFT_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 1;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+
+    if (sensor->cliffFrontRight == 1)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_CLIFF_FRONTRIGHT_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_CLIFF_FRONTRIGHT_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 1;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+
+    if (sensor->cliffRight == 1)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_CLIFF_RIGHT_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_CLIFF_RIGHT_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 1;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+
+    if ((sensor->bumpAndWheeldrop & 0x2) == 2)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_BUMP_LEFT_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_BUMP_LEFT_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 2;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+
+    if ((sensor->bumpAndWheeldrop & 0x1) == 1)
+    {
+        scan2d->point[scan2d->pointNum].x = CHASSIS_ROOMBA_POS_BUMP_RIGHT_X;
+        scan2d->point[scan2d->pointNum].y = CHASSIS_ROOMBA_POS_BUMP_RIGHT_Y;
+        scan2d->point[scan2d->pointNum].z = (int)sqrt(scan2d->point[scan2d->pointNum].x *
+                                                      scan2d->point[scan2d->pointNum].x +
+                                                      scan2d->point[scan2d->pointNum].y *
+                                                      scan2d->point[scan2d->pointNum].y);
+        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].segment   = 2;
+        scan2d->point[scan2d->pointNum].intensity = 0;
+        scan2d->pointNum++;
+    }
+}
+
 /*******************************************************************************
  *   !!! NON REALTIME CONTEXT !!!
  *
@@ -583,6 +784,15 @@ int ChassisRoomba::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
+    // create mailbox
+    ret = createMbx(&workMbx, 10, sizeof(scan2d_data_msg),
+                    MBX_IN_USERSPACE | MBX_SLOT);
+    if (ret)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_MBX_WORK);
+
     // open serial port
     ret = serialPort.open(serialDev, &roomba_serial_config, this);
     if (ret)
@@ -591,6 +801,18 @@ int ChassisRoomba::moduleInit(void)
         goto init_error;
     }
     initBits.setBit(INIT_BIT_RTSERIAL_OPENED);
+
+    // create scan2d proxy
+    if (scan2dInst >= 0)
+    {
+        scan2d = new Scan2dProxy(&workMbx, 0, scan2dInst);
+        if (!scan2d)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_SCAN2D);
+    }
 
     // create hardware mutex
     ret = hwMtx.create();
@@ -621,10 +843,24 @@ void ChassisRoomba::moduleCleanup(void)
         hwMtx.destroy();
     }
 
+    // destroy scan2d proxy
+    if (scan2dInst >= 0)
+    {
+        if (initBits.testAndClearBit(INIT_BIT_PROXY_SCAN2D))
+        {
+            delete scan2d;
+        }
+    }
+
     // close serial port
     if (initBits.testAndClearBit(INIT_BIT_RTSERIAL_OPENED))
     {
         serialPort.close();
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_MBX_WORK))
+    {
+        destroyMbx(&workMbx);
     }
 }
 
@@ -639,6 +875,7 @@ ChassisRoomba::ChassisRoomba()
 {
     // get value(s) out of your argument table
     serialDev               = getIntArg("serialDev", argTab);
+    scan2dInst              = getIntArg("scan2dRelayInst", argTab);
     param.vxMax             = getIntArg("vxMax", argTab);
     param.vxMin             = getIntArg("vxMin", argTab);
     param.axMax             = getIntArg("axMax", argTab);
@@ -661,6 +898,9 @@ ChassisRoomba::ChassisRoomba()
     motorMainBrush          = getIntArg("motorMainBrush", argTab);
     motorVacuum             = getIntArg("motorVacuum", argTab);
     motorSideBrush          = getIntArg("motorSideBrush", argTab);
+
+    // scan2d mbx adress
+    scan2dMbxAdr = RackName::create(SCAN2D, scan2dInst);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(chassis_data));
