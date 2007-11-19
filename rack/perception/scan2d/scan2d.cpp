@@ -14,7 +14,6 @@
  *
  */
 #include "scan2d.h"
-
 #include <main/argopts.h>
 
 // init_flags
@@ -52,6 +51,9 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "ladarOffsetRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Ladar rho offset (default 0)", { 0 } },
+
+    { ARGOPT_OPT, "ladarUpsideDown", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Ladar mounted upside down (0: normal (default), 1: upside down)", { 0 } },
 
     { ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Maximal ladar range", { 30000 } },
@@ -161,6 +163,18 @@ int  Scan2d::moduleLoop(void)
     else
         data2D->maxRange      = maxRange;
 
+    // if sensor is mounted upside down, turn swap scanpoints from left to right:
+    // --------------------------------------------------------------------------
+    if (ladarUpsideDown)
+    {
+      GDOS_DBG_DETAIL("upside -> down ...\n");
+      if (turnBackUpsideDown(dataLadar) != 0)  
+      {
+        GDOS_ERROR("Error: turnBackUpsideDown\n");
+        return (-1);
+      }
+    }
+
     data2D->pointNum = 0;
     angle = dataLadar->startAngle;
 
@@ -211,6 +225,48 @@ int  Scan2d::moduleLoop(void)
     putDataBufferWorkSpace(datalength);
     return 0;
 }
+
+
+int  Scan2d::turnBackUpsideDown(ladar_data* dataLadar)
+{
+  int  i, num, max;
+  int  *left, *right;
+  
+  
+  num = dataLadar->distanceNum;
+
+  if (num <= 0)
+  {
+    GDOS_ERROR("turnBackUpsideDown: invalid number of scan points (num=%d)\n", num);
+    return (-1);
+  }
+
+  max   = num / 2;
+  left  = &dataLadar->distance[0];
+  right = &dataLadar->distance[num-1];
+
+  for (i=0; i<max; i++, left++, right--)
+    mySwap(left, right);
+
+  return (0);
+}
+
+
+void  Scan2d::mySwap(int *a, int *b)
+{
+  int tmp;
+
+  tmp = *a;
+  *a  = *b;
+  *b  = tmp;
+
+  // a ^= b;
+  // b ^= a;
+  // a ^= b;
+  
+  return;
+}
+
 
 int  Scan2d::moduleCommand(message_info *msgInfo)
 {
@@ -316,14 +372,15 @@ Scan2d::Scan2d(void)
     //
     // get values
     //
-    ladarInst      = getIntArg("ladarInst", argTab);
-    ladarOffsetX   = getIntArg("ladarOffsetX", argTab);
-    ladarOffsetY   = getIntArg("ladarOffsetY", argTab);
-    ladarOffsetRho = getIntArg("ladarOffsetRho", argTab);
-    maxRange       = getIntArg("maxRange", argTab);
-    reduce         = getIntArg("reduce", argTab);
-    angleMin       = getIntArg("angleMin", argTab);
-    angleMax       = getIntArg("angleMax", argTab);
+    ladarInst       = getIntArg("ladarInst", argTab);
+    ladarOffsetX    = getIntArg("ladarOffsetX", argTab);
+    ladarOffsetY    = getIntArg("ladarOffsetY", argTab);
+    ladarOffsetRho  = getIntArg("ladarOffsetRho", argTab);
+    ladarUpsideDown = getIntArg("ladarUpsideDown", argTab);
+    maxRange        = getIntArg("maxRange", argTab);
+    reduce          = getIntArg("reduce", argTab);
+    angleMin        = getIntArg("angleMin", argTab);
+    angleMax        = getIntArg("angleMax", argTab);
 
     angleMinFloat       = (double)angleMin       * M_PI / 180.0;
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;

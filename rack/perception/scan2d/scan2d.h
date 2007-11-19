@@ -35,6 +35,7 @@ class Scan2d : public RackDataModule {
         int         ladarOffsetX;
         int         ladarOffsetY;
         int         ladarOffsetRho;
+        int         ladarUpsideDown;
         int         maxRange;
         int         reduce;
         int         angleMin;
@@ -51,6 +52,10 @@ class Scan2d : public RackDataModule {
 
         // proxies
         LadarProxy  *ladar;
+
+        int  turnBackUpsideDown(ladar_data* dataLadar);
+        void mySwap(int *a, int *b);
+
 
     protected:
         // -> realtime context
