@@ -322,8 +322,8 @@ int  Position::moduleCommand(message_info *msgInfo)
             {
                 positionTool->wgs84ToGk(pPosWgs84Data, &posGk);
 
-                posData.pos.x   =  (int)rint(posGk.northing - offsetNorthing);
-                posData.pos.y   =  (int)rint(posGk.easting - offsetEasting);
+                posData.pos.x   =  (int)rint(posGk.northing - offsetNorthing * 1000.0);
+                posData.pos.y   =  (int)rint(posGk.easting - offsetEasting * 1000.0);
                 posData.pos.z   = -(int)rint(posGk.altitude);
                 posData.pos.phi = 0.0f;
                 posData.pos.psi = 0.0f;
@@ -361,8 +361,8 @@ int  Position::moduleCommand(message_info *msgInfo)
             // position reference is Gauss-Krueger
             if (positionReference == POSITION_REFERENCE_GK)
             {
-                posGk.northing         =  (double)pPosData->pos.x + offsetNorthing;
-                posGk.easting          =  (double)pPosData->pos.y + offsetEasting;
+                posGk.northing         =  (double)pPosData->pos.x + offsetNorthing * 1000.0;
+                posGk.easting          =  (double)pPosData->pos.y + offsetEasting * 1000.0;
                 posGk.altitude         = -(double)pPosData->pos.z;
 
                 positionTool->gkToWgs84(&posGk, &posWgs84Data);
