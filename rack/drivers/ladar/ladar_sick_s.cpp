@@ -86,6 +86,9 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The number of the local serial device", { -1 } },
 
+    { ARGOPT_OPT, "EFIdev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "EFI bus device (0:master, 1:slave)", { 0 } },
+
     { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Working serial baudrate, default 500000", { 500000 } },
     { 0, "", 0, 0, "", { 0 } } // last entry
@@ -204,8 +207,16 @@ int  LadarSickS::moduleLoop(void)
                 i = -1;
             break;
         case 9:
-            if(serialBuffer[i] != 0x07)
+            if (EFIdev == 0) // EFI master
+            {
+              if(serialBuffer[i] != 0x07)
                 i = -1;
+            }
+            else // EFI slave
+            {
+              if(serialBuffer[i] != 0x08)
+                i = -1;
+            }
             break;
         }
         totalCount++;
@@ -384,6 +395,7 @@ LadarSickS::LadarSickS(void)
 {
     // get values
     devNumber = getIntArg("devNumber", argTab);
+    EFIdev    = getIntArg("EFIdev",    argTab);
     serialDev = getIntArg("serialDev", argTab);
     baudrate = getIntArg("baudrate", argTab);
 
