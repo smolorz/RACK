@@ -54,7 +54,7 @@ class Scan2d : public RackDataModule {
         LadarProxy  *ladar;
 
         int  turnBackUpsideDown(ladar_data* dataLadar);
-        void mySwap(int *a, int *b);
+        void mySwap(int32_t *a, int32_t *b);
 
 
     protected:

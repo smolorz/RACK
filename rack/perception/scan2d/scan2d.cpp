@@ -230,8 +230,7 @@ int  Scan2d::moduleLoop(void)
 int  Scan2d::turnBackUpsideDown(ladar_data* dataLadar)
 {
   int  i, num, max;
-  int  *left, *right;
-  
+  int32_t  *left, *right;
   
   num = dataLadar->distanceNum;
 
@@ -252,9 +251,9 @@ int  Scan2d::turnBackUpsideDown(ladar_data* dataLadar)
 }
 
 
-void  Scan2d::mySwap(int *a, int *b)
+void  Scan2d::mySwap(int32_t *a, int32_t *b)
 {
-  int tmp;
+  int32_t tmp;
 
   tmp = *a;
   *a  = *b;
