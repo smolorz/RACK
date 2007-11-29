@@ -75,8 +75,8 @@ argTable_t argTab[] = {
 
 int  Position::moduleOn(void)
 {
-    int           ret = 0;
-    rack_time_t   realPeriodTime = 0;
+    int           ret;
+    rack_time_t   realPeriodTime;
     odometry_data odometryData;
 
     ret = odometry->on();
@@ -103,9 +103,15 @@ int  Position::moduleOn(void)
     }
 
     memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
-    memcpy(&refPos, &odometryData.pos, sizeof(position_3d));
+    memcpy(&refPos, &oldPos, sizeof(position_3d));
     sinRefOdo = sin(refOdo.rho);
     cosRefOdo = cos(refOdo.rho);
+
+    interpolDiff.x    = 0;
+    interpolDiff.y    = 0;
+    interpolDiff.z    = 0;
+    interpolDiff.rho  = 0.0f;
+    interpolStartTime = rackTime.get();
 
     setDataBufferPeriodTime(realPeriodTime);
 
@@ -150,10 +156,10 @@ int  Position::moduleLoop(void)
         odometryData.pos.psi = normaliseAngleSym0(odometryData.pos.psi);
         odometryData.pos.rho = normaliseAngle(odometryData.pos.rho);
 
-        refPosMtx.lock(RACK_INFINITE);
-
         GDOS_DBG_DETAIL("Odometry position x %i y %i z %i rho %a\n",
                         odometryData.pos.x, odometryData.pos.y, odometryData.pos.z, odometryData.pos.rho);
+
+        refPosMtx.lock(RACK_INFINITE);
 
         // calculate relative position to refference position
         odometryData.pos.x = odometryData.pos.x - refOdo.x;
@@ -209,14 +215,16 @@ int  Position::moduleLoop(void)
 
         pPosition->recordingTime = odometryData.recordingTime;
 
+        refPosMtx.unlock();
+
         GDOS_DBG_DETAIL("recordingTime %i x %i y %i z %i phi %a psi %a rho %a\n",
                         pPosition->recordingTime,
                         pPosition->pos.x, pPosition->pos.y, pPosition->pos.z,
                         pPosition->pos.phi, pPosition->pos.psi, pPosition->pos.rho);
 
-        refPosMtx.unlock();
-
         putDataBufferWorkSpace(sizeof(position_data));
+        
+        memcpy(&oldPos, &pPosition->pos, sizeof(position_3d));
     }
     else
     {
@@ -260,6 +268,7 @@ int  Position::moduleCommand(message_info *msgInfo)
             if (ret)
             {
                 cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
+                break;
             }
 
             refPosMtx.lock(RACK_INFINITE);
@@ -288,27 +297,17 @@ int  Position::moduleCommand(message_info *msgInfo)
                 interpolStartTime = rackTime.get();
             }
 
-            // store new reference position
-            refPos.x   = pUpdate->pos.x;
-            refPos.y   = pUpdate->pos.y;
-            refPos.z   = pUpdate->pos.z;
-            refPos.phi = 0.0f;
-            refPos.psi = 0.0f;
-            refPos.rho = normaliseAngle(pUpdate->pos.rho);
-
             // store odometry position of new reference
-            refOdo.x   = odometryData.pos.x;
-            refOdo.y   = odometryData.pos.y;
-            refOdo.z   = odometryData.pos.z;
-            refOdo.phi = 0.0f;
-            refOdo.psi = 0.0f;
-            refOdo.rho = normaliseAngle(odometryData.pos.rho);
-            sinRefOdo  = sin(refOdo.rho);
-            cosRefOdo  = cos(refOdo.rho);
+            memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
+            // store new reference position
+            memcpy(&refPos, &pUpdate->pos, sizeof(position_3d));
+            sinRefOdo = sin(refOdo.rho);
+            cosRefOdo = cos(refOdo.rho);
 
             refPosMtx.unlock();
+
             GDOS_DBG_INFO("update recordingTime %i x %i y %i z %i phi %a psi %a rho %a\n",
-                           (int)refTime, refPos.x, refPos.y, refPos.z,
+                           (int)pUpdate->recordingTime, refPos.x, refPos.y, refPos.z,
                            refPos.phi, refPos.psi, refPos.rho);
 
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
@@ -549,32 +548,10 @@ Position::Position()
     offsetEasting     = (double)getIntArg("offsetEasting", argTab);
     positionReference = getIntArg("positionReference", argTab);
 
-    refPos.x   = 0;
-    refPos.y   = 0;
-    refPos.z   = 0;
-    refPos.phi = 0;
-    refPos.psi = 0;
-    refPos.rho = 0;
-
-    refOdo.x   = 0;
-    refOdo.y   = 0;
-    refOdo.z   = 0;
-    refOdo.phi = 0;
-    refOdo.psi = 0;
-    refOdo.rho = 0;
-    sinRefOdo  = 0.0;
-    cosRefOdo  = 1.0;
-
-    refTime    = 0;
-
-    interpolDiff.x   = 0;
-    interpolDiff.y   = 0;
-    interpolDiff.z   = 0;
-    interpolDiff.phi = 0;
-    interpolDiff.psi = 0;
-    interpolDiff.rho = 0;
-
-    interpolStartTime = 0;
+    oldPos.x   = 0;
+    oldPos.y   = 0;
+    oldPos.z   = 0;
+    oldPos.rho = 0.0f;
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(position_data));

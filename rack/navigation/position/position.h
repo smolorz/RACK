@@ -43,13 +43,14 @@ class Position : public RackDataModule {
         double              offsetEasting;
         int                 positionReference;
 
+        RackMutex           refPosMtx;
         position_3d         refPos;
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;
-        rack_time_t         refTime;
         position_3d         interpolDiff;           // for update interpolation
         rack_time_t         interpolStartTime;
-        RackMutex           refPosMtx;
+        position_3d         oldPos;
+
         PositionTool        *positionTool;
 
         // mailboxes
