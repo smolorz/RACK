@@ -32,7 +32,6 @@ class OdometryChassis : public RackDataModule {
         float               oldPositionX;
         float               oldPositionY;
         float               oldPositionRho;
-        rack_time_t           oldPositionTime;
 
         uint32_t            chassisInst;
 

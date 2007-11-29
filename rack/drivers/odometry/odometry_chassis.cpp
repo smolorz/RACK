@@ -52,8 +52,12 @@ argTable_t argTab[] = {
 
 int  OdometryChassis::moduleOn(void)
 {
-    int       ret = 0;
-    rack_time_t realPeriodTime = 0;
+    int         ret;
+    rack_time_t realPeriodTime;
+
+    oldPositionX   = 0.0f;
+    oldPositionY   = 0.0f;
+    oldPositionRho = 0.0f;
 
     ret = chassis->on();
     if (ret)
@@ -85,7 +89,7 @@ void OdometryChassis::moduleOff(void)
 int  OdometryChassis::moduleLoop(void)
 {
     int             ret;
-    message_info     info;
+    message_info    info;
     odometry_data*  p_odo;
     float           positionX, positionY, positionRho;
     float           sinOldRho, cosOldRho;
@@ -135,7 +139,6 @@ int  OdometryChassis::moduleLoop(void)
     oldPositionX   = positionX;
     oldPositionY   = positionY;
     oldPositionRho = positionRho;
-    oldPositionTime= chassisData.recordingTime;
 
     GDOS_DBG_DETAIL("recordingTime %i x %i y %i rho %a\n",
                     p_odo->recordingTime, p_odo->pos.x, p_odo->pos.y, p_odo->pos.rho);
@@ -151,16 +154,15 @@ int  OdometryChassis::moduleCommand(message_info *msgInfo)
     {
         case MSG_ODOMETRY_RESET:
             oldPositionX    = 0.0;
-              oldPositionY    = 0.0;
-              oldPositionRho  = 0.0;
-              oldPositionTime = 0;
+            oldPositionY    = 0.0;
+            oldPositionRho  = 0.0;
 
-              cmdMbx.sendMsgReply(MSG_OK, msgInfo);
-              break;
+            cmdMbx.sendMsgReply(MSG_OK, msgInfo);
+            break;
 
         default:
-              // not for me -> ask RackDataModule
-              return RackDataModule::moduleCommand(msgInfo);
+            // not for me -> ask RackDataModule
+            return RackDataModule::moduleCommand(msgInfo);
       }
       return 0;
 }
@@ -260,11 +262,6 @@ OdometryChassis::OdometryChassis()
 {
     // get value(s) out of your argument table
     chassisInst   = getIntArg("chassisInst", argTab);
-
-    oldPositionX    = 0.0;
-    oldPositionY    = 0.0;
-    oldPositionRho  = 0.0;
-    oldPositionTime = 0;
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(odometry_data));
