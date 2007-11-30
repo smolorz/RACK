@@ -22,7 +22,7 @@ import rack.main.defines.*;
 public class PilotDestMsg extends TimsMsg
 {
     public Position3d pos = new Position3d();
-    public float	  moveDir = 0.0f;
+    public int speed      = 0;
 
     public int getDataLen()
     {
@@ -63,7 +63,7 @@ public class PilotDestMsg extends TimsMsg
         }
 
         pos.readData(dataIn);
-        moveDir = dataIn.readFloat();
+        speed = dataIn.readInt();
 
         bodyByteorder = BIG_ENDIAN;
     }
@@ -73,6 +73,6 @@ public class PilotDestMsg extends TimsMsg
         DataOutputStream dataOut = new DataOutputStream(out);
 
         pos.writeData(dataOut);
-        dataOut.writeFloat(moveDir);
+        dataOut.writeInt(speed);
     }
 }
