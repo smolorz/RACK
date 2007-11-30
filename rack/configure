@@ -1062,7 +1062,7 @@ Optional Features:
   --enable-camera-v4l     building CameraV4l
   --enable-chassis-pioneer
                           building ChassisPioneer
-  --enable-chassis-er1    building ChassisER1
+  --enable-chassis-er1    building ChassisEr1
   --enable-chassis-sim    building ChassisSim
   --enable-chassis-roomba building ChassisRoomba
   --enable-gps-nmea       building GpsNmea
@@ -19604,8 +19604,8 @@ _ACEOF
 fi
 
 
-echo "$as_me:$LINENO: checking build ChassisER1" >&5
-echo $ECHO_N "checking build ChassisER1... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking build ChassisEr1" >&5
+echo $ECHO_N "checking build ChassisEr1... $ECHO_C" >&6
 # Check whether --enable-chassis-er1 or --disable-chassis-er1 was given.
 if test "${enable_chassis_er1+set}" = set; then
   enableval="$enable_chassis_er1"

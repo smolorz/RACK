@@ -204,13 +204,13 @@
 #define ERR_RCM_INVALID_PORT 1
 #define ERR_RCM_OPENPORT 2
 /* End: Function error code are defined here */
-/* Begin: Define constant for PWDReply */
+/* Begin: Define constant for chassis_er1_reply */
 #define STATUS 0
 #define CHECKSUM 1
 #define DATA_START 2
 #define DATA_END 7
 #define CHECKSUMVALID 0
-/* END: Define constant for PWDReply */
+/* END: Define constant for chassis_er1_reply */
 #define PWMREPLYSIZE 8
 
 #define LOBYTE(w) ((unsigned char)(w))
@@ -219,31 +219,31 @@
 #define LOWORD(w) ((int)(w))
 
 
-typedef struct PWDCmd_struct {
+typedef struct chassis_er1_cmd_struct {
     unsigned char address;
     unsigned char checksum;
     unsigned char axis; // initialized by constructor, always 0
     unsigned char code;
     unsigned char data[6];
     unsigned char size; // meta data, should be not be send.
-} PWDCmd;
+} chassis_er1_cmd;
 
-typedef struct PWDReply_struct {
+typedef struct chassis_er1_reply_struct {
     unsigned char data[PWMREPLYSIZE];
     long dwSize;
-} PWDReply;
+} chassis_er1_reply;
 
-struct Rcm{
+typedef struct chassis_er1_rcm_struct {
     int handle;
     int nosend ,debug;
-};
+} chassis_er1_rcm;
 
 
 //######################################################################
-//# class ChassisER1Module
+//# class ChassisEr1Module
 //######################################################################
 
-class ChassisER1 : public RackDataModule {
+class ChassisEr1 : public RackDataModule {
   private:
 
     // your values
@@ -258,16 +258,16 @@ class ChassisER1 : public RackDataModule {
     float           odoFactorB;
     float           battery;
     uint32_t        activePilot;
-    struct Rcm      rcm;
     float           speedLeft, speedRight; //in mm per sec
     rack_time_t     oldTime;
 
+    chassis_er1_rcm rcm;
 
     int  getPositionPackage(int *leftPos, int *rightPos);
-    long pwdreply_status(PWDReply *r);
-    long pwdreply_checksum(PWDReply *r);
-    void pwdreply_print(PWDReply *r);
-    int  pwdreply_data(PWDReply *r);
+    long pwdreply_status(chassis_er1_reply *r);
+    long pwdreply_checksum(chassis_er1_reply *r);
+    void pwdreply_print(chassis_er1_reply *r);
+    int  pwdreply_data(chassis_er1_reply *r);
     int  sendMovePackage(int vx, float omega);
 
     void rcm_WheelUpdate();
@@ -277,14 +277,14 @@ class ChassisER1 : public RackDataModule {
     void rcm_WheelSetVelocity_LR(long,long);
     void rcm_WheelSetTurn(long);
 
-    PWDCmd   SetCmd(unsigned char  paddress, unsigned char pcode);
-    PWDCmd   SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode, int  wData1);
-    PWDCmd   SetCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
-    PWDReply _SendCmd(PWDCmd *cmd);
-    PWDReply SendCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
-    PWDReply SendCmd_with_arg(unsigned char paddress, unsigned char pcode, int wData1);
-    PWDReply SendCmd(unsigned char paddress, unsigned char pcode);
-    PWDReply SendCmd_long(unsigned char paddress, unsigned char pcode, long dwData);
+    chassis_er1_cmd   SetCmd(unsigned char  paddress, unsigned char pcode);
+    chassis_er1_cmd   SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode, int  wData1);
+    chassis_er1_cmd   SetCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
+    chassis_er1_reply _SendCmd(chassis_er1_cmd *cmd);
+    chassis_er1_reply SendCmd_with_arg2(unsigned char paddress, unsigned char pcode, int wData1, int wData2);
+    chassis_er1_reply SendCmd_with_arg(unsigned char paddress, unsigned char pcode, int wData1);
+    chassis_er1_reply SendCmd(unsigned char paddress, unsigned char pcode);
+    chassis_er1_reply SendCmd_long(unsigned char paddress, unsigned char pcode, long dwData);
 
   protected:
 
@@ -300,8 +300,8 @@ class ChassisER1 : public RackDataModule {
   public:
 
     // constructor und destructor
-    ChassisER1();
-    ~ChassisER1() {};
+    ChassisEr1();
+    ~ChassisEr1() {};
 
     // -> non realtime context
     int  moduleInit(void);

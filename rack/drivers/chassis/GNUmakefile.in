@@ -40,7 +40,7 @@ bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 	$(am__EXEEXT_4)
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__append_1 = ChassisSim
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__append_2 = ChassisPioneer
-@CONFIG_RACK_CHASSIS_ER1_TRUE@am__append_3 = ChassisER1
+@CONFIG_RACK_CHASSIS_ER1_TRUE@am__append_3 = ChassisEr1
 @CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__append_4 = ChassisRoomba
 subdir = drivers/chassis
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
@@ -55,16 +55,16 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__EXEEXT_1 = ChassisSim$(EXEEXT)
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__EXEEXT_2 =  \
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@	ChassisPioneer$(EXEEXT)
-@CONFIG_RACK_CHASSIS_ER1_TRUE@am__EXEEXT_3 = ChassisER1$(EXEEXT)
+@CONFIG_RACK_CHASSIS_ER1_TRUE@am__EXEEXT_3 = ChassisEr1$(EXEEXT)
 @CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__EXEEXT_4 =  \
 @CONFIG_RACK_CHASSIS_ROOMBA_TRUE@	ChassisRoomba$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_ChassisER1_OBJECTS = chassis_er1.$(OBJEXT)
-ChassisER1_OBJECTS = $(am_ChassisER1_OBJECTS)
-ChassisER1_LDADD = $(LDADD)
-ChassisER1_DEPENDENCIES =
+am_ChassisEr1_OBJECTS = chassis_er1.$(OBJEXT)
+ChassisEr1_OBJECTS = $(am_ChassisEr1_OBJECTS)
+ChassisEr1_LDADD = $(LDADD)
+ChassisEr1_DEPENDENCIES =
 am_ChassisPioneer_OBJECTS = chassis_pioneer.$(OBJEXT)
 ChassisPioneer_OBJECTS = $(am_ChassisPioneer_OBJECTS)
 ChassisPioneer_LDADD = $(LDADD)
@@ -96,9 +96,9 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(ChassisER1_SOURCES) $(ChassisPioneer_SOURCES) \
+SOURCES = $(ChassisEr1_SOURCES) $(ChassisPioneer_SOURCES) \
 	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES)
-DIST_SOURCES = $(ChassisER1_SOURCES) $(ChassisPioneer_SOURCES) \
+DIST_SOURCES = $(ChassisEr1_SOURCES) $(ChassisPioneer_SOURCES) \
 	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -337,7 +337,7 @@ ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
 
-ChassisER1_SOURCES = \
+ChassisEr1_SOURCES = \
 	chassis_er1.h \
 	chassis_er1.cpp
 
@@ -409,9 +409,9 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-ChassisER1$(EXEEXT): $(ChassisER1_OBJECTS) $(ChassisER1_DEPENDENCIES) 
-	@rm -f ChassisER1$(EXEEXT)
-	$(CXXLINK) $(ChassisER1_LDFLAGS) $(ChassisER1_OBJECTS) $(ChassisER1_LDADD) $(LIBS)
+ChassisEr1$(EXEEXT): $(ChassisEr1_OBJECTS) $(ChassisEr1_DEPENDENCIES) 
+	@rm -f ChassisEr1$(EXEEXT)
+	$(CXXLINK) $(ChassisEr1_LDFLAGS) $(ChassisEr1_OBJECTS) $(ChassisEr1_LDADD) $(LIBS)
 ChassisPioneer$(EXEEXT): $(ChassisPioneer_OBJECTS) $(ChassisPioneer_DEPENDENCIES) 
 	@rm -f ChassisPioneer$(EXEEXT)
 	$(CXXLINK) $(ChassisPioneer_LDFLAGS) $(ChassisPioneer_OBJECTS) $(ChassisPioneer_LDADD) $(LIBS)

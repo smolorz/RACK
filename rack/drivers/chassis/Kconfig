@@ -8,10 +8,9 @@ config RACK_CHASSIS_PIONEER
     default y
 
 config RACK_CHASSIS_ER1
-    bool "Chassis - ER1"
+    bool "Chassis - Er1"
     default y
 
 config RACK_CHASSIS_ROOMBA
     bool "Chassis - Roomba"
     default y
-

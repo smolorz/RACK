@@ -33,7 +33,7 @@
 #define CALIBRATION_ROT 0.82
 
 
-ChassisER1 *p_inst;
+ChassisEr1 *p_inst;
 
 argTable_t argTab[] = {
 
@@ -157,7 +157,7 @@ chassis_param_data param = {
  *   own realtime user functions
  ******************************************************************************/
 
- int ChassisER1::moduleOn(void)
+ int ChassisEr1::moduleOn(void)
 {
     RackTask::disableRealtimeMode();
     GDOS_DBG_DETAIL("calling wheel init");
@@ -177,7 +177,7 @@ chassis_param_data param = {
 }
 
 // realtime context
-void ChassisER1::moduleOff(void)
+void ChassisEr1::moduleOff(void)
 {
     RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
@@ -189,7 +189,7 @@ void ChassisER1::moduleOff(void)
 }
 
 // realtime context
-int ChassisER1::moduleLoop(void)
+int ChassisEr1::moduleLoop(void)
 {
     chassis_data*   p_data = NULL;
     ssize_t         datalength = 0;
@@ -250,7 +250,7 @@ int ChassisER1::moduleLoop(void)
 }
 
 // realtime context
-int ChassisER1::moduleCommand(message_info *msgInfo)
+int ChassisEr1::moduleCommand(message_info *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask() |
                               RackName::getClassMask() |
@@ -344,7 +344,7 @@ int ChassisER1::moduleCommand(message_info *msgInfo)
  *   own non realtime user functions
  ******************************************************************************/
 
-int ChassisER1::moduleInit(void)
+int ChassisEr1::moduleInit(void)
 {
     int ret;
     struct termios oldtio,newtio;
@@ -410,11 +410,11 @@ int ChassisER1::moduleInit(void)
     return 0;
 
 init_error:
-    ChassisER1::moduleCleanup();
+    ChassisEr1::moduleCleanup();
     return ret;
 }
 
-void ChassisER1::moduleCleanup(void)
+void ChassisEr1::moduleCleanup(void)
 {
     // call RackDataModule cleanup function
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
@@ -435,7 +435,7 @@ void ChassisER1::moduleCleanup(void)
     }
 }
 
-ChassisER1::ChassisER1()
+ChassisEr1::ChassisEr1()
         : RackDataModule( MODULE_CLASS_ID,
                       5000000000llu,        // 5s datatask error sleep time
                       16,                   // command mailbox slots
@@ -484,19 +484,19 @@ int main(int argc, char *argv[])
 
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "ChassisER1");
+    ret = RackModule::getArgs(argc, argv, argTab, "ChassisEr1");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new ChassisER1
+    // create new ChassisEr1
 
-    p_inst = new ChassisER1();
+    p_inst = new ChassisEr1();
     if (!p_inst)
     {
-        printf("Can't create new ChassisER1 -> EXIT\n");
+        printf("Can't create new ChassisEr1 -> EXIT\n");
         return -ENOMEM;
     }
 
@@ -517,9 +517,9 @@ exit_error:
     return ret;
 }
 
-int ChassisER1::getPositionPackage(int *leftPos, int *rightPos)
+int ChassisEr1::getPositionPackage(int *leftPos, int *rightPos)
 {
-    PWDReply replyL , replyR;
+    chassis_er1_reply replyL , replyR;
 
     GDOS_DBG_DETAIL("requesting position from er1\n");
 
@@ -540,7 +540,7 @@ int ChassisER1::getPositionPackage(int *leftPos, int *rightPos)
 }
 
 
-int ChassisER1::sendMovePackage(int vx, float omega)
+int ChassisEr1::sendMovePackage(int vx, float omega)
 {
     long   speedLeftL, speedRightL;
 
@@ -562,7 +562,7 @@ int ChassisER1::sendMovePackage(int vx, float omega)
 
 /*    if (speedLeftL != 0)
     {
-        PWDReply replyL , replyR;
+        chassis_er1_reply replyL , replyR;
         GDOS_DBG_DETAIL("requesting position from er1\n");
         replyL     = SendCmd(0,GetVelocity);
     //    replyR     = SendCmd(1,GetPostion);
@@ -579,9 +579,9 @@ int ChassisER1::sendMovePackage(int vx, float omega)
 }
 
 
-PWDCmd ChassisER1::SetCmd(unsigned char  paddress, unsigned char pcode)
+chassis_er1_cmd ChassisEr1::SetCmd(unsigned char  paddress, unsigned char pcode)
 {
-    PWDCmd cmd;
+    chassis_er1_cmd cmd;
 
     cmd.address=paddress;
     cmd.code=pcode;
@@ -594,10 +594,10 @@ PWDCmd ChassisER1::SetCmd(unsigned char  paddress, unsigned char pcode)
 }
 
 // paddress = [0|1] left channel or right channel, pcode = code, uwData
-PWDCmd ChassisER1::SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode,
+chassis_er1_cmd ChassisEr1::SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode,
                   int  wData1)
 {
-    PWDCmd cmd;
+    chassis_er1_cmd cmd;
 
     cmd=SetCmd(paddress,pcode);
     cmd.data[0]=HIBYTE(wData1);
@@ -609,11 +609,11 @@ PWDCmd ChassisER1::SetCmd_with_arg(unsigned char  paddress, unsigned char  pcode
     return cmd;
 }
 
-//void PWDCmd::SetCmd(byte address, byte code, byte data, byte data)
-PWDCmd ChassisER1::SetCmd_with_arg2(unsigned char paddress, unsigned char pcode,
+//void chassis_er1_cmd::SetCmd(byte address, byte code, byte data, byte data)
+chassis_er1_cmd ChassisEr1::SetCmd_with_arg2(unsigned char paddress, unsigned char pcode,
                    int wData1, int wData2)
 {
-    PWDCmd cmd;
+    chassis_er1_cmd cmd;
 
     cmd = SetCmd_with_arg(paddress, pcode, wData1);
 
@@ -626,10 +626,10 @@ PWDCmd ChassisER1::SetCmd_with_arg2(unsigned char paddress, unsigned char pcode,
     return cmd;
 }
 
-PWDReply ChassisER1::_SendCmd(PWDCmd *cmd)
+chassis_er1_reply ChassisEr1::_SendCmd(chassis_er1_cmd *cmd)
 {
     int n;
-    PWDReply reply;
+    chassis_er1_reply reply;
 
     reply.dwSize=0;
     memset(reply.data,0,PWMREPLYSIZE);
@@ -653,51 +653,51 @@ PWDReply ChassisER1::_SendCmd(PWDCmd *cmd)
     return reply;
 }
 
-PWDReply ChassisER1::SendCmd_with_arg2(unsigned char paddress, unsigned char pcode,
+chassis_er1_reply ChassisEr1::SendCmd_with_arg2(unsigned char paddress, unsigned char pcode,
                   int wData1, int wData2)
 {
-    PWDCmd cmd;
+    chassis_er1_cmd cmd;
 
     cmd=SetCmd_with_arg2(paddress, pcode, wData1, wData2);
     return _SendCmd(&cmd);
 }
 
-PWDReply ChassisER1::SendCmd_with_arg(unsigned char paddress, unsigned char pcode,
+chassis_er1_reply ChassisEr1::SendCmd_with_arg(unsigned char paddress, unsigned char pcode,
                  int wData1)
 {
-    PWDCmd cmd;
+    chassis_er1_cmd cmd;
 
     cmd=SetCmd_with_arg(paddress, pcode, wData1);
     return _SendCmd(&cmd);
 }
 
-PWDReply ChassisER1::SendCmd(unsigned char paddress, unsigned char pcode)
+chassis_er1_reply ChassisEr1::SendCmd(unsigned char paddress, unsigned char pcode)
 {
-    PWDCmd cmd;
+    chassis_er1_cmd cmd;
 
     cmd = SetCmd(paddress, pcode);
     return _SendCmd(&cmd);
 }
 
-PWDReply ChassisER1::SendCmd_long(unsigned char paddress, unsigned char pcode, long dwData)
+chassis_er1_reply ChassisEr1::SendCmd_long(unsigned char paddress, unsigned char pcode, long dwData)
 {
     return SendCmd_with_arg2(paddress,pcode,HIWORD(dwData),LOWORD(dwData));
 }
 
-void ChassisER1::rcm_WheelSetPower(long wValue)
+void ChassisEr1::rcm_WheelSetPower(long wValue)
 {
     SendCmd_with_arg(1,SetMotorCommand,wValue);
     SendCmd_with_arg(0,SetMotorCommand,wValue);
 }
 
-void ChassisER1::rcm_WheelUpdate()
+void ChassisEr1::rcm_WheelUpdate()
 {
     SendCmd(1,Update);
     SendCmd(0,Update);
 }
 
 // Initalize two wheels
-void ChassisER1::rcm_WheelInit()
+void ChassisEr1::rcm_WheelInit()
 {
     SendCmd(1,Reset);
     SendCmd_with_arg(1,SetLimitSwitchMode,0x0000);
@@ -718,7 +718,7 @@ void ChassisER1::rcm_WheelInit()
     rcm_WheelUpdate();
 }
 
-void ChassisER1::rcm_WheelSetVelocity(long dwSpeed)
+void ChassisEr1::rcm_WheelSetVelocity(long dwSpeed)
 {
     long dwNegSpeed = ~dwSpeed + 1;
 
@@ -727,7 +727,7 @@ void ChassisER1::rcm_WheelSetVelocity(long dwSpeed)
     SendCmd_long(0,SetVelocity,dwSpeed);
 }
 
-void ChassisER1::rcm_WheelSetVelocity_LR(long left,long right){
+void ChassisEr1::rcm_WheelSetVelocity_LR(long left,long right){
   rcm_WheelSetPower(0x4CC0);
 //  GDOS_DBG_DETAIL("setting velocity to: %d %d\n", left, right);
 //  pwdreply_print(&SendCmd_long(1, SetVelocity, right));
@@ -737,7 +737,7 @@ void ChassisER1::rcm_WheelSetVelocity_LR(long left,long right){
 }
 
 // +ve for left, -ve for right
-void ChassisER1::rcm_WheelSetTurn(long dwSpeed)
+void ChassisEr1::rcm_WheelSetTurn(long dwSpeed)
 {
     rcm_WheelSetPower(0x4CC0);
     SendCmd_long(1,SetVelocity,dwSpeed);
@@ -745,12 +745,12 @@ void ChassisER1::rcm_WheelSetTurn(long dwSpeed)
 }
 
 
-long ChassisER1::pwdreply_status(PWDReply *r)
+long ChassisEr1::pwdreply_status(chassis_er1_reply *r)
 {
     return r->data[STATUS];
 }
 
-long ChassisER1::pwdreply_checksum(PWDReply *r)
+long ChassisEr1::pwdreply_checksum(chassis_er1_reply *r)
 {
     unsigned char sum=0;
     int i;
@@ -763,7 +763,7 @@ long ChassisER1::pwdreply_checksum(PWDReply *r)
     return sum;
 }
 
-void ChassisER1::pwdreply_print(PWDReply *r)
+void ChassisEr1::pwdreply_print(chassis_er1_reply *r)
 {
     int i;
 
@@ -776,7 +776,7 @@ void ChassisER1::pwdreply_print(PWDReply *r)
 
 }
 
-int ChassisER1::pwdreply_data(PWDReply *r)
+int ChassisEr1::pwdreply_data(chassis_er1_reply *r)
 {
     char hexString[4+r->dwSize];
     int number;

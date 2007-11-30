@@ -557,12 +557,12 @@ if test "$CONFIG_RACK_CHASSIS_PIONEER" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - ChassisER1
+dnl  drivers - ChassisEr1
 dnl -----------------------------------------------------------------
 
-AC_MSG_CHECKING([build ChassisER1])
+AC_MSG_CHECKING([build ChassisEr1])
 AC_ARG_ENABLE(chassis-er1,
-    AS_HELP_STRING([--enable-chassis-er1], [building ChassisER1]),
+    AS_HELP_STRING([--enable-chassis-er1], [building ChassisEr1]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_CHASSIS_ER1=y ;;
         *) CONFIG_RACK_CHASSIS_ER1=n ;;
@@ -570,7 +570,7 @@ AC_ARG_ENABLE(chassis-er1,
 AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_ER1:-n}])
 AM_CONDITIONAL(CONFIG_RACK_CHASSIS_ER1,[test "$CONFIG_RACK_CHASSIS_ER1" = "y"])
 if test "$CONFIG_RACK_CHASSIS_ER1" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CHASSIS_ER1,1,[building ChassisER1])
+    AC_DEFINE(CONFIG_RACK_CHASSIS_ER1,1,[building ChassisEr1])
 fi
 
 dnl -----------------------------------------------------------------

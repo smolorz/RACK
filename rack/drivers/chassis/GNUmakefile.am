@@ -10,7 +10,7 @@ bin_PROGRAMS += ChassisPioneer
 endif
 
 if CONFIG_RACK_CHASSIS_ER1
-bin_PROGRAMS += ChassisER1
+bin_PROGRAMS += ChassisEr1
 endif
 
 if CONFIG_RACK_CHASSIS_ROOMBA
@@ -31,7 +31,7 @@ ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
 
-ChassisER1_SOURCES = \
+ChassisEr1_SOURCES = \
 	chassis_er1.h \
 	chassis_er1.cpp
 
