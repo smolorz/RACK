@@ -125,7 +125,7 @@ class PilotData
 //######################################################################
 typedef struct{
     position_3d    pos;
-    float          moveDir;
+    int            speed;
 } __attribute__((packed)) pilot_dest_data;
 
 class PilotDestData
@@ -134,13 +134,13 @@ class PilotDestData
         static void le_to_cpu(pilot_dest_data *data)
         {
             Position3D::le_to_cpu(&data->pos);
-            data->moveDir = __le32_float_to_cpu(data->moveDir);
+            data->speed = __le32_to_cpu(data->speed);
         }
 
         static void be_to_cpu(pilot_dest_data *data)
         {
             Position3D::be_to_cpu(&data->pos);
-            data->moveDir = __be32_float_to_cpu(data->moveDir);
+            data->speed = __be32_to_cpu(data->speed);
         }
 
         static pilot_dest_data* parse(message_info *msgInfo)
