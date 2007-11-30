@@ -55,8 +55,8 @@ public class PilotProxy extends RackDataProxy
   {
       try {
     	  PilotDestMsg destinationMsg = new PilotDestMsg();
-    	  destinationMsg.pos = pos;
-    	  destinationMsg.moveDir = 0.0f;
+    	  destinationMsg.pos   = pos;
+    	  destinationMsg.speed = 1;
           replyMbx.send(MSG_PILOT_SET_DESTINATION, commandMbx,(byte)0,(byte)0, destinationMsg);
           replyMbx.receive(0);
  
