@@ -40,9 +40,9 @@ typedef struct {
     char * outstream;          /* target stream */
     int    outstreamOffset;    /* offset into outstream */
     JOCTET * buffer;           /* start of buffer */
-} my_destination_mgr;
+} jpeg_data_dst_mgr;
 
-typedef my_destination_mgr * my_dest_ptr;
+typedef jpeg_data_dst_mgr * jpeg_data_dst_ptr;
 
 
 /*
@@ -52,7 +52,7 @@ typedef my_destination_mgr * my_dest_ptr;
 
 inline METHODDEF(void) init_destination (j_compress_ptr cinfo)
 {
-    my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+    jpeg_data_dst_ptr dest = (jpeg_data_dst_ptr) cinfo->dest;
 
     /* Allocate the output buffer --- it will be released when done with image */
     dest->buffer = (JOCTET *)
@@ -88,7 +88,7 @@ inline METHODDEF(void) init_destination (j_compress_ptr cinfo)
 
 inline METHODDEF(boolean) empty_output_buffer (j_compress_ptr cinfo)
 {
-    my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+    jpeg_data_dst_ptr dest = (jpeg_data_dst_ptr) cinfo->dest;
 
 //  if (JFWRITE(dest->outfile, dest->buffer, OUTPUT_BUF_SIZE) !=
 //      (size_t) OUTPUT_BUF_SIZE)
@@ -114,7 +114,7 @@ inline METHODDEF(boolean) empty_output_buffer (j_compress_ptr cinfo)
 
 inline METHODDEF(void) term_destination (j_compress_ptr cinfo)
 {
-    my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+    jpeg_data_dst_ptr dest = (jpeg_data_dst_ptr) cinfo->dest;
     size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
 
     /* Write any data remaining in the buffer */
@@ -140,7 +140,7 @@ inline METHODDEF(void) term_destination (j_compress_ptr cinfo)
 
 inline GLOBAL(void) jpeg_stdmem_dest (j_compress_ptr cinfo, char * outstream)
 {
-    my_dest_ptr dest;
+    jpeg_data_dst_ptr dest;
 
     /* The destination object is made permanent so that multiple JPEG images
      * can be written to the same file without re-executing jpeg_stdio_dest.
@@ -152,10 +152,10 @@ inline GLOBAL(void) jpeg_stdmem_dest (j_compress_ptr cinfo, char * outstream)
     {    /* first time for this JPEG object? */
         cinfo->dest = (struct jpeg_destination_mgr *)
               (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-              sizeof(my_destination_mgr));
+              sizeof(jpeg_data_dst_mgr));
     }
 
-    dest = (my_dest_ptr) cinfo->dest;
+    dest = (jpeg_data_dst_ptr) cinfo->dest;
     dest->pub.init_destination    = init_destination;
     dest->pub.empty_output_buffer = empty_output_buffer;
     dest->pub.term_destination    = term_destination;

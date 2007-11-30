@@ -191,19 +191,19 @@ int CameraJpeg::moduleLoop(void)
 
     jpeg_finish_compress(&cinfo);
 
-    GDOS_DBG_INFO("sending data with jpeg size %i\n", ((my_dest_ptr)cinfo.dest)->outstreamOffset);
+    GDOS_DBG_INFO("sending data with jpeg size %i\n", ((jpeg_data_dst_ptr)cinfo.dest)->outstreamOffset);
 
     p_data->data.recordingTime = dataCameraInput->data.recordingTime;
     p_data->data.width         = dataCameraInput->data.width;
     p_data->data.height        = dataCameraInput->data.height;
     p_data->data.depth         = cinfo.input_components * 8;
     p_data->data.mode          = CAMERA_MODE_JPEG;
-    p_data->data.colorFilterId = ((my_dest_ptr)cinfo.dest)->outstreamOffset; //missused as array length here
+    p_data->data.colorFilterId = ((jpeg_data_dst_ptr)cinfo.dest)->outstreamOffset; //missused as array length here
 
-    memcpy(&(p_data->byteStream), jpegBuffer, ((my_dest_ptr)cinfo.dest)->outstreamOffset);
+    memcpy(&(p_data->byteStream), jpegBuffer, ((jpeg_data_dst_ptr)cinfo.dest)->outstreamOffset);
 
     datalength = sizeof(camera_data) +
-                 ((my_dest_ptr)cinfo.dest)->outstreamOffset; //special in jdatadstmem.c!!
+                 ((jpeg_data_dst_ptr)cinfo.dest)->outstreamOffset; //special in jdatadstmem.c!!
 
     cameraMbx.peekEnd();
     putDataBufferWorkSpace(datalength);
