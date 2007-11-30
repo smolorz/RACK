@@ -65,8 +65,8 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         destinationButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
-                String s = (String) JOptionPane.showInputDialog(null, "Destination is:\n" + "x, y, z, rho, moveDir",
-                        "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0,0.0,0");
+                String s = (String) JOptionPane.showInputDialog(null, "Destination is:\n" + "x, y, z, rho, speed",
+                        "Destination", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0,0.0,1");
                 if ((s != null) && (s.length() > 0))
                 {
                     StringTokenizer st = new StringTokenizer(s, ",");
@@ -75,14 +75,9 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
                         Position3d destination = new Position3d(Integer.parseInt(st.nextToken()), Integer.parseInt(st
                                 .nextToken()), Integer.parseInt(st.nextToken()), 0.0f, 0.0f, (float) Math.toRadians(Float.parseFloat(st.nextToken())));
 
-                        pilotDest.pos = destination;
+                        pilotDest.pos   = destination;
+                        pilotDest.speed = Integer.parseInt(st.nextToken());
 
-                        if (Integer.parseInt(st.nextToken()) == -1)
-                            pilotDest.moveDir = (float) Math.PI;
-                        else
-                        {
-                            pilotDest.moveDir = 0.0f;
-                        }
                         pilot.setDestination(pilotDest);
                     }
                 }
@@ -167,34 +162,24 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         if(command.equals(setDestinationCommand))
         {
             Position3d destination = new Position3d(event.getWorldCursorPos());
-            pilotDest.pos = destination;
+            pilotDest.pos   = destination;
+            pilotDest.speed = 1;
 
-            System.out.println("robotCursorPos = "+event.getRobotCursorPos());
+            // set backward movement direction
+            int     dX   = event.getWorldCursorPos().x - event.getRobotPosition().x;
+            int     dY   = event.getWorldCursorPos().y - event.getRobotPosition().y;
+            double  dRho = normAngleSym0(Math.atan2(dY, dX) - event.getRobotPosition().rho); 
+
+            if (Math.abs(dRho) > Math.toRadians(120.0))
+            {
+                double dOri = normAngleSym0(event.getWorldCursorPos().rho - event.getRobotPosition().rho);
+
+                if (Math.abs(dOri) < Math.toRadians(90.0))
+                {
+                    pilotDest.speed = -1;
+                }
+            }
             
-            // set movement direction
-            if (event.getRobotCursorPos().x >= 0)
-            {
-                if (Math.abs(event.getRobotCursorPos().rho) <= Math.toRadians(130.0))
-                {
-                    pilotDest.moveDir = 0.0f;
-                }
-                else
-                {
-                    pilotDest.moveDir = (float) Math.PI;
-                }
-            }
-            else
-            {
-                if (Math.abs(event.getRobotCursorPos().rho) <= Math.toRadians(130.0))
-                {
-                    pilotDest.moveDir = (float) Math.PI;
-                }
-                else
-                {
-                    pilotDest.moveDir = 0.0f;
-                }
-            }
-
             pilot.setDestination(pilotDest);
         }
     }
@@ -355,6 +340,15 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         while (x < 0)
             x = x + 2 * Math.PI;
         while (x > 2 * Math.PI)
+            x = x - 2 * Math.PI;
+        return x;
+    }
+
+    public static double normAngleSym0(double x)
+    {
+        while (x <= -Math.PI)
+            x = x + 2 * Math.PI;
+        while ( x > Math.PI)
             x = x - 2 * Math.PI;
         return x;
     }
