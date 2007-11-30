@@ -300,7 +300,7 @@ int  PilotLab::moduleCommand(message_info *msgInfo)
                 pilotDest.pos.x     = pDest->pos.x;
                 pilotDest.pos.y     = pDest->pos.y;
                 pilotDest.pos.rho   = pDest->pos.rho;
-                pilotDest.moveDir   = pDest->moveDir;
+                pilotDest.speed     = pDest->speed;
 
                 pilotState          = PILOT_STATE_NEW_DEST;
                 GDOS_PRINT("Received new destination, x = %dmm, y = %dmm, rho = %adeg\n",
