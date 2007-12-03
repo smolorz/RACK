@@ -247,9 +247,9 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
             yGKLabel.setText(data.pos.y + " mm");
             zGKLabel.setText(data.pos.z + " mm");
             rhoGKLabel.setText((float) Math.toDegrees(data.pos.rho) + " deg");
-            varXYLabel.setText(data.varXY + " mm");
-            varZLabel.setText(data.varZ + " mm");
-            varRhoLabel.setText((float) Math.toDegrees(data.varRho) + " deg");
+            varXYLabel.setText(data.var.x + " mm");
+            varZLabel.setText(data.var.z + " mm");
+            varRhoLabel.setText((float) Math.toDegrees(data.var.rho) + " deg");
 
             setEnabled(true);
         }
@@ -267,13 +267,13 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
         if (gpsData == null)
             return;
 
-        int   radius    = gpsData.varXY;
-        float openAngle = gpsData.varRho;
+        int   radius    = gpsData.var.x;
+        float openAngle = gpsData.var.rho;
         
-        if (gpsData.varXY > 100000)
+        if (gpsData.var.x > 100000)
             radius = 100000;                            // max varXY 100m
         
-        if (gpsData.varRho > Math.toRadians(90.0))
+        if (gpsData.var.rho > Math.toRadians(90.0))
             openAngle = (float)Math.toRadians(90.0);    // max varRho 90 deg
         
         Graphics2D worldGraphics = mvg.getWorldGraphics();

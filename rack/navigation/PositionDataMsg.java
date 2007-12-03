@@ -26,10 +26,11 @@ public class PositionDataMsg extends TimsMsg
 {
     public int recordingTime = 0;
     public Position3d pos = new Position3d();
+    public Position3d var = new Position3d();
 
     public int getDataLen()
     {
-        return (4 + Position3d.getDataLen());
+        return (4 + 2 * Position3d.getDataLen());
     }
 
     public PositionDataMsg()
@@ -40,6 +41,22 @@ public class PositionDataMsg extends TimsMsg
     public PositionDataMsg(TimsRawMsg p) throws TimsException
     {
         readTimsRawMsg(p);
+    }
+
+    public PositionDataMsg(Position3d pos)
+    {
+        msglen = HEAD_LEN + getDataLen();
+        
+        this.pos = pos;
+        this.var = new Position3d(1000, 1000, Integer.MAX_VALUE, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, (float)Math.toRadians(10.0));
+    }
+
+    public PositionDataMsg(Position3d pos, Position3d var)
+    {
+        msglen = HEAD_LEN + getDataLen();
+        
+        this.pos = pos;
+        this.pos = var;
     }
 
     public boolean checkTimsMsgHead()
@@ -67,6 +84,7 @@ public class PositionDataMsg extends TimsMsg
 
         recordingTime = dataIn.readInt();
         pos.readData(dataIn);
+        var.readData(dataIn);
 
         bodyByteorder = BIG_ENDIAN;
     }
@@ -77,5 +95,6 @@ public class PositionDataMsg extends TimsMsg
 
         dataOut.writeInt(recordingTime);
         pos.writeData(dataOut);
+        var.writeData(dataOut);
     }
 }

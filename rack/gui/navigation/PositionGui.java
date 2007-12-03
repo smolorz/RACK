@@ -53,6 +53,14 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
     protected JLabel          psiLabel           = new JLabel("-000.00");
     protected JLabel          rhoLabel           = new JLabel("-000.00");
 
+    protected JLabel          varXNameLabel      = new JLabel("VarX [mm]", SwingConstants.RIGHT);
+    protected JLabel          varYNameLabel      = new JLabel("VarY [mm]", SwingConstants.RIGHT);
+    protected JLabel          varRhoNameLabel    = new JLabel("VarRho [deg]", SwingConstants.RIGHT);
+
+    protected JLabel          varXLabel          = new JLabel("-0000000");
+    protected JLabel          varYLabel          = new JLabel("-0000000");
+    protected JLabel          varRhoLabel        = new JLabel("-000.00");
+
     protected PositionProxy   position;
     protected GpsProxy[]      gpsProxy;
     protected String[]        gpsName;
@@ -103,7 +111,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
                     {
                         Position3d robotPosition = new Position3d(Integer.parseInt(st.nextToken()), Integer.parseInt(st
                                 .nextToken()), 0, 0.0f, 0.0f, (float) Math.toRadians(Float.parseFloat(st.nextToken())));
-                        position.update(robotPosition, 0);
+                        position.update(new PositionDataMsg(robotPosition));
                     }
                 }
             }
@@ -117,7 +125,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
                 GpsDataMsg gpsData = gpsProxy[gps].getData();
                 if (gpsData != null)
                 {
-                    position.update(gpsData.pos, 0);
+                    position.update(new PositionDataMsg(gpsData.pos, gpsData.var));
                 }
                 else
                 {
@@ -144,6 +152,13 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         labelPanel.add(psiLabel);
         labelPanel.add(rhoNameLabel);
         labelPanel.add(rhoLabel);
+
+        labelPanel.add(varXNameLabel);
+        labelPanel.add(varXLabel);
+        labelPanel.add(varYNameLabel);
+        labelPanel.add(varYLabel);
+        labelPanel.add(varRhoNameLabel);
+        labelPanel.add(varRhoLabel);
 
         southPanel.add(manualUpdateButton);
 
@@ -178,6 +193,13 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         phiLabel.setEnabled(enabled);
         psiLabel.setEnabled(enabled);
         rhoLabel.setEnabled(enabled);
+
+        varXNameLabel.setEnabled(enabled);
+        varYNameLabel.setEnabled(enabled);
+        varRhoNameLabel.setEnabled(enabled);
+        varXLabel.setEnabled(enabled);
+        varYLabel.setEnabled(enabled);
+        varRhoLabel.setEnabled(enabled);
 
         manualUpdateButton.setEnabled(enabled);
         
@@ -223,6 +245,10 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
             phiLabel.setText(Math.rint(Math.toDegrees(data.pos.phi)) + "");
             psiLabel.setText(Math.rint(Math.toDegrees(data.pos.psi)) + "");
             rhoLabel.setText(Math.rint(Math.toDegrees(data.pos.rho)) + "");
+
+            varXLabel.setText(data.var.x + "");
+            varYLabel.setText(data.var.y + "");
+            varRhoLabel.setText(Math.rint(Math.toDegrees(data.var.rho)) + "");
 
             if(positionPath != null)
             {

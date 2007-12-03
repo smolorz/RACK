@@ -34,9 +34,7 @@ public class GpsDataMsg extends TimsMsg
     public long         utcTime       = 0;  // POSIX time in sec since 1.1.1970
     public float        pdop          = 0;
     public Position3d   pos  		  = new Position3d();
-    public int			varXY		  = 0;	// variance of xy position in mm
-    public int			varZ	      = 0;	// variance of  z position in mm
-    public float		varRho		  = 0;	// variance of heading in rad
+    public Position3d   var           = new Position3d();
 
     public static final byte MODE_INVALID     = 1;
     public static final byte MODE_2D          = 2;
@@ -44,8 +42,7 @@ public class GpsDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-        return 36 + 28 + Position3d.getDataLen();
-
+        return 36 + 28 + 2 * Position3d.getDataLen();
     }
 
     public GpsDataMsg()
@@ -94,9 +91,7 @@ public class GpsDataMsg extends TimsMsg
         utcTime       = dataIn.readLong();
         pdop          = dataIn.readFloat();
         pos.readData(dataIn);
-        varXY	      = dataIn.readInt();
-        varZ		  = dataIn.readInt();
-        varRho		  = dataIn.readFloat();
+        var.readData(dataIn);
         
         bodyByteorder = BIG_ENDIAN;
     }
@@ -116,8 +111,6 @@ public class GpsDataMsg extends TimsMsg
         dataOut.writeLong(utcTime);
         dataOut.writeFloat(pdop);
         pos.writeData(dataOut);
-        dataOut.writeInt(varXY);
-        dataOut.writeInt(varZ);
-        dataOut.writeFloat(varRho);
+        var.writeData(dataOut);
     }    
 }

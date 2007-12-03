@@ -359,7 +359,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             {
                 Position3d position = new Position3d(event.getWorldCursorPos());
 
-                positionProxy.update(position, 0);
+                positionProxy.update(new PositionDataMsg(position));
             }
         }
         //else if(command.matches("Choose action command"))

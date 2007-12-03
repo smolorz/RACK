@@ -17,7 +17,6 @@ package rack.navigation;
 
 import rack.main.*;
 import rack.main.tims.*;
-import rack.main.defines.*;
 
 public class PositionProxy extends RackDataProxy
 {
@@ -65,22 +64,19 @@ public class PositionProxy extends RackDataProxy
 
     public synchronized PositionDataMsg getData()
     {
-        return(getData(0));
+        return getData(0);
     }
 
-    public synchronized void update(Position3d pos, int recordingTime)
+    public synchronized void update(PositionDataMsg posData)
     {
         currentSequenceNo++;
 
         try {
-            PositionDataMsg updateMsg = new PositionDataMsg();
-            updateMsg.recordingTime = recordingTime;
-            updateMsg.pos = pos;
             replyMbx.send(MSG_POSITION_UPDATE,
                                commandMbx,
                                (byte)0,
                                (byte)currentSequenceNo,
-                               updateMsg);
+                               posData);
 
             TimsRawMsg reply;
 
