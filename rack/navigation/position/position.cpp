@@ -531,8 +531,8 @@ void Position::moduleCleanup(void)
 Position::Position()
       : RackDataModule( MODULE_CLASS_ID,
                     2000000000llu,    // 2s datatask error sleep time
-                    16,               // command mailbox slots
-                    48,               // command mailbox data size per slot
+                    8,                // command mailbox slots
+                    64,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     1000,             // max buffer entries
                     10)               // data buffer listener
