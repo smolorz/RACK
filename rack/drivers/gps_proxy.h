@@ -50,9 +50,7 @@ typedef struct {
     int64_t       utcTime;        // POSIX time in sec since 1.1.1970
     float         pdop;
     position_3d   pos;
-    int32_t       varXY;          // variance of xy position in mm
-    int32_t       varZ;           // variance of  z position in mm
-    float         varRho;         // variance of heading in rad
+    position_3d   var;
 } __attribute__((packed)) gps_data;
 
 
@@ -72,9 +70,7 @@ class GpsData
             data->utcTime       = __le64_to_cpu(data->utcTime);
             data->pdop          = __le32_float_to_cpu(data->pdop);
             Position3D::le_to_cpu(&data->pos);
-            data->varXY         = __le32_to_cpu(data->varXY);
-            data->varZ          = __le32_to_cpu(data->varZ);
-            data->varRho        = __le32_float_to_cpu(data->varRho);
+            Position3D::le_to_cpu(&data->var);
         }
 
         static void be_to_cpu(gps_data *data)
@@ -90,9 +86,7 @@ class GpsData
             data->utcTime       = __be64_to_cpu(data->utcTime);
             data->pdop          = __be32_float_to_cpu(data->pdop);
             Position3D::be_to_cpu(&data->pos);
-            data->varXY         = __be32_to_cpu(data->varXY);
-            data->varZ          = __le32_to_cpu(data->varZ);
-            data->varRho        = __be32_float_to_cpu(data->varRho);
+            Position3D::be_to_cpu(&data->var);
         }
 
         static gps_data* parse(message_info *msgInfo)

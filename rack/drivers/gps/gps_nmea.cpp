@@ -164,9 +164,12 @@ int GpsNmea::moduleLoop(void)
                 gpsData.pos.phi       = 0.0f;
                 gpsData.pos.psi       = 0.0f;
                 gpsData.pos.rho       = 0.0f;
-                gpsData.varXY         = (int)1e12;
-                gpsData.varZ          = (int)1e12;
-                gpsData.varRho        = 1e12;
+                gpsData.var.x         = INT_MAX;
+                gpsData.var.y         = INT_MAX;
+                gpsData.var.z         = INT_MAX;
+                gpsData.var.phi       = INFINITY;
+                gpsData.var.psi       = INFINITY;
+                gpsData.var.rho       = INFINITY;
             }
 
             // gps data valid
@@ -200,23 +203,27 @@ int GpsNmea::moduleLoop(void)
                 // estimate GPS position variance
                 if (gpsData.satelliteNum >= 6)
                 {
-                    gpsData.varXY  = varXY;               // default 20m
-                    gpsData.varZ   = varXY;               // default 100m
+                    gpsData.var.x = varXY;               // default 20m
+                    gpsData.var.y = varXY;
+                    gpsData.var.z = varXY * 5;           // default 100m
                 }
                 else if (gpsData.satelliteNum >= 4)
                 {
-                    gpsData.varXY  = varXY * 5;           // default 100m
-                    gpsData.varZ   = varXY * 5 * 5;       // default 500m
+                    gpsData.var.x = varXY * 5;           // default 100m
+                    gpsData.var.y = varXY * 5;
+                    gpsData.var.z = varXY * 5 * 5;       // default 500m
                 }
                 else if (gpsData.satelliteNum >= 3)
                 {
-                    gpsData.varXY  = varXY * 5;           // default 100m
-                    gpsData.varZ   = (int)1e12;           // Mode 2D
+                    gpsData.var.x = varXY * 5;           // default 100m
+                    gpsData.var.y = varXY * 5;
+                    gpsData.var.z = (int)1e12;           // Mode 2D
                 }
                 else  // satelliteNum < 3
                 {
-                    gpsData.varXY  = (int)1e12;
-                    gpsData.varZ   = (int)1e12;
+                    gpsData.var.x = INT_MAX;
+                    gpsData.var.y = INT_MAX;
+                    gpsData.var.z = INT_MAX;
                 }
 
 
@@ -226,17 +233,19 @@ int GpsNmea::moduleLoop(void)
                     // use gps heading only with motion of at least 0.3m/s
                     if (gpsData.speed > 300)
                     {
-                        gpsData.varRho = varRho;          // default 90 deg
+                        gpsData.var.rho = varRho;          // default 90 deg
                     }
                     else
                     {
-                        gpsData.varRho = 1e12;       // no GPS heading
+                        gpsData.var.rho = INFINITY;       // no GPS heading
                     }
                 }
                 else
                 {
-                    gpsData.varRho = 1e12;           // no GPS heading
+                    gpsData.var.rho = INFINITY;           // no GPS heading
                 }
+                gpsData.var.phi = INFINITY;
+                gpsData.var.psi = INFINITY;
             }
 
             memcpy(p_data, &gpsData, sizeof(gps_data));
@@ -315,9 +324,12 @@ int GpsNmea::moduleLoop(void)
         gpsData.pos.phi       = 0.0f;
         gpsData.pos.psi       = 0.0f;
         gpsData.pos.rho       = 0.0f;
-        gpsData.varXY         = (int)1e12;
-        gpsData.varZ          = (int)1e12;
-        gpsData.varRho        = 1e12;
+        gpsData.var.x         = INT_MAX;
+        gpsData.var.y         = INT_MAX;
+        gpsData.var.z         = INT_MAX;
+        gpsData.var.phi       = INFINITY;
+        gpsData.var.psi       = INFINITY;
+        gpsData.var.rho       = INFINITY;
 
         memcpy(p_data, &gpsData, sizeof(gps_data));
         putDataBufferWorkSpace(sizeof(gps_data));
@@ -347,7 +359,7 @@ int GpsNmea::readNMEAMessage()
     int             i, ret;
     int             msgSize;
     unsigned char   currChar;
-    rack_time_t       recordingTime;
+    rack_time_t     recordingTime;
 
 
     // Initalisation of local variables

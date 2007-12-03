@@ -47,6 +47,7 @@
 typedef struct{
     rack_time_t  recordingTime; // has to be first element
     position_3d  pos;
+    position_3d  var;
 } __attribute__((packed)) position_data;
 
 class PositionData
@@ -56,12 +57,14 @@ class PositionData
         {
             data->recordingTime = __le32_to_cpu(data->recordingTime);
             Position3D::le_to_cpu(&data->pos);
+            Position3D::le_to_cpu(&data->var);
         }
 
         static void be_to_cpu(position_data *data)
         {
             data->recordingTime = __be32_to_cpu(data->recordingTime);
             Position3D::be_to_cpu(&data->pos);
+            Position3D::be_to_cpu(&data->var);
         }
 
         static position_data* parse(message_info *msgInfo)
@@ -164,11 +167,11 @@ class PositionProxy : public RackDataProxy {
         }
 
 
-        int update(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns);
+        int update(position_data *posData, uint64_t reply_timeout_ns);
 
-        int update(position_3d *pos, rack_time_t recordingTime)
+        int update(position_data *posData)
         {
-            return update(pos, recordingTime, dataTimeout);
+            return update(posData, dataTimeout);
         }
 
 

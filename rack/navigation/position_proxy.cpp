@@ -19,7 +19,7 @@ int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
                            rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     message_info msgInfo;
-    
+
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                      reply_timeout_ns, &msgInfo);
     if (ret)
@@ -31,19 +31,9 @@ int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
-int PositionProxy::update(position_3d *pos, rack_time_t recordingTime, uint64_t reply_timeout_ns)
+int PositionProxy::update(position_data *posData, uint64_t reply_timeout_ns)
 {
-    position_data sendData;
-
-    sendData.recordingTime = recordingTime;
-    sendData.pos.x         = pos->x;
-    sendData.pos.y         = pos->y;
-    sendData.pos.z         = pos->z;
-    sendData.pos.phi       = pos->phi;
-    sendData.pos.psi       = pos->psi;
-    sendData.pos.rho       = pos->rho;
-
-    return proxySendDataCmd(MSG_POSITION_UPDATE, &sendData,
+    return proxySendDataCmd(MSG_POSITION_UPDATE, posData,
                             sizeof(position_data), reply_timeout_ns);
 }
 
@@ -52,7 +42,7 @@ int PositionProxy::wgs84ToPos(position_wgs84_data *wgs84Data, position_data *pos
 {
     message_info msgInfo;
 
-    int ret = proxySendRecvDataCmd(MSG_POSITION_WGS84_TO_POS, (void *)wgs84Data, 
+    int ret = proxySendRecvDataCmd(MSG_POSITION_WGS84_TO_POS, (void *)wgs84Data,
                               sizeof(position_wgs84_data),MSG_POSITION_POS,
                               (void *)posData, sizeof(position_data),
                               reply_timeout_ns, &msgInfo);
