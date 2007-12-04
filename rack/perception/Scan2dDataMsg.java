@@ -27,13 +27,15 @@ public class Scan2dDataMsg extends TimsMsg
     public int recordingTime = 0;
     public int duration = 0;
     public int maxRange = 0;
-    public int pointNum = 0;
+    public int sectorNum = 1;
+    public int sectorIndex = 0;
     public Position3d refPos = new Position3d();  
+    public int pointNum = 0;
     public ScanPoint[] point;
 
     public int getDataLen()
     {
-        return (16 + Position3d.getDataLen() + pointNum * ScanPoint.getDataLen());
+        return (24 + Position3d.getDataLen() + pointNum * ScanPoint.getDataLen());
     }
 
     public Scan2dDataMsg(TimsRawMsg p) throws TimsException
@@ -69,9 +71,12 @@ public class Scan2dDataMsg extends TimsMsg
         recordingTime = dataIn.readInt();
         duration = dataIn.readInt();
         maxRange = dataIn.readInt();
-        pointNum = dataIn.readInt();
-        refPos.readData(dataIn);
+        sectorNum = dataIn.readInt();
+        sectorIndex = dataIn.readInt();
 
+        refPos.readData(dataIn);
+        
+        pointNum = dataIn.readInt();
         point = new ScanPoint[pointNum];
         
         for (int i = 0; i < pointNum; i++)
@@ -88,10 +93,12 @@ public class Scan2dDataMsg extends TimsMsg
         dataOut.writeInt(recordingTime);
         dataOut.writeInt(duration);
         dataOut.writeInt(maxRange);
-        dataOut.writeInt(pointNum);
+        dataOut.writeInt(sectorNum);
+        dataOut.writeInt(sectorIndex);
         
         refPos.writeData(dataOut);
 
+        dataOut.writeInt(pointNum);
         for (int i = 0; i < pointNum; i++)
         {
             point[i].writeDataOut(dataOut);
