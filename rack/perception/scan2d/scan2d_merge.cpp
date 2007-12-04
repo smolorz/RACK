@@ -147,7 +147,7 @@ void Scan2dMerge::moduleOff(void)
 // realtime context
 int  Scan2dMerge::moduleLoop(void)
 {
-    message_info     dataInfo;
+    message_info    dataInfo;
     odometry_data   *odoData   = NULL;
     scan2d_data     *scanData  = NULL;
     scan2d_data     *mergeData = NULL;
@@ -239,6 +239,8 @@ int  Scan2dMerge::moduleLoop(void)
             mergeData->recordingTime = odoData->recordingTime;
             mergeData->duration      = getDataBufferPeriodTime(0);
             mergeData->maxRange      = scanBuffer[0].data.maxRange;
+            mergeData->sectorNum     = 1;
+            mergeData->sectorIndex   = 0;
             mergeData->pointNum      = 0;
 
             for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)

@@ -141,6 +141,8 @@ int  Scan2DSim::moduleLoop(void)
     data2D->recordingTime = dataOdometry->recordingTime;
     data2D->duration = getDataBufferPeriodTime(0);
     data2D->maxRange = maxRange;
+    data2D->sectorNum     = 1;
+    data2D->sectorIndex   = 0;
     data2D->pointNum = (360 / angleRes) + 1;
 
     angle           = -180.0 * M_PI / 180.0;

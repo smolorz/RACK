@@ -119,7 +119,7 @@ int  Scan2d::moduleLoop(void)
 {
     scan2d_data*    data2D    = NULL;
     ladar_data*     dataLadar = NULL;
-    message_info     msgInfo;
+    message_info    msgInfo;
     ssize_t         datalength = 0;
     double          angle, x, y;
     int             i, j, ret;
@@ -157,6 +157,8 @@ int  Scan2d::moduleLoop(void)
 
     data2D->recordingTime = dataLadar->recordingTime;
     data2D->duration      = dataLadar->duration;
+    data2D->sectorNum     = 1;
+    data2D->sectorIndex   = 0;
 
     if (dataLadar->maxRange < maxRange)
         data2D->maxRange      = dataLadar->maxRange;
@@ -168,7 +170,7 @@ int  Scan2d::moduleLoop(void)
     if (ladarUpsideDown)
     {
       GDOS_DBG_DETAIL("upside -> down ...\n");
-      if (turnBackUpsideDown(dataLadar) != 0)  
+      if (turnBackUpsideDown(dataLadar) != 0)
       {
         GDOS_ERROR("Error: turnBackUpsideDown\n");
         return (-1);
@@ -231,7 +233,7 @@ int  Scan2d::turnBackUpsideDown(ladar_data* dataLadar)
 {
   int  i, num, max;
   int32_t  *left, *right;
-  
+
   num = dataLadar->distanceNum;
 
   if (num <= 0)
@@ -262,7 +264,7 @@ void  Scan2d::mySwap(int32_t *a, int32_t *b)
   // a ^= b;
   // b ^= a;
   // a ^= b;
-  
+
   return;
 }
 

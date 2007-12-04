@@ -378,7 +378,8 @@ int DatalogRec::initLogFile()
 
                 case SCAN2D:
                     ret = fprintf(fileptr[i], "%% Scan2d(%i)\n"
-                                  "%% recordingTime duration maxRange"
+                                  "%% recordingTime duration maxRange sectorNum sectorIndex"
+                                  " refPos.x refPos.y refPos.z refPos.phi refPos.psi refPos.rho"
                                   " pointNum scan2dFileNum\n",
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
@@ -622,10 +623,18 @@ int DatalogRec::logData(message_info *msgInfo)
                     strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
                     strcat(extFilenameBuf, ".2d");
 
-                    bytes = fprintf(fileptr[i], "%u %u %i %i %i\n",
+                    bytes = fprintf(fileptr[i], "%u %u %i %i %i %i %i %i %f %f %f %i %i\n",
                         (unsigned int)scan2dData->recordingTime,
                         (unsigned int)scan2dData->duration,
                         scan2dData->maxRange,
+                        scan2dData->sectorNum,
+                        scan2dData->sectorIndex,
+                        scan2dData->refPos.x,
+                        scan2dData->refPos.y,
+                        scan2dData->refPos.z,
+                        scan2dData->refPos.phi,
+                        scan2dData->refPos.psi,
+                        scan2dData->refPos.rho,
                         scan2dData->pointNum,
                         datalogInfoMsg.logInfo[i].setsLogged + 1);
 

@@ -55,8 +55,10 @@ typedef struct {
     rack_time_t     recordingTime;  // has to be first element !!!
     rack_time_t     duration;
     int32_t         maxRange;
-    int32_t         pointNum;
+    int32_t         sectorNum;
+    int32_t         sectorIndex;
     position_3d     refPos;         // position of the reference cooridnate system
+    int32_t         pointNum;
     scan_point      point[0];
 } __attribute__((packed)) scan2d_data;
 
@@ -70,8 +72,12 @@ class Scan2dData
             data->recordingTime = __le32_to_cpu(data->recordingTime);
             data->duration      = __le32_to_cpu(data->duration);
             data->maxRange      = __le32_to_cpu(data->maxRange);
-            data->pointNum      = __le32_to_cpu(data->pointNum);
+            data->sectorNum     = __le32_to_cpu(data->sectorNum);
+            data->sectorIndex   = __le32_to_cpu(data->sectorIndex);
+
             Position3D::le_to_cpu(&data->refPos);
+
+            data->pointNum      = __le32_to_cpu(data->pointNum);
             for (i=0; i< data->pointNum; i++) {
                 ScanPoint::le_to_cpu(&data->point[i]);
             }
@@ -84,8 +90,12 @@ class Scan2dData
             data->recordingTime = __be32_to_cpu(data->recordingTime);
             data->duration      = __be32_to_cpu(data->duration);
             data->maxRange      = __be32_to_cpu(data->maxRange);
-            data->pointNum      = __be32_to_cpu(data->pointNum);
+            data->sectorNum     = __be32_to_cpu(data->sectorNum);
+            data->sectorIndex   = __be32_to_cpu(data->sectorIndex);
+
             Position3D::be_to_cpu(&data->refPos);
+
+            data->pointNum      = __be32_to_cpu(data->pointNum);
             for (i=0; i< data->pointNum; i++) {
                 ScanPoint::be_to_cpu(&data->point[i]);
             }
