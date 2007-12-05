@@ -189,8 +189,8 @@ void PilotJoystick::moduleOff(void)
 int  PilotJoystick::moduleLoop(void)
 {
     int         speed;
-    float       omega;
     int         ret;
+    float       omega;
     message_info jstkInfo;
     message_info s2dInfo;
     pilot_data*    pilotData = NULL;
@@ -357,9 +357,49 @@ int  PilotJoystick::moduleLoop(void)
     }
 
     pilotData->distanceToDest = -1;
-    pilotData->splineNum      = 0;
+    pilotData->splineNum      = 1;
 
-    putDataBufferWorkSpace(sizeof(pilot_data));
+    pilotData->spline[0].radius         = 0;
+    pilotData->spline[0].length         = joystickSpeed;
+    pilotData->spline[0].vMax           = joystickSpeed;
+    pilotData->spline[0].vStart         = joystickSpeed;
+    pilotData->spline[0].vEnd           = joystickSpeed;
+    pilotData->spline[0].aMax           = chasParData.axMax;
+    pilotData->spline[0].lbo            = 0;
+    pilotData->spline[0].startPos.x     = 0;
+    pilotData->spline[0].startPos.y     = 0;
+    pilotData->spline[0].startPos.rho   = 0.0f;
+    pilotData->spline[0].centerPos.x    = 0;
+    pilotData->spline[0].centerPos.y    = 0;
+    pilotData->spline[0].centerPos.rho  = 0.0f;
+    pilotData->spline[0].endPos.x       = joystickSpeed;
+    pilotData->spline[0].endPos.y       = 0;
+    pilotData->spline[0].endPos.rho     = 0.0f;
+
+/*    if (pilotData->curve > 0)
+    {
+        pilotData->spline[0].centerPos.y   = pilotData->spline[0].radius;
+        pilotData->spline[0].centerPos.rho = -M_PI;
+    }
+    if (pilotData->curve < 0)
+    {
+        pilotData->spline[0].centerPos.y   = -pilotData->spline[0].radius;
+        pilotData->spline[0].centerPos.rho = M_PI;
+    }
+
+    if (joystickSpeed != 0)
+    {
+        pilotData->spline[0].endPos.rho = normaliseAngle((float)pilotData->spline[0].radius / (float)joystickSpeed);
+    }
+    else
+    {
+        pilotData->spline[0].endPos.rho = 0.0f;
+    }
+
+    pilotData->spline[0].endPos.x   = (int)(pilotData->spline[0].radius * cos(pilotData->spline[0].endPos.rho));
+    pilotData->spline[0].endPos.y   = (int)(pilotData->spline[0].radius * sin(pilotData->spline[0].endPos.rho));*/
+
+    putDataBufferWorkSpace(sizeof(pilot_data) + pilotData->splineNum * sizeof(polar_spline));
 
     RackTask::sleep(rackTime.toNano(getDataBufferPeriodTime(0)));
 

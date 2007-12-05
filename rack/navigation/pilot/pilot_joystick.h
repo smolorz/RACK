@@ -37,7 +37,7 @@ typedef struct {
 // pilot data message (use no splines)
 typedef struct {
      pilot_data        data;
-     polar_spline      spline[0];
+     polar_spline      spline[1];
 } __attribute__((packed)) pilot_data_msg;
 
 //######################################################################
