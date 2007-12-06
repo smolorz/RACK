@@ -29,7 +29,7 @@ import rack.main.tims.*;
 
 public class GDOSGui extends GuiElement
 {
-    protected JPanel       panel;
+    protected JPanel       rootPanel;
 
     /** Mailboxnummer des GDOS-Systems */
     protected TimsMbx      gdosMbx;
@@ -58,7 +58,7 @@ public class GDOSGui extends GuiElement
 
         gdosMbx = mainGui.getTims().mbxInit(RackName.create(RackName.GDOS, 0));
         
-        panel = new JPanel(new BorderLayout());
+        rootPanel = new JPanel(new BorderLayout());
 
         printRadio.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -145,8 +145,8 @@ public class GDOSGui extends GuiElement
         debugDetailRadio.setSelected(true);
         gdosTableModel.setDebugLevel(GDOS.DBG_DETAIL);
 
-        panel.add(panelNorth, BorderLayout.NORTH);
-        panel.add(jsp, BorderLayout.CENTER);
+        rootPanel.add(panelNorth, BorderLayout.NORTH);
+        rootPanel.add(jsp, BorderLayout.CENTER);
         
         lastError = System.currentTimeMillis() - 10000;
         lastWarning = System.currentTimeMillis() - 10000;
@@ -154,7 +154,7 @@ public class GDOSGui extends GuiElement
 
     public JComponent getComponent()
     {
-        return (panel);
+        return rootPanel;
     }
 
     public void terminate()
@@ -238,6 +238,8 @@ public class GDOSGui extends GuiElement
         
         if(gdosMbx != null)
             gdosMbx.delete();
+        
+        rootPanel.removeAll();
         
         System.out.println("GDOSGui terminated");
     }

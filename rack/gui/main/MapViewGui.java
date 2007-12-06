@@ -337,7 +337,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             }
         }
         mapComponent.removeMapView(this);
-
+        rootPanel.removeAll();
+        
         System.out.println("MapViewGui terminated");
     }
 
