@@ -122,7 +122,7 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         }
     }
 
-    protected void runEnd()
+    protected void runStop()
     {
         if(mapViewGui != null)
         {
