@@ -87,7 +87,6 @@ public abstract class RackModuleGui extends GuiElement
 
     protected void runStop()
     {
-        rootPanel.removeAll();
     }
     
     public void start()
@@ -114,5 +113,6 @@ public abstract class RackModuleGui extends GuiElement
             }
         }
         runStop();
+        rootPanel.removeAll();
     }
 }
