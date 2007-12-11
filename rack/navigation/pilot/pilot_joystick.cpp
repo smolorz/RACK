@@ -52,6 +52,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Control mode (0 = speed-radius; 1 = speed-omega (default 0)", { 0 } },
 
+    { ARGOPT_OPT, "chassisMinTurnRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "min turning radius for chassis module", { 300 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -90,6 +93,12 @@ argTable_t argTab[] = {
     {
         maxSpeed = chasParData.vxMax;
         GDOS_DBG_DETAIL("Max speed : %d\n", maxSpeed);
+    }
+
+    if (chasParData.minTurningRadius < chassisMinTurnRadius)
+    {
+        chasParData.minTurningRadius = chassisMinTurnRadius;
+        GDOS_DBG_DETAIL("Min turn radius: %i\n", chassisMinTurnRadius);
     }
 
     // enable joystick
@@ -579,6 +588,7 @@ PilotJoystick::PilotJoystick()
     joystickSys  = getIntArg("joystickSys", argTab);
     maxSpeed     = getIntArg("maxSpeed", argTab);
     mode         = getIntArg("mode", argTab);
+    chassisMinTurnRadius = getIntArg("chassisMinTurnRadius", argTab);
 
     // set dataBuffer size
     setDataBufferMaxDataSize(sizeof(pilot_data_msg));
