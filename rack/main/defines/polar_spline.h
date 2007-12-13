@@ -108,7 +108,8 @@ class PolarSpline
             {
                 // calculate longitudinal position
                 result->x = (int)rint(fabs(spline->radius *
-                                     point_2d_polar_angle(point)) * lengthSign);
+                                 normaliseAngle(radiusSign * point_2d_polar_angle(point))) *
+                                 lengthSign);
 
                 // calculate transversal deviation
                 a = (double)result->x / (double)spline->radius;
