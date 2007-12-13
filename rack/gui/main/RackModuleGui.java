@@ -38,6 +38,8 @@ public abstract class RackModuleGui extends GuiElement
     protected JPanel    rootPanel;
     protected JButton   onButton;
     protected JButton   offButton;
+    protected ActionListener    onButtonAction;
+    protected ActionListener    offButtonAction;
 
     public RackModuleGui(GuiElementDescriptor guiElement)
     {
@@ -51,20 +53,22 @@ public abstract class RackModuleGui extends GuiElement
         rootPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         onButton = new JButton("On");
-        onButton.addActionListener(new ActionListener() {
+        onButtonAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 proxy.on();
             }
-        });
+        };
+        onButton.addActionListener(onButtonAction);
 
         offButton = new JButton("Off");
-        offButton.addActionListener(new ActionListener() {
+        offButtonAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 proxy.off();
             }
-        });
+        };
+        offButton.addActionListener(offButtonAction);
     }
 
     public JComponent getComponent()
@@ -113,6 +117,12 @@ public abstract class RackModuleGui extends GuiElement
             }
         }
         runStop();
+
+        onButton.removeActionListener(onButtonAction);
+        onButtonAction = null;
+        offButton.removeActionListener(offButtonAction);
+        offButtonAction = null;
+
         rootPanel.removeAll();
     }
 }
