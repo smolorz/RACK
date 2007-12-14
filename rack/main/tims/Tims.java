@@ -29,6 +29,7 @@ public abstract class Tims extends Thread
 
     public Tims()
     {
+        this.setName("Tims");
     }
 
     public void terminate()

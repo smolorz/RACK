@@ -86,6 +86,7 @@ public final class Gui extends Thread
     public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader,
                String timsClass, String timsParam) throws Exception
     {
+        this.setName("Gui");
         this.mainFrame = mainFrame;
         this.mainFrameContent = mainFrameContent;
 

@@ -32,6 +32,8 @@ public class TimsTcp extends Tims
 
     public TimsTcp(String tcpParam) throws TimsException
     {
+        this.setName("TimsTcp");
+
         try
         {
             addr = InetAddress.getByName(tcpParam.trim());
