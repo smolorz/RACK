@@ -46,8 +46,6 @@ public class GDOSGui extends GuiElement
     protected JButton      storeButton      = new JButton("Store");
     protected JScrollPane  jsp;
     protected JScrollBar   jsb;
-    // Abbruchbedingung
-    protected boolean      terminate        = false;
 
     protected long         lastError;
     protected long         lastWarning;
@@ -155,19 +153,6 @@ public class GDOSGui extends GuiElement
     public JComponent getComponent()
     {
         return rootPanel;
-    }
-
-    public void terminate()
-    {
-        terminate = true;
-        try
-        {
-            this.interrupt();
-            this.join(100);
-        }
-        catch (Exception e)
-        {
-        }
     }
 
     public void run()

@@ -65,8 +65,6 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected ChassisProxy                 chassisProxy;
     protected ChassisParamMsg              chassisParam;
 
-    protected boolean                      terminate = false;
-
     public MapViewGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
