@@ -609,6 +609,8 @@ public final class Gui extends Thread
                         break;
                     }
                 }
+                ge.frame.setVisible(false);
+                ge.workspace.jdp.remove(ge.frame);
                 ge.gui.terminate();
                 ge.gui = null;
                 ge.frame = null;
