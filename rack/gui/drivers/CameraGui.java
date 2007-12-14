@@ -29,6 +29,48 @@ import rack.gui.main.RackModuleGui;
 
 public class CameraGui extends RackModuleGui
 {
+    protected JButton         storeButton;
+    protected JButton         storeContOnButton;
+    protected JButton         storeContOffButton;
+    protected int             contStoring               = 0;
+    protected int             singleStoring             = 0;
+    protected ActionListener  storeAction;
+    protected ActionListener  storeContOnAction;
+    protected ActionListener  storeContOffAction;
+
+    protected CameraComponent cameraComponent;
+
+    public JLabel             mousePositionLabel;
+    public JLabel             contStoringLabel;
+    protected JPanel          labelPanel;
+    protected JPanel          buttonPanel;
+    protected JPanel          switchBoxPanel;
+    protected JComboBox       switchRotateComboBox;
+    protected String[]        switchRotateRates         = { "none", "90 deg right", "hor flip", "90 deg and hor flip" };
+    protected int             switchRotate;
+    protected ActionListener  switchRotateAction;
+    protected JComboBox       zoomRateComboBox;
+    protected String[]        possibleZoomRates         = { "25", "50", "100", "200", "300", "400" };
+    protected int             zoomRate;
+    protected ActionListener  zoomRateAction;
+    protected JComboBox       resolutionComboBox;
+    protected String[]        possibleResolutions       = { "160x120", "320x240", "352x288", "640x480", "1280x960" };
+    protected int[]           possibleResolutionsWidth  = { 160, 320, 352, 640, 1280 };
+    protected int[]           possibleResolutionsHeight = { 120, 240, 288, 480, 960 };
+    protected ActionListener  resolutionAction;
+    protected JComboBox       modeComboBox;
+    protected String[]        possibleModes             = { "MONO8", "MONO12", "MONO16", "RGB24", "RGB565", "YUV422",
+            "RAW", "RAW12", "RAW16", "RANGE", "INTENS", "TP_INT", "RANGE_TP", "SEGMENT", "ELEVA", "TYPE", "EDGE" };
+    protected int[]           possibleModesNum          = { CameraDataMsg.CAMERA_MODE_MONO8,
+            CameraDataMsg.CAMERA_MODE_MONO12, CameraDataMsg.CAMERA_MODE_MONO16, CameraDataMsg.CAMERA_MODE_RGB24,
+            CameraDataMsg.CAMERA_MODE_RGB565, CameraDataMsg.CAMERA_MODE_YUV422, CameraDataMsg.CAMERA_MODE_RAW8,
+            CameraDataMsg.CAMERA_MODE_RAW12, CameraDataMsg.CAMERA_MODE_RAW16, CameraDataMsg.CAMERA_MODE_RANGE,
+            CameraDataMsg.CAMERA_MODE_INTENSITY, CameraDataMsg.CAMERA_MODE_TYPE_INTENSITY,
+            CameraDataMsg.CAMERA_MODE_RANGE_TYPE, CameraDataMsg.CAMERA_MODE_SEGMENT,
+            CameraDataMsg.CAMERA_MODE_ELEVATION, CameraDataMsg.CAMERA_MODE_TYPE, CameraDataMsg.CAMERA_MODE_EDGE };
+    protected ActionListener  modeAction;
+
+    public CameraProxy        camera;
 
     public CameraGui(GuiElementDescriptor guiElement)
     {
@@ -48,29 +90,33 @@ public class CameraGui extends RackModuleGui
         storeContOnButton = new JButton("StoreOn");
         storeContOffButton = new JButton("StoreOff");
 
-        storeContOnButton.addActionListener(new ActionListener() {
+        storeContOnAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 contStoring = 1;
                 contStoringLabel.setText("Cont.storing on.");
 
             }
-        });
+        };
+        storeContOnButton.addActionListener(storeContOnAction);
 
-        storeContOffButton.addActionListener(new ActionListener() {
+        storeContOffAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 contStoring = 0;
                 contStoringLabel.setText("Cont.storing off.");
 
             }
-        });
-        storeButton.addActionListener(new ActionListener() {
+        };
+        storeContOffButton.addActionListener(storeContOffAction);
+
+        storeAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 singleStoring = 1;
             }
-        });
+        };
+        storeButton.addActionListener(storeAction);
 
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
@@ -83,17 +129,18 @@ public class CameraGui extends RackModuleGui
         switchRotateComboBox = new JComboBox(switchRotateRates);
         switchRotateComboBox.setSelectedIndex(0);
 
-        switchRotateComboBox.addActionListener(new ActionListener() {
+        switchRotateAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 switchRotate = switchRotateComboBox.getSelectedIndex();
             }
-        });
+        };
+        switchRotateComboBox.addActionListener(switchRotateAction);
 
         zoomRateComboBox = new JComboBox(possibleZoomRates);
         zoomRateComboBox.setSelectedIndex(2);
 
-        zoomRateComboBox.addActionListener(new ActionListener() {
+        zoomRateAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 int boxValue = new Integer(possibleZoomRates[zoomRateComboBox.getSelectedIndex()]).intValue();
@@ -106,30 +153,33 @@ public class CameraGui extends RackModuleGui
                     zoomRate = (-1) * 100 / boxValue;
                 }
             }
-        });
+        };
+        zoomRateComboBox.addActionListener(zoomRateAction);
 
         resolutionComboBox = new JComboBox(possibleResolutions);
         resolutionComboBox.setSelectedIndex(2);
 
-        resolutionComboBox.addActionListener(new ActionListener() {
+        resolutionAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 int width = possibleResolutionsWidth[resolutionComboBox.getSelectedIndex()];
                 int height = possibleResolutionsHeight[resolutionComboBox.getSelectedIndex()];
                 camera.setFormat(new CameraFormatMsg(width, height));
             }
-        });
+        };
+        resolutionComboBox.addActionListener(resolutionAction);
 
         modeComboBox = new JComboBox(possibleModes);
         modeComboBox.setSelectedIndex(1);
 
-        modeComboBox.addActionListener(new ActionListener() {
+        modeAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 int mode = possibleModesNum[modeComboBox.getSelectedIndex()];
                 camera.setFormat(new CameraFormatMsg(mode));
             }
-        });
+        };
+        modeComboBox.addActionListener(modeAction);
 
         switchBoxPanel.add(switchRotateComboBox);
         switchBoxPanel.add(zoomRateComboBox);
@@ -184,40 +234,28 @@ public class CameraGui extends RackModuleGui
             }
         }
     }
+    
+    protected void runStop()
+    {
+        cameraComponent.removeListener();
+        cameraComponent = null;
+        
+        storeButton.removeActionListener(storeAction);
+        storeContOnButton.removeActionListener(storeContOnAction);
+        storeContOffButton.removeActionListener(storeContOffAction);
 
-    protected JButton         storeButton;
-    protected JButton         storeContOnButton;
-    protected JButton         storeContOffButton;
-    protected int             contStoring               = 0;
-    protected int             singleStoring             = 0;
+        storeAction = null;
+        storeContOnAction = null;
+        storeContOffAction = null;
+        
+        switchRotateComboBox.removeActionListener(switchRotateAction);
+        zoomRateComboBox.removeActionListener(zoomRateAction);
+        resolutionComboBox.removeActionListener(resolutionAction);
+        modeComboBox.removeActionListener(modeAction);
 
-    protected CameraComponent cameraComponent;
-
-    public JLabel             mousePositionLabel;
-    public JLabel             contStoringLabel;
-    protected JPanel          labelPanel;
-    protected JPanel          buttonPanel;
-    protected JPanel          switchBoxPanel;
-    protected JComboBox       switchRotateComboBox;
-    protected String[]        switchRotateRates         = { "none", "90 deg right", "hor flip", "90 deg and hor flip" };
-    protected int             switchRotate;
-    protected JComboBox       zoomRateComboBox;
-    protected String[]        possibleZoomRates         = { "25", "50", "100", "200", "300", "400" };
-    protected int             zoomRate;
-    protected JComboBox       resolutionComboBox;
-    protected String[]        possibleResolutions       = { "160x120", "320x240", "352x288", "640x480", "1280x960" };
-    protected int[]           possibleResolutionsWidth  = { 160, 320, 352, 640, 1280 };
-    protected int[]           possibleResolutionsHeight = { 120, 240, 288, 480, 960 };
-    protected JComboBox       modeComboBox;
-    protected String[]        possibleModes             = { "MONO8", "MONO12", "MONO16", "RGB24", "RGB565", "YUV422",
-            "RAW", "RAW12", "RAW16", "RANGE", "INTENS", "TP_INT", "RANGE_TP", "SEGMENT", "ELEVA", "TYPE", "EDGE" };
-    protected int[]           possibleModesNum          = { CameraDataMsg.CAMERA_MODE_MONO8,
-            CameraDataMsg.CAMERA_MODE_MONO12, CameraDataMsg.CAMERA_MODE_MONO16, CameraDataMsg.CAMERA_MODE_RGB24,
-            CameraDataMsg.CAMERA_MODE_RGB565, CameraDataMsg.CAMERA_MODE_YUV422, CameraDataMsg.CAMERA_MODE_RAW8,
-            CameraDataMsg.CAMERA_MODE_RAW12, CameraDataMsg.CAMERA_MODE_RAW16, CameraDataMsg.CAMERA_MODE_RANGE,
-            CameraDataMsg.CAMERA_MODE_INTENSITY, CameraDataMsg.CAMERA_MODE_TYPE_INTENSITY,
-            CameraDataMsg.CAMERA_MODE_RANGE_TYPE, CameraDataMsg.CAMERA_MODE_SEGMENT,
-            CameraDataMsg.CAMERA_MODE_ELEVATION, CameraDataMsg.CAMERA_MODE_TYPE, CameraDataMsg.CAMERA_MODE_EDGE };
-
-    public CameraProxy        camera;
+        switchRotateAction = null;
+        zoomRateAction = null;
+        resolutionAction = null;
+        modeAction = null;
+    }
 }

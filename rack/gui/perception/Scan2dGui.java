@@ -36,8 +36,10 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
     protected JButton          storeContOffButton;
     protected boolean          contStoring = false;
 
+    protected ActionListener   storeContOnAction;
+    protected ActionListener   storeContOffAction;
+
     protected boolean          mapViewIsShowing;
-    protected MapViewGui       mapViewGui;
     
     public Scan2dGui(GuiElementDescriptor guiElement)
     {
@@ -58,21 +60,23 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         onButton.addKeyListener(mapComponent.keyListener);
         offButton.addKeyListener(mapComponent.keyListener);
 
-        storeContOnButton.addKeyListener(mapComponent.keyListener);
-        storeContOnButton.addActionListener(new ActionListener() {
+        storeContOnAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 contStoring = true;
             }
-        });
+        };
+        storeContOnButton.addActionListener(storeContOnAction);
+        storeContOnButton.addKeyListener(mapComponent.keyListener);
 
-        storeContOffButton.addKeyListener(mapComponent.keyListener);
-        storeContOffButton.addActionListener(new ActionListener() {
+        storeContOffAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 contStoring = false;
             }
-        });
+        };
+        storeContOffButton.addActionListener(storeContOffAction);
+        storeContOffButton.addKeyListener(mapComponent.keyListener);
 
         wButtonPanel.add(onButton);
         wButtonPanel.add(offButton);
@@ -115,7 +119,7 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
 
     protected void runStart()
     {
-        mapViewGui = MapViewGui.findMapViewGui(ge);
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.addMapView(this);
@@ -124,9 +128,26 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
 
     protected void runStop()
     {
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.removeMapView(this);
+        }
+
+        storeContOnButton.removeActionListener(storeContOnAction);
+        storeContOffButton.removeActionListener(storeContOffAction);
+        storeContOnAction = null;
+        storeContOffAction = null;
+        
+        storeContOnButton.removeKeyListener(mapComponent.keyListener);
+        storeContOffButton.removeKeyListener(mapComponent.keyListener);
+
+        mapComponent.removeListener();
+        mapComponent = null;
+
+        synchronized (this)
+        {
+            scan2dData = null;
         }
     }
     

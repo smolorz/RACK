@@ -37,6 +37,9 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
     protected JButton         manualUpdateButton = new JButton("Manual Update");
     protected JButton         gpsUpdateButton[];
 
+    protected ActionListener  manualUpdateAction;
+    protected ActionListener  gpsUpdateAction;
+
     protected JDialog         updateDialog       = new JDialog();
 
     protected JLabel          xNameLabel         = new JLabel("X [mm]", SwingConstants.RIGHT);
@@ -68,7 +71,6 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
     protected GeneralPath     positionPath;
 
     protected boolean         mapViewIsShowing;
-    protected MapViewGui      mapViewGui;
     
     public PositionGui(GuiElementDescriptor guiElement)
     {
@@ -99,7 +101,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
         JPanel labelPanel = new JPanel(new GridLayout(0, 2, 8, 0));
 
-        manualUpdateButton.addActionListener(new ActionListener() {
+        manualUpdateAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 String s = (String) JOptionPane.showInputDialog(null, "The robot position is:\n" + "x,y,rho",
@@ -115,9 +117,10 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
                     }
                 }
             }
-        });
+        };
+        manualUpdateButton.addActionListener(manualUpdateAction);
 
-        ActionListener gpsActionListener = new ActionListener() {
+        gpsUpdateAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 int gps = Integer.parseInt(e.getActionCommand());
@@ -167,7 +170,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         {
             gpsUpdateButton[i] = new JButton(gpsName[i] + " Update");
             gpsUpdateButton[i].setActionCommand(Integer.toString(i));
-            gpsUpdateButton[i].addActionListener(gpsActionListener);
+            gpsUpdateButton[i].addActionListener(gpsUpdateAction);
             southPanel.add(gpsUpdateButton[i]);
         }
 
@@ -211,7 +214,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
     
     protected void runStart()
     {
-        mapViewGui = MapViewGui.findMapViewGui(ge);
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.addMapView(this);
@@ -220,9 +223,21 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
 
     protected void runStop()
     {
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.removeMapView(this);
+        }
+
+        manualUpdateButton.removeActionListener(manualUpdateAction);
+        for(int i = 0; i < gpsProxy.length; i++)
+        {
+            gpsUpdateButton[i].removeActionListener(gpsUpdateAction);
+        }
+        
+        synchronized(this)
+        {
+            positionPath = null;
         }
     }
     
@@ -250,14 +265,17 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
             varYLabel.setText(data.var.y + "");
             varRhoLabel.setText(Math.rint(Math.toDegrees(data.var.rho)) + "");
 
-            if(positionPath != null)
+            synchronized(this)
             {
-                positionPath.lineTo(data.pos.x, data.pos.y);
-            }
-            else
-            {
-                positionPath = new GeneralPath();
-                positionPath.moveTo(data.pos.x, data.pos.y);
+                if(positionPath != null)
+                {
+                    positionPath.lineTo(data.pos.x, data.pos.y);
+                }
+                else
+                {
+                    positionPath = new GeneralPath();
+                    positionPath.moveTo(data.pos.x, data.pos.y);
+                }
             }
 
             setEnabled(true);
@@ -269,7 +287,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         }
     }
     
-    public void paintMapView(MapViewGraphics mvg)
+    public synchronized void paintMapView(MapViewGraphics mvg)
     {
         if(positionPath == null)
             return;

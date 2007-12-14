@@ -88,12 +88,23 @@ public class LadarGui extends RackModuleGui implements MapViewInterface
             setEnabled(false);
         }
     }
+    
+    protected void runStop()
+    {
+        mapComponent.removeListener();
+        mapComponent = null;
+        
+        synchronized(this)
+        {
+            ladarData = null;
+        }
+    }
 
     public void mapViewActionPerformed(MapViewActionEvent action)
     {
     }
 
-    public void paintMapView(MapViewGraphics mvg)
+    public synchronized void paintMapView(MapViewGraphics mvg)
     {
         if(ladarData == null)
             return;

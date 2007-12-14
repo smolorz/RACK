@@ -40,12 +40,12 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
     protected MapViewComponent mapComponent;
 
     protected JButton          destinationButton;
+    protected ActionListener   destinationAction;
     protected PilotDestMsg     pilotDest   = new PilotDestMsg();
 
     protected String           setDestinationCommand;
 
     protected boolean          mapViewIsShowing;
-    protected MapViewGui       mapViewGui;
     
     public PilotGui(GuiElementDescriptor guiElement)
     {
@@ -62,7 +62,8 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         mapComponent.setDefaultVisibleRange(5000.0);
 
         destinationButton = new JButton("Set destination");
-        destinationButton.addActionListener(new ActionListener() {
+
+        destinationAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 String s = (String) JOptionPane.showInputDialog(null, "Destination is:\n" + "x, y, z, rho, speed",
@@ -82,8 +83,8 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
                     }
                 }
             }
-        });
-
+        };
+        destinationButton.addActionListener(destinationAction);
         destinationButton.addKeyListener(mapComponent.keyListener);
         onButton.addKeyListener(mapComponent.keyListener);
         offButton.addKeyListener(mapComponent.keyListener);
@@ -109,7 +110,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
     
     protected void runStart()
     {
-        mapViewGui = MapViewGui.findMapViewGui(ge);
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.addMapView(this);
@@ -120,10 +121,26 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
 
     protected void runStop()
     {
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.removeMapView(this);
             mapViewGui.removeMapViewActions(this);
+        }
+
+        destinationButton.removeActionListener(destinationAction);
+        destinationAction = null;
+        
+        destinationButton.removeKeyListener(mapComponent.keyListener);
+        onButton.removeKeyListener(mapComponent.keyListener);
+        offButton.removeKeyListener(mapComponent.keyListener);
+        
+        mapComponent.removeListener();
+        mapComponent = null;
+        
+        synchronized (this)
+        {
+            pilotData = null;
         }
     }
     

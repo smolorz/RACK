@@ -39,6 +39,15 @@ public class ChassisGui extends RackModuleGui
     protected JRadioButton   disablePilot     = new JRadioButton("disabled", false);
     protected ButtonGroup    pilotGroup       = new ButtonGroup();
 
+    protected ActionListener pilot0Action;
+    protected ActionListener pilot1Action;
+    protected ActionListener pilot2Action;
+    protected ActionListener pilot3Action;
+    protected ActionListener pilot4Action;
+    protected ActionListener pilot5Action;
+    protected ActionListener pilot6Action;
+    protected ActionListener disablePilotAction;
+
     protected JLabel         vxLabel          = new JLabel("-0.00 m/s");
     protected JLabel         vyLabel          = new JLabel("-0.00 m/s");
     protected JLabel         omegaLabel       = new JLabel("-0.00 deg/s");
@@ -61,61 +70,69 @@ public class ChassisGui extends RackModuleGui
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
         JPanel labelPanel = new JPanel(new GridLayout(0, 3, 8, 0));
 
-        disablePilot.addActionListener(new ActionListener() {
+        disablePilotAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(ChassisProxy.INVAL_PILOT);
             }
-        });
+        };
+        disablePilot.addActionListener(disablePilotAction);
 
-        pilot0.addActionListener(new ActionListener() {
+        pilot0Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 0));
             }
-        });
+        };
+        pilot0.addActionListener(pilot0Action);
 
-        pilot1.addActionListener(new ActionListener() {
+        pilot1Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 1));
             }
-        });
+        };
+        pilot1.addActionListener(pilot0Action);
 
-        pilot2.addActionListener(new ActionListener() {
+        pilot2Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 2));
             }
-        });
+        };
+        pilot2.addActionListener(pilot0Action);
 
-        pilot3.addActionListener(new ActionListener() {
+        pilot3Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 3));
             }
-        });
+        };
+        pilot3.addActionListener(pilot0Action);
 
-        pilot4.addActionListener(new ActionListener() {
+        pilot4Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 4));
             }
-        });
+        };
+        pilot4.addActionListener(pilot0Action);
 
-        pilot5.addActionListener(new ActionListener() {
+        pilot5Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 5));
             }
-        });
+        };
+        pilot5.addActionListener(pilot0Action);
 
-        pilot6.addActionListener(new ActionListener() {
+        pilot6Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 6));
             }
-        });
+        };
+        pilot6.addActionListener(pilot0Action);
 
         pilotGroup.add(pilot0);
         pilotGroup.add(pilot1);
@@ -254,5 +271,17 @@ public class ChassisGui extends RackModuleGui
         {
             setEnabled(false);
         }
+    }
+    
+    protected void runStop()
+    {
+        disablePilot.removeActionListener(disablePilotAction);
+        pilot0.removeActionListener(pilot0Action);
+        pilot1.removeActionListener(pilot1Action);
+        pilot2.removeActionListener(pilot2Action);
+        pilot3.removeActionListener(pilot3Action);
+        pilot4.removeActionListener(pilot4Action);
+        pilot5.removeActionListener(pilot5Action);
+        pilot6.removeActionListener(pilot6Action);
     }
 }

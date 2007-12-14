@@ -66,7 +66,6 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
     protected JLabel     varRhoNameLabel  = new JLabel("Variance Rho", SwingConstants.RIGHT);
 
     protected boolean    mapViewIsShowing;
-    protected MapViewGui mapViewGui;
 
     public GpsGui(GuiElementDescriptor guiElement)
     {
@@ -160,7 +159,7 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
 
     protected void runStart()
     {
-        mapViewGui = MapViewGui.findMapViewGui(ge);
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.addMapView(this);
@@ -169,9 +168,15 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
 
     protected void runStop()
     {
+        MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
         if(mapViewGui != null)
         {
             mapViewGui.removeMapView(this);
+        }
+        
+        synchronized(this)
+        {
+            gpsData = null;
         }
     }
     
@@ -260,7 +265,7 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
         mapViewIsShowing = false;
     }
 
-    public void paintMapView(MapViewGraphics mvg)
+    public synchronized void paintMapView(MapViewGraphics mvg)
     {
         mapViewIsShowing = true;
 

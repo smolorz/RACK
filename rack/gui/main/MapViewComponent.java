@@ -81,6 +81,10 @@ public class MapViewComponent extends JComponent
     public JButton                     zoomInButton;
     public JButton                     zoomOutButton;
     public JButton                     zoomCenterButton;
+    
+    protected ActionListener           zoomInAction;
+    protected ActionListener           zoomOutAction;
+    protected ActionListener           zoomCenterAction;
 
     protected Point                    mousePressed;
     protected float                    cursorRho             = 0.0f;
@@ -107,30 +111,33 @@ public class MapViewComponent extends JComponent
         
         zoomInButton = new JButton("zoom in");
         zoomInButton.addKeyListener(keyListener);
-        zoomInButton.addActionListener( new ActionListener() {
+        zoomInAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 zoomIn(defaultZoomFactor);
             }
-        });
+        };
+        zoomInButton.addActionListener(zoomInAction);
 
         zoomOutButton = new JButton("zoom out");
         zoomOutButton.addKeyListener(keyListener);
-        zoomOutButton.addActionListener( new ActionListener() {
+        zoomOutAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 zoomOut(defaultZoomFactor);
             }
-        });
+        };
+        zoomOutButton.addActionListener(zoomOutAction);
         
         zoomCenterButton = new JButton("center");
         zoomCenterButton.addKeyListener(keyListener);
-        zoomCenterButton.addActionListener( new ActionListener() {
+        zoomCenterAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 zoomCenter();
             }
-        });
+        };
+        zoomCenterButton.addActionListener(zoomCenterAction);
 
         zoomPanel = new JPanel(new GridLayout(1, 0, 4, 2));
         zoomPanel.add(zoomInButton);
@@ -373,6 +380,29 @@ public class MapViewComponent extends JComponent
         centerY = 0;
 
         repaint();
+    }
+    
+    public void removeListener()
+    {
+        zoomInButton.removeActionListener(zoomInAction);
+        zoomOutButton.removeActionListener(zoomOutAction);
+        zoomCenterButton.removeActionListener(zoomCenterAction);
+        
+        zoomInAction = null;
+        zoomOutAction = null;
+        zoomCenterAction = null;
+        
+        zoomInButton.removeKeyListener(keyListener);
+        zoomOutButton.removeKeyListener(keyListener);
+        zoomCenterButton.removeKeyListener(keyListener);
+
+        this.removeKeyListener(keyListener);
+        this.removeMouseListener(mouseListener);
+        this.removeMouseMotionListener((MouseMotionListener)mouseListener);
+        this.removeMouseWheelListener((MouseWheelListener)mouseListener);
+        
+        keyListener = null;
+        mouseListener = null;
     }
     
     protected class MapViewComponentMouseListener extends MouseAdapter

@@ -28,7 +28,15 @@ import rack.main.defines.ImageRect;
 
 public class CameraComponent extends JComponent
 {
+    private static final long serialVersionUID = 1L;
 
+    protected Image img;
+    protected ImageRect[] rects;
+    protected int[] rectObjIds;
+    protected int rectNumber = 0;
+
+    protected CameraComponentMouseListener mouseListener;
+    
     public CameraComponent()
     {
         this.setPreferredSize(new Dimension(320, 240));
@@ -38,8 +46,11 @@ public class CameraComponent extends JComponent
 
     public void setMousePositionLabel(JLabel positionLabel)
     {
-        this.addMouseListener(new MyMouseListener(positionLabel));
-        this.addMouseMotionListener(new MyMouseListener(positionLabel));
+        removeListener();
+        
+        mouseListener = new CameraComponentMouseListener(positionLabel);
+        this.addMouseListener(mouseListener);
+        this.addMouseMotionListener(mouseListener);
     }
 
     public void transformImage(int zoomRate, int switchRotate,
@@ -286,15 +297,25 @@ public class CameraComponent extends JComponent
             }
         }
     }
+    
+    public void removeListener()
+    {
+        if(mouseListener != null)
+        {
+            this.removeMouseListener(mouseListener);
+            this.removeMouseMotionListener(mouseListener);
+            mouseListener = null;
+        }
+    }
 
-    public class MyMouseListener implements MouseListener, MouseMotionListener
+    public class CameraComponentMouseListener implements MouseListener, MouseMotionListener
     {
 
         JLabel outputLabel;
         int mx, my; // the mouse coordinates
         boolean isButtonPressed = false;
 
-        public MyMouseListener(JLabel positionLabel)
+        public CameraComponentMouseListener(JLabel positionLabel)
         {
             outputLabel = positionLabel;
         }
@@ -350,11 +371,4 @@ public class CameraComponent extends JComponent
         }
 
     }
-
-    protected Image img;
-    protected ImageRect[] rects;
-    protected int[] rectObjIds;
-    protected int rectNumber = 0;
-
-    private static final long serialVersionUID = 1L;
 }
