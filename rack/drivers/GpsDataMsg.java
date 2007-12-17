@@ -42,7 +42,7 @@ public class GpsDataMsg extends TimsMsg
 
     public int getDataLen()
     {
-        return 36 + 28 + 2 * Position3d.getDataLen();
+        return 24 + 28 + 2 * Position3d.getDataLen();
     }
 
     public GpsDataMsg()
