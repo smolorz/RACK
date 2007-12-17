@@ -207,6 +207,12 @@ int GpsNmea::moduleLoop(void)
                     gpsData.var.y = varXY;
                     gpsData.var.z = varXY * 5;           // default 100m
                 }
+                else if (gpsData.satelliteNum >= 5)
+                {
+                    gpsData.var.x = varXY * 3;           // default 60m
+                    gpsData.var.y = varXY * 3;
+                    gpsData.var.z = varXY * 3 * 5;      // deault 300m
+                }
                 else if (gpsData.satelliteNum >= 4)
                 {
                     gpsData.var.x = varXY * 5;           // default 100m
