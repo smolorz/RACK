@@ -17,7 +17,6 @@ package rack.navigation;
 
 import java.io.*;
 
-import rack.main.RackProxy;
 import rack.main.tims.*;
 
 import rack.main.defines.Position3d;
@@ -61,8 +60,7 @@ public class PositionDataMsg extends TimsMsg
 
     public boolean checkTimsMsgHead()
     {
-        if (type == RackProxy.MSG_DATA &&
-            msglen == HEAD_LEN + getDataLen())
+        if (msglen == HEAD_LEN + getDataLen())
         {
             return true;
         }
