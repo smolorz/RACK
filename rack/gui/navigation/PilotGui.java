@@ -44,15 +44,21 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
     protected PilotDestMsg     pilotDest   = new PilotDestMsg();
 
     protected String           setDestinationCommand;
-
+    
     protected boolean          mapViewIsShowing;
+    protected int			   drawDestination;
     
     public PilotGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
 
+        String param = ge.getParameter("drawDestination");
+        if (param.length() > 0)
+            drawDestination = Integer.parseInt(param);
+        else
+            drawDestination = 0;
+        
         pilot = (PilotProxy) proxy;
-
         JPanel northPanel = new JPanel(new BorderLayout(2, 2));
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
 
@@ -343,7 +349,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         }
         
         // draw destination
-        if (pilotData.distanceToDest > 0)
+        if ((pilotData.distanceToDest > 0) && (drawDestination != 0))
         {
             g = mvg.getWorldGraphics();        
             g.setStroke(new BasicStroke(200.0f));        	
