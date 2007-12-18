@@ -110,7 +110,7 @@ class CameraData
 
             for (i = 0; i < bytes; i++)
             {
-                data->byteStream[i] = __le32_to_cpu(data->byteStream[i]);
+                data->byteStream[i] = data->byteStream[i];
             }
         }
 
@@ -130,7 +130,8 @@ class CameraData
 
             for (i = 0; i < bytes; i++)
             {
-                data->byteStream[i] = __be32_to_cpu(data->byteStream[i]);
+                data->byteStream[i] = data->byteStream[i];
+//                data->byteStream[i] = __be32_to_cpu(data->byteStream[i]);
             }
         }
 

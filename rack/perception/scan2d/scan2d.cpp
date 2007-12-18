@@ -21,6 +21,7 @@
 #define INIT_BIT_MBX_WORK           1
 #define INIT_BIT_MBX_LADAR          2
 #define INIT_BIT_PROXY_LADAR        3
+#define INIT_BIT_PROXY_CAMERA       4
 
 typedef struct {
     ladar_data    data;
@@ -66,6 +67,10 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum angle (default 180)", { 180 } },
+      
+    { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the camera driver", { -1 } },
+
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -101,6 +106,16 @@ argTable_t argTab[] = {
         GDOS_ERROR("Can't get continuous data from Ladar(%d), "
                    "code = %d \n", ladarInst, ret);
         return ret;
+    }
+
+    if (cameraInst >= 0)
+    {
+        ret = camera->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on camera, code = %d\n", ret);
+            return ret;
+        }
     }
 
     setDataBufferPeriodTime(realPeriodTime);
@@ -217,6 +232,17 @@ int  Scan2d::moduleLoop(void)
         angle += reduce * dataLadar->angleResolution;
     }
 
+    // add intensity to scanPoints
+    if(cameraInst >= 0)
+    {
+        ret = addScanIntensity(data2D);
+        if(ret)
+        {
+            GDOS_ERROR("Can't add scan intensity, code = %d\n", ret);
+            return ret;
+        }
+    }
+
     datalength = sizeof(scan2d_data) +
                  sizeof(scan_point) * data2D->pointNum; // points
 
@@ -302,7 +328,7 @@ int Scan2d::moduleInit(void)
     GDOS_DBG_DETAIL("Scan2d::moduleInit ... \n");
 
     // work mailbox
-    ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
+    ret = createMbx(&workMbx, 1, sizeof(camera_data_ladar_msg), MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
     {
         goto init_error;
@@ -327,6 +353,18 @@ int Scan2d::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_LADAR);
 
+    // create Camera Proxy
+    if (cameraInst >= 0)
+    {
+        camera = new CameraProxy(&workMbx, 0, cameraInst);
+        if (!camera)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_CAMERA);
+    }
+
     return 0;
 
 init_error:
@@ -343,7 +381,13 @@ void Scan2d::moduleCleanup(void)
         RackDataModule::moduleCleanup();
     }
 
+
     // free proxies
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_CAMERA))
+    {
+        delete camera;
+    }
+
     if (initBits.testAndClearBit(INIT_BIT_PROXY_LADAR))
     {
         delete ladar;
@@ -382,6 +426,7 @@ Scan2d::Scan2d(void)
     reduce          = getIntArg("reduce", argTab);
     angleMin        = getIntArg("angleMin", argTab);
     angleMax        = getIntArg("angleMax", argTab);
+    cameraInst      = getIntArg("cameraInst", argTab);
 
     angleMinFloat       = (double)angleMin       * M_PI / 180.0;
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
@@ -423,4 +468,44 @@ int  main(int argc, char *argv[])
 exit_error:
     delete (p_inst);
     return ret;
+}
+
+int Scan2d::addScanIntensity(scan2d_data* data2D)
+{
+    short   intensity;
+    int     ret, i;
+
+    ret = camera->getData(&(cameraMsg.data), sizeof(cameraMsg), data2D->recordingTime);
+    if(ret)
+    {
+        GDOS_ERROR("Can't read camera data, code = %d\n", ret);
+        return ret;
+    }
+
+    if(cameraMsg.data.recordingTime != data2D->recordingTime)
+    {
+        GDOS_ERROR("Camera recordingTime doesn't fit\n");
+        return -EIO;
+    }
+
+    if( ((cameraMsg.data.width != 1) && (cameraMsg.data.height != 1)) ||
+        ((cameraMsg.data.mode  != CAMERA_MODE_MONO12) && (cameraMsg.data.mode  != CAMERA_MODE_MONO16)) )
+    {
+        GDOS_ERROR("Camera data doesn't fit (width %i height %i depth %i mode %x)", cameraMsg.data.width, cameraMsg.data.height, cameraMsg.data.depth, cameraMsg.data.mode);
+        return -EIO;
+    }
+
+    if (cameraMsg.data.height != data2D->pointNum)
+    {
+        GDOS_ERROR("ScanPointNum:%i is not matching cameraWidth:%i\n", data2D->pointNum, cameraMsg.data.width);
+        return -EINVAL;
+    }
+
+    // loop over all points of this intensity image
+    for (i = 0; i < data2D->pointNum; i++)
+    {
+        intensity  = (short) ( (((cameraMsg.byteStream[i * 2]) << 8) & 0xff00) | ((cameraMsg.byteStream[i * 2+1]) & 0x00ff) );
+        data2D->point[i].intensity = intensity;
+    }
+    return 0;
 }

@@ -19,6 +19,13 @@
 #include <main/rack_data_module.h>
 #include <perception/scan2d_proxy.h>
 #include <drivers/ladar_proxy.h>
+#include <drivers/camera_proxy.h>
+
+typedef struct {
+    camera_data     data;
+    uint8_t         byteStream[LADAR_DATA_MAX_DISTANCE_NUM *
+        ((CAMERA_MAX_DEPTH+7)/8)];
+} __attribute__((packed)) camera_data_ladar_msg;
 
 #define MODULE_CLASS_ID             SCAN2D
 
@@ -31,6 +38,7 @@ class Scan2d : public RackDataModule {
 
         // own vars
         uint32_t    ladarInst;
+        uint32_t    cameraInst;
 
         int         ladarOffsetX;
         int         ladarOffsetY;
@@ -50,12 +58,15 @@ class Scan2d : public RackDataModule {
         RackMailbox workMbx;
         RackMailbox ladarMbx;
 
+        camera_data_ladar_msg cameraMsg;
+
         // proxies
         LadarProxy  *ladar;
+        CameraProxy *camera;
 
         int  turnBackUpsideDown(ladar_data* dataLadar);
         void mySwap(int32_t *a, int32_t *b);
-
+        int  addScanIntensity(scan2d_data* data2D);
 
     protected:
         // -> realtime context
