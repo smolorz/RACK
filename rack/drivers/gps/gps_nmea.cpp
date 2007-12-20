@@ -1211,11 +1211,8 @@ GpsNmea::GpsNmea()
     varXY        = getIntArg("varXY", argTab);
     varRho       = (float)(getIntArg("varRho", argTab) * M_PI / 180.0);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(gps_data));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(periodTime);
+    dataBufferMaxDataSize   = sizeof(gps_data);
+    dataBufferPeriodTime    = periodTime;
 }
 
 int main(int argc, char *argv[])

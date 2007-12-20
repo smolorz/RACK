@@ -53,7 +53,6 @@ argTable_t argTab[] = {
 int  OdometryChassis::moduleOn(void)
 {
     int         ret;
-    rack_time_t realPeriodTime;
 
     oldPositionX   = 0.0f;
     oldPositionY   = 0.0f;
@@ -66,15 +65,13 @@ int  OdometryChassis::moduleOn(void)
         return ret;
     }
 
-    ret = chassis->getContData(0, &chassisMbx, &realPeriodTime);
+    ret = chassis->getContData(0, &chassisMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from chassis module, "
                    "code = %d\n", ret);
         return ret;
     }
-
-    setDataBufferPeriodTime(realPeriodTime);
 
     return RackDataModule::moduleOn();    // has to be last command in moduleOn();
 }
@@ -263,8 +260,7 @@ OdometryChassis::OdometryChassis()
     // get value(s) out of your argument table
     chassisInst   = getIntArg("chassisInst", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(odometry_data));
+    dataBufferMaxDataSize = sizeof(odometry_data);
 }
 
 int  main(int argc, char *argv[])

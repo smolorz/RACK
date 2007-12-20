@@ -468,7 +468,7 @@ int ChassisRoomba::playNote(int songNum, int note, int duration)
 
     // define note
     serialBuffer[0] = (char)CHASSIS_ROOMBA_ROI_SONG;
-    serialBuffer[1] = (char)(songNum & 0xff); 
+    serialBuffer[1] = (char)(songNum & 0xff);
     serialBuffer[2] = (char)1;                                  // song length
     serialBuffer[3] = (char)(note & 0xff);
     serialBuffer[4] = (char)((duration * 64 / 1000) & 0xff);    // from ms to 1/64 s
@@ -585,7 +585,7 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
 
     hwMtx.unlock();
 
-    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
+    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
     return ret;
 }
 
@@ -605,7 +605,7 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
         return ret;
     }
 
-    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
+    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
 
 
     // receive sensor data
@@ -643,7 +643,7 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     sensor->batteryCharge      = (int)((serialBuffer[22] << 8) | (serialBuffer[23] & 0xff));
     sensor->batteryCapacity    = (int)((serialBuffer[24] << 8) | (serialBuffer[25] & 0xff));
 
-    RackTask::sleep((getDataBufferPeriodTime(0) / 3) * 1000000llu);     // periodTime / 3
+    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
 
     return 0;
 }
@@ -652,7 +652,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
 {
     // init values
     scan2d->recordingTime = sensor->recordingTime;
-    scan2d->duration      = getDataBufferPeriodTime(0);
+    scan2d->duration      = dataBufferPeriodTime;
     scan2d->maxRange      = 0;
     scan2d->refPos.x      = 0;
     scan2d->refPos.y      = 0;
@@ -902,11 +902,8 @@ ChassisRoomba::ChassisRoomba()
     // scan2d mbx adress
     scan2dMbxAdr = RackName::create(SCAN2D, scan2dInst);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(chassis_data));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    dataBufferMaxDataSize   = sizeof(chassis_data);
+    dataBufferPeriodTime    = 100; // 100 ms (10 per sec)
 }
 
 int main(int argc, char *argv[])

@@ -446,11 +446,8 @@ CameraV4L::CameraV4L()
     gainMult            = getIntArg("gainMult", argTab);
     autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(camera_data_msg));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(200); // hardcoded in loop!!!
+    dataBufferMaxDataSize   = sizeof(camera_data_msg);
+    dataBufferPeriodTime    = 200; // hardcoded in loop!!!
 }
 
 int main(int argc, char *argv[])

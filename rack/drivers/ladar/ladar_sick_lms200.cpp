@@ -136,7 +136,7 @@ int  LadarSickLms200::moduleOn(void)
         return ret;
     }
 
-    serialPort.setRecvTimeout(2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+    serialPort.setRecvTimeout(2 * rackTime.toNano(dataBufferPeriodTime));
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -1066,73 +1066,65 @@ LadarSickLms200::LadarSickLms200(void)
                     3,                // max buffer entries
                     10)               // data buffer listener
 {
-  size_t dataSize;
+    // get values
+    int serialDev = getIntArg("serialDev", argTab);
+    int protocol  = getIntArg("protocol", argTab);
+    int baudrate  = getIntArg("baudrate", argTab);
 
-  conf = NULL;
+    // init Ladar stuff
 
-  // get values
-  int serialDev = getIntArg("serialDev", argTab);
-  int protocol  = getIntArg("protocol", argTab);
-  int baudrate  = getIntArg("baudrate", argTab);
+    if (baudrate == 38400 && protocol == interlaced)
+    {
+        GDOS_DBG_DETAIL("Useless combination: 38400 baud and interlaced protocol "
+                        "-> use 500K baud\n");
+        return;
+    }
 
-  // init Ladar stuff
-
-  if (baudrate == 38400 && protocol == interlaced) {
-     GDOS_DBG_DETAIL("Useless combination: 38400 baud and interlaced protocol "
-                     "-> use 500K baud\n");
-     return;
-  }
-
-  // load ladar_driver_config_t, depending on protocol
-  switch(protocol) {
+    // load ladar_driver_config_t, depending on protocol
+    switch(protocol) {
     case 0:
-      // protocol = normal
-      conf = &config_sick_norm;
-      conf->protocol = normal;
-      break;
+        // protocol = normal
+        conf = &config_sick_norm;
+        conf->protocol = normal;
+        break;
     case 1:
-      // protocol = interlaced (raw)
-      conf = &config_sick_interlaced;
-      conf->protocol = interlaced;
-      break;
+        // protocol = interlaced (raw)
+        conf = &config_sick_interlaced;
+        conf->protocol = interlaced;
+        break;
     case 2:
-      // protocol = fast
-      conf = &config_sick_fast;
-      conf->protocol = fast;
-      break;
+        // protocol = fast
+        conf = &config_sick_fast;
+        conf->protocol = fast;
+        break;
 
     default:
-      return;
-  }
+        return;
+    }
 
-  switch(baudrate) {
+    switch(baudrate) {
     case 38400:
-      conf->cmd_baudrate = ladar_cmd_baudrate_38400;
-      conf->baudrate = 38400;
-      break;
+        conf->cmd_baudrate = ladar_cmd_baudrate_38400;
+        conf->baudrate = 38400;
+        break;
     case 500000:
-      conf->cmd_baudrate = ladar_cmd_baudrate_500K;
-      conf->baudrate = 500000;
-      break;
+        conf->cmd_baudrate = ladar_cmd_baudrate_500K;
+        conf->baudrate = 500000;
+        break;
 
     default:
-      return;
-  }
+        return;
+    }
 
-  //
-  // serial driver
-  //
-  conf->serDev = serialDev;
+    //
+    // serial driver
+    //
+    conf->serDev = serialDev;
 
 
-  // set dataBuffer size
-  dataSize = sizeof(ladar_data) +
-             sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
-  setDataBufferMaxDataSize(dataSize);
-
-  // set databuffer period time
-  setDataBufferPeriodTime(conf->periodTime);
-  GDOS_PRINT("periodTime: %d\n", conf->periodTime);
+    dataBufferMaxDataSize   = sizeof(ladar_data) + sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
+    dataBufferPeriodTime    = conf->periodTime;
+    GDOS_PRINT("periodTime: %d\n", conf->periodTime);
 };
 
 int  main(int argc, char *argv[])

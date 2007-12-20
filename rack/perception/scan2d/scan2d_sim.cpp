@@ -71,7 +71,6 @@ argTable_t argTab[] = {
  int  Scan2DSim::moduleOn(void)
 {
     int ret;
-    rack_time_t realPeriodTime;
 
     GDOS_DBG_DETAIL("Turning on Odometry(%d) \n", odometryInst);
     ret = odometry->on();
@@ -83,15 +82,13 @@ argTable_t argTab[] = {
     GDOS_DBG_DETAIL("Odometry(%d) has been turned on \n", odometryInst);
 
     GDOS_DBG_DETAIL("Request continuous data from Odometry(%d)\n", odometryInst);
-    ret = odometry->getContData(0, &odometryMbx, &realPeriodTime);
+    ret = odometry->getContData(0, &odometryMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from Odometry(%d), "
                    "code = %d \n", odometryInst, ret);
         return ret;
     }
-
-    setDataBufferPeriodTime(realPeriodTime);
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -139,7 +136,7 @@ int  Scan2DSim::moduleLoop(void)
     dataOdometry = OdometryData::parse(&msgInfo);
 
     data2D->recordingTime = dataOdometry->recordingTime;
-    data2D->duration = getDataBufferPeriodTime(0);
+    data2D->duration = dataBufferPeriodTime;
     data2D->maxRange = maxRange;
     data2D->sectorNum     = 1;
     data2D->sectorIndex   = 0;
@@ -344,9 +341,7 @@ Scan2DSim::Scan2DSim(void)
     dxfMapFile   = getStrArg("mapFile", argTab);
     angleRes     = getIntArg("angleRes", argTab);
 
-
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(scan2d_msg));
+    dataBufferMaxDataSize   = sizeof(scan2d_msg);
 }
 
 int  main(int argc, char *argv[])

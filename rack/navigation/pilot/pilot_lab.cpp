@@ -72,7 +72,6 @@ argTable_t argTab[] = {
 {
     int             ret;
     int             chassisBound;
-    rack_time_t     scan2dPeriodTime;
 
     // turn on chassis module
     ret = chassis->on();
@@ -108,15 +107,12 @@ argTable_t argTab[] = {
 
     // get continuous data from scan2d module
     scan2dDataMbx.clean();
-    ret = scan2d->getContData(0, &scan2dDataMbx, &scan2dPeriodTime);
+    ret = scan2d->getContData(0, &scan2dDataMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from Scan2d(%d), code = %d\n", scan2dInst, ret);
         return ret;
     }
-
-    // set pilotLab period time to scan2d period time
-    setDataBufferPeriodTime(scan2dPeriodTime);
 
     // upper bound pilot speed to chassis parameter
     if (speedMax > chasParData.vxMax)
@@ -520,7 +516,7 @@ PilotLab::PilotLab()
     distanceMin  = getIntArg("distanceMin", argTab);
 
     // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(pilot_data_msg));
+    dataBufferMaxDataSize   = sizeof(pilot_data_msg);
 }
 
 

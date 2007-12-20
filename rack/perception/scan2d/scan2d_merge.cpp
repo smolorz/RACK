@@ -65,8 +65,7 @@ argTable_t argTab[] = {
  ******************************************************************************/
 int  Scan2dMerge::moduleOn(void)
 {
-    int     ret, k;
-    rack_time_t odometryPeriodTime;
+    int ret, k;
 
     // turn on odometry
     GDOS_DBG_DETAIL("Turn on odometry(%d)\n", odometryInst);
@@ -96,15 +95,13 @@ int  Scan2dMerge::moduleOn(void)
 
 
     // get continuous data from odometry
-    ret = odometry->getContData(0, &dataMbx, &odometryPeriodTime);
+    ret = odometry->getContData(0, &dataMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from odometry(%i), code = %d\n",
                    odometryInst, ret);
         return ret;
     }
-
-    setDataBufferPeriodTime(odometryPeriodTime);
 
     // get continuous data from scan2d modules
     for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
@@ -237,7 +234,7 @@ int  Scan2dMerge::moduleLoop(void)
             mergeData = (scan2d_data *)getDataBufferWorkSpace();
 
             mergeData->recordingTime = odoData->recordingTime;
-            mergeData->duration      = getDataBufferPeriodTime(0);
+            mergeData->duration      = dataBufferPeriodTime;
             mergeData->maxRange      = scanBuffer[0].data.maxRange;
             mergeData->sectorNum     = 1;
             mergeData->sectorIndex   = 0;
@@ -248,7 +245,7 @@ int  Scan2dMerge::moduleLoop(void)
                 if (scan2dInst[k] >= 0)
                 {
                     // scan2d timeout 5s
-                    if (scan2dTimeout[k] > 5 * ((float)1000.0f / getDataBufferPeriodTime(0)))
+                    if (scan2dTimeout[k] > 5 * ((float)1000.0f / dataBufferPeriodTime))
                     {
                         GDOS_ERROR("Data timeout Scan2d(%i)\n", scan2dInst[k]);
 
@@ -472,8 +469,7 @@ Scan2dMerge::Scan2dMerge(void)
     scan2dInst[2] = getIntArg("scan2dInstC", argTab);
     scan2dInst[3] = getIntArg("scan2dInstD", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(scan2d_data_msg));
+    dataBufferMaxDataSize   =sizeof(scan2d_data_msg);
 }
 
 int  main(int argc, char *argv[])

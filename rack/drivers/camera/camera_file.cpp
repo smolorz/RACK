@@ -63,15 +63,13 @@ void CameraFile::moduleOff(void)
 int  CameraFile::moduleLoop(void)
 {
 //    int j;
-    camera_data_msg   *p_data     = NULL;
-    uint32_t          datalength = 0;
+    camera_data_msg   *p_data;
     string            imageFileName;
 
     // get datapointer from rackdatabuffer
     p_data = (camera_data_msg *)getDataBufferWorkSpace();
 
     p_data->data.recordingTime = imageRecordingtimeArray[loopCounter];
-    datalength = width * height * depth / 8 + sizeof(camera_data);
 
     p_data->data.width  = width;
     p_data->data.height = height;
@@ -107,13 +105,8 @@ int  CameraFile::moduleLoop(void)
         loopCounter = 0;
 
     // put data buffer slot (and send it to all listener)
-    if (datalength > 0 && datalength <= getDataBufferMaxDataSize() )
-    {
-        putDataBufferWorkSpace( datalength );
-        return 0;
-    }
-
-    return -ENOSPC;
+    putDataBufferWorkSpace(sizeof(camera_data) + (width * height * depth / 8));
+    return 0;
 }
 
 int  CameraFile::moduleCommand(message_info *msgInfo)
@@ -303,18 +296,15 @@ CameraFile::CameraFile()
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
-  //
-  // get value(s) out of your argument table
-  //
-  //req_val        = getIntArg("req_val", argTab);
-  imageFileNameSkel = "camera_";
-  imageFileListName = "camera_0.sav";
+    //
+    // get value(s) out of your argument table
+    //
+    //req_val        = getIntArg("req_val", argTab);
+    imageFileNameSkel = "camera_";
+    imageFileListName = "camera_0.sav";
 
-  // set dataBuffer size
-  setDataBufferMaxDataSize(sizeof(camera_data_msg));
-
-  // set databuffer period time
-  setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    dataBufferMaxDataSize = sizeof(camera_data_msg);
+    dataBufferPeriodTime  = 100; // 100 ms (10 per sec)
 }
 
 int  main(int argc, char *argv[])

@@ -410,7 +410,7 @@ int  PilotJoystick::moduleLoop(void)
 
     putDataBufferWorkSpace(sizeof(pilot_data) + pilotData->splineNum * sizeof(polar_spline));
 
-    RackTask::sleep(rackTime.toNano(getDataBufferPeriodTime(0)));
+    RackTask::sleep(rackTime.toNano(dataBufferPeriodTime));
 
     return 0;
 }
@@ -590,11 +590,8 @@ PilotJoystick::PilotJoystick()
     mode         = getIntArg("mode", argTab);
     chassisMinTurnRadius = getIntArg("chassisMinTurnRadius", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(pilot_data_msg));
-
-    // set databuffer period time (preset)
-    setDataBufferPeriodTime(100); // 100ms (10 per sec)
+    dataBufferMaxDataSize   = sizeof(pilot_data_msg);
+    dataBufferPeriodTime    = 100; // 100ms (10 per sec)
 }
 
 int  main(int argc, char *argv[])

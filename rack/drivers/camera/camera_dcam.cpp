@@ -118,7 +118,7 @@ int CameraDcam::autoWhitebalance(camera_data_msg *dataPackage)
         vDiff = round(vDiff / diffPoints);
 
         if ((uDiff < 2) && (vDiff < 2) && (whitebalanceMode == 2))
-            whitebalanceMode = 0; 
+            whitebalanceMode = 0;
 
         if (dc1394_get_white_balance(porthandle[dc1394CameraPortNo], camera_node, &uuValue, &uvValue) != DC1394_SUCCESS)
         {
@@ -904,11 +904,8 @@ CameraDcam::CameraDcam()
     format7image.colorFilterId     = COLORFILTER_RGGB;
     format7image.colorCodingId     = COLOR_FORMAT7_MONO8; //COLOR_FORMAT7_RAW8; //COLOR_FORMAT7_RAW16;
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(camera_data_msg));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(1000 / fps); // 100 ms (10 per sec)
+    dataBufferMaxDataSize   = sizeof(camera_data_msg);
+    dataBufferPeriodTime    = 1000 / fps; // 100 ms (10 per sec)
 }
 
 int main(int argc, char *argv[])

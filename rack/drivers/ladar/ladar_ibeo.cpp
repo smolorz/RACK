@@ -879,11 +879,8 @@ LadarIbeo::LadarIbeo()
     canSensorIdBase = 0x700;
     hostId = 1;
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(ladar_data_msg));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    dataBufferMaxDataSize   = sizeof(ladar_data_msg);
+    dataBufferPeriodTime    = 100; // 100 ms (10 per sec)
 }
 
 int  main(int argc, char *argv[])

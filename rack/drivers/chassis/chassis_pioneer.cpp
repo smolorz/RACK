@@ -815,11 +815,8 @@ ChassisPioneer::ChassisPioneer()
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(chassis_data));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(100); // 100 ms (10 per sec)
+    dataBufferMaxDataSize   = sizeof(chassis_data);
+    dataBufferPeriodTime    = 100; // 100 ms (10 per sec)
 }
 
 int main(int argc, char *argv[])

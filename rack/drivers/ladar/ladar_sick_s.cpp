@@ -137,11 +137,11 @@ int  LadarSickS::moduleOn(void)
     switch(devNumber)
     {
         case 300:
-            setDataBufferPeriodTime(maxBaudrate / baudrate * durationS300);
+            dataBufferPeriodTime = maxBaudrate / baudrate * durationS300;
             break;
 
         case 3000:
-            setDataBufferPeriodTime(maxBaudrate / baudrate * durationS3000);
+            dataBufferPeriodTime = maxBaudrate / baudrate * durationS3000;
             break;
 
         default:
@@ -149,7 +149,7 @@ int  LadarSickS::moduleOn(void)
             return -1;
     }
 
-    serialPort.setRecvTimeout(2 * rackTime.toNano(getDataBufferPeriodTime(0)));
+    serialPort.setRecvTimeout(2 * rackTime.toNano(dataBufferPeriodTime));
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -161,14 +161,13 @@ void LadarSickS::moduleOff(void)
 
 int  LadarSickS::moduleLoop(void)
 {
-    ladar_data  *p_data = NULL;
-    rack_time_t time = 0;
-    int ret = 0;
+    ladar_data *p_data;
+    rack_time_t time;
+    int ret;
     int i;
     int totalCount = 0;
-    int size = 0;
-    int distance = 0;
-    uint32_t datalength = 0;
+    int size;
+    int distance;
 
     // get datapointer from databuffer
     p_data = (ladar_data *)getDataBufferWorkSpace();
@@ -289,15 +288,8 @@ int  LadarSickS::moduleLoop(void)
         p_data->distance[i] = distance;
     }
 
-    datalength = sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum; // points
-
-    // write data buffer slot (and send it to all listener)
-    if (datalength > 0 && datalength <= getDataBufferMaxDataSize() )
-    {
-        putDataBufferWorkSpace( datalength );
-        return 0;
-    }
-    return -ENOSPC;
+    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum);
+    return 0;
 }
 
 int  LadarSickS::moduleCommand(message_info *p_msginfo)
@@ -399,8 +391,7 @@ LadarSickS::LadarSickS(void)
     serialDev = getIntArg("serialDev", argTab);
     baudrate = getIntArg("baudrate", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(ladar_data_msg));
+    dataBufferMaxDataSize   = sizeof(ladar_data_msg);
 };
 
 int  main(int argc, char *argv[])

@@ -49,7 +49,7 @@ RackDataModule::RackDataModule( uint32_t class_id,                // class ID
 
     dataBufferMaxDataSize   = 0;
 
-    dataBufferPeriodTime    = 0;
+    dataBufferPeriodTime    = 1000;
 
     listenerNum             = 0;
     globalDataCount         = 0;
@@ -181,6 +181,25 @@ void        RackDataModule::removeAllListener(void)
     listenerNum = 0;
 }
 
+rack_time_t   RackDataModule::getListenerPeriodTime(uint32_t dataMbx)
+{
+    uint32_t i;
+
+    listenerMtx.lock(RACK_INFINITE);
+
+    for (i=0; i<listenerNum; i++)
+    {
+        if (listener[i].msgInfo.src == dataMbx)
+        {
+            listenerMtx.unlock();
+            return listener[i].reduction * dataBufferPeriodTime;
+        }
+    }
+
+    listenerMtx.unlock();
+    return 0;
+}
+
 // realtime context (cmdTask)
 int         RackDataModule::getDataBufferIndex(rack_time_t time)
 {
@@ -309,48 +328,6 @@ int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInf
 // public RackDataModule functions
 //
 
-uint32_t    RackDataModule::getDataBufferMaxDataSize(void)
-{
-    return dataBufferMaxDataSize;
-}
-
-void        RackDataModule::setDataBufferMaxDataSize(uint32_t dataSize)
-{
-    if (dataModuleInitBits.testBit(INIT_BIT_BUFFER_CREATED))
-    {
-        return;
-    }
-    dataBufferMaxDataSize = dataSize;
-}
-
-rack_time_t   RackDataModule::getDataBufferPeriodTime(uint32_t dataMbx)
-{
-    uint32_t i;
-
-    if (!dataMbx)
-        return dataBufferPeriodTime;
-
-    listenerMtx.lock(RACK_INFINITE);
-
-    for (i=0; i<listenerNum; i++)
-    {
-        if (listener[i].msgInfo.src == dataMbx)
-        {
-            listenerMtx.unlock();
-            return listener[i].reduction * dataBufferPeriodTime;
-        }
-    }
-
-    listenerMtx.unlock();
-    return 0;
-}
-
-void RackDataModule::setDataBufferPeriodTime(rack_time_t periodTime)
-{
-    GDOS_DBG_INFO("Setting local period time to %d ms \n", periodTime);
-    dataBufferPeriodTime = periodTime;
-}
-
 // realtime context (dataTask)
 void*       RackDataModule::getDataBufferWorkSpace(void)
 {
@@ -363,8 +340,11 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
     uint32_t        i;
     int             ret;
 
-    if (datalength > dataBufferMaxDataSize)
+    if ((datalength < 0) || (datalength > dataBufferMaxDataSize))
+    {
+        GDOS_WARNING("datalen %i doesn't fit dataBufferMaxDataSize %i", datalength, dataBufferMaxDataSize);
         return;
+    }
 
     bufferMtx.lock(RACK_INFINITE);
     listenerMtx.lock(RACK_INFINITE);
@@ -688,7 +668,7 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
                 else
                 {
                     rack_cont_data contData;
-                    contData.periodTime = getDataBufferPeriodTime(p_data->dataMbxAdr);
+                    contData.periodTime = getListenerPeriodTime(p_data->dataMbxAdr);
                     ret = cmdMbx.sendDataMsgReply(MSG_CONT_DATA, msgInfo, 1,
                                                   &contData,
                                                   sizeof(rack_cont_data));

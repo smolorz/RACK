@@ -76,7 +76,6 @@ argTable_t argTab[] = {
 int  Position::moduleOn(void)
 {
     int           ret;
-    rack_time_t   realPeriodTime;
     odometry_data odometryData;
 
     ret = odometry->on();
@@ -94,7 +93,7 @@ int  Position::moduleOn(void)
         return ret;
     }
 
-    ret = odometry->getContData(getDataBufferPeriodTime(0), &odometryMbx, &realPeriodTime);
+    ret = odometry->getContData(dataBufferPeriodTime, &odometryMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from odometry(%i) module, "
@@ -112,8 +111,6 @@ int  Position::moduleOn(void)
     interpolDiff.z    = 0;
     interpolDiff.rho  = 0.0f;
     interpolStartTime = rackTime.get();
-
-    setDataBufferPeriodTime(realPeriodTime);
 
     return RackDataModule::moduleOn();    // has to be last command in moduleOn();
 }
@@ -139,7 +136,7 @@ int  Position::moduleLoop(void)
 
     pPosition = (position_data *)getDataBufferWorkSpace();
 
-    ret = odometryMbx.recvDataMsgTimed(getDataBufferPeriodTime(0) * 3000000llu, &odometryData,
+    ret = odometryMbx.recvDataMsgTimed(dataBufferPeriodTime * 3000000llu, &odometryData,
                                       sizeof(odometryData), &msgInfo);
     if (ret)
     {
@@ -223,7 +220,7 @@ int  Position::moduleLoop(void)
                         pPosition->pos.phi, pPosition->pos.psi, pPosition->pos.rho);
 
         putDataBufferWorkSpace(sizeof(position_data));
-        
+
         memcpy(&oldPos, &pPosition->pos, sizeof(position_3d));
     }
     else
@@ -554,7 +551,7 @@ Position::Position()
     oldPos.rho = 0.0f;
 
     // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(position_data));
+    dataBufferMaxDataSize   = sizeof(position_data);
 }
 
 int  main(int argc, char *argv[])

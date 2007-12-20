@@ -110,6 +110,7 @@ class RackDataModule : public RackModule
                                         message_info* msgInfo);
         void                removeListener(uint32_t destMbxAdr);
         void                removeAllListener(void);
+        rack_time_t         getListenerPeriodTime(uint32_t dataMbx);
 
         friend void         cmd_task_proc(void* arg);
 
@@ -124,12 +125,6 @@ class RackDataModule : public RackModule
                uint32_t maxDataBufferListener); // data buffer listener
 
     ~RackDataModule();
-
-    uint32_t  getDataBufferMaxDataSize(void);
-    void      setDataBufferMaxDataSize(uint32_t dataSize);
-
-    rack_time_t getDataBufferPeriodTime(uint32_t dataMbx);
-    void      setDataBufferPeriodTime(rack_time_t periodTime);
 
     void*     getDataBufferWorkSpace(void);
     void      putDataBufferWorkSpace(uint32_t datalength);

@@ -126,8 +126,7 @@ void LadarHokuyoUrg::moduleOff(void)
 
 int  LadarHokuyoUrg::moduleLoop(void)
 {
-    ladar_data  *p_data       = NULL;
-    uint32_t      datalength = 0;
+    ladar_data *p_data;
     int serialDataLen;
     int i, j, ret;
 
@@ -208,15 +207,8 @@ int  LadarHokuyoUrg::moduleLoop(void)
         j += 2;
     }
 
-    datalength = sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum; // points
-
-    // write data buffer slot (and send it to all listener)
-    if (datalength > 0 && datalength <= getDataBufferMaxDataSize() )
-    {
-        putDataBufferWorkSpace( datalength );
-        return 0;
-    }
-    return -ENOSPC;
+    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum);
+    return 0;
 }
 
 int  LadarHokuyoUrg::moduleCommand(message_info *msgInfo)
@@ -308,11 +300,8 @@ LadarHokuyoUrg::LadarHokuyoUrg()
         printf("Invalid argument -> cluster [use 1..3] \n");
     }
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(ladar_data_msg));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(100);
+    dataBufferMaxDataSize   = sizeof(ladar_data_msg);
+    dataBufferPeriodTime    = 100;
 }
 
 int  main(int argc, char *argv[])

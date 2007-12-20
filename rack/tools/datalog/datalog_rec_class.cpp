@@ -39,13 +39,12 @@
 int  DatalogRec::moduleOn(void)
 {
     int         i, ret;
-    int         init = 0;
     int         logEnable;
     int         moduleMbx;
     char        string[100];
     rack_time_t periodTime;
     rack_time_t realPeriodTime;
-    rack_time_t datalogPeriodTime = 1000;
+    rack_time_t datalogPeriodTime = RACK_TIME_MAX;
 
 
     GDOS_DBG_INFO("Turn on...\n");
@@ -118,21 +117,14 @@ int  DatalogRec::moduleOn(void)
             GDOS_DBG_INFO("%n: -log data\n", moduleMbx);
 
             // set shortest period time
-            if (init == 0)
-            {
-                init = 1;
-                datalogPeriodTime = realPeriodTime;
-            }
-
             if (realPeriodTime < datalogPeriodTime)
             {
                 datalogPeriodTime = realPeriodTime;
             }
-
         }
     }
 
-    setDataBufferPeriodTime(datalogPeriodTime);
+    dataBufferPeriodTime = datalogPeriodTime;
 
     ret = initLogFile();
     if (ret < 0)
@@ -1262,6 +1254,5 @@ DatalogRec::DatalogRec(void)
     // get values
     //
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(datalog_data_msg));
+    dataBufferMaxDataSize   = sizeof(datalog_data_msg);
 }

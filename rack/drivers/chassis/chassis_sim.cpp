@@ -180,7 +180,7 @@ int ChassisSim::moduleLoop(void)
     putDataBufferWorkSpace( datalength );
 
     GDOS_DBG_DETAIL("timestamp offset: %u\n",(unsigned long) rackTime.getOffset());
-   
+
     GDOS_DBG_DETAIL("vx:%f mm/s, vx:%f mm/s, omega:%a deg/s, timestamp: %d\n",
                     p_data->vx, p_data->vy, p_data->omega,
                     p_data->recordingTime);
@@ -348,11 +348,8 @@ ChassisSim::ChassisSim()
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
     periodTime              = getIntArg("periodTime", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(chassis_data));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(periodTime); // default 10Hz
+    dataBufferMaxDataSize   = sizeof(chassis_data);
+    dataBufferPeriodTime    = periodTime; // default 10Hz
 }
 
 int main(int argc, char *argv[])

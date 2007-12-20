@@ -73,7 +73,6 @@ argTable_t argTab[] = {
 
  int  PilotWallFollowing::moduleOn(void)
 {
-    rack_time_t   scan2dPeriodTime;
     int ret;
 
     ret = chassis->on();
@@ -127,7 +126,7 @@ argTable_t argTab[] = {
 
     scan2dDataMbx.clean();
 
-    ret = scan2d->getContData(0, &scan2dDataMbx, &scan2dPeriodTime);
+    ret = scan2d->getContData(0, &scan2dDataMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from Scan2d(%i), "
@@ -148,9 +147,6 @@ argTable_t argTab[] = {
 
     globalSpeed             = 0;
     radius                  = 0;
-
-    // set databuffer period time to position
-    setDataBufferPeriodTime(scan2dPeriodTime);
 
     GDOS_PRINT("maxSpeed %f m/s, Scan2d(%i)\n",
                 (float)maxSpeed / 1000.0f, scan2dInst);
@@ -281,7 +277,7 @@ int  PilotWallFollowing::moduleLoop(void)
         putDataBufferWorkSpace(sizeof(pilot_data));
     }
 
-        RackTask::sleep(rackTime.toNano(getDataBufferPeriodTime(0)));
+        RackTask::sleep(rackTime.toNano(dataBufferPeriodTime));
     return 0;
 }
 
@@ -358,7 +354,7 @@ double  PilotWallFollowing::funDis(int x)
 
 int PilotWallFollowing::controlSpeed(int oldSpeed)
 {
-    oldSpeed += chasParData.axMax * getDataBufferPeriodTime(0) / 1000;
+    oldSpeed += chasParData.axMax * dataBufferPeriodTime / 1000;
 
     if (oldSpeed > maxSpeed)
         oldSpeed = maxSpeed;
@@ -1909,8 +1905,7 @@ PilotWallFollowing::PilotWallFollowing()
     distance     = getIntArg("distance", argTab);
     testDis      = getIntArg("testDis", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(pilot_data_msg));
+    dataBufferMaxDataSize   = sizeof(pilot_data_msg);
 }
 
 

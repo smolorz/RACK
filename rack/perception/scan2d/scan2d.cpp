@@ -67,7 +67,7 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum angle (default 180)", { 180 } },
-      
+
     { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the camera driver", { -1 } },
 
@@ -89,22 +89,11 @@ argTable_t argTab[] = {
  int  Scan2d::moduleOn(void)
 {
     int ret;
-    rack_time_t realPeriodTime = 0;
 
-    GDOS_DBG_DETAIL("Turning on Ladar(%d)\n", ladarInst);
     ret = ladar->on();
     if (ret)
     {
         GDOS_ERROR("Can't turn on Ladar(%d), code = %d \n", ladarInst, ret);
-        return ret;
-    }
-
-    GDOS_DBG_DETAIL("Request continuous data from Ladar(%d)\n", ladarInst);
-    ret = ladar->getContData(0, &ladarMbx, &realPeriodTime);
-    if (ret)
-    {
-        GDOS_ERROR("Can't get continuous data from Ladar(%d), "
-                   "code = %d \n", ladarInst, ret);
         return ret;
     }
 
@@ -113,12 +102,18 @@ argTable_t argTab[] = {
         ret = camera->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on camera, code = %d\n", ret);
+            GDOS_ERROR("Can't turn on Camera(%d), code = %d\n", cameraInst, ret);
             return ret;
         }
     }
 
-    setDataBufferPeriodTime(realPeriodTime);
+    ret = ladar->getContData(0, &ladarMbx, &dataBufferPeriodTime);
+    if (ret)
+    {
+        GDOS_ERROR("Can't get continuous data from Ladar(%d), "
+                   "code = %d \n", ladarInst, ret);
+        return ret;
+    }
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -432,8 +427,7 @@ Scan2d::Scan2d(void)
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
     ladarOffsetRhoFloat = (double)ladarOffsetRho * M_PI / 180.0;
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(scan2d_msg));
+    dataBufferMaxDataSize = sizeof(scan2d_msg);
 }
 
 int  main(int argc, char *argv[])

@@ -222,11 +222,8 @@ DummyAbc::DummyAbc()
   // get value(s) out of your argument table
   reqVal        = getIntArg("reqVal", argTab);
 
-  // set dataBuffer size
-  setDataBufferMaxDataSize(sizeof(dummy_data_msg));
-
-  // set databuffer period time
-  setDataBufferPeriodTime(1000);  // 1000ms = 1Hz
+  dataBufferMaxDataSize = sizeof(dummy_data_msg);
+  dataBufferPeriodTime = 1000;  // 1000ms = 1Hz
 }
 
 int  main(int argc, char *argv[])

@@ -471,11 +471,8 @@ ChassisEr1::ChassisEr1()
     odoFactorA              = (float) getIntArg("odoFactorA", argTab) / 100.0f;
     odoFactorB              = (float) getIntArg("odoFactorB", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(chassis_data));
-
-    // set databuffer period time
-    setDataBufferPeriodTime(1000/SAMPLING_RATE);
+    dataBufferMaxDataSize   = sizeof(chassis_data);
+    dataBufferPeriodTime    = 1000/SAMPLING_RATE;
 }
 
 int main(int argc, char *argv[])

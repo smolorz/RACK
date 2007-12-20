@@ -52,7 +52,6 @@ argTable_t argTab[] = {
 
  int CameraJpeg::moduleOn(void)
 {
-    rack_time_t cameraPeriodTime = 0;
     int ret;
 
     GDOS_DBG_DETAIL("Initialising static compression structs \n");
@@ -94,15 +93,13 @@ argTable_t argTab[] = {
 
 
     GDOS_DBG_DETAIL("Request continuous data from Camera(%d)\n", cameraInst);
-    ret = camera->getContData(getDataBufferPeriodTime(0), &cameraMbx, &cameraPeriodTime);
+    ret = camera->getContData(dataBufferPeriodTime, &cameraMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from Camera(%d), "
                    "code = %d \n", cameraInst, ret);
         return ret;
     }
-
-    setDataBufferPeriodTime(cameraPeriodTime);
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -359,8 +356,7 @@ CameraJpeg::CameraJpeg()
     cameraInst    = getIntArg("cameraInst", argTab);
     quality       = getIntArg("quality", argTab);
 
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(camera_data_msg));
+    dataBufferMaxDataSize = sizeof(camera_data_msg);
 }
 
 int main(int argc, char *argv[])

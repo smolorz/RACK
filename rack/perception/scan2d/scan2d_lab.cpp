@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- * 
+ *
  *
  */
 #include "scan2d_lab.h"
@@ -45,7 +45,7 @@ argTable_t argTab[] = {
  *   own realtime user functions
  ******************************************************************************/
 int  Scan2dLab::moduleOn(void)
-{    
+{
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
@@ -58,16 +58,16 @@ void Scan2dLab::moduleOff(void)
 // realtime context
 int  Scan2dLab::moduleLoop(void)
 {
-    scan2d_data     *scanOutputData = NULL;
-    ssize_t         datalength = 0;
+    scan2d_data     *scanOutputData;
+    ssize_t         datalength;
 //    int             ret;
 //    message_info    dataInfo;
 
     // get datapointer from rackdatabuffer
     scanOutputData = (scan2d_data *)getDataBufferWorkSpace();
-    
+
     datalength = 0;
-    
+
     putDataBufferWorkSpace(datalength);
 
     return 0;
@@ -92,7 +92,7 @@ int  Scan2dLab::moduleCommand(message_info *msgInfo)
  ******************************************************************************/
 int Scan2dLab::moduleInit(void)
 {
-    int     ret;
+    int ret;
 
     // call RackDataModule init function (first command in init)
     ret = RackDataModule::moduleInit();
@@ -156,9 +156,8 @@ Scan2dLab::Scan2dLab(void)
                     10)               // data buffer listener
 {
     // get values
-    
-    // set dataBuffer size
-    setDataBufferMaxDataSize(sizeof(scan2d_data_msg));
+
+    dataBufferMaxDataSize   = sizeof(scan2d_data_msg);
 }
 
 int  main(int argc, char *argv[])
@@ -169,7 +168,7 @@ int  main(int argc, char *argv[])
     ret = RackModule::getArgs(argc, argv, argTab, "Scan2dLab");
     if (ret)
     {
-        printf("Invalid arguments -> EXIT \n");
+       printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
