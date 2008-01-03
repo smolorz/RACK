@@ -204,6 +204,12 @@ class RackModule {
         uint32_t  classID;   // class-id (LADAR)
         uint32_t  name;      // module name (12345678) == cmdMbxAdr
 
+        rack_param_msg *paramMsg;
+        
+        int32_t   getInt32Param(char* paramName);
+        char*     getStringParam(char* paramName);
+        float     getFloatParam(char* paramName);
+
     public:
         /** Get instance number of the module */
         uint32_t getInstNo(void)

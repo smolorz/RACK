@@ -27,7 +27,7 @@
 //# class Scan2DSim
 //######################################################################
 
-class Scan2DSim : public RackDataModule {
+class Scan2dSim : public RackDataModule {
     private:
         uint32_t    odometryInst;
         uint32_t    maxRange;
@@ -59,8 +59,8 @@ class Scan2DSim : public RackDataModule {
 
       public:
         // constructor und destructor
-        Scan2DSim();
-        ~Scan2DSim() {};
+        Scan2dSim();
+        ~Scan2dSim() {};
 
         // -> non realtime context
         int  moduleInit(void);

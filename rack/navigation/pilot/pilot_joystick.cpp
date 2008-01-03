@@ -73,6 +73,11 @@ argTable_t argTab[] = {
 {
     int ret;
 
+    // get parameter
+    maxSpeed     = getInt32Param("maxSpeed");
+    mode         = getInt32Param("mode");
+    chassisMinTurnRadius = getInt32Param("chassisMinTurnRadius");
+
     ret = chassis->on();
     if (ret)
     {
@@ -454,6 +459,12 @@ int  PilotJoystick::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
+    // get static parameter
+    chassisInst  = getInt32Param("chassisInst");
+    scan2dInst   = getInt32Param("scan2dInst");
+    joystickInst = getInt32Param("joystickInst");
+    joystickSys  = getInt32Param("joystickSys");
+
     //
     // create mailboxes
     //
@@ -576,20 +587,11 @@ PilotJoystick::PilotJoystick()
       : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s datatask error sleep time
                     16,               // command mailbox slots
-                    48,               // command mailbox data size per slot
+                    240,              // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
-    // get value(s) out of your argument table
-    chassisInst  = getIntArg("chassisInst", argTab);
-    scan2dInst   = getIntArg("scan2dInst", argTab);
-    joystickInst = getIntArg("joystickInst", argTab);
-    joystickSys  = getIntArg("joystickSys", argTab);
-    maxSpeed     = getIntArg("maxSpeed", argTab);
-    mode         = getIntArg("mode", argTab);
-    chassisMinTurnRadius = getIntArg("chassisMinTurnRadius", argTab);
-
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);
     dataBufferPeriodTime    = 100; // 100ms (10 per sec)
 }

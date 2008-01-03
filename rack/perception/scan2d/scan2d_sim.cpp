@@ -32,7 +32,7 @@ typedef struct {
 // data structures
 //
 
-Scan2DSim *p_inst;
+Scan2dSim *p_inst;
 
 argTable_t argTab[] = {
 
@@ -42,17 +42,17 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum laser range", { 10000 } },
 
+    { ARGOPT_OPT, "angleRes", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "angle resolution, default 1 deg", { 1 } },
+
+    { ARGOPT_REQ, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
+      "filename of the DXF map to load", { 0 } },
+
     { ARGOPT_OPT, "mapOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "mapOffsetX for DXF maps in GK coordinates", { 0 } },
 
     { ARGOPT_OPT, "mapOffsetY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "mapOffsetY for DXF maps in GK coordinates", { 0 } },
-
-    { ARGOPT_REQ, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
-      "filename of the DXF map to load", { 0 } },
-
-    { ARGOPT_OPT, "angleRes", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-        "angle resolution, default 1 deg", { 1 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -68,9 +68,25 @@ argTable_t argTab[] = {
  *   own realtime user functions
  ******************************************************************************/
 
- int  Scan2DSim::moduleOn(void)
+ int  Scan2dSim::moduleOn(void)
 {
     int ret;
+
+    // read parameter
+    maxRange    = getInt32Param("maxRange");
+    angleRes    = getInt32Param("angleRes");
+
+    dxfMapFile  = getStringParam("mapFile");
+    mapOffsetX  = getInt32Param("mapOffsetX");
+    mapOffsetY  = getInt32Param("mapOffsetY");
+
+    ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY);
+    if (ret)
+    {
+        GDOS_ERROR("Can't load DXF map. (%i)\n", ret);
+        return ret;
+    }
+    GDOS_PRINT("Using DXF map with %i features\n", dxfMap.featureNum);
 
     GDOS_DBG_DETAIL("Turning on Odometry(%d) \n", odometryInst);
     ret = odometry->on();
@@ -93,14 +109,14 @@ argTable_t argTab[] = {
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
 
-void Scan2DSim::moduleOff(void)
+void Scan2dSim::moduleOff(void)
 {
     RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
     odometry->stopContData(&odometryMbx);
 }
 
-int  Scan2DSim::moduleLoop(void)
+int  Scan2dSim::moduleLoop(void)
 {
     scan2d_data*    data2D       = NULL;
     odometry_data*  dataOdometry = NULL;
@@ -224,7 +240,7 @@ int  Scan2DSim::moduleLoop(void)
     return 0;
 }
 
-int  Scan2DSim::moduleCommand(message_info *msgInfo)
+int  Scan2dSim::moduleCommand(message_info *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -242,7 +258,7 @@ int  Scan2DSim::moduleCommand(message_info *msgInfo)
  *   own non realtime user functions
  ******************************************************************************/
 
-int Scan2DSim::moduleInit(void)
+int Scan2dSim::moduleInit(void)
 {
     int ret;
 
@@ -253,6 +269,9 @@ int Scan2DSim::moduleInit(void)
         return ret;
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
+
+    // read static parameter
+    odometryInst = getInt32Param("odometryInst");
 
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
@@ -280,22 +299,15 @@ int Scan2DSim::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
-    ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY);
-    if (ret)
-    {
-        GDOS_ERROR("Can't load DXF map. (%i)\n", ret);
-    }
-    GDOS_PRINT("Using DXF map with %i features\n", dxfMap.featureNum);
-
     return 0;
 
 init_error:
     // !!! call local cleanup function !!!
-    Scan2DSim::moduleCleanup();
+    Scan2dSim::moduleCleanup();
     return ret;
 }
 
-void Scan2DSim::moduleCleanup(void)
+void Scan2dSim::moduleCleanup(void)
 {
     // call RackDataModule cleanup function
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
@@ -321,26 +333,16 @@ void Scan2DSim::moduleCleanup(void)
     }
 }
 
-Scan2DSim::Scan2DSim(void)
+Scan2dSim::Scan2dSim(void)
       : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s datatask error sleep time
                     16,               // command mailbox slots
-                    48,               // command mailbox data size per slot
+                    240,              // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
       , dxfMap(200)
 {
-    //
-    // get values
-    //
-    odometryInst = getIntArg("odometryInst", argTab);
-    maxRange     = getIntArg("maxRange", argTab);
-    mapOffsetX   = getIntArg("mapOffsetX", argTab);
-    mapOffsetY   = getIntArg("mapOffsetY", argTab);
-    dxfMapFile   = getStrArg("mapFile", argTab);
-    angleRes     = getIntArg("angleRes", argTab);
-
     dataBufferMaxDataSize   = sizeof(scan2d_msg);
 }
 
@@ -357,7 +359,7 @@ int  main(int argc, char *argv[])
     }
 
     // create new Scan2DSim
-    p_inst = new Scan2DSim();
+    p_inst = new Scan2dSim();
     if (!p_inst)
     {
         printf("Can't create new Scan2DSim -> EXIT\n");

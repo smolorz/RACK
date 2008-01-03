@@ -551,6 +551,42 @@ void      RackModule::deleteGdosMbx()
     }
 }
 
+int32_t   RackModule::getInt32Param(char* paramName)
+{
+    for(int i = 0; i < paramMsg->parameterNum; i++)
+    {
+        if(strncmp(paramMsg->parameter[i].name, paramName, sizeof(rack_param_msg)) == 0)
+        {
+            return paramMsg->parameter[i].valueInt32;
+        }
+    }
+    return 0;
+}
+
+char*   RackModule::getStringParam(char* paramName)
+{
+    for(int i = 0; i < paramMsg->parameterNum; i++)
+    {
+        if(strncmp(paramMsg->parameter[i].name, paramName, sizeof(rack_param_msg)) == 0)
+        {
+            return paramMsg->parameter[i].valueString;
+        }
+    }
+    return 0;
+}
+
+float   RackModule::getFloatParam(char* paramName)
+{
+    for(int i = 0; i < paramMsg->parameterNum; i++)
+    {
+        if(strncmp(paramMsg->parameter[i].name, paramName, sizeof(rack_param_msg)) == 0)
+        {
+            return paramMsg->parameter[i].valueFloat;
+        }
+    }
+    return 0;
+}
+
 // non realtime context
 int       RackModule::moduleInit(void)
 {
@@ -614,7 +650,7 @@ int       RackModule::moduleInit(void)
         GDOS_ERROR("Can't init command task, code = %d\n", ret);
         goto exit_error;
     }
-   moduleInitBits.setBit(INIT_BIT_CMDTSK_CREATED);
+    moduleInitBits.setBit(INIT_BIT_CMDTSK_CREATED);
     GDOS_DBG_INFO("Command task created \n");
 
     // create data task
@@ -629,6 +665,36 @@ int       RackModule::moduleInit(void)
     moduleInitBits.setBit(INIT_BIT_DATATSK_CREATED);
     GDOS_DBG_INFO("Data task created \n");
 
+    // fill rackParameterMsg
+    ret = 0;
+    while(arg_table[ret].name.length() != 0)
+    {
+        ret++;
+    }
+    paramMsg = (rack_param_msg*)malloc(sizeof(rack_param_msg) + ret * sizeof(rack_param));
+    ret = 0;
+    while(arg_table[ret].name.length() != 0)
+    {
+        strncpy(paramMsg->parameter[ret].name, arg_table[ret].name.c_str(), RACK_PARAM_MAX_STRING_LEN);
+        
+        switch(arg_table[ret].val_type)
+        {
+        case ARGOPT_VAL_STR:
+            paramMsg->parameter[ret].type = RACK_PARAM_STRING;
+            strncpy(paramMsg->parameter[ret].valueString, arg_table[ret].val.s, RACK_PARAM_MAX_STRING_LEN);
+            break;
+        case ARGOPT_VAL_FLT:
+            paramMsg->parameter[ret].type = RACK_PARAM_FLOAT;
+            paramMsg->parameter[ret].valueFloat = arg_table[ret].val.f;
+            break;
+        default: // ARGOPT_VAL_INT:
+            paramMsg->parameter[ret].type = RACK_PARAM_INT32;
+            paramMsg->parameter[ret].valueInt32 = arg_table[ret].val.i;
+        }
+        ret++;
+    }
+    paramMsg->parameterNum = ret;
+    
     return 0;
 
 exit_error:
@@ -647,6 +713,8 @@ void      RackModule::moduleCleanup(void)
 {
     GDOS_DBG_INFO("Cleanup\n");
 
+    free(paramMsg);
+    
     if (moduleInitBits.testAndClearBit(INIT_BIT_CMDTSK_STARTED))
     {
         GDOS_DBG_INFO("Join - waiting for command task \n");
@@ -747,6 +815,39 @@ int RackModule::moduleCommand(message_info *msgInfo)
 
         return 0;
     }
+
+    case MSG_GET_PARAM:
+        ret = cmdMbx.sendDataMsgReply(MSG_PARAM, msgInfo, 1, (void*)paramMsg, (uint32_t)(sizeof(rack_param_msg) + paramMsg->parameterNum * sizeof(rack_param)));
+        if (ret) {
+          GDOS_ERROR("CmdTask: Can't send parameter, code = %d\n", ret);
+          return ret;
+        }
+
+        return 0;
+
+    case MSG_SET_PARAM:
+        rack_param_msg *newParam = RackParamMsg::parse(msgInfo);
+
+        for(int i = 0; i < newParam->parameterNum; i++)
+        {
+            for(int j = 0; j < paramMsg->parameterNum; j++)
+            {
+                if(strncmp(newParam->parameter[i].name,
+                           paramMsg->parameter[j].name,
+                           RACK_PARAM_MAX_STRING_LEN) == 0)
+                {
+                    memcpy(&paramMsg->parameter[j], &newParam->parameter[i], sizeof(rack_param));
+                }
+            }
+        }
+        
+        ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
+        if (ret) {
+          GDOS_ERROR("CmdTask: Can't send setParameter reply , code = %d\n", ret);
+          return ret;
+        }
+
+        return 0;
 
     default: {
       // nobody handles this command -> return MODULE_ERROR

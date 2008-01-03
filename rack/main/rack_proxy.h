@@ -35,6 +35,8 @@
 #define MSG_GET_CONT_DATA              6
 #define MSG_STOP_CONT_DATA             7
 #define MSG_GET_NEXT_DATA              8
+#define MSG_GET_PARAM                  9
+#define MSG_SET_PARAM                  10
 
 // global message returns (negative)
 #define MSG_OK                         TIMS_MSG_OK
@@ -45,6 +47,7 @@
 #define MSG_DISABLED                  -5
 #define MSG_DATA                      -6
 #define MSG_CONT_DATA                 -7
+#define MSG_PARAM                     -9
 
 #define RACK_PROXY_MSG_POS_OFFSET      20
 #define RACK_PROXY_MSG_NEG_OFFSET     -20
@@ -53,7 +56,7 @@
 //# Rack get data (static size)
 //######################################################################
 
-typedef struct
+typedef struct rack_get_data_s
 {
     rack_time_t   recordingTime;  // has to be first element
 } __attribute__((packed)) rack_get_data;
@@ -96,7 +99,7 @@ class RackGetData
 //# Rack get continuous data (static size)
 //######################################################################
 
-typedef struct
+typedef struct rack_get_cont_data_s
 {
     rack_time_t periodTime;
     uint32_t    dataMbxAdr;
@@ -142,7 +145,7 @@ class RackGetContData
 //# Rack continuous data (static size)
 //######################################################################
 
-typedef struct
+typedef struct rack_cont_data_s
 {
     rack_time_t periodTime;
 } __attribute__((packed)) rack_cont_data;
@@ -185,7 +188,7 @@ class RackContData
 //# Rack get continuous data (static size)
 //######################################################################
 
-typedef struct
+typedef struct rack_stop_cont_data_s
 {
     uint32_t    dataMbxAdr;
 } __attribute__((packed)) rack_stop_cont_data;
@@ -222,6 +225,92 @@ class RackStopContData
             return p_data;
         }
 
+};
+
+#define RACK_PARAM_MAX_STRING_LEN 80
+
+#define RACK_PARAM_INT32    0
+#define RACK_PARAM_STRING   1
+#define RACK_PARAM_FLOAT    2
+
+typedef struct rack_param_s
+{
+    char        name[RACK_PARAM_MAX_STRING_LEN];
+    int32_t     type;
+    int32_t     valueInt32;
+    float       valueFloat;
+    char        valueString[RACK_PARAM_MAX_STRING_LEN];
+} __attribute__((packed)) rack_param;
+
+class RackParam
+{
+    public:
+        static void le_to_cpu(rack_param *data)
+        {
+            data->type = __le32_to_cpu(data->type);
+            data->valueInt32 = __le32_to_cpu(data->valueInt32);
+            data->valueFloat = __le32_float_to_cpu(data->valueFloat);
+        }
+
+        static void be_to_cpu(rack_param *data)
+        {
+            data->type = __be32_to_cpu(data->type);
+            data->valueInt32 = __be32_to_cpu(data->valueInt32);
+            data->valueFloat = __be32_float_to_cpu(data->valueFloat);
+        }
+};
+
+typedef struct rack_param_msg_s
+{
+    int32_t     parameterNum;
+    rack_param  parameter[0];
+} __attribute__((packed)) rack_param_msg;
+
+class RackParamMsg
+{
+    public:
+        static void le_to_cpu(rack_param_msg *data)
+        {
+            int i;
+            
+            data->parameterNum = __le32_to_cpu(data->parameterNum);
+            
+            for(i = 0; i < data->parameterNum; i++)
+            {
+                RackParam::le_to_cpu(&data->parameter[i]);
+            }
+        }
+
+        static void be_to_cpu(rack_param_msg *data)
+        {
+            int i;
+            
+            data->parameterNum = __be32_to_cpu(data->parameterNum);
+            
+            for(i = 0; i < data->parameterNum; i++)
+            {
+                RackParam::be_to_cpu(&data->parameter[i]);
+            }
+        }
+
+        static rack_param_msg* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            rack_param_msg *p_data = (rack_param_msg *)msgInfo->p_data;
+
+            if (isDataByteorderLe(msgInfo)) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            setDataByteorder(msgInfo);
+            return p_data;
+        }
 };
 
 //######################################################################
@@ -308,6 +397,17 @@ class RackProxy {
     }
 
     int getStatus(uint64_t reply_timeout_ns); // use special timeout
+
+//
+// get module parameter
+//
+
+    int getParameter(rack_param_msg *parameter, int maxParameterNum)  // use default timeout
+    {
+        return getParameter(parameter, maxParameterNum, dataTimeout);
+    }
+
+    int getParameter(rack_param_msg *parameter, int maxParameterNum, uint64_t reply_timeout_ns); // use special timeout
 
 //
 // additional inline functions

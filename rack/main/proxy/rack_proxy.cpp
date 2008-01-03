@@ -353,6 +353,15 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
     return -EINVAL;
 }
 
+int RackProxy::getParameter(rack_param_msg *parameter, int maxParameterNum, uint64_t reply_timeout_ns)
+{
+    message_info msgInfo;
+
+    return proxyRecvDataCmd(MSG_GET_PARAM, MSG_PARAM,
+                            parameter, sizeof(rack_param_msg) + maxParameterNum * sizeof(rack_param),
+                            reply_timeout_ns, &msgInfo);
+}
+
 //######################################################################
 //# class RackDataProxy
 //######################################################################
