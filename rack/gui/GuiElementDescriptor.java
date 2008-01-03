@@ -22,6 +22,7 @@ import java.awt.Point;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 
 import rack.main.RackProxy;
@@ -54,6 +55,7 @@ public class GuiElementDescriptor
     JButton                navButton;
     JRadioButton           navStatusButton;
     Color                  navButtonBackground;
+    JPopupMenu             popup;
 
     // references
     Gui                    mainGui;

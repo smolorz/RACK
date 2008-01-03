@@ -29,6 +29,8 @@ public abstract class RackProxy
     public static final byte MSG_GET_CONT_DATA = 6;
     public static final byte MSG_STOP_CONT_DATA = 7;
     public static final byte MSG_GET_NEXT_DATA = 8;
+    public static final byte MSG_GET_PARAM = 9;
+    public static final byte MSG_SET_PARAM = 10;
 
     // global returns (negative)
     public static final byte MSG_OK = Tims.MSG_OK;
@@ -39,6 +41,7 @@ public abstract class RackProxy
     public static final byte MSG_DISABLED = -5;
     public static final byte MSG_DATA = -6;
     public static final byte MSG_CONT_DATA = -7;
+    public static final byte MSG_PARAM = -9;
 
     public static final byte MSG_POS_OFFSET = 20;
     public static final byte MSG_NEG_OFFSET = -20;
@@ -159,6 +162,65 @@ public abstract class RackProxy
                             + ".getStatus ERROR " + e);
 
             return (RackProxy.MSG_ERROR);
+        }
+    }
+
+    public synchronized RackParamMsg getParameter()
+    {
+        currentSequenceNo++;
+
+        try
+        {
+            replyMbx.send0(RackProxy.MSG_GET_PARAM, commandMbx,
+                          (byte) 0, currentSequenceNo);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(replyTimeout);
+            }
+            while (reply.seqNr != currentSequenceNo);
+
+            if (reply.type == RackProxy.MSG_PARAM)
+            {
+                return new RackParamMsg(reply);
+            }
+            else
+            {
+                throw new TimsException("unexpected reply type (" + reply.type + ")");
+            }
+        }
+        catch (TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
+                    + RackName.nameString(commandMbx) + ".getModuleParameter " + e);
+            return null;
+        }
+    }
+
+    public synchronized void setParameter(RackParamMsg paramMsg)
+    {
+        currentSequenceNo++;
+        try
+        {
+            replyMbx.send(RackProxy.MSG_SET_PARAM, commandMbx,
+                    (byte) 0, currentSequenceNo, paramMsg);
+            TimsMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(replyTimeout);
+            }
+            while (reply.seqNr != currentSequenceNo);
+
+            // System.out.println(RackName.nameString(replyMbx) + ": " +
+            // RackName.nameString(commandMbx) + ".setParameter");
+        }
+        catch (TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": "
+                    + RackName.nameString(commandMbx) + ".setParameter " + e);
         }
     }
 

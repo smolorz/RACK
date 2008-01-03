@@ -76,6 +76,14 @@ public final class Gui extends Thread
     JScrollPane             navScrollPanel;
     Color                   navStatusButtonBG;
     int                     navUpdate = 2000;
+
+    JPopupMenu              popup;
+    MouseListener           popupListener;
+    ActionListener          popupAction;
+    GuiElementDescriptor    popupGe;
+    JMenuItem[]             popupParameterItems;
+    RackParamMsg            popupParameterMsg;
+    
     // workspace
     JTabbedPane             jtp;
 
@@ -496,6 +504,113 @@ public final class Gui extends Thread
         mainFrameContent.add(jtp, BorderLayout.CENTER);
 
         mainFrameContent.setVisible(true);
+
+        popup = new JPopupMenu();
+
+        popupListener = new MouseAdapter() {
+
+            public void mousePressed(MouseEvent e) {
+                maybeShowPopup(e);
+            }
+    
+            public void mouseReleased(MouseEvent e) {
+                maybeShowPopup(e);
+            }
+    
+            private void maybeShowPopup(MouseEvent e)
+            {
+                if (e.isPopupTrigger())
+                {
+                    for(int i = 0; i < elements.size(); i++)
+                    {
+                        popupGe = (GuiElementDescriptor)elements.get(i);
+                        if((popupGe.navButton == e.getSource()) ||
+                           (popupGe.navStatusButton == e.getSource()))
+                        {
+                            break;
+                        }
+                    }
+                    
+                    popup.removeAll();
+
+                    popupParameterMsg = popupGe.proxy.getParameter();
+
+                    if(popupParameterMsg != null)
+                    {
+                        if(popupParameterMsg.parameterNum > 0)
+                        {
+                            popupParameterItems = new JMenuItem[popupParameterMsg.parameterNum];
+                            
+                            for(int i = 0; i < popupParameterMsg.parameterNum; i++)
+                            {
+                                popupParameterItems[i] = new JMenuItem(popupParameterMsg.parameter[i].toString());
+                                popupParameterItems[i].addActionListener(popupAction);
+                                popup.add(popupParameterItems[i]);
+                            }
+                        }
+                        else
+                        {
+                            popupParameterItems = new JMenuItem[1];
+                            popupParameterItems[0] = new JMenuItem("no parameter");
+                            popupParameterItems[0].setEnabled(false);
+                            popup.add(popupParameterItems[0]);
+                        }
+                    }
+                    else
+                    {
+                        popupParameterItems = new JMenuItem[1];
+                        popupParameterItems[0] = new JMenuItem("no reply");
+                        popupParameterItems[0].setEnabled(false);
+                        popup.add(popupParameterItems[0]);
+                    }
+
+                    popup.show(e.getComponent(),
+                               e.getX(), e.getY());
+                }
+            }
+        };
+        popupAction = new ActionListener() {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                RackParam parameter = null;
+                for(int i = 0; i < popupParameterItems.length; i++)
+                {
+                    if(popupParameterItems[i] == e.getSource())
+                    {
+                        parameter = popupParameterMsg.parameter[i];
+                    }
+                }
+                
+                String s = (String)JOptionPane.showInputDialog(popupGe.navButton,
+                        "Set parameter:\n" + parameter.toString(), popupGe.name, JOptionPane.PLAIN_MESSAGE);
+                
+                if(s != null)
+                {
+                    try
+                    {
+                        switch(parameter.type)
+                        {
+                        case RackParam.STRING:
+                            parameter.valueString = s;
+                            break;
+                        case RackParam.FLOAT:
+                            parameter.valueFloat = Float.parseFloat(s);
+                            break;
+                        default: // INT32
+                            parameter.valueInt32 = Integer.parseInt(s);
+                        }
+                        
+                        popupGe.proxy.setParameter(new RackParamMsg(parameter));
+                    }
+                    catch(NumberFormatException nfe)
+                    {
+                        System.out.println(nfe);
+                        JOptionPane.showMessageDialog(popupGe.navButton, "Can't set parameter:\nNumberFormatException", popupGe.name, JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        };
     }
 
     protected void restoreGuiElements()
@@ -721,6 +836,12 @@ public final class Gui extends Thread
                 }
             }
         });
+
+        if(ge.proxy != null)
+        {
+            ge.navButton.addMouseListener(popupListener);
+            ge.navStatusButton.addMouseListener(popupListener);
+        }
 
         ge.navPanel.add(BorderLayout.WEST, ge.navStatusButton);
         ge.navPanel.add(BorderLayout.CENTER, ge.navButton);
