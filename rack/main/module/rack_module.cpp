@@ -676,7 +676,7 @@ int       RackModule::moduleInit(void)
     while(arg_table[ret].name.length() != 0)
     {
         strncpy(paramMsg->parameter[ret].name, arg_table[ret].name.c_str(), RACK_PARAM_MAX_STRING_LEN);
-        
+
         switch(arg_table[ret].val_type)
         {
         case ARGOPT_VAL_STR:
@@ -694,7 +694,7 @@ int       RackModule::moduleInit(void)
         ret++;
     }
     paramMsg->parameterNum = ret;
-    
+
     return 0;
 
 exit_error:
@@ -714,7 +714,7 @@ void      RackModule::moduleCleanup(void)
     GDOS_DBG_INFO("Cleanup\n");
 
     free(paramMsg);
-    
+
     if (moduleInitBits.testAndClearBit(INIT_BIT_CMDTSK_STARTED))
     {
         GDOS_DBG_INFO("Join - waiting for command task \n");
@@ -742,14 +742,15 @@ void      RackModule::moduleCleanup(void)
 // realtime context
 int RackModule::moduleCommand(message_info *msgInfo)
 {
+  rack_param_msg *newParam;
   int ret;
 
   switch(msgInfo->type) {
 
-    case MSG_ON: {
+    case MSG_ON:
         switch(targetStatus) {
 
-          case MODULE_TSTATE_ON: {
+          case MODULE_TSTATE_ON:
 
               if (status == MODULE_STATE_ENABLED) {
                 ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
@@ -765,27 +766,23 @@ int RackModule::moduleCommand(message_info *msgInfo)
                 }
               }
               return 0;
-          }
 
-          case MODULE_TSTATE_OFF: {
+          case MODULE_TSTATE_OFF:
 
               targetStatus = MODULE_TSTATE_ON;
               memcpy(&replyMsgInfo, msgInfo, sizeof(message_info));
               return 0;
-          }
 
-          default: {
+          default:
               ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
               if (ret) {
                 GDOS_ERROR("CmdTask: Can't send error reply, code = %d\n", ret);
               return ret;
             }
-          }
         }
         return 0;
-    }
 
-    case MSG_OFF: {
+    case MSG_OFF:
         targetStatus = MODULE_TSTATE_OFF;
 
         ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
@@ -804,9 +801,8 @@ int RackModule::moduleCommand(message_info *msgInfo)
           clearMsgInfo(&replyMsgInfo);
         }
         return 0;
-    }
 
-    case MSG_GET_STATUS: {
+    case MSG_GET_STATUS:
         ret = cmdMbx.sendMsgReply(status, msgInfo);
         if (ret) {
           GDOS_ERROR("CmdTask: Can't send status, code = %d\n", ret);
@@ -814,7 +810,6 @@ int RackModule::moduleCommand(message_info *msgInfo)
         }
 
         return 0;
-    }
 
     case MSG_GET_PARAM:
         ret = cmdMbx.sendDataMsgReply(MSG_PARAM, msgInfo, 1, (void*)paramMsg, (uint32_t)(sizeof(rack_param_msg) + paramMsg->parameterNum * sizeof(rack_param)));
@@ -826,7 +821,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
         return 0;
 
     case MSG_SET_PARAM:
-        rack_param_msg *newParam = RackParamMsg::parse(msgInfo);
+        newParam = RackParamMsg::parse(msgInfo);
 
         for(int i = 0; i < newParam->parameterNum; i++)
         {
@@ -840,7 +835,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
                 }
             }
         }
-        
+
         ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         if (ret) {
           GDOS_ERROR("CmdTask: Can't send setParameter reply , code = %d\n", ret);
@@ -849,10 +844,9 @@ int RackModule::moduleCommand(message_info *msgInfo)
 
         return 0;
 
-    default: {
+    default:
       // nobody handles this command -> return MODULE_ERROR
       return -EINVAL;
-    }
   }
 }
 
