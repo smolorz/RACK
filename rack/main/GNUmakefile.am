@@ -47,6 +47,8 @@ dist_java_JAVA += \
 	GetContDataMsg.java \
 	StopContDataMsg.java \
 	ContDataMsg.java \
+	RackParam.java \
+	RackParamMsg.java \
 	GDOSDataMsg.java \
 	GDOS.java
 

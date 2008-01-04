@@ -52,6 +52,8 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	GetContDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	StopContDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	ContDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	RackParam.java \
+@CONFIG_RACK_JAVA_TRUE@	RackParamMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	GDOSDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	GDOS.java
 
@@ -81,8 +83,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 am__dist_java_JAVA_DIST = AngleTool.java RackName.java RackProxy.java \
 	RackDataProxy.java GetDataMsg.java GetContDataMsg.java \
-	StopContDataMsg.java ContDataMsg.java GDOSDataMsg.java \
-	GDOS.java
+	StopContDataMsg.java ContDataMsg.java RackParam.java \
+	RackParamMsg.java GDOSDataMsg.java GDOS.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
