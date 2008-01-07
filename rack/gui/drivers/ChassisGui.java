@@ -92,7 +92,7 @@ public class ChassisGui extends RackModuleGui
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 1));
             }
         };
-        pilot1.addActionListener(pilot0Action);
+        pilot1.addActionListener(pilot1Action);
 
         pilot2Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -100,7 +100,7 @@ public class ChassisGui extends RackModuleGui
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 2));
             }
         };
-        pilot2.addActionListener(pilot0Action);
+        pilot2.addActionListener(pilot2Action);
 
         pilot3Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -108,7 +108,7 @@ public class ChassisGui extends RackModuleGui
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 3));
             }
         };
-        pilot3.addActionListener(pilot0Action);
+        pilot3.addActionListener(pilot3Action);
 
         pilot4Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -116,7 +116,7 @@ public class ChassisGui extends RackModuleGui
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 4));
             }
         };
-        pilot4.addActionListener(pilot0Action);
+        pilot4.addActionListener(pilot4Action);
 
         pilot5Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -124,7 +124,7 @@ public class ChassisGui extends RackModuleGui
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 5));
             }
         };
-        pilot5.addActionListener(pilot0Action);
+        pilot5.addActionListener(pilot5Action);
 
         pilot6Action = new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -132,7 +132,7 @@ public class ChassisGui extends RackModuleGui
                 chassis.setActivePilot(RackName.create(RackName.PILOT, 6));
             }
         };
-        pilot6.addActionListener(pilot0Action);
+        pilot6.addActionListener(pilot6Action);
 
         pilotGroup.add(pilot0);
         pilotGroup.add(pilot1);
