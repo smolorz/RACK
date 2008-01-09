@@ -74,17 +74,17 @@ argTable_t module_argTab[] = {
   {ARGOPT_OPT, "instance" , ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "The global instance number of this driver", { 0 } },
 
-  {ARGOPT_OPT, "cmdTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "priority of the command Task (1-32)", { 1 } },
-
-  {ARGOPT_OPT, "dataTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-   "priority of the data Task (1-32)", { 1 } },
-
   {ARGOPT_OPT, "gdosLevel", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "GDOS level (0:print, 1:error, 2:warning, 3:info, 4:detail) [2]", { 2 } },
 
   {ARGOPT_OPT, "targetStatus", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "target status (0:off, 1:on) [0])", { 0 } },
+
+  {ARGOPT_OPT, "cmdTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "priority of the command Task (1-32)", { 1 } },
+
+  {ARGOPT_OPT, "dataTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "priority of the data Task (1-32)", { 1 } },
 
   {0, "", 0, 0, "", { 0 } }
 };
@@ -551,11 +551,41 @@ void      RackModule::deleteGdosMbx()
     }
 }
 
+int     RackModule::parseArgTable(argTable_t *argTable, rack_param_msg *paramMsg)
+{
+    int i = 0;
+    while(argTable[i].name.length() != 0)
+    {
+        if(paramMsg != NULL)
+        {
+            strncpy(paramMsg->parameter[paramMsg->parameterNum].name, argTable[i].name.c_str(), RACK_PARAM_MAX_STRING_LEN);
+
+            switch(argTable[i].val_type)
+            {
+            case ARGOPT_VAL_STR:
+                paramMsg->parameter[paramMsg->parameterNum].type = RACK_PARAM_STRING;
+                strncpy(paramMsg->parameter[paramMsg->parameterNum].valueString, argTable[i].val.s, RACK_PARAM_MAX_STRING_LEN);
+                break;
+            case ARGOPT_VAL_FLT:
+                paramMsg->parameter[paramMsg->parameterNum].type = RACK_PARAM_FLOAT;
+                paramMsg->parameter[paramMsg->parameterNum].valueFloat = argTable[i].val.f;
+                break;
+            default: // ARGOPT_VAL_INT:
+                paramMsg->parameter[paramMsg->parameterNum].type = RACK_PARAM_INT32;
+                paramMsg->parameter[paramMsg->parameterNum].valueInt32 = argTable[i].val.i;
+            }
+            paramMsg->parameterNum++;
+        }
+        i++;
+    }
+    return i;
+}
+
 int32_t   RackModule::getInt32Param(char* paramName)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
-        if(strncmp(paramMsg->parameter[i].name, paramName, sizeof(rack_param_msg)) == 0)
+        if(strncmp(paramMsg->parameter[i].name, paramName, RACK_PARAM_MAX_STRING_LEN) == 0)
         {
             return paramMsg->parameter[i].valueInt32;
         }
@@ -567,7 +597,7 @@ char*   RackModule::getStringParam(char* paramName)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
-        if(strncmp(paramMsg->parameter[i].name, paramName, sizeof(rack_param_msg)) == 0)
+        if(strncmp(paramMsg->parameter[i].name, paramName, RACK_PARAM_MAX_STRING_LEN) == 0)
         {
             return paramMsg->parameter[i].valueString;
         }
@@ -579,7 +609,7 @@ float   RackModule::getFloatParam(char* paramName)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
-        if(strncmp(paramMsg->parameter[i].name, paramName, sizeof(rack_param_msg)) == 0)
+        if(strncmp(paramMsg->parameter[i].name, paramName, RACK_PARAM_MAX_STRING_LEN) == 0)
         {
             return paramMsg->parameter[i].valueFloat;
         }
@@ -666,34 +696,19 @@ int       RackModule::moduleInit(void)
     GDOS_DBG_INFO("Data task created \n");
 
     // fill rackParameterMsg
-    ret = 0;
-    while(arg_table[ret].name.length() != 0)
-    {
-        ret++;
-    }
-    paramMsg = (rack_param_msg*)malloc(sizeof(rack_param_msg) + ret * sizeof(rack_param));
-    ret = 0;
-    while(arg_table[ret].name.length() != 0)
-    {
-        strncpy(paramMsg->parameter[ret].name, arg_table[ret].name.c_str(), RACK_PARAM_MAX_STRING_LEN);
+    ret = parseArgTable(module_argTab, NULL);
+    ret += parseArgTable(arg_table, NULL);
+    ret += 1;
 
-        switch(arg_table[ret].val_type)
-        {
-        case ARGOPT_VAL_STR:
-            paramMsg->parameter[ret].type = RACK_PARAM_STRING;
-            strncpy(paramMsg->parameter[ret].valueString, arg_table[ret].val.s, RACK_PARAM_MAX_STRING_LEN);
-            break;
-        case ARGOPT_VAL_FLT:
-            paramMsg->parameter[ret].type = RACK_PARAM_FLOAT;
-            paramMsg->parameter[ret].valueFloat = arg_table[ret].val.f;
-            break;
-        default: // ARGOPT_VAL_INT:
-            paramMsg->parameter[ret].type = RACK_PARAM_INT32;
-            paramMsg->parameter[ret].valueInt32 = arg_table[ret].val.i;
-        }
-        ret++;
-    }
-    paramMsg->parameterNum = ret;
+    paramMsg = (rack_param_msg*)malloc(sizeof(rack_param_msg) + ret * sizeof(rack_param));
+
+    strncpy(paramMsg->parameter[0].name, "name", RACK_PARAM_MAX_STRING_LEN);
+    paramMsg->parameter[0].type = RACK_PARAM_STRING;
+    strncpy(paramMsg->parameter[0].valueString, classname, RACK_PARAM_MAX_STRING_LEN);
+    paramMsg->parameterNum = 1;
+
+    parseArgTable(module_argTab, paramMsg);
+    parseArgTable(arg_table, paramMsg);
 
     return 0;
 
@@ -833,6 +848,12 @@ int RackModule::moduleCommand(message_info *msgInfo)
                 {
                     memcpy(&paramMsg->parameter[j], &newParam->parameter[i], sizeof(rack_param));
                 }
+            }
+
+            if(strncmp(newParam->parameter[i].name, "gdosLevel", RACK_PARAM_MAX_STRING_LEN) == 0)
+            {
+                gdosLevel = GDOS_MSG_DEBUG_BEGIN - newParam->parameter[i].valueInt32;
+                gdos->setGdosLevel(gdosLevel);
             }
         }
 
