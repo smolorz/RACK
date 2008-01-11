@@ -93,7 +93,7 @@ int  Position::moduleOn(void)
         return ret;
     }
 
-    ret = odometry->getContData(dataBufferPeriodTime, &odometryMbx, &dataBufferPeriodTime);
+    ret = odometry->getContData(0, &odometryMbx, &dataBufferPeriodTime);
     if (ret)
     {
         GDOS_ERROR("Can't get continuous data from odometry(%i) module, "
