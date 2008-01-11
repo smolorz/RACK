@@ -79,6 +79,7 @@ argTable_t argTab[] = {
     dxfMapFile  = getStringParam("mapFile");
     mapOffsetX  = getInt32Param("mapOffsetX");
     mapOffsetY  = getInt32Param("mapOffsetY");
+    RackTask::disableRealtimeMode();
 
     ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY);
     if (ret)
@@ -87,6 +88,7 @@ argTable_t argTab[] = {
         return ret;
     }
     GDOS_PRINT("Using DXF map with %i features\n", dxfMap.featureNum);
+    RackTask::enableRealtimeMode();
 
     GDOS_DBG_DETAIL("Turning on Odometry(%d) \n", odometryInst);
     ret = odometry->on();
