@@ -4,10 +4,6 @@ config RACK_CAMERA_DCAM
     select RACK_LIBDC1394_SUPPORT
     default n
 
-config RACK_CAMERA_FILE
-    bool "Camera - File"
-    default y
-
 config RACK_CAMERA_JPEG
     bool "Camera - Jpeg"
     select RACK_LIBJPEG_SUPPORT

@@ -5,10 +5,6 @@ if CONFIG_RACK_CAMERA_DCAM
 bin_PROGRAMS += CameraDcam
 endif
 
-if CONFIG_RACK_CAMERA_FILE
-bin_PROGRAMS += CameraFile
-endif
-
 if CONFIG_RACK_CAMERA_JPEG
 bin_PROGRAMS += CameraJpeg
 endif
@@ -31,10 +27,6 @@ CameraDcam_CPPFLAGS = \
 CameraDcam_LDFLAGS = \
 	@LIBRAW1394_LDFLAGS@ @LIBDC1394_LDFLAGS@ \
 	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@
-
-CameraFile_SOURCES = \
-	camera_file.h \
-	camera_file.cpp
 
 CameraJpeg_SOURCES = \
 	camera_jpeg.h \

@@ -487,22 +487,6 @@ if test "$CONFIG_RACK_CAMERA_DCAM" = "y"; then
     CONFIG_RACK_LIBDC1394_SUPPORT=y
 fi
 
-dnl -----------------------------------------------------------------
-dnl  drivers - CameraFile
-dnl -----------------------------------------------------------------
-
-AC_MSG_CHECKING([build CameraFile])
-AC_ARG_ENABLE(camera-file,
-    AS_HELP_STRING([--enable-camera-file], [building CameraFile]),
-    [case "$enableval" in
-        y | yes) CONFIG_RACK_CAMERA_FILE=y ;;
-        *) CONFIG_RACK_CAMERA_FILE=n ;;
-    esac])
-AC_MSG_RESULT([${CONFIG_RACK_CAMERA_FILE:-n}])
-AM_CONDITIONAL(CONFIG_RACK_CAMERA_FILE,[test "$CONFIG_RACK_CAMERA_FILE" = "y"])
-if test "$CONFIG_RACK_CAMERA_FILE" = "y"; then
-    AC_DEFINE(CONFIG_RACK_CAMERA_FILE,1,[building CameraFile])
-fi
 
 dnl -----------------------------------------------------------------
 dnl  drivers - CameraJpeg

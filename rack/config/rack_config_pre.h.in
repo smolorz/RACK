@@ -9,9 +9,6 @@
 /* building CameraDcam */
 #undef CONFIG_RACK_CAMERA_DCAM
 
-/* building CameraFile */
-#undef CONFIG_RACK_CAMERA_FILE
-
 /* building CameraJpeg */
 #undef CONFIG_RACK_CAMERA_JPEG
 

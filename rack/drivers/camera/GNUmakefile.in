@@ -36,12 +36,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4)
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
 @CONFIG_RACK_CAMERA_DCAM_TRUE@am__append_1 = CameraDcam
-@CONFIG_RACK_CAMERA_FILE_TRUE@am__append_2 = CameraFile
-@CONFIG_RACK_CAMERA_JPEG_TRUE@am__append_3 = CameraJpeg
-@CONFIG_RACK_CAMERA_V4L_TRUE@am__append_4 = CameraV4l
+@CONFIG_RACK_CAMERA_JPEG_TRUE@am__append_2 = CameraJpeg
+@CONFIG_RACK_CAMERA_V4L_TRUE@am__append_3 = CameraV4l
 subdir = drivers/camera
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -53,9 +51,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 @CONFIG_RACK_CAMERA_DCAM_TRUE@am__EXEEXT_1 = CameraDcam$(EXEEXT)
-@CONFIG_RACK_CAMERA_FILE_TRUE@am__EXEEXT_2 = CameraFile$(EXEEXT)
-@CONFIG_RACK_CAMERA_JPEG_TRUE@am__EXEEXT_3 = CameraJpeg$(EXEEXT)
-@CONFIG_RACK_CAMERA_V4L_TRUE@am__EXEEXT_4 = CameraV4l$(EXEEXT)
+@CONFIG_RACK_CAMERA_JPEG_TRUE@am__EXEEXT_2 = CameraJpeg$(EXEEXT)
+@CONFIG_RACK_CAMERA_V4L_TRUE@am__EXEEXT_3 = CameraV4l$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -63,10 +60,6 @@ am_CameraDcam_OBJECTS = CameraDcam-camera_dcam.$(OBJEXT)
 CameraDcam_OBJECTS = $(am_CameraDcam_OBJECTS)
 CameraDcam_LDADD = $(LDADD)
 CameraDcam_DEPENDENCIES =
-am_CameraFile_OBJECTS = camera_file.$(OBJEXT)
-CameraFile_OBJECTS = $(am_CameraFile_OBJECTS)
-CameraFile_LDADD = $(LDADD)
-CameraFile_DEPENDENCIES =
 am_CameraJpeg_OBJECTS = CameraJpeg-camera_jpeg.$(OBJEXT)
 CameraJpeg_OBJECTS = $(am_CameraJpeg_OBJECTS)
 CameraJpeg_LDADD = $(LDADD)
@@ -94,10 +87,10 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(CameraDcam_SOURCES) $(CameraFile_SOURCES) \
-	$(CameraJpeg_SOURCES) $(CameraV4l_SOURCES)
-DIST_SOURCES = $(CameraDcam_SOURCES) $(CameraFile_SOURCES) \
-	$(CameraJpeg_SOURCES) $(CameraV4l_SOURCES)
+SOURCES = $(CameraDcam_SOURCES) $(CameraJpeg_SOURCES) \
+	$(CameraV4l_SOURCES)
+DIST_SOURCES = $(CameraDcam_SOURCES) $(CameraJpeg_SOURCES) \
+	$(CameraV4l_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -125,8 +118,6 @@ CONFIG_RACK_BUILD_KMOD_FALSE = @CONFIG_RACK_BUILD_KMOD_FALSE@
 CONFIG_RACK_BUILD_KMOD_TRUE = @CONFIG_RACK_BUILD_KMOD_TRUE@
 CONFIG_RACK_CAMERA_DCAM_FALSE = @CONFIG_RACK_CAMERA_DCAM_FALSE@
 CONFIG_RACK_CAMERA_DCAM_TRUE = @CONFIG_RACK_CAMERA_DCAM_TRUE@
-CONFIG_RACK_CAMERA_FILE_FALSE = @CONFIG_RACK_CAMERA_FILE_FALSE@
-CONFIG_RACK_CAMERA_FILE_TRUE = @CONFIG_RACK_CAMERA_FILE_TRUE@
 CONFIG_RACK_CAMERA_JPEG_FALSE = @CONFIG_RACK_CAMERA_JPEG_FALSE@
 CONFIG_RACK_CAMERA_JPEG_TRUE = @CONFIG_RACK_CAMERA_JPEG_TRUE@
 CONFIG_RACK_CAMERA_V4L_FALSE = @CONFIG_RACK_CAMERA_V4L_FALSE@
@@ -338,10 +329,6 @@ CameraDcam_LDFLAGS = \
 	@LIBRAW1394_LDFLAGS@ @LIBDC1394_LDFLAGS@ \
 	@LIBRAW1394_LIBS@ @LIBDC1394_LIBS@
 
-CameraFile_SOURCES = \
-	camera_file.h \
-	camera_file.cpp
-
 CameraJpeg_SOURCES = \
 	camera_jpeg.h \
 	camera_jpeg.cpp
@@ -427,9 +414,6 @@ clean-binPROGRAMS:
 CameraDcam$(EXEEXT): $(CameraDcam_OBJECTS) $(CameraDcam_DEPENDENCIES) 
 	@rm -f CameraDcam$(EXEEXT)
 	$(CXXLINK) $(CameraDcam_LDFLAGS) $(CameraDcam_OBJECTS) $(CameraDcam_LDADD) $(LIBS)
-CameraFile$(EXEEXT): $(CameraFile_OBJECTS) $(CameraFile_DEPENDENCIES) 
-	@rm -f CameraFile$(EXEEXT)
-	$(CXXLINK) $(CameraFile_LDFLAGS) $(CameraFile_OBJECTS) $(CameraFile_LDADD) $(LIBS)
 CameraJpeg$(EXEEXT): $(CameraJpeg_OBJECTS) $(CameraJpeg_DEPENDENCIES) 
 	@rm -f CameraJpeg$(EXEEXT)
 	$(CXXLINK) $(CameraJpeg_LDFLAGS) $(CameraJpeg_OBJECTS) $(CameraJpeg_LDADD) $(LIBS)
@@ -445,7 +429,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CameraDcam-camera_dcam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CameraJpeg-camera_jpeg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera_file.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/camera_v4l.Po@am__quote@
 
 .cpp.o:
