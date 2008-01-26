@@ -20,11 +20,12 @@ import java.io.*;
 
 public class TimsRawMsg extends TimsMsg
 {
-    public byte[] body = new byte[0];
+    public byte[] body;
 
     public TimsRawMsg()
     {
-        msglen  = HEAD_LEN;
+        msglen = HEAD_LEN;
+        body = new byte[0];
     }
 
     public TimsRawMsg(InputStream in) throws IOException
