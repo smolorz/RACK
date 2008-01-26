@@ -183,6 +183,8 @@ public class TimsTcp extends Tims
                             System.out.println("Tims received message for unknown mbx " + m.dest);
                         }
                     }
+                    m = null;
+                    mbx = null;
                     in = tcpIn;
                     sock = socket;
                 }
