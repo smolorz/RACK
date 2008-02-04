@@ -187,8 +187,8 @@ int  DatalogRec::moduleLoop(void)
     if (ret && ret != -EWOULDBLOCK) // error
     {
         GDOS_ERROR("Can't read data on largeContDataMbx, code = %d\n", ret);
-        targetStatus = MODULE_TSTATE_OFF;
-        return ret;
+/*        targetStatus = MODULE_TSTATE_OFF;
+        return ret;*/
     }
 
 
@@ -207,8 +207,8 @@ int  DatalogRec::moduleLoop(void)
             else
             {
                 GDOS_ERROR("Can't read data on smallContDataMbx, code = %d\n", ret);
-                targetStatus = MODULE_TSTATE_OFF;
-                return ret;
+/*                targetStatus = MODULE_TSTATE_OFF;
+                return ret;*/
             }
         }
     }
@@ -216,8 +216,8 @@ int  DatalogRec::moduleLoop(void)
     if (msgInfo.type != MSG_DATA)
     {
         GDOS_ERROR("No data package from %i type %i\n", msgInfo.src, msgInfo.type);
-        targetStatus = MODULE_TSTATE_OFF;
-        return -EINVAL;
+/*        targetStatus = MODULE_TSTATE_OFF;
+        return -EINVAL;*/
     }
 
     datalogMtx.lock(RACK_INFINITE);
@@ -229,10 +229,10 @@ int  DatalogRec::moduleLoop(void)
     ret = logData(&msgInfo);
     if (ret)
     {
-        datalogMtx.unlock();
+/*        datalogMtx.unlock();
         GDOS_ERROR("Error while logging data, code= %i\n", ret);
         targetStatus = MODULE_TSTATE_OFF;
-        return ret;
+        return ret;*/
     }
 
     // write new data package
@@ -350,13 +350,15 @@ int DatalogRec::initLogFile()
                                   "%% recordingTime pos.x pos.y pos.z"
                                   " pos.phi pos.psi pos.rho dest.x dest.y dest.z"
                                   " dest.phi dest.psi dest.rho speed curve distanceToDest splineNum"
+                                  " spline[0].basepoint.x spline[0].basepoint.y"
                                   " spline[0].startPos.x spline[0].startPos.y"
                                   " spline[0].startPos.rho spline[0].endPos.x"
                                   " spline[0].endPos.y spline[0].endPos.rho"
                                   " spline[0].centerPos.x spline[0].centerPos.y"
                                   " spline[0].centerPos.rho spline[0].length"
                                   " spline[0].radius spline[0].vMax spline[0].vStart"
-                                  " spline[0].vEnd spline[0].aMax spline[0].lbo\n",
+                                  " spline[0].vEnd spline[0].aMax spline[0].type"
+                                  " spline[0].request spline[0].lbo\n",
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
@@ -559,7 +561,9 @@ int DatalogRec::logData(message_info *msgInfo)
 
                     for (j = 0; j < pilotData->splineNum; j++)
                     {
-                        bytes += fprintf(fileptr[i], " %i %i %f %i %i %f %i %i %f %i %i %i %i %i %i %i",
+                        bytes += fprintf(fileptr[i], " %i %i %i %i %f %i %i %f %i %i %f %i %i %i %i %i %i %i %i %i",
+                            pilotData->spline[j].basepoint.x,
+                            pilotData->spline[j].basepoint.y,
                             pilotData->spline[j].startPos.x,
                             pilotData->spline[j].startPos.y,
                             pilotData->spline[j].startPos.rho,
@@ -575,6 +579,8 @@ int DatalogRec::logData(message_info *msgInfo)
                             pilotData->spline[j].vStart,
                             pilotData->spline[j].vEnd,
                             pilotData->spline[j].aMax,
+                            pilotData->spline[j].type,
+                            pilotData->spline[j].request,
                             pilotData->spline[j].lbo);
                     }
 
@@ -1052,6 +1058,11 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
 
     data->logInfo[num].moduleMbx = RackName::create(POSITION, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "position_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(position_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(POSITION, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "position_2.dat");
     data->logInfo[num].maxDataLen = sizeof(position_data);
     num++;
 

@@ -25,6 +25,7 @@
 
 typedef struct
 {
+    point_2d    basepoint;
     position_2d startPos;
     position_2d endPos;
     position_2d centerPos;
@@ -34,6 +35,8 @@ typedef struct
     int32_t     vStart;
     int32_t     vEnd;
     int32_t     aMax;
+    int32_t     type;
+    int32_t     request;
     int32_t     lbo;
 } __attribute__((packed)) polar_spline;
 
@@ -42,6 +45,7 @@ class PolarSpline
    public:
         static void le_to_cpu(polar_spline *data)
         {
+            Point2D::le_to_cpu(&data->basepoint);
             Position2D::le_to_cpu(&data->startPos);
             Position2D::le_to_cpu(&data->endPos);
             Position2D::le_to_cpu(&data->centerPos);
@@ -51,11 +55,14 @@ class PolarSpline
             data->vStart = __le32_to_cpu(data->vStart);
             data->vEnd   = __le32_to_cpu(data->vEnd);
             data->aMax   = __le32_to_cpu(data->aMax);
+            data->type   = __le32_to_cpu(data->type);
+            data->request= __le32_to_cpu(data->request);
             data->lbo    = __le32_to_cpu(data->lbo);
         }
 
         static void be_to_cpu(polar_spline *data)
         {
+            Point2D::be_to_cpu(&data->basepoint);
             Position2D::be_to_cpu(&data->startPos);
             Position2D::be_to_cpu(&data->endPos);
             Position2D::be_to_cpu(&data->centerPos);
@@ -65,6 +72,8 @@ class PolarSpline
             data->vStart = __be32_to_cpu(data->vStart);
             data->vEnd   = __be32_to_cpu(data->vEnd);
             data->aMax   = __be32_to_cpu(data->aMax);
+            data->type   = __be32_to_cpu(data->type);
+            data->request= __be32_to_cpu(data->request);
             data->lbo    = __be32_to_cpu(data->lbo);
         }
 
