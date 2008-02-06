@@ -90,14 +90,14 @@ argTable_t argTab[] = {
     int ret;
 
     // get parameter
-    ladarOffsetX    = getIntArg("ladarOffsetX", argTab);
-    ladarOffsetY    = getIntArg("ladarOffsetY", argTab);
-    ladarOffsetRho  = getIntArg("ladarOffsetRho", argTab);
-    ladarUpsideDown = getIntArg("ladarUpsideDown", argTab);
-    maxRange        = getIntArg("maxRange", argTab);
-    reduce          = getIntArg("reduce", argTab);
-    angleMin        = getIntArg("angleMin", argTab);
-    angleMax        = getIntArg("angleMax", argTab);
+    ladarOffsetX    = getInt32Param("ladarOffsetX");
+    ladarOffsetY    = getInt32Param("ladarOffsetY");
+    ladarOffsetRho  = getInt32Param("ladarOffsetRho");
+    ladarUpsideDown = getInt32Param("ladarUpsideDown");
+    maxRange        = getInt32Param("maxRange");
+    reduce          = getInt32Param("reduce");
+    angleMin        = getInt32Param("angleMin");
+    angleMax        = getInt32Param("angleMax");
 
     angleMinFloat       = (double)angleMin       * M_PI / 180.0;
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
@@ -334,8 +334,8 @@ int Scan2d::moduleInit(void)
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
     // get static parameter
-    ladarInst       = getIntArg("ladarInst", argTab);
-    cameraInst      = getIntArg("cameraInst", argTab);
+    ladarInst       = getInt32Param("ladarInst");
+    cameraInst      = getInt32Param("cameraInst");
 
     // work mailbox
     ret = createMbx(&workMbx, 1, sizeof(camera_data_ladar_msg), MBX_IN_KERNELSPACE | MBX_SLOT);
