@@ -45,6 +45,7 @@
 #define INIT_BIT_DATATSK_CREATED        3
 #define INIT_BIT_CMDTSK_STARTED         4
 #define INIT_BIT_DATATSK_STARTED        5
+#define INIT_BIT_MALLOC_PARAM_MSG       6
 
 class MbxListHead : public ListHead {
 
@@ -701,6 +702,13 @@ int       RackModule::moduleInit(void)
     ret += 1;
 
     paramMsg = (rack_param_msg*)malloc(sizeof(rack_param_msg) + ret * sizeof(rack_param));
+    if (!paramMsg)
+    {
+        GDOS_ERROR("Can't allocate memory for paramMsg\n");
+        goto exit_error;
+    }
+    moduleInitBits.setBit(INIT_BIT_MALLOC_PARAM_MSG);
+    GDOS_DBG_INFO("Memory for paramMsg is allocated\n");
 
     strncpy(paramMsg->parameter[0].name, "name", RACK_PARAM_MAX_STRING_LEN);
     paramMsg->parameter[0].type = RACK_PARAM_STRING;
@@ -728,7 +736,10 @@ void      RackModule::moduleCleanup(void)
 {
     GDOS_DBG_INFO("Cleanup\n");
 
-    free(paramMsg);
+    if (moduleInitBits.testAndClearBit(INIT_BIT_MALLOC_PARAM_MSG))
+    {
+        free(paramMsg);
+    }
 
     if (moduleInitBits.testAndClearBit(INIT_BIT_CMDTSK_STARTED))
     {
