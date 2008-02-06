@@ -78,6 +78,16 @@ int  Position::moduleOn(void)
     int           ret;
     odometry_data odometryData;
 
+    // get parameter
+    updateInterpol    = getInt32Param("updateInterpol");
+    offsetLatitude    = (double)getFloatParam("offsetLatitude") * M_PI / 180.0;
+    offsetLongitude   = (double)getFloatParam("offsetLongitude") * M_PI / 180.0;
+    scaleLatitude     = getInt32Param("scaleLatitude");
+    scaleLongitude    = getInt32Param("scaleLongitude");
+    offsetNorthing    = (double)getInt32Param("offsetNorthing");
+    offsetEasting     = (double)getInt32Param("offsetEasting");
+    positionReference = getInt32Param("positionReference");
+
     ret = odometry->on();
     if (ret)
     {
@@ -437,6 +447,9 @@ int  Position::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
+    // get static parameter
+    odometryInst      = getInt32Param("odometryInst");
+
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
@@ -529,27 +542,11 @@ Position::Position()
       : RackDataModule( MODULE_CLASS_ID,
                     2000000000llu,    // 2s datatask error sleep time
                     8,                // command mailbox slots
-                    64,               // command mailbox data size per slot
+                    240,              // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     1000,             // max buffer entries
                     10)               // data buffer listener
 {
-    // get value(s) out of your argument table
-    odometryInst      = getIntArg("odometryInst", argTab);
-    updateInterpol    = getIntArg("updateInterpol", argTab);
-    offsetLatitude    = (double)getFltArg("offsetLatitude", argTab) * M_PI / 180.0;
-    offsetLongitude   = (double)getFltArg("offsetLongitude", argTab) * M_PI / 180.0;
-    scaleLatitude     = getIntArg("scaleLatitude", argTab);
-    scaleLongitude    = getIntArg("scaleLongitude", argTab);
-    offsetNorthing    = (double)getIntArg("offsetNorthing", argTab);
-    offsetEasting     = (double)getIntArg("offsetEasting", argTab);
-    positionReference = getIntArg("positionReference", argTab);
-
-    oldPos.x   = 0;
-    oldPos.y   = 0;
-    oldPos.z   = 0;
-    oldPos.rho = 0.0f;
-
     // set dataBuffer size
     dataBufferMaxDataSize   = sizeof(position_data);
 }

@@ -349,7 +349,12 @@ int Scan2dMerge::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    GDOS_DBG_DETAIL("Scan2DMerge::moduleInit ... \n");
+    // get static parameter
+    odometryInst  = getInt32Param("odometryInst");
+    scan2dInst[0] = getInt32Param("scan2dInstA");
+    scan2dInst[1] = getInt32Param("scan2dInstB");
+    scan2dInst[2] = getInt32Param("scan2dInstC");
+    scan2dInst[3] = getInt32Param("scan2dInstD");
 
     //
     // create mailboxes
@@ -457,18 +462,11 @@ Scan2dMerge::Scan2dMerge(void)
       : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s datatask error sleep time
                     16,               // command mailbox slots
-                    48,               // command mailbox data size per slot
+                    240,              // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
 {
-    // get values
-    odometryInst  = getIntArg("odometryInst", argTab);
-    scan2dInst[0] = getIntArg("scan2dInstA", argTab);
-    scan2dInst[1] = getIntArg("scan2dInstB", argTab);
-    scan2dInst[2] = getIntArg("scan2dInstC", argTab);
-    scan2dInst[3] = getIntArg("scan2dInstD", argTab);
-
     dataBufferMaxDataSize   =sizeof(scan2d_data_msg);
 }
 

@@ -44,6 +44,9 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "ladarInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the ladar driver", { -1 } },
 
+    { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the camera driver", { -1 } },
+
     { ARGOPT_OPT, "ladarOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Ladar X offset (default 0)", { 0 } },
 
@@ -68,10 +71,6 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum angle (default 180)", { 180 } },
 
-    { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The instance number of the camera driver", { -1 } },
-
-
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -89,6 +88,20 @@ argTable_t argTab[] = {
  int  Scan2d::moduleOn(void)
 {
     int ret;
+
+    // get parameter
+    ladarOffsetX    = getIntArg("ladarOffsetX", argTab);
+    ladarOffsetY    = getIntArg("ladarOffsetY", argTab);
+    ladarOffsetRho  = getIntArg("ladarOffsetRho", argTab);
+    ladarUpsideDown = getIntArg("ladarUpsideDown", argTab);
+    maxRange        = getIntArg("maxRange", argTab);
+    reduce          = getIntArg("reduce", argTab);
+    angleMin        = getIntArg("angleMin", argTab);
+    angleMax        = getIntArg("angleMax", argTab);
+
+    angleMinFloat       = (double)angleMin       * M_PI / 180.0;
+    angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
+    ladarOffsetRhoFloat = (double)ladarOffsetRho * M_PI / 180.0;
 
     ret = ladar->on();
     if (ret)
@@ -320,7 +333,9 @@ int Scan2d::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    GDOS_DBG_DETAIL("Scan2d::moduleInit ... \n");
+    // get static parameter
+    ladarInst       = getIntArg("ladarInst", argTab);
+    cameraInst      = getIntArg("cameraInst", argTab);
 
     // work mailbox
     ret = createMbx(&workMbx, 1, sizeof(camera_data_ladar_msg), MBX_IN_KERNELSPACE | MBX_SLOT);
@@ -404,29 +419,11 @@ Scan2d::Scan2d(void)
       : RackDataModule( MODULE_CLASS_ID,
                     5000000000llu,    // 5s datatask error sleep time
                     16,               // command mailbox slots
-                    48,               // command mailbox data size per slot
+                    240,              // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
 {
-    //
-    // get values
-    //
-    ladarInst       = getIntArg("ladarInst", argTab);
-    ladarOffsetX    = getIntArg("ladarOffsetX", argTab);
-    ladarOffsetY    = getIntArg("ladarOffsetY", argTab);
-    ladarOffsetRho  = getIntArg("ladarOffsetRho", argTab);
-    ladarUpsideDown = getIntArg("ladarUpsideDown", argTab);
-    maxRange        = getIntArg("maxRange", argTab);
-    reduce          = getIntArg("reduce", argTab);
-    angleMin        = getIntArg("angleMin", argTab);
-    angleMax        = getIntArg("angleMax", argTab);
-    cameraInst      = getIntArg("cameraInst", argTab);
-
-    angleMinFloat       = (double)angleMin       * M_PI / 180.0;
-    angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
-    ladarOffsetRhoFloat = (double)ladarOffsetRho * M_PI / 180.0;
-
     dataBufferMaxDataSize = sizeof(scan2d_msg);
 }
 
