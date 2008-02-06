@@ -37,6 +37,8 @@
 
 #define RACK_TASK_FPU       T_FPU
 #define RACK_TASK_JOINABLE  T_JOINABLE
+#define RACK_TASK_PRIMARY   T_PRIMARY
+#define RACK_TASK_WARNSW    T_WARNSW
 
 class RackTask
 {
@@ -389,6 +391,8 @@ class RackTask
 
 #define RACK_TASK_FPU       1
 #define RACK_TASK_JOINABLE  2
+#define RACK_TASK_PRIMARY   3
+#define RACK_TASK_WARNSW    4
 
 class RackTask
 {
