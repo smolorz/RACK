@@ -22,7 +22,8 @@ import rack.main.tims.EndianDataInputStream;
 
 public class PolarSpline
 {
-    public Position2d   startPos  = new Position2d();
+    public Point2d		basepoint = new Point2d();
+	public Position2d   startPos  = new Position2d();
     public Position2d   endPos    = new Position2d();
     public Position2d   centerPos = new Position2d();
     public int          length    = 0;
@@ -31,11 +32,13 @@ public class PolarSpline
     public int          vStart    = 0;
     public int          vEnd      = 0;
     public int          aMax      = 0;
+    public int			type	  = 0;
+    public int			request	  = 0;
     public int          lbo       = 0;
 
     static public int getDataLen()
     {
-        return (28 + 3 * Position2d.getDataLen());
+        return (36 + Point2d.getDataLen() + 3 * Position2d.getDataLen());
     }
 
     public PolarSpline()
@@ -44,7 +47,8 @@ public class PolarSpline
 
     public PolarSpline(EndianDataInputStream dataIn) throws IOException
     {
-        startPos.readData(dataIn);
+        basepoint.readData(dataIn);
+    	startPos.readData(dataIn);
         endPos.readData(dataIn);
         centerPos.readData(dataIn);
         length    = dataIn.readInt();
@@ -53,12 +57,15 @@ public class PolarSpline
         vStart    = dataIn.readInt();
         vEnd      = dataIn.readInt();
         aMax      = dataIn.readInt();
+        type	  = dataIn.readInt();
+        request   = dataIn.readInt();
         lbo       = dataIn.readInt();
     }
 
     public void writeData(DataOutputStream dataOut) throws IOException
     {
-        startPos.writeData(dataOut);
+        basepoint.writeData(dataOut);
+    	startPos.writeData(dataOut);
         endPos.writeData(dataOut);
         centerPos.writeData(dataOut);
         dataOut.writeInt(length);
@@ -67,6 +74,8 @@ public class PolarSpline
         dataOut.writeInt(vStart);
         dataOut.writeInt(vEnd);
         dataOut.writeInt(aMax);
+        dataOut.writeInt(type);
+        dataOut.writeInt(request);
         dataOut.writeInt(lbo);
     }
 }
