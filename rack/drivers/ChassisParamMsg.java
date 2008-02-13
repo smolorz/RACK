@@ -27,8 +27,9 @@ public class ChassisParamMsg extends TimsMsg
     public int vyMax = 0;
     public int vxMin = 0;
     public int vyMin = 0;
-    public int axMax = 0;
-    public int ayMax = 0;
+
+    public int accMax = 0;
+    public int decMax = 0;
 
     public float omegaMax = 0.0f;
     public int minTurningRadius = 0;
@@ -97,8 +98,8 @@ public class ChassisParamMsg extends TimsMsg
         vyMax = dataIn.readInt();
         vxMin = dataIn.readInt();
         vyMin = dataIn.readInt();
-        axMax = dataIn.readInt();
-        ayMax = dataIn.readInt();
+        accMax = dataIn.readInt();
+        decMax = dataIn.readInt();
         omegaMax = dataIn.readFloat();
         minTurningRadius = dataIn.readInt();
         breakConstant = dataIn.readFloat();
@@ -127,8 +128,8 @@ public class ChassisParamMsg extends TimsMsg
         dataOut.writeInt(vyMax);
         dataOut.writeInt(vxMin);
         dataOut.writeInt(vyMin);
-        dataOut.writeInt(axMax);
-        dataOut.writeInt(ayMax);
+        dataOut.writeInt(accMax);
+        dataOut.writeInt(decMax);
         dataOut.writeFloat(omegaMax);
         dataOut.writeInt(minTurningRadius);
         dataOut.writeFloat(breakConstant);

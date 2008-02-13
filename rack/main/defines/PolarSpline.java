@@ -31,14 +31,15 @@ public class PolarSpline
     public int          vMax      = 0;
     public int          vStart    = 0;
     public int          vEnd      = 0;
-    public int          aMax      = 0;
+    public int          accMax    = 0;
+    public int          decMax    = 0;
     public int			type	  = 0;
     public int			request	  = 0;
     public int          lbo       = 0;
 
     static public int getDataLen()
     {
-        return (36 + Point2d.getDataLen() + 3 * Position2d.getDataLen());
+        return (40 + Point2d.getDataLen() + 3 * Position2d.getDataLen());
     }
 
     public PolarSpline()
@@ -56,7 +57,8 @@ public class PolarSpline
         vMax      = dataIn.readInt();
         vStart    = dataIn.readInt();
         vEnd      = dataIn.readInt();
-        aMax      = dataIn.readInt();
+        accMax    = dataIn.readInt();
+        decMax    = dataIn.readInt();
         type	  = dataIn.readInt();
         request   = dataIn.readInt();
         lbo       = dataIn.readInt();
@@ -73,7 +75,8 @@ public class PolarSpline
         dataOut.writeInt(vMax);
         dataOut.writeInt(vStart);
         dataOut.writeInt(vEnd);
-        dataOut.writeInt(aMax);
+        dataOut.writeInt(accMax);
+        dataOut.writeInt(decMax);
         dataOut.writeInt(type);
         dataOut.writeInt(request);
         dataOut.writeInt(lbo);
