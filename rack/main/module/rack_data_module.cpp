@@ -717,8 +717,8 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
 
         case MSG_GET_NEXT_DATA:
         {
-            GDOS_DBG_DETAIL("CmdTask: GET_NEXT_DATA: %n -> %n, type: %d\n",
-                            msgInfo->src, msgInfo->dest, msgInfo->type);
+            //GDOS_DBG_DETAIL("CmdTask: GET_NEXT_DATA: %n -> %n, type: %d\n",
+            //                msgInfo->src, msgInfo->dest, msgInfo->type);
 
             if (status == MODULE_STATE_ENABLED)
             {

@@ -245,13 +245,13 @@ void data_task_proc(void *arg)
                         GDOS_DBG_INFO("Turning off module ...\n");
                         p_mod->moduleOff();
                         GDOS_DBG_INFO("Module off\n");
-                        notify(MSG_ERROR,p_mod);
+                        notify(MSG_ERROR, p_mod);
                     }
                     else
                     {
                         GDOS_PRINT("Module on\n");
                         p_mod->status = MODULE_STATE_ENABLED;
-                        notify(MSG_OK,p_mod);
+                        notify(MSG_OK, p_mod);
                     }
                 }
                 else
@@ -781,13 +781,13 @@ int RackModule::moduleCommand(message_info *msgInfo)
               if (status == MODULE_STATE_ENABLED) {
                 ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
                 if (ret) {
-                  GDOS_ERROR("CmdTask: Can't send ok reply, code = %d\n", ret);
+                  GDOS_WARNING("CmdTask: Can't send moduleOn reply, code = %d\n", ret);
                   return ret;
                 }
               } else {
                 ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
                 if (ret) {
-                  GDOS_ERROR("CmdTask: Can't send error reply, code = %d\n", ret);
+                  GDOS_WARNING("CmdTask: Can't send moduleOn reply, code = %d\n", ret);
                   return ret;
                 }
               }
@@ -802,7 +802,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
           default:
               ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
               if (ret) {
-                GDOS_ERROR("CmdTask: Can't send error reply, code = %d\n", ret);
+                GDOS_WARNING("CmdTask: Can't send moduleOn reply, code = %d\n", ret);
               return ret;
             }
         }
@@ -813,25 +813,21 @@ int RackModule::moduleCommand(message_info *msgInfo)
 
         ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         if (ret) {
-          GDOS_ERROR("CmdTask: Can't send ok reply, code = %d\n", ret);
+          GDOS_WARNING("CmdTask: Can't send moduleOff reply, code = %d\n", ret);
           return ret;
         }
 
         if (replyMsgInfo.src > 0) {
           ret = cmdMbx.sendMsgReply(MSG_ERROR, &replyMsgInfo);
-          if (ret) {
-            GDOS_ERROR("CmdTask: Can't send error reply, code = %d\n", ret);
-            return ret;
-          }
-
           clearMsgInfo(&replyMsgInfo);
+          return ret;
         }
         return 0;
 
     case MSG_GET_STATUS:
         ret = cmdMbx.sendMsgReply(status, msgInfo);
         if (ret) {
-          GDOS_ERROR("CmdTask: Can't send status, code = %d\n", ret);
+          GDOS_WARNING("CmdTask: Can't send status, code = %d\n", ret);
           return ret;
         }
 
@@ -840,7 +836,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
     case MSG_GET_PARAM:
         ret = cmdMbx.sendDataMsgReply(MSG_PARAM, msgInfo, 1, (void*)paramMsg, (uint32_t)(sizeof(rack_param_msg) + paramMsg->parameterNum * sizeof(rack_param)));
         if (ret) {
-          GDOS_ERROR("CmdTask: Can't send parameter, code = %d\n", ret);
+          GDOS_WARNING("CmdTask: Can't send parameter, code = %d\n", ret);
           return ret;
         }
 
@@ -870,7 +866,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
 
         ret = cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         if (ret) {
-          GDOS_ERROR("CmdTask: Can't send setParameter reply , code = %d\n", ret);
+          GDOS_WARNING("CmdTask: Can't send setParameter reply, code = %d\n", ret);
           return ret;
         }
 
