@@ -99,8 +99,7 @@ argTable_t argTab[] = {
     chasParDataTransForward.boundaryBack = 0;
     chasParDataTransBackward.boundaryFront = 0;
 
-    chasParData.axMax = 100;
-
+    chasParData.accMax = 100;
 
     if (maxSpeed > chasParData.vxMax)
     {
@@ -354,7 +353,7 @@ double  PilotWallFollowing::funDis(int x)
 
 int PilotWallFollowing::controlSpeed(int oldSpeed)
 {
-    oldSpeed += chasParData.axMax * dataBufferPeriodTime / 1000;
+    oldSpeed += chasParData.accMax * dataBufferPeriodTime / 1000;
 
     if (oldSpeed > maxSpeed)
         oldSpeed = maxSpeed;

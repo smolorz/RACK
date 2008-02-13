@@ -164,8 +164,9 @@ typedef struct
   int32_t   vyMax;
   int32_t   vxMin;            // mm/s
   int32_t   vyMin;
-  int32_t   axMax;            // mm/s
-  int32_t   ayMax;
+
+  int32_t   accMax;           // mm/s/s
+  int32_t   decMax;
 
   float     omegaMax;         // rad/s
   int32_t   minTurningRadius; // mm
@@ -199,8 +200,9 @@ class ChassisParamData
             data->vyMax             = __le32_to_cpu(data->vyMax);
             data->vxMin             = __le32_to_cpu(data->vxMin);
             data->vyMin             = __le32_to_cpu(data->vyMin);
-            data->axMax             = __le32_to_cpu(data->axMax);
-            data->ayMax             = __le32_to_cpu(data->ayMax);
+
+            data->accMax            = __le32_to_cpu(data->accMax);
+            data->decMax            = __le32_to_cpu(data->decMax);
 
             data->omegaMax          = __le32_float_to_cpu(data->omegaMax);
             data->minTurningRadius  = __le32_to_cpu(data->minTurningRadius);
@@ -230,8 +232,9 @@ class ChassisParamData
             data->vyMax             = __be32_to_cpu(data->vyMax);
             data->vxMin             = __be32_to_cpu(data->vxMin);
             data->vyMin             = __be32_to_cpu(data->vyMin);
-            data->axMax             = __be32_to_cpu(data->axMax);
-            data->ayMax             = __be32_to_cpu(data->ayMax);
+
+            data->accMax            = __be32_to_cpu(data->accMax);
+            data->decMax            = __be32_to_cpu(data->decMax);
 
             data->omegaMax          = __be32_float_to_cpu(data->omegaMax);
             data->minTurningRadius  = __be32_to_cpu(data->minTurningRadius);

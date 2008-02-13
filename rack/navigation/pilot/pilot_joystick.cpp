@@ -378,7 +378,8 @@ int  PilotJoystick::moduleLoop(void)
     pilotData->spline[0].vMax           = joystickSpeed;
     pilotData->spline[0].vStart         = joystickSpeed;
     pilotData->spline[0].vEnd           = joystickSpeed;
-    pilotData->spline[0].aMax           = chasParData.axMax;
+    pilotData->spline[0].accMax         = chasParData.accMax;
+    pilotData->spline[0].decMax         = chasParData.decMax;
     pilotData->spline[0].lbo            = 0;
     pilotData->spline[0].startPos.x     = 0;
     pilotData->spline[0].startPos.y     = 0;

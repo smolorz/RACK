@@ -34,7 +34,8 @@ typedef struct
     int32_t     vMax;
     int32_t     vStart;
     int32_t     vEnd;
-    int32_t     aMax;
+    int32_t     accMax;
+    int32_t     decMax;
     int32_t     type;
     int32_t     request;
     int32_t     lbo;
@@ -54,7 +55,8 @@ class PolarSpline
             data->vMax   = __le32_to_cpu(data->vMax);
             data->vStart = __le32_to_cpu(data->vStart);
             data->vEnd   = __le32_to_cpu(data->vEnd);
-            data->aMax   = __le32_to_cpu(data->aMax);
+            data->accMax = __le32_to_cpu(data->accMax);
+            data->decMax = __le32_to_cpu(data->decMax);
             data->type   = __le32_to_cpu(data->type);
             data->request= __le32_to_cpu(data->request);
             data->lbo    = __le32_to_cpu(data->lbo);
@@ -71,7 +73,8 @@ class PolarSpline
             data->vMax   = __be32_to_cpu(data->vMax);
             data->vStart = __be32_to_cpu(data->vStart);
             data->vEnd   = __be32_to_cpu(data->vEnd);
-            data->aMax   = __be32_to_cpu(data->aMax);
+            data->accMax = __be32_to_cpu(data->accMax);
+            data->decMax = __be32_to_cpu(data->decMax);
             data->type   = __be32_to_cpu(data->type);
             data->request= __be32_to_cpu(data->request);
             data->lbo    = __be32_to_cpu(data->lbo);

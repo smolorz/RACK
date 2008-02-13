@@ -49,8 +49,11 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "vxMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min vehicle velocity in x direction, default 10 mm/s)", { 80 } },
 
-    { ARGOPT_OPT, "axMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "max vehicle acceleration in x direction, default 500", { 500 } },
+    { ARGOPT_OPT, "accMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max vehicle acceleration, default 500", { 500 } },
+
+    { ARGOPT_OPT, "decMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max vehicle deceleration, default 500", { 500 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "omegaMax, default 150 deg/s", { 150 } },
@@ -118,14 +121,16 @@ argTable_t argTab[] = {
 // vehicle parameter
 
 chassis_param_data param = {
-    vxMax:            1200,                  // mm/s
+    vxMax:            0,                    // mm/s
     vyMax:            0,
-    vxMin:            50,                   // mm/s
+    vxMin:            0,                    // mm/s
     vyMin:            0,
-    axMax:            200,                  // mm/s
-    ayMax:            0,
-    omegaMax:         (150.0 * M_PI / 180.0),// rad/s
-    minTurningRadius: 200,                  // mm
+
+    accMax:           0,                    // mm/s/s
+    decMax:           0,
+
+    omegaMax:         0.0,                  // rad/s
+    minTurningRadius: 0,                    // mm
 
     breakConstant:    0.4f,                 // mm/mm/s
     safetyMargin:     50,                   // mm
@@ -449,7 +454,8 @@ ChassisEr1::ChassisEr1()
     axisWidth               = getIntArg("axisWidth", argTab);
     param.vxMax             = getIntArg("vxMax", argTab);
     param.vxMin             = getIntArg("vxMin", argTab);
-    param.axMax             = getIntArg("axMax", argTab);
+    param.accMax            = getIntArg("accMax", argTab);
+    param.decMax            = getIntArg("decMax", argTab);
     param.omegaMax          = (float)getIntArg("omegaMax", argTab) * M_PI / 180.0f;
     param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
     param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;

@@ -357,8 +357,8 @@ int DatalogRec::initLogFile()
                                   " spline[0].centerPos.x spline[0].centerPos.y"
                                   " spline[0].centerPos.rho spline[0].length"
                                   " spline[0].radius spline[0].vMax spline[0].vStart"
-                                  " spline[0].vEnd spline[0].aMax spline[0].type"
-                                  " spline[0].request spline[0].lbo\n",
+                                  " spline[0].vEnd spline[0].accMax spline[0].decMax"
+                                  " spline[0].type spline[0].request spline[0].lbo\n",
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
@@ -561,7 +561,7 @@ int DatalogRec::logData(message_info *msgInfo)
 
                     for (j = 0; j < pilotData->splineNum; j++)
                     {
-                        bytes += fprintf(fileptr[i], " %i %i %i %i %f %i %i %f %i %i %f %i %i %i %i %i %i %i %i %i",
+                        bytes += fprintf(fileptr[i], " %i %i %i %i %f %i %i %f %i %i %f %i %i %i %i %i %i %i %i %i %i",
                             pilotData->spline[j].basepoint.x,
                             pilotData->spline[j].basepoint.y,
                             pilotData->spline[j].startPos.x,
@@ -578,7 +578,8 @@ int DatalogRec::logData(message_info *msgInfo)
                             pilotData->spline[j].vMax,
                             pilotData->spline[j].vStart,
                             pilotData->spline[j].vEnd,
-                            pilotData->spline[j].aMax,
+                            pilotData->spline[j].accMax,
+                            pilotData->spline[j].decMax,
                             pilotData->spline[j].type,
                             pilotData->spline[j].request,
                             pilotData->spline[j].lbo);
