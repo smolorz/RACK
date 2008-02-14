@@ -387,9 +387,10 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
             }
             else if (listener[i].getNextData)
             {
+/*
                 GDOS_DBG_DETAIL("DataBuffer: Remove nextData listener %n time %i\n",
                                 listener[i].msgInfo.src, rackTime.get());
-
+*/
                 removeListener(listener[i].msgInfo.src);
             }
         }
