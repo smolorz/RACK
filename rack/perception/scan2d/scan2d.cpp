@@ -143,7 +143,6 @@ int  Scan2d::moduleLoop(void)
     scan2d_data*    data2D    = NULL;
     ladar_data*     dataLadar = NULL;
     message_info    msgInfo;
-    ssize_t         datalength = 0;
     double          angle, x, y;
     int             i, j, ret;
 
@@ -188,16 +187,13 @@ int  Scan2d::moduleLoop(void)
     else
         data2D->maxRange      = maxRange;
 
-    // if sensor is mounted upside down, turn swap scanpoints from left to right:
-    // --------------------------------------------------------------------------
     if (ladarUpsideDown)
     {
-      GDOS_DBG_DETAIL("upside -> down ...\n");
-      if (turnBackUpsideDown(dataLadar) != 0)
-      {
-        GDOS_ERROR("Error: turnBackUpsideDown\n");
-        return (-1);
-      }
+        if (turnBackUpsideDown(dataLadar) != 0)
+        {
+            GDOS_ERROR("Error: turnBackUpsideDown\n");
+            return -1;
+        }
     }
 
     data2D->pointNum = 0;
@@ -216,7 +212,7 @@ int  Scan2d::moduleLoop(void)
             if (dataLadar->distance[i] < 0)
             {
                 dataLadar->distance[i]  = -dataLadar->distance[i];
-                data2D->point[j].type  |= TYPE_REFLECTOR;
+               data2D->point[j].type  |= TYPE_REFLECTOR;
             }
 
             if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0))
@@ -251,14 +247,13 @@ int  Scan2d::moduleLoop(void)
         }
     }
 
-    datalength = sizeof(scan2d_data) +
-                 sizeof(scan_point) * data2D->pointNum; // points
-
-//    GDOS_DBG_DETAIL("RecordingTime %u pointNum %d\n",
-//                    data2D->recordingTime, data2D->pointNum);
-
     ladarMbx.peekEnd();
-    putDataBufferWorkSpace(datalength);
+
+    GDOS_DBG_DETAIL("RecordingTime %u pointNum %d\n",
+                    data2D->recordingTime, data2D->pointNum);
+
+    putDataBufferWorkSpace(Scan2dData::getDatalen(data2D));
+
     return 0;
 }
 

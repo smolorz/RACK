@@ -123,7 +123,6 @@ int  Scan2dSim::moduleLoop(void)
     scan2d_data*    data2D       = NULL;
     odometry_data*  dataOdometry = NULL;
     message_info    msgInfo;
-    ssize_t         datalength;
     double          angle, angleResolution, distance;
     double          cosRho, sinRho, featureDistance, a;
     double          x1, x2, x3, x4, y1, y2, y3, y4, denominator;
@@ -232,13 +231,11 @@ int  Scan2dSim::moduleLoop(void)
         angle += angleResolution;
     }
 
-    datalength = sizeof(scan2d_data) +
-                 sizeof(scan_point) * data2D->pointNum; // points
-
     GDOS_DBG_DETAIL("RecordingTime %u pointNum %d\n",
                     data2D->recordingTime, data2D->pointNum);
 
-    putDataBufferWorkSpace(datalength);
+    putDataBufferWorkSpace(Scan2dData::getDatalen(data2D));
+
     return 0;
 }
 

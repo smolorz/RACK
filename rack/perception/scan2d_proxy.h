@@ -120,6 +120,10 @@ class Scan2dData
             return p_data;
         }
 
+        static size_t getDatalen(scan2d_data *data)
+        {
+            return (sizeof(scan2d_data) + data->pointNum * sizeof(scan_point));
+        }
 };
 
 //######################################################################

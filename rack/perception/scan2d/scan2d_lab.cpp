@@ -59,16 +59,15 @@ void Scan2dLab::moduleOff(void)
 int  Scan2dLab::moduleLoop(void)
 {
     scan2d_data     *scanOutputData;
-    ssize_t         datalength;
 //    int             ret;
 //    message_info    dataInfo;
 
     // get datapointer from rackdatabuffer
     scanOutputData = (scan2d_data *)getDataBufferWorkSpace();
 
-    datalength = 0;
+    scanOutputData->pointNum = 0;
 
-    putDataBufferWorkSpace(datalength);
+    putDataBufferWorkSpace(Scan2dData::getDatalen(scanOutputData));
 
     return 0;
 }

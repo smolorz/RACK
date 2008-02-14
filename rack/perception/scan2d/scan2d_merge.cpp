@@ -148,7 +148,6 @@ int  Scan2dMerge::moduleLoop(void)
     odometry_data   *odoData   = NULL;
     scan2d_data     *scanData  = NULL;
     scan2d_data     *mergeData = NULL;
-    ssize_t         datalength = 0;
     int             ret;
     int             i, j, k;
     int             x, y;
@@ -300,10 +299,7 @@ int  Scan2dMerge::moduleLoop(void)
                             mergeData->recordingTime, mergeData->pointNum,
                             odometryBuffer[0].pos.x, odometryBuffer[0].pos.y);
 
-            datalength = sizeof(scan2d_data) +
-                         sizeof(scan_point) * mergeData->pointNum;
-
-            putDataBufferWorkSpace(datalength);
+            putDataBufferWorkSpace(Scan2dData::getDatalen(mergeData));
         }
     }
     else
