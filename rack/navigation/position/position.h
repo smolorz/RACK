@@ -44,12 +44,15 @@ class Position : public RackDataModule {
         int                 positionReference;
 
         RackMutex           refPosMtx;
-        position_3d         refPos;
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;
+        position_3d         oldPos;
+
         position_3d         interpolDiff;           // for update interpolation
         rack_time_t         interpolStartTime;
-        position_3d         oldPos;
+        position_3d         refPos;
+        position_3d         refPosI;
+        double              sinRefPosI, cosRefPosI;
 
         PositionTool        *positionTool;
 
@@ -66,6 +69,8 @@ class Position : public RackDataModule {
         int     moduleLoop(void);
         void    moduleOff(void);
         int     moduleCommand(message_info *msgInfo);
+
+        void    getPosition(position_3d* odo, position_3d* pos);
 
         // -> non realtime context
         void    moduleCleanup(void);

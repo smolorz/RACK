@@ -112,15 +112,19 @@ int  Position::moduleOn(void)
     }
 
     memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
-    memcpy(&refPos, &oldPos, sizeof(position_3d));
     sinRefOdo = sin(refOdo.rho);
     cosRefOdo = cos(refOdo.rho);
+
+    memcpy(&refPos, &oldPos, sizeof(position_3d));
+    memcpy(&refPosI, &refPos, sizeof(position_3d));
+    sinRefPosI = sin(refPosI.rho);
+    cosRefPosI = cos(refPosI.rho);
 
     interpolDiff.x    = 0;
     interpolDiff.y    = 0;
     interpolDiff.z    = 0;
     interpolDiff.rho  = 0.0f;
-    interpolStartTime = rackTime.get();
+    interpolStartTime = odometryData.recordingTime;
 
     return RackDataModule::moduleOn();    // has to be last command in moduleOn();
 }
@@ -139,9 +143,6 @@ int  Position::moduleLoop(void)
     position_data*  pPosition;
     odometry_data   odometryData;
     message_info    msgInfo;
-    position_3d     relPos;
-    position_3d     refPosI;
-    double          sinRefPosI, cosRefPosI;
     double          interpolFactor;
 
     pPosition = (position_data *)getDataBufferWorkSpace();
@@ -159,27 +160,12 @@ int  Position::moduleLoop(void)
     {
         OdometryData::parse(&msgInfo);
 
-        odometryData.pos.phi = normaliseAngleSym0(odometryData.pos.phi);
-        odometryData.pos.psi = normaliseAngleSym0(odometryData.pos.psi);
-        odometryData.pos.rho = normaliseAngle(odometryData.pos.rho);
-
         GDOS_DBG_DETAIL("Odometry position x %i y %i z %i rho %a\n",
                         odometryData.pos.x, odometryData.pos.y, odometryData.pos.z, odometryData.pos.rho);
 
         refPosMtx.lock(RACK_INFINITE);
 
-        // calculate relative position to refference position
-        odometryData.pos.x = odometryData.pos.x - refOdo.x;
-        odometryData.pos.y = odometryData.pos.y - refOdo.y;
-        relPos.x   = (int)(+ cosRefOdo * odometryData.pos.x + sinRefOdo * odometryData.pos.y);
-        relPos.y   = (int)(- sinRefOdo * odometryData.pos.x + cosRefOdo * odometryData.pos.y);
-        relPos.z   = odometryData.pos.z   - refOdo.z;
-        relPos.rho = normaliseAngleSym0(odometryData.pos.rho - refOdo.rho);
-
-        GDOS_DBG_DETAIL("Relative position x %i y %i z %i rho %a\n",
-                        relPos.x, relPos.y, relPos.z, relPos.rho);
-
-        // calculate interpolated reference position refPosI
+        // update interpolated reference position refPosI
         if(updateInterpol != 0)
         {
             interpolFactor = 1.0 - (((double)odometryData.recordingTime - (double)interpolStartTime) / (double)updateInterpol);
@@ -201,25 +187,9 @@ int  Position::moduleLoop(void)
             sinRefPosI  = sin(refPosI.rho);
             cosRefPosI  = cos(refPosI.rho);
         }
-        else
-        {
-            refPosI.x   = refPos.x;
-            refPosI.y   = refPos.y;
-            refPosI.z   = refPos.z;
-            refPosI.rho = refPos.rho;
-
-            sinRefPosI  = sin(refPosI.rho);
-            cosRefPosI  = cos(refPosI.rho);
-        }
 
         // calculate absolute position
-        pPosition->pos.x         = refPosI.x + (int)(cosRefPosI * relPos.x - sinRefPosI * relPos.y);
-        pPosition->pos.y         = refPosI.y + (int)(sinRefPosI * relPos.x + cosRefPosI * relPos.y);
-        pPosition->pos.z         = refPosI.z + relPos.z;
-        pPosition->pos.phi       = odometryData.pos.phi;
-        pPosition->pos.psi       = odometryData.pos.psi;
-        pPosition->pos.rho       = normaliseAngle(refPosI.rho + relPos.rho);
-
+        getPosition(&odometryData.pos, &pPosition->pos);
         pPosition->recordingTime = odometryData.recordingTime;
 
         refPosMtx.unlock();
@@ -249,15 +219,18 @@ int  Position::moduleLoop(void)
 
 int  Position::moduleCommand(message_info *msgInfo)
 {
-    position_data       *pUpdate, *pPosOldRef;
+    position_data       *pUpdate;
+    position_3d         posOldRefI;
+    odometry_data       odometryData;
+
     position_data       posData;
     position_data       *pPosData;
     position_wgs84_data posWgs84Data;
     position_wgs84_data *pPosWgs84Data;
     position_gk_data    posGk;
-    odometry_data       odometryData;
-    int                 ret, posOldRefIndex;
     double              diffLat, diffLon;
+
+    int                 ret;
 
     switch(msgInfo->type)
     {
@@ -280,36 +253,43 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             refPosMtx.lock(RACK_INFINITE);
 
+            // store odometry position of new reference
+            memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
+            sinRefOdo = sin(refOdo.rho);
+            cosRefOdo = cos(refOdo.rho);
+
+            // store new reference position
+            memcpy(&refPos, &pUpdate->pos, sizeof(position_3d));
+
             // store difference between old and new reference position for interpolation
             if(updateInterpol != 0)
             {
-                posOldRefIndex = getDataBufferIndex(pUpdate->recordingTime);
+                getPosition(&odometryData.pos, &posOldRefI);
 
-                if(posOldRefIndex >= 0)
-                {
-                    pPosOldRef = ((position_data*)dataBuffer[posOldRefIndex].pData);
+                interpolDiff.x = posOldRefI.x - pUpdate->pos.x;
+                interpolDiff.y = posOldRefI.y - pUpdate->pos.y;
+                interpolDiff.z = posOldRefI.z - pUpdate->pos.z;
+                interpolDiff.rho = normaliseAngleSym0(posOldRefI.rho - pUpdate->pos.rho);
 
-                    interpolDiff.x = pPosOldRef->pos.x - pUpdate->pos.x;
-                    interpolDiff.y = pPosOldRef->pos.y - pUpdate->pos.y;
-                    interpolDiff.z = pPosOldRef->pos.z - pUpdate->pos.z;
-                    interpolDiff.rho = normaliseAngleSym0(pPosOldRef->pos.rho - pUpdate->pos.rho);
-                }
-                else
-                {
-                    interpolDiff.x = 0;
-                    interpolDiff.y = 0;
-                    interpolDiff.z = 0;
-                    interpolDiff.rho = 0.0f;
-                }
                 interpolStartTime = rackTime.get();
-            }
 
-            // store odometry position of new reference
-            memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
-            // store new reference position
-            memcpy(&refPos, &pUpdate->pos, sizeof(position_3d));
-            sinRefOdo = sin(refOdo.rho);
-            cosRefOdo = cos(refOdo.rho);
+                memcpy(&refPosI, &posOldRefI, sizeof(position_3d));
+                sinRefPosI = sin(refPosI.rho);
+                cosRefPosI = cos(refPosI.rho);
+            }
+            else
+            {
+                interpolDiff.x = 0;
+                interpolDiff.y = 0;
+                interpolDiff.z = 0;
+                interpolDiff.rho = 0.0f;
+
+                interpolStartTime = rackTime.get();
+
+                memcpy(&refPosI, &refPos, sizeof(position_3d));
+                sinRefPosI  = sin(refPosI.rho);
+                cosRefPosI  = cos(refPosI.rho);
+            }
 
             refPosMtx.unlock();
 
@@ -423,6 +403,33 @@ int  Position::moduleCommand(message_info *msgInfo)
       return 0;
 }
 
+void    Position::getPosition(position_3d* odo, position_3d* pos)
+{
+    position_3d odoDiff, relPos;
+
+    // calculate relative position to reference position
+    odoDiff.x   = odo->x - refOdo.x;
+    odoDiff.y   = odo->y - refOdo.y;
+    odoDiff.z   = odo->z - refOdo.z;
+    odoDiff.rho = odo->rho - refOdo.rho;
+
+    relPos.x    = (int)(+ cosRefOdo * odoDiff.x + sinRefOdo * odoDiff.y);
+    relPos.y    = (int)(- sinRefOdo * odoDiff.x + cosRefOdo * odoDiff.y);
+    relPos.z    = odoDiff.z;
+    relPos.rho  = normaliseAngleSym0(odoDiff.rho);
+
+    GDOS_DBG_DETAIL("Relative position x %i y %i z %i rho %a\n",
+                    relPos.x, relPos.y, relPos.z, relPos.rho);
+
+    // calculate absolute position
+    pos->x      = refPosI.x + (int)(cosRefPosI * relPos.x - sinRefPosI * relPos.y);
+    pos->y      = refPosI.y + (int)(sinRefPosI * relPos.x + cosRefPosI * relPos.y);
+    pos->z      = refPosI.z + relPos.z;
+    pos->phi    = normaliseAngleSym0(odo->phi);
+    pos->psi    = normaliseAngleSym0(odo->psi);
+    pos->rho    = normaliseAngle(refPosI.rho + relPos.rho);
+}
+
  /*******************************************************************************
  *   !!! NON REALTIME CONTEXT !!!
  *
@@ -449,6 +456,13 @@ int  Position::moduleInit(void)
 
     // get static parameter
     odometryInst      = getInt32Param("odometryInst");
+
+    oldPos.x    = 0;
+    oldPos.y    = 0;
+    oldPos.z    = 0;
+    oldPos.phi  = 0.0f;
+    oldPos.psi  = 0.0f;
+    oldPos.rho  = 0.0f;
 
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
