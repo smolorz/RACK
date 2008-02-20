@@ -160,8 +160,8 @@ int  Position::moduleLoop(void)
     {
         OdometryData::parse(&msgInfo);
 
-        GDOS_DBG_DETAIL("Odometry position x %i y %i z %i rho %a\n",
-                        odometryData.pos.x, odometryData.pos.y, odometryData.pos.z, odometryData.pos.rho);
+        //GDOS_DBG_DETAIL("Odometry position x %i y %i z %i rho %a\n",
+        //                odometryData.pos.x, odometryData.pos.y, odometryData.pos.z, odometryData.pos.rho);
 
         refPosMtx.lock(RACK_INFINITE);
 
@@ -253,11 +253,6 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             refPosMtx.lock(RACK_INFINITE);
 
-            // store odometry position of new reference
-            memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
-            sinRefOdo = sin(refOdo.rho);
-            cosRefOdo = cos(refOdo.rho);
-
             // store new reference position
             memcpy(&refPos, &pUpdate->pos, sizeof(position_3d));
 
@@ -290,6 +285,11 @@ int  Position::moduleCommand(message_info *msgInfo)
                 sinRefPosI  = sin(refPosI.rho);
                 cosRefPosI  = cos(refPosI.rho);
             }
+
+            // store odometry position of new reference
+            memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
+            sinRefOdo = sin(refOdo.rho);
+            cosRefOdo = cos(refOdo.rho);
 
             refPosMtx.unlock();
 
@@ -418,8 +418,8 @@ void    Position::getPosition(position_3d* odo, position_3d* pos)
     relPos.z    = odoDiff.z;
     relPos.rho  = normaliseAngleSym0(odoDiff.rho);
 
-    GDOS_DBG_DETAIL("Relative position x %i y %i z %i rho %a\n",
-                    relPos.x, relPos.y, relPos.z, relPos.rho);
+    //GDOS_DBG_DETAIL("Relative position x %i y %i z %i rho %a\n",
+    //                relPos.x, relPos.y, relPos.z, relPos.rho);
 
     // calculate absolute position
     pos->x      = refPosI.x + (int)(cosRefPosI * relPos.x - sinRefPosI * relPos.y);
