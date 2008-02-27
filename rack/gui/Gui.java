@@ -91,8 +91,8 @@ public final class Gui extends Thread
     // constructor
     //
     
-    public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader,
-               String timsClass, String timsParam) throws Exception
+    public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader, String timsClass,
+            String timsParam) throws Exception
     {
         this.setName("Gui");
         this.mainFrame = mainFrame;
@@ -109,10 +109,10 @@ public final class Gui extends Thread
 
             System.out.println("Initializing RackName extension ...");
             initRackName();
-    
+
             System.out.println("Initializing Tims  ...");
             initTims(timsClass, timsParam);
-    
+
             System.out.println("Initializing Proxies ...");
             initMbx();
             initProxies();
@@ -124,35 +124,63 @@ public final class Gui extends Thread
             System.out.println("Restoring GuiElements ...");
             restoreGuiElements();
 
-            if(mainFrame != null)
+            if (mainFrame != null)
             {
                 mainFrame.setTitle("RACK GUI " + timsParam);
                 mainFrame.setLocation(mainFrameLocation);
                 mainFrame.setSize(mainFrameSize);
-                if((mainFrameState == FRAME_STATE_MAX) ||
-                   (mainFrameState == FRAME_STATE_FIXED_MAX))
+                if ((mainFrameState == FRAME_STATE_MAX) || (mainFrameState == FRAME_STATE_FIXED_MAX))
                 {
                     mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
                 }
-                if(mainFrameState == FRAME_STATE_ICON)
+                if (mainFrameState == FRAME_STATE_ICON)
                 {
                     mainFrame.setExtendedState(Frame.ICONIFIED);
                 }
-                
-                if(mainFrameState == FRAME_STATE_FIXED)
+
+                if (mainFrameState == FRAME_STATE_FIXED)
                 {
                     mainFrame.setResizable(false);
                 }
-                
-                if(mainFrameState == FRAME_STATE_FIXED_MAX)
+
+                if (mainFrameState == FRAME_STATE_FIXED_MAX)
                 {
                     mainFrame.setUndecorated(true);
                 }
                 mainFrame.setVisible(true);
             }
             System.out.println("GUI started ...");
+
+            // set GuiElements frame state (needs to be done after mainFrame.setVisible(true))
+            for (int i = 0; i < elements.size(); i++)
+            {
+                GuiElementDescriptor ge = elements.get(i);
+                if (ge.frame != null)
+                {
+                    try
+                    {
+                        if ((ge.frameState == FRAME_STATE_MAX) || (ge.frameState == FRAME_STATE_FIXED_MAX))
+                        {
+                            ge.frame.setMaximum(true);
+                        }
+                        if (ge.frameState == FRAME_STATE_ICON)
+                        {
+                            ge.frame.setIcon(true);
+                        }
+                        if ((ge.frameState == FRAME_STATE_FIXED) || (ge.frameState == FRAME_STATE_FIXED_MAX))
+                        {
+                            ge.frame.setClosable(false);
+                            ge.frame.setResizable(false);
+                            ge.frame.setMaximizable(false);
+                            ge.frame.setIconifiable(false);
+                        }
+                    }
+                    catch (PropertyVetoException e)
+                    {}
+                }
+            }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             terminate();
             throw e;
@@ -752,30 +780,6 @@ public final class Gui extends Thread
         }
 
         ge.workspace.jdp.add(ge.frame);
-
-        try
-        {
-            if((ge.frameState == FRAME_STATE_MAX) ||
-               (ge.frameState == FRAME_STATE_FIXED_MAX))
-            {
-                ge.frame.setMaximum(true);
-            }
-            if(ge.frameState == FRAME_STATE_ICON)
-            {
-                ge.frame.setIcon(true);
-            }
-            if((ge.frameState == FRAME_STATE_FIXED) ||
-               (ge.frameState == FRAME_STATE_FIXED_MAX))
-            {
-                ge.frame.setClosable(false);
-                ge.frame.setResizable(false);
-                ge.frame.setMaximizable(false);
-                ge.frame.setIconifiable(false);
-            }
-        }
-        catch (PropertyVetoException e)
-        {
-        }
     }
 
     protected void addNavPanel(GuiElementDescriptor ge)

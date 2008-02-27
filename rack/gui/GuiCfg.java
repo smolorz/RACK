@@ -191,22 +191,22 @@ public class GuiCfg
                 {
                     ge.frameState = Gui.FRAME_STATE_NORMAL;
                     
-                    if (ge.frame.isMaximum())
-                    {
-                        ge.frameState = Gui.FRAME_STATE_MAX;
-                        try
-                        {
-                            ge.frame.setMaximum(false);
-                        }
-                        catch (PropertyVetoException e) {}
-                    }
-    
                     if (ge.frame.isIcon())
                     {
                         ge.frameState = Gui.FRAME_STATE_ICON;
                         try
                         {
                             ge.frame.setIcon(false);
+                        }
+                        catch (PropertyVetoException e) {}
+                    }
+    
+                    if (ge.frame.isMaximum())
+                    {
+                        ge.frameState = Gui.FRAME_STATE_MAX;
+                        try
+                        {
+                            ge.frame.setMaximum(false);
                         }
                         catch (PropertyVetoException e) {}
                     }
