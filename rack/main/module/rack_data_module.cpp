@@ -514,8 +514,6 @@ void        RackDataModule::moduleCleanup(void)
 {
     uint32_t i;
 
-    GDOS_DBG_DETAIL("RackDataModule::moduleCleanup ... \n");
-
     if (dataModuleInitBits.testAndClearBit(INIT_BIT_RACK_MODULE))
     {
         RackModule::moduleCleanup();
@@ -523,19 +521,16 @@ void        RackDataModule::moduleCleanup(void)
 
     if (dataModuleInitBits.testAndClearBit(INIT_BIT_LISTENER_MTX_CREATED))
     {
-        GDOS_DBG_DETAIL("Deleting dataBuffer listener mutex\n");
         listenerMtx.destroy();
     }
 
     if (dataModuleInitBits.testAndClearBit(INIT_BIT_BUFFER_MTX_CREATED))
     {
-        GDOS_DBG_DETAIL("Deleting dataBuffer buffer mutex\n");
         bufferMtx.destroy();
     }
 
     if (dataModuleInitBits.testAndClearBit(INIT_BIT_LISTENER_CREATED))
     {
-        GDOS_DBG_DETAIL("Deleting dataBuffer listener table @ %p\n", listener);
         delete[] listener;
         listener = NULL;
     }
@@ -544,15 +539,12 @@ void        RackDataModule::moduleCleanup(void)
     {
        for (i=0; i<dataBufferMaxEntries; i++)
         {
-            //GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer @ %p (%d bytes)\n",
-            //                dataBuffer[i].pData, dataBufferMaxDataSize);
             free(dataBuffer[i].pData);
         }
     }
 
     if (dataModuleInitBits.testAndClearBit(INIT_BIT_ENTRIES_CREATED))
     {
-        GDOS_DBG_DETAIL("Deleting dataBuffer dataBuffer table @ %p\n", dataBuffer);
         delete[] dataBuffer;
         dataBuffer = NULL;
     }

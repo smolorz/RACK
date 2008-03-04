@@ -277,7 +277,6 @@ class RackModule {
         void moduleTerminate(void)
         {
             GDOS_PRINT("Terminate\n");
-            targetStatus = MODULE_TSTATE_OFF;
             terminate = 1;
         }
 
