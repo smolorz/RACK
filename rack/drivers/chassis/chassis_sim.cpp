@@ -333,8 +333,8 @@ ChassisSim::ChassisSim()
     // get value(s) out of your argument table
     param.vxMax             = getIntArg("vxMax", argTab);
     param.vxMin             = getIntArg("vxMin", argTab);
-    param.accMax            = getIntArg("axMax", argTab);
-    param.decMax            = getIntArg("axMax", argTab);
+    param.accMax            = getIntArg("accMax", argTab);
+    param.decMax            = getIntArg("decMax", argTab);
     param.omegaMax          = getIntArg("omegaMax", argTab) * M_PI / 180.0;
     param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
     param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
