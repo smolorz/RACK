@@ -212,6 +212,10 @@ class RackModule {
         char*     getStringParam(char* paramName);
         float     getFloatParam(char* paramName);
 
+        void      setInt32Param(char* paramName, int32_t value);
+        void      setStringParam(char* paramName, char* value);
+        void      setFloatParam(char* paramName, float value);
+
     public:
         /** Get instance number of the module */
         uint32_t getInstNo(void)

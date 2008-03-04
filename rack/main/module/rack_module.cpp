@@ -624,6 +624,42 @@ float   RackModule::getFloatParam(char* paramName)
     return 0;
 }
 
+void   RackModule::setInt32Param(char* paramName, int32_t value)
+{
+    for(int i = 0; i < paramMsg->parameterNum; i++)
+    {
+        if(strncmp(paramMsg->parameter[i].name, paramName, RACK_PARAM_MAX_STRING_LEN) == 0)
+        {
+            paramMsg->parameter[i].valueInt32 = value;
+            return;
+        }
+    }
+}
+
+void   RackModule::setStringParam(char* paramName, char* value)
+{
+    for(int i = 0; i < paramMsg->parameterNum; i++)
+    {
+        if(strncmp(paramMsg->parameter[i].name, paramName, RACK_PARAM_MAX_STRING_LEN) == 0)
+        {
+            strncpy(paramMsg->parameter[i].valueString, value, RACK_PARAM_MAX_STRING_LEN);
+            return;
+        }
+    }
+}
+
+void   RackModule::setFloatParam(char* paramName, float value)
+{
+    for(int i = 0; i < paramMsg->parameterNum; i++)
+    {
+        if(strncmp(paramMsg->parameter[i].name, paramName, RACK_PARAM_MAX_STRING_LEN) == 0)
+        {
+            paramMsg->parameter[i].valueFloat = value;
+            return;
+        }
+    }
+}
+
 // non realtime context
 int       RackModule::moduleInit(void)
 {
