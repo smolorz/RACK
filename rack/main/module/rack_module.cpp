@@ -28,7 +28,6 @@
 #include <main/defines/list_head.h>
 
 #define CMD_TASK_TIMEOUT 500000000llu
-#define DATA_TASK_DISABLED_TIME 100000000llu
 
 //
 // Mailbox stuff
@@ -181,7 +180,7 @@ void data_task_proc(void *arg)
                         {
                             break;
                         }
-                        
+
                         if(p_mod->targetStatus == MODULE_TSTATE_ON)
                         {
                             GDOS_PRINT("Error\n");
@@ -236,37 +235,30 @@ void data_task_proc(void *arg)
                 }
                 else
                 {
-                    RackTask::sleep(DATA_TASK_DISABLED_TIME);
+                    RackTask::sleep(100000000llu);  // 100ms
                 }
                 break;
 
             case MODULE_STATE_ERROR:
 
-                RackTask::sleep(p_mod->dataTaskErrorTime_ns);
+                // wait for a random time between 2s and 4s
+                p_mod->dataTaskErrorTimer = (int)(20 * (1.0 + (double)rand() / (double)RAND_MAX));
 
-                if(p_mod->terminate)
-                {
-                    break;
-                }
+                p_mod->status = MODULE_STATE_ERROR_WAIT;
+
+                break;
+
+            case MODULE_STATE_ERROR_WAIT:
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                    GDOS_DBG_INFO("Turning on module ...\n");
-                    ret = p_mod->moduleOn();
-                    if (ret)
+                    RackTask::sleep(100000000llu);  // 100ms
+
+                    p_mod->dataTaskErrorTimer--;
+
+                    if(p_mod->dataTaskErrorTimer <= 0)
                     {
-                        if(!p_mod->terminate)
-                        {
-                            GDOS_PRINT("Error, can't turn on module\n");
-                        }
-                        p_mod->moduleOff();
-                        notify(MSG_ERROR, p_mod);
-                    }
-                    else
-                    {
-                        GDOS_PRINT("Module on\n");
-                        p_mod->status = MODULE_STATE_ENABLED;
-                        notify(MSG_OK, p_mod);
+                        p_mod->status = MODULE_STATE_ERROR_RETRY;
                     }
                 }
                 else
@@ -275,6 +267,27 @@ void data_task_proc(void *arg)
                     p_mod->moduleOff();
                     GDOS_PRINT("Module off\n");
                     p_mod->status = MODULE_STATE_DISABLED;
+                    notify(MSG_OK, p_mod);
+                }
+                break;
+
+            case MODULE_STATE_ERROR_RETRY:
+
+                GDOS_DBG_INFO("Turning on module ...\n");
+                ret = p_mod->moduleOn();
+                if (ret)
+                {
+                    if(!p_mod->terminate)
+                    {
+                        GDOS_PRINT("Error, can't turn on module\n");
+                    }
+                    p_mod->moduleOff();
+                    p_mod->status = MODULE_STATE_ERROR;
+                }
+                else
+                {
+                    GDOS_PRINT("Module on\n");
+                    p_mod->status = MODULE_STATE_ENABLED;
                 }
                 break;
 
@@ -327,7 +340,7 @@ void data_task_proc(void *arg)
  *
  * Rescheduling: never.
  */
-RackModule::RackModule( uint32_t class_id,
+RackModule::RackModule( uint32_t classId,
                 uint64_t dataTaskErrorTime_ns,
                 int32_t  cmdMbxMsgSlots,
                 uint32_t cmdMbxMsgDataSize,
@@ -339,13 +352,11 @@ RackModule::RackModule( uint32_t class_id,
     cmdTaskPrio               = getIntArg("cmdTaskPrio", module_argTab);
     dataTaskPrio              = getIntArg("dataTaskPrio", module_argTab);
 
-    classID                   = class_id;
-    name                      = RackName::create(classID, inst);
+    name                      = RackName::create(classId, inst);
 
     mailboxBaseAdr            = name;
     mailboxFreeAdr            = name + 1;
 
-    this->dataTaskErrorTime_ns= dataTaskErrorTime_ns;
     this->cmdMbxMsgSlots      = cmdMbxMsgSlots;
     this->cmdMbxMsgDataSize   = cmdMbxMsgDataSize;
     this->cmdMbxFlags         = cmdMbxFlags;
@@ -725,6 +736,9 @@ int       RackModule::moduleInit(void)
     else
         GDOS_DBG_INFO("Using local time\n");
 
+    // init random generation
+    srand((unsigned int)rackTime.get());
+
     // create command task
     snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%uC", classname, (unsigned int)inst);
 
@@ -816,7 +830,7 @@ void      RackModule::moduleCleanup(void)
 int RackModule::moduleCommand(message_info *msgInfo)
 {
   rack_param_msg *newParam;
-  int ret;
+  int statusReply, ret;
 
   switch(msgInfo->type) {
 
@@ -872,7 +886,17 @@ int RackModule::moduleCommand(message_info *msgInfo)
         return 0;
 
     case MSG_GET_STATUS:
-        ret = cmdMbx.sendMsgReply(status, msgInfo);
+        if((status == MODULE_STATE_ERROR_WAIT) ||
+           (status == MODULE_STATE_ERROR_RETRY))
+        {
+            statusReply = MODULE_STATE_ERROR;
+        }
+        else
+        {
+            statusReply = status;
+        }
+
+        ret = cmdMbx.sendMsgReply(statusReply, msgInfo);
         if (ret) {
           GDOS_WARNING("CmdTask: Can't send status, code = %d\n", ret);
           return ret;

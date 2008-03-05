@@ -51,6 +51,9 @@ using std::string;
 /* Module is in error state */
 #define MODULE_STATE_ERROR              MSG_ERROR
 
+#define MODULE_STATE_ERROR_WAIT         -10
+#define MODULE_STATE_ERROR_RETRY        -11
+
 //
 // save argument table and name of module
 //
@@ -116,7 +119,7 @@ class RackModule {
         RackTask  dataTask;
         int8_t    dataTaskPrio;
         char      dataTaskName[50];
-        uint64_t  dataTaskErrorTime_ns;
+        int       dataTaskErrorTimer;
 
         int       dataTaskJoin();
 
@@ -201,7 +204,6 @@ class RackModule {
 //
     protected:
         uint32_t  inst;      // instance number
-        uint32_t  classID;   // class-id (LADAR)
         uint32_t  name;      // module name (12345678) == cmdMbxAdr
 
         rack_param_msg *paramMsg;
@@ -218,15 +220,9 @@ class RackModule {
 
     public:
         /** Get instance number of the module */
-        uint32_t getInstNo(void)
+        uint32_t getInst(void)
         {
             return inst;
-        }
-
-        /** Get class id of the module */
-        uint32_t getClassId(void)
-        {
-            return classID;
         }
 
         /** Get the name of the module */
@@ -235,7 +231,7 @@ class RackModule {
             return name;
         }
 
-        RackModule(uint32_t class_id,
+        RackModule(uint32_t classId,
                    uint64_t dataTaskErrorTime_ns,   // datatask error sleep time
                    int32_t  cmdMbxMsgSlots,         // command mailbox slots
                    uint32_t cmdMbxMsgDataSize,      // command mailbox data size
