@@ -112,7 +112,7 @@ void cmd_task_proc(void *arg)
 
     RackTask::enableRealtimeMode();
 
-    GDOS_DBG_INFO("cmdTask: running\n");
+    GDOS_DBG_INFO("CmdTask: Started\n");
 
     while (p_mod->terminate == 0)
     {
@@ -123,7 +123,7 @@ void cmd_task_proc(void *arg)
             {
                 if(p_mod->terminate == 0)
                 {
-                    GDOS_ERROR("cmdTask: can't receive message on cmd mbx (code %i)\n", ret);
+                    GDOS_ERROR("CmdTask: Can't receive message on cmdMbx (code %i)\n", ret);
                     p_mod->terminate = 1;
                 }
             }
@@ -138,7 +138,7 @@ void cmd_task_proc(void *arg)
         }
     } // while()
 
-    GDOS_DBG_INFO("cmdTask: terminated\n");
+    GDOS_DBG_INFO("CmdTask: Terminated\n");
 }
 
 //
@@ -164,7 +164,7 @@ void data_task_proc(void *arg)
 
     RackTask::enableRealtimeMode();
 
-    GDOS_DBG_INFO("dataTask: runnning\n");
+    GDOS_DBG_INFO("DataTask: Started\n");
 
     while (p_mod->terminate == 0)
     {
@@ -190,7 +190,7 @@ void data_task_proc(void *arg)
                         }
                         else
                         {
-                            GDOS_PRINT("Turning off module ...\n");
+                            GDOS_DBG_INFO("Turning off module ...\n");
                             p_mod->moduleOff();
                             GDOS_PRINT("Module off\n");
                             p_mod->status = MODULE_STATE_DISABLED;
@@ -204,7 +204,7 @@ void data_task_proc(void *arg)
                 }
                 else
                 {
-                    GDOS_PRINT("Turning off module ...\n");
+                    GDOS_DBG_INFO("Turning off module ...\n");
                     p_mod->moduleOff();
                     GDOS_PRINT("Module off\n");
                     p_mod->status = MODULE_STATE_DISABLED;
@@ -215,7 +215,7 @@ void data_task_proc(void *arg)
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                    GDOS_PRINT("Turning on module ...\n");
+                    GDOS_DBG_INFO("Turning on module ...\n");
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
@@ -243,24 +243,24 @@ void data_task_proc(void *arg)
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                    GDOS_PRINT("Turning on module, again ...\n");
+                    GDOS_DBG_INFO("Turning on module ...\n");
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
-                        GDOS_PRINT("Error, can't turn on module, again\n");
+                        GDOS_PRINT("Error, can't turn on module\n");
                         p_mod->moduleOff();
                         notify(MSG_ERROR, p_mod);
                     }
                     else
                     {
-                        GDOS_PRINT("Module on, again\n");
+                        GDOS_PRINT("Module on\n");
                         p_mod->status = MODULE_STATE_ENABLED;
                         notify(MSG_OK, p_mod);
                     }
                 }
                 else
                 {
-                    GDOS_PRINT("Turning off module ...\n");
+                    GDOS_DBG_INFO("Turning off module ...\n");
                     p_mod->moduleOff();
                     GDOS_PRINT("Module off\n");
                     p_mod->status = MODULE_STATE_DISABLED;
@@ -277,13 +277,13 @@ void data_task_proc(void *arg)
 
     if (p_mod->status == MODULE_STATE_ENABLED)
     {
-        GDOS_PRINT("Turning off module ...\n");
+        GDOS_DBG_INFO("Turning off module ...\n");
         p_mod->moduleOff();
         GDOS_PRINT("Module off\n");
         p_mod->status = MODULE_STATE_DISABLED;
     }
 
-    GDOS_DBG_INFO("dataTask: terminated\n");
+    GDOS_DBG_INFO("DataTask: Terminated\n");
 }
 
  /*!
@@ -552,7 +552,7 @@ void      RackModule::deleteGdosMbx()
     // delete gdos mailbox -> messages now on local console
     if (moduleInitBits.testAndClearBit(INIT_BIT_GDOS_CREATED))
     {
-        GDOS_DBG_INFO("Deleting Gdos Mailbox -> next messages on local console\n");
+        GDOS_DBG_INFO("Deleting GDOS -> next message on local console\n");
         delete gdos;
         gdos = NULL;
     }
@@ -773,7 +773,7 @@ exit_error:
 // non realtime context
 void      RackModule::moduleCleanup(void)
 {
-    GDOS_DBG_INFO("RackModule::moduleCleanup...\n");
+    GDOS_DBG_INFO("Cleanup ...\n");
 
     if (moduleInitBits.testAndClearBit(INIT_BIT_MALLOC_PARAM_MSG))
     {
@@ -918,8 +918,6 @@ void  RackModule::run(void)
 {
     int ret;
 
-    GDOS_DBG_INFO("Start\n");
-
     // start command task
     ret = cmdTask.start(&cmd_task_proc, this);
     if (ret)
@@ -927,10 +925,7 @@ void  RackModule::run(void)
         GDOS_ERROR("Can't start command task, code = %d\n", ret);
         goto exit_error;
     }
-
     moduleInitBits.setBit(INIT_BIT_CMDTSK_STARTED);
-    GDOS_DBG_INFO("Command task started \n");
-
 
     // start data task
     ret = dataTask.start(&data_task_proc, this);
@@ -939,9 +934,7 @@ void  RackModule::run(void)
         GDOS_ERROR("Can't start data task, code = %d\n", ret);
         goto exit_error;
     }
-
     moduleInitBits.setBit(INIT_BIT_DATATSK_STARTED);
-    GDOS_DBG_INFO("Data task started \n");
 
     pause();
 
@@ -1022,7 +1015,6 @@ void signal_handler(int sig)
             }
             free (strings);
 
-            printf(" -> terminate module\n");
             p_signal_module->moduleTerminate();
             break;
 #endif
@@ -1035,9 +1027,7 @@ void signal_handler(int sig)
 
             signal_flags |= HANDLING_TERM;
 
-            printf(" -> terminate module\n");
             p_signal_module->moduleTerminate();
-            printf(" -> cleanup module\n");
             p_signal_module->moduleCleanup();
             break;
 
