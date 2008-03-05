@@ -17,6 +17,8 @@ package rack.gui.main;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Vector;
+
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
@@ -44,12 +46,14 @@ public class GDOSGui extends GuiElement
     protected JRadioButton debugDetailRadio = new JRadioButton("Detail");
     protected JButton      clearButton      = new JButton("Clear");
     protected JButton      storeButton      = new JButton("Store");
+    protected JCheckBox    multiErrorCheck  = new JCheckBox("MultiErrorCheck", true);
+    
     protected JScrollPane  jsp;
     protected JScrollBar   jsb;
 
-    protected long         lastError;
-    protected long         lastWarning;
-    
+    protected Color             multiErrorBackground;
+    protected Vector<String>    multiErrorList  = new Vector<String>();
+
     public GDOSGui(GuiElementDescriptor guiElement) throws TimsException
     {
         super(guiElement);
@@ -97,6 +101,10 @@ public class GDOSGui extends GuiElement
             public void actionPerformed(ActionEvent e)
             {
                 gdosTableModel.clearMessages();
+
+                multiErrorList.clear();
+                ge.setNavButtonBackground(null);
+                multiErrorCheck.setBackground(multiErrorBackground);
             }
         });
 
@@ -122,6 +130,7 @@ public class GDOSGui extends GuiElement
         panelTopLeft.add(warningRadio);
         panelTopLeft.add(debugRadio);
         panelTopLeft.add(debugDetailRadio);
+        panelTopLeft.add(multiErrorCheck);
 
         JPanel panelNorth = new JPanel(new BorderLayout());
         panelNorth.add(panelTopLeft, BorderLayout.WEST);
@@ -145,9 +154,59 @@ public class GDOSGui extends GuiElement
 
         rootPanel.add(panelNorth, BorderLayout.NORTH);
         rootPanel.add(jsp, BorderLayout.CENTER);
+    }
+
+    public boolean ckeckMultiError(GDOSDataMsg data)
+    {
+        if(multiErrorBackground == null)
+        {
+            multiErrorBackground = multiErrorCheck.getBackground();
+        }
         
-        lastError = System.currentTimeMillis() - 10000;
-        lastWarning = System.currentTimeMillis() - 10000;
+        if(multiErrorCheck.isSelected())
+        {
+            String src = RackName.classString(data.src);
+            
+            if(multiErrorList.contains(src))
+            {
+                if((data.type == GDOS.PRINT) &
+                   ((data.message.startsWith("Module on")) ||
+                    (data.message.startsWith("Module off")) ||
+                    (data.message.startsWith("Init")) ||
+                    (data.message.startsWith("Terminated"))))
+                {
+                    multiErrorList.remove(src);
+
+                    if(multiErrorList.size() == 0)
+                    {
+                        ge.setNavButtonBackground(null);
+                        multiErrorCheck.setBackground(multiErrorBackground);
+                    }
+
+                    return true;
+                }
+                
+                return false;
+            }
+            else
+            {
+                if((data.type == GDOS.PRINT) &
+                   (data.message.startsWith("Error")))
+                {
+                    ge.setNavButtonBackground(Color.RED);
+                    multiErrorCheck.setBackground(Color.RED);
+                    multiErrorList.add(src);
+                }
+                return true;
+            }
+        }
+        else
+        {
+            multiErrorList.clear();
+            ge.setNavButtonBackground(null);
+            multiErrorCheck.setBackground(multiErrorBackground);
+            return true;
+        }
     }
 
     public JComponent getComponent()
@@ -172,22 +231,15 @@ public class GDOSGui extends GuiElement
                 {
                     data = null;
                 }
-               
+
                 if (data != null)
                 {
-                    // print GDOS message
-                    gdosTableModel.addGDOSMsg(data);
-                    jsb.setValue(jsb.getMaximum());
-                    firstTimeout = true;
-                    
-                    if(data.type == GDOS.ERROR)
+                    if(ckeckMultiError(data))
                     {
-                        lastError = System.currentTimeMillis();
-                    }
-
-                    if(data.type == GDOS.WARNING)
-                    {
-                        lastWarning = System.currentTimeMillis();
+                        // print GDOS message
+                        gdosTableModel.addGDOSMsg(data);
+                        jsb.setValue(jsb.getMaximum());
+                        firstTimeout = true;
                     }
                 }
                 else
@@ -204,20 +256,6 @@ public class GDOSGui extends GuiElement
             {
                 e.printStackTrace();
                 terminate = true;
-            }
-
-            long time = System.currentTimeMillis();
-            if(time < (lastError + 2000))
-            {
-                ge.setNavButtonBackground(Color.RED/*GDOSMessageRenderer.COLOR_ERROR*/);
-            }
-            else if(time < (lastWarning + 2000))
-            {
-                ge.setNavButtonBackground(Color.ORANGE/*GDOSMessageRenderer.COLOR_WARNING*/);
-            }
-            else
-            {
-                ge.setNavButtonBackground(null);
             }
         }
         
