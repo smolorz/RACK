@@ -219,7 +219,10 @@ void data_task_proc(void *arg)
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
-                        GDOS_PRINT("Error, can't turn on module\n");
+                        if(!p_mod->terminate)
+                        {
+                            GDOS_PRINT("Error, can't turn on module\n");
+                        }
                         p_mod->moduleOff();
                         p_mod->status = MODULE_STATE_ERROR;
                         notify(MSG_ERROR, p_mod);
@@ -241,13 +244,21 @@ void data_task_proc(void *arg)
 
                 RackTask::sleep(p_mod->dataTaskErrorTime_ns);
 
+                if(p_mod->terminate)
+                {
+                    break;
+                }
+
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
                     GDOS_DBG_INFO("Turning on module ...\n");
                     ret = p_mod->moduleOn();
                     if (ret)
                     {
-                        GDOS_PRINT("Error, can't turn on module\n");
+                        if(!p_mod->terminate)
+                        {
+                            GDOS_PRINT("Error, can't turn on module\n");
+                        }
                         p_mod->moduleOff();
                         notify(MSG_ERROR, p_mod);
                     }
@@ -773,8 +784,6 @@ exit_error:
 // non realtime context
 void      RackModule::moduleCleanup(void)
 {
-    GDOS_DBG_INFO("Cleanup ...\n");
-
     if (moduleInitBits.testAndClearBit(INIT_BIT_MALLOC_PARAM_MSG))
     {
         free(paramMsg);
@@ -789,6 +798,8 @@ void      RackModule::moduleCleanup(void)
     {
         dataTask.join();
     }
+
+    GDOS_PRINT("Terminated\n");
 
     deleteGdosMbx();
 

@@ -280,7 +280,7 @@ class RackModule {
     public:
         void moduleTerminate(void)
         {
-            GDOS_PRINT("Terminate ...\n");
+            GDOS_DBG_INFO("Terminate ...\n");
             terminate = 1;
         }
 
