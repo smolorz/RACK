@@ -260,6 +260,8 @@ class RackParam
         }
 };
 
+#define RACK_PARAM_MAX_PARAMETER_NUM 50
+
 typedef struct rack_param_msg_s
 {
     int32_t     parameterNum;
