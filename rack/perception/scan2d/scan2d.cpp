@@ -33,6 +33,15 @@ typedef struct {
     scan_point      point[SCAN2D_POINT_MAX];
 } __attribute__((packed)) scan2d_msg;
 
+static inline void swap(int32_t *a, int32_t *b)
+{
+    int32_t tmp;
+
+    tmp = *a;
+    *a  = *b;
+    *b  = tmp;
+}
+
 //
 // data structures
 //
@@ -71,6 +80,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum angle (default 180)", { 180 } },
 
+    { ARGOPT_OPT, "medianFilter", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "enable median filter (default 0)", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -98,6 +110,7 @@ argTable_t argTab[] = {
     reduce          = getInt32Param("reduce");
     angleMin        = getInt32Param("angleMin");
     angleMax        = getInt32Param("angleMax");
+    medianFilter    = getInt32Param("medianFilter");
 
     angleMinFloat       = (double)angleMin       * M_PI / 180.0;
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
@@ -140,8 +153,8 @@ void Scan2d::moduleOff(void)
 
 int  Scan2d::moduleLoop(void)
 {
-    scan2d_data*    data2D    = NULL;
-    ladar_data*     dataLadar = NULL;
+    scan2d_data*    data2D;
+    ladar_data*     dataLadar;
     message_info    msgInfo;
     double          angle, x, y;
     int             i, j, ret;
@@ -189,11 +202,12 @@ int  Scan2d::moduleLoop(void)
 
     if (ladarUpsideDown)
     {
-        if (turnBackUpsideDown(dataLadar) != 0)
-        {
-            GDOS_ERROR("Error: turnBackUpsideDown\n");
-            return -1;
-        }
+        turnUpsideDown(dataLadar);
+    }
+
+    if(medianFilter)
+    {
+        filterMedian(dataLadar);
     }
 
     data2D->pointNum = 0;
@@ -212,7 +226,7 @@ int  Scan2d::moduleLoop(void)
             if (dataLadar->distance[i] < 0)
             {
                 dataLadar->distance[i]  = -dataLadar->distance[i];
-               data2D->point[j].type  |= TYPE_REFLECTOR;
+                data2D->point[j].type  |= TYPE_REFLECTOR;
             }
 
             if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0))
@@ -258,45 +272,59 @@ int  Scan2d::moduleLoop(void)
 }
 
 
-int  Scan2d::turnBackUpsideDown(ladar_data* dataLadar)
+void  Scan2d::turnUpsideDown(ladar_data* dataLadar)
 {
-  int  i, num, max;
-  int32_t  *left, *right;
+    int  i, num, max;
+    int32_t  *left, *right;
 
-  num = dataLadar->distanceNum;
+    num = dataLadar->distanceNum;
 
-  if (num <= 0)
-  {
-    GDOS_ERROR("turnBackUpsideDown: invalid number of scan points (num=%d)\n", num);
-    return (-1);
-  }
+    max   = num / 2;
+    left  = &dataLadar->distance[0];
+    right = &dataLadar->distance[num-1];
 
-  max   = num / 2;
-  left  = &dataLadar->distance[0];
-  right = &dataLadar->distance[num-1];
+    for (i = 0; i < max; i++)
+    {
+        swap(left, right);
 
-  for (i=0; i<max; i++, left++, right--)
-    mySwap(left, right);
-
-  return (0);
+        left++;
+        right--;
+    }
 }
 
-
-void  Scan2d::mySwap(int32_t *a, int32_t *b)
+void  Scan2d::filterMedian(ladar_data* dataLadar)
 {
-  int32_t tmp;
+    int32_t a, b, c, d;
+    int i;
 
-  tmp = *a;
-  *a  = *b;
-  *b  = tmp;
+    d = dataLadar->distance[0];
 
-  // a ^= b;
-  // b ^= a;
-  // a ^= b;
+    for(i = 1; i < dataLadar->distanceNum - 1; i++)
+    {
+        a = dataLadar->distance[i-1];
+        b = dataLadar->distance[i];
+        c = dataLadar->distance[i+1];
 
-  return;
+        dataLadar->distance[i-1] = d;
+
+        if(a > b)
+        {
+            swap(&a, &b);
+        }
+        if(b > c)
+        {
+            swap(&b, &c);
+        }
+        if(a > b)
+        {
+            swap(&a, &b);
+        }
+
+        d = b;
+    }
+
+    dataLadar->distance[i-1] = d;
 }
-
 
 int  Scan2d::moduleCommand(message_info *msgInfo)
 {

@@ -54,6 +54,8 @@ class Scan2d : public RackDataModule {
         float       angleMaxFloat;
         float       ladarOffsetRhoFloat;
 
+        int         medianFilter;
+
         // additional mailboxes
         RackMailbox workMbx;
         RackMailbox ladarMbx;
@@ -64,8 +66,9 @@ class Scan2d : public RackDataModule {
         LadarProxy  *ladar;
         CameraProxy *camera;
 
-        int  turnBackUpsideDown(ladar_data* dataLadar);
-        void mySwap(int32_t *a, int32_t *b);
+        void turnUpsideDown(ladar_data* dataLadar);
+        void filterMedian(ladar_data* dataLadar);
+
         int  addScanIntensity(scan2d_data* data2D);
 
     protected:
