@@ -301,11 +301,19 @@ void  Scan2d::filterMedian(ladar_data* dataLadar)
 
     for(i = 1; i < dataLadar->distanceNum - 1; i++)
     {
-        a = dataLadar->distance[i-1];
-        b = dataLadar->distance[i];
-        c = dataLadar->distance[i+1];
 
-        dataLadar->distance[i-1] = d;
+        a = abs(dataLadar->distance[i-1]);
+        b = abs(dataLadar->distance[i]);
+        c = abs(dataLadar->distance[i+1]);
+
+        if(dataLadar->distance[i-1] < 0)
+        {
+            dataLadar->distance[i-1] = -1 * d;
+        }
+        else
+        {
+            dataLadar->distance[i-1] = d;
+        }
 
         if(a > b)
         {
@@ -323,7 +331,14 @@ void  Scan2d::filterMedian(ladar_data* dataLadar)
         d = b;
     }
 
-    dataLadar->distance[i-1] = d;
+    if(dataLadar->distance[i-1] < 0)
+    {
+        dataLadar->distance[i-1] = -1 * d;
+    }
+    else
+    {
+        dataLadar->distance[i-1] = d;
+    }
 }
 
 int  Scan2d::moduleCommand(message_info *msgInfo)
