@@ -15,7 +15,6 @@
  */
 
 #include "camera_jpeg.h"
-#include <main/image_tool.h>
 
 #define INIT_BIT_DATA_MODULE  0
 #define INIT_BIT_MBX_WORK     1
@@ -160,14 +159,14 @@ int CameraJpeg::moduleLoop(void)
     //convert camera_bytestream (may be yuv/raw mode) to rgb mode
     switch(dataCameraInput->data.mode) {
         case CAMERA_MODE_YUV422:
-            ImageTool::convertCharUYVY2BGR(rgbByteArray,
+            cameraTool.convertCharUYVY2BGR(rgbByteArray,
                                            dataCameraInput->byteStream,
                                            dataCameraInput->data.width,
                                            dataCameraInput->data.height);
             break;
         case CAMERA_MODE_MONO8:
         case CAMERA_MODE_RGB24:
-            ImageTool::convertCharBGR2RGB(rgbByteArray,
+            cameraTool.convertCharBGR2RGB(rgbByteArray,
                                            dataCameraInput->byteStream,
                                            dataCameraInput->data.width,
                                            dataCameraInput->data.height);

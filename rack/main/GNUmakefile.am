@@ -4,7 +4,7 @@ maininclude_HEADERS = \
 	angle_tool.h \
 	argopts.h \
 	dxf_map.h \
-	image_tool.h \
+	camera_tool.h \
 	pilot_tool.h \
 	position_tool.h \
 	rack_byteorder.h \
@@ -65,6 +65,7 @@ SUBDIRS = \
 	argopts \
 	dxfmap \
 	lib \
+	camera_tool \
 	position_tool
 
 if CONFIG_RACK_OS_XENOMAI

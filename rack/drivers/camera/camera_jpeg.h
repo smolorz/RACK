@@ -17,7 +17,7 @@
 #define __CAMERA_JPEG_H__
 
 #include <main/rack_data_module.h>
-
+#include <main/camera_tool.h>
 #include <drivers/camera_proxy.h>
 
 #include <main/jpeg_data_dst_mem.h> //destination manager for memory destination
@@ -55,6 +55,7 @@ class CameraJpeg : public RackDataModule {
 
     camera_data_msg cameraInputMsg;
 
+    CameraTool      cameraTool;
 
     void compressByteStream2JpegStream(uint8_t* byteStream, j_compress_ptr cinfo);
 

@@ -15,7 +15,6 @@
  */
 
 #include "camera_v4l.h"
-#include <main/image_tool.h>
 
 #define INIT_BIT_DATA_MODULE 0
 
