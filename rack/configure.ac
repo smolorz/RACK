@@ -885,7 +885,7 @@ XENOMAI_LIBS=""
 
 if test x"${CONFIG_RACK_OS_XENOMAI}" = x"y"; then
 
-XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags` -D__XENO__"
+XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
 XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
 XENOMAI_LIBS="-lnative -lrtdm"
 
