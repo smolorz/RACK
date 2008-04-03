@@ -12,6 +12,7 @@ dist_java_JAVA += \
 	MapViewGraphics.java \
 	MapViewGui.java \
 	MapViewInterface.java \
+	NaviComponent.java \
 	RackModuleGui.java \
 	RackDataModuleGui.java
 

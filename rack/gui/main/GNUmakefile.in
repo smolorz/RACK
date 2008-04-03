@@ -44,6 +44,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGraphics.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MapViewInterface.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	NaviComponent.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	RackModuleGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	RackDataModuleGui.java
 
@@ -63,7 +64,7 @@ DIST_SOURCES =
 am__dist_java_JAVA_DIST = GDOSGui.java GDOSMessageRenderer.java \
 	GDOSTable.java MapViewActionEvent.java MapViewComponent.java \
 	MapViewGraphics.java MapViewGui.java MapViewInterface.java \
-	RackModuleGui.java RackDataModuleGui.java
+	NaviComponent.java RackModuleGui.java RackDataModuleGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
