@@ -25,6 +25,7 @@ import javax.swing.*;
 
 import rack.drivers.CameraDataMsg;
 import rack.main.defines.ImageRect;
+import rack.gui.drivers.CameraColorConvert;
 
 public class CameraComponent extends JComponent
 {
@@ -34,6 +35,7 @@ public class CameraComponent extends JComponent
     protected ImageRect[] rects;
     protected int[] rectObjIds;
     protected int rectNumber = 0;
+    protected CameraColorConvert colorConvert = null; 
 
     protected CameraComponentMouseListener mouseListener;
     
@@ -53,6 +55,33 @@ public class CameraComponent extends JComponent
         this.addMouseMotionListener(mouseListener);
     }
 
+    public void convertColor(int[] imageRawData, int mode)
+    {
+    	switch(mode)
+    	{
+    	case CameraDataMsg.CAMERA_MODE_MONO8:
+    		for (int i = 0; i < imageRawData.length; i++)
+        	{
+        		imageRawData[i] = this.colorConvert.calcMono8(imageRawData[i]);
+        	}
+    		break;
+    	case CameraDataMsg.CAMERA_MODE_MONO12: 
+    		for (int i = 0; i < imageRawData.length; i++)
+        	{
+        		imageRawData[i] = this.colorConvert.calcMono12(imageRawData[i]);
+        	}
+    		break;
+    	case CameraDataMsg.CAMERA_MODE_MONO16: 
+    		for (int i = 0; i < imageRawData.length; i++)
+        	{
+        		imageRawData[i] = this.colorConvert.calcMono16(imageRawData[i]);
+        	}
+    		break;
+    	}
+    	
+    }
+    
+    
     public void transformImage(int zoomRate, int switchRotate,
             CameraDataMsg dataMsg)
     {
@@ -66,6 +95,10 @@ public class CameraComponent extends JComponent
 
         synchronized(this)
         {
+        	if (this.colorConvert != null)
+        	{
+        		convertColor(zoomDataMsg.imageRawData, zoomDataMsg.mode);
+        	}
             img = createImage(new MemoryImageSource(zoomDataMsg.width,
                     zoomDataMsg.height, zoomDataMsg.imageRawData, 0,
                     zoomDataMsg.width));
@@ -370,5 +403,12 @@ public class CameraComponent extends JComponent
             e.consume();
         }
 
+    }
+    
+    public void setColorConverter(CameraColorConvert cv) {
+    	if (cv == null)
+    		this.colorConvert = null;//new CameraColorConvert();
+    	else
+    		this.colorConvert = cv;    
     }
 }

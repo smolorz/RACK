@@ -70,6 +70,13 @@ public class CameraGui extends RackModuleGui
             CameraDataMsg.CAMERA_MODE_ELEVATION, CameraDataMsg.CAMERA_MODE_TYPE, CameraDataMsg.CAMERA_MODE_EDGE };
     protected ActionListener  modeAction;
 
+    protected JComboBox switchColorComboBox;
+    protected String[] switchColorRates = { "standart", "Gray 0-63","Gray 0-127", "Gray 0-255", "Gray 0-1023", 
+    		               "Gray 0-4095", "Miscolor range indoor", "Miscolor range outdoor", "Gray 4095 - 0", 
+    		               "Thermal spectrum", "Thermal red"};
+    protected int switchColor; 
+
+    
     public CameraProxy        camera;
 
     public CameraGui(GuiElementDescriptor guiElement)
@@ -126,6 +133,128 @@ public class CameraGui extends RackModuleGui
 
         northPanel.add(buttonPanel, BorderLayout.NORTH);
 
+        switchColorComboBox = new JComboBox(switchColorRates);
+        switchColorComboBox.setSelectedIndex(0);
+
+        switchColorComboBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+            	switchColor = switchColorComboBox.getSelectedIndex();
+            	CameraMisColorConvert a = null;
+            	switch (switchColor) {
+            	case 1:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(63, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	case 2:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(127, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	case 3:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(255, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	case 4:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(1023, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;          		
+            	case 5:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(4095, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;          		
+            	case 6:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(1000, Color.BLUE);
+            		a.addColor(2000, Color.GREEN);
+            		a.addColor(4000, Color.CYAN);
+            		a.addColor(6000, Color.YELLOW);
+            		a.addColor(0xfffe, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	case 7:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(3000, Color.BLUE);
+            		a.addColor(6000, Color.GREEN);
+            		a.addColor(9000, Color.CYAN);
+            		a.addColor(15000, Color.YELLOW);
+            		a.addColor(0xfffe, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	case 8:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(4095, Color.BLACK);
+            		a.addColor(0, Color.WHITE);
+            		a.addColor(0xffff, Color.RED);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;          		
+            	case 9:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(48, Color.BLUE);
+            		a.addColor(96, Color.CYAN);
+            		a.addColor(154, Color.GREEN);
+            		a.addColor(202, Color.YELLOW);
+            		a.addColor(250, Color.RED);
+            		a.addColor(0xffff, Color.WHITE);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	case 10:
+            		a = new CameraMisColorConvert();
+            		a.initTable();
+            		a.addColor(0, Color.BLACK);
+            		a.addColor(48, Color.BLUE);
+            		a.addColor(154, Color.RED);
+            		a.addColor(252, Color.ORANGE);
+            		a.addColor(0xffff, Color.WHITE);
+            		a.calcTable();
+            		cameraComponent.setColorConverter(a);
+            		break;
+            	default:
+            		cameraComponent.setColorConverter(null);
+            		break;
+            	}
+            }
+        });        
+
+        
         switchRotateComboBox = new JComboBox(switchRotateRates);
         switchRotateComboBox.setSelectedIndex(0);
 
@@ -181,6 +310,7 @@ public class CameraGui extends RackModuleGui
         };
         modeComboBox.addActionListener(modeAction);
 
+        switchBoxPanel.add(switchColorComboBox);
         switchBoxPanel.add(switchRotateComboBox);
         switchBoxPanel.add(zoomRateComboBox);
         switchBoxPanel.add(resolutionComboBox);
