@@ -94,7 +94,7 @@ int  OdometryChassis::moduleLoop(void)
 
     p_odo = (odometry_data *)getDataBufferWorkSpace();
 
-    ret = chassisMbx.recvDataMsgTimed(300000000llu, &chassisData,
+    ret = chassisMbx.recvDataMsgTimed(2 * dataBufferPeriodTime * 1000000llu, &chassisData,
                                       sizeof(chassisData), &info);
     if (ret)
     {
