@@ -358,8 +358,16 @@ RackModule::RackModule( uint32_t classId,
     mailboxFreeAdr            = name + 1;
 
     this->cmdMbxMsgSlots      = cmdMbxMsgSlots;
-    this->cmdMbxMsgDataSize   = cmdMbxMsgDataSize;
     this->cmdMbxFlags         = cmdMbxFlags;
+    if(cmdMbxMsgDataSize < 240)
+    {
+        // minimum size for rack_param_msg
+        this->cmdMbxMsgDataSize   = 240;
+    }
+    else
+    {
+        this->cmdMbxMsgDataSize   = cmdMbxMsgDataSize;
+    }
 
     moduleInitBits.clearAllBits();
     initBits.clearAllBits();
