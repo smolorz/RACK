@@ -55,6 +55,7 @@ class Scan2d : public RackDataModule {
         float       ladarOffsetRhoFloat;
 
         int         medianFilter;
+        int         reflectorFilterMode;
 
         // additional mailboxes
         RackMailbox workMbx;
@@ -68,6 +69,10 @@ class Scan2d : public RackDataModule {
 
         void turnUpsideDown(ladar_data* dataLadar);
         void filterMedian(ladar_data* dataLadar);
+
+        int  filterReflector(scan2d_data* data, int filter);
+        int  getNeighborhood(scan2d_data* data, int refIdx, int *left, int *right);
+        int  getRegressLine(scan2d_data* data, int left, int right, double *m, double *n);
 
         int  addScanIntensity(scan2d_data* data2D);
 
