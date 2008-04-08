@@ -23,6 +23,10 @@
 #define INIT_BIT_PROXY_LADAR        3
 #define INIT_BIT_PROXY_CAMERA       4
 
+// filter flags:
+#define FILTER_REFLECTOR_90DEG   0x01
+
+
 typedef struct {
     ladar_data    data;
     int32_t       buffer[LADAR_DATA_MAX_DISTANCE_NUM];
@@ -80,6 +84,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum angle (default 180)", { 180 } },
 
+    { ARGOPT_OPT, "reflectorFilterMode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "reflector filter bitset [0: off, 0x01: 90deg filter], (default 0)", { 0 } },
+
     { ARGOPT_OPT, "medianFilter", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "enable median filter (default 0)", { 0 } },
 
@@ -102,19 +109,25 @@ argTable_t argTab[] = {
     int ret;
 
     // get parameter
-    ladarOffsetX    = getInt32Param("ladarOffsetX");
-    ladarOffsetY    = getInt32Param("ladarOffsetY");
-    ladarOffsetRho  = getInt32Param("ladarOffsetRho");
-    ladarUpsideDown = getInt32Param("ladarUpsideDown");
-    maxRange        = getInt32Param("maxRange");
-    reduce          = getInt32Param("reduce");
-    angleMin        = getInt32Param("angleMin");
-    angleMax        = getInt32Param("angleMax");
-    medianFilter    = getInt32Param("medianFilter");
+    ladarOffsetX        = getInt32Param("ladarOffsetX");
+    ladarOffsetY        = getInt32Param("ladarOffsetY");
+    ladarOffsetRho      = getInt32Param("ladarOffsetRho");
+    ladarUpsideDown     = getInt32Param("ladarUpsideDown");
+    maxRange            = getInt32Param("maxRange");
+    reduce              = getInt32Param("reduce");
+    angleMin            = getInt32Param("angleMin");
+    angleMax            = getInt32Param("angleMax");
+    medianFilter        = getInt32Param("medianFilter");
+    reflectorFilterMode = getInt32Param("reflectorFilterMode");
 
     angleMinFloat       = (double)angleMin       * M_PI / 180.0;
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
     ladarOffsetRhoFloat = (double)ladarOffsetRho * M_PI / 180.0;
+
+    GDOS_DBG_DETAIL("scan2d filter:\n");
+    GDOS_DBG_DETAIL("  medianFilter        = %i\n", medianFilter);
+    GDOS_DBG_DETAIL("  reflectorFilterMode = %i\n", reflectorFilterMode);
+
 
     ret = ladar->on();
     if (ret)
@@ -157,7 +170,7 @@ int  Scan2d::moduleLoop(void)
     ladar_data*     dataLadar;
     message_info    msgInfo;
     double          angle, x, y;
-    int             i, j, ret;
+    int             i, j, ret, numRef = 0;
 
     // get datapointer from rackdatabuffer
     data2D = (scan2d_data *)getDataBufferWorkSpace();
@@ -227,6 +240,8 @@ int  Scan2d::moduleLoop(void)
             {
                 dataLadar->distance[i]  = -dataLadar->distance[i];
                 data2D->point[j].type  |= TYPE_REFLECTOR;
+
+               numRef++;
             }
 
             if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0))
@@ -249,6 +264,9 @@ int  Scan2d::moduleLoop(void)
         }
         angle += reduce * dataLadar->angleResolution;
     }
+
+    // filter invalid reflector points:
+    filterReflector(data2D, reflectorFilterMode);
 
     // add intensity to scanPoints
     if(cameraInst >= 0)
@@ -301,19 +319,11 @@ void  Scan2d::filterMedian(ladar_data* dataLadar)
 
     for(i = 1; i < dataLadar->distanceNum - 1; i++)
     {
+        a = dataLadar->distance[i-1];
+        b = dataLadar->distance[i];
+        c = dataLadar->distance[i+1];
 
-        a = abs(dataLadar->distance[i-1]);
-        b = abs(dataLadar->distance[i]);
-        c = abs(dataLadar->distance[i+1]);
-
-        if(dataLadar->distance[i-1] < 0)
-        {
-            dataLadar->distance[i-1] = -1 * d;
-        }
-        else
-        {
-            dataLadar->distance[i-1] = d;
-        }
+        dataLadar->distance[i-1] = d;
 
         if(a > b)
         {
@@ -331,15 +341,169 @@ void  Scan2d::filterMedian(ladar_data* dataLadar)
         d = b;
     }
 
-    if(dataLadar->distance[i-1] < 0)
+    dataLadar->distance[i-1] = d;
+}
+
+#define REFL_FILTER_ANGLE   15.0 // [deg]
+#define MAX_NB_DIST        250   // [mm]
+int Scan2d::filterReflector(scan2d_data* data, int filter)
+{
+    int     i, left, right, numInvalid = 0;
+    double  m, n;
+    double  alpha, beta, gamma; 
+
+      
+    // filter reflector points, which are on a line of scanpoints about 90deg to the laser ray:
+    // ----------------------------------------------------------------------------------------
+    if (filter & FILTER_REFLECTOR_90DEG)
     {
-        dataLadar->distance[i-1] = -1 * d;
+        for (i=0; i<data->pointNum; i++)
+        {
+            if ((data->point[i].type & TYPE_REFLECTOR) != TYPE_REFLECTOR) // no reflector point
+                continue;
+
+            // if there are two reflector points close to the current, this should be a correct reflector point:
+            if (i>0  &&  i<data->pointNum-1  && 
+                ((data->point[i-1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
+                ((data->point[i+1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
+                continue;
+
+            if (i>1  && 
+                ((data->point[i-1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
+                ((data->point[i-2].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
+                continue;
+
+            if (i<data->pointNum-2  && 
+                ((data->point[i+1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
+                ((data->point[i+2].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
+                continue;
+
+            // find index of left and right point in distance:
+            getNeighborhood(data, i, &left, &right);
+
+            if (left == right) // no neighbor points
+            {
+                // GDOS_DBG_DETAIL("can't filter scanpoint %i, no neighbor points (left=%i, right=%i)\n", i, left, right);
+                continue;
+            }
+
+            // get regression line:
+            getRegressLine(data, left, right, &m, &n);
+
+            // get angles:
+            // GDOS_DBG_DETAIL("m=%f, n=%f, dx=%i, dy=%i\n", m, n, data->point[i].x, data->point[i].y);
+
+            alpha = atan(m) * 180.0/M_PI;
+            beta  = atan2(data->point[i].y, data->point[i].x) * 180.0/M_PI;
+            gamma = fabs(beta - alpha);
+
+            if (gamma > 90)  
+                gamma = 180.0 - gamma;
+
+            // get angle of scanner spot to line between current and next scanpoint:
+            // GDOS_DBG_DETAIL("p:%i, alpha:%f, beta:%f, gamma:%f\n", i, alpha, beta, gamma);
+
+            if (90.0-gamma <= REFL_FILTER_ANGLE)
+            {
+                data->point[i].type &= (~TYPE_REFLECTOR);
+                numInvalid++;
+
+                // GDOS_WARNING("scanpoint %i: INVALID reflector: angle = %f\n", i, 90.0-gamma);
+            }
+            else
+            {
+                // GDOS_DBG_DETAIL("scanpoint %i: VALID reflector: angle = %f\n", i, 90.0-gamma);
+            }
+
+        }
+
+        GDOS_DBG_DETAIL("ReflectorFilter(90deg): %d invalid reflector points filtered\n", numInvalid);
+    }
+
+    return (0);
+}
+
+
+int Scan2d::getNeighborhood(scan2d_data* data, int refIdx, int *left, int *right)
+{
+    int    j;
+    float  dx, dy;
+
+
+    *left = *right = refIdx;
+
+    // find left neighbor:
+    for (j=refIdx+1; j < data->pointNum; j++)
+    {
+        dx = data->point[j].x - data->point[refIdx].x;
+        dy = data->point[j].y - data->point[refIdx].y;
+
+        if (sqrt(dx*dx + dy*dy) > MAX_NB_DIST)
+            break;
+
+        *left = j;
+    }
+
+    // find right neighbor:
+    for (j=refIdx-1; j>=0; j--)
+    {
+        dx = data->point[j].x - data->point[refIdx].x;
+        dy = data->point[j].y - data->point[refIdx].y;
+
+        if (sqrt(dx*dx + dy*dy) > MAX_NB_DIST)
+            break;
+
+        *right = j;
+    }
+
+    return (0);
+}
+
+
+int Scan2d::getRegressLine(scan2d_data* data, int left, int right, double *m, double *n)
+{
+    int         i, num, start, end;
+    double      sumX  = 0.0;
+    double      sumY  = 0.0;
+    double      sumXY = 0.0;
+    double      sumXX = 0.0;
+    double      sumYY = 0.0;
+    scan_point *ptr   = NULL;
+
+
+    if (right < left)
+    {
+        start = right;
+        end   = left;
     }
     else
     {
-        dataLadar->distance[i-1] = d;
+        start = left;
+        end   = right;
     }
+
+    ptr = &data->point[start];
+    
+    // loop from right to left index:
+    for (i=start; i<=end; i++, ptr++)
+    {
+        sumX  += (double)ptr->x;
+        sumY  += (double)ptr->y;
+        sumXY += (double)(ptr->x * ptr->y);
+        sumXX += (double)(ptr->x * ptr->x);
+        sumYY += (double)(ptr->y * ptr->y);
+    }
+
+    // get regression line:
+    num = end - start + 1;
+
+    // GDOS_DBG_DETAIL("right=%i, left=%i, num:%i, sumXX:%f, sumX:%f, Nenner:%f",right, left,num, sumXX, sumX, ((num * sumXX) - (sumX * sumX)));
+    *m  = (double)((((double)num * sumXY) - (sumX * sumY)) / (((double)num * sumXX) - (sumX * sumX)));
+    *n  = (double)((sumY - (*m * sumX)) / ((double)num));
+
+    return (0);
 }
+
 
 int  Scan2d::moduleCommand(message_info *msgInfo)
 {
