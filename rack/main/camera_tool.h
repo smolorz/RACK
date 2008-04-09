@@ -18,7 +18,7 @@
 #define __CAMERA_TOOL_H__
 
 #include <main/rack_debug.h>
-
+#include <math.h>
 //######################################################################
 //# Class CameraTool
 //######################################################################
@@ -28,11 +28,13 @@ class CameraTool {
 
     // only for debugging:
     GdosMailbox    *gdos;
+    int32_t         colorLookuptableThermalRed12[4096];
 
   public:
 
     CameraTool();
     CameraTool(RackMailbox *p_mbx, int gdos_level);
+    void initColorTables();
 
     int clip(int in);
     int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
@@ -40,7 +42,18 @@ class CameraTool {
     int convertCharUYVY2Gray(uint8_t* outputData, uint8_t* inputData, int width, int height);
     int convertCharBGR2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
     int convertCharMono82RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
-    int convertCharMono162RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    int convertCharMono122RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    
+    int histogramStrechMono8(uint8_t* outputData, uint8_t* inputData, 
+                                    int width, int height, int bottomPercentage, int ceilingPercentage);
+    int histogramStrechMono12(unsigned short* outputData, unsigned short* inputData, 
+                                    int width, int height, int bottomPercentage, int ceilingPercentage);
+    int histogramStrechToMono8(uint8_t *outputData, unsigned short *inputData,
+                                    int width, int height, int bottomPercentage, int ceilingPercentage,
+                                    int topMargin, int bottomMargin, int leftMargin, int rightMargin);
+
+    int qsMedianFilter16Bit(short *outputData, short *inputData, int width, int height, int radius);
+    int lowPassFilter16Bit(short *outputData, short *inputData, int width, int height, int radius);
 
     ~CameraTool();
 };
