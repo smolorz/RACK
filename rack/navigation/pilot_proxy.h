@@ -30,13 +30,17 @@
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
 
-#define PILOT_DATA_SPLINE_MAX 4
+#define PILOT_DATA_SPLINE_MAX   4
+
+#define PILOT_HOLD_ENABLED      1
+#define PILOT_HOLD_DISABLED     0
 
 //######################################################################
 //# Pilot Message Types
 //######################################################################
 
-#define MSG_PILOT_SET_DESTINATION         (RACK_PROXY_MSG_POS_OFFSET + 1)
+#define MSG_PILOT_SET_DESTINATION           (RACK_PROXY_MSG_POS_OFFSET + 1)
+#define MSG_PILOT_HOLD_COMMAND              (RACK_PROXY_MSG_POS_OFFSET + 2)
 
 //######################################################################
 //# PilotData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -164,6 +168,52 @@ class PilotDestData
 };
 
 //######################################################################
+//# Pilot Hold Data (static size  - MESSAGE)
+//######################################################################
+typedef struct{
+    int32_t         holdState;
+    rack_time_t     holdTime;
+    position_3d     pos;
+} __attribute__((packed)) pilot_hold_data;
+
+class PilotHoldData
+{
+    public:
+        static void le_to_cpu(pilot_hold_data *data)
+        {
+            data->holdState     = __le32_to_cpu(data->holdState);
+            data->holdTime      = __le32_to_cpu(data->holdTime);
+            Position3D::le_to_cpu(&data->pos);
+        }
+
+        static void be_to_cpu(pilot_hold_data *data)
+        {
+            data->holdState     = __be32_to_cpu(data->holdState);
+            data->holdTime      = __be32_to_cpu(data->holdTime);
+            Position3D::be_to_cpu(&data->pos);
+        }
+
+        static pilot_hold_data* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            pilot_hold_data *p_data = (pilot_hold_data *)msgInfo->p_data;
+
+            if (isDataByteorderLe(msgInfo)) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            setDataByteorder(msgInfo);
+            return p_data;
+        }
+};
+    
+//######################################################################
 //# Pilot Proxy
 //######################################################################
 
@@ -202,6 +252,16 @@ class PilotProxy : public RackDataProxy
     }
 
     int setDestination(pilot_dest_data *recv_data, ssize_t recv_datalen,
+                       uint64_t reply_timeout_ns);
+                       
+
+//hold command
+    int holdCommand(pilot_hold_data *recv_data, ssize_t recv_datalen)
+    {
+        return holdCommand(recv_data, recv_datalen, dataTimeout);
+    }
+
+    int holdCommand(pilot_hold_data *recv_data, ssize_t recv_datalen,
                        uint64_t reply_timeout_ns);
 };
 
