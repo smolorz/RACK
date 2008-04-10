@@ -19,11 +19,16 @@ import rack.main.*;
 import rack.main.defines.Position3d;
 import rack.main.tims.*;
 import rack.navigation.PilotDestMsg;
+import rack.navigation.PilotHoldMsg;
 
 public class PilotProxy extends RackDataProxy
 {
   public static final byte MSG_PILOT_SET_DESTINATION = RackProxy.MSG_POS_OFFSET + 1;
-	  
+  public static final byte MSG_PILOT_HOLD_COMMAND = RackProxy.MSG_POS_OFFSET + 2;
+
+  public static final byte PILOT_HOLD_ENABLED = 1;
+  public static final byte PILOT_HOLD_DISABLED = 0;
+
   public PilotProxy(int id, TimsMbx replyMbx)
   {
     super(RackName.create(RackName.PILOT, id), replyMbx, 500);
@@ -93,4 +98,31 @@ public class PilotProxy extends RackDataProxy
                              ".setDestination " + e);
       }
   }  
+  
+  public synchronized void holdCommand(PilotHoldMsg hold)
+  {
+      currentSequenceNo++;
+
+      try
+      {
+          replyMbx.send(MSG_PILOT_HOLD_COMMAND, commandMbx,
+                             (byte)0, currentSequenceNo, hold);
+
+          TimsRawMsg reply;
+          do
+          {
+            reply = replyMbx.receive(replyTimeout);
+          }
+          while(reply.seqNr != currentSequenceNo);
+      }
+      catch(TimsException e)
+      {
+          System.out.println(RackName.nameString(replyMbx.getName()) + ": " +
+                             RackName.nameString(commandMbx) +
+                             ".holdCommand " + e);
+      }
+  }  
+  
+  
+  
 }

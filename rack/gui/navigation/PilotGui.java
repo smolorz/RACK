@@ -32,22 +32,26 @@ import rack.main.defines.Position3d;
 import rack.navigation.PilotDataMsg;
 import rack.navigation.PilotProxy;
 import rack.navigation.PilotDestMsg;
+import rack.navigation.PilotHoldMsg;
 
 public class PilotGui extends RackModuleGui implements MapViewInterface
 {
-    protected PilotDataMsg     pilotData;
-    protected PilotProxy       pilot;
-    protected MapViewComponent mapComponent;
+    protected PilotDataMsg      pilotData;
+    protected PilotProxy        pilot;
+    protected MapViewComponent  mapComponent;
 
-    protected JButton          destinationButton;
-    protected ActionListener   destinationAction;
-    protected PilotDestMsg     pilotDest   = new PilotDestMsg();
+    protected JButton           destinationButton;
+    protected ActionListener    destinationAction;
+    protected PilotDestMsg      pilotDest   = new PilotDestMsg();
 
-    protected String           setDestinationCommand;
+    protected JButton			holdButton;
+    protected PilotHoldMsg      pilotHold   = new PilotHoldMsg();
     
-    protected boolean          mapViewIsShowing;
-    protected int			   drawDestination;
+    protected String            setDestinationCommand;
     
+    protected boolean           mapViewIsShowing;
+    protected int			    drawDestination;
+      
     public PilotGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
@@ -67,7 +71,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         mapComponent.setPreferredSize(new Dimension(200,200));
         mapComponent.setDefaultVisibleRange(5000.0);
 
-        destinationButton = new JButton("Set destination");
+        destinationButton = new JButton("Set Destination");
 
         destinationAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -90,17 +94,37 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
                 }
             }
         };
+
+        holdButton = new JButton("Hold");
+
+        holdButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+            	if (pilotHold.holdState == PilotProxy.PILOT_HOLD_DISABLED)
+            	{
+            		pilotHold.holdState = PilotProxy.PILOT_HOLD_ENABLED;
+            	}
+            	else
+            	{
+            		pilotHold.holdState = PilotProxy.PILOT_HOLD_DISABLED;
+            	}
+            	pilot.holdCommand(pilotHold);
+            }
+        }); 
+                
         destinationButton.addActionListener(destinationAction);
         destinationButton.addKeyListener(mapComponent.keyListener);
+        holdButton.addKeyListener(mapComponent.keyListener);
         onButton.addKeyListener(mapComponent.keyListener);
         offButton.addKeyListener(mapComponent.keyListener);
 
         buttonPanel.add(onButton);
         buttonPanel.add(offButton);
+        buttonPanel.add(holdButton);
         buttonPanel.add(destinationButton);
         northPanel.add(new JLabel("pilot"), BorderLayout.NORTH);
         northPanel.add(buttonPanel, BorderLayout.CENTER);
-        northPanel.add(destinationButton, BorderLayout.SOUTH);
+//        northPanel.add(destinationButton, BorderLayout.SOUTH);
 
         rootPanel.add(northPanel, BorderLayout.NORTH);
         rootPanel.add(mapComponent, BorderLayout.CENTER);
@@ -111,6 +135,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
     protected void setEnabled(boolean enabled)
     {
         mapComponent.setEnabled(enabled);
+        holdButton.setEnabled(enabled);
         destinationButton.setEnabled(enabled);
     }
     
@@ -138,6 +163,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         destinationAction = null;
         
         destinationButton.removeKeyListener(mapComponent.keyListener);
+        holdButton.removeKeyListener(mapComponent.keyListener);
         onButton.removeKeyListener(mapComponent.keyListener);
         offButton.removeKeyListener(mapComponent.keyListener);
         
