@@ -37,13 +37,8 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_GUI_TRUE@	CameraComponent.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	CameraGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	ChassisGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	GpsGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	JoystickGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	JoystickSoftware.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	LadarGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	OdometryGui.java
+@CONFIG_RACK_JAVA_GUI_TRUE@	CameraColorConvert.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	CameraMisColorConvert.java
 
 subdir = gui/drivers
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
@@ -58,9 +53,8 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = CameraComponent.java CameraGui.java \
-	ChassisGui.java GpsGui.java JoystickGui.java \
-	JoystickSoftware.java LadarGui.java OdometryGui.java
+am__dist_java_JAVA_DIST = CameraComponent.java CameraColorConvert.java \
+	CameraMisColorConvert.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -474,6 +468,13 @@ uninstall-am: uninstall-dist_javaJAVA uninstall-info-am
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
 	uninstall-dist_javaJAVA uninstall-info-am
 
+@CONFIG_RACK_JAVA_GUI_TRUE@	CameraGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	ChassisGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	GpsGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	JoystickGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	JoystickSoftware.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	LadarGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	OdometryGui.java
 
 install-dist_javaJAVA: classdist_java.stamp
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
