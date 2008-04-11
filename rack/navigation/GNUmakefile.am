@@ -17,6 +17,7 @@ dist_java_JAVA += \
 	PilotProxy.java \
 	PilotDataMsg.java \
 	PilotDestMsg.java \
+	PilotHoldMsg.java \
 	PositionProxy.java \
 	PositionDataMsg.java \
 	PositionWgs84DataMsg.java
