@@ -210,11 +210,11 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
             // check y coordinate
             if (scan->point[i].y > yMax)
             {
-                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) * 2.0f / breakConstant);
+                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) * 4.0f / breakConstant);
             }
             else if (scan->point[i].y < yMin)
             {
-                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) * 2.0f / breakConstant);
+                vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) * 4.0f / breakConstant);
             }
             else
             {
@@ -247,6 +247,39 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
     }
 
     return speed * sign;
+}
+
+static inline void transformScan2d2Radius(scan2d_data *scan, int radius)
+{
+    int     i;
+    double  dx, dy, angle;
+
+    if(radius > 0)
+    {
+        for (i = 0; i < scan->pointNum; i+=2)
+        {
+            dx = (double)scan->point[i].x;
+            dy = (double)(radius - scan->point[i].y);
+
+            angle = atan2(dx, dy);
+
+            scan->point[i].y = radius - (int)sqrt(dx * dx + dy * dy);
+            scan->point[i].x = (int)(angle * radius);
+        }
+    }
+    else if(radius < 0)
+    {
+        for (i = 0; i < scan->pointNum; i+=2)
+        {
+            dx = (double)scan->point[i].x;
+            dy = (double)(scan->point[i].y - radius);
+
+            angle = -atan2(dx, dy);
+
+            scan->point[i].y = radius + (int)sqrt(dx * dx + dy * dy);
+            scan->point[i].x = (int)(angle * radius);
+        }
+    }
 }
 
 #endif // __PILOT_TOOL_H__
