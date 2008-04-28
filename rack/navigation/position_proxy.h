@@ -36,9 +36,15 @@
 #define MSG_POSITION_UPDATE              (RACK_PROXY_MSG_POS_OFFSET + 1)
 #define MSG_POSITION_WGS84_TO_POS        (RACK_PROXY_MSG_POS_OFFSET + 2)
 #define MSG_POSITION_POS_TO_WGS84        (RACK_PROXY_MSG_POS_OFFSET + 3)
+#define MSG_POSITION_GK_TO_POS           (RACK_PROXY_MSG_POS_OFFSET + 4)
+#define MSG_POSITION_POS_TO_GK           (RACK_PROXY_MSG_POS_OFFSET + 5)
+#define MSG_POSITION_UTM_TO_POS          (RACK_PROXY_MSG_POS_OFFSET + 6)
+#define MSG_POSITION_POS_TO_UTM          (RACK_PROXY_MSG_POS_OFFSET + 7)
 
 #define MSG_POSITION_POS                 (RACK_PROXY_MSG_NEG_OFFSET - 2)
 #define MSG_POSITION_WGS84               (RACK_PROXY_MSG_NEG_OFFSET - 3)
+#define MSG_POSITION_GK                  (RACK_PROXY_MSG_NEG_OFFSET - 5)
+#define MSG_POSITION_UTM                 (RACK_PROXY_MSG_NEG_OFFSET - 7)
 
 //######################################################################
 //# Position Data (static size - MESSAGE)
@@ -137,6 +143,107 @@ class PositionWgs84Data
 };
 
 //######################################################################
+//# Position GK Data (static size - MESSAGE)
+//######################################################################
+typedef struct{
+    double        northing;       // mm
+    double        easting;        // mm
+    int32_t       altitude;       // mm over mean sea level
+    float         heading;        // rad
+} __attribute__((packed)) position_gk_data;
+
+class PositionGkData
+{
+    public:
+        static void le_to_cpu(position_gk_data *data)
+        {
+            data->northing      = __le64_float_to_cpu(data->northing);
+            data->easting       = __le64_float_to_cpu(data->easting);
+            data->altitude      = __le32_to_cpu(data->altitude);
+            data->heading       = __le32_float_to_cpu(data->heading);
+        }
+
+        static void be_to_cpu(position_gk_data *data)
+        {
+            data->northing      = __be64_float_to_cpu(data->northing);
+            data->easting       = __be64_float_to_cpu(data->easting);
+            data->altitude      = __be32_to_cpu(data->altitude);
+            data->heading       = __be32_float_to_cpu(data->heading);
+        }
+
+        static position_gk_data* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            position_gk_data *p_data = (position_gk_data *)msgInfo->p_data;
+
+            if (isDataByteorderLe(msgInfo)) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            setDataByteorder(msgInfo);
+            return p_data;
+        }
+};
+
+//######################################################################
+//# Position UTM Data (static size - MESSAGE)
+//######################################################################
+typedef struct{
+    int           zone;           // utm zone
+    double        northing;       // mm
+    double        easting;        // mm
+    int32_t       altitude;       // mm over mean sea level
+    float         heading;        // rad
+} __attribute__((packed)) position_utm_data;
+
+class PositionUtmData
+{
+    public:
+        static void le_to_cpu(position_utm_data *data)
+        {
+            data->zone          = __le32_to_cpu(data->zone);
+            data->northing      = __le64_float_to_cpu(data->northing);
+            data->easting       = __le64_float_to_cpu(data->easting);
+            data->altitude      = __le32_to_cpu(data->altitude);
+            data->heading       = __le32_float_to_cpu(data->heading);
+        }
+
+        static void be_to_cpu(position_utm_data *data)
+        {
+            data->zone          = __be32_to_cpu(data->zone);
+            data->northing      = __be64_float_to_cpu(data->northing);
+            data->easting       = __be64_float_to_cpu(data->easting);
+            data->altitude      = __be32_to_cpu(data->altitude);
+            data->heading       = __be32_float_to_cpu(data->heading);
+        }
+
+        static position_utm_data* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            position_utm_data *p_data = (position_utm_data *)msgInfo->p_data;
+
+            if (isDataByteorderLe(msgInfo)) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            setDataByteorder(msgInfo);
+            return p_data;
+        }
+};
+
+//######################################################################
 //# Position Proxy Functions
 //######################################################################
 
@@ -189,6 +296,38 @@ class PositionProxy : public RackDataProxy {
         int posToWgs84(position_data *posData, position_wgs84_data *wgs84Data)
         {
             return posToWgs84(posData, wgs84Data, dataTimeout);
+        }
+
+        int gkToPos(position_gk_data *gkData, position_data *posData,
+                       uint64_t reply_timeout_ns);
+
+        int gkToPos(position_gk_data *gkData, position_data *posData)
+        {
+            return gkToPos(gkData, posData, dataTimeout);
+        }
+
+        int posToGk(position_data *posData, position_gk_data *gkData,
+                     uint64_t reply_timeout_ns);
+
+        int posToGk(position_data *posData, position_gk_data *gkData)
+        {
+            return posToGk(posData, gkData, dataTimeout);
+        }
+
+        int utmToPos(position_utm_data *utmData, position_data *posData,
+                       uint64_t reply_timeout_ns);
+
+        int utmToPos(position_utm_data *utmData, position_data *posData)
+        {
+            return utmToPos(utmData, posData, dataTimeout);
+        }
+
+        int posToUtm(position_data *posData, position_utm_data *utmData,
+                     uint64_t reply_timeout_ns);
+
+        int posToUtm(position_data *posData, position_utm_data *utmData)
+        {
+            return posToUtm(posData, utmData, dataTimeout);
         }
 };
 
