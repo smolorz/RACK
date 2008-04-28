@@ -32,6 +32,376 @@ PositionTool::~PositionTool()
         delete gdos;
 }
 
+void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *posUtm)
+{
+    int    latDeg, lonDeg;
+    double lat, lon;
+    double dlam, dlam2, dlam3, dlam4;
+    double dlam5, dlam6, dlam7, dlam8;
+    double s, s2;
+    double sn;
+    double c, c2, c3, c5, c7;
+    double t, tan2, tan3, tan4, tan5, tan6;
+    double t1, t2, t3, t4, t5, t6, t7, t8, t9;
+    double eta, eta2, eta3, eta4;
+    double tn, tn2, tn3, tn4, tn5;
+    double tmd;
+    double tmdo;
+    double tranMercB;
+    double tranMercEs;
+    double tranMercEbs;
+    double tranMercAp, tranMercBp;
+    double tranMercCp, tranMercDp, tranMercEp;
+    double centralMeridian = 0.0;
+    double easting, northing;
+    double falseEasting    = 500000;
+    double falseNorthing   = 0;
+    double utmScale        = 0.9996;
+    static double utmA     = 6378137.0;             // Semi-major axis of ellipsoid in meters
+    static double utmF     = 1.0 / 298.257223563;   // flattening of ellipsoid
+
+    lat = posWgs84->latitude;
+    lon = posWgs84->longitude;
+    if (lon < 0)
+    {
+        lon += (2.0 * M_PI) + 1.0e-10;
+    }
+    latDeg = (int)(lat * 180.0 / M_PI);
+    lonDeg = (int)(lon * 180.0 / M_PI);
+
+    // zone calculation
+    if (posWgs84->longitude < M_PI)
+    {
+        posUtm->zone = (int)(31 + ((posWgs84->longitude * 180.0 / M_PI) / 6.0));
+    }
+    else
+    {
+      posUtm->zone = (int)(((posWgs84->longitude * 180.0 / M_PI) / 6.0) - 29);
+    }
+    if (posUtm->zone > 60)
+    {
+        posUtm->zone = 1;
+    }
+
+    // utm zone special cases 
+    if ((latDeg > 55) && (latDeg < 64) && (lonDeg > -1) && (lonDeg < 3))
+    {
+        posUtm->zone = 31;
+    }
+    if ((latDeg > 55) && (latDeg < 64) && (lonDeg > 2) && (lonDeg < 12))
+    {
+        posUtm->zone = 32;
+    }
+    if ((latDeg > 71) && (lonDeg > -1) && (lonDeg < 9))
+    {
+        posUtm->zone = 31;
+    }
+    if ((latDeg > 71) && (lonDeg > 8) && (lonDeg < 21))
+    {
+        posUtm->zone = 33;
+    }
+    if ((latDeg > 71) && (lonDeg > 20) && (lonDeg < 33))
+    {
+        posUtm->zone = 35;
+    }
+    if ((latDeg > 71) && (lonDeg > 32) && (lonDeg < 42))
+    {
+        posUtm->zone = 37;
+    }
+
+    if (posUtm->zone >= 31)
+    {
+        centralMeridian = (6 * posUtm->zone - 183) * M_PI / 180.0;
+    }
+    else
+    {
+        centralMeridian = (6 * posUtm->zone + 177) * M_PI / 180.0;
+    }
+
+    if (centralMeridian > M_PI)
+    {
+        centralMeridian -= (2.0*M_PI);
+    }
+
+    if (lat < 0)
+    {
+        falseNorthing = 10000000;
+    }
+
+
+    //
+    // convert geodetic position to transverse mercator
+    //
+
+    // calc transverse mercator parameter
+    tranMercEs  = 2.0 * utmF - utmF * utmF;
+    tranMercEbs = (1.0 / (1.0 - tranMercEs)) - 1.0;
+    tranMercB   = utmA * (1.0 - utmF);
+ 
+    // true meridianal constants
+    tn = (utmA - tranMercB) / (utmA + tranMercB);
+    tn2 = tn * tn;
+    tn3 = tn2 * tn;
+    tn4 = tn3 * tn;
+    tn5 = tn4 * tn;
+
+    tranMercAp = utmA * (1.0 - tn + 5.0 * (tn2 - tn3) / 4.0 +
+                 81.0 * (tn4 - tn5) / 64.0 );
+    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) / 
+                 8.0 + 55.0 * tn5 / 64.0 ) / 2.0;
+    tranMercCp = 15.0 * utmA  * (tn2 - tn3 + 3.0 * (tn4 - tn5 ) / 4.0) / 16.0;
+    tranMercDp = 35.0 * utmA  * (tn3 - tn4 + 11.0 * tn5 / 16.0) / 48.0;
+    tranMercEp = 315.0 * utmA * (tn4 - tn5) / 512.0;
+
+    // delta longitude
+    dlam = lon - centralMeridian;
+
+    if (dlam > M_PI)
+    {
+        dlam -= (2.0 * M_PI);
+    }
+    if (dlam < -M_PI)
+    {
+        dlam += (2 * M_PI);
+    }
+    if (fabs(dlam) < 2.e-10)
+    {
+        dlam = 0.0;
+    }
+
+    dlam2 = dlam * dlam;
+    dlam3 = dlam * dlam2;
+    dlam4 = dlam2 * dlam2;
+    dlam5 = dlam2 * dlam3;
+    dlam6 = dlam3 * dlam3;
+    dlam7 = dlam3 * dlam4;
+    dlam8 = dlam4 * dlam4;
+    s     = sin(lat);
+    s2    = s * s;
+    c     = cos(lat);
+    c2    = c * c;
+    c3    = c2 * c;
+    c5    = c3 * c2;
+    c7    = c5 * c2;
+    t     = tan(lat);
+    tan2  = t * t;
+    tan3  = tan2 * t;
+    tan4  = tan3 * t;
+    tan5  = tan4 * t;
+    tan6  = tan5 * t;
+    eta   = tranMercEbs * c2;
+    eta2  = eta * eta;
+    eta3  = eta2 * eta;
+    eta4  = eta3 * eta;
+
+    // radius of curvature in prime vertical
+    sn   = utmA / sqrt(1.0 - tranMercEs * s2);
+
+    tmd  = tranMercAp * lat - tranMercBp * sin(2.0 * lat) + tranMercCp * sin(4 * lat) -
+           tranMercDp * sin(6.0 * lat) + tranMercEp * sin(8.0 * lat);
+
+    tmdo = 0.0;
+
+    // northing
+    t1 = (tmd - tmdo) * utmScale;
+    t2 = sn * s * c * utmScale / 2.0;
+    t3 = sn * s * c3 * utmScale * (5.0 - tan2 + 9.0 * eta + 4.0 * eta2) / 24.0; 
+    t4 = sn * s * c5 * utmScale * (61.0 - 58.0 * tan2 + tan4 + 270.0 * eta - 
+                                   330.0 * tan2 * eta + 445.0 * eta2 + 324.0 * eta3 - 
+                                   680.0 * tan2 * eta2 + 88.0 * eta4 - 600.0 * tan2 * eta3 - 
+                                   192.0 * tan2 * eta4) / 720.0;
+    t5 = sn * s * c7 * utmScale * (1385.0 - 3111.0 * tan2 + 543.0 * tan4 - tan6) / 40320.0;
+
+    northing = falseNorthing + t1 + dlam2 * t2 + dlam4 * t3 + dlam6 * t4 + dlam8 * t5;
+
+    // easting
+    t6 = sn * c * utmScale;
+    t7 = sn * c3 * utmScale * ( 1.0 - tan2 + eta ) / 6.0;
+    t8 = sn * c5 * utmScale * ( 5.0 - 18.0 * tan2 + tan4 +
+                               14.0 * eta - 58.0 * tan2 * eta + 13.0 * eta2 + 4.0 * eta3 -
+                               64.0 * tan2 * eta2 - 24.0 * tan2 * eta3 ) / 120.0;
+    t9 = sn * c7 * utmScale * (61.0 - 479.0 * tan2 + 179.0 * tan4 - tan6 ) / 5040.0;
+
+    easting  = falseEasting + dlam * t6 + dlam3 * t7 + dlam5 * t8 + dlam7 * t9;
+
+    posUtm->northing = northing * 1000.0;
+    posUtm->easting  = easting * 1000.0;
+    posUtm->altitude = posWgs84->altitude;
+    posUtm->heading  = posWgs84->heading;
+}
+
+void PositionTool::utmToWgs84(position_utm_data *posUtm, position_wgs84_data *posWgs84)
+{
+    double c;
+    double de, de2, de3, de4;
+    double de5, de6, de7, de8;
+    double dlam;
+    double eta, eta2, eta3, eta4;
+    double ftphi;
+    int    i;
+    double a;
+    double s;
+    double sn, sn3, sn5, sn7;
+    double sr;
+    double t, tan2, tan4, tan6;
+    double t10, t11, t12, t13;
+    double t14, t15, t16, t17;
+    double tmd, tmdo;
+    double tn, tn2, tn3, tn4, tn5;
+    double tranMercB;
+    double tranMercEs;
+    double tranMercEbs;
+    double tranMercAp, tranMercBp;
+    double tranMercCp, tranMercDp, tranMercEp;
+    double utmScale2, utmScale3, utmScale4;
+    double utmScale5, utmScale6, utmScale7, utmScale8;
+    double easting, northing;
+    double centralMeridian = 0;
+    double falseEasting    = 500000;
+    double falseNorthing   = 0;
+    static double utmA     = 6378137.0;             // Semi-major axis of ellipsoid in meters
+    static double utmF     = 1.0 / 298.257223563;   // flattening of ellipsoid
+    double utmScale        = 0.9996;
+
+    if (posUtm->zone >= 31)
+    {
+        centralMeridian = ((6 * posUtm->zone - 183) * M_PI / 180.0 /*+ 0.00000005*/);
+    }
+    else
+    {
+        centralMeridian = ((6 * posUtm->zone + 177) * M_PI / 180.0 /*+ 0.00000005*/);
+    }
+    if (posUtm->northing < 0)
+    {
+        falseNorthing = 10000000;
+    }
+
+    easting  = posUtm->easting / 1000.0;
+    northing = posUtm->northing / 1000.0;
+
+    //
+    // transverse mercator projection
+    //
+
+    // calc transverse mercator parameter
+    tranMercEs  = 2.0 * utmF - utmF * utmF;
+    tranMercEbs = (1.0 / (1.0 - tranMercEs)) - 1.0;
+    tranMercB   = utmA * (1.0 - utmF);
+ 
+    // true meridianal constants
+    tn = (utmA - tranMercB) / (utmA + tranMercB);
+    tn2 = tn * tn;
+    tn3 = tn2 * tn;
+    tn4 = tn3 * tn;
+    tn5 = tn4 * tn;
+
+    tranMercAp = utmA * (1.0 - tn + 5.0 * (tn2 - tn3) / 4.0 +
+                 81.0 * (tn4 - tn5) / 64.0 );
+    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) / 
+                 8.0 + 55.0 * tn5 / 64.0 ) / 2.0;
+    tranMercCp = 15.0 * utmA  * (tn2 - tn3 + 3.0 * (tn4 - tn5 ) / 4.0) / 16.0;
+    tranMercDp = 35.0 * utmA  * (tn3 - tn4 + 11.0 * tn5 / 16.0) / 48.0;
+    tranMercEp = 315.0 * utmA * (tn4 - tn5) / 512.0;
+
+    // true meridional distances for latitude of origin 
+    tmdo = 0.0;
+
+    // origin
+    tmd = tmdo +  (northing - falseNorthing) / utmScale; 
+
+    // first estimate
+    sr    = utmA * (1.0 - tranMercEs);
+    ftphi = tmd / sr;
+
+    for (i = 0; i < 5 ; i++)
+    {
+        t10   = tranMercAp * ftphi - 
+                tranMercBp * sin(2.0 * ftphi) + tranMercCp * sin(4.0 * ftphi) - 
+                tranMercDp * sin(6.0 * ftphi) - tranMercEp * sin(8.0 * ftphi);
+        s     = sin(ftphi);
+        a     = sqrt(1.0 - tranMercEs * s * s);
+        sr    = utmA * (1.0 - tranMercEs) / (a * a * a);
+        ftphi = ftphi + (tmd - t10) / sr;
+    }
+
+    // radius of curvature in the meridian
+    s   = sin(ftphi);
+    a   = sqrt(1.0 - tranMercEs * s * s);
+    sr  = utmA * (1.0 - tranMercEs) / (a * a * a);
+    sn  = utmA / a;
+
+    c   = cos(ftphi);
+    sn3 = sn * sn * sn;
+    sn5 = sn3 * sn * sn;
+    sn7 = sn5 * sn * sn;
+
+    // tangent value
+    t = tan(ftphi);
+    tan2 = t * t;
+    tan4 = tan2 * tan2;
+    tan6 = tan4 * tan2;
+    eta  = tranMercEbs * pow(c,2);
+    eta2 = eta * eta;
+    eta3 = eta2 * eta;
+    eta4 = eta3 * eta;
+    de   = easting - falseEasting;
+
+    if (fabs(de) < 0.0001)
+    {
+        de = 0.0;
+    }
+
+    de2  = de * de;
+    de3  = de2 * de;
+    de4  = de2 * de2;
+    de5  = de3 * de2;
+    de6  = de4 * de2;
+    de7  = de4 * de3;
+    de8  = de4 * de4;
+    utmScale2 = utmScale * utmScale;
+    utmScale3 = utmScale2 * utmScale;
+    utmScale4 = utmScale2 * utmScale2;
+    utmScale5 = utmScale3 * utmScale2;
+    utmScale6 = utmScale4 * utmScale2;
+    utmScale7 = utmScale4 * utmScale3;
+    utmScale8 = utmScale6 * utmScale2;
+
+    // latitude
+    t10 = t / (2.0 * sr * sn * utmScale2);
+    t11 = t * (5.0  + 3.0 * tan2 + eta - 4.0 * eta2 -
+               9.0 * tan2 * eta) / (24.0 * sr * sn3 * utmScale4);
+    t12 = t * (61.0 + 90.0 * tan2 + 46.0 * eta + 45.0 * tan4 -
+               252.0 * tan2 * eta  - 3.0 * eta2 + 100.0 * eta3 - 
+               66.0 * tan2 * eta2 - 90.0 * tan4 * eta + 
+               88.0 * eta4 + 225.0 * tan4 * eta2 + 84.0 * tan2 * eta3 - 
+               192.0 * tan2 * eta4) / ( 720.0 * sr * sn5 * utmScale6);
+    t13 = t * (1385.0 + 3633.0 * tan2 + 4095.0 * tan4 + 1575.0 * tan6) / 
+              (40320.0 * sr * sn7 * utmScale8);
+    posWgs84->latitude = ftphi - de2 * t10 + de4 * t11 - de6 * t12 + de8 * t13;
+
+    t14 = 1.0 / (sn * c * utmScale);
+    t15 = (1.0 + 2.0 * tan2 + eta) / (6.0 * sn3 * c * utmScale3);
+    t16 = (5.0 + 6.0 * eta + 28.0 * tan2 - 3.0 * eta2 +
+           8.0 * tan2 * eta + 24.0 * tan4 - 4.0 * eta3 +
+           4.0 * tan2 * eta2 + 24.0 * tan2 * eta3) / (120.0 * sn5 * c * utmScale5);
+    t17 = (61.0 +  662.0 * tan2 + 1320.0 * tan4 + 720.0 * tan6) / 
+          (5040.0 * sn7 * c * utmScale7);
+
+    // difference in longitude
+    dlam = de * t14 - de3 * t15 + de5 * t16 - de7 * t17;
+
+    // longitude
+    posWgs84->longitude = centralMeridian + dlam;
+
+    if (posWgs84->longitude > (M_PI))
+    {
+        posWgs84->longitude -= (2.0 * M_PI);
+    }
+
+    posWgs84->altitude  = posUtm->altitude;
+    posWgs84->heading   = posUtm->heading;
+}
+
 void PositionTool::wgs84ToGk(position_wgs84_data *posWgs84, position_gk_data *posGk)
 {
     double  altitude;
@@ -129,7 +499,8 @@ void PositionTool::wgs84ToGk(position_wgs84_data *posWgs84, position_gk_data *po
 
     posGk->northing = (gb + x) * 1000.0;
     posGk->easting  = (1000000.0 * round((lambda * 180.0 / M_PI) / 3.0) + 500000.0 + y) * 1000.0;
-    posGk->altitude = h * 1000.0;
+    posGk->altitude = (int)(h * 1000.0);
+    posGk->heading  = posWgs84->heading;
 }
 
 
@@ -205,7 +576,7 @@ void PositionTool::gkToWgs84(position_gk_data *posGk, position_wgs84_data *posWg
     sinLambda = sin(lambda);
     eq        = (ABES * ABES - BBES * BBES) / (ABES * ABES);
     n         = ABES / sqrt(1.0 - eq * sinPhi * sinPhi);
-   xz        = (n + h)   * cosPhi * cosLambda;
+    xz        = (n + h)   * cosPhi * cosLambda;
     yz        = (n + h)   * cosPhi * sinLambda;
     zz        = ((1.0 - eq) * n + h) * sinPhi;
 
@@ -237,4 +608,5 @@ void PositionTool::gkToWgs84(position_gk_data *posGk, position_wgs84_data *posWg
     posWgs84->latitude  = lat;
     posWgs84->longitude = lon;
     posWgs84->altitude  = (int)rint(((xq / (cos(lat) * cos(lon))) - n) * 1000.0);
+    posWgs84->heading   = posGk->heading;
 }

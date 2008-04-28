@@ -21,25 +21,30 @@
 #include <navigation/position_proxy.h>
 #include <math.h>
 
-typedef struct
-{
-    double    northing;
-    double    easting;
-    double    altitude;
-} position_gk_data;
+#define AWGS         6378137.0          // Wgs84 semi-major axis  = equatorial radius in meter
+#define BWGS         6356752.31425      // Wgs84 semi-minor axis  = polar radius in meter
+#define ABES         6377397.15508      // Bessel semi-major axis = equatorial radius in meter
+#define BBES         6356078.96290      // Bessel semi-minor axis = polar radius in meter
 
-#define AWGS        6378137.0        // Wgs84 semi-major axis  = equatorial radius in meter
-#define BWGS        6356752.31425    // Wgs84 semi-minor axis  = polar radius in meter
-#define ABES        6377397.15508    // Bessel semi-major axis = equatorial radius in meter
-#define BBES        6356078.96290    // Bessel semi-minor axis = polar radius in meter
+/*// parameter for Hannover
+#define HELM_DX      -585.7             // Helmert translation parameter 1
+#define HELM_DY      -87.0              // Helmert translation parameter 2
+#define HELM_DZ      -409.2             // Helmert translation parameter 3
+#define HELM_ROTX    2.540423689E-6     // Helmert rotation parameter 1
+#define HELM_ROTY    7.514612057E-7     // Helmert rotation parameter 2
+#define HELM_ROTZ    -1.368144208E-5    // Helmert rotation parameter 3
+#define HELM_SC      1.0 / 0.99999122   // Helmert scaling factor*/
 
-#define HELM_DX     -585.7           // Helmert translation parameter 1
-#define HELM_DY     -87.0            // Helmert translation parameter 2
-#define HELM_DZ     -409.2           // Helmert translation parameter 3
-#define HELM_ROTX   2.540423689E-6   // Helmert rotation parameter 1
-#define HELM_ROTY   7.514612057E-7   // Helmert rotation parameter 2
-#define HELM_ROTZ   -1.368144208E-5  // Helmert rotation parameter 3
-#define HELM_SC     1.0 / 0.99999122 // Helmert scaling factor
+// parameter for germany
+#define HELM_DX      -591.28                // Helmert translation parameter 1
+#define HELM_DY      -81.35                 // Helmert translation parameter 2
+#define HELM_DZ      -396.39                // Helmert translation parameter 3
+#define HELM_ROTX    7.1606980699878466E-6  // Helmert rotation parameter 1
+#define HELM_ROTY    -3.568228692966184E-7  // Helmert rotation parameter 2
+#define HELM_ROTZ    -7.068583470577034E-6  // Helmert rotation parameter 3
+#define HELM_SC      1.0 /(1.0 - 9.82E-6)   // Helmert scaling factor
+
+
 
 //######################################################################
 //# Class PositionTool
@@ -56,6 +61,8 @@ class PositionTool {
     PositionTool();
     PositionTool(RackMailbox *p_mbx, int gdos_level);
 
+    void wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *posUtm);
+    void utmToWgs84(position_utm_data *posUtm, position_wgs84_data *posWgs84);
     void wgs84ToGk(position_wgs84_data *posWgs84, position_gk_data *posGk);
     void gkToWgs84(position_gk_data *posGk, position_wgs84_data *posWgs84);
 
