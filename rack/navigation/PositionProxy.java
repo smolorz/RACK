@@ -26,12 +26,25 @@ public class PositionProxy extends RackDataProxy
         RackProxy.MSG_POS_OFFSET + 2;
     public static final byte MSG_POSITION_POS_TO_WGS84 =
         RackProxy.MSG_POS_OFFSET + 3;
+    public static final byte MSG_POSITION_GK_TO_POS =
+        RackProxy.MSG_POS_OFFSET + 4;
+    public static final byte MSG_POSITION_POS_TO_GK =
+        RackProxy.MSG_POS_OFFSET + 5;
+    public static final byte MSG_POSITION_UTM_TO_POS =
+        RackProxy.MSG_POS_OFFSET + 6;
+    public static final byte MSG_POSITION_POS_TO_UTM =
+        RackProxy.MSG_POS_OFFSET + 7;    
     
     public static final byte MSG_POSITION_POS =
         RackProxy.MSG_NEG_OFFSET - 2;
     public static final byte MSG_POSITION_WGS84 =
         RackProxy.MSG_NEG_OFFSET - 3;
+    public static final byte MSG_POSITION_GK =
+        RackProxy.MSG_NEG_OFFSET - 5;
+    public static final byte MSG_POSITION_UTM =
+        RackProxy.MSG_NEG_OFFSET - 7;    
 
+    
     public PositionProxy(int id , TimsMbx replyMbx)
     {
         super(RackName.create(RackName.POSITION, id), replyMbx, 500);
@@ -149,6 +162,126 @@ public class PositionProxy extends RackDataProxy
         catch(TimsException e)
         {
             System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".posToWgs84 " + e);
+            return null;
+        }
+    }
+
+    public synchronized PositionDataMsg gkToPos(PositionGkDataMsg posGk)
+    {
+        currentSequenceNo++;
+
+        try {
+            replyMbx.send(MSG_POSITION_GK_TO_POS,
+                               commandMbx,
+                               (byte)0,
+                               (byte)currentSequenceNo,
+                               posGk);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(replyTimeout);
+            }
+            while((reply.seqNr != currentSequenceNo)
+                   & (reply.type == MSG_POSITION_POS));
+            
+            PositionDataMsg data = new PositionDataMsg(reply);
+            return data;
+        }
+        catch(TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".gkToPos " + e);
+            return null;
+        }
+    }
+    
+    public synchronized PositionGkDataMsg posToGk(PositionDataMsg posData)
+    {
+        currentSequenceNo++;
+
+        try {
+            replyMbx.send(MSG_POSITION_POS_TO_GK,
+                               commandMbx,
+                               (byte)0,
+                               (byte)currentSequenceNo,
+                               posData);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(replyTimeout);
+            }
+            while ((reply.seqNr != currentSequenceNo)
+                    & (reply.type == MSG_POSITION_GK));
+            
+            PositionGkDataMsg data = new PositionGkDataMsg(reply);
+            return data;
+        }
+        catch(TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".posToGk " + e);
+            return null;
+        }
+    }
+
+    public synchronized PositionDataMsg utmToPos(PositionUtmDataMsg posUtm)
+    {
+        currentSequenceNo++;
+
+        try {
+            replyMbx.send(MSG_POSITION_UTM_TO_POS,
+                               commandMbx,
+                               (byte)0,
+                               (byte)currentSequenceNo,
+                               posUtm);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(replyTimeout);
+            }
+            while((reply.seqNr != currentSequenceNo)
+                   & (reply.type == MSG_POSITION_POS));
+            
+            PositionDataMsg data = new PositionDataMsg(reply);
+            return data;
+        }
+        catch(TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".utmToPos " + e);
+            return null;
+        }
+    }
+    
+    public synchronized PositionUtmDataMsg posToUtm(PositionDataMsg posData)
+    {
+        currentSequenceNo++;
+
+        try {
+            replyMbx.send(MSG_POSITION_POS_TO_UTM,
+                               commandMbx,
+                               (byte)0,
+                               (byte)currentSequenceNo,
+                               posData);
+
+            TimsRawMsg reply;
+
+            do
+            {
+                reply = replyMbx.receive(replyTimeout);
+            }
+            while ((reply.seqNr != currentSequenceNo)
+                    & (reply.type == MSG_POSITION_UTM));
+            
+            PositionUtmDataMsg data = new PositionUtmDataMsg(reply);
+            return data;
+        }
+        catch(TimsException e)
+        {
+            System.out.println(RackName.nameString(replyMbx.getName()) + ": " + RackName.nameString(commandMbx) + ".posToUtm " + e);
             return null;
         }
     }
