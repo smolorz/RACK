@@ -26,6 +26,7 @@
 
 #define POSITION_REFERENCE_WGS84        0
 #define POSITION_REFERENCE_GK           1
+#define POSITION_REFERENCE_UTM          2
 
 //######################################################################
 //# class Position
@@ -41,7 +42,9 @@ class Position : public RackDataModule {
         int                 scaleLongitude;
         double              offsetNorthing;
         double              offsetEasting;
+        int                 utmZone;
         int                 positionReference;
+        int                 autoOffset;
 
         RackMutex           refPosMtx;
         position_3d         refOdo;
@@ -70,6 +73,8 @@ class Position : public RackDataModule {
         void    moduleOff(void);
         int     moduleCommand(message_info *msgInfo);
 
+        void    wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *posData);
+        void    posToWgs84(position_data *posData, position_wgs84_data *posWgs84Data);
         void    getPosition(position_3d* odo, position_3d* pos);
 
         // -> non realtime context

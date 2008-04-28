@@ -51,13 +51,19 @@ argTable_t argTab[] = {
       "Longitude scale in m / deg, default 0", { 0 } },
 
     { ARGOPT_OPT, "offsetNorthing", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Northing offset for Gauss Krueger coordinates in in m, default 0", { 0 } },
+      "Northing offset for Gauss Krueger/UTM coordinates in in m, default 0", { 0 } },
 
     { ARGOPT_OPT, "offsetEasting", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Easting offset for Gauss Krueger coordinates in in m, default 0", { 0 } },
+      "Easting offset for Gauss Krueger/UTM coordinates in in m, default 0", { 0 } },
+
+    { ARGOPT_OPT, "utmZone", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Number of UTM zone, default 32", { 32 } },
 
     { ARGOPT_OPT, "positionReference", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Position reference frame, 0 = wgs84, 1 = Gauss Krueger, default 0", { 0 } },
+      "Position reference frame, 0 = wgs84, 1 = Gauss Krueger, 2 = Utm, default 0", { 0 } },
+
+    { ARGOPT_OPT, "autoOffset", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Automatic offset estimation, 0 = off, 1 = on, default 1", { 1 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -86,7 +92,9 @@ int  Position::moduleOn(void)
     scaleLongitude    = getInt32Param("scaleLongitude");
     offsetNorthing    = (double)getInt32Param("offsetNorthing");
     offsetEasting     = (double)getInt32Param("offsetEasting");
+    utmZone           = getInt32Param("utmZone");
     positionReference = getInt32Param("positionReference");
+    autoOffset        = getInt32Param("autoOffset");
 
     ret = odometry->on();
     if (ret)
@@ -225,11 +233,12 @@ int  Position::moduleCommand(message_info *msgInfo)
 
     position_data       posData;
     position_data       *pPosData;
-    position_wgs84_data posWgs84Data;
     position_wgs84_data *pPosWgs84Data;
-    position_gk_data    posGk;
-    double              diffLat, diffLon;
-
+    position_utm_data   *pPosUtmData;
+    position_gk_data    *pPosGkData;
+    position_wgs84_data posWgs84Data;
+    position_utm_data   posUtmData;
+    position_gk_data    posGkData;
     int                 ret;
 
     switch(msgInfo->type)
@@ -300,75 +309,249 @@ int  Position::moduleCommand(message_info *msgInfo)
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
 
+
         case MSG_POSITION_WGS84_TO_POS:
             pPosWgs84Data = PositionWgs84Data::parse(msgInfo);
+            wgs84ToPos(pPosWgs84Data, &posData);
 
-            // position reference is Gauss-Krueger
-            if (positionReference == POSITION_REFERENCE_GK)
-            {
-                positionTool->wgs84ToGk(pPosWgs84Data, &posGk);
-
-                posData.pos.x   =  (int)rint(posGk.northing - offsetNorthing * 1000.0);
-                posData.pos.y   =  (int)rint(posGk.easting - offsetEasting * 1000.0);
-                posData.pos.z   = -(int)rint(posGk.altitude);
-                posData.pos.phi = 0.0f;
-                posData.pos.psi = 0.0f;
-                posData.pos.rho = pPosWgs84Data->heading;
-
-                GDOS_DBG_INFO("Wgs84 lat %a, lon %a, alt %d, Gauss-Krueger north %f, east %f, alt %f\n",
-                               pPosWgs84Data->latitude, pPosWgs84Data->longitude, pPosWgs84Data->altitude,
-                               posGk.northing, posGk.easting, posGk.altitude);
-
-                cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
-                                        sizeof(position_data));
-            }
-
-            // position reference is Wgs84
-            else
-            {
-                diffLat  = pPosWgs84Data->latitude - offsetLatitude;
-                diffLon  = pPosWgs84Data->longitude - offsetLongitude;
-
-                posData.pos.x       = (int)rint((diffLat * 180.0 / M_PI) * scaleLatitude * 1000.0);
-                posData.pos.y       = (int)rint((diffLon * 180.0 / M_PI) * scaleLongitude * 1000.0);
-                posData.pos.z       = -pPosWgs84Data->altitude;
-                posData.pos.phi     = 0.0f;
-                posData.pos.psi     = 0.0f;
-                posData.pos.rho     = pPosWgs84Data->heading;
-
-                cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
-                                        sizeof(position_data));
-            }
+            GDOS_DBG_INFO("WGS84 to POS: WGS84 lat %adeg, lon %adeg, alt %dmm, head %adeg, "
+                          "Pos x %dmm, y %dmm, z %dmm, rho %adeg\n",
+                          pPosWgs84Data->latitude, pPosWgs84Data->longitude, pPosWgs84Data->altitude,
+                          pPosWgs84Data->heading, posData.pos.x, posData.pos.y, 
+                          posData.pos.z, posData.pos.rho);
+            cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
+                                    sizeof(position_data));
             break;
 
         case MSG_POSITION_POS_TO_WGS84:
             pPosData = PositionData::parse(msgInfo);
+            posToWgs84(pPosData, &posWgs84Data);
 
-            // position reference is Gauss-Krueger
-            if (positionReference == POSITION_REFERENCE_GK)
+            GDOS_DBG_INFO("POS to WGS84: Pos x %dmm, y %dmm, z %dmm, rho %adeg, "
+                          "WGS84 lat %adeg, lon %adeg, alt %dmm, head %adeg\n",
+                          posData.pos.x, posData.pos.y, posData.pos.z, posData.pos.rho,
+                          posWgs84Data.latitude, posWgs84Data.longitude,
+                          posWgs84Data.altitude, posWgs84Data.heading);
+            cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
+                                    sizeof(position_wgs84_data));
+            break;
+
+        case MSG_POSITION_UTM_TO_POS:
+            pPosUtmData = PositionUtmData::parse(msgInfo);
+
+            if (positionReference == 2)
             {
-                posGk.northing         =  (double)pPosData->pos.x + offsetNorthing * 1000.0;
-                posGk.easting          =  (double)pPosData->pos.y + offsetEasting * 1000.0;
-                posGk.altitude         = -(double)pPosData->pos.z;
-
-                positionTool->gkToWgs84(&posGk, &posWgs84Data);
-
-                posWgs84Data.heading   = pPosData->pos.rho;
-
-                GDOS_DBG_INFO("Gauss-Krueger north %d, east %d, alt %d, Wgs84 lat %a, lon %a, alt %d\n",
-                               posGk.northing, posGk.easting, posGk.altitude, posWgs84Data.latitude,
-                               posWgs84Data.longitude, posWgs84Data.altitude);
-
-                cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
-                                        sizeof(position_wgs84_data));
+                posData.pos.x   =  (int)rint(pPosUtmData->northing - offsetNorthing * 1000.0);
+                posData.pos.y   =  (int)rint(pPosUtmData->easting - offsetEasting * 1000.0);
+                posData.pos.z   = -pPosUtmData->altitude;
+                posData.pos.phi = 0.0f;
+                posData.pos.psi = 0.0f;
+                posData.pos.rho = pPosUtmData->heading;
             }
-
-            // position reference is Wgs84
             else
             {
+                positionTool->utmToWgs84(pPosUtmData, &posWgs84Data);
+                wgs84ToPos(&posWgs84Data, &posData);
+            }
+
+            GDOS_DBG_INFO("UTM to POS: UTM zone %d, north %fmm, east %fmm, alt %dmm, head %adeg, "
+                          "Pos x %dmm, y %dmm, z %dmm, rho %adeg\n",
+                          pPosUtmData->zone, pPosUtmData->northing, pPosUtmData->easting,
+                          pPosUtmData->altitude, pPosUtmData->heading, posData.pos.x,
+                          posData.pos.y, posData.pos.z, posData.pos.rho);
+            cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
+                                    sizeof(position_data));
+            break;
+
+        case MSG_POSITION_POS_TO_UTM:
+            pPosData = PositionData::parse(msgInfo);
+
+            if (positionReference == 2)
+            {
+                posUtmData.zone     =  utmZone;
+                posUtmData.northing =  (double)pPosData->pos.x + offsetNorthing * 1000.0;
+                posUtmData.easting  =  (double)pPosData->pos.y + offsetEasting * 1000.0;
+                posUtmData.altitude = -pPosData->pos.z;
+                posUtmData.heading  =  pPosData->pos.rho;
+            }
+            else
+            {
+                posToWgs84(pPosData, &posWgs84Data);
+                positionTool->wgs84ToUtm(&posWgs84Data, &posUtmData);
+            }
+
+            GDOS_DBG_INFO("POS to UTM: Pos x %dmm, y %dmm, z %dmm, rho %adeg, "
+                          "UTM zone %d, north %fmm, east %fmm, alt %dmm, head %adeg\n",
+                          posData.pos.x, posData.pos.y, posData.pos.z, posData.pos.rho,
+                          posUtmData.zone, posUtmData.northing, posUtmData.easting,
+                          posUtmData.altitude, posUtmData.heading);
+            cmdMbx.sendDataMsgReply(MSG_POSITION_UTM, msgInfo, 1, &posUtmData,
+                                    sizeof(position_utm_data));
+            break;
+
+        case MSG_POSITION_GK_TO_POS:
+            pPosGkData = PositionGkData::parse(msgInfo);
+
+            if (positionReference == 1)
+            {
+                posData.pos.x   =  (int)rint(pPosGkData->northing - offsetNorthing * 1000.0);
+                posData.pos.y   =  (int)rint(pPosGkData->easting - offsetEasting * 1000.0);
+                posData.pos.z   = -pPosGkData->altitude;
+                posData.pos.phi = 0.0f;
+                posData.pos.psi = 0.0f;
+                posData.pos.rho = pPosGkData->heading;
+            }
+            else
+            {
+                positionTool->gkToWgs84(pPosGkData, &posWgs84Data);
+                wgs84ToPos(&posWgs84Data, &posData);
+            }
+
+            GDOS_DBG_INFO("GK to POS: GK north %fmm, east %fmm, alt %dmm, head %adeg, "
+                          "Pos x %dmm, y %dmm, z %dmm, rho %adeg\n",
+                            pPosGkData->northing, pPosGkData->easting, pPosGkData->altitude,
+                            pPosGkData->heading, posData.pos.x, posData.pos.y, posData.pos.z,
+                            posData.pos.rho);
+            cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
+                                    sizeof(position_data));
+            break;
+
+        case MSG_POSITION_POS_TO_GK:
+            pPosData = PositionData::parse(msgInfo);
+
+            if (positionReference == 1)
+            {
+                posGkData.northing  =  (double)pPosData->pos.x + offsetNorthing * 1000.0;
+                posGkData.easting   =  (double)pPosData->pos.y + offsetEasting * 1000.0;
+                posGkData.altitude  = -pPosData->pos.z;
+                posGkData.heading   =  pPosData->pos.rho;
+            }
+            else
+            {
+                posToWgs84(pPosData, &posWgs84Data);
+                positionTool->wgs84ToGk(&posWgs84Data, &posGkData);
+            }
+
+            GDOS_DBG_INFO("POS to GK: Pos x %dmm, y %dmm, z %dmm, rho %adeg, "
+                          "GK north %fmm, east %fmm, alt %dmm, head %adeg\n",
+                          pPosData->pos.x, pPosData->pos.y, pPosData->pos.z, 
+                          pPosData->pos.rho, posGkData.northing, posGkData.easting,
+                          posGkData.altitude, posGkData.heading);
+            cmdMbx.sendDataMsgReply(MSG_POSITION_UTM, msgInfo, 1, &posGkData,
+                                    sizeof(position_gk_data));
+            break;
+
+
+        default:
+            // not for me -> ask RackDataModule
+            return RackDataModule::moduleCommand(msgInfo);
+      }
+      return 0;
+}
+
+void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *posData)
+{
+    position_gk_data    posGk;
+    position_utm_data   posUtm;
+    double              diffLat, diffLon;
+
+    switch (positionReference)
+    {
+        // position reference is Gauss-Krueger
+        case POSITION_REFERENCE_GK:
+            positionTool->wgs84ToGk(posWgs84Data, &posGk);
+            posData->pos.x   =  (int)rint(posGk.northing - offsetNorthing * 1000.0);
+            posData->pos.y   =  (int)rint(posGk.easting - offsetEasting * 1000.0);
+            posData->pos.z   = -posGk.altitude;
+            posData->pos.phi = 0.0f;
+            posData->pos.psi = 0.0f;
+            posData->pos.rho = posGk.heading;
+
+            GDOS_DBG_INFO("Wgs84 lat %a, lon %a, alt %d, head %a"
+                        "Gauss-Krueger north %f, east %f, alt %d, head %a\n",
+                        posWgs84Data->latitude, posWgs84Data->longitude, 
+                        posWgs84Data->altitude, posWgs84Data->heading,
+                        posGk.northing, posGk.easting, posGk.altitude, posGk.heading);
+            break;
+
+        // position reference is Utm
+        case POSITION_REFERENCE_UTM:
+            positionTool->wgs84ToUtm(posWgs84Data, &posUtm);
+            posData->pos.x   =  (int)rint(posUtm.northing - offsetNorthing * 1000.0);
+            posData->pos.y   =  (int)rint(posUtm.easting - offsetEasting * 1000.0);
+            posData->pos.z   = -posUtm.altitude;
+            posData->pos.phi = 0.0f;
+            posData->pos.psi = 0.0f;
+            posData->pos.rho = posUtm.heading;
+
+            GDOS_DBG_INFO("Wgs84 lat %a, lon %a, alt %d, head %a"
+                          "UTM zone %d, north %f, east %f, alt %d, head %a\n",
+                        posWgs84Data->latitude, posWgs84Data->longitude, 
+                        posWgs84Data->altitude, posWgs84Data->heading,
+                        posUtm.zone, posUtm.northing, posUtm.easting, 
+                        posUtm.altitude, posUtm.heading);
+            break;
+
+            // position reference is Wgs84
+            default:
+                diffLat          = posWgs84Data->latitude - offsetLatitude;
+                diffLon          = posWgs84Data->longitude - offsetLongitude;
+                posData->pos.x   = (int)rint((diffLat * 180.0 / M_PI) * scaleLatitude * 1000.0);
+                posData->pos.y   = (int)rint((diffLon * 180.0 / M_PI) * scaleLongitude * 1000.0);
+                posData->pos.z   = -posWgs84Data->altitude;
+                posData->pos.phi = 0.0f;
+                posData->pos.psi = 0.0f;
+                posData->pos.rho = posWgs84Data->heading;
+                break;
+        }
+}
+
+
+void    Position::posToWgs84(position_data *posData, position_wgs84_data *posWgs84Data)
+{
+    position_gk_data    posGk;
+    position_utm_data   posUtm;
+    double              diffLat, diffLon;
+
+    switch (positionReference)
+    {
+        // position reference is Gauss-Krueger
+        case POSITION_REFERENCE_GK:
+            posGk.northing  =  (double)posData->pos.x + offsetNorthing * 1000.0;
+            posGk.easting   =  (double)posData->pos.y + offsetEasting * 1000.0;
+            posGk.altitude  = -posData->pos.z;
+            posGk.heading   =  posData->pos.rho;
+            positionTool->gkToWgs84(&posGk, posWgs84Data);
+
+            GDOS_DBG_INFO("Gauss-Krueger north %f, east %f, alt %d, head %a, "
+                          "Wgs84 lat %a, lon %a, alt %d, head %a\n",
+                          posGk.northing, posGk.easting, posGk.altitude, posGk.heading,
+                          posWgs84Data->latitude, posWgs84Data->longitude, 
+                          posWgs84Data->altitude, posWgs84Data->heading);
+            break;
+
+            // position reference is Utm
+            case POSITION_REFERENCE_UTM:
+                posUtm.zone     =  utmZone;
+                posUtm.northing =  (double)posData->pos.x + offsetNorthing * 1000.0;
+                posUtm.easting  =  (double)posData->pos.y + offsetEasting * 1000.0;
+                posUtm.altitude = -posData->pos.z;
+                posUtm.heading  =  posData->pos.rho;
+                positionTool->utmToWgs84(&posUtm, posWgs84Data);
+
+                GDOS_DBG_INFO("Utm zone %d, north %f, east %f, alt %d, head %a, "
+                              "Wgs84 lat %a, lon %a, alt %d, head %a\n",
+                              posUtm. zone, posUtm.northing, posUtm.easting, 
+                              posUtm.altitude, posUtm.heading,
+                              posWgs84Data->latitude, posWgs84Data->longitude, 
+                              posWgs84Data->altitude, posWgs84Data->heading);
+                break;
+
+            // position reference is Wgs84
+            default:
                 if (scaleLatitude != 0)
                 {
-                    diffLat = (((double)pPosData->pos.x / scaleLatitude) / 1000.0) * M_PI / 180.0;
+                    diffLat = (((double)posData->pos.x / scaleLatitude) / 1000.0) * M_PI / 180.0;
                 }
                 else
                 {
@@ -377,31 +560,21 @@ int  Position::moduleCommand(message_info *msgInfo)
 
                 if (scaleLongitude != 0)
                 {
-                    diffLon = (((double)pPosData->pos.y / scaleLongitude) / 1000.0) * M_PI / 180.0;
+                    diffLon = (((double)posData->pos.y / scaleLongitude) / 1000.0) * M_PI / 180.0;
                 }
                 else
                 {
                     diffLon = 0;
                 }
 
-                posWgs84Data.latitude  = offsetLatitude + diffLat;
-                posWgs84Data.longitude = offsetLongitude + diffLon;
-                posWgs84Data.altitude  = -pPosData->pos.z;
-                posWgs84Data.heading   = pPosData->pos.rho;
-
-                cmdMbx.sendDataMsgReply(MSG_POSITION_WGS84, msgInfo, 1, &posWgs84Data,
-                                        sizeof(position_wgs84_data));
-            }
-            break;
-
-        break;
-
-        default:
-            // not for me -> ask RackDataModule
-            return RackDataModule::moduleCommand(msgInfo);
-      }
-      return 0;
+                posWgs84Data->latitude  = offsetLatitude + diffLat;
+                posWgs84Data->longitude = offsetLongitude + diffLon;
+                posWgs84Data->altitude  = -posData->pos.z;
+                posWgs84Data->heading   = posData->pos.rho;
+                break;
+    }
 }
+
 
 void    Position::getPosition(position_3d* odo, position_3d* pos)
 {
