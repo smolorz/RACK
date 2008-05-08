@@ -123,4 +123,19 @@ public class Point2d implements Serializable
          return new Point2d((int) Math.round(x * c - y * s) + ptransX,
                             (int) Math.round(x * s + y * c) + ptransY);
     }
+     
+     public boolean equals(Object obj){
+         if (obj==null){
+             return false;
+         }
+         
+         if(! (obj instanceof Point2d))
+         {
+             return false;
+         }
+         
+         Point2d p=(Point2d)obj;
+         
+         return p.x==this.x && p.y == this.y;
+     }
 }
