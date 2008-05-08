@@ -19,6 +19,8 @@
 #include <main/defines/point2d.h>
 #include <main/defines/position2d.h>
 
+#define MAX_ROTATION_ANGLE  (350.0 * M_PI / 180.0)
+
 //######################################################################
 //# PolarSpline (static size - no message)
 //######################################################################
@@ -119,9 +121,20 @@ class PolarSpline
             if (spline->radius != 0)
             {
                 // calculate longitudinal position
+                double fixedAngle=normaliseAngle(lengthSign * radiusSign * point_2d_polar_angle(point));
+
+                // 360 degree turns are not plausible (wa are not dancing!)
+                if(fixedAngle > MAX_ROTATION_ANGLE){
+                    fixedAngle=0.0;
+                }
+
+                result->x = (int)rint(fabs(spline->radius  * fixedAngle ) * lengthSign);
+
+                /*
                 result->x = (int)rint(fabs(spline->radius *
                                  normaliseAngle(lengthSign * radiusSign *
-                                                point_2d_polar_angle(point))) * lengthSign);
+                                               point_2d_polar_angle(point))) * lengthSign);
+                */
 
                 // calculate transversal deviation
                 a = (double)result->x / (double)spline->radius;
