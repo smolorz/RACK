@@ -11,13 +11,15 @@
  *
  * Authors
  *      Oliver Wulf      <oliver.wulf@web.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import javax.swing.*;
 
@@ -43,7 +45,13 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
     protected int             destIndex;
     protected int             destTurnover;
     
-    protected JButton         setDestinationButton = new JButton("Set Destination");
+    protected JLabel          totalDistanceLabel = new JLabel("Total distance 0 m");
+    protected JLabel          destinationIndexLabel = new JLabel("Destination ( 0 / 0 )");
+    protected JButton         nextDestinationButton = new JButton("Next destination");
+    protected ActionListener  nextDestinationAction;
+    protected JButton         previousDestinationButton = new JButton("Previous destination");
+    protected ActionListener  previousDestinationAction;
+    protected JButton         setDestinationButton = new JButton("Set destination");
     protected ActionListener  setDestinationAction;
 
     protected boolean         mapViewIsShowing;
@@ -56,6 +64,9 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
 
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 4, 2));
 
+        buttonPanel.add(onButton);
+        buttonPanel.add(offButton);
+
         setDestinationAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -63,47 +74,165 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
                         "Navi", JOptionPane.PLAIN_MESSAGE, null, null, "0,0");
                 if ((s != null) && (s.length() > 0))
                 {
-                    StringTokenizer st = new StringTokenizer(s, ",");
-                    if (st.countTokens() == 2)
+                    Position3d dest = parseDestString(s);
+                    
+                    if(dest != null)
                     {
-                        Position3d dest = new Position3d(
-                                Integer.parseInt(st.nextToken()),
-                                Integer.parseInt(st.nextToken()), 0, 0.0f, 0.0f, 0.0f);
-                        
                         destList = new Position3d[1];
                         destList[0] = dest;
                         destIndex = 0;
-                        navi.setDestination(dest);
+                        setDestination();
                     }
                 }
             }
         };
         setDestinationButton.addActionListener(setDestinationAction);
 
-        buttonPanel.add(onButton);
-        buttonPanel.add(offButton);
+        nextDestinationAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                if((destIndex + 1) < destList.length)
+                {
+                    destIndex++;
+                    setDestination();
+                }
+            }
+        };
+        nextDestinationButton.addActionListener(nextDestinationAction);
+
+        previousDestinationAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(destIndex > 0)
+                {
+                    destIndex--;
+                    setDestination();
+                }
+            }
+        };
+        previousDestinationButton.addActionListener(previousDestinationAction);
+
+        JPanel destinationPanel = new JPanel(new GridLayout(0, 1, 4, 2));
+        
+        destinationPanel.add(totalDistanceLabel);
+        destinationPanel.add(destinationIndexLabel);
+        destinationPanel.add(nextDestinationButton);
+        destinationPanel.add(previousDestinationButton);
+        destinationPanel.add(setDestinationButton);
 
         rootPanel.add(buttonPanel, BorderLayout.NORTH);
-        rootPanel.add(setDestinationButton, BorderLayout.SOUTH);
+        rootPanel.add(destinationPanel, BorderLayout.SOUTH);
 
-        destList = new Position3d[4];
-        destList[0] = new Position3d(10000, 10000, 0, 0, 0, 0);
-        destList[1] = new Position3d(-7000, 18000, 0, 0, 0, 0);
-        destList[2] = new Position3d(-5000, 0, 0, 0, 0, 0);
-        destList[3] = new Position3d(0, 0, 0, 0, 0, 0);
+        destList = new Position3d[1];
+        destList[0] = new Position3d(0, 0, 0, 0, 0, 0);
         destIndex = 0;
-        destTurnover = 2000;
+
+        String param = ge.getParameter("destFile");
+        if (param.length() > 0)
+        {
+            loadDestFile(param);
+        }
+        
+        param = ge.getParameter("destTurnover");
+        if (param.length() > 0)
+        {
+            destTurnover = Integer.parseInt(param);
+        }
+        else
+        {
+            destTurnover = 2000;
+        }
 
         navi = new NaviComponent(Color.RED, true);
-        navi.setDestination(destList[0]);
+        setDestination();
+
         rootPanel.add(navi, BorderLayout.CENTER);
 
         setEnabled(false);
     }
 
+    protected Position3d parseDestString(String destString)
+    {
+        destString = destString.replaceAll(",", " ");
+        StringTokenizer st = new StringTokenizer(destString, " ");
+        if (st.countTokens() == 2)
+        {
+            try
+            {
+                Position3d dest = new Position3d(
+                        Integer.parseInt(st.nextToken().trim()),
+                        Integer.parseInt(st.nextToken().trim()), 0, 0.0f, 0.0f, 0.0f);
+
+                return dest;
+            }
+            catch(NumberFormatException e)
+            {
+                System.out.println("Can't parse destination \"" + destString + "\"");
+                return null;
+            }
+        }
+        else
+        {
+            System.out.println("Can't parse destination \"" + destString + "\"");
+            return null;
+        }
+    }
+    
+    protected void loadDestFile(String fileName)
+    {
+        try
+        {
+            BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
+            
+            String line;
+            Vector<String> lines = new Vector<String>();
+            
+            while((line = fileReader.readLine()) != null)
+            {
+                if(line.startsWith("#") == false)
+                {
+                    lines.add(line);
+                }
+            }
+            
+            destList = new Position3d[lines.size()];
+
+            for(int i = 0; i < lines.size(); i++)
+            {
+                Position3d dest = parseDestString(lines.elementAt(i));
+                
+                if(dest != null)
+                {
+                    destList[i] = dest;
+                }
+                else
+                {
+                    destList[i] = new Position3d(0,0,0,0,0,0);
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            destList = new Position3d[1];
+            destList[0] = new Position3d(0, 0, 0, 0, 0, 0);
+
+            e.printStackTrace();
+        }
+    }
+    
+    protected void setDestination()
+    {
+        navi.setDestination(destList[destIndex]);
+        destinationIndexLabel.setText("Destination ( " + (destIndex+1) + " / " + destList.length + " )"); 
+    }
+
     protected void setEnabled(boolean enabled)
     {
         navi.setEnabled(enabled);
+        totalDistanceLabel.setEnabled(enabled);
+        destinationIndexLabel.setEnabled(enabled);
+        nextDestinationButton.setEnabled(enabled);
+        previousDestinationButton.setEnabled(enabled);
         setDestinationButton.setEnabled(enabled);
     }
     
@@ -147,16 +276,27 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
 
             navi.setPosition(data.pos);
 
-            if(destIndex < destList.length - 1)
+            double dx = destList[destIndex].x - data.pos.x;
+            double dy = destList[destIndex].y - data.pos.y;
+            double dist = Math.sqrt(dx * dx + dy * dy);
+
+            if((destIndex < destList.length - 1) && (dist < destTurnover))
             {
-                double dx = destList[destIndex].x - data.pos.x;
-                double dy = destList[destIndex].y - data.pos.y;
-                double dist = Math.sqrt(dx * dx + dy * dy);
-                if(dist < destTurnover)
+                destIndex++;
+                setDestination();
+            }
+            else
+            {
+                double totalDist = dist;
+                for(int i = destIndex + 1; i < destList.length; i++)
                 {
-                    destIndex++;
-                    navi.setDestination(destList[destIndex]);
+                    dx = destList[i-1].x - destList[i].x;
+                    dy = destList[i-1].y - destList[i].y;
+                    dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    totalDist += dist;
                 }
+                totalDistanceLabel.setText("Total distance " + (int)(totalDist/1000) + " m");
             }
             setEnabled(true);
         }
@@ -170,17 +310,38 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
     {
         Graphics2D g = mvg.getWorldGraphics();
 
-        g.setColor(Color.RED);
-
         synchronized(this)
         {
-            if((pos != null) & (destList != null) & (destList.length > 0))
+            if((destList != null) & (destList.length > 0))
             {
-                g.drawLine(pos.x, pos.y, destList[destIndex].x, destList[destIndex].y);
-                
-                for(int i = destIndex + 1; i < destList.length; i++)
+                if(pos != null)
                 {
-                    g.drawLine(destList[i-1].x, destList[i-1].y, destList[i].x, destList[i].y);
+                    g.setColor(Color.GRAY);
+                    
+                    for(int i = 1; i < destIndex + 1; i++)
+                    {
+                        g.drawLine(destList[i-1].x, destList[i-1].y, destList[i].x, destList[i].y);
+                    }
+
+                    g.setColor(Color.RED);
+
+                    g.drawLine(pos.x, pos.y, destList[destIndex].x, destList[destIndex].y);
+                    
+                    for(int i = destIndex + 1; i < destList.length; i++)
+                    {
+                        g.drawLine(destList[i-1].x, destList[i-1].y, destList[i].x, destList[i].y);
+                    }
+                    
+                    g.drawArc(destList[destIndex].x - destTurnover, destList[destIndex].y - destTurnover, 2*destTurnover, 2*destTurnover, 0, 360);
+                }
+                else
+                {
+                    g.setColor(Color.GRAY);
+                    
+                    for(int i = 1; i < destList.length; i++)
+                    {
+                        g.drawLine(destList[i-1].x, destList[i-1].y, destList[i].x, destList[i].y);
+                    }
                 }
             }
         }
