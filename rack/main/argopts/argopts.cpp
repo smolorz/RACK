@@ -297,7 +297,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
     return -1;
 }
 
-arg_value_t __getArg(char* argname, argTable_t *p_tab)
+arg_value_t __getArg(const char* argname, argTable_t *p_tab)
 {
     int idx = 0;
     while (p_tab[idx].name != "")

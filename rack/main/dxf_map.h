@@ -43,7 +43,7 @@ class DxfMap
         int read_polyline(FILE *fp);
         int read_line(FILE *fp);
 
-        int write_string(FILE *fp, int groupCode, char *string);
+        int write_string(FILE *fp, int groupCode, const char *string);
         int write_real(FILE *fp, int groupCode, double real);
         int write_number(FILE *fp, int groupCode, int number);
         int write_head(FILE *fp);

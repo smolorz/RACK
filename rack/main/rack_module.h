@@ -210,13 +210,13 @@ class RackModule {
 
         int       parseArgTable(argTable_t *argTable, rack_param_msg *paramMsg);
 
-        int32_t   getInt32Param(char* paramName);
-        char*     getStringParam(char* paramName);
-        float     getFloatParam(char* paramName);
+        int32_t   getInt32Param(const char* paramName);
+        char*     getStringParam(const char* paramName);
+        float     getFloatParam(const char* paramName);
 
-        void      setInt32Param(char* paramName, int32_t value);
-        void      setStringParam(char* paramName, char* value);
-        void      setFloatParam(char* paramName, float value);
+        void      setInt32Param(const char* paramName, int32_t value);
+        void      setStringParam(const char* paramName, char* value);
+        void      setFloatParam(const char* paramName, float value);
 
     public:
         /** Get instance number of the module */

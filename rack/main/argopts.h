@@ -72,19 +72,19 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_ad,
 
 void argUsage(argDescriptor_t *p_ad);
 
-arg_value_t __getArg(char *argname, argTable_t *p_tab);
+arg_value_t __getArg(const char *argname, argTable_t *p_tab);
 
-static inline int getIntArg(char *argname, argTable_t *p_tab)
+static inline int getIntArg(const char *argname, argTable_t *p_tab)
 {
     return __getArg(argname, p_tab).i;
 }
 
-static inline char *getStrArg(char *argname, argTable_t *p_tab)
+static inline char *getStrArg(const char *argname, argTable_t *p_tab)
 {
     return __getArg(argname, p_tab).s;
 }
 
-static inline float getFltArg(char *argname, argTable_t *p_tab)
+static inline float getFltArg(const char *argname, argTable_t *p_tab)
 {
     return __getArg(argname, p_tab).f;
 }

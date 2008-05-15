@@ -618,7 +618,7 @@ int     RackModule::parseArgTable(argTable_t *argTable, rack_param_msg *paramMsg
     return i;
 }
 
-int32_t   RackModule::getInt32Param(char* paramName)
+int32_t   RackModule::getInt32Param(const char* paramName)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
@@ -630,7 +630,7 @@ int32_t   RackModule::getInt32Param(char* paramName)
     return 0;
 }
 
-char*   RackModule::getStringParam(char* paramName)
+char*   RackModule::getStringParam(const char* paramName)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
@@ -642,7 +642,7 @@ char*   RackModule::getStringParam(char* paramName)
     return 0;
 }
 
-float   RackModule::getFloatParam(char* paramName)
+float   RackModule::getFloatParam(const char* paramName)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
@@ -654,7 +654,7 @@ float   RackModule::getFloatParam(char* paramName)
     return 0;
 }
 
-void   RackModule::setInt32Param(char* paramName, int32_t value)
+void   RackModule::setInt32Param(const char* paramName, int32_t value)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
@@ -666,7 +666,7 @@ void   RackModule::setInt32Param(char* paramName, int32_t value)
     }
 }
 
-void   RackModule::setStringParam(char* paramName, char* value)
+void   RackModule::setStringParam(const char* paramName, char* value)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {
@@ -678,7 +678,7 @@ void   RackModule::setStringParam(char* paramName, char* value)
     }
 }
 
-void   RackModule::setFloatParam(char* paramName, float value)
+void   RackModule::setFloatParam(const char* paramName, float value)
 {
     for(int i = 0; i < paramMsg->parameterNum; i++)
     {

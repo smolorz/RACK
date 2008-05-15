@@ -153,12 +153,12 @@ class GdosMailbox
             gdosLevel = newLevel;
         }
 
-        void print(int level, char* format, ...)
+        void print(int level, const char* format, ...)
         {
             tims_msg_head   head;
             char            buffer[GDOS_MAX_MSG_SIZE];
             int             percent = 0;
-            char*           src;
+            const char*     src;
             char*           dst;
             va_list         args;
             int             datasize = 0;

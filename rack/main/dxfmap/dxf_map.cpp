@@ -327,7 +327,7 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double sc
 // dxf_map_write
 //
 
-int DxfMap::write_string(FILE *fp, int groupCode, char *string)
+int DxfMap::write_string(FILE *fp, int groupCode, const char *string)
 {
     int ret;
 

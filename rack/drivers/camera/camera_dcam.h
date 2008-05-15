@@ -89,7 +89,7 @@ class CameraDcam : public RackDataModule {
     unsigned int            channel;
     unsigned int            frameRate;
     unsigned int            speed;
-    char*                   device;
+    const char*             device;
     camera_dcam_format7     format7image;
     camera_param_data       param;
 
