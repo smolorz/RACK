@@ -23,6 +23,7 @@
 #define MODULE_CLASS_ID             SCAN2D
 
 #define SCAN2D_SENSOR_NUM_MAX       4
+#define SCAN2D_SECTOR_NUM_MAX       8
 
 // scan_2d data message (use max message size)
 typedef struct {
@@ -39,9 +40,10 @@ class Scan2dMerge : public RackDataModule {
         int32_t             odometryInst;
         int32_t             scan2dInst[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dTimeout[SCAN2D_SENSOR_NUM_MAX];
+        int                 scan2dSectorNum[SCAN2D_SECTOR_NUM_MAX];
 
-        odometry_data       odometryBuffer[SCAN2D_SENSOR_NUM_MAX];
-        scan2d_data_msg     scanBuffer[SCAN2D_SENSOR_NUM_MAX];
+        odometry_data       odometryBuffer[SCAN2D_SENSOR_NUM_MAX][SCAN2D_SECTOR_NUM_MAX];
+        scan2d_data_msg     scanBuffer[SCAN2D_SENSOR_NUM_MAX][SCAN2D_SECTOR_NUM_MAX];
 
         // additional mailboxes
         RackMailbox         workMbx;

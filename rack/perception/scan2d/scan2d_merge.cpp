@@ -65,7 +65,7 @@ argTable_t argTab[] = {
  ******************************************************************************/
 int  Scan2dMerge::moduleOn(void)
 {
-    int ret, k;
+    int ret, k, i;
 
     // turn on odometry
     GDOS_DBG_DETAIL("Turn on odometry(%d)\n", odometryInst);
@@ -116,7 +116,11 @@ int  Scan2dMerge::moduleOn(void)
                 return ret;
             }
         }
-        scanBuffer[k].data.pointNum = 0;
+        
+        for (i = 0; i < SCAN2D_SECTOR_NUM_MAX; i++)
+        {
+            scanBuffer[k][i].data.pointNum = 0;
+        }
         scan2dTimeout[k]            = 0;
     }
 
@@ -149,10 +153,11 @@ int  Scan2dMerge::moduleLoop(void)
     scan2d_data     *scanData  = NULL;
     scan2d_data     *mergeData = NULL;
     int             ret;
-    int             i, j, k;
+    int             i, j, k, l;
     int             x, y;
     int             posDiffX, posDiffY;
     double          sinRho, cosRho;
+    int             curSector;
 
     // receive data
     ret = dataMbx.peekTimed(1000000000llu, &dataInfo); // 1s
@@ -176,12 +181,22 @@ int  Scan2dMerge::moduleLoop(void)
                     // message parsing
                     scanData = Scan2dData::parse(&dataInfo);
 
-                    ret = odometry->getData(&odometryBuffer[k],
+                    if (scanData->sectorNum > SCAN2D_SECTOR_NUM_MAX)
+                    {
+                        GDOS_ERROR("Sector num exceeds SCAN2D_SECTOR_NUM_MAX %i\n", SCAN2D_SECTOR_NUM_MAX);
+
+                        dataMbx.peekEnd();
+                        return -EOVERFLOW;
+                    }
+                    scan2dSectorNum[k] = scanData->sectorNum;
+                    curSector = scanData->sectorIndex;
+
+                    ret = odometry->getData(&odometryBuffer[k][curSector],
                                             sizeof(odometry_data),
                                             scanData->recordingTime);
 
-                    sinRho = sin(odometryBuffer[k].pos.rho);
-                    cosRho = cos(odometryBuffer[k].pos.rho);
+                    sinRho = sin(odometryBuffer[k][curSector].pos.rho);
+                    cosRho = cos(odometryBuffer[k][curSector].pos.rho);
 
                     j = 0;
 
@@ -189,35 +204,35 @@ int  Scan2dMerge::moduleLoop(void)
                     {
                         if ((scanData->point[i].type & TYPE_MASK) != TYPE_LANDMARK)
                         {
-                            scanBuffer[k].point[j].x  = (int)(scanData->point[i].x *
+                            scanBuffer[k][curSector].point[j].x  = (int)(scanData->point[i].x *
                                                               cosRho) -
                                                         (int)(scanData->point[i].y *
                                                               sinRho);
-                            scanBuffer[k].point[j].y  = (int)(scanData->point[i].x *
+                            scanBuffer[k][curSector].point[j].y  = (int)(scanData->point[i].x *
                                                               sinRho) +
                                                         (int)(scanData->point[i].y *
                                                               cosRho);
-                            scanBuffer[k].point[j].z  = scanData->point[i].z;
-                            scanBuffer[k].point[j].type      = scanData->point[i].type;
-                            scanBuffer[k].point[j].segment   = k + 1;
-                            scanBuffer[k].point[j].intensity = scanData->point[i].intensity;
+                            scanBuffer[k][curSector].point[j].z  = scanData->point[i].z;
+                            scanBuffer[k][curSector].point[j].type      = scanData->point[i].type;
+                            scanBuffer[k][curSector].point[j].segment   = k + 1;
+                            scanBuffer[k][curSector].point[j].intensity = scanData->point[i].intensity;
 
                             j++;
                         }
                     }
 
-                    scanBuffer[k].data.recordingTime = scanData->recordingTime;
-                    scanBuffer[k].data.duration      = scanData->duration;
-                    scanBuffer[k].data.maxRange      = scanData->maxRange;
-                    scanBuffer[k].data.pointNum      = j;
+                    scanBuffer[k][curSector].data.recordingTime = scanData->recordingTime;
+                    scanBuffer[k][curSector].data.duration      = scanData->duration;
+                    scanBuffer[k][curSector].data.maxRange      = scanData->maxRange;
+                    scanBuffer[k][curSector].data.pointNum      = j;
                     scan2dTimeout[k] = 0;
 
                     GDOS_DBG_DETAIL("Buffer Scan2D(%i) recordingtime %i "
                                     "pointNum %i x %i y %i\n", scan2dInst[k],
                                     scanData->recordingTime,
                                     scanData->pointNum,
-                                    odometryBuffer[k].pos.x,
-                                    odometryBuffer[k].pos.y);
+                                    odometryBuffer[k][curSector].pos.x,
+                                    odometryBuffer[k][curSector].pos.y);
                 }
             }
         }
@@ -234,7 +249,7 @@ int  Scan2dMerge::moduleLoop(void)
 
             mergeData->recordingTime = odoData->recordingTime;
             mergeData->duration      = dataBufferPeriodTime;
-            mergeData->maxRange      = scanBuffer[0].data.maxRange;
+            mergeData->maxRange      = scanBuffer[0][0].data.maxRange;
             mergeData->sectorNum     = 1;
             mergeData->sectorIndex   = 0;
             mergeData->pointNum      = 0;
@@ -256,48 +271,51 @@ int  Scan2dMerge::moduleLoop(void)
                     sinRho = sin(odoData->pos.rho);
                     cosRho = cos(odoData->pos.rho);
 
-                    for (i = 0; i < scanBuffer[k].data.pointNum; i++)
+                    for (l = 0; l < scan2dSectorNum[k]; l++)
                     {
-                        if (mergeData->pointNum >= SCAN2D_POINT_MAX)
+                        for (i = 0; i < scanBuffer[k][l].data.pointNum; i++)
                         {
-                            GDOS_ERROR("Merged scan exceeds SCAN2D_POINT_MAX %i\n", SCAN2D_POINT_MAX);
-
-                            for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
+                            if (mergeData->pointNum >= SCAN2D_POINT_MAX)
                             {
-                                if (scan2dInst[k] >= 0)
+                                GDOS_ERROR("Merged scan exceeds SCAN2D_POINT_MAX %i\n", SCAN2D_POINT_MAX);
+
+                                for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
                                 {
-                                    GDOS_WARNING("Scan2d(%i) pointNum %i", scan2dInst[k], scanBuffer[k].data.pointNum);
+                                    if (scan2dInst[k] >= 0)
+                                    {
+                                        GDOS_WARNING("Scan2d(%i) pointNum %i", scan2dInst[k], scanBuffer[k][l].data.pointNum);
+                                    }
                                 }
+                                dataMbx.peekEnd();
+                                return -EOVERFLOW;
                             }
-                            dataMbx.peekEnd();
-                            return -EOVERFLOW;
+
+                            j = mergeData->pointNum;
+
+                            posDiffX = odometryBuffer[k][l].pos.x - odoData->pos.x;
+                            posDiffY = odometryBuffer[k][l].pos.y - odoData->pos.y;
+
+                            x = scanBuffer[k][l].point[i].x + posDiffX;
+                            y = scanBuffer[k][l].point[i].y + posDiffY;
+
+                            mergeData->point[j].x         =   (int)(x * cosRho)
+                                                            + (int)(y * sinRho);
+                            mergeData->point[j].y         = - (int)(x * sinRho)
+                                                            + (int)(y * cosRho);
+                            mergeData->point[j].z         =   (int)sqrt(mergeData->point[j].x * mergeData->point[j].x +
+                                                                        mergeData->point[j].y * mergeData->point[j].y);
+                            mergeData->point[j].type      = scanBuffer[k][l].point[i].type;
+                            mergeData->point[j].segment   = scanBuffer[k][l].point[i].segment;
+                            mergeData->point[j].intensity = scanBuffer[k][l].point[i].intensity;
+                            mergeData->pointNum++;
                         }
-
-                        j = mergeData->pointNum;
-
-                        posDiffX = odometryBuffer[k].pos.x - odoData->pos.x;
-                        posDiffY = odometryBuffer[k].pos.y - odoData->pos.y;
-
-                        x = scanBuffer[k].point[i].x + posDiffX;
-                        y = scanBuffer[k].point[i].y + posDiffY;
-
-                        mergeData->point[j].x         =   (int)(x * cosRho)
-                                                        + (int)(y * sinRho);
-                        mergeData->point[j].y         = - (int)(x * sinRho)
-                                                        + (int)(y * cosRho);
-                        mergeData->point[j].z         =   (int)sqrt(mergeData->point[j].x * mergeData->point[j].x +
-                                                                    mergeData->point[j].y * mergeData->point[j].y);
-                        mergeData->point[j].type      = scanBuffer[k].point[i].type;
-                        mergeData->point[j].segment   = scanBuffer[k].point[i].segment;
-                        mergeData->point[j].intensity = scanBuffer[k].point[i].intensity;
-                        mergeData->pointNum++;
                     }
                 }
             }
 
             GDOS_DBG_DETAIL("recordingtime %i pointNum %i x %i y %i\n",
                             mergeData->recordingTime, mergeData->pointNum,
-                            odometryBuffer[0].pos.x, odometryBuffer[0].pos.y);
+                            odometryBuffer[0][0].pos.x, odometryBuffer[0][0].pos.y);
 
             putDataBufferWorkSpace(Scan2dData::getDatalen(mergeData));
         }
