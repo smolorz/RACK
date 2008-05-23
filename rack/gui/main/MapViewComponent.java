@@ -300,8 +300,10 @@ public class MapViewComponent extends JComponent
                 AffineTransform at = new AffineTransform();
                 at.scale(bgW / (double)bgImg.getWidth(), bgH / (double)bgImg.getHeight());
                 at.rotate( Math.PI / 2);
-                at.translate(-bgImg.getWidth()/ 2.0, -bgImg.getHeight() / 2.0);
+                at.translate(( bgY * (double)bgImg.getWidth() / bgW)  - bgImg.getWidth()  / 2.0, 
+                             (-bgX * (double)bgImg.getHeight() / bgH) - bgImg.getHeight() / 2.0);
                 BufferedImageOp biop;
+               
                 if(bgBicubic)
                 {
                     biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
