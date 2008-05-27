@@ -20,6 +20,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 BINDIR=@bindir@
+DATAROOTDIR=@datarootdir@
 LIBDIR=@libdir@
 PKGLIBDIR=@libdir@/rack
 PKGDATADIR=@datadir@/rack

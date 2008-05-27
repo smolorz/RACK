@@ -6,6 +6,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 pkglibdir=${libdir}/@PACKAGE@
 datadir=@datadir@
+datarootdir=@datarootdir@
 pkgdatadir=${datadir}/@PACKAGE@
 pkgincludedir=@includedir@/@PACKAGE@
 
