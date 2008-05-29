@@ -46,9 +46,9 @@ module_param_string(clock_sync_dev, clock_sync_dev,
 MODULE_PARM_DESC(clock_sync_dev, "Device for clock synchronization, "
                                  "default = none (no sync)");
 
-static int can_sync_id;
-module_param(can_sync_id, int, 0400);
-MODULE_PARM_DESC(can_sync_id, "Can ID of synchronisation message, "
+static int clock_sync_can_id;
+module_param(clock_sync_can_id, int, 0400);
+MODULE_PARM_DESC(clock_sync_can_id, "Can ID of synchronisation message, "
                               "default = 0");
 
 static rtdm_task_t      sync_task;
@@ -80,7 +80,7 @@ int tims_clock_ioctl(rtdm_user_info_t *user_info, unsigned int request,
             break;
     }
 
-    result += sync_delay; 
+    result += sync_delay;
 
     if (request == TIMS_RTIOC_GETTIME)
         result += rtdm_clock_read();
@@ -99,7 +99,7 @@ static void sync_task_func(void *arg)
     rtser_event_t   ser_rx_event;
 
     can_frame_t can_frame = {
-        .can_id = can_sync_id,
+        .can_id = clock_sync_can_id,
         .can_dlc = sizeof(timestamp),
     };
     struct iovec iov = {
@@ -114,7 +114,7 @@ static void sync_task_func(void *arg)
         .msg_control = NULL,
         .msg_controllen = 0,
     };
-    
+
     if (clock_sync_mode == SYNC_CAN_SLAVE) {
         msg.msg_control = &timestamp;
         msg.msg_controllen = sizeof(timestamp);
@@ -157,7 +157,7 @@ static void sync_task_func(void *arg)
 
                 rtdm_lock_get_irqsave(&sync_lock, lock_ctx);
                 clock_offset =
-                    timestamp_master - ser_rx_event.rxpend_timestamp; 
+                    timestamp_master - ser_rx_event.rxpend_timestamp;
                 rtdm_lock_put_irqrestore(&sync_lock, lock_ctx);
                 break;
 
@@ -194,7 +194,7 @@ static void sync_task_func(void *arg)
                     return;
                 }
 
-                timestamp_master = 
+                timestamp_master =
                     be64_to_cpu(*(nanosecs_abs_t *)can_frame.data);
 
                 rtdm_lock_get_irqsave(&sync_lock, lock_ctx);
@@ -239,7 +239,7 @@ int __init tims_clock_init(void)
     printk("TIMS: clock sync mode is %s\n", mode_str[clock_sync_mode]);
     printk("TIMS: clock sync dev is %s\n", clock_sync_dev);
 
-    rtdm_lock_init(&sync_lock); 
+    rtdm_lock_init(&sync_lock);
 
     switch(clock_sync_mode) {
         case SYNC_NONE:
@@ -263,7 +263,7 @@ int __init tims_clock_init(void)
             set_bit(TIMS_INIT_BIT_SYNC_DEV, &init_flags);
 
             strcpy(can_ifr.ifr_name, clock_sync_dev);
-            ret = rt_dev_ioctl(sync_dev_fd, SIOCGIFINDEX, &can_ifr);            
+            ret = rt_dev_ioctl(sync_dev_fd, SIOCGIFINDEX, &can_ifr);
             if (ret) {
                 tims_info("[CLOCK SYNC]: error resolving CAN interface: %d\n",
                           ret);
@@ -273,7 +273,7 @@ int __init tims_clock_init(void)
             if (clock_sync_mode == SYNC_CAN_MASTER)
                 nr_filters = 0;
             else {
-                filter.can_id   = can_sync_id;
+                filter.can_id   = clock_sync_can_id;
                 filter.can_mask = 0xFFFFFFFF;
             }
 
