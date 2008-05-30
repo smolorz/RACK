@@ -46,6 +46,7 @@ class Position : public RackDataModule {
         int                 positionReference;
         int                 autoOffset;
 
+        int                 offset;
         RackMutex           refPosMtx;
         position_3d         refOdo;
         double              sinRefOdo, cosRefOdo;

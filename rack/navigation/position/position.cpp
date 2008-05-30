@@ -134,6 +134,8 @@ int  Position::moduleOn(void)
     interpolDiff.rho  = 0.0f;
     interpolStartTime = odometryData.recordingTime;
 
+    offset = 0;
+
     return RackDataModule::moduleOn();    // has to be last command in moduleOn();
 }
 
@@ -437,7 +439,7 @@ int  Position::moduleCommand(message_info *msgInfo)
                           pPosData->pos.x, pPosData->pos.y, pPosData->pos.z, 
                           pPosData->pos.rho, posGkData.northing, posGkData.easting,
                           posGkData.altitude, posGkData.heading);
-            cmdMbx.sendDataMsgReply(MSG_POSITION_UTM, msgInfo, 1, &posGkData,
+            cmdMbx.sendDataMsgReply(MSG_POSITION_GK, msgInfo, 1, &posGkData,
                                     sizeof(position_gk_data));
             break;
 
@@ -460,6 +462,17 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
         // position reference is Gauss-Krueger
         case POSITION_REFERENCE_GK:
             positionTool->wgs84ToGk(posWgs84Data, &posGk);
+
+            // auto offset calculation
+            if ((autoOffset == 1) && (offset != 1))
+            {
+               offset         = 1;
+               offsetNorthing = rint(posGk.northing / (100.0 * 1000.0)) * 100.0;
+               offsetEasting  = rint(posGk.easting / (100.0 * 1000.0)) * 100.0;
+               GDOS_DBG_INFO("Set new GK position offset to north %fm, east %fm\n", 
+                             offsetNorthing, offsetEasting);
+            }
+
             posData->pos.x   =  (int)rint(posGk.northing - offsetNorthing * 1000.0);
             posData->pos.y   =  (int)rint(posGk.easting - offsetEasting * 1000.0);
             posData->pos.z   = -posGk.altitude;
@@ -477,6 +490,17 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
         // position reference is Utm
         case POSITION_REFERENCE_UTM:
             positionTool->wgs84ToUtm(posWgs84Data, &posUtm);
+
+            // auto offset calculation
+            if ((autoOffset == 1) && (offset != 1))
+            {
+               offset         = 1;
+               offsetNorthing = rint(posUtm.northing / (100.0 * 1000.0)) * 100.0;
+               offsetEasting  = rint(posUtm.easting / (100.0 * 1000.0)) * 100.0;
+               GDOS_DBG_INFO("Set new UTM position offset to north %fm, east %fm\n", 
+                             offsetNorthing, offsetEasting);
+            }
+
             posData->pos.x   =  (int)rint(posUtm.northing - offsetNorthing * 1000.0);
             posData->pos.y   =  (int)rint(posUtm.easting - offsetEasting * 1000.0);
             posData->pos.z   = -posUtm.altitude;
