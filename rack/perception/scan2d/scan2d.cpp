@@ -325,17 +325,22 @@ void  Scan2d::filterMedian(ladar_data* dataLadar)
 
         dataLadar->distance[i-1] = d;
 
-        if(a > b)
+        if((a > 0) && (b > 0) && (c > 0))
         {
-            swap(&a, &b);
-        }
-        if(b > c)
-        {
-            swap(&b, &c);
-        }
-        if(a > b)
-        {
-            swap(&a, &b);
+            // filter only none reflector points
+
+            if(a > b)
+            {
+                swap(&a, &b);
+            }
+            if(b > c)
+            {
+                swap(&b, &c);
+            }
+            if(a > b)
+            {
+                swap(&a, &b);
+            }
         }
 
         d = b;
@@ -350,9 +355,9 @@ int Scan2d::filterReflector(scan2d_data* data, int filter)
 {
     int     i, left, right, numInvalid = 0;
     double  m, n;
-    double  alpha, beta, gamma; 
+    double  alpha, beta, gamma;
 
-      
+
     // filter reflector points, which are on a line of scanpoints about 90deg to the laser ray:
     // ----------------------------------------------------------------------------------------
     if (filter & FILTER_REFLECTOR_90DEG)
@@ -363,17 +368,17 @@ int Scan2d::filterReflector(scan2d_data* data, int filter)
                 continue;
 
             // if there are two reflector points close to the current, this should be a correct reflector point:
-            if (i>0  &&  i<data->pointNum-1  && 
+            if (i>0  &&  i<data->pointNum-1  &&
                 ((data->point[i-1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
                 ((data->point[i+1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
                 continue;
 
-            if (i>1  && 
+            if (i>1  &&
                 ((data->point[i-1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
                 ((data->point[i-2].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
                 continue;
 
-            if (i<data->pointNum-2  && 
+            if (i<data->pointNum-2  &&
                 ((data->point[i+1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
                 ((data->point[i+2].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
                 continue;
@@ -397,7 +402,7 @@ int Scan2d::filterReflector(scan2d_data* data, int filter)
             beta  = atan2(data->point[i].y, data->point[i].x) * 180.0/M_PI;
             gamma = fabs(beta - alpha);
 
-            if (gamma > 90)  
+            if (gamma > 90)
                 gamma = 180.0 - gamma;
 
             // get angle of scanner spot to line between current and next scanpoint:
@@ -483,7 +488,7 @@ int Scan2d::getRegressLine(scan2d_data* data, int left, int right, double *m, do
     }
 
     ptr = &data->point[start];
-    
+
     // loop from right to left index:
     for (i=start; i<=end; i++, ptr++)
     {
