@@ -36,7 +36,7 @@ public final class Gui extends Thread
     // global variables
     //
     
-    static final int GUI_MAX_INSTANCES = 4;
+    protected static final int MAX_INST_TRIES = 3;
 
     public static int FRAME_STATE_NORMAL    = 0;
     public static int FRAME_STATE_MAX       = 1;
@@ -352,17 +352,21 @@ public final class Gui extends Thread
     {
         int inst = 0;
 
-        while (true)
+        // randomize timer
+        
+        for(int instTries = 0; instTries < MAX_INST_TRIES; instTries++)
         {
             try
             {
+                inst = (int)(Math.random() * 255.0);
                 getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, 0));
                 break;
             }
             catch (TimsException e)
             {
                 System.out.println(e);
-                if (++inst == GUI_MAX_INSTANCES) {
+                if (instTries == MAX_INST_TRIES - 1)
+                {
                     JOptionPane.showMessageDialog(mainFrameContent,
                             "Can't create Mailbox\n" + e.getMessage(),
                             "Tims Exception", JOptionPane.ERROR_MESSAGE);
@@ -370,10 +374,13 @@ public final class Gui extends Thread
                 }
             }
         }
+        
         try
         {
             for (int i = 0; i < elements.size(); i++)
+            {
                 elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
+            }
         }
         catch (TimsException e)
         {
