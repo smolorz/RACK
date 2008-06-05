@@ -45,6 +45,7 @@ public class GuiElementDescriptor
     String[]               cfgSplit   = new String[] {""};
     String                 guiClass   = "";
     String                 proxyClass = "";
+    int                    fx         = 0;
 
     // swing
     JInternalFrame         frame;

@@ -119,7 +119,6 @@ public final class Gui extends Thread
 
             System.out.println("Initializing GUI ...");
             initGui();
-            start();
 
             System.out.println("Restoring GuiElements ...");
             restoreGuiElements();
@@ -178,7 +177,29 @@ public final class Gui extends Thread
                     catch (PropertyVetoException e)
                     {}
                 }
+                for(int j = 0; j < ge.cfgSplit.length; j++)
+                {
+                    if(ge.cfgSplit[j].startsWith("-F"))
+                    {
+                        try
+                        {
+                            int fx = Integer.parseInt(ge.cfgSplit[j].substring(2));
+                            
+                            if((fx >= 1) && (fx <= 8))
+                            {
+                                ge.fx = fx;
+
+                                jtp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).
+                                    put(KeyStroke.getKeyStroke("F" + fx), "F" + fx);
+                                jtp.getActionMap().put("F" + fx, new FxOpenGuiElementAction(ge, this));
+                            }
+                        }
+                        catch(NumberFormatException e)
+                        {}
+                    }
+                }
             }
+            start();
         }
         catch (Exception e)
         {
@@ -526,8 +547,8 @@ public final class Gui extends Thread
         {
             GuiWorkspaceDescriptor gw = workspaces.get(i);
             
-        	gw.jdp = new JDesktopPane();
-         	jtp.add(gw.name, gw.jdp);
+            gw.jdp = new JDesktopPane();
+            jtp.add(gw.name, gw.jdp);
         }
         mainFrameContent.add(jtp, BorderLayout.CENTER);
 
@@ -639,6 +660,17 @@ public final class Gui extends Thread
                 }
             }
         };
+
+        jtp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F12"), "F12");
+        jtp.getActionMap().put("F12", new AbstractAction()
+        {
+            private static final long serialVersionUID = 1L;
+
+            public void actionPerformed(ActionEvent ignored)
+            {
+                System.out.println("F12 pressed");
+            }
+        });
     }
 
     protected void restoreGuiElements()
@@ -771,7 +803,7 @@ public final class Gui extends Thread
         {
             int id = elements.indexOf(ge);
             ge.frame.setLocation(100 * (id / 10) + 20 * (id % 10),
-                    25 + 25 * (id % 10));
+                    25 * (id % 10));
         }
         else
         {
@@ -820,7 +852,14 @@ public final class Gui extends Thread
         }
 
         ge.navButton = new JButton(ge.name);
-        ge.navButton.setToolTipText(ge.name);
+        if(ge.fx > 0)
+        {
+            ge.navButton.setToolTipText(ge.name + " [F" + ge.fx + "]");
+        }
+        else
+        {
+            ge.navButton.setToolTipText(ge.name);
+        }
         ge.navButton.setHorizontalAlignment(SwingConstants.LEFT);
         ge.navButton.setActionCommand(Integer.toString(elements.indexOf(ge)));
         ge.navButton.addActionListener(new ActionListener()
@@ -1200,7 +1239,7 @@ public final class Gui extends Thread
                     fd.setLocation(150, 150);
                     fd.setVisible(true);
                     if (fd.getFile() == null)
-                    	System.exit(0);
+                        System.exit(0);
                     fileName = fd.getDirectory() + System.getProperty("file.separator").charAt(0) + fd.getFile();
                     break;
                 case 1: // only config file
@@ -1249,3 +1288,23 @@ public final class Gui extends Thread
         }
     }
 }
+
+class FxOpenGuiElementAction extends AbstractAction
+{
+    private static final long serialVersionUID = 1L;
+
+    protected GuiElementDescriptor ge;
+    protected Gui gui;
+
+    FxOpenGuiElementAction(GuiElementDescriptor ge, Gui gui)
+    {
+        this.ge = ge;
+        this.gui = gui;
+    }
+    
+    public void actionPerformed(ActionEvent ignored)
+    {
+        gui.openGuiElement(ge);
+        gui.relocateGuiElement(ge);
+    }
+};
