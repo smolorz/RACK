@@ -41,6 +41,7 @@ class CameraTool {
     int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData, int width, int height);
     int convertCharUYVY2Gray(uint8_t* outputData, uint8_t* inputData, int width, int height);
     int convertCharBGR2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    int convertCharRGB2MONO8(uint8_t* outputData, uint8_t* inputData,int width, int height);
     int convertCharMono82RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
     int convertCharMono122RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
     

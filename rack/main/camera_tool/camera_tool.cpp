@@ -180,7 +180,23 @@ int CameraTool::convertCharBGR2RGB(uint8_t* outputData, uint8_t* inputData,
     return 0;
 }
 
+int CameraTool::convertCharRGB2MONO8(uint8_t* outputData, uint8_t* inputData,
+                                int width, int height)
+{
+    int i,j;
 
+    for (i = 0; i < height; i++)
+    {
+        for (j = 0; j < width; j++ )
+        {
+            //Y = 0.3*R + 0.59*G + 0.11*B
+            outputData[i * width + j] = (3 * inputData[(i * width + j) * 3]     +
+                                         6 * inputData[(i * width + j) * 3 + 1] +
+                                         1 * inputData[(i * width + j) * 3 + 2] )/10;
+        }
+    }
+    return 0;
+}
 int CameraTool::convertCharMono82RGBThermalRed(uint8_t* outputData, uint8_t* inputData,
                                 int width, int height)
 {
