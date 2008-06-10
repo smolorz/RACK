@@ -69,6 +69,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "ladarOffsetRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Ladar rho offset (default 0)", { 0 } },
 
+    { ARGOPT_OPT, "ladarOffsetRhoDivider", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Ladar rho offset divider: offsetRho = offsetRho / divider (default 1)", { 1 } },
+
     { ARGOPT_OPT, "ladarUpsideDown", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Ladar mounted upside down (0: normal (default), 1: upside down)", { 0 } },
 
@@ -112,6 +115,7 @@ argTable_t argTab[] = {
     ladarOffsetX        = getInt32Param("ladarOffsetX");
     ladarOffsetY        = getInt32Param("ladarOffsetY");
     ladarOffsetRho      = getInt32Param("ladarOffsetRho");
+    ladarOffsetRhoDivider = getInt32Param("ladarOffsetRhoDivider");
     ladarUpsideDown     = getInt32Param("ladarUpsideDown");
     maxRange            = getInt32Param("maxRange");
     reduce              = getInt32Param("reduce");
@@ -122,7 +126,7 @@ argTable_t argTab[] = {
 
     angleMinFloat       = (double)angleMin       * M_PI / 180.0;
     angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
-    ladarOffsetRhoFloat = (double)ladarOffsetRho * M_PI / 180.0;
+    ladarOffsetRhoFloat = (double)ladarOffsetRho / (double)ladarOffsetRhoDivider * M_PI / 180.0;
 
     GDOS_DBG_DETAIL("scan2d filter:\n");
     GDOS_DBG_DETAIL("  medianFilter        = %i\n", medianFilter);
