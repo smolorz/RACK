@@ -43,6 +43,7 @@ class Scan2d : public RackDataModule {
         int         ladarOffsetX;
         int         ladarOffsetY;
         int         ladarOffsetRho;
+        int         ladarOffsetRhoDivider;
         int         ladarUpsideDown;
         int         maxRange;
         int         reduce;
