@@ -50,6 +50,7 @@ import rack.navigation.PositionDataMsg;
 
 public class MapViewComponent extends JComponent
 {
+    private static final int           MAX_BACKGROUND_IMAGES = 4;
     private static final long          serialVersionUID      = 1L;
 
     public static double               DEFAULT_ZOOM_FACTOR   = 1.141;
@@ -70,12 +71,13 @@ public class MapViewComponent extends JComponent
     protected boolean                  showGrid;
     protected boolean                  showCursor;
 
-    protected BufferedImage            bgImg;
-    protected double                   bgX;
-    protected double                   bgY;
-    protected double                   bgW;
-    protected double                   bgH;
-    protected boolean                  bgBicubic;
+    protected BufferedImage            bgImg[] = new BufferedImage[MAX_BACKGROUND_IMAGES];
+    protected double                   bgX[] = new double[MAX_BACKGROUND_IMAGES];
+    protected double                   bgY[] = new double[MAX_BACKGROUND_IMAGES];
+    protected double                   bgW[] = new double[MAX_BACKGROUND_IMAGES];
+    protected double                   bgH[] = new double[MAX_BACKGROUND_IMAGES];
+    protected boolean                  bgBicubic[] = new boolean[MAX_BACKGROUND_IMAGES];
+    protected boolean                  bgAssigned[] = new boolean[MAX_BACKGROUND_IMAGES];
 
     public JPanel                      zoomPanel;
     public JButton                     zoomInButton;
@@ -92,15 +94,26 @@ public class MapViewComponent extends JComponent
     public MouseListener               mouseListener         = new MapViewComponentMouseListener();
     public KeyListener                 keyListener           = new MapViewComponentKeyListener();
     
+    public double                      zoomRange;            //a public copy of visibleRange       
+                               
+    /*protected BufferedImage          bgImg2;
+    protected double                   bgX2;
+    protected double                   bgY2;
+    protected double                   bgW2;
+    protected double                   bgH2;
+    protected boolean                  bgBicubic2;*/
+    
     public MapViewComponent()
     {
         this.setDoubleBuffered(true);
         this.setBackground(Color.WHITE);
         this.setPreferredSize(new Dimension(400, 400));
         this.visibleRange = DEFAULT_VISIBLE_RANGE;
+        this.zoomRange = DEFAULT_VISIBLE_RANGE;
         this.showGrid = true;
         this.showCursor = false;
-
+        this.bgAssigned[0] = false;
+        
         this.robotPosition = new Vector<PositionDataMsg>();
         robotPosition.add(new PositionDataMsg());
         
@@ -134,6 +147,7 @@ public class MapViewComponent extends JComponent
         zoomCenterAction = new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
+                
                 zoomCenter();
             }
         };
@@ -162,16 +176,22 @@ public class MapViewComponent extends JComponent
         mapViews.remove(mapView);
     }
 
+    public synchronized void setBackgroundImage(int index,BufferedImage bgImg, int bgX, int bgY, int bgW, int bgH, boolean bgBicubic)
+    {
+        this.bgImg[index] = bgImg;
+        this.bgX[index] = (double)bgX;
+        this.bgY[index] = (double)bgY;
+        this.bgW[index] = (double)bgW;
+        this.bgH[index] = (double)bgH;
+        this.bgBicubic[index] = bgBicubic;
+        this.bgAssigned[index] = true;
+    }
+    
     public synchronized void setBackgroundImage(BufferedImage bgImg, int bgX, int bgY, int bgW, int bgH, boolean bgBicubic)
     {
-        this.bgImg = bgImg;
-        this.bgX = (double)bgX;
-        this.bgY = (double)bgY;
-        this.bgW = (double)bgW;
-        this.bgH = (double)bgH;
-        this.bgBicubic = bgBicubic;
+        setBackgroundImage(0, bgImg, bgX, bgY, bgW, bgH, bgBicubic);
     }
-
+ 
     public void setWorldCenter(Position2d worldCenter)
     {
         synchronized(world2frame)
@@ -184,6 +204,7 @@ public class MapViewComponent extends JComponent
     {
         this.defaultVisibleRange = visibleRange;
         this.visibleRange = visibleRange;
+        this.zoomRange = visibleRange;
     }
     
     public Vector<PositionDataMsg> getRobotPositionVector()
@@ -295,31 +316,36 @@ public class MapViewComponent extends JComponent
 
         synchronized(this)
         {
-            if (bgImg != null)
+            
+            for (int i=0; i<MAX_BACKGROUND_IMAGES; i++)
             {
-                AffineTransform at = new AffineTransform();
-                at.scale(bgW / (double)bgImg.getWidth(), bgH / (double)bgImg.getHeight());
-                at.rotate( Math.PI / 2);
-                at.translate(( bgY * (double)bgImg.getWidth() / bgW)  - bgImg.getWidth()  / 2.0, 
-                             (-bgX * (double)bgImg.getHeight() / bgH) - bgImg.getHeight() / 2.0);
-                BufferedImageOp biop;
-               
-                if(bgBicubic)
-                {
-                    biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                if (bgAssigned[i]){
+                    AffineTransform at = new AffineTransform();
+                    at.scale(bgW[i] / (double)(bgImg[i].getWidth()), bgH[i] / (double)(bgImg[i].getHeight()) );
+                    at.rotate( Math.PI / 2);
+                    at.translate(( bgY[i] * (double)(bgImg[i].getWidth()) / bgW[i])  - bgImg[i].getWidth()  / 2.0, 
+                            (-bgX[i] * (double)(bgImg[i].getHeight()) / bgH[i]) - bgImg[i].getHeight() / 2.0);
+                    BufferedImageOp biop;
+
+                    if(bgBicubic[i])
+                    {
+                        biop = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+                    }
+                    else
+                    {
+                        biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                    }
+                    world.drawImage(bgImg[i], biop, 0, 0);
                 }
                 else
-                {
-                    biop = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                }
-                world.drawImage(bgImg, biop, 0, 0);
+                    break;
             }
         }
         
         if(showGrid)
         {
             //paintGrid(world, Color.LIGHT_GRAY, 100, 10000);  // 100 * 10m
-            paintGrid(world, Color.GRAY, 10, 100000);  // 10 * 100m
+            paintGrid(world, Color.GRAY, 84, 100000);  // 84 * 100m
         }
 
         for(int i = 0; i < mapViews.size(); i++)
@@ -353,7 +379,7 @@ public class MapViewComponent extends JComponent
         if(visibleRange > 1000)
         {
             visibleRange = visibleRange / zoomFactor;
-    
+            zoomRange    = visibleRange;               //a public copy of visibleRange 
             centerX = centerX * zoomFactor;
             centerY = centerY * zoomFactor;
     
@@ -366,7 +392,7 @@ public class MapViewComponent extends JComponent
         if(visibleRange < 1000000)
         {
             visibleRange = visibleRange * zoomFactor;
-    
+            zoomRange    = visibleRange; 
             centerX = centerX / zoomFactor;
             centerY = centerY / zoomFactor;
     
@@ -376,8 +402,9 @@ public class MapViewComponent extends JComponent
     
     public void zoomCenter()
     {
+        
         visibleRange = defaultVisibleRange;
-
+        zoomRange    = visibleRange; 
         centerX = 0;
         centerY = 0;
 
