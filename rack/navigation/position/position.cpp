@@ -469,8 +469,8 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
                offset         = 1;
                offsetNorthing = rint(posGk.northing / (100.0 * 1000.0)) * 100.0;
                offsetEasting  = rint(posGk.easting / (100.0 * 1000.0)) * 100.0;
-               GDOS_DBG_INFO("Set new GK position offset to north %fm, east %fm\n", 
-                             offsetNorthing, offsetEasting);
+               GDOS_PRINT("Set new GK position offset to north %fm, east %fm\n", 
+                          offsetNorthing, offsetEasting);
             }
 
             posData->pos.x   =  (int)rint(posGk.northing - offsetNorthing * 1000.0);
@@ -497,8 +497,8 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
                offset         = 1;
                offsetNorthing = rint(posUtm.northing / (100.0 * 1000.0)) * 100.0;
                offsetEasting  = rint(posUtm.easting / (100.0 * 1000.0)) * 100.0;
-               GDOS_DBG_INFO("Set new UTM position offset to north %fm, east %fm\n", 
-                             offsetNorthing, offsetEasting);
+               GDOS_PRINT("Set new UTM position offset to north %fm, east %fm\n", 
+                          offsetNorthing, offsetEasting);
             }
 
             posData->pos.x   =  (int)rint(posUtm.northing - offsetNorthing * 1000.0);
