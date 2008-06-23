@@ -67,7 +67,7 @@ public class MapViewComponent extends JComponent
     protected double                   centerY;
     protected Position2d               worldCenter           = new Position2d();
     protected AffineTransform          world2frame           = new AffineTransform();
-
+    
     protected boolean                  showGrid;
     protected boolean                  showCursor;
 
@@ -94,15 +94,9 @@ public class MapViewComponent extends JComponent
     public MouseListener               mouseListener         = new MapViewComponentMouseListener();
     public KeyListener                 keyListener           = new MapViewComponentKeyListener();
     
-    public double                      zoomRange;            //a public copy of visibleRange       
+    public double                      zoomRange;            //a public copy of visibleRange
                                
-    /*protected BufferedImage          bgImg2;
-    protected double                   bgX2;
-    protected double                   bgY2;
-    protected double                   bgW2;
-    protected double                   bgH2;
-    protected boolean                  bgBicubic2;*/
-    
+   
     public MapViewComponent()
     {
         this.setDoubleBuffered(true);
@@ -220,8 +214,15 @@ public class MapViewComponent extends JComponent
 
         cursorRho = AngleTool.normalise(cursorRho);
         cursorPosition.rho = AngleTool.normalise(cursorRho + worldCenter.rho);
-
         return cursorPosition;
+    }
+    
+    public Position2d getViewPortCenter()
+    {
+        Position2d viewPortCenter = new Position2d();
+        Point viewPortPoint = new Point(getWidth()/2, getHeight()/2);
+        viewPortCenter      = frame2world(viewPortPoint);
+        return viewPortCenter;
     }
     
     protected Position2d frame2world(Point framePoint)
@@ -239,7 +240,6 @@ public class MapViewComponent extends JComponent
                 world2frame.setToIdentity();
             }
         }
-        
         return new Position2d(worldPoint.x, worldPoint.y, 0.0f);
     }
     

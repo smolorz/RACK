@@ -65,7 +65,6 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected ChassisProxy                 chassisProxy;
     protected ChassisParamMsg              chassisParam;
     
-    protected String                       cacheImages[] = new String[4];    /*4 images are sotred in memory*/
     //protected int                          windowW  = 640; ////
     //protected int                          windowH  = 480; ////
     protected int                          oldRowCol[] = new int[2] ;
@@ -102,7 +101,9 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected double                       oldZoom;
     protected int                          oldWorkingResLevel = -1; 
     protected double                       zoomLevels[];  //    = {90693.0, 136671.0, 336000.0, 600331.0, 5e6};
-    private static double                  MAX_ZOOM_RANGE = 1280000.0; 
+    private int offsetX;
+    private int offsetY;
+    private static double                  MAX_ZOOM_RANGE = 1200000.0; 
     
     public MapViewGui(GuiElementDescriptor guiElement)
     {
@@ -174,14 +175,13 @@ public class MapViewGui extends GuiElement implements MapViewInterface
              
         // set MapView background
         param = ge.getParameter("bg");
-        System.out.println("MapViewGui: \"" + param + "\"\n");
-        System.out.println("MapViewGui: \"" + param + "\"\n");
-        System.out.println("MapViewGui: \"" + param + "\"\n");
-        System.out.println("MapViewGui: \"" + param + "\"\n");
+        System.out.println("MapViewGui: background \"" + param + "\"\n");
+        
         if (param.length() > 0)
         {
             String ext = param.substring(param.length()-3,param.length());
-            if(ext.equals("txt")){
+            if(ext.equals("txt"))
+            {
                 globalInfoName = param;
                 System.out.println("\n     TRY TO READ GLOBAL INFO... \n\n");
                 if (ReadGlobalInfo() <0)
@@ -384,7 +384,6 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             worldCenter = new Position2d();
         }
         mapComponent.setWorldCenter(worldCenter);
-
         mapComponent.repaint();
     }
 
@@ -424,68 +423,67 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             {
                 PositionDataMsg position;
                 
-                {
-                    for(int i = 0;i<resLevels; i++){
-                        workingResLevel = i;
-                        if(mapComponent.zoomRange < zoomLevels[i])
-                        {
-                            break;
-                        }
-                    }
-                    if(res_change = (oldWorkingResLevel != workingResLevel))
-                    {
-                        System.out.println("Working Res Level: " + workingResLevel); 
-                                           
-                        ReadLocalInfo(workingResLevel);
-                        oldWorkingResLevel = workingResLevel;
-                    };
-                    oldZoom = mapComponent.zoomRange;
-                }
-                
                 if(positionProxy != null)
-                {
+                {   
                     position = positionProxy.getData(); 
-                    //mapComponent.zoomInAction(1,3);
-                    if(usingMultipleImages){
-                        
-                        actRowCol = PositionToRowCol(position.pos.x,position.pos.y); 
-                            
-                        if((actRowCol[0] != oldRowCol[0]) | (actRowCol[1] != oldRowCol[1]) | res_change)
-                        {
-                            res_change = false;
-                            try
-                            {
-                                File file = new File(rowColToImageString(actRowCol));
-                                System.out.println("Image File: " + rowColToImageString(actRowCol));
-                                bgImg = ImageIO.read(file);
-                            }
-                            catch(Exception e)
-                            {
-
-                            }
-                            bgW = (int)( bgImg.getWidth() * 1000.0 * Math.abs(resY)) +500;
-                            bgH = (int)(bgImg.getHeight() * 1000.0 * Math.abs(resX));
-                            
-                            double d_row = (double)actRowCol[0]; //needed for avoiding rounding errors
-                            double d_col = (double)actRowCol[1]; //needed for avoiding rounding errors
-                            int ovlH_mm  = (int)(ovlH*1000.0*Math.abs(resY));
-                            int ovlW_mm  = (int)(ovlW*1000.0*Math.abs(resX));
-                            
-                            bgX = (int)( (rows - d_row - 1.0)*rowH*Math.abs(resY) )*1000 - ovlH_mm;
-                            bgX = Math.max(bgX,0);
-                            bgX = bgX + bgH/2;
-                            
-                            bgY = (int)( d_col*colW*Math.abs(resX)*1000.0) - ovlW_mm;
-                            bgY = Math.max(bgY,0);
-                            bgY = bgY + bgW/2;
-                            
-                            mapComponent.setBackgroundImage(0, bgImg, bgX, bgY, bgW, bgH, bgBicubic);
-                        }
-                        oldRowCol = actRowCol;
-                        
-                    }
                     if(position != null)
                     {
+                        //mapComponent.zoomInAction(1,3);
+                        if(usingMultipleImages)
+                        {
+                            for(int i = 0;i<resLevels; i++)
+                            {
+                                workingResLevel = i;
+                                if(mapComponent.zoomRange < zoomLevels[i])
+                                {
+                                    break;
+                                }
+                            }
+                            if(res_change = (oldWorkingResLevel != workingResLevel))
+                            {
+                                System.out.println("Working Res Level: " + workingResLevel); 
+                                                   
+                                ReadLocalInfo(workingResLevel);
+                                oldWorkingResLevel = workingResLevel;
+                            };
+                            oldZoom = mapComponent.zoomRange;
+
+                            actRowCol = PositionToRowCol(mapComponent.getViewPortCenter().x, mapComponent.getViewPortCenter().y);
+
+                            if((actRowCol[0] != oldRowCol[0]) | (actRowCol[1] != oldRowCol[1]) | res_change)
+                            {
+                                res_change = false;
+                                try
+                                {
+                                    File file = new File(rowColToImageString(actRowCol));
+                                    System.out.println("Image File: " + rowColToImageString(actRowCol));
+                                    bgImg = ImageIO.read(file);
+                                }
+                                catch(Exception e)
+                                {
+
+                                }
+                                bgW = (int)( bgImg.getWidth() * 1000.0 * Math.abs(resY)) +500;
+                                bgH = (int)(bgImg.getHeight() * 1000.0 * Math.abs(resX));
+                                
+                                double d_row = (double)actRowCol[0]; //needed for avoiding rounding errors
+                                double d_col = (double)actRowCol[1]; //needed for avoiding rounding errors
+                                int ovlH_mm  = (int)(ovlH*1000.0*Math.abs(resY));
+                                int ovlW_mm  = (int)(ovlW*1000.0*Math.abs(resX));
+                                
+                                bgX = (int)( (rows - d_row - 1.0)*rowH*Math.abs(resY) )*1000 - ovlH_mm;
+                                bgX = Math.max(bgX,0);
+                                bgX = bgX + bgH/2;
+                                
+                                bgY = (int)( d_col*colW*Math.abs(resX)*1000.0) - ovlW_mm;
+                                bgY = Math.max(bgY,0);
+                                bgY = bgY + bgW/2;
+                                
+                                mapComponent.setBackgroundImage(0, bgImg, bgX+offsetX, bgY+offsetY, bgW, bgH, bgBicubic);
+                            }
+                            oldRowCol = actRowCol;
+                        }
+
                         addRobotPosition(position);
                     }
                 }
@@ -592,7 +590,6 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                 }
 
                 Position2d cursorPosition2d = mapComponent.getCursorPosition();
-
                 PositionDataMsg robot = robotPosition.lastElement();
                 Position2d robotPosition2d;
                 robotPosition2d = new Position2d(robot.pos);
@@ -635,6 +632,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     //new functions for the support of multi-image maps
     protected int[] PositionToRowCol(int x, int y) /*x and y in mm*/
     {
+        x -= offsetX;
+        y -= offsetY;
         
         int rowCol[] = new int[2];
         rowCol[0] = (int)Math.floor((rows - ((double)x + Math.abs(resY))/(rowH*Math.abs(resY)*1000.0))) ;
@@ -684,6 +683,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         String str;
         int    result = -1;
         String exception_string = globalInfoName;
+        double ImageW;
+        double ImageH;
         
         try {
             BufferedReader in = new BufferedReader(new FileReader(globalInfoName));//workingFolder+"info.txt"
@@ -706,6 +707,17 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             }
             resLevels = Integer.parseInt(str);
             
+            if((str = in.readLine()) == null){
+                exception_string = "Could not read third line";
+                throw new IOException();
+            }
+            ImageW = Double.parseDouble(str);
+            
+            if((str = in.readLine()) == null){
+                exception_string = "Could not read fourth line";
+                throw new IOException();
+            }
+            ImageH = Double.parseDouble(str);
             in.close();
                       
         } 
@@ -716,8 +728,30 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         }
         
         if((result = ReadLocalInfo(workingResLevel)) != 1)
+        {
             System.out.println("Error@localinfo =========== "+Integer.toString(result)+" \n");
+        }
+        else
+        {
+            PositionDataMsg position;
+            PositionGkDataMsg posGK = new PositionGkDataMsg();
+            posGK.easting  = origTfwX * 1000;
+            posGK.northing = origTfwY * 1000;
+            position = positionProxy.gkToPos(posGK);
         
+            if (position != null)
+            {
+                offsetX = position.pos.x;  
+                offsetY = position.pos.y;
+            }
+            else
+            {
+                offsetX = 0;
+                offsetY = 0;
+            }
+            System.out.println(">> Offset X: " + offsetX);
+            System.out.println(">> Offset Y: " + offsetY);
+        }
         return result;
     };
     
