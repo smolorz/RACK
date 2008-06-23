@@ -202,7 +202,7 @@ void PilotJoystick::moduleOff(void)
 // realtime context
 int  PilotJoystick::moduleLoop(void)
 {
-    int         speed;
+    int         speed, speedSafe;
     int         ret;
     float       omega;
     message_info jstkInfo;
@@ -314,17 +314,53 @@ int  PilotJoystick::moduleLoop(void)
 
         if(joystickForce == 0)
         {
-            speed  = safeSpeed(joystickSpeed, curve2Radius(joystickCurve), NULL,
-                               &scan2dMsg.data, &chasParData);
+            if(joystickSpeed >= 0)
+            {
+                speedSafe = safeSpeed(2 * chasParData.vxMax, curve2Radius(joystickCurve), NULL,
+                                   &scan2dMsg.data, &chasParData);
+                
+                if(joystickSpeed < speedSafe)
+                {
+                    speed = joystickSpeed;
+                }
+                else
+                {
+                    speed = speedSafe;
+                }
+            }
+            else
+            {
+                speedSafe = safeSpeed(-2 * chasParData.vxMax, curve2Radius(joystickCurve), NULL,
+                                   &scan2dMsg.data, &chasParData);
+                
+                if(joystickSpeed > speedSafe)
+                {
+                    speed = joystickSpeed;
+                }
+                else
+                {
+                    speed = speedSafe;
+                }
+            }
         }
         else
         {
-            speed = joystickSpeed;
+            if(joystickSpeed >= 0)
+            {
+                speed = joystickSpeed;
+                speedSafe = 2 * chasParData.vxMax;
+            }
+            else
+            {
+                speed = joystickSpeed;
+                speedSafe = -2 * chasParData.vxMax;
+            }
         }
     }
     else // scan2d is not used if id is -1
     {
         speed  = joystickSpeed;
+        speedSafe = chasParData.vxMax;
     }
 
     // calculate omega
@@ -346,7 +382,7 @@ int  PilotJoystick::moduleLoop(void)
     }
 
     // move chassis
-    ret = chassis->move(speed, 0, omega);
+    ret = chassis->move(speed, speedSafe, omega);
     if (ret)
     {
         GDOS_ERROR("Can't send chassis_move, code = %d\n", ret);
