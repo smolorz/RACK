@@ -6,7 +6,7 @@ if CONFIG_RACK_JAVA_GUI
 dist_java_JAVA += \
 	CameraComponent.java \
 	CameraColorConvert.java \
-	CameraMisColorConvert.java
+	CameraMisColorConvert.java \
 	CameraGui.java \
 	ChassisGui.java \
 	GpsGui.java \
