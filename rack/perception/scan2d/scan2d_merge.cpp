@@ -194,6 +194,12 @@ int  Scan2dMerge::moduleLoop(void)
                     ret = odometry->getData(&odometryBuffer[k][curSector],
                                             sizeof(odometry_data),
                                             scanData->recordingTime);
+                    if (ret)
+                    {
+                        GDOS_ERROR("Can't get data from odometry(%i), code = %d\n", odometryInst, ret);
+                        dataMbx.peekEnd();
+                        return ret;
+                    }
 
                     sinRho = sin(odometryBuffer[k][curSector].pos.rho);
                     cosRho = cos(odometryBuffer[k][curSector].pos.rho);
