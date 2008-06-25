@@ -29,7 +29,7 @@ public class PositionUtmDataMsg extends TimsMsg
     
     public int getDataLen()
     {
-        return (28);
+        return 28;
     }
 
     public PositionUtmDataMsg()
@@ -83,5 +83,43 @@ public class PositionUtmDataMsg extends TimsMsg
         dataOut.writeDouble(easting);
         dataOut.writeInt(altitude);
         dataOut.writeFloat(heading);
+    }
+    
+    public static boolean isString(String utmString)
+    {
+        return utmString.startsWith("32U");
+    }
+    
+    public void fromString(String utmString) throws NumberFormatException
+    {
+        String token[] = utmString.split(" ");
+        
+        if (token.length == 5)
+        {
+            String e = token[1].trim();
+            if(e.endsWith("m"))
+            {
+                e = e.substring(0, e.length() - 1);
+            }
+            easting = Double.parseDouble(e) * 1000.0;
+
+            String n = token[3].trim();
+            if(n.endsWith("m"))
+            {
+                n = n.substring(0, n.length() - 1);
+            }
+            northing = Double.parseDouble(n) * 1000.0;
+        }
+        else
+        {
+            throw new NumberFormatException("String is not in UTM format");
+        }
+    }
+    
+    public String toString()
+    {
+        double e = (double)((int)(easting / 10.0)) / 100.0;
+        double n = (double)((int)(northing / 10.0)) / 100.0;
+        return "32U " + e + "m E" + n + "m N ";
     }
 }

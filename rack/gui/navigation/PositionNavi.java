@@ -34,6 +34,7 @@ import rack.gui.main.RackModuleGui;
 import rack.main.defines.Position3d;
 import rack.navigation.PositionDataMsg;
 import rack.navigation.PositionProxy;
+import rack.navigation.PositionUtmDataMsg;
 
 public class PositionNavi extends RackModuleGui implements MapViewInterface
 {
@@ -189,7 +190,8 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
             
             while((line = fileReader.readLine()) != null)
             {
-                if(line.startsWith("#") == false)
+                if((line.startsWith("#") == false) &&
+                   (line.length() > 0))
                 {
                     lines.add(line);
                 }
@@ -199,7 +201,19 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
 
             for(int i = 0; i < lines.size(); i++)
             {
-                Position3d dest = parseDestString(lines.elementAt(i));
+                PositionUtmDataMsg utm = new PositionUtmDataMsg();
+                System.out.println("parse " + lines.elementAt(i));
+                try
+                {
+                    utm.fromString(lines.elementAt(i));
+                    System.out.println("result " + utm.easting + " " + utm.northing + " " + lines.elementAt(i));
+                }
+                catch(NumberFormatException e)
+                {
+                    System.out.println(e.toString());
+                }
+                
+                Position3d dest = null;//parseDestString(lines.elementAt(i));
                 
                 if(dest != null)
                 {
