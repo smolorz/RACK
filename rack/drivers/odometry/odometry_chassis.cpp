@@ -164,7 +164,98 @@ int  OdometryChassis::moduleCommand(message_info *msgInfo)
       return 0;
 }
 
- /*******************************************************************************
+// getData with interpolation
+int  RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
+{
+    int i, ret;
+    odometry_data *odometryA, *odometryB, odometry;
+    float x;
+
+    if (!msgInfo)
+        return -EINVAL;
+
+    bufferMtx.lock(RACK_INFINITE);
+
+    i = getDataBufferIndex(time);
+
+    if(i < 0)
+    {
+        bufferMtx.unlock();
+        return i;
+    }
+
+    if(time == 0)
+    {
+        // get newest data, no interpoplation
+        ret = dataBufferSendMbx->sendDataMsgReply(MSG_DATA, msgInfo, 1, dataBuffer[i].pData, dataBuffer[i].dataSize);
+        if(ret)
+        {
+            GDOS_ERROR("Can't send data msg (code %d)\n", ret);
+        }
+        bufferMtx.unlock();
+        return ret;
+    }
+
+    // search for pair odometryA - odometryB to do interpolation
+    odometryA = (odometry_data*)dataBuffer[i].pData;
+    odometryB = (odometry_data*)dataBuffer[i].pData;
+
+    if(time > (odometryB->recordingTime + dataBufferPeriodTime))
+    {
+        GDOS_ERROR("Requested time %d is newer than newest "
+                   "data message %d + periodTime %d\n", time, odometryB->recordingTime, dataBufferPeriodTime);
+        bufferMtx.unlock();
+        return -EINVAL;
+    }
+
+    if((time <= odometryB->recordingTime) || (i == (int)index))
+    {
+        i = getDataBufferIndex(odometryB->recordingTime - dataBufferPeriodTime);
+
+        if(i < 0)
+        {
+            bufferMtx.unlock();
+            return i;
+        }
+
+        odometryA = (odometry_data*)dataBuffer[i].pData;
+    }
+    else
+    {
+        i = getDataBufferIndex(odometryA->recordingTime + dataBufferPeriodTime);
+
+        if(i < 0)
+        {
+            bufferMtx.unlock();
+            return i;
+        }
+
+        odometryB = (odometry_data*)dataBuffer[i].pData;
+    }
+
+    // do interpolation
+    odometry.recordingTime = time;
+    x = (float)((int)time - (int)odometryA->recordingTime) / (float)((int)odometryB->recordingTime - (int)odometryA->recordingTime);
+
+    odometry.pos.x = odometryA->pos.x + (int)(x * (float)(odometryB->pos.x - odometryA->pos.x));
+    odometry.pos.y = odometryA->pos.y + (int)(x * (float)(odometryB->pos.y - odometryA->pos.y));
+    odometry.pos.z = odometryA->pos.z + (int)(x * (float)(odometryB->pos.z - odometryA->pos.z));
+
+    odometry.pos.phi = normaliseAngleSym0(odometryA->pos.phi + (x * normaliseAngleSym0((float)(odometryB->pos.phi - odometryA->pos.phi))));
+    odometry.pos.psi = normaliseAngleSym0(odometryA->pos.psi + (x * normaliseAngleSym0((float)(odometryB->pos.psi - odometryA->pos.psi))));
+    odometry.pos.rho = normaliseAngle(odometryA->pos.rho + (x * normaliseAngleSym0((float)(odometryB->pos.rho - odometryA->pos.rho))));
+
+    ret = dataBufferSendMbx->sendDataMsgReply(MSG_DATA, msgInfo, 1, &odometry, sizeof(odometry_data));
+    if(ret)
+    {
+        GDOS_ERROR("Can't send data msg (code %d)\n", ret);
+    }
+
+    bufferMtx.unlock();
+    return ret;
+}
+
+/*******************************************************************************
  *   !!! NON REALTIME CONTEXT !!!
  *
  *   moduleInit,
