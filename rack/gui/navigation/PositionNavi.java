@@ -213,11 +213,11 @@ public class PositionNavi extends RackModuleGui implements MapViewInterface
                     System.out.println(e.toString());
                 }
                 
-                Position3d dest = null;//parseDestString(lines.elementAt(i));
+                PositionDataMsg dest = position.utmToPos(utm);
                 
                 if(dest != null)
                 {
-                    destList[i] = dest;
+                    destList[i] = dest.pos;
                 }
                 else
                 {
