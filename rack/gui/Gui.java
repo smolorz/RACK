@@ -377,9 +377,19 @@ public final class Gui extends Thread
         
         try
         {
+            int j = 0;
             for (int i = 0; i < elements.size(); i++)
             {
-                elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, i+1));
+                try
+                {
+                    j++;
+                    elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
+                }
+                catch (TimsException e)
+                {
+                    j++;
+                    elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
+                }
             }
         }
         catch (TimsException e)
