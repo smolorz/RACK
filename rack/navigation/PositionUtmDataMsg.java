@@ -85,7 +85,7 @@ public class PositionUtmDataMsg extends TimsMsg
         dataOut.writeFloat(heading);
     }
     
-    public static boolean isString(String utmString)
+    public boolean isString(String utmString)
     {
         return utmString.startsWith("32U");
     }
@@ -120,6 +120,6 @@ public class PositionUtmDataMsg extends TimsMsg
     {
         double e = (double)((int)(easting / 10.0)) / 100.0;
         double n = (double)((int)(northing / 10.0)) / 100.0;
-        return "32U " + e + "m E" + n + "m N ";
+        return "32U " + e + "m E " + n + "m N ";
     }
 }
