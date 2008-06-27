@@ -169,10 +169,10 @@ int ChassisSim::moduleLoop(void)
 
     p_data->recordingTime = rackTime.get();
     p_data->vx            = (float)commandData.vx;    // in mm/s
-    p_data->vy            = (float)commandData.vy;    // in mm/s
+    p_data->vy            = 0.0f;
     p_data->omega         = (float)commandData.omega; // in rad/s
     p_data->deltaX        = p_data->vx * (float)periodTime / 1000.0f;       // in mm
-    p_data->deltaY        = p_data->vy * (float)periodTime / 1000.0f;       // in mm
+    p_data->deltaY        = 0.0f;
     p_data->deltaRho      = p_data->omega * (float)periodTime / 1000.0f;    // in rad
     p_data->battery       = 0.0f;
     p_data->activePilot   = activePilot;
