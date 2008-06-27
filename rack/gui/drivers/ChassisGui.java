@@ -10,13 +10,19 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Joerg Langenberg  <joerg.langenberg@gmx.net>
+ *      Marco Langerwisch <marco.langerwisch@web.de>
  *
  */
 package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
+
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
@@ -59,6 +65,12 @@ public class ChassisGui extends RackModuleGui
     protected JLabel         batteryNameLabel = new JLabel("battery:", SwingConstants.RIGHT);
 
     protected ChassisProxy   chassis;
+    
+    // for sound output
+	private Synthesizer	    synth;
+	private MidiChannel     midiChannels[];
+	private int             currentNote;
+	private int             vxMax;
 
     public ChassisGui(GuiElementDescriptor guiElement)
     {
@@ -183,6 +195,28 @@ public class ChassisGui extends RackModuleGui
         rootPanel.add(labelPanel, BorderLayout.CENTER);
         
         setEnabled(false);
+        
+        if (guiElement.hasParameter("sound"))
+        {
+		    try
+		    {
+			    synth = MidiSystem.getSynthesizer();
+			    synth.open();
+			    midiChannels = synth.getChannels();
+			    midiChannels[0].programChange(43);
+		    }
+		    catch (MidiUnavailableException e)
+		    {
+			    e.printStackTrace();
+		    }
+		
+		    currentNote = 0;
+		    vxMax = chassis.getParam().vxMax;
+        }
+        else
+        {
+        	synth = null;
+        }
     }
 
     protected void setEnabled(boolean enabled)
@@ -266,10 +300,30 @@ public class ChassisGui extends RackModuleGui
             batteryLabel.setText(battery + "");
             
             setEnabled(true);
+            
+            if (synth != null)
+            {
+                // calculate note in octave
+                int newNote = (int)(24.0 + vx * 12 / vxMax);
+                if (vx < 0) newNote *= -1;
+            
+                if (currentNote != newNote)
+                {
+            	    midiChannels[0].noteOn(newNote, 127);
+            	    midiChannels[0].noteOff(currentNote);
+            	    currentNote = newNote;
+                }
+            }
         }
         else
         {
             setEnabled(false);
+            
+            if (synth != null)
+            {
+                midiChannels[0].noteOff(currentNote, 127);
+                currentNote = 0;
+            }
         }
     }
     
@@ -283,5 +337,7 @@ public class ChassisGui extends RackModuleGui
         pilot4.removeActionListener(pilot4Action);
         pilot5.removeActionListener(pilot5Action);
         pilot6.removeActionListener(pilot6Action);
+        
+		if (synth != null) synth.close();
     }
 }
