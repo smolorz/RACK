@@ -37,7 +37,7 @@ Scan2dSim *p_inst;
 argTable_t argTab[] = {
 
     { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The instance number of the odometry module", { -1 } },
+      "The instance number of the odometry module", { 0 } },
 
     { ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum laser range", { 10000 } },
@@ -45,7 +45,7 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "angleRes", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "angle resolution, default 1 deg", { 1 } },
 
-    { ARGOPT_REQ, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
+    { ARGOPT_OPT, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "filename of the DXF map to load", { 0 } },
 
     { ARGOPT_OPT, "mapOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -86,6 +86,7 @@ argTable_t argTab[] = {
     if (ret)
     {
         GDOS_WARNING("Can't load DXF map. (%i)\n", ret);
+        dxfMap.featureNum = 0;
     }
     GDOS_PRINT("Using DXF map with %i features\n", dxfMap.featureNum);
 
