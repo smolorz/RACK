@@ -147,7 +147,7 @@ int GpsNmea::moduleLoop(void)
             // gps data invalid by utcTime
             if ((utcTime != 0) && (utcTimeOld != 0) && (utcTime == utcTimeOld))
             {
-                GDOS_ERROR("Gps invalid by utcTime: %f, %f\n", utcTime, utcTimeOld);
+                GDOS_DBG_INFO("Gps invalid by utcTime: %f, %f\n", utcTime, utcTimeOld);
 
                 gpsData.mode          = GPS_MODE_INVALID;
                 gpsData.latitude      = 0.0;
