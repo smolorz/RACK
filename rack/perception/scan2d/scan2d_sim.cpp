@@ -85,8 +85,7 @@ argTable_t argTab[] = {
     RackTask::enableRealtimeMode();
     if (ret)
     {
-        GDOS_ERROR("Can't load DXF map. (%i)\n", ret);
-        return ret;
+        GDOS_WARNING("Can't load DXF map. (%i)\n", ret);
     }
     GDOS_PRINT("Using DXF map with %i features\n", dxfMap.featureNum);
 
