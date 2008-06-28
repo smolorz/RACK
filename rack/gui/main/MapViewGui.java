@@ -100,10 +100,11 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected boolean                      bgBicubicLow;
     protected double                       oldZoom;
     protected int                          oldWorkingResLevel = -1; 
-    protected double                       zoomLevels[];  //    = {90693.0, 136671.0, 336000.0, 600331.0, 5e6};
+    protected double                       zoomLevels[];
     private int offsetX;
     private int offsetY;
-    private static double                  MAX_ZOOM_RANGE = 1200000.0; 
+    private int                            maxZoomRange = 1200000; 
+    private int                            minZoomRange = 0;
     
     public MapViewGui(GuiElementDescriptor guiElement)
     {
@@ -227,6 +228,21 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                             bgBicubic = false;
                     else
                         bgBicubic = false;
+                    
+                    param = ge.getParameter("minZoomRange");
+                    if (param.length() > 0)
+                        minZoomRange = Integer.parseInt(param);
+                    else
+                        minZoomRange = 20000;
+                    System.out.println(" *****minZoomRange="+minZoomRange);
+                    
+                    param = ge.getParameter("maxZoomRange");
+                    if (param.length() > 0)
+                        maxZoomRange = Integer.parseInt(param);
+                    else
+                        maxZoomRange = 1200000;
+                    System.out.println(" *****maxZoomRange="+maxZoomRange);
+                    
                     mapComponent.setBackgroundImage(0, bgImg, bgX, bgY, bgW, bgH, bgBicubic);
                     
                 }
@@ -395,9 +411,17 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     public void start()
     {
         zoomLevels = new double[resLevels];
-        for(int i=1; i<=resLevels; i++){
-            zoomLevels[i-1] = (double)i*(MAX_ZOOM_RANGE/(double)resLevels);
+        double m = (double)(maxZoomRange-minZoomRange)/(double)resLevels;
+        
+        int i;
+        for(i=1; i<=resLevels; i++){
+            //zoomLevels[i-1] = (double)i*(MAX_ZOOM_RANGE/(double)resLevels);
+            double y = m*(i-1) + (double)minZoomRange; 
+            zoomLevels[i-1] = y;//(double)i*(MAX_ZOOM_RANGE/(double)resLevels)/1.1;
             System.out.println("zoomLevels[" + (i-1) + "] = " + zoomLevels[i-1]);
+        }
+        if(i>2){
+            zoomLevels[i-2] = (zoomLevels[i-3] + zoomLevels[i-2])/2;
         }
         robotPosition = mapComponent.getRobotPositionVector();  // update robot position
         
@@ -429,22 +453,27 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                     if(position != null)
                     {
                         //mapComponent.zoomInAction(1,3);
+                        //System.out.println("Zoom level: " + mapComponent.zoomRange);
                         if(usingMultipleImages)
                         {
-                            for(int i = 0;i<resLevels; i++)
+                            int i;
+                            for(i = 0;i<resLevels; i++)
                             {
                                 workingResLevel = i;
                                 if(mapComponent.zoomRange < zoomLevels[i])
                                 {
                                     break;
                                 }
+                                    
                             }
+                            
                             if(res_change = (oldWorkingResLevel != workingResLevel))
-                            {
-                                System.out.println("Working Res Level: " + workingResLevel); 
-                                                   
+                            {                                                                                  
                                 ReadLocalInfo(workingResLevel);
                                 oldWorkingResLevel = workingResLevel;
+                                System.out.println("Working Res Level: " + workingResLevel);
+                                System.out.println("Zoom level: " + mapComponent.zoomRange);
+
                             };
                             oldZoom = mapComponent.zoomRange;
 
@@ -458,30 +487,39 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                                     File file = new File(rowColToImageString(actRowCol));
                                     System.out.println("Image File: " + rowColToImageString(actRowCol));
                                     bgImg = ImageIO.read(file);
+
                                 }
                                 catch(Exception e)
                                 {
-
+                                    System.out.println("Error reading image file "+rowColToImageString(actRowCol));    
                                 }
                                 bgW = (int)( bgImg.getWidth() * 1000.0 * Math.abs(resY)) +500;
                                 bgH = (int)(bgImg.getHeight() * 1000.0 * Math.abs(resX));
-                                
+
                                 double d_row = (double)actRowCol[0]; //needed for avoiding rounding errors
                                 double d_col = (double)actRowCol[1]; //needed for avoiding rounding errors
                                 int ovlH_mm  = (int)(ovlH*1000.0*Math.abs(resY));
                                 int ovlW_mm  = (int)(ovlW*1000.0*Math.abs(resX));
-                                
+
                                 bgX = (int)( (rows - d_row - 1.0)*rowH*Math.abs(resY) )*1000 - ovlH_mm;
                                 bgX = Math.max(bgX,0);
                                 bgX = bgX + bgH/2;
-                                
+
                                 bgY = (int)( d_col*colW*Math.abs(resX)*1000.0) - ovlW_mm;
                                 bgY = Math.max(bgY,0);
                                 bgY = bgY + bgW/2;
-                                
+
                                 mapComponent.setBackgroundImage(0, bgImg, bgX+offsetX, bgY+offsetY, bgW, bgH, bgBicubic);
                             }
                             oldRowCol = actRowCol;
+                            if(!mapComponent.imageFillsFrame())
+                            {
+                                oldWorkingResLevel = workingResLevel;
+                                workingResLevel++;
+                            }
+                            /*else
+                                break;*/
+                            
                         }
 
                         addRobotPosition(position);
@@ -683,8 +721,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         String str;
         int    result = -1;
         String exception_string = globalInfoName;
-        double ImageW;
-        double ImageH;
+        //double ImageW;
+        //double ImageH;
         
         try {
             BufferedReader in = new BufferedReader(new FileReader(globalInfoName));//workingFolder+"info.txt"
@@ -711,13 +749,13 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                 exception_string = "Could not read third line";
                 throw new IOException();
             }
-            ImageW = Double.parseDouble(str);
+            //ImageW = Double.parseDouble(str);
             
             if((str = in.readLine()) == null){
                 exception_string = "Could not read fourth line";
                 throw new IOException();
             }
-            ImageH = Double.parseDouble(str);
+            //ImageH = Double.parseDouble(str);
             in.close();
                       
         } 

@@ -487,13 +487,15 @@ public class MapViewComponent extends JComponent
                 repaint();
             }
         }
-
+        
         public void mouseMoved(MouseEvent e)
         {
+            //showCoords();
             if(showCursor)
             {
                 repaint();
             }
+            
         }
         
         public void mouseWheelMoved(MouseWheelEvent e)
@@ -513,8 +515,10 @@ public class MapViewComponent extends JComponent
                     zoomOut(defaultZoomFactor);
                 }
             }
+            //showCoords();
             repaint();
         }
+       
     };
 
     protected class MapViewComponentKeyListener extends KeyAdapter
@@ -583,4 +587,22 @@ public class MapViewComponent extends JComponent
             }
         }
     };
+    
+    public boolean imageFillsFrame()
+    {
+        Position2d cUp = new Position2d();
+        Position2d cDn = new Position2d();
+        
+        cDn.x = (int)(bgX[0] - bgH[0]/2);
+        cDn.y = (int)(bgY[0] + bgW[0]/2);
+        cDn.rho = 0.0f;
+        
+        cUp.x = (int)(bgX[0] + bgH[0]/2);
+        cUp.y = (int)(bgY[0] - bgW[0]/2);
+        cUp.rho = 0.0f;
+        
+        Point pDn = world2frame(cDn);
+        Point pUp = world2frame(cUp);
+        return ((pUp.x<=0) && (pUp.y<=0) && (pDn.x >= getWidth()) && (pDn.y >= getHeight()));
+    }
 }
