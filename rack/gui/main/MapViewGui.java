@@ -773,8 +773,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         {
             PositionDataMsg position;
             PositionGkDataMsg posGK = new PositionGkDataMsg();
-            posGK.easting  = origTfwX * 1000;
-            posGK.northing = origTfwY * 1000;
+            posGK.easting  = origTfwX * 1000.0;
+            posGK.northing = origTfwY * 1000.0;
             position = positionProxy.gkToPos(posGK);
         
             if (position != null)
