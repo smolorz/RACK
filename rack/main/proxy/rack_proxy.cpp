@@ -362,6 +362,12 @@ int RackProxy::getParameter(rack_param_msg *parameter, int maxParameterNum, uint
                             reply_timeout_ns, &msgInfo);
 }
 
+int RackProxy::setParameter(rack_param_msg *parameter, int parameterNum, uint64_t reply_timeout_ns)
+{
+    return proxySendDataCmd(MSG_SET_PARAM, parameter, sizeof(rack_param_msg) + parameterNum * sizeof(rack_param),
+                            reply_timeout_ns);
+}
+
 //######################################################################
 //# class RackDataProxy
 //######################################################################
