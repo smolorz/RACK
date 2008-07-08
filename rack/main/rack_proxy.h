@@ -412,6 +412,17 @@ class RackProxy {
     int getParameter(rack_param_msg *parameter, int maxParameterNum, uint64_t reply_timeout_ns); // use special timeout
 
 //
+// set module parameter
+//
+
+    int setParameter(rack_param_msg *parameter, int parameterNum)  // use default timeout
+    {
+        return setParameter(parameter, parameterNum, dataTimeout);
+    }
+
+    int setParameter(rack_param_msg *parameter, int parameterNum, uint64_t reply_timeout_ns); // use special timeout
+
+//
 // additional inline functions
 //
     unsigned int getDestAdr(void)
