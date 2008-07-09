@@ -387,6 +387,10 @@ public final class Gui extends Thread
                 }
                 catch (TimsException e)
                 {
+                	try 
+                	{
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {}
                     j++;
                     elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
