@@ -20,15 +20,36 @@ import rack.main.defines.Position2d;
 
 public class MapViewActionEvent
 {
-    protected String command;
+    public static final int	MOUSE_MOVED_EVENT 		= 0;
+    public static final int	MOUSE_DRAGGED_EVENT 	= 1;
+    public static final int	MOUSE_RELEASED_EVENT 	= 2;
+    public static final int	MOUSE_PRESED_EVENT 		= 3;
+    public static final int	MOUSE_CLICKED_EVENT 	= 4;
+    public static final int	MOUSE_WHEEL_EVENT 		= 5;
+    
+    protected int eventId;
+	protected String command;
     protected Position2d cursorPosition;
     protected Position2d robotPosition;
     
+    public MapViewActionEvent(int eventId, String command, Position2d cursorPosition, Position2d robotPosition)
+    {
+    	this.eventId = eventId;
+        this.command = command;
+        this.cursorPosition = cursorPosition;
+        this.robotPosition = robotPosition;
+    }
+ 
     public MapViewActionEvent(String command, Position2d cursorPosition, Position2d robotPosition)
     {
         this.command = command;
         this.cursorPosition = cursorPosition;
         this.robotPosition = robotPosition;
+    }
+
+    public int getEventId()
+    {
+        return eventId;
     }
     
     public String getActionCommand()

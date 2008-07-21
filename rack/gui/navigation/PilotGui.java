@@ -210,26 +210,29 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         
         if(command.equals(setDestinationCommand))
         {
-            Position3d destination = new Position3d(event.getWorldCursorPos());
-            pilotDest.pos   = destination;
-            pilotDest.speed = 1;
-
-            // set backward movement direction
-            int     dX   = event.getWorldCursorPos().x - event.getRobotPosition().x;
-            int     dY   = event.getWorldCursorPos().y - event.getRobotPosition().y;
-            double  dRho = normAngleSym0(Math.atan2(dY, dX) - event.getRobotPosition().rho); 
-
-            if (Math.abs(dRho) > Math.toRadians(120.0))
-            {
-                double dOri = normAngleSym0(event.getWorldCursorPos().rho - event.getRobotPosition().rho);
-
-                if (Math.abs(dOri) < Math.toRadians(90.0))
-                {
-                    pilotDest.speed = -1;
-                }
-            }
-            
-            pilot.setDestination(pilotDest);
+        	if (event.getEventId() == MapViewActionEvent.MOUSE_CLICKED_EVENT)
+        	{ 
+	            Position3d destination = new Position3d(event.getWorldCursorPos());
+	            pilotDest.pos   = destination;
+	            pilotDest.speed = 1;
+	
+	            // set backward movement direction
+	            int     dX   = event.getWorldCursorPos().x - event.getRobotPosition().x;
+	            int     dY   = event.getWorldCursorPos().y - event.getRobotPosition().y;
+	            double  dRho = normAngleSym0(Math.atan2(dY, dX) - event.getRobotPosition().rho); 
+	
+	            if (Math.abs(dRho) > Math.toRadians(120.0))
+	            {
+	                double dOri = normAngleSym0(event.getWorldCursorPos().rho - event.getRobotPosition().rho);
+	
+	                if (Math.abs(dOri) < Math.toRadians(90.0))
+	                {
+	                    pilotDest.speed = -1;
+	                }
+	            }
+	            
+	            pilot.setDestination(pilotDest);
+        	}
         }
     }
 

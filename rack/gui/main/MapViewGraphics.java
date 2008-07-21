@@ -26,7 +26,7 @@ public class MapViewGraphics
     protected Graphics2D frame;
     protected Graphics2D world;
     protected Vector<PositionDataMsg>robotPosition;
-    
+
     public MapViewGraphics(Graphics2D frameGraphics, Graphics2D worldGraphics, Vector<PositionDataMsg>robotPosition)
     {
         this.frame = frameGraphics;

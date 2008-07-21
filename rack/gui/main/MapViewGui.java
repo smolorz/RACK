@@ -138,6 +138,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         // create MapView components
         mapComponent = new MapViewComponent();
         mapComponent.addMouseListener(mouseListener);
+        mapComponent.addMouseMotionListener((MouseMotionListener)mouseListener);
+        mapComponent.addMouseWheelListener((MouseWheelListener)mouseListener);
         mapComponent.setPreferredSize(new Dimension(600,400));
         mapComponent.setDefaultVisibleRange(50000.0);
 
@@ -564,14 +566,17 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         
         if(command.equals(positionUpdateCommand))
         {
-            System.out.println("Position update " + event.getWorldCursorPos());
+        	if (event.getEventId() == MapViewActionEvent.MOUSE_CLICKED_EVENT)
+        	{ 	        	
+        		System.out.println("Position update " + event.getWorldCursorPos());
             
-            if(positionProxy != null)
-            {
-                Position3d position = new Position3d(event.getWorldCursorPos());
+        		if(positionProxy != null)
+        		{
+        			Position3d position = new Position3d(event.getWorldCursorPos());
 
-                positionProxy.update(new PositionDataMsg(position));
-            }
+        			positionProxy.update(new PositionDataMsg(position));
+        		}
+        	}
         }
         //else if(command.matches("Choose action command"))
         //{
@@ -610,8 +615,41 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                    chassisParam.boundaryRight);
     }
 
-    protected class MapViewMouseListener extends MouseAdapter
+    public class MapViewMouseListener extends MouseAdapter implements MouseMotionListener, MouseWheelListener
     {
+        public void mouseMoved(MouseEvent e)
+        {	
+            if(actionMenu.getSelectedIndex() > 0)
+            {
+          		String command;
+                MapViewInterface mapView;
+
+                synchronized(this)
+                {
+                    int index = actionMenu.getSelectedIndex();              
+                    command = actionCommands.elementAt(index);
+                    mapView = actionTargets.elementAt(index);
+                }
+
+                Position2d cursorPosition2d = mapComponent.getCursorPosition();
+                PositionDataMsg robot = robotPosition.lastElement();
+                Position2d robotPosition2d;
+                robotPosition2d = new Position2d(robot.pos);
+
+                MapViewActionEvent actionEvent = new MapViewActionEvent(MapViewActionEvent.MOUSE_MOVED_EVENT, command, cursorPosition2d, robotPosition2d);
+
+                mapView.mapViewActionPerformed(actionEvent);
+            }   
+        }
+        public void mouseDragged(MouseEvent e)
+        {
+        }
+        public void mouseReleased(MouseEvent e)
+        {
+        }
+        public void mousePressed(MouseEvent e)
+        {
+        }
         public void mouseClicked(MouseEvent e)
         {
             if(e.getClickCount() == 2)
@@ -632,10 +670,34 @@ public class MapViewGui extends GuiElement implements MapViewInterface
                 Position2d robotPosition2d;
                 robotPosition2d = new Position2d(robot.pos);
 
-                MapViewActionEvent actionEvent = new MapViewActionEvent(command, cursorPosition2d, robotPosition2d);
+                MapViewActionEvent actionEvent = new MapViewActionEvent(MapViewActionEvent.MOUSE_CLICKED_EVENT, command, cursorPosition2d, robotPosition2d);
 
                 mapView.mapViewActionPerformed(actionEvent);
             }
+        }
+        public void mouseWheelMoved(MouseWheelEvent e)
+        {
+            if(actionMenu.getSelectedIndex() > 0)
+            {
+          		String command;
+                MapViewInterface mapView;
+
+                synchronized(this)
+                {
+                    int index = actionMenu.getSelectedIndex();              
+                    command = actionCommands.elementAt(index);
+                    mapView = actionTargets.elementAt(index);
+                }
+
+                Position2d cursorPosition2d = mapComponent.getCursorPosition();
+                PositionDataMsg robot = robotPosition.lastElement();
+                Position2d robotPosition2d;
+                robotPosition2d = new Position2d(robot.pos);
+
+                MapViewActionEvent actionEvent = new MapViewActionEvent(MapViewActionEvent.MOUSE_WHEEL_EVENT, command, cursorPosition2d, robotPosition2d);
+
+                mapView.mapViewActionPerformed(actionEvent);
+            }   
         }
     }
     
@@ -648,10 +710,11 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
         {
             System.out.println("invisible");
-
+           
             if(actionMenu.getSelectedIndex() > 0)
             {
                 mapComponent.showCursor = true;
+                mapComponent.actionMenuIndex = actionMenu.getSelectedIndex();
             }
             else
             {

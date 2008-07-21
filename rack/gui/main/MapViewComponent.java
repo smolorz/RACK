@@ -70,7 +70,8 @@ public class MapViewComponent extends JComponent
     
     protected boolean                  showGrid;
     protected boolean                  showCursor;
-
+    protected int                      actionMenuIndex;
+    
     protected BufferedImage            bgImg[] = new BufferedImage[MAX_BACKGROUND_IMAGES];
     protected double                   bgX[] = new double[MAX_BACKGROUND_IMAGES];
     protected double                   bgY[] = new double[MAX_BACKGROUND_IMAGES];
@@ -256,14 +257,14 @@ public class MapViewComponent extends JComponent
         return framePoint;
     }
     
-    protected void paintCrosshairCursor(Graphics2D cg)
+   protected void paintCrosshairCursor(Graphics2D cg)
     {
         cg.setColor(Color.RED);
-        cg.setStroke(new BasicStroke(5.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        cg.drawLine(-50, 0, 50, 0);
-        cg.drawLine(0, -50, 0, 50);
-        cg.drawLine(40, -10, 50, 0);
-        cg.drawLine(40, 10, 50, 0);
+        cg.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        cg.drawLine(-30, 0, 30, 0);
+        cg.drawLine(0, -30, 0, 30);
+        cg.drawLine(20, -5, 30, 0);
+        cg.drawLine(20, 5, 30, 0);
     }
 
     protected void paintGrid(Graphics2D g, Color color, int num, int step)
@@ -356,7 +357,6 @@ public class MapViewComponent extends JComponent
         if(showCursor)
         {
             Point cursorPoint = getMousePosition();
-    
             if(cursorPoint != null)
             {
                 Graphics2D cursor = (Graphics2D)g.create();
