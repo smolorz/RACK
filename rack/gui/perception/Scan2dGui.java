@@ -26,24 +26,27 @@ import rack.main.defines.*;
 import rack.perception.Scan2dDataMsg;
 import rack.perception.Scan2dProxy;
 
-public class Scan2dGui extends RackModuleGui implements MapViewInterface
-{
-    protected Scan2dDataMsg    scan2dData;
-    protected Scan2dProxy      scan2d;
+public class Scan2dGui extends RackModuleGui implements MapViewInterface {
+    
+    protected Scan2dDataMsg scan2dData;
+    protected Scan2dProxy scan2d;
     protected MapViewComponent mapComponent;
 
-    protected JButton          storeContOnButton;
-    protected JButton          storeContOffButton;
-    protected boolean          contStoring = false;
+    protected JButton storeContOnButton;
+    protected JButton storeContOffButton;
+    protected boolean contStoring = false;
 
-    protected ActionListener   storeContOnAction;
-    protected ActionListener   storeContOffAction;
+    protected ActionListener storeContOnAction;
+    protected ActionListener storeContOffAction;
 
-    protected boolean          mapViewIsShowing;
-    
-    public Scan2dGui(GuiElementDescriptor guiElement)
-    {
+    protected boolean mapViewIsShowing;
+
+    protected boolean displayScanLine;
+
+    public Scan2dGui(GuiElementDescriptor guiElement) {
         super(guiElement);
+
+        displayScanLine=guiElement.getParameter("scanDiplayMode").length() > 0;
 
         scan2d = (Scan2dProxy) proxy;
 
@@ -61,8 +64,7 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         offButton.addKeyListener(mapComponent.keyListener);
 
         storeContOnAction = new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 contStoring = true;
             }
         };
@@ -70,8 +72,7 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         storeContOnButton.addKeyListener(mapComponent.keyListener);
 
         storeContOffAction = new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 contStoring = false;
             }
         };
@@ -94,43 +95,32 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         setEnabled(false);
     }
 
-    protected void setEnabled(boolean enabled)
-    {
+    protected void setEnabled(boolean enabled) {
         mapComponent.setEnabled(enabled);
-        if(enabled)
-        {
-            if(contStoring)
-            {
+        if (enabled) {
+            if (contStoring) {
                 storeContOnButton.setEnabled(false);
                 storeContOffButton.setEnabled(true);
-            }
-            else
-            {
+            } else {
                 storeContOnButton.setEnabled(true);
                 storeContOffButton.setEnabled(false);
             }
-        }
-        else
-        {
+        } else {
             storeContOnButton.setEnabled(false);
             storeContOffButton.setEnabled(false);
         }
     }
 
-    protected void runStart()
-    {
+    protected void runStart() {
         MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
-        if(mapViewGui != null)
-        {
+        if (mapViewGui != null) {
             mapViewGui.addMapView(this);
         }
     }
 
-    protected void runStop()
-    {
+    protected void runStop() {
         MapViewGui mapViewGui = MapViewGui.findMapViewGui(ge);
-        if(mapViewGui != null)
-        {
+        if (mapViewGui != null) {
             mapViewGui.removeMapView(this);
         }
 
@@ -138,99 +128,75 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
         storeContOffButton.removeActionListener(storeContOffAction);
         storeContOnAction = null;
         storeContOffAction = null;
-        
+
         storeContOnButton.removeKeyListener(mapComponent.keyListener);
         storeContOffButton.removeKeyListener(mapComponent.keyListener);
 
         mapComponent.removeListener();
         mapComponent = null;
 
-        synchronized (this)
-        {
+        synchronized (this) {
             scan2dData = null;
         }
     }
-    
-    protected boolean needsRunData()
-    {
+
+    protected boolean needsRunData() {
         return (super.needsRunData() || mapViewIsShowing);
     }
-    
-    protected void runData()
-    {
+
+    protected void runData() {
         Scan2dDataMsg data;
 
         data = scan2d.getData();
-        
-        if (data != null)
-        {
-            synchronized (this)
-            {
+
+        if (data != null) {
+            synchronized (this) {
                 scan2dData = data;
             }
             mapComponent.repaint();
-            
+
             setEnabled(true);
-            
-            if(contStoring)
-            {
-                scan2d.storeDataToFile("scan2d-" + System.currentTimeMillis() + ".txt");
+
+            if (contStoring) {
+                scan2d.storeDataToFile("scan2d-" + System.currentTimeMillis()
+                        + ".txt");
             }
-        }
-        else
-        {
+        } else {
             setEnabled(false);
         }
         mapViewIsShowing = false;
     }
 
-    public synchronized void paintMapView(MapViewGraphics mvg)
-    {
+    public synchronized void paintMapView(MapViewGraphics mvg) {
         mapViewIsShowing = true;
 
         if (scan2dData == null)
             return;
-    
+
         Graphics2D g = mvg.getRobotGraphics(scan2dData.recordingTime);
-        
-        for (int i = 0; i < scan2dData.pointNum; i++)
-        {
+
+        for (int i = 0; i < scan2dData.pointNum; i++) {
             ScanPoint point = scan2dData.point[i];
             int size = 100;
-            int dist;
 
-            if ((point.type & ScanPoint.TYPE_INVALID) != 0)
-            {
+            if ((point.type & ScanPoint.TYPE_INVALID) != 0) {
                 g.setColor(Color.GRAY);
-            }
-            else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0)
-            {
+            } else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0) {
                 g.setColor(Color.YELLOW);
-            }
-            else if(point.segment == 0)
-            {
-                if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK)
-                {
+            } else if (point.segment == 0) {
+                if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK) {
                     g.setColor(Color.BLUE);
-                }
-                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE)
-                {
+                } else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE) {
                     g.setColor(Color.RED);
-                }
-                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_DYN_OBSTACLE)
-                {
+                } else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_DYN_OBSTACLE) {
                     g.setColor(Color.ORANGE);
-                }
-                else
-                {
+                } else {
                     g.setColor(Color.BLACK);
                 }
-            }
-            else // segment != 0
+            } else // segment != 0
             {
                 int seg = (point.segment - 1) % 5;
-                switch(seg)
-                {
+                switch (seg) {
                 case 0:
                     g.setColor(Color.CYAN);
                     break;
@@ -250,13 +216,24 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface
             }
 
             // draw scanpoints in mm
-            dist = (int) Math.sqrt(point.x * point.x + point.y * point.y);
-            size += (int) (dist * 0.025);
-            g.fillArc(point.x - size / 2, point.y - size / 2, size, size, 0, 360);
+            if(displayScanLine)
+            {
+                if (i > 0) {
+                    ScanPoint prePoint = scan2dData.point[i - 1];
+                    g.drawLine(prePoint.x, prePoint.y, point.x, point.y);
+                }
+                
+            }else{
+                int dist = (int) Math.sqrt(point.x * point.x + point.y
+                        * point.y);
+                size += (int) (dist * 0.025);
+            }               
+
+            g.fillArc(point.x - size / 2, point.y - size / 2, size, size, 0,
+                    360);
         }
     }
 
-    public void mapViewActionPerformed(MapViewActionEvent event)
-    {
+    public void mapViewActionPerformed(MapViewActionEvent event) {
     }
 }
