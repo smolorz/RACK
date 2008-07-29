@@ -293,6 +293,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
             return;
         
         Graphics2D g = mvg.getWorldGraphics();
+        g.setStroke(new BasicStroke(100.0f));
 
         switch (position.getInstanceId())
         {
