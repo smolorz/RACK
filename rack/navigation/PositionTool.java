@@ -14,10 +14,8 @@
  *
  */
 
-package rack.main;
+package rack.navigation;
 
-import rack.navigation.PositionUtmDataMsg;
-import rack.navigation.PositionWgs84DataMsg;
 
 public class PositionTool
 {
