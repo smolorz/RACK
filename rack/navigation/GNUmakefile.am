@@ -22,7 +22,8 @@ dist_java_JAVA += \
 	PositionProxy.java \
 	PositionGkDataMsg.java \
 	PositionUtmDataMsg.java \
-	PositionWgs84DataMsg.java
+	PositionWgs84DataMsg.java \
+	PositionTool.java
 
 endif
 
