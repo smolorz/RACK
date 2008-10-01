@@ -115,8 +115,6 @@ config RACK_LIBPNGDIR
 
 config RACK_OPENCV_SUPPORT
     bool "Enable opencv support"
-    select RACK_LIBDC1394_SUPPORT
-    select RACK_LIBRAW1394_SUPPORT
     select RACK_LIBJPEG_SUPPORT
     select RACK_LIBPNG_SUPPORT
 
