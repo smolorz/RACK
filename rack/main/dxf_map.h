@@ -25,6 +25,7 @@ typedef struct {
     double rho;
     double sin;
     double cos;
+    int layer;
 } dxf_map_feature;
 
 //######################################################################
@@ -39,11 +40,12 @@ class DxfMap
 
     protected:
 
-        int read_group(FILE *fp, char *string, int *number, double *real, int *line);
+        int read_group(FILE *fp, char *string, int *number, double *real, int *line, int *level, int *vertices);
         int read_polyline(FILE *fp);
         int read_line(FILE *fp);
+        int read_lwpolyline(FILE *fp);
 
-        int write_string(FILE *fp, int groupCode, const char *string);
+        int write_string(FILE *fp, int groupCode, char *string);
         int write_real(FILE *fp, int groupCode, double real);
         int write_number(FILE *fp, int groupCode, int number);
         int write_head(FILE *fp);
@@ -65,7 +67,7 @@ class DxfMap
         double yMin;
         double yMax;
 
-        int save(char *filename);
+        int save(char *filename, int savefeatureNum);
         int load(char *filename, double mapOffsetX, double mapOffsetY, double scaleFactor);
         int load(char *filename, double mapOffsetX, double mapOffsetY)
         {
