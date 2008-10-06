@@ -53,6 +53,7 @@ class Position : public RackDataModule {
         position_3d         oldPos;
 
         position_3d         interpolDiff;           // for update interpolation
+        position_3d         positionStdDeviation;
         rack_time_t         interpolStartTime;
         position_3d         refPos;
         position_3d         refPosI;

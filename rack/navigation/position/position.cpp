@@ -202,12 +202,16 @@ int  Position::moduleLoop(void)
         getPosition(&odometryData.pos, &pPosition->pos);
         pPosition->recordingTime = odometryData.recordingTime;
 
+        memcpy(&pPosition->var, &positionStdDeviation, sizeof(position_3d));
+
         refPosMtx.unlock();
 
-        GDOS_DBG_DETAIL("recordingTime %i x %i y %i z %i phi %a psi %a rho %a\n",
+        GDOS_DBG_DETAIL("recordingTime %i x %i y %i z %i phi %a psi %a rho %a varX %i varY %i varRho %a\n",
                         pPosition->recordingTime,
                         pPosition->pos.x, pPosition->pos.y, pPosition->pos.z,
-                        pPosition->pos.phi, pPosition->pos.psi, pPosition->pos.rho);
+                        pPosition->pos.phi, pPosition->pos.psi, pPosition->pos.rho,pPosition->var.x, pPosition->var.y,
+                        pPosition->var.rho);
+
 
         putDataBufferWorkSpace(sizeof(position_data));
 
@@ -266,6 +270,9 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             // store new reference position
             memcpy(&refPos, &pUpdate->pos, sizeof(position_3d));
+
+            // store new standard deviation
+            memcpy(&positionStdDeviation, &pUpdate->var, sizeof(position_3d));
 
             // store difference between old and new reference position for interpolation
             if(updateInterpol != 0)
