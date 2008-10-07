@@ -65,6 +65,15 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "autoOffset", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Automatic offset estimation, 0 = off, 1 = on, default 1", { 1 } },
 
+    { ARGOPT_OPT, "odometryStdDevX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Odometry standard deviation X, mm/m, default 50", { 50 } },
+      
+    { ARGOPT_OPT, "odometryStdDevY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Odometry standard deviation Y, mm/m, 1 = on, default 100", { 50 } },
+      
+    { ARGOPT_OPT, "odometryStdDevRho", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
+      "Odometry standard deviation Rho, deg/deg, default 0.1", { 0.1 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -95,6 +104,9 @@ int  Position::moduleOn(void)
     utmZone           = getInt32Param("utmZone");
     positionReference = getInt32Param("positionReference");
     autoOffset        = getInt32Param("autoOffset");
+    odometryStdDevX   = getInt32Param("odometryStdDevX");
+    odometryStdDevY   = getInt32Param("odometryStdDevY");
+    odometryStdDevRho = (double)getFloatParam("odometryStdDevRho") * M_PI / 180.0;
 
     ret = odometry->on();
     if (ret)
@@ -120,6 +132,7 @@ int  Position::moduleOn(void)
     }
 
     memcpy(&refOdo, &odometryData.pos, sizeof(position_3d));
+    memcpy(&oldOdometryPos, &odometryData.pos, sizeof(position_3d));
     sinRefOdo = sin(refOdo.rho);
     cosRefOdo = cos(refOdo.rho);
 
@@ -133,6 +146,13 @@ int  Position::moduleOn(void)
     interpolDiff.z    = 0;
     interpolDiff.rho  = 0.0f;
     interpolStartTime = odometryData.recordingTime;
+    
+    positionStdDeviation.x = 0;
+    positionStdDeviation.x = 0;
+    positionStdDeviation.x = 0;
+    positionStdDeviation.rho = 0.0f;
+    positionStdDeviation.phi = 0.0f;
+    positionStdDeviation.psi = 0.0f;
 
     offset = 0;
 
@@ -202,8 +222,28 @@ int  Position::moduleLoop(void)
         getPosition(&odometryData.pos, &pPosition->pos);
         pPosition->recordingTime = odometryData.recordingTime;
 
-        memcpy(&pPosition->var, &positionStdDeviation, sizeof(position_3d));
+        if (stdDeviationUpdate == 1)
+        {
+            stdDevX = (double)positionStdDeviation.x;
+            stdDevY = (double)positionStdDeviation.y;
+            stdDevRho = positionStdDeviation.rho;
+            stdDeviationUpdate = 0;
+        }
 
+        stdDevX      += ((double)odometryStdDevX * fabs((double)(odometryData.pos.x - oldOdometryPos.x)) / 1000.0 +
+                        (double)odometryStdDevY * fabs((double)(odometryData.pos.y - oldOdometryPos.y)) / 5000.0);
+        stdDevY      += ((double)odometryStdDevX * fabs((double)(odometryData.pos.x - oldOdometryPos.x)) / 5000.0 +
+                        (double)odometryStdDevY * fabs((double)(odometryData.pos.y - oldOdometryPos.y)) / 1000.0);
+        stdDevRho    += 0.1 * fabs(odometryData.pos.rho - oldOdometryPos.rho) +
+                            fabs((double)(odometryData.pos.x - oldOdometryPos.x)) / 100000.0 +
+                            fabs((double)(odometryData.pos.y - oldOdometryPos.y)) / 100000.0;
+
+        pPosition->var.x = (int)stdDevX;
+        pPosition->var.y = (int)stdDevY;
+        pPosition->var.rho = stdDevRho;
+
+        memcpy(&oldOdometryPos, &odometryData.pos, sizeof(position_3d));
+    
         refPosMtx.unlock();
 
         GDOS_DBG_DETAIL("recordingTime %i x %i y %i z %i phi %a psi %a rho %a varX %i varY %i varRho %a\n",
@@ -273,6 +313,7 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             // store new standard deviation
             memcpy(&positionStdDeviation, &pUpdate->var, sizeof(position_3d));
+            stdDeviationUpdate = 1;
 
             // store difference between old and new reference position for interpolation
             if(updateInterpol != 0)

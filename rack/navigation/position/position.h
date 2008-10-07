@@ -45,7 +45,11 @@ class Position : public RackDataModule {
         int                 utmZone;
         int                 positionReference;
         int                 autoOffset;
-
+        double              odometryStdDevX;
+        double              odometryStdDevY;
+        double              odometryStdDevRho;
+        double              stdDevX, stdDevY, stdDevRho;
+        
         int                 offset;
         RackMutex           refPosMtx;
         position_3d         refOdo;
@@ -54,11 +58,12 @@ class Position : public RackDataModule {
 
         position_3d         interpolDiff;           // for update interpolation
         position_3d         positionStdDeviation;
+        int                 stdDeviationUpdate;
         rack_time_t         interpolStartTime;
         position_3d         refPos;
         position_3d         refPosI;
+        position_3d         oldOdometryPos;
         double              sinRefPosI, cosRefPosI;
-
         PositionTool        *positionTool;
 
         // mailboxes
