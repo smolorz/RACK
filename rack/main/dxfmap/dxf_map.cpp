@@ -115,7 +115,7 @@ int DxfMap::read_group(FILE *fp, char *string, int *number, double *real,
     else if (groupCode == 90)
     {
         sscanf(buffer, "%i\n", vertices);
-        printf("number %i\n", *vertices);
+       // printf("number %i\n", *vertices);
           }
     else
     {
@@ -393,7 +393,6 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double sc
     {
         if ((groupCode == 0) && (strncmp(string, "POLYLINE", 9) == 0))
         {
-           // printf("POLYLINE\n");
             if (read_polyline(fp) < 0)
             {
                 break;
@@ -402,7 +401,6 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double sc
 
         if ((groupCode == 0) && (strncmp(string, "LINE", 5) == 0))
         {
-          //  printf("LINE\n");
             if (read_line(fp) < 0)
             {
                 break;
@@ -411,8 +409,6 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double sc
 
         if ((groupCode == 0) && (strncmp(string, "LWPOLYLINE", 11) == 0))
         {
-            //  printf("LWPOLYLINE\n");
-            printf("LWPOLYLINE\n");
             if (read_lwpolyline(fp) < 0)
             {
                 break;
