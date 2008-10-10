@@ -32,7 +32,7 @@
 #include <main/defines/position3d.h>
 
 
-#define SCAN2D_POINT_MAX 720
+#define SCAN2D_POINT_MAX 1440
 
 //######################################################################
 //# Scan2DData (!!! VARIABLE SIZE !!! MESSAGE !!!)
