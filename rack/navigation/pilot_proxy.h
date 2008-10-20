@@ -41,6 +41,7 @@
 
 #define MSG_PILOT_SET_DESTINATION           (RACK_PROXY_MSG_POS_OFFSET + 1)
 #define MSG_PILOT_HOLD_COMMAND              (RACK_PROXY_MSG_POS_OFFSET + 2)
+#define MSG_PILOT_REVERT_COMMAND            (RACK_PROXY_MSG_POS_OFFSET + 3)
 
 //######################################################################
 //# PilotData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -212,6 +213,47 @@ class PilotHoldData
             return p_data;
         }
 };
+
+//######################################################################
+//# Pilot Revert Data (static size  - MESSAGE)
+//######################################################################
+typedef struct{
+    rack_time_t     revertTime;
+} __attribute__((packed)) pilot_revert_data;
+
+class PilotRevertData
+{
+    public:
+        static void le_to_cpu(pilot_revert_data *data)
+        {
+            data->revertTime = __le32_to_cpu(data->revertTime);
+        }
+
+        static void be_to_cpu(pilot_revert_data *data)
+        {
+            data->revertTime = __be32_to_cpu(data->revertTime);
+        }
+
+        static pilot_revert_data* parse(message_info *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            pilot_revert_data *p_data = (pilot_revert_data*)msgInfo->p_data;
+
+            if (isDataByteorderLe(msgInfo)) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            setDataByteorder(msgInfo);
+            return p_data;
+        }
+};
+    
     
 //######################################################################
 //# Pilot Proxy
@@ -262,6 +304,15 @@ class PilotProxy : public RackDataProxy
     }
 
     int holdCommand(pilot_hold_data *recv_data, ssize_t recv_datalen,
+                       uint64_t reply_timeout_ns);
+
+//revert command
+    int revert(pilot_revert_data *recv_data, ssize_t recv_datalen)
+    {
+        return revert(recv_data, recv_datalen, dataTimeout);
+    }
+
+    int revert(pilot_revert_data *recv_data, ssize_t recv_datalen,
                        uint64_t reply_timeout_ns);
 };
 
