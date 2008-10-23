@@ -72,7 +72,7 @@ argTable_t argTab[] = {
       "Odometry standard deviation Y, mm/m, 1 = on, default 100", { 50 } },
       
     { ARGOPT_OPT, "odometryStdDevRho", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
-      "Odometry standard deviation Rho, deg/deg, default 0.1", { 0.1 } },
+      "Odometry standard deviation Rho, deg/deg, default 0.1", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
