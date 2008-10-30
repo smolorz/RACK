@@ -116,7 +116,7 @@ int  Scan2dMerge::moduleOn(void)
                 return ret;
             }
         }
-        
+
         for (i = 0; i < SCAN2D_SECTOR_NUM_MAX; i++)
         {
             scanBuffer[k][i].data.pointNum = 0;
@@ -208,23 +208,20 @@ int  Scan2dMerge::moduleLoop(void)
 
                     for (i = 0; i < scanData->pointNum; i++)
                     {
-                        if ((scanData->point[i].type & TYPE_MASK) != TYPE_LANDMARK)
-                        {
-                            scanBuffer[k][curSector].point[j].x  = (int)(scanData->point[i].x *
-                                                              cosRho) -
-                                                        (int)(scanData->point[i].y *
-                                                              sinRho);
-                            scanBuffer[k][curSector].point[j].y  = (int)(scanData->point[i].x *
-                                                              sinRho) +
-                                                        (int)(scanData->point[i].y *
-                                                              cosRho);
-                            scanBuffer[k][curSector].point[j].z  = scanData->point[i].z;
-                            scanBuffer[k][curSector].point[j].type      = scanData->point[i].type;
-                            scanBuffer[k][curSector].point[j].segment   = k + 1;
-                            scanBuffer[k][curSector].point[j].intensity = scanData->point[i].intensity;
+                        scanBuffer[k][curSector].point[j].x  = (int)(scanData->point[i].x *
+                                                          cosRho) -
+                                                    (int)(scanData->point[i].y *
+                                                          sinRho);
+                        scanBuffer[k][curSector].point[j].y  = (int)(scanData->point[i].x *
+                                                          sinRho) +
+                                                    (int)(scanData->point[i].y *
+                                                          cosRho);
+                        scanBuffer[k][curSector].point[j].z  = scanData->point[i].z;
+                        scanBuffer[k][curSector].point[j].type      = scanData->point[i].type;
+                        scanBuffer[k][curSector].point[j].segment   = scanData->point[i].segment;
+                        scanBuffer[k][curSector].point[j].intensity = scanData->point[i].intensity;
 
-                            j++;
-                        }
+                        j++;
                     }
 
                     scanBuffer[k][curSector].data.recordingTime = scanData->recordingTime;
