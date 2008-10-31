@@ -1,12 +1,16 @@
 
+config RACK_LADAR_HOKUYO_URG
+    bool "Ladar - HokuyoUrg"
+    default y
+
 config RACK_LADAR_IBEO
     bool "Ladar - Ibeo"
     default y
     help
     SICK IBEO LD-A
 
-config RACK_LADAR_HOKUYO_URG
-    bool "Ladar - HokuyoUrg"
+config RACK_LADAR_IBEO_LUX
+    bool "Ladar - IbeoLux"
     default y
 
 config RACK_LADAR_SICK_LMS200

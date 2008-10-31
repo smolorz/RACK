@@ -643,6 +643,23 @@ if test "$CONFIG_RACK_LADAR_IBEO" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - LadarIbeoLux
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build LadarIbeoLux])
+AC_ARG_ENABLE(ladar-ibeo-lux,
+    AS_HELP_STRING([--enable-ladar-ibeo-lux], [building LadarIbeoLux]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_IBEO_LUX=y ;;
+        *) CONFIG_RACK_LADAR_IBEO_LUX=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_IBEO_LUX:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_IBEO_LUX,[test "$CONFIG_RACK_LADAR_IBEO_LUX" = "y"])
+if test "$CONFIG_RACK_LADAR_IBEO_LUX" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_IBEO_LUX,1,[building LadarIbeoLux])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - LadarSickLms200
 dnl -----------------------------------------------------------------
 

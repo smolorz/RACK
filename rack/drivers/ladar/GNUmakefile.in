@@ -33,11 +33,12 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4)
+	$(am__EXEEXT_4) $(am__EXEEXT_5)
 @CONFIG_RACK_LADAR_IBEO_TRUE@am__append_1 = LadarIbeo
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@am__append_2 = LadarHokuyoUrg
-@CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__append_3 = LadarSickLms200
-@CONFIG_RACK_LADAR_SICK_S_TRUE@am__append_4 = LadarSickS
+@CONFIG_RACK_LADAR_IBEO_LUX_TRUE@am__append_3 = LadarIbeoLux
+@CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__append_4 = LadarSickLms200
+@CONFIG_RACK_LADAR_SICK_S_TRUE@am__append_5 = LadarSickS
 subdir = drivers/ladar
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -51,9 +52,10 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_LADAR_IBEO_TRUE@am__EXEEXT_1 = LadarIbeo$(EXEEXT)
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@am__EXEEXT_2 =  \
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@	LadarHokuyoUrg$(EXEEXT)
-@CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__EXEEXT_3 =  \
+@CONFIG_RACK_LADAR_IBEO_LUX_TRUE@am__EXEEXT_3 = LadarIbeoLux$(EXEEXT)
+@CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__EXEEXT_4 =  \
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@	LadarSickLms200$(EXEEXT)
-@CONFIG_RACK_LADAR_SICK_S_TRUE@am__EXEEXT_4 = LadarSickS$(EXEEXT)
+@CONFIG_RACK_LADAR_SICK_S_TRUE@am__EXEEXT_5 = LadarSickS$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -65,6 +67,10 @@ am_LadarIbeo_OBJECTS = ladar_ibeo.$(OBJEXT)
 LadarIbeo_OBJECTS = $(am_LadarIbeo_OBJECTS)
 LadarIbeo_LDADD = $(LDADD)
 LadarIbeo_DEPENDENCIES =
+am_LadarIbeoLux_OBJECTS = ladar_ibeo_lux.$(OBJEXT)
+LadarIbeoLux_OBJECTS = $(am_LadarIbeoLux_OBJECTS)
+LadarIbeoLux_LDADD = $(LDADD)
+LadarIbeoLux_DEPENDENCIES =
 am_LadarSickLms200_OBJECTS = ladar_sick_lms200.$(OBJEXT)
 LadarSickLms200_OBJECTS = $(am_LadarSickLms200_OBJECTS)
 LadarSickLms200_LDADD = $(LDADD)
@@ -95,9 +101,11 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
-	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES)
+	$(LadarIbeoLux_SOURCES) $(LadarSickLms200_SOURCES) \
+	$(LadarSickS_SOURCES)
 DIST_SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
-	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES)
+	$(LadarIbeoLux_SOURCES) $(LadarSickLms200_SOURCES) \
+	$(LadarSickS_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -268,6 +276,10 @@ LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp
 
+LadarIbeoLux_SOURCES = \
+	ladar_ibeo_lux.h \
+	ladar_ibeo_lux.cpp
+
 LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.h \
 	ladar_sick_lms200.cpp
@@ -346,6 +358,9 @@ LadarHokuyoUrg$(EXEEXT): $(LadarHokuyoUrg_OBJECTS) $(LadarHokuyoUrg_DEPENDENCIES
 LadarIbeo$(EXEEXT): $(LadarIbeo_OBJECTS) $(LadarIbeo_DEPENDENCIES) 
 	@rm -f LadarIbeo$(EXEEXT)
 	$(CXXLINK) $(LadarIbeo_OBJECTS) $(LadarIbeo_LDADD) $(LIBS)
+LadarIbeoLux$(EXEEXT): $(LadarIbeoLux_OBJECTS) $(LadarIbeoLux_DEPENDENCIES) 
+	@rm -f LadarIbeoLux$(EXEEXT)
+	$(CXXLINK) $(LadarIbeoLux_OBJECTS) $(LadarIbeoLux_LDADD) $(LIBS)
 LadarSickLms200$(EXEEXT): $(LadarSickLms200_OBJECTS) $(LadarSickLms200_DEPENDENCIES) 
 	@rm -f LadarSickLms200$(EXEEXT)
 	$(CXXLINK) $(LadarSickLms200_OBJECTS) $(LadarSickLms200_LDADD) $(LIBS)
@@ -361,6 +376,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_hokuyo_urg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_ibeo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_ibeo_lux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_lms200.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_s.Po@am__quote@
 

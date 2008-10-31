@@ -9,6 +9,10 @@ if CONFIG_RACK_LADAR_HOKUYO_URG
 bin_PROGRAMS +=	LadarHokuyoUrg
 endif
 
+if CONFIG_RACK_LADAR_IBEO_LUX
+bin_PROGRAMS +=	LadarIbeoLux
+endif
+
 if CONFIG_RACK_LADAR_SICK_LMS200
 bin_PROGRAMS +=	LadarSickLms200
 endif
@@ -29,6 +33,10 @@ LadarIbeo_SOURCES = \
 LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp
+
+LadarIbeoLux_SOURCES = \
+	ladar_ibeo_lux.h \
+	ladar_ibeo_lux.cpp
 
 LadarSickLms200_SOURCES = \
 	ladar_sick_lms200.h \

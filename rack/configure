@@ -912,6 +912,8 @@ CONFIG_RACK_LADAR_HOKUYO_URG_TRUE
 CONFIG_RACK_LADAR_HOKUYO_URG_FALSE
 CONFIG_RACK_LADAR_IBEO_TRUE
 CONFIG_RACK_LADAR_IBEO_FALSE
+CONFIG_RACK_LADAR_IBEO_LUX_TRUE
+CONFIG_RACK_LADAR_IBEO_LUX_FALSE
 CONFIG_RACK_LADAR_SICK_LMS200_TRUE
 CONFIG_RACK_LADAR_SICK_LMS200_FALSE
 CONFIG_RACK_LADAR_SICK_S_TRUE
@@ -1631,6 +1633,7 @@ Optional Features:
   --enable-ladar-hokuyo-urg
                           building LadarHokuyoUrg
   --enable-ladar-ibeo     building LadarIbeo
+  --enable-ladar-ibeo-lux building LadarIbeoLux
   --enable-ladar-sick-lms200
                           building LadarSickLms200
   --enable-ladar-sick-s   building LadarSickS
@@ -4594,7 +4597,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4597 "configure"' > conftest.$ac_ext
+  echo '#line 4600 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7331,11 +7334,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7334: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7337: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7338: \$? = $ac_status" >&5
+   echo "$as_me:7341: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7621,11 +7624,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7624: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7627: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7628: \$? = $ac_status" >&5
+   echo "$as_me:7631: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7725,11 +7728,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7728: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7731: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7732: \$? = $ac_status" >&5
+   echo "$as_me:7735: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10074,7 +10077,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10077 "configure"
+#line 10080 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10174,7 +10177,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10177 "configure"
+#line 10180 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12594,11 +12597,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12597: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12600: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12601: \$? = $ac_status" >&5
+   echo "$as_me:12604: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12698,11 +12701,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12701: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12704: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12705: \$? = $ac_status" >&5
+   echo "$as_me:12708: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14260,11 +14263,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14263: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14266: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14267: \$? = $ac_status" >&5
+   echo "$as_me:14270: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14364,11 +14367,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14367: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14370: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14371: \$? = $ac_status" >&5
+   echo "$as_me:14374: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16551,11 +16554,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16554: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16557: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16558: \$? = $ac_status" >&5
+   echo "$as_me:16561: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16841,11 +16844,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16844: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16847: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16848: \$? = $ac_status" >&5
+   echo "$as_me:16851: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16945,11 +16948,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16948: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16951: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16952: \$? = $ac_status" >&5
+   echo "$as_me:16955: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20764,6 +20767,35 @@ _ACEOF
 fi
 
 
+{ echo "$as_me:$LINENO: checking build LadarIbeoLux" >&5
+echo $ECHO_N "checking build LadarIbeoLux... $ECHO_C" >&6; }
+# Check whether --enable-ladar-ibeo-lux was given.
+if test "${enable_ladar_ibeo_lux+set}" = set; then
+  enableval=$enable_ladar_ibeo_lux; case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_IBEO_LUX=y ;;
+        *) CONFIG_RACK_LADAR_IBEO_LUX=n ;;
+    esac
+fi
+
+{ echo "$as_me:$LINENO: result: ${CONFIG_RACK_LADAR_IBEO_LUX:-n}" >&5
+echo "${ECHO_T}${CONFIG_RACK_LADAR_IBEO_LUX:-n}" >&6; }
+ if test "$CONFIG_RACK_LADAR_IBEO_LUX" = "y"; then
+  CONFIG_RACK_LADAR_IBEO_LUX_TRUE=
+  CONFIG_RACK_LADAR_IBEO_LUX_FALSE='#'
+else
+  CONFIG_RACK_LADAR_IBEO_LUX_TRUE='#'
+  CONFIG_RACK_LADAR_IBEO_LUX_FALSE=
+fi
+
+if test "$CONFIG_RACK_LADAR_IBEO_LUX" = "y"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define CONFIG_RACK_LADAR_IBEO_LUX 1
+_ACEOF
+
+fi
+
+
 { echo "$as_me:$LINENO: checking build LadarSickLms200" >&5
 echo $ECHO_N "checking build LadarSickLms200... $ECHO_C" >&6; }
 # Check whether --enable-ladar-sick-lms200 was given.
@@ -23503,6 +23535,13 @@ echo "$as_me: error: conditional \"CONFIG_RACK_LADAR_IBEO\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${CONFIG_RACK_LADAR_IBEO_LUX_TRUE}" && test -z "${CONFIG_RACK_LADAR_IBEO_LUX_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_LADAR_IBEO_LUX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_LADAR_IBEO_LUX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${CONFIG_RACK_LADAR_SICK_LMS200_TRUE}" && test -z "${CONFIG_RACK_LADAR_SICK_LMS200_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_LADAR_SICK_LMS200\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -24444,6 +24483,8 @@ CONFIG_RACK_LADAR_HOKUYO_URG_TRUE!$CONFIG_RACK_LADAR_HOKUYO_URG_TRUE$ac_delim
 CONFIG_RACK_LADAR_HOKUYO_URG_FALSE!$CONFIG_RACK_LADAR_HOKUYO_URG_FALSE$ac_delim
 CONFIG_RACK_LADAR_IBEO_TRUE!$CONFIG_RACK_LADAR_IBEO_TRUE$ac_delim
 CONFIG_RACK_LADAR_IBEO_FALSE!$CONFIG_RACK_LADAR_IBEO_FALSE$ac_delim
+CONFIG_RACK_LADAR_IBEO_LUX_TRUE!$CONFIG_RACK_LADAR_IBEO_LUX_TRUE$ac_delim
+CONFIG_RACK_LADAR_IBEO_LUX_FALSE!$CONFIG_RACK_LADAR_IBEO_LUX_FALSE$ac_delim
 CONFIG_RACK_LADAR_SICK_LMS200_TRUE!$CONFIG_RACK_LADAR_SICK_LMS200_TRUE$ac_delim
 CONFIG_RACK_LADAR_SICK_LMS200_FALSE!$CONFIG_RACK_LADAR_SICK_LMS200_FALSE$ac_delim
 CONFIG_RACK_LADAR_SICK_S_TRUE!$CONFIG_RACK_LADAR_SICK_S_TRUE$ac_delim
@@ -24492,8 +24533,6 @@ LIBDC1394_CPPFLAGS!$LIBDC1394_CPPFLAGS$ac_delim
 LIBDC1394_LDFLAGS!$LIBDC1394_LDFLAGS$ac_delim
 LIBDC1394_LIBS!$LIBDC1394_LIBS$ac_delim
 CONFIG_RACK_LIBDC1394_SUPPORT_TRUE!$CONFIG_RACK_LIBDC1394_SUPPORT_TRUE$ac_delim
-CONFIG_RACK_LIBDC1394_SUPPORT_FALSE!$CONFIG_RACK_LIBDC1394_SUPPORT_FALSE$ac_delim
-LIBJPEG_CPPFLAGS!$LIBJPEG_CPPFLAGS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -24535,6 +24574,8 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+CONFIG_RACK_LIBDC1394_SUPPORT_FALSE!$CONFIG_RACK_LIBDC1394_SUPPORT_FALSE$ac_delim
+LIBJPEG_CPPFLAGS!$LIBJPEG_CPPFLAGS$ac_delim
 LIBJPEG_LDFLAGS!$LIBJPEG_LDFLAGS$ac_delim
 LIBJPEG_LIBS!$LIBJPEG_LIBS$ac_delim
 CONFIG_RACK_LIBJPEG_SUPPORT_TRUE!$CONFIG_RACK_LIBJPEG_SUPPORT_TRUE$ac_delim
@@ -24577,7 +24618,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 40; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
