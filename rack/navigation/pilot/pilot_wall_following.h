@@ -1,13 +1,16 @@
 /*
- * RACK-RTS - Robotics Application Construction Kit (RTS internal)
+ * RACK - Robotics Application Construction Kit
  * Copyright (C) 2005-2006 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
- * All rights reserved.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *
+ *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
 
 #ifndef __PILOT_WALL_FOLLOWING_H__
@@ -53,14 +56,14 @@ typedef struct {
 class PilotWallFollowing : public RackDataModule {
       private:
 
-        int32_t             scan2dInst;
-        int32_t             chassisInst;
-        int32_t             positionInst;
-        int32_t             mode;
-        int32_t             maxSpeed;
-        int32_t             omegaMax;
-        int32_t             distance;
-        int32_t             testDis;
+        int                 scan2dInst;
+        int                 chassisInst;
+        int                 positionInst;
+        int                 mode;
+        int                 maxSpeed;
+        int                 omegaMax;
+        int                 distance;
+        int                 testDis;
 
         int                 globalState;
         int                 preState;

@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Oliver Wulf        <oliver.wulf@gmx.de>
+ *      Oliver Wulf        <wulf@rts.uni-hannover.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
 
@@ -45,23 +45,6 @@ typedef struct {
 //######################################################################
 class DatalogRec : public RackDataModule {
     private:
-
-        // own vars
-        uint32_t    ladarInst;
-
-        int         ladarOffsetX;
-        int         ladarOffsetY;
-        int         ladarOffsetRho;
-        int         maxRange;
-        int         reduce;
-        int         angleMin;
-        int         angleMax;
-        uint32_t    dataSrcMbxAdr;
-
-        float       angleMinFloat;
-        float       angleMaxFloat;
-        float       ladarOffsetRhoFloat;
-
         void*       smallContDataPtr;
         void*       largeContDataPtr;
 

@@ -87,6 +87,13 @@ struct rtser_config gps_serial_config = {
 
 int GpsNmea::moduleOn(void)
 {
+    // get dynamic module parameter
+    periodTime              = getInt32Param("periodTime");
+    trigMsg                 = getInt32Param("trigMsg");
+    varXY                   = getInt32Param("varXY");
+    varRho                  = (float)(getInt32Param("varRho") * M_PI / 180.0);
+    dataBufferPeriodTime    = periodTime;
+
     serialPort.clean();
     // set rx timeout 2 * periodTime in ns
     serialPort.setRecvTimeout((int64_t)periodTime * 2000000llu);
@@ -1202,17 +1209,12 @@ GpsNmea::GpsNmea()
                       5,                // max buffer entries
                       10)               // data buffer listener
 {
-    // get value(s) out of your argument table
-    positionInst = getIntArg("positionInst", argTab);
-    serialDev    = getIntArg("serialDev", argTab);
-    periodTime   = getIntArg("periodTime", argTab);
-    trigMsg      = getIntArg("trigMsg", argTab);
+    // get static module parameter
+    positionInst                 = getIntArg("positionInst", argTab);
+    serialDev                    = getIntArg("serialDev", argTab);
     gps_serial_config.baud_rate  = getIntArg("baudrate", argTab);
-    varXY        = getIntArg("varXY", argTab);
-    varRho       = (float)(getIntArg("varRho", argTab) * M_PI / 180.0);
 
     dataBufferMaxDataSize   = sizeof(gps_data);
-    dataBufferPeriodTime    = periodTime;
 }
 
 int main(int argc, char *argv[])

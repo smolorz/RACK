@@ -9,7 +9,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Marko Reimer <reimer@l3s.de>
+ *      Marko Reimer <reimer@rts.uni-hannover.de>
  *
  */
 

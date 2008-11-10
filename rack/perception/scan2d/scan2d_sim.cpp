@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include "scan2d_sim.h"
@@ -72,10 +72,9 @@ argTable_t argTab[] = {
 {
     int ret;
 
-    // read parameter
+    // get dynamic module parameter
     maxRange    = getInt32Param("maxRange");
     angleRes    = getInt32Param("angleRes");
-
     dxfMapFile  = getStringParam("mapFile");
     mapOffsetX  = getInt32Param("mapOffsetX");
     mapOffsetY  = getInt32Param("mapOffsetY");
@@ -269,9 +268,6 @@ int Scan2dSim::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    // read static parameter
-    odometryInst = getInt32Param("odometryInst");
-
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
@@ -342,6 +338,9 @@ Scan2dSim::Scan2dSim(void)
                     10)               // data buffer listener
       , dxfMap(200)
 {
+    // get static module parameter
+    odometryInst = getInt32Param("odometryInst");
+
     dataBufferMaxDataSize   = sizeof(scan2d_msg);
 }
 

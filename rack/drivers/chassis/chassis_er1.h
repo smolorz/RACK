@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Marko Reimer <marko.reimer@gmx.de>
+ *      Marko Reimer <reimer@rts.uni-hannover.de>
  *
  */
 #ifndef __CHASSIS_ER1_H__

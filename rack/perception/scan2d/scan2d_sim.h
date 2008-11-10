@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __SCAN_2D_SIM_H__
@@ -29,13 +29,13 @@
 
 class Scan2dSim : public RackDataModule {
     private:
-        uint32_t    odometryInst;
-        uint32_t    maxRange;
-        int         mapOffsetX;
-        int         mapOffsetY;
-        DxfMap      dxfMap;
-        char        *dxfMapFile;
-        int         angleRes;
+        int          odometryInst;
+        int          maxRange;
+        int          mapOffsetX;
+        int          mapOffsetY;
+        DxfMap       dxfMap;
+        char         *dxfMapFile;
+        int          angleRes;
 
         // additional mailboxes
         RackMailbox workMbx;

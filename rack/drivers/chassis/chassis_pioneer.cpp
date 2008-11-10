@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include <iostream>
@@ -191,6 +191,29 @@ chassis_param_data param = {
     unsigned char buffer[MAX_SIP_PACKAGE_SIZE];
     int totalCount;
     int ret;
+
+    // get dynamic module parameter
+    sonar                   = getInt32Param("sonar");
+    param.vxMax             = getInt32Param("vxMax");
+    param.vxMin             = getInt32Param("vxMin");
+    param.accMax            = getInt32Param("accMax");
+    param.decMax            = getInt32Param("decMax");
+    param.omegaMax          = getInt32Param("omegaMax") * M_PI / 180.0;
+    param.minTurningRadius  = getInt32Param("minTurningRadius");
+    param.breakConstant     = (float)getInt32Param("breakConstant") / 100.0f;
+    param.safetyMargin      = getInt32Param("safetyMargin");
+    param.safetyMarginMove  = getInt32Param("safetyMarginMove");
+    param.comfortMargin     = getInt32Param("comfortMargin");
+    param.boundaryFront     = getInt32Param("front");
+    param.boundaryBack      = getInt32Param("back");
+    param.boundaryLeft      = getInt32Param("left");
+    param.boundaryRight     = getInt32Param("right");
+    param.wheelBase         = getInt32Param("wheelBase");
+    param.wheelRadius       = getInt32Param("wheelRadius");
+    param.trackWidth        = getInt32Param("trackWidth");
+    param.pilotParameterA   = (float)getInt32Param("pilotParameterA") / 10000.0f;
+    param.pilotParameterB   = (float)getInt32Param("pilotParameterB") / 100.0f;
+    param.pilotVTransMax    = getInt32Param("pilotVTransMax");
 
     serialPort.clean();
     serialPort.setRecvTimeout(200000000llu);
@@ -797,29 +820,8 @@ ChassisPioneer::ChassisPioneer()
                       5,                    // max buffer entries
                       10)                   // data buffer listener
 {
-    // get value(s) out of your argument table
+    // get static module parameter
     serialDev               = getIntArg("serialDev", argTab);
-    sonar                   = getIntArg("sonar", argTab);
-    param.vxMax             = getIntArg("vxMax", argTab);
-    param.vxMin             = getIntArg("vxMin", argTab);
-    param.accMax            = getIntArg("accMax", argTab);
-    param.decMax            = getIntArg("decMax", argTab);
-    param.omegaMax          = getIntArg("omegaMax", argTab) * M_PI / 180.0;
-    param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
-    param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
-    param.safetyMargin      = getIntArg("safetyMargin", argTab);
-    param.safetyMarginMove  = getIntArg("safetyMarginMove", argTab);
-    param.comfortMargin     = getIntArg("comfortMargin", argTab);
-    param.boundaryFront     = getIntArg("front", argTab);
-    param.boundaryBack      = getIntArg("back", argTab);
-    param.boundaryLeft      = getIntArg("left", argTab);
-    param.boundaryRight     = getIntArg("right", argTab);
-    param.wheelBase         = getIntArg("wheelBase", argTab);
-    param.wheelRadius       = getIntArg("wheelRadius", argTab);
-    param.trackWidth        = getIntArg("trackWidth", argTab);
-    param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
-    param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
-    param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
 
     dataBufferMaxDataSize   = sizeof(chassis_data);
     dataBufferPeriodTime    = 100; // 100 ms (10 per sec)

@@ -10,8 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Oliver Wulf      <wulf@rts.uni-hannover.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Matthias Hentschel      <hentschel@rts.uni-hannover.de>
  *
  */
 #ifndef __GPS_PROXY_H__

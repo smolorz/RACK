@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include <iostream>
@@ -142,6 +142,29 @@ chassis_param_data param = {
 
 int ChassisSim::moduleOn(void)
 {
+    // get dynamic module parameter
+    param.vxMax             = getInt32Param("vxMax");
+    param.vxMin             = getInt32Param("vxMin");
+    param.accMax            = getInt32Param("accMax");
+    param.decMax            = getInt32Param("decMax");
+    param.omegaMax          = getInt32Param("omegaMax") * M_PI / 180.0;
+    param.minTurningRadius  = getInt32Param("minTurningRadius");
+    param.breakConstant     = (float)getInt32Param("breakConstant") / 100.0f;
+    param.safetyMargin      = getInt32Param("safetyMargin");
+    param.safetyMarginMove  = getInt32Param("safetyMarginMove");
+    param.comfortMargin     = getInt32Param("comfortMargin");
+    param.boundaryFront     = getInt32Param("front");
+    param.boundaryBack      = getInt32Param("back");
+    param.boundaryLeft      = getInt32Param("left");
+    param.boundaryRight     = getInt32Param("right");
+    param.wheelBase         = getInt32Param("wheelBase");
+    param.wheelRadius       = getInt32Param("wheelRadius");
+    param.trackWidth        = getInt32Param("trackWidth");
+    param.pilotParameterA   = (float)getInt32Param("pilotParameterA") / 10000.0f;
+    param.pilotParameterB   = (float)getInt32Param("pilotParameterB") / 100.0f;
+    param.pilotVTransMax    = getInt32Param("pilotVTransMax");
+    dataBufferPeriodTime    = getInt32Param("periodTime");
+
     commandData.vx    = 0;  // in mm/s
     commandData.vy    = 0;  // in mm/s
     commandData.omega = 0;  // in mm
@@ -171,9 +194,9 @@ int ChassisSim::moduleLoop(void)
     p_data->vx            = (float)commandData.vx;    // in mm/s
     p_data->vy            = 0.0f;
     p_data->omega         = (float)commandData.omega; // in rad/s
-    p_data->deltaX        = p_data->vx * (float)periodTime / 1000.0f;       // in mm
+    p_data->deltaX        = p_data->vx * (float)dataBufferPeriodTime / 1000.0f;       // in mm
     p_data->deltaY        = 0.0f;
-    p_data->deltaRho      = p_data->omega * (float)periodTime / 1000.0f;    // in rad
+    p_data->deltaRho      = p_data->omega * (float)dataBufferPeriodTime / 1000.0f;    // in rad
     p_data->battery       = 0.0f;
     p_data->activePilot   = activePilot;
 
@@ -189,7 +212,7 @@ int ChassisSim::moduleLoop(void)
                     p_data->vx, p_data->vy, p_data->omega,
                     p_data->recordingTime);
 
-    RackTask::sleep(periodTime * 1000000llu);
+    RackTask::sleep(dataBufferPeriodTime * 1000000llu);
 
     return 0;
 }
@@ -330,31 +353,7 @@ ChassisSim::ChassisSim()
                       5,                // max buffer entries
                       10)               // data buffer listener
 {
-    // get value(s) out of your argument table
-    param.vxMax             = getIntArg("vxMax", argTab);
-    param.vxMin             = getIntArg("vxMin", argTab);
-    param.accMax            = getIntArg("accMax", argTab);
-    param.decMax            = getIntArg("decMax", argTab);
-    param.omegaMax          = getIntArg("omegaMax", argTab) * M_PI / 180.0;
-    param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
-    param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
-    param.safetyMargin      = getIntArg("safetyMargin", argTab);
-    param.safetyMarginMove  = getIntArg("safetyMarginMove", argTab);
-    param.comfortMargin     = getIntArg("comfortMargin", argTab);
-    param.boundaryFront     = getIntArg("front", argTab);
-    param.boundaryBack      = getIntArg("back", argTab);
-    param.boundaryLeft      = getIntArg("left", argTab);
-    param.boundaryRight     = getIntArg("right", argTab);
-    param.wheelBase         = getIntArg("wheelBase", argTab);
-    param.wheelRadius       = getIntArg("wheelRadius", argTab);
-    param.trackWidth        = getIntArg("trackWidth", argTab);
-    param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
-    param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
-    param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
-    periodTime              = getIntArg("periodTime", argTab);
-
     dataBufferMaxDataSize   = sizeof(chassis_data);
-    dataBufferPeriodTime    = periodTime; // default 10Hz
 }
 
 int main(int argc, char *argv[])

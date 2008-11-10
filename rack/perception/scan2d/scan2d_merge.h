@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __SCAN2D_MERGE_H__
@@ -37,8 +37,8 @@ typedef struct {
 
 class Scan2dMerge : public RackDataModule {
     private:
-        int32_t             odometryInst;
-        int32_t             scan2dInst[SCAN2D_SENSOR_NUM_MAX];
+        int                 odometryInst;
+        int                 scan2dInst[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dTimeout[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dSectorNum[SCAN2D_SECTOR_NUM_MAX];
 

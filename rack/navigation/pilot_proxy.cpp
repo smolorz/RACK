@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
 #include <navigation/pilot_proxy.h>

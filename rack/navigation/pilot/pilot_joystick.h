@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __PILOT_JOYSTICK_H__
@@ -47,12 +47,12 @@ typedef struct {
 class PilotJoystick : public RackDataModule {
       private:
 
-        int32_t             scan2dInst;
-        int32_t             chassisInst;
-        int32_t             joystickInst;
-        int32_t             joystickSys;
-        int32_t             mode;
-        int32_t             chassisMinTurnRadius;
+        int                 scan2dInst;
+        int                 chassisInst;
+        int                 joystickInst;
+        int                 joystickSys;
+        int                 mode;
+        int                 chassisMinTurnRadius;
 
         int                 maxSpeed;
         int                 joystikDataMissing;

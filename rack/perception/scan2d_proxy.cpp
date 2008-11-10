@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include <perception/scan2d_proxy.h>
@@ -23,7 +23,7 @@ int Scan2dProxy::getData(scan2d_data *recv_data, ssize_t recv_datalen,
                          rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     message_info msgInfo;
-    
+
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, &msgInfo);
     if (ret) {

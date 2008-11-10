@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
   * Authors
- *      Oliver Wulf        <oliver.wulf@gmx.de>
+ *      Oliver Wulf        <wulf@rts.uni-hannover.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
 

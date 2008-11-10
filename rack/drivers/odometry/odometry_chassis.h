@@ -11,7 +11,6 @@
  *
  * Authors
  *      Oliver Wulf      <wulf@rts.uni-hannover.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 #ifndef __ODOMETRY_CHASSIS_H__
@@ -33,7 +32,7 @@ class OdometryChassis : public RackDataModule {
         float               oldPositionY;
         float               oldPositionRho;
 
-        uint32_t            chassisInst;
+        int                 chassisInst;
 
         // mailboxes
         RackMailbox         chassisMbx;

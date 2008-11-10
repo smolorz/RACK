@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include "scan2d_merge.h"
@@ -23,7 +23,6 @@
 #define INIT_BIT_MBX_DATA           2
 #define INIT_BIT_PROXY_ODOMETRY     5
 #define INIT_BIT_PROXY_SCAN2D       6       // has to be highest bit!
-
 
 //
 // data structures
@@ -366,13 +365,6 @@ int Scan2dMerge::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    // get static parameter
-    odometryInst  = getInt32Param("odometryInst");
-    scan2dInst[0] = getInt32Param("scan2dInstA");
-    scan2dInst[1] = getInt32Param("scan2dInstB");
-    scan2dInst[2] = getInt32Param("scan2dInstC");
-    scan2dInst[3] = getInt32Param("scan2dInstD");
-
     //
     // create mailboxes
     //
@@ -484,6 +476,13 @@ Scan2dMerge::Scan2dMerge(void)
                     10,               // max buffer entries
                     10)               // data buffer listener
 {
+    // get static module parameter
+    odometryInst  = getInt32Param("odometryInst");
+    scan2dInst[0] = getInt32Param("scan2dInstA");
+    scan2dInst[1] = getInt32Param("scan2dInstB");
+    scan2dInst[2] = getInt32Param("scan2dInstC");
+    scan2dInst[3] = getInt32Param("scan2dInstD");
+
     dataBufferMaxDataSize   =sizeof(scan2d_data_msg);
 }
 

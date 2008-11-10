@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __POSITION_H__
@@ -34,7 +34,7 @@
 
 class Position : public RackDataModule {
     private:
-        unsigned int        odometryInst;
+        int                 odometryInst;
         unsigned int        updateInterpol;
         double              offsetLatitude;
         double              offsetLongitude;
@@ -49,7 +49,7 @@ class Position : public RackDataModule {
         double              odometryStdDevY;
         double              odometryStdDevRho;
         double              stdDevX, stdDevY, stdDevRho;
-        
+
         int                 offset;
         RackMutex           refPosMtx;
         position_3d         refOdo;

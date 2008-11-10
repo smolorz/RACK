@@ -1,13 +1,16 @@
 /*
- * RACK-RTS - Robotics Application Construction Kit (RTS internal)
+ * RACK - Robotics Application Construction Kit
  * Copyright (C) 2005-2006 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
- * All rights reserved.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *
+ *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
 
 #include "pilot_lab.h"
@@ -72,6 +75,13 @@ argTable_t argTab[] = {
 {
     int             ret;
     int             chassisBound;
+
+    // get dynamic module parameter
+    speedMax     = getInt32Param("speedMax");
+    omegaMax     = (float)getInt32Param("omegaMax") * M_PI / 180.0f;
+    varDistance  = getInt32Param("varDistance");
+    varRho       = (float)getInt32Param("varRho") * M_PI / 180.0f;
+    distanceMin  = getInt32Param("distanceMin");
 
     // turn on chassis module
     ret = chassis->on();
@@ -504,18 +514,11 @@ PilotLab::PilotLab()
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
-    // get external module parameter out of argument table
+    // get static module parameter
     chassisInst  = getIntArg("chassisInst", argTab);
     positionInst = getIntArg("positionInst", argTab);
     scan2dInst   = getIntArg("scan2dInst", argTab);
-    speedMax     = getIntArg("speedMax", argTab);
-    omegaMax     = (float)getIntArg("omegaMax", argTab) * M_PI / 180.0f;
 
-    varDistance  = getIntArg("varDistance", argTab);
-    varRho       = (float)getIntArg("varRho", argTab) * M_PI / 180.0f;
-    distanceMin  = getIntArg("distanceMin", argTab);
-
-    // set dataBuffer size
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);
 }
 

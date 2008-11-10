@@ -11,7 +11,6 @@
  *
  * Authors
  *      Oliver Wulf      <wulf@rts.uni-hannover.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 #include <iostream>
@@ -348,7 +347,7 @@ OdometryChassis::OdometryChassis()
                     1000,              // max buffer entries
                     10)               // data buffer listener
 {
-    // get value(s) out of your argument table
+    // get static module parameter
     chassisInst   = getIntArg("chassisInst", argTab);
 
     dataBufferMaxDataSize = sizeof(odometry_data);

@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Oliver Wulf        <oliver.wulf@gmx.de>
+ *      Oliver Wulf        <wulf@rts.uni-hannover.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
  #include "datalog_rec_class.h"
@@ -1262,9 +1262,5 @@ DatalogRec::DatalogRec(void)
                     10,               // max buffer entries
                     10)               // data buffer listener
 {
-    //
-    // get values
-    //
-
     dataBufferMaxDataSize   = sizeof(datalog_data_msg);
 }

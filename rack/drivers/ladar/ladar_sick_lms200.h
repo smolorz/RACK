@@ -11,7 +11,6 @@
  *
  * Authors
  *      Oliver Wulf      <wulf@rts.uni-hannover.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 #ifndef __LADAR_SICK_H__
@@ -38,7 +37,7 @@ typedef struct {
 
     int         serial_buffer_size;
 
-    int32_t     periodTime;
+    int         periodTime;
     int         messageDistanceNum;
     float       startAngle;
     float       angleResolution;

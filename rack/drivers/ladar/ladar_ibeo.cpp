@@ -871,7 +871,7 @@ LadarIbeo::LadarIbeo()
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
-    // get value(s) out of your argument table
+    // get static module parameter
     canDev  = getIntArg("canDev", argTab);
     sensorId  = getIntArg("sensorId", argTab);
 

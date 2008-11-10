@@ -11,7 +11,6 @@
  *
  * Authors
  *      Oliver Wulf      <wulf@rts.uni-hannover.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 #include "ladar_sick_lms200.h"
@@ -1066,7 +1065,7 @@ LadarSickLms200::LadarSickLms200(void)
                     3,                // max buffer entries
                     10)               // data buffer listener
 {
-    // get values
+    // get static moudle parameter
     int serialDev = getIntArg("serialDev", argTab);
     int protocol  = getIntArg("protocol", argTab);
     int baudrate  = getIntArg("baudrate", argTab);
@@ -1081,39 +1080,41 @@ LadarSickLms200::LadarSickLms200(void)
     }
 
     // load ladar_driver_config_t, depending on protocol
-    switch(protocol) {
-    case 0:
-        // protocol = normal
-        conf = &config_sick_norm;
-        conf->protocol = normal;
-        break;
-    case 1:
-        // protocol = interlaced (raw)
-        conf = &config_sick_interlaced;
-        conf->protocol = interlaced;
-        break;
-    case 2:
-        // protocol = fast
-        conf = &config_sick_fast;
-        conf->protocol = fast;
-        break;
-
-    default:
-        return;
+    switch (protocol) 
+    {
+        case 0:
+            // protocol = normal
+            conf = &config_sick_norm;
+            conf->protocol = normal;
+            break;
+        case 1:
+            // protocol = interlaced (raw)
+            conf = &config_sick_interlaced;
+            conf->protocol = interlaced;
+            break;
+        case 2:
+            // protocol = fast
+            conf = &config_sick_fast;
+            conf->protocol = fast;
+            break;
+    
+        default:
+            return;
     }
 
-    switch(baudrate) {
-    case 38400:
-        conf->cmd_baudrate = ladar_cmd_baudrate_38400;
-        conf->baudrate = 38400;
-        break;
-    case 500000:
-        conf->cmd_baudrate = ladar_cmd_baudrate_500K;
-        conf->baudrate = 500000;
-        break;
+    switch(baudrate) 
+    {
+        case 38400:
+            conf->cmd_baudrate = ladar_cmd_baudrate_38400;
+            conf->baudrate = 38400;
+            break;
+        case 500000:
+            conf->cmd_baudrate = ladar_cmd_baudrate_500K;
+            conf->baudrate = 500000;
+            break;
 
-    default:
-        return;
+        default:
+            return;
     }
 
     //

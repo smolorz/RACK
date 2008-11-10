@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include "position.h"
@@ -63,14 +63,14 @@ argTable_t argTab[] = {
       "Position reference frame, 0 = wgs84, 1 = Gauss Krueger, 2 = Utm, default 0", { 0 } },
 
     { ARGOPT_OPT, "autoOffset", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Automatic offset estimation, 0 = off, 1 = on, default 1", { 1 } },
+      "Automatic offset estimation, 0 = off, 1 = on, default 0", { 0 } },
 
     { ARGOPT_OPT, "odometryStdDevX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Odometry standard deviation X, mm/m, default 50", { 50 } },
-      
+
     { ARGOPT_OPT, "odometryStdDevY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Odometry standard deviation Y, mm/m, 1 = on, default 100", { 50 } },
-      
+
     { ARGOPT_OPT, "odometryStdDevRho", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
       "Odometry standard deviation Rho, deg/deg, default 0.1", { 0 } },
 
@@ -93,7 +93,7 @@ int  Position::moduleOn(void)
     int           ret;
     odometry_data odometryData;
 
-    // get parameter
+    // get dynamic module parameter
     updateInterpol    = getInt32Param("updateInterpol");
     offsetLatitude    = (double)getFloatParam("offsetLatitude") * M_PI / 180.0;
     offsetLongitude   = (double)getFloatParam("offsetLongitude") * M_PI / 180.0;
@@ -699,16 +699,6 @@ int  Position::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    // get static parameter
-    odometryInst      = getInt32Param("odometryInst");
-
-    oldPos.x    = 0;
-    oldPos.y    = 0;
-    oldPos.z    = 0;
-    oldPos.phi  = 0.0f;
-    oldPos.psi  = 0.0f;
-    oldPos.rho  = 0.0f;
-
     // work mailbox
     ret = createMbx(&workMbx, 1, 128, MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
@@ -806,7 +796,16 @@ Position::Position()
                     1000,             // max buffer entries
                     10)               // data buffer listener
 {
-    // set dataBuffer size
+    // get static module parameter parameter
+    odometryInst      = getInt32Param("odometryInst");
+
+    oldPos.x    = 0;
+    oldPos.y    = 0;
+    oldPos.z    = 0;
+    oldPos.phi  = 0.0f;
+    oldPos.psi  = 0.0f;
+    oldPos.rho  = 0.0f;
+
     dataBufferMaxDataSize   = sizeof(position_data);
 }
 

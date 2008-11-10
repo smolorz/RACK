@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Marko Reimer <marko.reimer@gmx.de>
+ *      Marko Reimer <reimer@rts.uni-hannover.de>
  *
  */
 #include <iostream>
@@ -164,6 +164,33 @@ chassis_param_data param = {
 
  int ChassisEr1::moduleOn(void)
 {
+    // get dynamic module parameter
+    axisWidth               = getInt32Param("axisWidth");
+    param.vxMax             = getInt32Param("vxMax");
+    param.vxMin             = getInt32Param("vxMin");
+    param.accMax            = getInt32Param("accMax");
+    param.decMax            = getInt32Param("decMax");
+    param.omegaMax          = (float)getInt32Param("omegaMax") * M_PI / 180.0f;
+    param.minTurningRadius  = getInt32Param("minTurningRadius");
+    param.breakConstant     = (float)getInt32Param("breakConstant") / 100.0f;
+    param.safetyMargin      = getInt32Param("safetyMargin");
+    param.safetyMarginMove  = getInt32Param("safetyMarginMove");
+    param.comfortMargin     = getInt32Param("comfortMargin");
+    param.boundaryFront     = getInt32Param("front");
+    param.boundaryBack      = getInt32Param("back");
+    param.boundaryLeft      = getInt32Param("left");
+    param.boundaryRight     = getInt32Param("right");
+    param.wheelBase         = getInt32Param("wheelBase");
+    param.wheelRadius       = getInt32Param("wheelRadius");
+    param.trackWidth        = getInt32Param("trackWidth");
+    param.pilotParameterA   = (float)getInt32Param("pilotParameterA") / 10000.0f;
+    param.pilotParameterB   = (float)getInt32Param("pilotParameterB") / 100.0f;
+    param.pilotVTransMax    = getInt32Param("pilotVTransMax");
+    omegaMin                = (float) getInt32Param("omegaMin") * M_PI / 180.0f;
+    velFactor               = (float) getInt32Param("velFactor") / 100.0f;
+    odoFactorA              = (float) getInt32Param("odoFactorA") / 100.0f;
+    odoFactorB              = (float) getInt32Param("odoFactorB");
+
     RackTask::disableRealtimeMode();
     GDOS_DBG_DETAIL("calling wheel init");
 
@@ -449,42 +476,16 @@ ChassisEr1::ChassisEr1()
                       5,                    // max buffer entries
                       10)                   // data buffer listener
 {
-    // get value(s) out of your argument table
+    // get static module parameter
     serialDev               = getStrArg("serialDev", argTab);
-    axisWidth               = getIntArg("axisWidth", argTab);
-    param.vxMax             = getIntArg("vxMax", argTab);
-    param.vxMin             = getIntArg("vxMin", argTab);
-    param.accMax            = getIntArg("accMax", argTab);
-    param.decMax            = getIntArg("decMax", argTab);
-    param.omegaMax          = (float)getIntArg("omegaMax", argTab) * M_PI / 180.0f;
-    param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
-    param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
-    param.safetyMargin      = getIntArg("safetyMargin", argTab);
-    param.safetyMarginMove  = getIntArg("safetyMarginMove", argTab);
-    param.comfortMargin     = getIntArg("comfortMargin", argTab);
-    param.boundaryFront     = getIntArg("front", argTab);
-    param.boundaryBack      = getIntArg("back", argTab);
-    param.boundaryLeft      = getIntArg("left", argTab);
-    param.boundaryRight     = getIntArg("right", argTab);
-    param.wheelBase         = getIntArg("wheelBase", argTab);
-    param.wheelRadius       = getIntArg("wheelRadius", argTab);
-    param.trackWidth        = getIntArg("trackWidth", argTab);
-    param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
-    param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
-    param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
-    omegaMin                = (float) getIntArg("omegaMin", argTab) * M_PI / 180.0f;
-    velFactor               = (float) getIntArg("velFactor", argTab) / 100.0f;
-    odoFactorA              = (float) getIntArg("odoFactorA", argTab) / 100.0f;
-    odoFactorB              = (float) getIntArg("odoFactorB", argTab);
 
     dataBufferMaxDataSize   = sizeof(chassis_data);
-    dataBufferPeriodTime    = 1000/SAMPLING_RATE;
+    dataBufferPeriodTime    = 1000 / SAMPLING_RATE;
 }
 
 int main(int argc, char *argv[])
 {
     int ret;
-
 
     // get args
     ret = RackModule::getArgs(argc, argv, argTab, "ChassisEr1");

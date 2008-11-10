@@ -219,7 +219,7 @@ DummyAbc::DummyAbc()
                     10)               // data buffer listener
 {
 
-  // get value(s) out of your argument table
+  // get static module parameter
   reqVal        = getIntArg("reqVal", argTab);
 
   dataBufferMaxDataSize = sizeof(dummy_data_msg);

@@ -1,13 +1,16 @@
 /*
- * RACK-RTS - Robotics Application Construction Kit (RTS internal)
+ * RACK - Robotics Application Construction Kit
  * Copyright (C) 2005-2006 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
- * All rights reserved.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *
+ *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
 
 #include "pilot_wall_following.h"
@@ -74,6 +77,15 @@ argTable_t argTab[] = {
  int  PilotWallFollowing::moduleOn(void)
 {
     int ret;
+
+    // get dynamic module parameter
+    maxSpeed     = getInt32Param("maxSpeed");
+    omegaMax     = getInt32Param("omegaMax");
+    mode         = getInt32Param("mode");
+    distance     = getInt32Param("distance");
+    testDis      = getInt32Param("testDis");
+
+    omegaMaxRad  = (float)(omegaMax * M_PI / 180.0f);
 
     ret = chassis->on();
     if (ret)
@@ -1892,17 +1904,10 @@ PilotWallFollowing::PilotWallFollowing()
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
-    // get value(s) out of your argument table
+    // get static module parameter
     chassisInst  = getIntArg("chassisInst", argTab);
     scan2dInst   = getIntArg("scan2dInst", argTab);
     positionInst = getIntArg("positionInst", argTab);
-    maxSpeed     = getIntArg("maxSpeed", argTab);
-    omegaMax     = getIntArg("omegaMax", argTab);
-    mode         = getIntArg("mode", argTab);
-
-    omegaMaxRad  = (float)(omegaMax * M_PI / 180.0f);
-    distance     = getIntArg("distance", argTab);
-    testDis      = getIntArg("testDis", argTab);
 
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);
 }

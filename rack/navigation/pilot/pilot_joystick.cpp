@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 
@@ -73,9 +73,9 @@ argTable_t argTab[] = {
 {
     int ret;
 
-    // get parameter
-    maxSpeed     = getInt32Param("maxSpeed");
-    mode         = getInt32Param("mode");
+    // get dynamic module parameter
+    maxSpeed             = getInt32Param("maxSpeed");
+    mode                 = getInt32Param("mode");
     chassisMinTurnRadius = getInt32Param("chassisMinTurnRadius");
 
     ret = chassis->on();
@@ -496,12 +496,6 @@ int  PilotJoystick::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    // get static parameter
-    chassisInst  = getInt32Param("chassisInst");
-    scan2dInst   = getInt32Param("scan2dInst");
-    joystickInst = getInt32Param("joystickInst");
-    joystickSys  = getInt32Param("joystickSys");
-
     //
     // create mailboxes
     //
@@ -629,6 +623,12 @@ PilotJoystick::PilotJoystick()
                     5,                // max buffer entries
                     10)               // data buffer listener
 {
+    // get static module parameter
+    chassisInst  = getInt32Param("chassisInst");
+    scan2dInst   = getInt32Param("scan2dInst");
+    joystickInst = getInt32Param("joystickInst");
+    joystickSys  = getInt32Param("joystickSys");
+
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);
     dataBufferPeriodTime    = 100; // 100ms (10 per sec)
 }

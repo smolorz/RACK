@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __CHASSIS_PIONEER_H__
@@ -47,7 +47,7 @@ class ChassisPioneer : public RackDataModule {
     RackMutex       hwMtx;
 
     int             leftEncoderOld, rightEncoderOld;
-    rack_time_t       oldTimestamp;
+    rack_time_t     oldTimestamp;
 
     float           battery;
     uint32_t        activePilot;

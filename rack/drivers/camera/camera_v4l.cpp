@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Marko Reimer <reimer@l3s.de>
+ *      Marko Reimer <reimer@rts.uni-hannover.de>
  *
  */
 
@@ -317,7 +317,7 @@ int CameraV4L::moduleLoop(void)
     datalength = sizeof(camera_data) + camera.grab_size;
     putDataBufferWorkSpace(datalength);
 
-    RackTask::sleep(200000000llu);
+    RackTask::sleep(dataBufferPeriodTime * 1000000llu);
 
     autoBrightness(p_data);
 
@@ -435,6 +435,7 @@ CameraV4L::CameraV4L()
                       20,                   // max buffer entries
                       10)                   // data buffer listener
 {
+    // get static module parameter
     width               = getIntArg("width", argTab);
     height              = getIntArg("height", argTab);
     depth               = getIntArg("depth", argTab);

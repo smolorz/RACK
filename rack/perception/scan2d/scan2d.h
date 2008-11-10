@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __SCAN_2D_H__
@@ -23,8 +23,7 @@
 
 typedef struct {
     camera_data     data;
-    uint8_t         byteStream[LADAR_DATA_MAX_DISTANCE_NUM *
-        ((CAMERA_MAX_DEPTH+7)/8)];
+    uint8_t         byteStream[LADAR_DATA_MAX_DISTANCE_NUM * ((CAMERA_MAX_DEPTH+7)/8)];
 } __attribute__((packed)) camera_data_ladar_msg;
 
 #define MODULE_CLASS_ID             SCAN2D
@@ -37,26 +36,26 @@ class Scan2d : public RackDataModule {
     private:
 
         // own vars
-        int32_t     ladarInst;
-        int32_t     cameraInst;
+        int          ladarInst;
+        int          cameraInst;
 
-        int         ladarOffsetX;
-        int         ladarOffsetY;
-        int         ladarOffsetRho;
-        int         ladarOffsetRhoDivider;
-        int         ladarUpsideDown;
-        int         maxRange;
-        int         reduce;
-        int         angleMin;
-        int         angleMax;
-        uint32_t    dataSrcMbxAdr;
+        int          ladarOffsetX;
+        int          ladarOffsetY;
+        int          ladarOffsetRho;
+        int          ladarOffsetRhoDivider;
+        int          ladarUpsideDown;
+        int          maxRange;
+        int          reduce;
+        int          angleMin;
+        int          angleMax;
+        unsigned int dataSrcMbxAdr;
 
-        float       angleMinFloat;
-        float       angleMaxFloat;
-        float       ladarOffsetRhoFloat;
+        float        angleMinFloat;
+        float        angleMaxFloat;
+        float        ladarOffsetRhoFloat;
 
-        int         medianFilter;
-        int         reflectorFilterMode;
+        int          medianFilter;
+        int          reflectorFilterMode;
 
         // additional mailboxes
         RackMailbox workMbx;

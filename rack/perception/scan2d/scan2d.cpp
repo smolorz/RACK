@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #include "scan2d.h"
@@ -111,22 +111,22 @@ argTable_t argTab[] = {
 {
     int ret;
 
-    // get parameter
-    ladarOffsetX        = getInt32Param("ladarOffsetX");
-    ladarOffsetY        = getInt32Param("ladarOffsetY");
-    ladarOffsetRho      = getInt32Param("ladarOffsetRho");
+    // get dynamic module parameter
+    ladarOffsetX          = getInt32Param("ladarOffsetX");
+    ladarOffsetY          = getInt32Param("ladarOffsetY");
+    ladarOffsetRho        = getInt32Param("ladarOffsetRho");
     ladarOffsetRhoDivider = getInt32Param("ladarOffsetRhoDivider");
-    ladarUpsideDown     = getInt32Param("ladarUpsideDown");
-    maxRange            = getInt32Param("maxRange");
-    reduce              = getInt32Param("reduce");
-    angleMin            = getInt32Param("angleMin");
-    angleMax            = getInt32Param("angleMax");
-    medianFilter        = getInt32Param("medianFilter");
-    reflectorFilterMode = getInt32Param("reflectorFilterMode");
+    ladarUpsideDown       = getInt32Param("ladarUpsideDown");
+    maxRange              = getInt32Param("maxRange");
+    reduce                = getInt32Param("reduce");
+    angleMin              = getInt32Param("angleMin");
+    angleMax              = getInt32Param("angleMax");
+    reflectorFilterMode   = getInt32Param("reflectorFilterMode");
+    medianFilter          = getInt32Param("medianFilter");
 
-    angleMinFloat       = (double)angleMin       * M_PI / 180.0;
-    angleMaxFloat       = (double)angleMax       * M_PI / 180.0;
-    ladarOffsetRhoFloat = (double)ladarOffsetRho / (double)ladarOffsetRhoDivider * M_PI / 180.0;
+    angleMinFloat         = (double)angleMin       * M_PI / 180.0;
+    angleMaxFloat         = (double)angleMax       * M_PI / 180.0;
+    ladarOffsetRhoFloat   = (double)ladarOffsetRho / (double)ladarOffsetRhoDivider * M_PI / 180.0;
 
     GDOS_DBG_DETAIL("scan2d filter:\n");
     GDOS_DBG_DETAIL("  medianFilter        = %i\n", medianFilter);
@@ -544,10 +544,6 @@ int Scan2d::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    // get static parameter
-    ladarInst       = getInt32Param("ladarInst");
-    cameraInst      = getInt32Param("cameraInst");
-
     // work mailbox
     ret = createMbx(&workMbx, 1, sizeof(camera_data_ladar_msg), MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
@@ -635,6 +631,10 @@ Scan2d::Scan2d(void)
                     10,               // max buffer entries
                     10)               // data buffer listener
 {
+    // get static module parameter
+    ladarInst       = getInt32Param("ladarInst");
+    cameraInst      = getInt32Param("cameraInst");
+
     dataBufferMaxDataSize = sizeof(scan2d_msg);
 }
 

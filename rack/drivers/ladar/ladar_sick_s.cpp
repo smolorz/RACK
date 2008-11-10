@@ -385,9 +385,9 @@ LadarSickS::LadarSickS(void)
 
 
 {
-    // get values
+    // get static module parameter
     devNumber = getIntArg("devNumber", argTab);
-    EFIdev    = getIntArg("EFIdev",    argTab);
+    EFIdev    = getIntArg("EFIdev", argTab);
     serialDev = getIntArg("serialDev", argTab);
     baudrate = getIntArg("baudrate", argTab);
 

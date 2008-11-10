@@ -10,8 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Marko Reimer     <reimer@l3s.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Marko Reimer     <reimer@rts.uni-hannover.de>
  *
  */
 

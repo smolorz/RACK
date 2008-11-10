@@ -869,7 +869,7 @@ CameraDcam::CameraDcam()
                       25,                    // max buffer entries
                       10)                   // data buffer listener
 {
-    // get value(s) out of your argument table
+    // get static module parameter
     format              = FORMAT_SVGA_NONCOMPRESSED_2;
     frameRate           = FRAMERATE_7_5; // only used in continuous grabbing mode (con. iso transmission, not implemented yet.)
                                          // not used in singleshot opiton! Must be set in protocol.
@@ -905,7 +905,7 @@ CameraDcam::CameraDcam()
     format7image.colorCodingId     = COLOR_FORMAT7_MONO8; //COLOR_FORMAT7_RAW8; //COLOR_FORMAT7_RAW16;
 
     dataBufferMaxDataSize   = sizeof(camera_data_msg);
-    dataBufferPeriodTime    = 1000 / fps; // 100 ms (10 per sec)
+    dataBufferPeriodTime    = 1000 / fps;
 }
 
 int main(int argc, char *argv[])

@@ -64,6 +64,22 @@ int  LadarHokuyoUrg::moduleOn(void)
 {
     int ret;
 
+    // get dynamic module parameter
+    start       = getInt32Param("start");
+    end         = getInt32Param("end");
+    cluster     = getInt32Param("cluster");
+    startAngle  = getInt32Param("startAngle");
+
+    if (start > 44)
+    {
+        startAngle  = startAngle + 681 / (start - 44) * 240;
+    }
+
+    if (cluster < 0 || cluster > 3)
+    {
+        GDOS_ERROR("Invalid argument -> cluster [use 1..3] \n");
+    }
+
     GDOS_DBG_INFO("Connect\n");
 
     ret = serialPort.clean();
@@ -283,22 +299,8 @@ LadarHokuyoUrg::LadarHokuyoUrg()
                     10)               // data buffer listener
 {
 
-    // get value(s) out of argument table
+    // get static module parameter
     serialDev   = getIntArg("serialDev", argTab);
-    start       = getIntArg("start", argTab);
-    end         = getIntArg("end", argTab);
-    cluster     = getIntArg("cluster", argTab);
-    startAngle  = getIntArg("startAngle", argTab);
-
-    if (start > 44)
-    {
-        startAngle  = startAngle + 681 / (start - 44) * 240;
-    }
-
-    if (cluster < 0 || cluster > 3)
-    {
-        printf("Invalid argument -> cluster [use 1..3] \n");
-    }
 
     dataBufferMaxDataSize   = sizeof(ladar_data_msg);
     dataBufferPeriodTime    = 100;
