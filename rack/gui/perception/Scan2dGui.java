@@ -42,11 +42,13 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
     protected boolean mapViewIsShowing;
 
     protected boolean displayScanLine;
+    protected boolean paintSegments;
 
     public Scan2dGui(GuiElementDescriptor guiElement) {
         super(guiElement);
 
         displayScanLine=guiElement.getParameter("scanDiplayMode").length() > 0;
+        paintSegments =guiElement.getParameter("paintSegments").length() > 0;
 
         scan2d = (Scan2dProxy) proxy;
 
@@ -179,51 +181,68 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
             ScanPoint point = scan2dData.point[i];
             int size = 100;
 
-            if ((point.type & ScanPoint.TYPE_INVALID) != 0) {
+            if ((point.type & ScanPoint.TYPE_INVALID) != 0) 
+            {
                 g.setColor(Color.GRAY);
-            } else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0) {
+            } 
+            else if ((point.type & ScanPoint.TYPE_REFLECTOR) != 0) 
+            {
                 g.setColor(Color.YELLOW);
-            } else if (point.segment == 0) {
-                if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK) {
+            } 
+            else if ((!paintSegments) || (point.segment == 0)) 
+            {
+                if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_LANDMARK) 
+                {
                     g.setColor(Color.BLUE);
-                } else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE) {
+                } 
+                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_OBSTACLE) 
+                {
                     g.setColor(Color.RED);
-                } else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_DYN_OBSTACLE) {
+                } 
+                else if ((point.type & ScanPoint.TYPE_MASK) == ScanPoint.TYPE_DYN_OBSTACLE) 
+                {
                     g.setColor(Color.ORANGE);
-                } else {
+                }
+                else 
+                {
                     g.setColor(Color.BLACK);
                 }
-            } else // segment != 0
+            } 
+            else // segment != 0 && paintSegments = 1
             {
                 int seg = (point.segment - 1) % 5;
-                switch (seg) {
-                case 0:
-                    g.setColor(Color.CYAN);
-                    break;
-                case 1:
-                    g.setColor(Color.GREEN);
-                    break;
-                case 2:
-                    g.setColor(Color.MAGENTA);
-                    break;
-                case 3:
-                    g.setColor(Color.ORANGE);
-                    break;
-                case 4:
-                    g.setColor(Color.PINK);
-                    break;
+                switch (seg) 
+                {
+                	case 0:
+                		g.setColor(Color.CYAN);
+                		break;
+	                case 1:
+	                    g.setColor(Color.GREEN);
+	                    break;
+	                case 2:
+	                    g.setColor(Color.MAGENTA);
+	                    break;
+	                case 3:
+	                    g.setColor(Color.ORANGE);
+	                    break;
+	                case 4:
+	                    g.setColor(Color.PINK);
+	                    break;
                 }
             }
 
             // draw scanpoints in mm
             if(displayScanLine)
             {
-                if (i > 0) {
+                if (i > 0) 
+                {
                     ScanPoint prePoint = scan2dData.point[i - 1];
                     g.drawLine(prePoint.x, prePoint.y, point.x, point.y);
                 }
                 
-            }else{
+            }
+            else
+            {
                 int dist = (int) Math.sqrt(point.x * point.x + point.y
                         * point.y);
                 size += (int) (dist * 0.025);
