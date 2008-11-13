@@ -146,7 +146,7 @@ int  Position::moduleOn(void)
     interpolDiff.z    = 0;
     interpolDiff.rho  = 0.0f;
     interpolStartTime = odometryData.recordingTime;
-    
+
     positionStdDeviation.x = 0;
     positionStdDeviation.x = 0;
     positionStdDeviation.x = 0;
@@ -243,7 +243,7 @@ int  Position::moduleLoop(void)
         pPosition->var.rho = stdDevRho;
 
         memcpy(&oldOdometryPos, &odometryData.pos, sizeof(position_3d));
-    
+
         refPosMtx.unlock();
 
         GDOS_DBG_DETAIL("recordingTime %i x %i y %i z %i phi %a psi %a rho %a varX %i varY %i varRho %a\n",
@@ -367,7 +367,7 @@ int  Position::moduleCommand(message_info *msgInfo)
             GDOS_DBG_INFO("WGS84 to POS: WGS84 lat %adeg, lon %adeg, alt %dmm, head %adeg, "
                           "Pos x %dmm, y %dmm, z %dmm, rho %adeg\n",
                           pPosWgs84Data->latitude, pPosWgs84Data->longitude, pPosWgs84Data->altitude,
-                          pPosWgs84Data->heading, posData.pos.x, posData.pos.y, 
+                          pPosWgs84Data->heading, posData.pos.x, posData.pos.y,
                           posData.pos.z, posData.pos.rho);
             cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
                                     sizeof(position_data));
@@ -484,7 +484,7 @@ int  Position::moduleCommand(message_info *msgInfo)
 
             GDOS_DBG_INFO("POS to GK: Pos x %dmm, y %dmm, z %dmm, rho %adeg, "
                           "GK north %fmm, east %fmm, alt %dmm, head %adeg\n",
-                          pPosData->pos.x, pPosData->pos.y, pPosData->pos.z, 
+                          pPosData->pos.x, pPosData->pos.y, pPosData->pos.z,
                           pPosData->pos.rho, posGkData.northing, posGkData.easting,
                           posGkData.altitude, posGkData.heading);
             cmdMbx.sendDataMsgReply(MSG_POSITION_GK, msgInfo, 1, &posGkData,
@@ -517,7 +517,7 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
                offset         = 1;
                offsetNorthing = rint(posGk.northing / (100.0 * 1000.0)) * 100.0;
                offsetEasting  = rint(posGk.easting / (100.0 * 1000.0)) * 100.0;
-               GDOS_PRINT("Set new GK position offset to north %fm, east %fm\n", 
+               GDOS_PRINT("Set new GK position offset to north %fm, east %fm\n",
                           offsetNorthing, offsetEasting);
             }
 
@@ -530,7 +530,7 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
 
             GDOS_DBG_INFO("Wgs84 lat %a, lon %a, alt %d, head %a"
                         "Gauss-Krueger north %f, east %f, alt %d, head %a\n",
-                        posWgs84Data->latitude, posWgs84Data->longitude, 
+                        posWgs84Data->latitude, posWgs84Data->longitude,
                         posWgs84Data->altitude, posWgs84Data->heading,
                         posGk.northing, posGk.easting, posGk.altitude, posGk.heading);
             break;
@@ -545,7 +545,7 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
                offset         = 1;
                offsetNorthing = rint(posUtm.northing / (100.0 * 1000.0)) * 100.0;
                offsetEasting  = rint(posUtm.easting / (100.0 * 1000.0)) * 100.0;
-               GDOS_PRINT("Set new UTM position offset to north %fm, east %fm\n", 
+               GDOS_PRINT("Set new UTM position offset to north %fm, east %fm\n",
                           offsetNorthing, offsetEasting);
             }
 
@@ -558,9 +558,9 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
 
             GDOS_DBG_INFO("Wgs84 lat %a, lon %a, alt %d, head %a"
                           "UTM zone %d, north %f, east %f, alt %d, head %a\n",
-                        posWgs84Data->latitude, posWgs84Data->longitude, 
+                        posWgs84Data->latitude, posWgs84Data->longitude,
                         posWgs84Data->altitude, posWgs84Data->heading,
-                        posUtm.zone, posUtm.northing, posUtm.easting, 
+                        posUtm.zone, posUtm.northing, posUtm.easting,
                         posUtm.altitude, posUtm.heading);
             break;
 
@@ -598,7 +598,7 @@ void    Position::posToWgs84(position_data *posData, position_wgs84_data *posWgs
             GDOS_DBG_INFO("Gauss-Krueger north %f, east %f, alt %d, head %a, "
                           "Wgs84 lat %a, lon %a, alt %d, head %a\n",
                           posGk.northing, posGk.easting, posGk.altitude, posGk.heading,
-                          posWgs84Data->latitude, posWgs84Data->longitude, 
+                          posWgs84Data->latitude, posWgs84Data->longitude,
                           posWgs84Data->altitude, posWgs84Data->heading);
             break;
 
@@ -613,9 +613,9 @@ void    Position::posToWgs84(position_data *posData, position_wgs84_data *posWgs
 
                 GDOS_DBG_INFO("Utm zone %d, north %f, east %f, alt %d, head %a, "
                               "Wgs84 lat %a, lon %a, alt %d, head %a\n",
-                              posUtm. zone, posUtm.northing, posUtm.easting, 
+                              posUtm. zone, posUtm.northing, posUtm.easting,
                               posUtm.altitude, posUtm.heading,
-                              posWgs84Data->latitude, posWgs84Data->longitude, 
+                              posWgs84Data->latitude, posWgs84Data->longitude,
                               posWgs84Data->altitude, posWgs84Data->heading);
                 break;
 
@@ -797,7 +797,7 @@ Position::Position()
                     10)               // data buffer listener
 {
     // get static module parameter parameter
-    odometryInst      = getInt32Param("odometryInst");
+    odometryInst      = getIntArg("odometryInst", argTab);
 
     oldPos.x    = 0;
     oldPos.y    = 0;
