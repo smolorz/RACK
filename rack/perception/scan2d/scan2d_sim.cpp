@@ -218,14 +218,14 @@ int  Scan2dSim::moduleLoop(void)
         data2D->point[i].x = (int)x1;
         data2D->point[i].y = (int)y1;
         data2D->point[i].z = (int)distance;
-        data2D->point[i].type      = TYPE_UNKNOWN;
+        data2D->point[i].type      = SCAN_POINT_TYPE_UNKNOWN;
         data2D->point[i].segment   = 0;
         data2D->point[i].intensity = 0;
 
         if(distance >= maxRange)
         {
-            data2D->point[i].type |= TYPE_MAX_RANGE;
-            data2D->point[i].type |= TYPE_INVALID;
+            data2D->point[i].type |= SCAN_POINT_TYPE_MAX_RANGE;
+            data2D->point[i].type |= SCAN_POINT_TYPE_INVALID;
         }
         angle += angleResolution;
     }
@@ -339,7 +339,7 @@ Scan2dSim::Scan2dSim(void)
       , dxfMap(200)
 {
     // get static module parameter
-    odometryInst = getInt32Param("odometryInst");
+    odometryInst = getIntArg("odometryInst", argTab);
 
     dataBufferMaxDataSize   = sizeof(scan2d_msg);
 }
