@@ -317,8 +317,8 @@ int  PilotWallFollowing::testRec(int x, int y, int xSize, int ySize, scan2d_data
 
     for (i = 0; i < scan->pointNum; i += 2)
     {
-        if (((scan->point[i].type & TYPE_INVALID) == 0) &
-           ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
+        if (((scan->point[i].type & SCAN_POINT_TYPE_INVALID) == 0) &
+           ((scan->point[i].type & SCAN_POINT_TYPE_MASK) != SCAN_POINT_TYPE_LANDMARK))
             if ((abs(scan->point[i].x - xMiddle) <= xDistance) && (abs(scan->point[i].y - yMiddle) <= yDistance))
             {
                 test = 1;
@@ -416,8 +416,8 @@ float PilotWallFollowing::radiusTest(int splineRadius, float length, scan2d_data
 
         for (i = 0; i < scan->pointNum; i++)
         {
-            if (((scan->point[i].type & TYPE_INVALID) == 0) &
-            ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
+            if (((scan->point[i].type & SCAN_POINT_TYPE_INVALID) == 0) &
+            ((scan->point[i].type & SCAN_POINT_TYPE_MASK) != SCAN_POINT_TYPE_LANDMARK))
             {
                 if (scan->point[i].x > 0)
                 {
@@ -491,8 +491,8 @@ float PilotWallFollowing::radiusTest(int splineRadius, float length, scan2d_data
     {
         for (i = 0; i < scan->pointNum; i++)
         {
-            if (((scan->point[i].type & TYPE_INVALID) == 0) &
-            ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
+            if (((scan->point[i].type & SCAN_POINT_TYPE_INVALID) == 0) &
+            ((scan->point[i].type & SCAN_POINT_TYPE_MASK) != SCAN_POINT_TYPE_LANDMARK))
             {
                 if (scan->point[i].x >= 0)
                 {
@@ -526,8 +526,8 @@ float PilotWallFollowing::radiusTest(int splineRadius, float length, scan2d_data
 
         for (i = 0; i < scan->pointNum; i++)
         {
-            if (((scan->point[i].type & TYPE_INVALID) == 0) &
-            ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
+            if (((scan->point[i].type & SCAN_POINT_TYPE_INVALID) == 0) &
+            ((scan->point[i].type & SCAN_POINT_TYPE_MASK) != SCAN_POINT_TYPE_LANDMARK))
             {
                 if (scan->point[i].x > 0)
                 {

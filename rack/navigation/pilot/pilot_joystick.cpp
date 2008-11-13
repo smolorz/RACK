@@ -318,7 +318,7 @@ int  PilotJoystick::moduleLoop(void)
             {
                 speedSafe = safeSpeed(2 * chasParData.vxMax, curve2Radius(joystickCurve), NULL,
                                    &scan2dMsg.data, &chasParData);
-                
+
                 if(joystickSpeed < speedSafe)
                 {
                     speed = joystickSpeed;
@@ -332,7 +332,7 @@ int  PilotJoystick::moduleLoop(void)
             {
                 speedSafe = safeSpeed(-2 * chasParData.vxMax, curve2Radius(joystickCurve), NULL,
                                    &scan2dMsg.data, &chasParData);
-                
+
                 if(joystickSpeed > speedSafe)
                 {
                     speed = joystickSpeed;
@@ -624,10 +624,10 @@ PilotJoystick::PilotJoystick()
                     10)               // data buffer listener
 {
     // get static module parameter
-    chassisInst  = getInt32Param("chassisInst");
-    scan2dInst   = getInt32Param("scan2dInst");
-    joystickInst = getInt32Param("joystickInst");
-    joystickSys  = getInt32Param("joystickSys");
+    chassisInst  = getIntArg("chassisInst", argTab);
+    scan2dInst   = getIntArg("scan2dInst", argTab);
+    joystickInst = getIntArg("joystickInst", argTab);
+    joystickSys  = getIntArg("joystickSys", argTab);
 
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);
     dataBufferPeriodTime    = 100; // 100ms (10 per sec)
