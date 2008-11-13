@@ -477,11 +477,11 @@ Scan2dMerge::Scan2dMerge(void)
                     10)               // data buffer listener
 {
     // get static module parameter
-    odometryInst  = getInt32Param("odometryInst");
-    scan2dInst[0] = getInt32Param("scan2dInstA");
-    scan2dInst[1] = getInt32Param("scan2dInstB");
-    scan2dInst[2] = getInt32Param("scan2dInstC");
-    scan2dInst[3] = getInt32Param("scan2dInstD");
+    odometryInst  = getIntArg("odometryInst", argTab);
+    scan2dInst[0] = getIntArg("scan2dInstA", argTab);
+    scan2dInst[1] = getIntArg("scan2dInstB", argTab);
+    scan2dInst[2] = getIntArg("scan2dInstC", argTab);
+    scan2dInst[3] = getIntArg("scan2dInstD", argTab);
 
     dataBufferMaxDataSize   =sizeof(scan2d_data_msg);
 }
