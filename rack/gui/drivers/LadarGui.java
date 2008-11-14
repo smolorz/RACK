@@ -24,6 +24,7 @@ import rack.gui.main.MapViewComponent;
 import rack.gui.main.MapViewGraphics;
 import rack.gui.main.MapViewInterface;
 import rack.gui.main.RackModuleGui;
+import rack.main.defines.LadarPoint;
 import rack.drivers.LadarDataMsg;
 import rack.drivers.LadarProxy;
 
@@ -112,26 +113,39 @@ public class LadarGui extends RackModuleGui implements MapViewInterface
         Graphics2D g = mvg.getWorldGraphics();
 
         int x, y;
-        float angle = ladarData.startAngle;
         
-        for (int i = 0; i < ladarData.distanceNum; i++)
+        for (int i = 0; i < ladarData.pointNum; i++)
         {
-            if (ladarData.distance[i] >= 0)
+            
+        	if (ladarData.point[i].type == LadarPoint.TYPE_TRANSPARENT)
+        	{
+        		g.setColor(Color.DARK_GRAY);
+        	}
+        	else if (ladarData.point[i].type == LadarPoint.TYPE_RAIN)
+        	{
+        		g.setColor(Color.MAGENTA);
+        	}
+        	else if (ladarData.point[i].type == LadarPoint.TYPE_DIRT)
+        	{
+        		g.setColor(Color.CYAN);
+        	}
+        	else if (ladarData.point[i].type == LadarPoint.TYPE_INVALID)
+        	{
+        		g.setColor(Color.GRAY);
+        	}
+        	else if (ladarData.point[i].type == LadarPoint.TYPE_REFLECTOR)
+        	{
+        		g.setColor(Color.YELLOW);
+        	}        	
+            else
             {
                 g.setColor(Color.RED);
             }
-            else
-            {
-                ladarData.distance[i] = -ladarData.distance[i];
-                g.setColor(Color.BLUE);
-            }
-
-            x = (int)((double)ladarData.distance[i] * Math.cos(angle));
-            y = (int)((double)ladarData.distance[i] * Math.sin(angle));
+        	
+            x = (int)((double)ladarData.point[i].distance * Math.cos(ladarData.point[i].angle));
+            y = (int)((double)ladarData.point[i].distance * Math.sin(ladarData.point[i].angle));
 
             g.fillRect(x - 25, y - 25, 50, 50);
-            
-            angle += ladarData.angleResolution;
         }
     }
 }
