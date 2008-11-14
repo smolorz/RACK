@@ -69,6 +69,7 @@
 <javaElement handleIdentifier="=rack/&lt;rack.gui.navigation{PositionNavi.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{NaviComponent.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{ScanPoint.java"/>
+<javaElement handleIdentifier="=rack/&lt;rack.main.defines{LadarPoint.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.drivers{GpsDataMsg.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.gui.main{RackModuleGui.java"/>
 <javaElement handleIdentifier="=rack/&lt;rack.main.defines{Point3d.java"/>
