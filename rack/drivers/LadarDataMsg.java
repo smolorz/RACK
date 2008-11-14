@@ -20,19 +20,21 @@ import java.io.*;
 import rack.main.RackProxy;
 import rack.main.tims.*;
 
+import rack.main.defines.LadarPoint;
+
 public class LadarDataMsg extends TimsMsg
 {
     public int recordingTime = 0;
     public int duration = 0;
     public int maxRange = 0;
     public float startAngle = 0.0f;
-    public float angleResolution = 0.0f;
-    public int distanceNum = 0;
-    public int[] distance = new int[0];
+    public float endAngle = 0.0f;
+    public int pointNum = 0;
+    public LadarPoint[] point = new LadarPoint[0];
 
     public int getDataLen()
     {
-        return (24 + distanceNum * 4);
+        return (24 + pointNum * LadarPoint.getDataLen());
     }
 
     public LadarDataMsg()
@@ -71,15 +73,15 @@ public class LadarDataMsg extends TimsMsg
         }
 
         recordingTime = dataIn.readInt();
-        duration = dataIn.readInt();
-        maxRange = dataIn.readInt();
-        startAngle = dataIn.readFloat();
-        angleResolution = dataIn.readFloat();
-        distanceNum = dataIn.readInt();
-        distance = new int[distanceNum];
-        for (int i = 0; i < distanceNum; i++)
+        duration      = dataIn.readInt();
+        maxRange      = dataIn.readInt();
+        startAngle    = dataIn.readFloat();
+        endAngle      = dataIn.readFloat();
+        pointNum      = dataIn.readInt();
+        point 		  = new LadarPoint[pointNum];
+        for (int i = 0; i < pointNum; i++)
         {
-            distance[i] = dataIn.readInt();
+            point[i] = new LadarPoint(dataIn);
         }
 
         bodyByteorder = BIG_ENDIAN;
@@ -93,12 +95,12 @@ public class LadarDataMsg extends TimsMsg
         dataOut.writeInt(duration);
         dataOut.writeInt(maxRange);
         dataOut.writeFloat(startAngle);
-        dataOut.writeFloat(angleResolution);
-        dataOut.writeInt(distanceNum);
+        dataOut.writeFloat(endAngle);
+        dataOut.writeInt(pointNum);
 
-        for (int i = 0; i < distanceNum; i++)
+        for (int i = 0; i < pointNum; i++)
         {
-            dataOut.writeInt(distance[i]);
+            point[i].writeDataOut(dataOut);
         }
     }
 }
