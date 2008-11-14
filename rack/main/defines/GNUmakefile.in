@@ -34,6 +34,7 @@ build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_TRUE@	ImageRect.java \
+@CONFIG_RACK_JAVA_TRUE@	LadarPoint.java \
 @CONFIG_RACK_JAVA_TRUE@	Point2d.java \
 @CONFIG_RACK_JAVA_TRUE@	Point3d.java \
 @CONFIG_RACK_JAVA_TRUE@	PolarSpline.java \
@@ -54,8 +55,8 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = ImageRect.java Point2d.java Point3d.java \
-	PolarSpline.java Position2d.java Position3d.java \
+am__dist_java_JAVA_DIST = ImageRect.java LadarPoint.java Point2d.java \
+	Point3d.java PolarSpline.java Position2d.java Position3d.java \
 	ScanPoint.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH

@@ -20,6 +20,7 @@ if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	ImageRect.java \
+	LadarPoint.java \
 	Point2d.java \
 	Point3d.java \
 	PolarSpline.java \
