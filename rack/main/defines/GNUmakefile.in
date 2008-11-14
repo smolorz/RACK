@@ -236,6 +236,7 @@ definclude_HEADERS = \
 	rack_bitops.h \
 	\
 	image_rect.h \
+	ladar_point.h \
 	point2d.h \
 	point3d.h \
 	polar_spline.h \

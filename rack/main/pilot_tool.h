@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
 #ifndef __PILOT_TOOL_H__
@@ -174,10 +174,10 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
     // check Scan2D
     for (i = 0; i < scan->pointNum; i += 2)
     {
-        if (((scan->point[i].type & TYPE_INVALID) == 0) &
-            ((scan->point[i].type & TYPE_MASK) != TYPE_LANDMARK))
+        if (((scan->point[i].type & SCAN_POINT_TYPE_INVALID) == 0) &
+            ((scan->point[i].type & SCAN_POINT_TYPE_MASK) != SCAN_POINT_TYPE_LANDMARK))
         {
-            if ((scan->point[i].type & TYPE_MASK) == TYPE_DYN_OBSTACLE)
+            if ((scan->point[i].type & SCAN_POINT_TYPE_MASK) == SCAN_POINT_TYPE_DYN_OBSTACLE)
             {
                 breakConstant = param->breakConstant * 3.0f;
             }

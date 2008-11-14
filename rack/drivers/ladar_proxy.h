@@ -26,6 +26,7 @@
  */
 
 #include <main/rack_proxy.h>
+#include <main/defines/ladar_point.h>
 
 //######################################################################
 //# Ladar Data (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -35,7 +36,7 @@
 
 typedef struct {
   ladar_data    data;
-  int32_t       distance[ ... ];
+  ladar_point   point[ ... ];
 } __attribute__((packed)) ladar_data_msg;
 
 ladar_data_msg msg;
@@ -44,16 +45,16 @@ ACCESS: msg.data.distance[...] OR msg.distance[...];
 
 */
 
-#define LADAR_DATA_MAX_DISTANCE_NUM 720
+#define LADAR_DATA_MAX_POINT_NUM 1440
 
 typedef struct {
     rack_time_t recordingTime;    // has to be first element !!!
     rack_time_t duration;
     int32_t     maxRange;
     float       startAngle;
-    float       angleResolution;
-    int32_t     distanceNum;
-    int32_t     distance[0];
+    float       endAngle;
+    int32_t     pointNum;
+    ladar_point point[0];
 } __attribute__((packed)) ladar_data;
 
 class LadarData
@@ -67,11 +68,11 @@ class LadarData
             data->duration        = __le32_to_cpu(data->duration);
             data->maxRange        = __le32_to_cpu(data->maxRange);
             data->startAngle      = __le32_float_to_cpu(data->startAngle);
-            data->angleResolution = __le32_float_to_cpu(data->angleResolution);
-            data->distanceNum     = __le32_to_cpu(data->distanceNum);
-            for (i = 0; i < data->distanceNum; i++)
+            data->endAngle        = __le32_float_to_cpu(data->endAngle);
+            data->pointNum        = __le32_to_cpu(data->pointNum);
+            for (i = 0; i < data->pointNum; i++)
             {
-                data->distance[i] = __le32_to_cpu(data->distance[i]);
+                LadarPoint::le_to_cpu(&data->point[i]);
             }
         }
 
@@ -83,11 +84,11 @@ class LadarData
             data->duration        = __be32_to_cpu(data->duration);
             data->maxRange        = __be32_to_cpu(data->maxRange);
             data->startAngle      = __be32_float_to_cpu(data->startAngle);
-            data->angleResolution = __be32_float_to_cpu(data->angleResolution);
-            data->distanceNum     = __be32_to_cpu(data->distanceNum);
-            for (i = 0; i < data->distanceNum; i++)
+            data->endAngle        = __be32_float_to_cpu(data->endAngle);
+            data->pointNum        = __be32_to_cpu(data->pointNum);
+            for (i = 0; i < data->pointNum; i++)
             {
-                data->distance[i] = __be32_to_cpu(data->distance[i]);
+                LadarPoint::be_to_cpu(&data->point[i]);
             }
         }
 

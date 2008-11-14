@@ -29,7 +29,7 @@
 
 typedef struct {
     ladar_data    data;
-    int32_t       buffer[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_point   point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 typedef struct {
@@ -173,8 +173,8 @@ int  Scan2d::moduleLoop(void)
     scan2d_data*    data2D;
     ladar_data*     dataLadar;
     message_info    msgInfo;
-    double          angle, x, y;
-    int             i, j, ret, numRef = 0;
+    double          x, y;
+    int             i, j, ret;
 
     // get datapointer from rackdatabuffer
     data2D = (scan2d_data *)getDataBufferWorkSpace();
@@ -200,9 +200,9 @@ int  Scan2d::moduleLoop(void)
 
     dataLadar = LadarData::parse(&msgInfo);
 
-    if (dataLadar->distanceNum > LADAR_DATA_MAX_DISTANCE_NUM)
+    if (dataLadar->pointNum > LADAR_DATA_MAX_POINT_NUM)
     {
-        GDOS_ERROR("DistanceNum (%d) too great\n", dataLadar->distanceNum);
+        GDOS_ERROR("PointNum (%d) too great\n", dataLadar->pointNum);
         ladarMbx.peekEnd();
         return -EINVAL;
     }
@@ -213,9 +213,13 @@ int  Scan2d::moduleLoop(void)
     data2D->sectorIndex   = 0;
 
     if (dataLadar->maxRange < maxRange)
-        data2D->maxRange      = dataLadar->maxRange;
+    {
+        data2D->maxRange = dataLadar->maxRange;
+    }
     else
-        data2D->maxRange      = maxRange;
+    {
+        data2D->maxRange = maxRange;
+    }
 
     if (ladarUpsideDown)
     {
@@ -228,45 +232,61 @@ int  Scan2d::moduleLoop(void)
     }
 
     data2D->pointNum = 0;
-    angle = dataLadar->startAngle;
 
-    for (i=0; i < dataLadar->distanceNum; i += reduce)
+    for (i = 0; i < dataLadar->pointNum; i += reduce)
     {
-        if ((angle >= angleMinFloat) &&
-            (angle <= angleMaxFloat))
+        if ((dataLadar->point[i].angle >= angleMinFloat) &&
+            (dataLadar->point[i].angle <= angleMaxFloat))
         {
             j = data2D->pointNum;
-            data2D->point[j].type      = TYPE_UNKNOWN;
+            data2D->point[j].type      = SCAN_POINT_TYPE_UNKNOWN;
             data2D->point[j].segment   = 0;
             data2D->point[j].intensity = 0;
 
-            if (dataLadar->distance[i] < 0)
+            // type handling
+            switch (dataLadar->point[i].type)
             {
-                dataLadar->distance[i]  = -dataLadar->distance[i];
-                data2D->point[j].type  |= TYPE_REFLECTOR;
+                case LADAR_POINT_TYPE_TRANSPARENT:
+                    data2D->point[j].type |= SCAN_POINT_TYPE_INVALID;
+                    break;
 
-               numRef++;
+                case LADAR_POINT_TYPE_RAIN:
+                    data2D->point[j].type |= SCAN_POINT_TYPE_INVALID;
+                    break;
+
+                case LADAR_POINT_TYPE_DIRT:
+                    data2D->point[j].type |= SCAN_POINT_TYPE_INVALID;
+                    break;
+
+                case LADAR_POINT_TYPE_INVALID:
+                    data2D->point[j].type |= SCAN_POINT_TYPE_INVALID;
+                    break;
+
+                case LADAR_POINT_TYPE_REFLECTOR:
+                    data2D->point[j].type |= SCAN_POINT_TYPE_REFLECTOR;
+                    break;
             }
 
-            if ((dataLadar->distance[i] >= data2D->maxRange) || (dataLadar->distance[i] == 0))
+
+            if ((dataLadar->point[i].distance >= data2D->maxRange) ||
+                (dataLadar->point[i].distance == 0))
             {
-                dataLadar->distance[i]  = data2D->maxRange;
-                data2D->point[j].type  |= TYPE_MAX_RANGE;
-                data2D->point[j].type  |= TYPE_INVALID;
+                dataLadar->point[i].distance  = data2D->maxRange;
+                data2D->point[j].type  |= SCAN_POINT_TYPE_MAX_RANGE;
+                data2D->point[j].type  |= SCAN_POINT_TYPE_INVALID;
             }
 
-            x = (double)dataLadar->distance[i] *
-                        cos(angle + ladarOffsetRhoFloat);
-            y = (double)dataLadar->distance[i] *
-                        sin(angle + ladarOffsetRhoFloat);
+            x = (double)dataLadar->point[i].distance *
+                        cos(dataLadar->point[i].angle + ladarOffsetRhoFloat);
+            y = (double)dataLadar->point[i].distance *
+                        sin(dataLadar->point[i].angle + ladarOffsetRhoFloat);
 
             data2D->point[j].x = (int)x + ladarOffsetX;
             data2D->point[j].y = (int)y + ladarOffsetY;
-            data2D->point[j].z = dataLadar->distance[i];
+            data2D->point[j].z = dataLadar->point[i].distance;
 
             data2D->pointNum++;
         }
-        angle += reduce * dataLadar->angleResolution;
     }
 
     // filter invalid reflector points:
@@ -296,52 +316,43 @@ int  Scan2d::moduleLoop(void)
 
 void  Scan2d::turnUpsideDown(ladar_data* dataLadar)
 {
-    int  i, num, max;
-    int32_t  *left, *right;
+    int         i;
 
-    num = dataLadar->distanceNum;
-
-    max   = num / 2;
-    left  = &dataLadar->distance[0];
-    right = &dataLadar->distance[num-1];
-
-    for (i = 0; i < max; i++)
+    for (i = 0; i < dataLadar->pointNum; i++)
     {
-        swap(left, right);
-
-        left++;
-        right--;
+        dataLadar->point[i].angle = -dataLadar->point[i].angle;
     }
 }
 
 void  Scan2d::filterMedian(ladar_data* dataLadar)
 {
-    int32_t a, b, c, d;
-    int i;
+    int32_t     a, b, c, d;
+    int         i;
 
-    d = dataLadar->distance[0];
+    d = dataLadar->point[0].distance;
 
-    for(i = 1; i < dataLadar->distanceNum - 1; i++)
+    for (i = 1; i < dataLadar->pointNum - 1; i++)
     {
-        a = dataLadar->distance[i-1];
-        b = dataLadar->distance[i];
-        c = dataLadar->distance[i+1];
+        a = dataLadar->point[i - 1].distance;
+        b = dataLadar->point[i].distance;
+        c = dataLadar->point[i + 1].distance;
 
-        dataLadar->distance[i-1] = d;
+        dataLadar->point[i - 1].distance = d;
 
-        if((a > 0) && (b > 0) && (c > 0))
+        // filter only none reflector points
+        if ((dataLadar->point[i - 1].type != LADAR_POINT_TYPE_REFLECTOR) &&
+            (dataLadar->point[i].type != LADAR_POINT_TYPE_REFLECTOR) &&
+            (dataLadar->point[i + 1].type != LADAR_POINT_TYPE_REFLECTOR))
         {
-            // filter only none reflector points
-
-            if(a > b)
+            if (a > b)
             {
                 swap(&a, &b);
             }
-            if(b > c)
+            if (b > c)
             {
                 swap(&b, &c);
             }
-            if(a > b)
+            if (a > b)
             {
                 swap(&a, &b);
             }
@@ -350,7 +361,7 @@ void  Scan2d::filterMedian(ladar_data* dataLadar)
         d = b;
     }
 
-    dataLadar->distance[i-1] = d;
+    dataLadar->point[i - 1].distance = d;
 }
 
 #define REFL_FILTER_ANGLE   15.0 // [deg]
@@ -368,23 +379,23 @@ int Scan2d::filterReflector(scan2d_data* data, int filter)
     {
         for (i=0; i<data->pointNum; i++)
         {
-            if ((data->point[i].type & TYPE_REFLECTOR) != TYPE_REFLECTOR) // no reflector point
+            if ((data->point[i].type & SCAN_POINT_TYPE_REFLECTOR) != SCAN_POINT_TYPE_REFLECTOR) // no reflector point
                 continue;
 
             // if there are two reflector points close to the current, this should be a correct reflector point:
             if (i>0  &&  i<data->pointNum-1  &&
-                ((data->point[i-1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
-                ((data->point[i+1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
+                ((data->point[i-1].type & SCAN_POINT_TYPE_REFLECTOR) == SCAN_POINT_TYPE_REFLECTOR) &&
+                ((data->point[i+1].type & SCAN_POINT_TYPE_REFLECTOR) == SCAN_POINT_TYPE_REFLECTOR))
                 continue;
 
             if (i>1  &&
-                ((data->point[i-1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
-                ((data->point[i-2].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
+                ((data->point[i-1].type & SCAN_POINT_TYPE_REFLECTOR) == SCAN_POINT_TYPE_REFLECTOR) &&
+                ((data->point[i-2].type & SCAN_POINT_TYPE_REFLECTOR) == SCAN_POINT_TYPE_REFLECTOR))
                 continue;
 
             if (i<data->pointNum-2  &&
-                ((data->point[i+1].type & TYPE_REFLECTOR) == TYPE_REFLECTOR) &&
-                ((data->point[i+2].type & TYPE_REFLECTOR) == TYPE_REFLECTOR))
+                ((data->point[i+1].type & SCAN_POINT_TYPE_REFLECTOR) == SCAN_POINT_TYPE_REFLECTOR) &&
+                ((data->point[i+2].type & SCAN_POINT_TYPE_REFLECTOR) == SCAN_POINT_TYPE_REFLECTOR))
                 continue;
 
             // find index of left and right point in distance:
@@ -414,7 +425,7 @@ int Scan2d::filterReflector(scan2d_data* data, int filter)
 
             if (90.0-gamma <= REFL_FILTER_ANGLE)
             {
-                data->point[i].type &= (~TYPE_REFLECTOR);
+                data->point[i].type &= (~SCAN_POINT_TYPE_REFLECTOR);
                 numInvalid++;
 
                 // GDOS_WARNING("scanpoint %i: INVALID reflector: angle = %f\n", i, 90.0-gamma);
@@ -632,8 +643,8 @@ Scan2d::Scan2d(void)
                     10)               // data buffer listener
 {
     // get static module parameter
-    ladarInst       = getInt32Param("ladarInst");
-    cameraInst      = getInt32Param("cameraInst");
+    ladarInst       = getIntArg("ladarInst", argTab);
+    cameraInst      = getIntArg("cameraInst", argTab);
 
     dataBufferMaxDataSize = sizeof(scan2d_msg);
 }

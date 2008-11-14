@@ -700,7 +700,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 0;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;
@@ -714,7 +714,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 1;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;
@@ -728,7 +728,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 1;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;
@@ -742,7 +742,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 1;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;
@@ -756,7 +756,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 1;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;
@@ -770,7 +770,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 2;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;
@@ -784,7 +784,7 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
                                                       scan2d->point[scan2d->pointNum].x +
                                                       scan2d->point[scan2d->pointNum].y *
                                                       scan2d->point[scan2d->pointNum].y);
-        scan2d->point[scan2d->pointNum].type      = TYPE_UNKNOWN;
+        scan2d->point[scan2d->pointNum].type      = SCAN_POINT_TYPE_UNKNOWN;
         scan2d->point[scan2d->pointNum].segment   = 2;
         scan2d->point[scan2d->pointNum].intensity = 0;
         scan2d->pointNum++;

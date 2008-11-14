@@ -19,6 +19,7 @@
 
 #include <main/rack_data_module.h>
 #include <main/serial_port.h>
+#include <main/angle_tool.h>
 
 #include <drivers/ladar_proxy.h>
 
@@ -26,7 +27,7 @@
 
 typedef struct {
     ladar_data    data;
-    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_point   point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 struct rtser_config urg_serial_config = {

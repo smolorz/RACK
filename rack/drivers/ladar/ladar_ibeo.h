@@ -19,6 +19,7 @@
 
 #include <main/rack_data_module.h>
 #include <main/can_port.h>
+#include <main/angle_tool.h>
 
 #include <drivers/ladar_proxy.h>
 

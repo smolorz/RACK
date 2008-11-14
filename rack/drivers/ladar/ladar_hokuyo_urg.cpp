@@ -142,9 +142,10 @@ void LadarHokuyoUrg::moduleOff(void)
 
 int  LadarHokuyoUrg::moduleLoop(void)
 {
-    ladar_data *p_data;
-    int serialDataLen;
-    int i, j, ret;
+    ladar_data  *p_data;
+    int         serialDataLen;
+    int         i, j, ret;
+    float       angleResolution;
 
     p_data = (ladar_data *)getDataBufferWorkSpace();
 
@@ -193,11 +194,14 @@ int  LadarHokuyoUrg::moduleLoop(void)
         GDOS_ERROR("Can't read data 2 from serial dev\n");
         return -1;
     }
-    p_data->distanceNum     = (int32_t)((end - start)/cluster);     //max 681
-    p_data->startAngle      = (float)startAngle * M_PI/180.0;
-    p_data->angleResolution = (float)cluster * -0.3515625 * M_PI/180.0;
 
-    serialDataLen = 15 + p_data->distanceNum * 2 + p_data->distanceNum / 32;
+    angleResolution         = (float)cluster * -0.3515625 * M_PI/180.0;
+    p_data->pointNum        = (int32_t)((end - start)/cluster);     //max 681
+    p_data->startAngle      = (float)startAngle * M_PI/180.0;
+    p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
+                                                 angleResolution * p_data->pointNum);
+
+    serialDataLen = 15 + p_data->pointNum * 2 + p_data->pointNum / 32;
 
     ret = serialPort.recv(serialBuffer, serialDataLen, NULL, 5000000000ll);
     if (ret)
@@ -207,23 +211,27 @@ int  LadarHokuyoUrg::moduleLoop(void)
     }
 
     j = 10;
-    for(i = 0; i < p_data->distanceNum; i++)
+    for (i = 0; i < p_data->pointNum; i++)
     {
-        if((i % 32) == 0)
+        if ((i % 32) == 0)
         {
             j += 1;  // first j = 11
         }
-        p_data->distance[i] = ((int32_t)(serialBuffer[j] - 0x30) << 6) | (int32_t)(serialBuffer[j + 1] - 0x30);
 
-        if(p_data->distance[i] < 20)
+        p_data->point[i].distance = ((int32_t)(serialBuffer[j] - 0x30) << 6) |
+                                     (int32_t)(serialBuffer[j + 1] - 0x30);
+        if (p_data->point[i].distance < 20)
         {
-            p_data->distance[i] = 0;
+            p_data->point[i].distance = 0;
         }
+
+        p_data->point[i].angle = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
+        p_data->point[i].type  = LADAR_POINT_TYPE_UNKNOWN;
 
         j += 2;
     }
 
-    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum);
+    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(ladar_point) * p_data->pointNum);
     return 0;
 }
 

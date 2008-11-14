@@ -36,7 +36,7 @@ int32_t const maxBaudrate = 500000;
 //
 typedef struct {
     ladar_data    data;
-    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_point   point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 static unsigned char serialBuffer[4 * 1024];
@@ -163,11 +163,12 @@ int  LadarSickS::moduleLoop(void)
 {
     ladar_data *p_data;
     rack_time_t time;
-    int ret;
-    int i;
-    int totalCount = 0;
-    int size;
-    int distance;
+    int         ret;
+    int         i;
+    int         totalCount = 0;
+    int         size;
+    int         distance;
+    float       angleResolution;
 
     // get datapointer from databuffer
     p_data = (ladar_data *)getDataBufferWorkSpace();
@@ -239,20 +240,24 @@ int  LadarSickS::moduleLoop(void)
     switch(devNumber)
     {
         case 300:
-            p_data->startAngle      = scanningAngleS300 * M_PI/360.0;
-            p_data->angleResolution = -0.5 * M_PI/180.0;
-            p_data->distanceNum     = 2 * scanningAngleS300 + 1;
+            angleResolution         = -0.5 * M_PI/180.0;
+            p_data->pointNum        = 2 * scanningAngleS300 + 1;
             p_data->duration        = durationS300;
             p_data->maxRange        = maxRangeS300;
+            p_data->startAngle      = scanningAngleS300 * M_PI/360.0;
+            p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
+                                                         angleResolution * p_data->pointNum);
             p_data->recordingTime   = p_data->recordingTime - p_data->duration;
             break;
 
         case 3000:
-            p_data->startAngle      = scanningAngleS3000 * M_PI/360.0;
-            p_data->angleResolution = -0.5 * M_PI/180.0;
-            p_data->distanceNum     = 2 * scanningAngleS3000 + 1;
+            angleResolution         = -0.5 * M_PI/180.0;
+            p_data->pointNum        = 2 * scanningAngleS3000 + 1;
             p_data->duration        = durationS3000;
             p_data->maxRange        = maxRangeS3000;
+            p_data->startAngle      = scanningAngleS3000 * M_PI/360.0;
+            p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
+                                                         angleResolution * p_data->pointNum);
             p_data->recordingTime   = p_data->recordingTime - p_data->duration;
             break;
 
@@ -262,7 +267,7 @@ int  LadarSickS::moduleLoop(void)
     }
 
     // parse package body, read laser raw data
-    if((size != p_data->distanceNum + 11) |
+    if((size != p_data->pointNum + 11) |
        (MKSHORT(serialBuffer[20], serialBuffer[21]) != 0xbbbb) |
        (MKSHORT(serialBuffer[22], serialBuffer[23]) != 0x1111))
     {
@@ -270,25 +275,27 @@ int  LadarSickS::moduleLoop(void)
         return -1;
     }
 
-    for(i = 0; i < p_data->distanceNum; i++)
+    for(i = 0; i < p_data->pointNum; i++)
     {
         distance = MKSHORT(serialBuffer[i*2+24], serialBuffer[i*2+25]);
 
-        if(distance & (1 << 13))  // is reflector
+        if (distance & (1 << 13))  // is reflector
         {
-            distance = distance & 0x1fff;  // use bits 0-12
-            distance = -10 * distance;     // convert cm to mm
+            p_data->point[i].type = LADAR_POINT_TYPE_REFLECTOR;
         }
         else
         {
-            distance = distance & 0x1fff;  // use bits 0-12
-            distance = 10 * distance;      // convert cm to mm
+            p_data->point[i].type = LADAR_POINT_TYPE_UNKNOWN;
         }
 
-        p_data->distance[i] = distance;
+        distance = distance & 0x1fff;  // use bits 0-12
+        distance = 10 * distance;      // convert cm to mm
+
+        p_data->point[i].distance = distance;
+        p_data->point[i].angle    = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
     }
 
-    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int32_t) * p_data->distanceNum);
+    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(ladar_point) * p_data->pointNum);
     return 0;
 }
 

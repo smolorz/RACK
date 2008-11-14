@@ -88,7 +88,7 @@ typedef struct {
 
 typedef struct {
     ladar_data    data;
-    int32_t       distance[LADAR_DATA_MAX_DISTANCE_NUM];
+    ladar_point   point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
 argTable_t argTab[] = {
@@ -199,23 +199,23 @@ void LadarIbeo::moduleOff(void)
 int  LadarIbeo::moduleLoop(void)
 {
     ladar_data      *p_data     = NULL;
-    uint32_t        datalength = 0;
-    int profileLen;
-    int profileIdx;
+    uint32_t        datalength  = 0;
+    int             profileLen;
+    int             profileIdx;
 
-    uint16_t format;
-    uint8_t  layerNum;
-    uint8_t  sectorNum;
-    int sector;
-    uint16_t dirstep;
+    uint16_t        format;
+    uint8_t         layerNum;
+    uint8_t         sectorNum;
+    int             sector;
+    uint16_t        dirstep;
 
-    uint16_t tstart;
-    uint16_t startdir;
-    int distance;
-    uint16_t tend;
-    int distanceIndex;
-
-    rack_time_t recordingtime;
+    uint16_t        tstart;
+    uint16_t        startdir;
+    int             distance;
+    uint16_t        tend;
+    int             pointIndex;
+    float           angleResolution;
+    rack_time_t     recordingtime;
 
     // get datapointer from rackdatabuffer
     // you don't need check this pointer
@@ -245,19 +245,18 @@ int  LadarIbeo::moduleLoop(void)
 
         profileIdx += 2;
 
-        p_data->angleResolution = (dirstep * M_PI/180.0f) / 16.0f;
-        p_data->distanceNum =
-            __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
+        angleResolution  = (dirstep * M_PI/180.0f) / 16.0f;
+        p_data->pointNum = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
 
         profileIdx += 2;
 
         p_data->duration = 100;  // 100ms
         p_data->maxRange = 100000;  // 100m
 
-        if (p_data->distanceNum > LADAR_DATA_MAX_DISTANCE_NUM)
+        if (p_data->pointNum > LADAR_DATA_MAX_POINT_NUM)
         {
-            GDOS_ERROR("distanceNum is bigger than "
-                       "LADAR_DATA_MAX_DISTANCE_NUM\n");
+            GDOS_ERROR("pointNum is bigger than "
+                       "LADAR_DATA_MAX_POINT_NUM\n");
             return -1;
         }
         tstart = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
@@ -266,16 +265,22 @@ int  LadarIbeo::moduleLoop(void)
         startdir = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
         profileIdx += 2;
         p_data->startAngle = (startdir * M_PI/180.0f) / 16.0f - M_PI;
+        p_data->endAngle   = normaliseAngleSym0(p_data->startAngle +
+                                                angleResolution * p_data->pointNum);
 
-        for (distanceIndex = 0; distanceIndex < p_data->distanceNum;
-             distanceIndex++)
+        for (pointIndex = 0; pointIndex < p_data->pointNum;
+             pointIndex++)
         {
             // unit is m * 256
             distance = __be16_to_cpu(*((uint16_t*)(profile + profileIdx)));
 
             // unit is mm
-            p_data->distance[distanceIndex] =
+            p_data->point[pointIndex].distance =
                 (int)((float)distance * 1000.0f / 256.0f);
+
+            p_data->point[pointIndex].angle    = normaliseAngleSym0(p_data->startAngle +
+                                                                    angleResolution * pointIndex);
+            p_data->point[pointIndex].type     = LADAR_POINT_TYPE_UNKNOWN;
 
             profileIdx += 2;
         }
@@ -292,15 +297,15 @@ int  LadarIbeo::moduleLoop(void)
             timeOffsetSector[sector] = p_data->recordingTime - recordingtime;
         }
 
-        if (p_data->distanceNum > 0)
+        if (p_data->pointNum > 0)
         {
             datalength = sizeof(ladar_data) +
-                    sizeof(int32_t) * p_data->distanceNum; // points
+                         sizeof(ladar_point) * p_data->pointNum; // points
             putDataBufferWorkSpace(datalength);
-            GDOS_DBG_DETAIL("Data sector %i distanceNum %i startAngle %a "
-                            "angleResolution %a tstart %i tend %i "
-                            "recordingtime %i\n", sector, p_data->distanceNum,
-                            p_data->startAngle, p_data->angleResolution,
+            GDOS_DBG_DETAIL("Data sector %i pointNum %i startAngle %a "
+                            "endAngle %a angleResolution %a tstart %i "
+                            "tend %i recordingtime %i\n", sector, p_data->pointNum,
+                            p_data->startAngle, p_data->endAngle, angleResolution,
                             tstart, tend, p_data->recordingTime);
         }
     }

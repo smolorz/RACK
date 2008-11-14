@@ -334,7 +334,8 @@ int DatalogRec::initLogFile()
                 case LADAR:
                     ret = fprintf(fileptr[i], "%% Ladar(%i)\n"
                                   "%% recordingTime duration maxRange"
-                                  " startAngle angleResolution distanceNum distance[0]\n",
+                                  " startAngle endAngle pointNum"
+                                  " point[0].angle point[0].distance point[0].type\n",
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
@@ -509,12 +510,15 @@ int DatalogRec::logData(message_info *msgInfo)
                         ladarData->duration,
                         ladarData->maxRange,
                         ladarData->startAngle,
-                        ladarData->angleResolution,
-                        ladarData->distanceNum);
+                        ladarData->endAngle,
+                        ladarData->pointNum);
 
-                    for (j = 0; j < ladarData->distanceNum; j++)
+                    for (j = 0; j < ladarData->pointNum; j++)
                     {
-                        bytes += fprintf(fileptr[i], " %i", ladarData->distance[j]);
+                        bytes += fprintf(fileptr[i], " %f %i %i",
+                            ladarData->point[j].angle,
+                            ladarData->point[j].distance,
+                            ladarData->point[j].type);
                     }
 
                     bytes += fprintf(fileptr[i], "\n");
@@ -998,25 +1002,25 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_0.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
-                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
+                                    sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_1.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
-                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
+                                    sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_2.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
-                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
+                                    sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(LADAR, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_3.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
-                                    sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
+                                    sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(ODOMETRY, 0);

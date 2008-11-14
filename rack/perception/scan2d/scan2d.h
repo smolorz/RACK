@@ -23,7 +23,7 @@
 
 typedef struct {
     camera_data     data;
-    uint8_t         byteStream[LADAR_DATA_MAX_DISTANCE_NUM * ((CAMERA_MAX_DEPTH+7)/8)];
+    uint8_t         byteStream[LADAR_DATA_MAX_POINT_NUM * ((CAMERA_MAX_DEPTH+7)/8)];
 } __attribute__((packed)) camera_data_ladar_msg;
 
 #define MODULE_CLASS_ID             SCAN2D

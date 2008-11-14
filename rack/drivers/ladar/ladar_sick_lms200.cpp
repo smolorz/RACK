@@ -207,9 +207,9 @@ int  LadarSickLms200::moduleLoop(void)
         // distance measurements
         case 0xb0:
             analyseLadarData(serialBuffer, p_data, timeStamp, conf->protocol);
-            putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(int) * p_data->distanceNum);
-            GDOS_DBG_DETAIL("Data recordingtime %i distanceNum %i\n",
-                            p_data->recordingTime, p_data->distanceNum);
+            putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(ladar_point) * p_data->pointNum);
+            GDOS_DBG_DETAIL("Data recordingtime %i pointNum %i\n",
+                            p_data->recordingTime, p_data->pointNum);
             break;
 
         default:
@@ -231,13 +231,14 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
                                        ladar_data *data, rack_time_t timeStamp,
                                        int protocol)
 {
-    int           n              = 0;
-    int           reflector      = 0;
-    int           dataFormat     = 0;
-    int           distanceNum    = 0;
-    int           subScanNum     = 0;
-    int           subScanFlag    = 0;
-    int           distanceUnit   = 0;
+    int           n               = 0;
+    int           reflector       = 0;
+    int           dataFormat      = 0;
+    int           distanceNum     = 0;
+    int           subScanNum      = 0;
+    int           subScanFlag     = 0;
+    int           distanceUnit    = 0;
+    float         angleResolution = 0;
 
 
     // get data format
@@ -256,48 +257,6 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
     // distance unit    (bit 14...15)
     distanceUnit = ((dataFormat & 0xc000) >> 14);
 
-    // analyse data bytes of the scan
-    for (n = 0; n < distanceNum; n++)
-    {
-        data->distance[n] = *(unsigned short*)&serialBuffer[7 + 2*n];
-
-        // cm mode 80m, 13bit distance 3Bit reflector
-        if (distanceUnit == 0)
-        {
-            reflector = data->distance[n] & 0xe000; // 1110 0000 0000 0000
-            data->distance[n] = data->distance[n] & 0x1fff;
-            data->distance[n] = data->distance[n] * 10;
-
-            if (reflector != 0)
-            {
-                data->distance[n] = -data->distance[n];
-            }
-        }
-
-        // mm mode 36m, 15bit distance 1Bit reflector
-        else
-        {
-            reflector = data->distance[n] & 0x8000; // 1000 0000 0000 0000
-            data->distance[n] = data->distance[n] & 0x7fff;
-
-            if (reflector != 0)
-            {
-                data->distance[n] = -data->distance[n];
-            }
-        }
-    }
-
-    data->distanceNum = distanceNum;
-
-    // set max range
-    if (distanceUnit == 0)
-    {
-        data->maxRange = 80000;     // 80m (cm mode)
-    }
-    else
-    {
-        data->maxRange = 36000;     // 36m (mm mode)
-    }
 
     // scan duration calculation
     //
@@ -311,26 +270,32 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
     {
         // interlaced, x.25, x.50, x.75 deg, 100 deg open angle
         case 100:
+            angleResolution         = -1.0 * M_PI/180.0;
             data->duration          = 1000 * 100 / (75 * 360);      // 1 round, 100 deg
             data->recordingTime     = timeStamp - data->duration / 2;
             data->startAngle        = (50.0 - 0.25 * subScanNum) * M_PI / 180.0;
-            data->angleResolution   = -1.0 * M_PI/180.0;
+            data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                         angleResolution * distanceNum);
         break;
 
         // standard/interlaced, x.00 deg, 100 deg open angle
         case 101:
+            angleResolution         = -1.0 * M_PI/180.0;
             data->duration          = 1000 * 100 / (75 * 360);      // 1 round, 100 deg
             data->recordingTime     = timeStamp - data->duration / 2;
             data->startAngle        = 50.0 * M_PI / 180.0;
-            data->angleResolution   = -1.0 * M_PI/180.0;
+            data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                         angleResolution * distanceNum);
         break;
 
         // interlaced, x.25, x.50, x.75 deg, 180 deg open angle
         case 180:
+            angleResolution         = -1.0 * M_PI/180.0;
             data->duration          = 1000 * 180 / (75 * 360);      // 1 round, 180 deg
             data->recordingTime     = timeStamp - data->duration / 2;
             data->startAngle        = (90.0 - 0.25 * subScanNum) * M_PI / 180.0;
-            data->angleResolution   = -1.0 * M_PI/180.0;
+            data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                         angleResolution * distanceNum);
         break;
 
         // standard/interlaced/fast
@@ -338,44 +303,106 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
             // fast, x.50 deg, 90 deg open angle
             if (protocol == fast)
             {
+                angleResolution         = -0.5 * M_PI/180.0;
                 data->duration          = 1000 * 180 / (75 * 360);      // 1 round, 180 deg
                 data->recordingTime     = timeStamp - data->duration / 2;
                 data->startAngle        = 45.0 * M_PI / 180.0;
-                data->angleResolution   = -0.5 * M_PI/180.0;
+                data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                             angleResolution * distanceNum);
             }
             // standard/interlaced x.00 deg, 180 deg open angle
             else
             {
+                angleResolution         = -1.0 * M_PI/180.0;
                 data->duration          = 1000 * 180 / (75 * 360);      // 1 round, 180 deg
                 data->recordingTime     = timeStamp - data->duration / 2;
                 data->startAngle        = 90.0 * M_PI / 180.0;
-                data->angleResolution   = -1.0 * M_PI/180.0;
+                data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                             angleResolution * distanceNum);
             }
         break;
 
         // standard, 0.5 deg resolution, 100 deg open angle
         case 201:
+            angleResolution         = -0.5 * M_PI/180.0;
             data->duration          = 1000 * 460 / (75 * 360);      // 2 round, 360 + 100 deg
             data->recordingTime     = timeStamp - data->duration / 2;
             data->startAngle        = 50.0 * M_PI / 180.0;
-            data->angleResolution   = -0.5 * M_PI/180.0;
+            data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                         angleResolution * distanceNum);
         break;
 
         // standard, 0.5 deg resolution, 180 deg open angle
         case 361:
+            angleResolution         = -0.5 * M_PI/180.0;
             data->duration          = 1000 * 540 / (75 * 360);      // 2 round, 360 + 180 deg
             data->recordingTime     = timeStamp - data->duration / 2;
             data->startAngle        = 90.0 * M_PI / 180.0;
-            data->angleResolution   = -0.5 * M_PI/180.0;
+            data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                         angleResolution * distanceNum);
         break;
 
         // standard, 0.25 deg resolution, 100 deg open angle
         case 401:
+            angleResolution         = -0.25 * M_PI/180.0;
             data->duration          = 1000 * 1180 / (75 * 360);     // 4 round, 3 * 360 + 100 deg
             data->recordingTime     = timeStamp - data->duration / 2;
             data->startAngle        = 50.0 * M_PI / 180.0;
-            data->angleResolution   = -0.25 * M_PI/180.0;
+            data->endAngle          = normaliseAngleSym0(data->startAngle +
+                                                         angleResolution * distanceNum);
         break;
+    }
+
+   // analyse data bytes of the scan
+    for (n = 0; n < distanceNum; n++)
+    {
+        data->point[n].angle    = normaliseAngleSym0(data->startAngle + angleResolution * n);
+        data->point[n].distance = *(unsigned short*)&serialBuffer[7 + 2*n];
+
+        // cm mode 80m, 13bit distance 3Bit reflector
+        if (distanceUnit == 0)
+        {
+            reflector = data->point[n].distance & 0xe000; // 1110 0000 0000 0000
+            data->point[n].distance = data->point[n].distance & 0x1fff;
+            data->point[n].distance = data->point[n].distance * 10;
+
+            if (reflector != 0)
+            {
+                data->point[n].type = LADAR_POINT_TYPE_REFLECTOR;
+            }
+            else
+            {
+                data->point[n].type = LADAR_POINT_TYPE_UNKNOWN;
+            }
+        }
+
+        // mm mode 36m, 15bit distance 1Bit reflector
+        else
+        {
+            reflector = data->point[n].distance & 0x8000; // 1000 0000 0000 0000
+            data->point[n].distance = data->point[n].distance & 0x7fff;
+
+            if (reflector != 0)
+            {
+                data->point[n].type = LADAR_POINT_TYPE_REFLECTOR;
+            }
+            else
+            {
+                data->point[n].type = LADAR_POINT_TYPE_UNKNOWN;
+            }
+        }
+    }
+
+    data->pointNum = distanceNum;
+
+    // set max range
+    if (distanceUnit == 0)
+    {
+        data->maxRange = 80000;     // 80m (cm mode)
+    }
+    else
+    {
+        data->maxRange = 36000;     // 36m (mm mode)
     }
 }
 
@@ -1080,7 +1107,7 @@ LadarSickLms200::LadarSickLms200(void)
     }
 
     // load ladar_driver_config_t, depending on protocol
-    switch (protocol) 
+    switch (protocol)
     {
         case 0:
             // protocol = normal
@@ -1097,12 +1124,12 @@ LadarSickLms200::LadarSickLms200(void)
             conf = &config_sick_fast;
             conf->protocol = fast;
             break;
-    
+
         default:
             return;
     }
 
-    switch(baudrate) 
+    switch(baudrate)
     {
         case 38400:
             conf->cmd_baudrate = ladar_cmd_baudrate_38400;
@@ -1123,7 +1150,7 @@ LadarSickLms200::LadarSickLms200(void)
     conf->serDev = serialDev;
 
 
-    dataBufferMaxDataSize   = sizeof(ladar_data) + sizeof(int32_t) * LADAR_DATA_MAX_DISTANCE_NUM;
+    dataBufferMaxDataSize   = sizeof(ladar_data) + sizeof(ladar_point) * LADAR_DATA_MAX_POINT_NUM;
     dataBufferPeriodTime    = conf->periodTime;
     GDOS_PRINT("periodTime: %d\n", conf->periodTime);
 };
