@@ -371,6 +371,21 @@ int DatalogRec::initLogFile()
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
+                case OBJ_RECOG:
+                    ret = fprintf(fileptr[i], "%% ObjRecog(%i)\n"
+                                  "%% recordingTime"
+                                  " refPos.x refPos.y refPos.z refPos.phi refPos.psi refPos.rho"
+                                  " objectNum"
+                                  " object[0].objectId object[0].pos.x object[0].pos.y object[0].pos.z"
+                                  " object[0].pos.phi object[0].pos.psi object[0].pos.rho "
+                                  " object[0].vel.x object[0].vel.y object[0].vel.z"
+                                  " object[0].vel.phi object[0].vel.psi object[0].vel.rho"
+                                  " object[0].dim.x object[0].dim.y object[0].dim.z"
+                                  " object[0].prob object[0].imageArea.x object[0].imageArea.y"
+                                  " object[0].imageArea.width object[0].imageArea.height\n",
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
                 case SCAN2D:
                     ret = fprintf(fileptr[i], "%% Scan2d(%i)\n"
                                   "%% recordingTime duration maxRange sectorNum sectorIndex"
@@ -402,6 +417,7 @@ int DatalogRec::logData(message_info *msgInfo)
     odometry_data   *odometryData;
     pilot_data      *pilotData;
     position_data   *positionData;
+    obj_recog_data  *objRecogData;
     scan2d_data     *scan2dData;
 
 
@@ -611,6 +627,51 @@ int DatalogRec::logData(message_info *msgInfo)
                         positionData->var.phi,
                         positionData->var.psi,
                         positionData->var.rho);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case OBJ_RECOG:
+                    objRecogData = ObjRecogData::parse(msgInfo);
+
+                    bytes = fprintf(fileptr[i], "%u %i %i %i %f %f %f %i",
+                        (unsigned int)objRecogData->recordingTime,
+                        objRecogData->refPos.x,
+                        objRecogData->refPos.y,
+                        objRecogData->refPos.z,
+                        objRecogData->refPos.phi,
+                        objRecogData->refPos.psi,
+                        objRecogData->refPos.rho,
+                        objRecogData->objectNum);
+
+                    for (j = 0; j < objRecogData->objectNum; j++)
+                    {
+                        bytes += fprintf(fileptr[i], " %i %i %i %i %f %f %f %i %i %i %f %f %f %i %i %i %f %i %i %i %i",
+                            objRecogData->object[j].objectId,
+                            objRecogData->object[j].pos.x,
+                            objRecogData->object[j].pos.y,
+                            objRecogData->object[j].pos.z,
+                            objRecogData->object[j].pos.phi,
+                            objRecogData->object[j].pos.psi,
+                            objRecogData->object[j].pos.rho,
+                            objRecogData->object[j].vel.x,
+                            objRecogData->object[j].vel.y,
+                            objRecogData->object[j].vel.z,
+                            objRecogData->object[j].vel.phi,
+                            objRecogData->object[j].vel.psi,
+                            objRecogData->object[j].vel.rho,
+                            objRecogData->object[j].dim.x,
+                            objRecogData->object[j].dim.y,
+                            objRecogData->object[j].dim.z,
+                            objRecogData->object[j].prob,
+                            objRecogData->object[j].imageArea.x,
+                            objRecogData->object[j].imageArea.y,
+                            objRecogData->object[j].imageArea.width,
+                            objRecogData->object[j].imageArea.height);
+                    }
+
+                    bytes += fprintf(fileptr[i], "\n");
 
                     datalogInfoMsg.logInfo[i].bytesLogged += bytes;
                     datalogInfoMsg.logInfo[i].setsLogged  += 1;
@@ -1069,6 +1130,42 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].moduleMbx = RackName::create(POSITION, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "position_2.dat");
     data->logInfo[num].maxDataLen = sizeof(position_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(OBJ_RECOG, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
+                                    sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(OBJ_RECOG, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
+                                    sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(OBJ_RECOG, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
+                                    sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(OBJ_RECOG, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
+                                    sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(OBJ_RECOG, 4);
+    snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_4.dat");
+    data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
+                                    sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(OBJ_RECOG, 5);
+    snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_5.dat");
+    data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
+                                    sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(SCAN2D, 0);

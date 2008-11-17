@@ -27,6 +27,7 @@
 #include <drivers/odometry_proxy.h>
 #include <navigation/pilot_proxy.h>
 #include <navigation/position_proxy.h>
+#include <perception/obj_recog_proxy.h>
 #include <perception/scan2d_proxy.h>
 
 
