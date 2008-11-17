@@ -22,6 +22,8 @@
 #include <arpa/inet.h>
 
 #include <drivers/ladar_proxy.h>
+#include <perception/obj_recog_proxy.h>
+#include <main/defines/point2d.h>
 
 #define MODULE_CLASS_ID         LADAR
 
@@ -29,8 +31,6 @@
 #define LADAR_IBEO_LUX_MESSAGE_SIZE_MAX     20000
 
 #define LADAR_IBEO_LUX_SCAN_POINT_MAX       10000
-#define LADAR_IBEO_LUX_OBJ_NUM_MAX          100
-#define LADAR_IBEO_LUX_CONTOUR_POINT_MAX    100
 
 #define LADAR_IBEO_LUX_MAGIC_WORD           0xAFFEC0C2
 #define LADAR_IBEO_LUX_SCAN_DATA            0x2202
@@ -117,7 +117,6 @@ typedef struct
     uint16_t                classCertainty;     // the higher this value, the more reliable is the
                                                 // assigned object class
     uint16_t                contourPointNum;    // number of contour points
-    ladar_ibeo_lux_point2d  contourPoints[LADAR_IBEO_LUX_CONTOUR_POINT_MAX]; // countour points
 } __attribute__((packed)) ladar_ibeo_lux_obj;
 
 
@@ -162,7 +161,6 @@ typedef struct
     ladar_ibeo_lux_ntp64            timestamp;  // timestamp of the first measurement of the scan
                                                 // these objects are updated with
     uint16_t                        objNum;     // number of objects
-    ladar_ibeo_lux_obj              obj[LADAR_IBEO_LUX_OBJ_NUM_MAX]; // array of objects
 } __attribute__((packed)) ladar_ibeo_lux_obj_data;
 
 
@@ -172,13 +170,22 @@ typedef struct
     uint8_t                 data[LADAR_IBEO_LUX_CMD_MAX];
 } __attribute__((packed)) ladar_ibeo_lux_command;
 
+
+// data output
 typedef struct
 {
-    ladar_data    data;
-    ladar_point   point[LADAR_DATA_MAX_POINT_NUM];
+    ladar_data          data;
+    ladar_point         point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
+typedef struct
+{
+    obj_recog_data      data;
+    obj_recog_object    object[OBJ_RECOG_OBJECT_MAX];
+} __attribute__((packed)) obj_recog_data_msg;
 
+
+// parsing functions
 static inline void parseLadarIbeoLuxNtp64(ladar_ibeo_lux_ntp64 *data)
 {
     data->seconds         = __be32_to_cpu(data->seconds);
@@ -198,21 +205,37 @@ static inline void parseLadarIbeoLuxHeader(ladar_ibeo_lux_header *data)
 //######################################################################
 class LadarIbeoLux : public RackDataModule {
     private:
+        char                        *ladarIp;
+        int                         ladarPort;
+        int                         objRecogBoundInst;
+        int                         objRecogContourInst;
 
-        char    *ladarIp;
-        int     ladarPort;
+        int                         tcpSocket;
+        struct sockaddr_in          tcpAddr;
 
-        int                  tcpSocket;
-        struct sockaddr_in   tcpAddr;
-        int                  dataLength;
-
-        double               fracFactor;
+        double                      fracFactor;
+        int                         dataRate;
+        int                         dataRateCounter;
+        rack_time_t                 dataRateStartTime;
 
         ladar_ibeo_lux_header       ladarHeader;
         uint8_t                     ladarData[LADAR_IBEO_LUX_MESSAGE_SIZE_MAX];
 
         ladar_ibeo_lux_command      ladarCommand;
         ladar_ibeo_lux_command      ladarCommandReply;
+
+        obj_recog_data_msg          objRecogBoundData;
+        obj_recog_data_msg          objRecogContourData;
+
+        // mailboxes
+        RackMailbox                 workMbx;
+
+        // proxies
+        ObjRecogProxy               *objRecogBound;
+        ObjRecogProxy               *objRecogContour;
+
+        uint32_t                    objRecogBoundMbxAdr;
+        uint32_t                    objRecogContourMbxAdr;
 
 
     protected:
@@ -226,7 +249,8 @@ class LadarIbeoLux : public RackDataModule {
         // -> non realtime context
         void moduleCleanup(void);
 
-        int  recvLadarHeader(ladar_ibeo_lux_header *data, unsigned int retryNumMax);
+        int  recvLadarHeader(ladar_ibeo_lux_header *data, rack_time_t *recordingTime,
+                             unsigned int retryNumMax);
         int  recvLadarData(void *data, unsigned int messageSize);
 
     public:
