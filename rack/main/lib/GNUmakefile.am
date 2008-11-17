@@ -16,6 +16,7 @@ librack_la_SOURCES = \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
 	$(top_srcdir)/drivers/odometry_proxy.cpp \
 	\
+	$(top_srcdir)/perception/obj_recog_proxy.cpp \
 	$(top_srcdir)/perception/scan2d_proxy.cpp \
 	\
 	$(top_srcdir)/navigation/pilot_proxy.cpp \

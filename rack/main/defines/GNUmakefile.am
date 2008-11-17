@@ -7,6 +7,7 @@ definclude_HEADERS = \
 	\
 	image_rect.h \
 	ladar_point.h \
+	obj_recog_object.h \
 	point2d.h \
 	point3d.h \
 	polar_spline.h \

@@ -10,8 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
- *      Oliver Wulf <oliver.wulf@web.de>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __RACK_NAME_H__
@@ -35,6 +34,7 @@
 #define PILOT                   0x18
 #define SCAN2D                  0x19
 #define DATALOG                 0x20
+#define OBJ_RECOG               0x21
 
 #define RACK_NAME_OFFSET        0x80
 

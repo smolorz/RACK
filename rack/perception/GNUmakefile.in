@@ -235,6 +235,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 percincludedir = $(pkgincludedir)/perception
 percinclude_HEADERS = \
+	obj_recog_proxy.h \
 	scan2d_proxy.h
 
 SUBDIRS = \
@@ -244,6 +245,7 @@ dist_java_JAVA = $(am__append_1)
 EXTRA_DIST = \
 	Kconfig \
 	\
+	obj_recog_proxy.cpp \
 	scan2d_proxy.cpp
 
 all: all-recursive

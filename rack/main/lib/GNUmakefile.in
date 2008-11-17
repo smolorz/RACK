@@ -63,6 +63,7 @@ am__librack_la_SOURCES_DIST = version_string.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
 	$(top_srcdir)/drivers/odometry_proxy.cpp \
+	$(top_srcdir)/perception/obj_recog_proxy.cpp \
 	$(top_srcdir)/perception/scan2d_proxy.cpp \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
@@ -85,13 +86,14 @@ am_librack_la_OBJECTS = librack_la-version_string.lo \
 	librack_la-camera_proxy.lo librack_la-chassis_proxy.lo \
 	librack_la-gps_proxy.lo librack_la-joystick_proxy.lo \
 	librack_la-ladar_proxy.lo librack_la-odometry_proxy.lo \
-	librack_la-scan2d_proxy.lo librack_la-pilot_proxy.lo \
-	librack_la-position_proxy.lo librack_la-datalog_proxy.lo \
-	librack_la-datalog_rec_class.lo librack_la-argopts.lo \
-	librack_la-dxf_map.lo librack_la-position_tool.lo \
-	librack_la-camera_tool.lo librack_la-rack_mailbox.lo \
-	librack_la-rack_module.lo librack_la-rack_data_module.lo \
-	librack_la-rack_proxy.lo $(am__objects_1)
+	librack_la-obj_recog_proxy.lo librack_la-scan2d_proxy.lo \
+	librack_la-pilot_proxy.lo librack_la-position_proxy.lo \
+	librack_la-datalog_proxy.lo librack_la-datalog_rec_class.lo \
+	librack_la-argopts.lo librack_la-dxf_map.lo \
+	librack_la-position_tool.lo librack_la-camera_tool.lo \
+	librack_la-rack_mailbox.lo librack_la-rack_module.lo \
+	librack_la-rack_data_module.lo librack_la-rack_proxy.lo \
+	$(am__objects_1)
 librack_la_OBJECTS = $(am_librack_la_OBJECTS)
 librack_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -282,6 +284,7 @@ librack_la_SOURCES = version_string.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
 	$(top_srcdir)/drivers/odometry_proxy.cpp \
+	$(top_srcdir)/perception/obj_recog_proxy.cpp \
 	$(top_srcdir)/perception/scan2d_proxy.cpp \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
@@ -377,6 +380,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-gps_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-joystick_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-ladar_proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-obj_recog_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-odometry_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-pilot_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-position_proxy.Plo@am__quote@
@@ -458,6 +462,13 @@ librack_la-odometry_proxy.lo: $(top_srcdir)/drivers/odometry_proxy.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/drivers/odometry_proxy.cpp' object='librack_la-odometry_proxy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-odometry_proxy.lo `test -f '$(top_srcdir)/drivers/odometry_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/odometry_proxy.cpp
+
+librack_la-obj_recog_proxy.lo: $(top_srcdir)/perception/obj_recog_proxy.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-obj_recog_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-obj_recog_proxy.Tpo -c -o librack_la-obj_recog_proxy.lo `test -f '$(top_srcdir)/perception/obj_recog_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/perception/obj_recog_proxy.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-obj_recog_proxy.Tpo $(DEPDIR)/librack_la-obj_recog_proxy.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/perception/obj_recog_proxy.cpp' object='librack_la-obj_recog_proxy.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-obj_recog_proxy.lo `test -f '$(top_srcdir)/perception/obj_recog_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/perception/obj_recog_proxy.cpp
 
 librack_la-scan2d_proxy.lo: $(top_srcdir)/perception/scan2d_proxy.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-scan2d_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-scan2d_proxy.Tpo -c -o librack_la-scan2d_proxy.lo `test -f '$(top_srcdir)/perception/scan2d_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/perception/scan2d_proxy.cpp
