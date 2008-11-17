@@ -33,6 +33,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
+@CONFIG_RACK_JAVA_TRUE@	ObjRecogProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	ObjRecogDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	ObjRecogObject.java \
 @CONFIG_RACK_JAVA_TRUE@	Scan2dProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	Scan2dDataMsg.java
 
@@ -56,7 +59,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
-am__dist_java_JAVA_DIST = Scan2dProxy.java Scan2dDataMsg.java
+am__dist_java_JAVA_DIST = ObjRecogProxy.java ObjRecogDataMsg.java \
+	ObjRecogObject.java Scan2dProxy.java Scan2dDataMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
