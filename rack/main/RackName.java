@@ -37,6 +37,7 @@ public class RackName
     public static final int PILOT               = 0x18;
     public static final int SCAN2D              = 0x19;
     public static final int DATALOG             = 0x20;    
+    public static final int OBJ_RECOG           = 0x21;    
 
     public static final int OFFSET              = 0x80;
 
@@ -66,6 +67,7 @@ public class RackName
         classStringTable.put(new Integer(PILOT), "Pilot");
         classStringTable.put(new Integer(SCAN2D), "Scan2d");
         classStringTable.put(new Integer(DATALOG), "Datalog");
+        classStringTable.put(new Integer(OBJ_RECOG), "ObjRecog");        
     }
 
     public static String classString(int rackName)
