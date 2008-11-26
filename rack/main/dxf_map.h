@@ -44,6 +44,7 @@ class DxfMap
         int read_polyline(FILE *fp);
         int read_line(FILE *fp);
         int read_lwpolyline(FILE *fp);
+        int read_point(FILE *fp);
 
         int write_string(FILE *fp, int groupCode, char *string);
         int write_real(FILE *fp, int groupCode, double real);
@@ -51,6 +52,7 @@ class DxfMap
         int write_head(FILE *fp);
         int write_eof(FILE *fp);
         int write_line(FILE *fp, dxf_map_feature *feature);
+        int write_point(FILE *fp, dxf_map_feature *feature);
 
         void calcBounds();
 
@@ -67,7 +69,11 @@ class DxfMap
         double yMin;
         double yMax;
 
-        int save(char *filename, int savefeatureNum);
+        int save(char *filename, int savefeatureNum, double scaleFactor);
+        int save(char *filename, int savefeatureNum)
+        {
+            return save(filename, savefeatureNum, 1000.0);
+        }
         int load(char *filename, double mapOffsetX, double mapOffsetY, double scaleFactor);
         int load(char *filename, double mapOffsetX, double mapOffsetY)
         {

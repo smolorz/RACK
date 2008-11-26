@@ -152,7 +152,6 @@ int DxfMap::read_polyline(FILE *fp)
         if (groupCode == 8)
         {
             feature[featureNum].layer = level;
-            //printf("Layer fuer Polyline: %d\n", level);
         }
 
         if (groupCode == 10)
@@ -366,6 +365,58 @@ int DxfMap::read_lwpolyline(FILE *fp)
     }
 }
 
+int DxfMap::read_point(FILE *fp)
+{
+    int    groupCode;
+    char   string[256];
+    int    number;
+    double real;
+    int    line;
+    int    level;
+    int    vertices;
+    int    x1, y1, l;
+
+    x1 = 0;
+    y1 = 0;
+    l = 0;
+
+    if (featureNum < maxFeatureNum)
+    {
+        while ((groupCode = read_group(fp, string, &number, &real, &line, &level, &vertices)) >= 0)
+        {
+            if (groupCode == 8)
+            {
+                feature[featureNum].layer = level;
+//                printf("Layer fuer Point_1: %d\n", level);
+                l = 1;
+            }
+
+            if (groupCode == 10)
+            {
+                feature[featureNum].x = (double)real;
+                feature[featureNum].x2 = (double)real;
+                x1 = 1;
+            }
+
+            if (groupCode == 20)
+            {
+                feature[featureNum].y = (double)real;
+                feature[featureNum].y2 =(double)real;
+                y1 = 1;
+            }
+
+            if ((x1 == 1) && (y1 == 1) && (l == 1))
+                break;
+        }
+        featureNum++;
+        return 1;
+    }
+    else
+    {
+        return -EIO;
+    }
+}
+
 
 int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double scaleFactor)
 {
@@ -414,7 +465,15 @@ int DxfMap::load(char *filename, double mapOffsetX, double mapOffsetY, double sc
                 break;
             }
         }
-
+        
+        if ((groupCode == 0) && (strncmp(string, "POINT", 5) == 0))
+        {
+            if (read_point(fp) < 0)
+            {
+                break;
+            }
+        }
+        
         if ((groupCode == 0) && (strncmp(string, "EOF", 3) == 0))
             break;
     }
@@ -666,7 +725,18 @@ int DxfMap::write_line(FILE *fp, dxf_map_feature *feature)
     return 0;
 }
 
-int DxfMap::save(char *filename, int savefeatureNum)
+int DxfMap::write_point(FILE *fp, dxf_map_feature *feature)
+{
+    write_string(fp, 0, (char*)"POINT");
+    write_number(fp, 8, feature->layer);
+    write_number(fp, 62, 256);      // color determined by layer, line color overwrites layercolor (256 = BYLAYER)
+    write_real  (fp, 10, feature->x);
+    write_real  (fp, 20, feature->y);
+    write_real  (fp, 30, 0.0);
+    return 0;
+}
+
+int DxfMap::save(char *filename, int savefeatureNum, double scaleFactor)
 {
     FILE   *fp;
     int    i;
@@ -674,13 +744,13 @@ int DxfMap::save(char *filename, int savefeatureNum)
 
     for (i = 0; i < savefeatureNum; i++)
     {
-        x = feature[i].y / 1000.0;
-        y = feature[i].x / 1000.0;
+        x = feature[i].y / scaleFactor;
+        y = feature[i].x / scaleFactor;
         feature[i].x = x;
         feature[i].y = y;
 
-        x = feature[i].y2 / 1000.0;
-        y = feature[i].x2 / 1000.0;
+        x = feature[i].y2 / scaleFactor;
+        y = feature[i].x2 / scaleFactor;
         feature[i].x2 = x;
         feature[i].y2 = y;
     }
@@ -695,7 +765,14 @@ int DxfMap::save(char *filename, int savefeatureNum)
 
     for (i = 0; i < savefeatureNum; i ++)
     {
-        write_line(fp, &feature[i]);
+        if (feature[i].l == 0)
+        {
+            write_point(fp, &feature[i]);
+        }
+        else
+        {
+            write_line(fp, &feature[i]);
+        }
     }
 
     write_eof(fp);
