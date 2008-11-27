@@ -86,6 +86,9 @@ argTable_t module_argTab[] = {
   {ARGOPT_OPT, "dataTaskPrio", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "priority of the data Task (1-32)", { 1 } },
 
+  {ARGOPT_OPT, "cpu", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "cpu to run the cmd and data tasks on, [0]", { 0 } },
+
   {0, "", 0, 0, "", { 0 } }
 };
 
@@ -351,6 +354,11 @@ RackModule::RackModule( uint32_t classId,
     gdosLevel                 = GDOS_MSG_DEBUG_BEGIN - getIntArg("gdosLevel", module_argTab);
     cmdTaskPrio               = getIntArg("cmdTaskPrio", module_argTab);
     dataTaskPrio              = getIntArg("dataTaskPrio", module_argTab);
+    cpu                       = getIntArg("cpu", module_argTab);
+    if (cpu > (sysconf(_SC_NPROCESSORS_ONLN) - 1))
+    {
+        cpu = 0;
+    }
 
     name                      = RackName::create(classId, inst);
 
@@ -750,7 +758,8 @@ int       RackModule::moduleInit(void)
     // create command task
     snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%uC", classname, (unsigned int)inst);
 
-    ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio, RACK_TASK_FPU | RACK_TASK_JOINABLE);
+    ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio,
+                         RACK_TASK_FPU | RACK_TASK_JOINABLE | RACK_TASK_CPU(cpu));
     if (ret)
     {
         GDOS_ERROR("Can't init command task, code = %d\n", ret);
@@ -761,7 +770,8 @@ int       RackModule::moduleInit(void)
     // create data task
     snprintf(dataTaskName, sizeof(dataTaskName), "%.28s%uD", classname, (unsigned int)inst);
 
-    ret = dataTask.create(dataTaskName, 0, dataTaskPrio, RACK_TASK_FPU | RACK_TASK_JOINABLE);
+    ret = dataTask.create(dataTaskName, 0, dataTaskPrio,
+                          RACK_TASK_FPU | RACK_TASK_JOINABLE | RACK_TASK_CPU(cpu));
     if (ret)
     {
         GDOS_ERROR("Can't init data task, code = %d\n", ret);

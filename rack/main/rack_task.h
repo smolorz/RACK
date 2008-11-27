@@ -37,6 +37,7 @@
 
 #define RACK_TASK_FPU       T_FPU
 #define RACK_TASK_JOINABLE  T_JOINABLE
+#define RACK_TASK_CPU(c)    T_CPU(c)
 #define RACK_TASK_PRIMARY   T_PRIMARY
 #define RACK_TASK_WARNSW    T_WARNSW
 

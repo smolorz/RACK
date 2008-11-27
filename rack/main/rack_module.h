@@ -136,6 +136,7 @@ class RackModule {
 // common task values
 //
     protected:
+        int cpu;            // cpu to run the cmd and data tasks on
         int terminate;      // to stop the tasks
         int targetStatus;   // next module state
         int initializing;   // =1 if this module is still loading
