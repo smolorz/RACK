@@ -45,7 +45,7 @@ ACCESS: msg.data.distance[...] OR msg.distance[...];
 
 */
 
-#define LADAR_DATA_MAX_POINT_NUM 1440
+#define LADAR_DATA_MAX_POINT_NUM 2160
 
 typedef struct {
     rack_time_t recordingTime;    // has to be first element !!!
