@@ -72,7 +72,7 @@ int  LadarHokuyoUrg::moduleOn(void)
 
     if (start > 44)
     {
-        startAngle  = startAngle + 681 / (start - 44) * 240;
+ //       startAngle  = startAngle + 681 / (start - 44) * 240;
     }
 
     if (cluster < 0 || cluster > 3)
@@ -201,6 +201,8 @@ int  LadarHokuyoUrg::moduleLoop(void)
     p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
                                                  angleResolution * p_data->pointNum);
 
+    GDOS_DBG_DETAIL("pointNum %i, startAngle %a, endAngle %a, angleResolution %a\n",p_data->pointNum,p_data->startAngle,p_data->endAngle, angleResolution);
+    
     serialDataLen = 15 + p_data->pointNum * 2 + p_data->pointNum / 32;
 
     ret = serialPort.recv(serialBuffer, serialDataLen, NULL, 5000000000ll);
