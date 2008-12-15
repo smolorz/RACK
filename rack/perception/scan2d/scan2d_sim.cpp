@@ -47,6 +47,9 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "filename of the DXF map to load", { 0 } },
+      
+    { ARGOPT_OPT, "mapScaleFactor", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "map scale factor", { 1000 } },
 
     { ARGOPT_OPT, "mapOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "mapOffsetX for DXF maps in GK coordinates", { 0 } },
@@ -76,11 +79,12 @@ argTable_t argTab[] = {
     maxRange    = getInt32Param("maxRange");
     angleRes    = getInt32Param("angleRes");
     dxfMapFile  = getStringParam("mapFile");
+    mapScaleFactor = getInt32Param("mapScaleFactor");
     mapOffsetX  = getInt32Param("mapOffsetX");
     mapOffsetY  = getInt32Param("mapOffsetY");
 
     RackTask::disableRealtimeMode();
-    ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY);
+    ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY, mapScaleFactor);
     RackTask::enableRealtimeMode();
     if (ret)
     {
