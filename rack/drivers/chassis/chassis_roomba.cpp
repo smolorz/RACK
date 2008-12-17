@@ -905,7 +905,7 @@ ChassisRoomba::ChassisRoomba()
 {
     // get static module parameter
     serialDev               = getIntArg("serialDev", argTab);
-    scan2dInst              = getIntArg("scan2dRelayInst", argTab);
+    scan2dInst              = getIntArg("scan2dInst", argTab);
 
     // scan2d mbx adress
     scan2dMbxAdr = RackName::create(SCAN2D, scan2dInst);
