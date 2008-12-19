@@ -352,6 +352,10 @@ int DatalogRec::initLogFile()
                                   " pos.phi pos.psi pos.rho dest.x dest.y dest.z"
                                   " dest.phi dest.psi dest.rho speed curve distanceToDest splineNum"
                                   " spline[0].basepoint.x spline[0].basepoint.y"
+                                  " spline[0].basepoint.speed spline[0].basepoint.maxRadius"
+                                  " spline[0].basepoint.type spline[0].basepoint.request"
+                                  " spline[0].basepoint.lbo spline[0].basepoint.id"
+                                  " spline[0].basepoint.wayId"
                                   " spline[0].startPos.x spline[0].startPos.y"
                                   " spline[0].startPos.rho spline[0].endPos.x"
                                   " spline[0].endPos.y spline[0].endPos.rho"
@@ -581,9 +585,17 @@ int DatalogRec::logData(message_info *msgInfo)
 
                     for (j = 0; j < pilotData->splineNum; j++)
                     {
-                        bytes += fprintf(fileptr[i], " %i %i %i %i %f %i %i %f %i %i %f %i %i %i %i %i %i %i %i %i %i",
+                        bytes += fprintf(fileptr[i], " %i %i %i %i %i %i %i %i %i %i %i %f %i %i %f"
+                                                     " %i %i %f %i %i %i %i %i %i %i %i %i %i",
                             pilotData->spline[j].basepoint.x,
                             pilotData->spline[j].basepoint.y,
+                            pilotData->spline[j].basepoint.speed,
+                            pilotData->spline[j].basepoint.maxRadius,
+                            pilotData->spline[j].basepoint.type,
+                            pilotData->spline[j].basepoint.request,
+                            pilotData->spline[j].basepoint.lbo,
+                            pilotData->spline[j].basepoint.id,
+                            pilotData->spline[j].basepoint.wayId,
                             pilotData->spline[j].startPos.x,
                             pilotData->spline[j].startPos.y,
                             pilotData->spline[j].startPos.rho,

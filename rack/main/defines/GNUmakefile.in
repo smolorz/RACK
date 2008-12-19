@@ -40,7 +40,8 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	PolarSpline.java \
 @CONFIG_RACK_JAVA_TRUE@	Position2d.java \
 @CONFIG_RACK_JAVA_TRUE@	Position3d.java \
-@CONFIG_RACK_JAVA_TRUE@	ScanPoint.java
+@CONFIG_RACK_JAVA_TRUE@	ScanPoint.java \
+@CONFIG_RACK_JAVA_TRUE@	Waypoint2d.java
 
 subdir = main/defines
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(definclude_HEADERS) \
@@ -57,7 +58,7 @@ SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = ImageRect.java LadarPoint.java Point2d.java \
 	Point3d.java PolarSpline.java Position2d.java Position3d.java \
-	ScanPoint.java
+	ScanPoint.java Waypoint2d.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -244,7 +245,8 @@ definclude_HEADERS = \
 	polar_spline.h \
 	position2d.h \
 	position3d.h \
-	scan_point.h
+	scan_point.h \
+	waypoint2d.h
 
 dist_java_JAVA = $(am__append_1)
 all: all-am

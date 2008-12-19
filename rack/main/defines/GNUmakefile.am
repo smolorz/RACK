@@ -13,7 +13,8 @@ definclude_HEADERS = \
 	polar_spline.h \
 	position2d.h \
 	position3d.h \
-	scan_point.h
+	scan_point.h \
+	waypoint2d.h
 
 dist_java_JAVA =
 
@@ -27,7 +28,8 @@ dist_java_JAVA += \
 	PolarSpline.java \
 	Position2d.java \
 	Position3d.java \
-	ScanPoint.java
+	ScanPoint.java \
+	Waypoint2d.java
 
 endif
 

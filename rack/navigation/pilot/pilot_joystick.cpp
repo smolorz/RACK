@@ -409,6 +409,7 @@ int  PilotJoystick::moduleLoop(void)
     pilotData->distanceToDest = -1;
     pilotData->splineNum      = 1;
 
+    memset(&(pilotData->spline[0].basepoint), 0, sizeof(pilotData->spline[0].basepoint));
     pilotData->spline[0].radius         = 0;
     pilotData->spline[0].length         = joystickSpeed;
     pilotData->spline[0].vMax           = joystickSpeed;
@@ -416,6 +417,8 @@ int  PilotJoystick::moduleLoop(void)
     pilotData->spline[0].vEnd           = joystickSpeed;
     pilotData->spline[0].accMax         = chasParData.accMax;
     pilotData->spline[0].decMax         = chasParData.decMax;
+    pilotData->spline[0].type           = 0;
+    pilotData->spline[0].request        = 0;
     pilotData->spline[0].lbo            = 0;
     pilotData->spline[0].startPos.x     = 0;
     pilotData->spline[0].startPos.y     = 0;

@@ -18,6 +18,7 @@
 
 #include <main/defines/point2d.h>
 #include <main/defines/position2d.h>
+#include <main/defines/waypoint2d.h>
 
 #define MAX_ROTATION_ANGLE  (350.0 * M_PI / 180.0)
 
@@ -27,7 +28,7 @@
 
 typedef struct
 {
-    point_2d    basepoint;
+    waypoint_2d basepoint;
     position_2d startPos;
     position_2d endPos;
     position_2d centerPos;
@@ -48,7 +49,7 @@ class PolarSpline
    public:
         static void le_to_cpu(polar_spline *data)
         {
-            Point2D::le_to_cpu(&data->basepoint);
+            Waypoint2d::le_to_cpu(&data->basepoint);
             Position2D::le_to_cpu(&data->startPos);
             Position2D::le_to_cpu(&data->endPos);
             Position2D::le_to_cpu(&data->centerPos);
@@ -66,7 +67,7 @@ class PolarSpline
 
         static void be_to_cpu(polar_spline *data)
         {
-            Point2D::be_to_cpu(&data->basepoint);
+            Waypoint2d::be_to_cpu(&data->basepoint);
             Position2D::be_to_cpu(&data->startPos);
             Position2D::be_to_cpu(&data->endPos);
             Position2D::be_to_cpu(&data->centerPos);

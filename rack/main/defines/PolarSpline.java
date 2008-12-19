@@ -22,7 +22,7 @@ import rack.main.tims.EndianDataInputStream;
 
 public class PolarSpline
 {
-    public Point2d		basepoint = new Point2d();
+    public Waypoint2d	basepoint = new Waypoint2d();
 	public Position2d   startPos  = new Position2d();
     public Position2d   endPos    = new Position2d();
     public Position2d   centerPos = new Position2d();
