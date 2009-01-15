@@ -47,7 +47,7 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "mapFile", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "filename of the DXF map to load", { 0 } },
-      
+
     { ARGOPT_OPT, "mapScaleFactor", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "map scale factor", { 1000 } },
 
@@ -340,7 +340,7 @@ Scan2dSim::Scan2dSim(void)
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
-      , dxfMap(200)
+      , dxfMap(300)
 {
     // get static module parameter
     odometryInst = getIntArg("odometryInst", argTab);
