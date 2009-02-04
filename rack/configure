@@ -20234,7 +20234,7 @@ _ACEOF
 if test "${enable_rtnet_support+set}" = set; then
   enableval=$enable_rtnet_support; case "$enableval" in
         y | yes) CONFIG_RACK_RTNET_SUPPORT=y ;;
-        *) CONFIG_RACK_RTET_SUPPORT=n ;;
+        *) CONFIG_RACK_RTNET_SUPPORT=n ;;
     esac
 fi
 
