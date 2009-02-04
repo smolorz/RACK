@@ -287,7 +287,7 @@ AC_ARG_ENABLE(rtnet-support,
     AS_HELP_STRING([--enable-rtnet-support], [enable rtnet support]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_RTNET_SUPPORT=y ;;
-        *) CONFIG_RACK_RTET_SUPPORT=n ;;
+        *) CONFIG_RACK_RTNET_SUPPORT=n ;;
     esac])
 
 AC_ARG_WITH(rtnet-dir,
