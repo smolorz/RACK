@@ -29,6 +29,9 @@ typedef struct {
     int32_t lbo;                            // lateral boundary offset
     int32_t id;                             // waypoint id
     int32_t wayId;                          // way id
+    int32_t layer;                          // layer
+    int32_t actionStart;                    // start action
+    int32_t actionEnd;                      // end action
 } __attribute__((packed))waypoint_2d;
 
 class Waypoint2d
@@ -37,28 +40,34 @@ class Waypoint2d
 
         static void le_to_cpu(waypoint_2d *data)
         {
-            data->x         = __le32_to_cpu(data->x);
-            data->y         = __le32_to_cpu(data->y);
-            data->speed     = __le32_to_cpu(data->speed);
-            data->maxRadius = __le32_to_cpu(data->maxRadius);
-            data->type      = __le32_to_cpu(data->type);
-            data->request   = __le32_to_cpu(data->request);
-            data->lbo       = __le32_to_cpu(data->lbo);
-            data->id        = __le32_to_cpu(data->id);
-            data->wayId     = __le32_to_cpu(data->wayId);
+            data->x           = __le32_to_cpu(data->x);
+            data->y           = __le32_to_cpu(data->y);
+            data->speed       = __le32_to_cpu(data->speed);
+            data->maxRadius   = __le32_to_cpu(data->maxRadius);
+            data->type        = __le32_to_cpu(data->type);
+            data->request     = __le32_to_cpu(data->request);
+            data->lbo         = __le32_to_cpu(data->lbo);
+            data->id          = __le32_to_cpu(data->id);
+            data->wayId       = __le32_to_cpu(data->wayId);
+            data->layer       = __le32_to_cpu(data->layer);
+            data->actionStart = __le32_to_cpu(data->actionStart);
+            data->actionEnd   = __le32_to_cpu(data->actionEnd);
         }
 
         static void be_to_cpu(waypoint_2d *data)
         {
-            data->x         = __be32_to_cpu(data->x);
-            data->y         = __be32_to_cpu(data->y);
-            data->speed     = __be32_to_cpu(data->speed);
-            data->maxRadius = __be32_to_cpu(data->maxRadius);
-            data->type      = __be32_to_cpu(data->type);
-            data->request   = __be32_to_cpu(data->request);
-            data->lbo       = __be32_to_cpu(data->lbo);
-            data->id        = __be32_to_cpu(data->id);
-            data->wayId     = __be32_to_cpu(data->wayId);
+            data->x           = __be32_to_cpu(data->x);
+            data->y           = __be32_to_cpu(data->y);
+            data->speed       = __be32_to_cpu(data->speed);
+            data->maxRadius   = __be32_to_cpu(data->maxRadius);
+            data->type        = __be32_to_cpu(data->type);
+            data->request     = __be32_to_cpu(data->request);
+            data->lbo         = __be32_to_cpu(data->lbo);
+            data->id          = __be32_to_cpu(data->id);
+            data->wayId       = __be32_to_cpu(data->wayId);
+            data->layer       = __be32_to_cpu(data->layer);
+            data->actionStart = __be32_to_cpu(data->actionStart);
+            data->actionEnd   = __be32_to_cpu(data->actionEnd);
         }
 };
 
