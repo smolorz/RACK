@@ -31,10 +31,13 @@ public class Waypoint2d
     public int  lbo         = 0;
     public int  id          = 0;
     public int  wayId       = 0;
+    public int  layer		= 0;
+    public int  actionStart = 0;
+    public int  actionEnd	= 0;
 
     static public int getDataLen()
     {
-        return (72);
+        return (84);
     }
 
     public Waypoint2d()
@@ -42,17 +45,21 @@ public class Waypoint2d
     }
 
     public Waypoint2d(int x, int y, int speed, int maxRadius, int type,
-                      int request, int lbo, int id, int wayId)
+                      int request, int lbo, int id, int wayId, int layer,
+                      int actionStart, int actionEnd)
     {
-        this.x          = x;
-        this.y          = y;
-        this.speed      = speed;
-        this.maxRadius  = maxRadius;
-        this.type       = type;
-        this.request    = request;
-        this.lbo        = lbo;
-        this.id         = id;
-        this.wayId      = wayId;
+        this.x           = x;
+        this.y           = y;
+        this.speed       = speed;
+        this.maxRadius   = maxRadius;
+        this.type        = type;
+        this.request     = request;
+        this.lbo         = lbo;
+        this.id          = id;
+        this.wayId       = wayId;
+        this.layer       = layer;
+        this.actionStart = actionStart;
+        this.actionEnd   = actionEnd;        
     }
 
     public void readData(EndianDataInputStream dataIn) throws IOException
@@ -66,6 +73,9 @@ public class Waypoint2d
         lbo         = dataIn.readInt();
         id          = dataIn.readInt();
         wayId       = dataIn.readInt();
+        layer       = dataIn.readInt();
+        actionStart = dataIn.readInt();
+        actionEnd   = dataIn.readInt();
     }
 
     public void writeData(DataOutputStream dataOut) throws IOException
@@ -79,5 +89,8 @@ public class Waypoint2d
         dataOut.writeInt(lbo);
         dataOut.writeInt(id);
         dataOut.writeInt(wayId);
+        dataOut.writeInt(layer);
+        dataOut.writeInt(actionStart);
+        dataOut.writeInt(actionEnd);
     }
 }
