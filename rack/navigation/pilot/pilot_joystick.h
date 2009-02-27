@@ -53,6 +53,8 @@ class PilotJoystick : public RackDataModule {
         int                 joystickSys;
         int                 mode;
         int                 chassisMinTurnRadius;
+        float               joystickExpX;
+        float               joystickExpY;
 
         int                 maxSpeed;
         int                 joystikDataMissing;

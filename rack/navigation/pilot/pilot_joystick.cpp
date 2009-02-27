@@ -50,10 +50,16 @@ argTable_t argTab[] = {
       "Maximal Speed, default 4000", { 4000 } },
 
     { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Control mode (0 = speed-radius; 1 = speed-omega (default 0)", { 0 } },
+      "Control mode (0 = speed-radius; 1 = speed-omega) (default 0)", { 0 } },
 
     { ARGOPT_OPT, "chassisMinTurnRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min turning radius for chassis module", { 300 } },
+
+    { ARGOPT_OPT, "joystickExpX", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
+      "exponent for flatten joystick curve x-axis, 0 for linear (default 0)", { 0 } },
+
+    { ARGOPT_OPT, "joystickExpY", ARGOPT_REQVAL, ARGOPT_VAL_FLT,
+      "exponent for flatten joystick curve y-axis (2^(x*exp)-1), 0 for linear (default 0)", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -77,6 +83,10 @@ argTable_t argTab[] = {
     maxSpeed             = getInt32Param("maxSpeed");
     mode                 = getInt32Param("mode");
     chassisMinTurnRadius = getInt32Param("chassisMinTurnRadius");
+    joystickExpX         = getFloatParam("joystickExpX");
+    joystickExpY         = getFloatParam("joystickExpY");
+    if (joystickExpX < 0.0f) joystickExpX = 0.0f;
+    if (joystickExpY < 0.0f) joystickExpY = 0.0f;
 
     ret = chassis->on();
     if (ret)
@@ -205,6 +215,7 @@ int  PilotJoystick::moduleLoop(void)
     int         speed, speedSafe;
     int         ret;
     float       omega;
+    float       joystickPositionY;
     message_info jstkInfo;
     message_info s2dInfo;
     pilot_data*    pilotData = NULL;
@@ -229,21 +240,48 @@ int  PilotJoystick::moduleLoop(void)
 
         JoystickData::parse(&jstkInfo);
 
-        joystickSpeed = (int)rint((float)maxSpeed *
-                                  ((float)jstkData.position.x / 100.0f));
+        if (joystickExpX <= 0.0f)
+        {
+            joystickSpeed = (int)rint((float)maxSpeed *
+                                      ((float)jstkData.position.x / 100.0f));
+        }
+        else
+        {
+            joystickSpeed = (int)rint((float)maxSpeed *
+                ((powf(2.0f, joystickExpX * (float)jstkData.position.x / 100.0f) - 1.0f)
+                 / (powf(2.0f, joystickExpX) - 1.0f)));
+        }
+
+        if (joystickExpY <= 0.0f)
+        {
+            joystickPositionY = (float)jstkData.position.y / 100.0f;
+        }
+        else
+        {
+            if (jstkData.position.y < 0)
+            {
+                joystickPositionY = (powf(2.0f, joystickExpY * (float)-jstkData.position.y / 100.0f) - 1.0f)
+                                    / (powf(2.0f, joystickExpY) - 1.0f);
+                joystickPositionY = -joystickPositionY;
+            }
+            else
+            {
+                joystickPositionY = (powf(2.0f, joystickExpY * (float)jstkData.position.y / 100.0f) - 1.0f)
+                                    / (powf(2.0f, joystickExpY) - 1.0f);
+            }
+        }
 
         switch(mode)
         {
         case 1:  // speed-omega
-            joystickOmega = (chasParData.omegaMax) *
-                            ((float)jstkData.position.y / 100.0f);
+            joystickOmega = chasParData.omegaMax * joystickPositionY;
             break;
         case 0:  // speed-radius
         default:
-            if (jstkData.position.y != 0)
+            if (joystickPositionY != 0.0f)
             {
                 joystickCurve = radius2Curve(chasParData.minTurningRadius) *
-                                ((float)jstkData.position.y / 100.0f);
+                                joystickPositionY;
             }
             else
             {
