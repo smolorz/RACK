@@ -936,6 +936,8 @@ CONFIG_RACK_SCAN2D_SIM_TRUE
 CONFIG_RACK_SCAN2D_SIM_FALSE
 CONFIG_RACK_SCAN2D_LAB_TRUE
 CONFIG_RACK_SCAN2D_LAB_FALSE
+CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE
+CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_FALSE
 CONFIG_RACK_DUMMY_ABC_TRUE
 CONFIG_RACK_DUMMY_ABC_FALSE
 CONFIG_DATALOG_REC_TRUE
@@ -1648,6 +1650,8 @@ Optional Features:
   --enable-scan2d-merge   building Scan2dMerge
   --enable-scan2d-sim     building Scan2dSim
   --enable-scan2d-lab     building Scan2dLab
+  --enable-obj-recog-relay-ladar
+                          building ObjRecogRelayLadar
   --enable-dummy-abc      building DummyAbc
   --enable-datalog-rec    building DatalogRec
   --enable-dox-doc        Build Doxygen documentation
@@ -4597,7 +4601,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4600 "configure"' > conftest.$ac_ext
+  echo '#line 4604 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7334,11 +7338,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7337: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7341: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7341: \$? = $ac_status" >&5
+   echo "$as_me:7345: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7624,11 +7628,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7627: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7631: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7631: \$? = $ac_status" >&5
+   echo "$as_me:7635: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7728,11 +7732,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7731: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7735: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7735: \$? = $ac_status" >&5
+   echo "$as_me:7739: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10077,7 +10081,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10080 "configure"
+#line 10084 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10177,7 +10181,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10180 "configure"
+#line 10184 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12597,11 +12601,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12600: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12604: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12604: \$? = $ac_status" >&5
+   echo "$as_me:12608: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12701,11 +12705,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12704: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12708: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12708: \$? = $ac_status" >&5
+   echo "$as_me:12712: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14263,11 +14267,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14266: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14270: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14270: \$? = $ac_status" >&5
+   echo "$as_me:14274: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14367,11 +14371,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14370: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14374: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14374: \$? = $ac_status" >&5
+   echo "$as_me:14378: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16554,11 +16558,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16557: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16561: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16561: \$? = $ac_status" >&5
+   echo "$as_me:16565: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16844,11 +16848,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16847: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16851: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16851: \$? = $ac_status" >&5
+   echo "$as_me:16855: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16948,11 +16952,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16951: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16955: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16955: \$? = $ac_status" >&5
+   echo "$as_me:16959: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21116,6 +21120,35 @@ _ACEOF
 fi
 
 
+{ echo "$as_me:$LINENO: checking build ObjRecogRelayLadar" >&5
+echo $ECHO_N "checking build ObjRecogRelayLadar... $ECHO_C" >&6; }
+# Check whether --enable-obj-recog-relay-ladar was given.
+if test "${enable_obj_recog_relay_ladar+set}" = set; then
+  enableval=$enable_obj_recog_relay_ladar; case "$enableval" in
+        y | yes) CONFIG_RACK_OBJ_RECOG_RELAY_LADAR=y ;;
+        *) CONFIG_RACK_OBJ_RECOG_RELAY_LADAR=n ;;
+    esac
+fi
+
+{ echo "$as_me:$LINENO: result: ${CONFIG_RACK_OBJ_RECOG_RELAY_LADAR:-n}" >&5
+echo "${ECHO_T}${CONFIG_RACK_OBJ_RECOG_RELAY_LADAR:-n}" >&6; }
+ if test "$CONFIG_RACK_OBJ_RECOG_RELAY_LADAR" = "y"; then
+  CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE=
+  CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_FALSE='#'
+else
+  CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE='#'
+  CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_FALSE=
+fi
+
+if test "$CONFIG_RACK_OBJ_RECOG_RELAY_LADAR" = "y"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define CONFIG_RACK_OBJ_RECOG_RELAY_LADAR 1
+_ACEOF
+
+fi
+
+
 { echo "$as_me:$LINENO: checking build DummyAbc" >&5
 echo $ECHO_N "checking build DummyAbc... $ECHO_C" >&6; }
 # Check whether --enable-dummy-abc was given.
@@ -23295,7 +23328,7 @@ for DIR in \
 done
 
 
-ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/dxfmap/GNUmakefile main/lib/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/position_tool/GNUmakefile main/camera_tool/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
+ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/dxfmap/GNUmakefile main/lib/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/position_tool/GNUmakefile main/camera_tool/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
 
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
@@ -23616,6 +23649,13 @@ if test -z "${CONFIG_RACK_SCAN2D_LAB_TRUE}" && test -z "${CONFIG_RACK_SCAN2D_LAB
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_SCAN2D_LAB\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"CONFIG_RACK_SCAN2D_LAB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE}" && test -z "${CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_OBJ_RECOG_RELAY_LADAR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_OBJ_RECOG_RELAY_LADAR\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -24215,6 +24255,7 @@ do
     "navigation/position/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/position/GNUmakefile" ;;
     "perception/GNUmakefile") CONFIG_FILES="$CONFIG_FILES perception/GNUmakefile" ;;
     "perception/scan2d/GNUmakefile") CONFIG_FILES="$CONFIG_FILES perception/scan2d/GNUmakefile" ;;
+    "perception/obj_recog/GNUmakefile") CONFIG_FILES="$CONFIG_FILES perception/obj_recog/GNUmakefile" ;;
     "skel/GNUmakefile") CONFIG_FILES="$CONFIG_FILES skel/GNUmakefile" ;;
     "skel/dummy/GNUmakefile") CONFIG_FILES="$CONFIG_FILES skel/dummy/GNUmakefile" ;;
     "gui/GNUmakefile") CONFIG_FILES="$CONFIG_FILES gui/GNUmakefile" ;;
@@ -24507,6 +24548,8 @@ CONFIG_RACK_SCAN2D_SIM_TRUE!$CONFIG_RACK_SCAN2D_SIM_TRUE$ac_delim
 CONFIG_RACK_SCAN2D_SIM_FALSE!$CONFIG_RACK_SCAN2D_SIM_FALSE$ac_delim
 CONFIG_RACK_SCAN2D_LAB_TRUE!$CONFIG_RACK_SCAN2D_LAB_TRUE$ac_delim
 CONFIG_RACK_SCAN2D_LAB_FALSE!$CONFIG_RACK_SCAN2D_LAB_FALSE$ac_delim
+CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE!$CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE$ac_delim
+CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_FALSE!$CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_FALSE$ac_delim
 CONFIG_RACK_DUMMY_ABC_TRUE!$CONFIG_RACK_DUMMY_ABC_TRUE$ac_delim
 CONFIG_RACK_DUMMY_ABC_FALSE!$CONFIG_RACK_DUMMY_ABC_FALSE$ac_delim
 CONFIG_DATALOG_REC_TRUE!$CONFIG_DATALOG_REC_TRUE$ac_delim
@@ -24531,8 +24574,6 @@ CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE!$CONFIG_RACK_LIBRAW1394_SUPPORT_TRUE$ac_deli
 CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE!$CONFIG_RACK_LIBRAW1394_SUPPORT_FALSE$ac_delim
 LIBDC1394_CPPFLAGS!$LIBDC1394_CPPFLAGS$ac_delim
 LIBDC1394_LDFLAGS!$LIBDC1394_LDFLAGS$ac_delim
-LIBDC1394_LIBS!$LIBDC1394_LIBS$ac_delim
-CONFIG_RACK_LIBDC1394_SUPPORT_TRUE!$CONFIG_RACK_LIBDC1394_SUPPORT_TRUE$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -24574,6 +24615,8 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+LIBDC1394_LIBS!$LIBDC1394_LIBS$ac_delim
+CONFIG_RACK_LIBDC1394_SUPPORT_TRUE!$CONFIG_RACK_LIBDC1394_SUPPORT_TRUE$ac_delim
 CONFIG_RACK_LIBDC1394_SUPPORT_FALSE!$CONFIG_RACK_LIBDC1394_SUPPORT_FALSE$ac_delim
 LIBJPEG_CPPFLAGS!$LIBJPEG_CPPFLAGS$ac_delim
 LIBJPEG_LDFLAGS!$LIBJPEG_LDFLAGS$ac_delim
@@ -24618,7 +24661,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 44; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

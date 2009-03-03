@@ -6,7 +6,8 @@ percinclude_HEADERS = \
 	scan2d_proxy.h
 
 SUBDIRS = \
-	scan2d
+	scan2d \
+	obj_recog
 
 dist_java_JAVA =
 

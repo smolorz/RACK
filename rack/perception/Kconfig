@@ -4,4 +4,8 @@ menu "Scan2d"
 source "perception/scan2d/Kconfig"
 endmenu
 
+menu "ObjRecog"
+source "perception/obj_recog/Kconfig"
+endmenu
+
 endmenu

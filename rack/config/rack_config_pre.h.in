@@ -60,6 +60,9 @@
 /* building LadarSickS */
 #undef CONFIG_RACK_LADAR_SICK_S
 
+/* building ObjRecogRelayLadar */
+#undef CONFIG_RACK_OBJ_RECOG_RELAY_LADAR
+
 /* building OdometryChassis */
 #undef CONFIG_RACK_ODOMETRY_CHASSIS
 

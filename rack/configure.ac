@@ -848,6 +848,23 @@ if test "$CONFIG_RACK_SCAN2D_LAB" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  perception - ObjRecogRelayLadar
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ObjRecogRelayLadar])
+AC_ARG_ENABLE(obj-recog-relay-ladar,
+    AS_HELP_STRING([--enable-obj-recog-relay-ladar], [building ObjRecogRelayLadar]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_OBJ_RECOG_RELAY_LADAR=y ;;
+        *) CONFIG_RACK_OBJ_RECOG_RELAY_LADAR=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_OBJ_RECOG_RELAY_LADAR:-n}])
+AM_CONDITIONAL(CONFIG_RACK_OBJ_RECOG_RELAY_LADAR,[test "$CONFIG_RACK_OBJ_RECOG_RELAY_LADAR" = "y"])
+if test "$CONFIG_RACK_OBJ_RECOG_RELAY_LADAR" = "y"; then
+    AC_DEFINE(CONFIG_RACK_OBJ_RECOG_RELAY_LADAR,1,[building ObjRecogRelayLadar])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  skel - DummyAbc
 dnl -----------------------------------------------------------------
 
@@ -1549,6 +1566,7 @@ AC_CONFIG_FILES([GNUmakefile \
     \
     perception/GNUmakefile \
     perception/scan2d/GNUmakefile \
+    perception/obj_recog/GNUmakefile \
     \
     skel/GNUmakefile \
     skel/dummy/GNUmakefile \

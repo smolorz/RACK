@@ -1,0 +1,17 @@
+
+bin_PROGRAMS =
+
+if CONFIG_RACK_OBJ_RECOG_RELAY_LADAR
+bin_PROGRAMS += ObjRecogRelayLadar
+endif
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+ObjRecogRelayLadar_SOURCES = \
+	obj_recog_relay_ladar.h \
+	obj_recog_relay_ladar.cpp
+
+EXTRA_DIST = \
+	Kconfig

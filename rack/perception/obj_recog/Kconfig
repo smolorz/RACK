@@ -1,0 +1,4 @@
+
+config RACK_OBJ_RECOG_RELAY_LADAR
+    bool "ObjRecog - RelayLadar"
+    default y
