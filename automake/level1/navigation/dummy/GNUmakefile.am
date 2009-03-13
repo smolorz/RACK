@@ -1,0 +1,16 @@
+
+bindir = $(prefix)/bin/navigation
+bin_PROGRAMS =
+
+if CONFIG_RACK_DUMMY_NAV
+bin_PROGRAMS +=	DummyNav
+endif
+
+DummyNav_SOURCES = \
+	dummy_nav.h \
+	dummy_nav.cpp
+
+DummyNav_LDFLAGS = @RACK_LEVEL1_LIBS@
+
+EXTRA_DIST = \
+	Kconfig

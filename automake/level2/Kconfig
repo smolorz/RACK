@@ -1,0 +1,39 @@
+config RACK_LEVEL2_VERSION
+    string
+    default "0.0.1"
+
+mainmenu "RACK-LEVEL2 configuration"
+
+menu "Build options"
+
+config RACK_INSTALLDIR
+    string "Installation directory"
+    default "/home/`whoami`/rack/bin"
+    help
+    This option defines the directory where the current RACK
+    files will be installed on your target system.
+    This directory may be changed if you double-click in the area
+    named "Value". The default installation directory is the RACK
+    directory /home/`whoami`/rack/bin.
+
+config RACKDIR
+    string "Rack build tree"
+    default "/home/`whoami`/rack/bin"
+    help
+    This variable contains the directory where was built your
+    Rack. As explained before, you can change the value
+    of the Rack build tree which is fixed by default to
+    /home/`whoami`/rack/bin i.e. the build directory of the running Rack.
+
+config RACK_JAVA_GUI
+    bool "Java Gui"
+    help
+    Help text.
+
+endmenu
+
+source "drivers/Kconfig"
+
+source "navigation/Kconfig"
+
+source "perception/Kconfig"

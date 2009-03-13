@@ -1,0 +1,16 @@
+
+bindir = $(prefix)/bin/perception
+bin_PROGRAMS =
+
+if CONFIG_RACK_DUMMY_PER
+bin_PROGRAMS +=	DummyPer
+endif
+
+DummyPer_SOURCES = \
+	dummy_per.h \
+	dummy_per.cpp
+
+DummyPer_LDFLAGS = @RACK_LEVEL1_LIBS@
+
+EXTRA_DIST = \
+	Kconfig

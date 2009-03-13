@@ -1,0 +1,93 @@
+##############################################
+#
+# Adding a new Component
+#
+##############################################
+ 
+Example: Adding a new component "NewTestDriver" in drivers/test.
+         The component needs CAN support and the library 'libdummy', 
+         which also provides header files.
+
+
+$: cd drivers/test
+$: touch new_test_driver.h
+$: touch new_test_driver.cpp
+
+1. Kconfig
+----------
+
+    $: pico Kconfig
+	
+        ** Add this: **
+	
+	config RACK_TESTDRIVER_NEW
+	    bool "New Test Driver"
+	    default y
+	    ---help---
+	    Add your helptext here !!!
+
+	** Note: While developing a component the default value shoult be 'n' **
+
+2. GNUmakefile.am
+-----------------
+
+    $: pico GNUmakefile.am
+	
+        ** Add this: **
+
+	if CONFIG_RACK_TESTDRIVER_NEW
+	bin_PROGRAMS += NewTestDriver
+	endif
+
+
+	NewTestDriver_SOURCES = \
+    	    new_test_driver.h \
+    	    new_test_driver.cpp
+
+	NewTestDriver_CPPFLAGS = @RACK_RTCAN_CPPFLAGS@ @LIBDUMMY_CPPFLAGS@
+	NewTestDriver_LDFLAGS = @LIBDUMMY_LDFLAGS@ @RACK_XYZ_LIBS@
+	
+3. configure.ac
+---------------
+
+    ** Switch to the root directory of the project **
+    
+    $: pico configure.ac
+    
+	** Add in section "project modules - drivers" these lines: **
+	
+	dnl ------- testdriver new --------------
+
+	AC_MSG_CHECKING([build new test driver])
+	AC_ARG_ENABLE(new-testdriver,
+	    AS_HELP_STRING([--enable-new-testdriver], [building new test driver]),
+	    [case "$enableval" in
+	        y | yes) CONFIG_RACK_TESTDRIVER_NEW=y ;;
+	        *) CONFIG_RACK_TESTDRIVER_NEW=n ;;
+	    esac])
+	AC_MSG_RESULT([${CONFIG_RACK_TESTDRIVER_NEW:-n}])
+	AM_CONDITIONAL(CONFIG_RACK_TESTDRIVER_NEW,[test "$CONFIG_RACK_TESTDRIVER_NEW" = "y"])
+	if test "$CONFIG_RACK_TESTDRIVER_NEW" = "y"; then
+	    AC_DEFINE(CONFIG_RACK_TESTDRIVER_NEW,1,[building new test driver])
+	    
+	    dnl ** needs RTCAN support ***
+	    RTCAN_COMPONENTS="NewTestDriver ${RTCAN_COMPONENTS}"
+
+	    dnl ** needs libdummy support ***
+	    LIBDUMMY_COMPONENTS="NewTestDriver ${LIBDUMMY_COMPONENTS}"
+
+	fi
+
+5. Execute autogen
+--------------------
+
+    $: ./config/autogen
+
+
+6. Adding files to the SVN repository !!!
+--------------------------------------------
+
+    $: cd drivers/test
+    $: svn add new_test_driver.h new_test_driver.cpp
+    $: svn ci -m "new component TestDriver has been added"
+

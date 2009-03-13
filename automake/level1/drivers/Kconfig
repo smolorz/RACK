@@ -1,0 +1,14 @@
+menu "Drivers"
+
+menu "Dummy"
+config RACK_DUMMY_DRV_JAVA_GUI
+    bool "Dummy Java GUI"
+    depends on RACK_JAVA_GUI
+    default y
+    ---help---
+    Help text.
+
+source "drivers/dummy/Kconfig"
+endmenu
+
+endmenu

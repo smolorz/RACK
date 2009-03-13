@@ -1,0 +1,28 @@
+
+includedir = $(prefix)/include/drivers
+
+include_HEADERS = \
+	dummy_drv_proxy.h
+
+SUBDIRS = \
+	dummy
+
+dist_java_JAVA =
+CLASSPATH_ENV = CLASSPATH=@RACK_CLASSPATH_ADD@:$$CLASSPATH
+
+
+if CONFIG_RACK_DUMMY_DRV_JAVA_GUI
+
+dist_java_JAVA += \
+	DummyGui.java \
+	DummyProxy.java \
+	DummyComponent.java \
+	DummyDataMsg.java
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	Kconfig \
+	dummy_drv_proxy.cpp

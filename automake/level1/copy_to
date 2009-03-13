@@ -1,0 +1,26 @@
+#! /bin/bash
+
+[ "$1" == "" ] && { echo "No destination -> EXIT"; exit 1; }
+[ ! -d "$1"  ] && { echo "Directory $1 not found -> EXIT"; exit 1; }
+
+echo "Destination: $1"
+
+FILES=`find . -name '*' | \
+       grep -v ".svn" | \
+       grep -v copy_to`
+
+for f in $FILES; do
+    echo $f
+    FILEDIR=`dirname $f`
+    DESTDIR="$1/$FILEDIR"
+
+    if [ -d $f ]; then
+        mkdir -p $1/$f
+        [ $? -ne 0 ] && { echo "Can't create $1/$f"; exit; }
+    fi
+
+    if [ -f $f ]; then
+        cp -f $f $DESTDIR
+        [ $? -ne 0 ] && { echo "Can't copy $f"; exit; }
+    fi
+done

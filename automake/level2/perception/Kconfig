@@ -1,0 +1,7 @@
+menu "Perception"
+
+menu "Dummy"
+source "perception/dummy/Kconfig"
+endmenu
+
+endmenu

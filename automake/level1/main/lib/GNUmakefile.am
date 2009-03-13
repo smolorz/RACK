@@ -1,0 +1,25 @@
+OPTSOURCES =
+
+if OPENCV_SUPPORT
+OPTSOURCES += 
+endif
+
+lib_LTLIBRARIES = \
+	lib@PROJNAME@.la
+
+lib@PROJNAME@_la_SOURCES = \
+	$(OPTSOURCES) \
+	\
+	$(top_srcdir)/drivers/dummy_drv_proxy.cpp \
+	\
+	$(top_srcdir)/navigation/dummy_nav_proxy.cpp \
+	\
+	$(top_srcdir)/perception/dummy_per_proxy.cpp
+
+lib@PROJNAME@_la_CPPFLAGS =
+lib@PROJNAME@_la_LDFLAGS = -version-info 0:0:0
+
+if OPENCV_SUPPORT
+lib@PROJNAME@_la_CPPFLAGS += @OPENCV_CPPFLAGS@
+lib@PROJNAME@_la_LDFLAGS += @OPENCV_LDFLAGS@ @OPENCV_LIBS@
+endif

@@ -1,0 +1,5 @@
+
+config RACK_DUMMY_PER
+    bool "Perception Dummy"
+    default y
+    ---help---

@@ -1,0 +1,6 @@
+
+config RACK_DUMMY_DRV
+    bool "Dummy Driver"
+    default y
+    ---help---
+

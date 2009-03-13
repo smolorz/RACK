@@ -1,0 +1,151 @@
+##############################################
+#
+# Adding a new device class
+#
+##############################################
+ 
+Example: Adding a new class "test" into the directory "drivers".
+         The class provides a proxy (TestProxy). 
+
+
+$: cd drivers
+$: mkdir test
+$: touch test_proxy.h
+$: touch test_proxy.cpp
+
+$: touch TestProxy.java
+$: touch TestGui.java
+$: touch TestDataMsg.java
+$: touch TestComponent.java
+
+
+1. drivers/Kconfig
+------------------
+
+    $: cd drivers
+    $: pico Kconfig
+	
+        ** Add this: **
+	
+	menu "Test"
+	config RACK_TEST_JAVA_GUI
+	    bool "Test Java GUI"
+	    depends on RACK_JAVA_GUI
+	    default y
+	    ---help---
+	    Help text.
+
+	source "drivers/test/Kconfig"
+	endmenu
+
+
+2. drivers/GNUmakefile.am
+-------------------------
+
+    $: pico GNUmakefile.am
+	
+        ** Add or complete this: **
+
+	includedir = $(prefix)/include/drivers
+
+	include_HEADERS = \
+	    ... \
+    	    test_proxy.h
+
+	SUBDIRS = \
+	    ... \
+    	    test
+
+	dist_java_JAVA =
+	CLASSPATH_ENV = CLASSPATH=@RACK_CLASSPATH_ADD@:$$CLASSPATH
+
+	if CONFIG_RACK_TEST_JAVA_GUI
+
+	dist_java_JAVA += \
+    	    TestGui.java \
+    	    TestProxy.java \
+    	    TestComponent.java \
+    	    TestDataMsg.java
+
+	endif
+
+	install-dist_javaJAVA: classdist_java.stamp
+
+	EXTRA_DIST = \
+    	    Kconfig \
+	    ... \
+    	    test_proxy.cpp
+
+3. drivers/test/GNUmakefile.am
+------------------------------
+
+    ** Create this file and prepare it for the components **
+    
+    $: cd drivers/test
+    $: touch GNUmakefile.am
+    $: pico GNUmakefile.am
+    
+    ** Add this: **
+    
+    bindir = $(prefix)/bin/drivers
+    bin_PROGRAMS =
+
+    EXTRA_DIST = \
+        Kconfig
+
+
+4. drivers/test/Kconfig
+------------------------------
+
+    ** Create this empty file **
+    
+    $: cd drivers/test
+    $: touch Kconfig
+
+
+5. configure.ac
+------------------------
+
+    ** Add to JAVA Part ***
+    
+    dnl -----------------------------------------------------------------
+    dnl  drivers - test java gui
+    dnl -----------------------------------------------------------------
+
+    AC_MSG_CHECKING([build test java gui])
+    AC_ARG_ENABLE(test-java-gui,
+        AS_HELP_STRING([--enable-test-java-gui], [building test java gui]),
+        [case "$enableval" in
+            y | yes) CONFIG_RACK_TEST_JAVA_GUI=y ;;
+            *) CONFIG_RACK_TEST_JAVA_GUI=n ;;
+        esac])
+    AC_MSG_RESULT([${CONFIG_RACK_TEST_JAVA_GUI:-n}])
+    AM_CONDITIONAL(CONFIG_RACK_TEST_JAVA_GUI,[test "$CONFIG_RACK_TEST_JAVA_GUI" = "y"])
+    if test "$CONFIG_RACK_TEST_JAVA_GUI" = "y"; then
+        AC_DEFINE(CONFIG_RACK_TEST_JAVA_GUI,1,[building test java gui])
+    fi
+
+    ** Add in "Generate output" (at the end of the file) ***
+
+    AC_CONFIG_FILES([GNUmakefile \
+     \
+     ...
+     \
+     drivers/GNUmakefile \
+->   drivers/test/GNUmakefile \
+     \
+     ...
+     ])
+
+5. Execute autogen
+--------------------
+
+    $: ./config/autogen
+
+
+6. Adding files to the SVN repository !!!
+--------------------------------------------
+
+    $: cd drivers
+    $: svn add test test_proxy.h test_proxy.cpp <and all java files>
+    $: svn ci -m "new class test has been added"

@@ -1,0 +1,40 @@
+#
+# Automatically generated make config: don't edit
+# RACK-LEVEL2 version: 0.0.1
+# Fri Jun  9 16:47:20 2006
+#
+CONFIG_RACK_LEVEL2_VERSION="0.0.1"
+
+#
+# Build options
+#
+CONFIG_RACK_INSTALLDIR="/home/`whoami`/rack_level2/bin"
+CONFIG_RACKDIR="/home/`whoami`/rack_level1/bin"
+# CONFIG_RACK_JAVA_GUI is not set
+
+#
+# Drivers
+#
+
+#
+# Dummy
+#
+CONFIG_RACK_DUMMY_DRV=y
+
+#
+# Navigation
+#
+
+#
+# DummyNav
+#
+CONFIG_RACK_DUMMY_NAV=y
+
+#
+# Perception
+#
+
+#
+# Dummy
+#
+CONFIG_RACK_DUMMY_PER=y

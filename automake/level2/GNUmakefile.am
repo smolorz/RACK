@@ -1,0 +1,62 @@
+
+ACLOCAL_AMFLAGS=-I config/autoconf
+
+includedir = $(prefix)/include
+
+include_HEADERS = \
+	 @PROJNAME@_config.h \
+	.@PROJNAME@_config
+
+SUBDIRS = \
+	main \
+	drivers \
+	navigation \
+	perception \
+	config \
+	scripts
+
+if CONFIG_RACK_JAVA_GUI
+
+JARFILE =  @PROJNAME@.jar
+
+all: $(JARFILE)
+
+@PROJNAME@.jar: all-recursive $(shell find $(top_builddir) -name "*.class")
+	@echo "creating $@"; \
+	builddir=`pwd`; \
+	cd $(top_builddir); \
+	$(JAR) cf $(top_builddir)/$(JARFILE) `find -H  @PROJNAME@/ -name "*.class" 2> /dev/null`
+
+endif
+
+clean-local:
+	rm -f $(JARFILE)
+
+EXTRA_DIST = \
+	defconfig \
+	makefile \
+	Kconfig
+
+DISTCLEANFILES = \
+	.@PROJNAME@_config \
+	.@PROJNAME@_config.old \
+	@PROJNAME@_config.h \
+	.cfok \
+	.cfchanged \
+	symbols
+
+
+reconfig xconfig gconfig mconfig menuconfig config oldconfig help:
+	@$(MAKE) -f $(srcdir)/makefile $@ \
+	srctree=$(srcdir) ARCH=@RACK_CUR_HOST_STRING@ CROSS_COMPILE=@CROSS_COMPILE@
+
+install-data-local:
+	rm -f $(DESTDIR)$(prefix)/build
+	$(LN_S) @abs_top_builddir@ $(DESTDIR)$(prefix)/build
+	rm -f $(DESTDIR)$(prefix)/source
+	$(LN_S) @abs_srcdir@ $(DESTDIR)$(prefix)/source
+	if test x"$(CONFIG_RACK_JAVA_GUI)" == "xy" ; then \
+	install -m 644 $(JARFILE) $(DESTDIR)$(prefix)/gui; \
+	fi;
+
+.PHONY: reconfig xconfig gconfig mconfig menuconfig config oldconfig help

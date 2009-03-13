@@ -1,0 +1,5 @@
+
+config RACK_DUMMY_NAV
+    bool "Navigation Dummy"
+    default y
+    ---help---

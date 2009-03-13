@@ -1,0 +1,6 @@
+
+bin_SCRIPTS = \
+	rack-config
+
+EXTRA_DIST = \
+	rack-config.in

@@ -1,0 +1,18 @@
+
+bindir = $(prefix)/bin/drivers
+bin_PROGRAMS =
+
+if CONFIG_RACK_DUMMY_DRV
+bin_PROGRAMS +=	DummyDrv
+endif
+
+
+DummyDrv_SOURCES = \
+	dummy_driver.h \
+	dummy_driver.cpp
+
+DummyDrv_LDFLAGS = @RACK_LEVEL2_LIBS@
+
+
+EXTRA_DIST = \
+	Kconfig

@@ -1,0 +1,18 @@
+#! /bin/sh
+
+cd ..
+
+MAKEFILES=`find . -name GNUmakefile.in`
+CONFIG_FILE=`find config -name "*_config_pre.h.in"`
+
+svn revert `echo $MAKEFILES` \
+           `echo $CONFIG_FILE` \
+	   configure \
+	   aclocal.m4 \
+	   config/autoconf/compile \
+	   config/autoconf/config.guess \
+	   config/autoconf/config.sub \
+	   config/autoconf/depcomp \
+	   config/autoconf/install-sh \
+	   config/autoconf/ltmain.sh \
+	   config/autoconf/missing

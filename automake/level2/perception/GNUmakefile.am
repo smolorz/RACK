@@ -1,0 +1,24 @@
+
+includedir = $(prefix)/include/perception
+
+include_HEADERS = \
+	dummy_per_proxy.h
+
+SUBDIRS = \
+	dummy
+
+dist_java_JAVA =
+CLASSPATH_ENV = CLASSPATH=@RACK_CLASSPATH_ADD@:$$CLASSPATH
+
+if CONFIG_RACK_DUMMY_PER_JAVA_GUI
+
+dist_java_JAVA += 
+
+endif
+
+install-dist_javaJAVA: classdist_java.stamp
+
+EXTRA_DIST = \
+	Kconfig \
+	\
+	dummy_per_proxy.cpp

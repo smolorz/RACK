@@ -1,0 +1,21 @@
+OPTDIRS =
+OPTHEADERS =
+
+includedir = $(prefix)/include/main
+
+if OPENCV_SUPPORT
+OPTDIRS += 
+OPTHEADERS += 
+endif
+
+include_HEADERS = \
+	$(OPTHEADERS) \
+	@PROJNAME@_name.h
+
+EXTRA_DIST =
+
+SUBDIRS = \
+	$(OPTDIRS) \
+	defines \
+	lib \
+	naming

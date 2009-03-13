@@ -1,0 +1,7 @@
+menu "Navigation"
+
+menu "DummyNav"
+source "navigation/dummy/Kconfig"
+endmenu
+
+endmenu

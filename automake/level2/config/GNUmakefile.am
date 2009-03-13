@@ -1,0 +1,8 @@
+
+SUBDIRS = \
+	kconfig
+
+EXTRA_DIST= \
+	arch2host.sh \
+	autogen.sh \
+	version
