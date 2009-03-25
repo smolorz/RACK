@@ -14,21 +14,21 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.drivers;
+package gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import rack.gui.GuiElementDescriptor;
-import rack.gui.main.RackDataModuleGui;
-import rack.main.*;
-import rack.main.tims.*;
-import rack.navigation.PilotProxy;
-import rack.drivers.ChassisProxy;
-import rack.drivers.JoystickDataMsg;
-import rack.drivers.JoystickProxy;
+import gui.GuiElementDescriptor;
+import gui.main.RackDataModuleGui;
+import main.*;
+import main.tims.*;
+import navigation.PilotProxy;
+import drivers.ChassisProxy;
+import drivers.JoystickDataMsg;
+import drivers.JoystickProxy;
 
 /**
  * To change the template for this generated type comment go to

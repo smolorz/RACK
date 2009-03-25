@@ -13,13 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.main;
+package gui.main;
 
 import java.util.Vector;
 
-import rack.gui.GuiElementDescriptor;
-import rack.main.*;
-import rack.main.tims.*;
+import gui.GuiElementDescriptor;
+import main.*;
+import main.tims.*;
 
 /**
  *

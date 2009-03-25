@@ -1,4 +1,4 @@
-package rack.gui.main;
+package gui.main;
 
 public interface MapViewInterface
 {

@@ -13,20 +13,20 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.drivers;
+package gui.drivers;
 
 import java.awt.*;
 import javax.swing.*;
 
-import rack.gui.GuiElementDescriptor;
-import rack.gui.main.MapViewActionEvent;
-import rack.gui.main.MapViewComponent;
-import rack.gui.main.MapViewGraphics;
-import rack.gui.main.MapViewInterface;
-import rack.gui.main.RackModuleGui;
-import rack.main.defines.LadarPoint;
-import rack.drivers.LadarDataMsg;
-import rack.drivers.LadarProxy;
+import gui.GuiElementDescriptor;
+import gui.main.MapViewActionEvent;
+import gui.main.MapViewComponent;
+import gui.main.MapViewGraphics;
+import gui.main.MapViewInterface;
+import gui.main.RackModuleGui;
+import main.defines.LadarPoint;
+import drivers.LadarDataMsg;
+import drivers.LadarProxy;
 
 public class LadarGui extends RackModuleGui implements MapViewInterface
 {

@@ -13,12 +13,12 @@
  *      Marko Reimer  <reimer@rts.uni-hannover.de>
  *
  */
-package rack.perception;
+package perception;
 
-import rack.main.*;
-import rack.main.tims.*;
-import rack.navigation.PositionDataMsg;
-import rack.main.RackName;
+import main.*;
+import main.tims.*;
+import navigation.PositionDataMsg;
+import main.RackName;
 
 public class ObjRecogProxy extends RackDataProxy
 {

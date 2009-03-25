@@ -1,4 +1,4 @@
-package rack.main.tims;
+package main.tims;
 
 public class TimsDataRate
 {

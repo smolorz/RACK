@@ -1,4 +1,4 @@
-package rack.main;
+package main;
 
 public class AngleTool
 {

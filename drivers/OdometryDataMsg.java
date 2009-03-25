@@ -13,13 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package drivers;
 
 import java.io.*;
 
-import rack.main.RackProxy;
-import rack.main.tims.*;
-import rack.main.defines.Position3d;
+import main.RackProxy;
+import main.tims.*;
+import main.defines.Position3d;
 
 public class OdometryDataMsg extends TimsMsg
 {

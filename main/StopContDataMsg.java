@@ -13,11 +13,11 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main;
+package main;
 
 import java.io.*;
 
-import rack.main.tims.*;
+import main.tims.*;
 
 /** Paket zum Abmelden von einem kontinuierlichen Datenstream.
  * Die Mailbox, die abgemeldet weden soll, muss mit uebergeben werden */

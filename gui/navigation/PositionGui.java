@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.navigation;
+package gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,15 +22,15 @@ import java.awt.geom.*;
 import java.util.*;
 import javax.swing.*;
 
-import rack.gui.GuiElementDescriptor;
-import rack.gui.main.*;
-import rack.main.*;
-import rack.drivers.GpsDataMsg;
-import rack.drivers.GpsProxy;
+import gui.GuiElementDescriptor;
+import gui.main.*;
+import main.*;
+import drivers.GpsDataMsg;
+import drivers.GpsProxy;
 
-import rack.main.defines.Position3d;
-import rack.navigation.PositionDataMsg;
-import rack.navigation.PositionProxy;
+import main.defines.Position3d;
+import navigation.PositionDataMsg;
+import navigation.PositionProxy;
 
 public class PositionGui extends RackModuleGui implements MapViewInterface
 {

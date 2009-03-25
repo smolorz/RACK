@@ -13,13 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.navigation;
+package navigation;
 
 import java.io.*;
 
-import rack.main.tims.*;
+import main.tims.*;
 
-import rack.main.defines.Position3d;
+import main.defines.Position3d;
 
 public class PositionDataMsg extends TimsMsg
 {

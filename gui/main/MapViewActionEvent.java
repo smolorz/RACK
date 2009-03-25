@@ -13,10 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.main;
+package gui.main;
 
-import rack.main.AngleTool;
-import rack.main.defines.Position2d;
+import main.AngleTool;
+import main.defines.Position2d;
 
 public class MapViewActionEvent
 {

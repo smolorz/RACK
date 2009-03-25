@@ -1,4 +1,4 @@
-package rack.gui.drivers;
+package gui.drivers;
 
 public class CameraColorConvert {
 

@@ -13,19 +13,19 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.drivers;
+package gui.drivers;
 
 import java.awt.*;
 import javax.swing.*;
 
-import rack.gui.GuiElementDescriptor;
-import rack.gui.main.MapViewActionEvent;
-import rack.gui.main.MapViewGraphics;
-import rack.gui.main.MapViewGui;
-import rack.gui.main.MapViewInterface;
-import rack.gui.main.RackModuleGui;
-import rack.drivers.GpsDataMsg;
-import rack.drivers.GpsProxy;
+import gui.GuiElementDescriptor;
+import gui.main.MapViewActionEvent;
+import gui.main.MapViewGraphics;
+import gui.main.MapViewGui;
+import gui.main.MapViewInterface;
+import gui.main.RackModuleGui;
+import drivers.GpsDataMsg;
+import drivers.GpsProxy;
 
 public class GpsGui extends RackModuleGui implements MapViewInterface
 {

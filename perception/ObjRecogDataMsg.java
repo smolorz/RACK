@@ -13,13 +13,13 @@
  *      Marko Reimer  <reimer@rts.uni-hannover.de>
  *
  */
-package rack.perception;
+package perception;
 
 import java.io.*;
 
-import rack.main.RackProxy;
-import rack.main.defines.Position3d;
-import rack.main.tims.*;
+import main.RackProxy;
+import main.defines.Position3d;
+import main.tims.*;
 
 public class ObjRecogDataMsg extends TimsMsg {
 

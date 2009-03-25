@@ -13,12 +13,12 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
-package rack.main.defines;
+package main.defines;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import rack.main.tims.EndianDataInputStream;
+import main.tims.EndianDataInputStream;
 
 public class LadarPoint {
     

@@ -14,10 +14,10 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
-package rack.tools;
+package tools;
 
-import rack.main.*;
-import rack.main.tims.*;
+import main.*;
+import main.tims.*;
 
 public class DatalogProxy extends RackDataProxy
 {

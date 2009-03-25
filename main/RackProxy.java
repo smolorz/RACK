@@ -13,9 +13,9 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main;
+package main;
 
-import rack.main.tims.*;
+import main.tims.*;
 
 public abstract class RackProxy
 {

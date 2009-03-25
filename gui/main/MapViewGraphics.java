@@ -13,10 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.main;
+package gui.main;
 
-import rack.main.defines.Position2d;
-import rack.navigation.PositionDataMsg;
+import main.defines.Position2d;
+import navigation.PositionDataMsg;
 
 import java.awt.*;
 import java.util.Vector;

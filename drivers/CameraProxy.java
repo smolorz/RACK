@@ -14,10 +14,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package drivers;
 
-import rack.main.*;
-import rack.main.tims.*;
+import main.*;
+import main.tims.*;
 
 public class CameraProxy extends RackDataProxy {
 

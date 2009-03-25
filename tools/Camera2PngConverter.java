@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.tools;
+package tools;
 
 /**
  * 
@@ -30,8 +30,8 @@ import java.io.DataOutputStream;
 
 import javax.imageio.ImageIO;
 
-import rack.drivers.CameraDataMsg;
-import rack.main.tims.*;
+import drivers.CameraDataMsg;
+import main.tims.*;
 
 public class Camera2PngConverter {
 

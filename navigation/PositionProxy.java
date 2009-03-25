@@ -13,10 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.navigation;
+package navigation;
 
-import rack.main.*;
-import rack.main.tims.*;
+import main.*;
+import main.tims.*;
 
 public class PositionProxy extends RackDataProxy
 {

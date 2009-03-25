@@ -13,15 +13,15 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.navigation;
+package navigation;
 
 import java.io.*;
 
-import rack.main.RackProxy;
-import rack.main.tims.*;
+import main.RackProxy;
+import main.tims.*;
 
-import rack.main.defines.Position3d;
-import rack.main.defines.PolarSpline;
+import main.defines.Position3d;
+import main.defines.PolarSpline;
 
 /** Paket zur Uebertragung von Splinedaten.
  *

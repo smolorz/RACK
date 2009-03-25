@@ -1,4 +1,4 @@
-package rack.gui.main;
+package gui.main;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,7 +10,7 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JComponent;
 
-import rack.main.defines.Position3d;
+import main.defines.Position3d;
 
 public class NaviComponent extends JComponent
 {

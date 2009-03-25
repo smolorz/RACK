@@ -13,12 +13,12 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package drivers;
 
 import java.io.*;
 
-import rack.main.RackProxy;
-import rack.main.tims.*;
+import main.RackProxy;
+import main.tims.*;
 
 public class ChassisSetActivePilotMsg extends TimsMsg
 {

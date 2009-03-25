@@ -13,7 +13,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package rack.gui;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -25,9 +25,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 
-import rack.main.RackProxy;
-import rack.main.tims.Tims;
-import rack.main.tims.TimsMbx;
+import main.RackProxy;
+import main.tims.Tims;
+import main.tims.TimsMbx;
 
 public class GuiElementDescriptor
 {

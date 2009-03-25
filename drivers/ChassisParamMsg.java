@@ -13,11 +13,11 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.drivers;
+package drivers;
 
 import java.io.*;
 
-import rack.main.tims.*;
+import main.tims.*;
 
 public class ChassisParamMsg extends TimsMsg
 {

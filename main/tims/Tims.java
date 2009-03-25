@@ -14,7 +14,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package rack.main.tims;
+package main.tims;
 
 public abstract class Tims extends Thread
 {

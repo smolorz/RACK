@@ -13,7 +13,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package rack.gui;
+package gui;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
@@ -63,7 +63,7 @@ public final class AppletGui extends Applet
 
                 this.setLayout(new BorderLayout());
 
-                gui = new Gui(null, this, cfgReader, "rack.main.tims.TimsTcp", timsParam);
+                gui = new Gui(null, this, cfgReader, "main.tims.TimsTcp", timsParam);
             }
             catch (Exception e)
             {

@@ -10,13 +10,13 @@
  *      Daniel Lecking <lecking@rts.uni-hannover.de>
  *
  */
-package rack.navigation;
+package navigation;
 
 import java.io.*;
 
-import rack.main.*;
-import rack.main.tims.*;
-import rack.main.defines.*;
+import main.*;
+import main.tims.*;
+import main.defines.*;
 
 
 public class PilotDestMsg extends TimsMsg

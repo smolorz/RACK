@@ -13,15 +13,15 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.drivers;
+package gui.drivers;
 
 import java.awt.*;
 import javax.swing.*;
 
-import rack.gui.GuiElementDescriptor;
-import rack.gui.main.RackModuleGui;
-import rack.drivers.JoystickDataMsg;
-import rack.drivers.JoystickProxy;
+import gui.GuiElementDescriptor;
+import gui.main.RackModuleGui;
+import drivers.JoystickDataMsg;
+import drivers.JoystickProxy;
 
 public class JoystickGui extends RackModuleGui
 {

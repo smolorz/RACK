@@ -13,18 +13,18 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.perception;
+package gui.perception;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import rack.gui.GuiElementDescriptor;
-import rack.gui.main.*;
-import rack.main.defines.*;
-import rack.perception.Scan2dDataMsg;
-import rack.perception.Scan2dProxy;
+import gui.GuiElementDescriptor;
+import gui.main.*;
+import main.defines.*;
+import perception.Scan2dDataMsg;
+import perception.Scan2dProxy;
 
 public class Scan2dGui extends RackModuleGui implements MapViewInterface {
     

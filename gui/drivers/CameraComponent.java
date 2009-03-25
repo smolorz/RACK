@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.gui.drivers;
+package gui.drivers;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -23,9 +23,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.MemoryImageSource;
 import javax.swing.*;
 
-import rack.drivers.CameraDataMsg;
-import rack.main.defines.ImageRect;
-import rack.gui.drivers.CameraColorConvert;
+import drivers.CameraDataMsg;
+import main.defines.ImageRect;
+import gui.drivers.CameraColorConvert;
 
 public class CameraComponent extends JComponent
 {

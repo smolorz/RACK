@@ -13,13 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main.defines;
+package main.defines;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
-import rack.main.tims.EndianDataInputStream;
+import main.tims.EndianDataInputStream;
 
 public class Point2d implements Serializable
 {

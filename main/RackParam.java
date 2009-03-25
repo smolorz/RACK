@@ -13,12 +13,12 @@
  *      Oliver Wulf        <oliver.wulf@gmx.de>
  *
  */
-package rack.main;
+package main;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import rack.main.tims.EndianDataInputStream;
+import main.tims.EndianDataInputStream;
 
 public class RackParam
 {

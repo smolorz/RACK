@@ -13,11 +13,11 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package rack.main;
+package main;
 
 import java.io.*;
 
-import rack.main.tims.*;
+import main.tims.*;
 
 /** Paket zum anfordern von kontinuierlichen Daten */
 public class ContDataMsg extends TimsMsg

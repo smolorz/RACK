@@ -14,7 +14,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package rack.gui;
+package gui;
 
 import java.awt.Container;
 import java.awt.Cursor;
