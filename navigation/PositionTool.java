@@ -14,7 +14,7 @@
  *
  */
 
-package navigation;
+package rack.navigation;
 
 
 public class PositionTool

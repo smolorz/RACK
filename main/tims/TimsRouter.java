@@ -13,7 +13,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package main.tims;
+package rack.main.tims;
 
 public class TimsRouter
 {

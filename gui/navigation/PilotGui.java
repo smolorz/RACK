@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package gui.navigation;
+package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,18 +21,18 @@ import java.util.StringTokenizer;
 
 import javax.swing.*;
 
-import gui.GuiElementDescriptor;
-import gui.main.MapViewActionEvent;
-import gui.main.MapViewComponent;
-import gui.main.MapViewGraphics;
-import gui.main.MapViewGui;
-import gui.main.MapViewInterface;
-import gui.main.RackModuleGui;
-import main.defines.Position3d;
-import navigation.PilotDataMsg;
-import navigation.PilotProxy;
-import navigation.PilotDestMsg;
-import navigation.PilotHoldMsg;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewComponent;
+import rack.gui.main.MapViewGraphics;
+import rack.gui.main.MapViewGui;
+import rack.gui.main.MapViewInterface;
+import rack.gui.main.RackModuleGui;
+import rack.main.defines.Position3d;
+import rack.navigation.PilotDataMsg;
+import rack.navigation.PilotProxy;
+import rack.navigation.PilotDestMsg;
+import rack.navigation.PilotHoldMsg;
 
 public class PilotGui extends RackModuleGui implements MapViewInterface
 {

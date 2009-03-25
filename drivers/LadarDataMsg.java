@@ -13,14 +13,14 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package drivers;
+package rack.drivers;
 
 import java.io.*;
 
-import main.RackProxy;
-import main.tims.*;
+import rack.main.RackProxy;
+import rack.main.tims.*;
 
-import main.defines.LadarPoint;
+import rack.main.defines.LadarPoint;
 
 public class LadarDataMsg extends TimsMsg
 {

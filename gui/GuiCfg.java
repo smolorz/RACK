@@ -13,7 +13,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package gui;
+package rack.gui;
 
 import java.awt.Dimension;
 import java.awt.Frame;

@@ -1,4 +1,4 @@
-package gui.drivers;
+package rack.gui.drivers;
 
 import java.awt.Color;
 import java.util.Iterator;

@@ -13,14 +13,14 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package main.defines;
+package rack.main.defines;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
-import main.tims.EndianDataInputStream;
+import rack.main.tims.EndianDataInputStream;
 
 public class Position2d implements Serializable, Cloneable
 {

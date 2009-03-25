@@ -13,11 +13,11 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package main;
+package rack.main;
 
 import java.io.*;
 
-import main.tims.*;
+import rack.main.tims.*;
 
 public class GetDataMsg extends TimsMsg
 {

@@ -13,7 +13,7 @@
  *      Marko Reimer  <reimer@rts.uni-hannover.de>
  *
  */
-package gui.perception;
+package rack.gui.perception;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -28,14 +28,14 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
 
-import gui.GuiElementDescriptor;
-import gui.main.*;
-import main.*;
-import main.defines.Position3d;
-import main.defines.Point2d;
-import perception.ObjRecogDataMsg;
-import perception.ObjRecogObject;
-import perception.ObjRecogProxy;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.*;
+import rack.main.*;
+import rack.main.defines.Position3d;
+import rack.main.defines.Point2d;
+import rack.perception.ObjRecogDataMsg;
+import rack.perception.ObjRecogObject;
+import rack.perception.ObjRecogProxy;
 
 public class ObjRecogGui extends RackModuleGui implements MapViewInterface
 {

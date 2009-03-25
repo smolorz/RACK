@@ -13,16 +13,16 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package gui.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import gui.GuiElementDescriptor;
-import gui.main.RackModuleGui;
-import drivers.OdometryDataMsg;
-import drivers.OdometryProxy;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.RackModuleGui;
+import rack.drivers.OdometryDataMsg;
+import rack.drivers.OdometryProxy;
 
 public class OdometryGui extends RackModuleGui
 {

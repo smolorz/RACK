@@ -13,7 +13,7 @@
  *      Oliver Wulf      <oliver.wulf@web.de>
  *
  */
-package gui.navigation;
+package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -23,18 +23,18 @@ import java.io.IOException;
 import java.util.*;
 import javax.swing.*;
 
-import gui.GuiElementDescriptor;
-import gui.main.MapViewActionEvent;
-import gui.main.MapViewGraphics;
-import gui.main.MapViewGui;
-import gui.main.MapViewInterface;
-import gui.main.NaviComponent;
-import gui.main.RackModuleGui;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.MapViewActionEvent;
+import rack.gui.main.MapViewGraphics;
+import rack.gui.main.MapViewGui;
+import rack.gui.main.MapViewInterface;
+import rack.gui.main.NaviComponent;
+import rack.gui.main.RackModuleGui;
 
-import main.defines.Position3d;
-import navigation.PositionDataMsg;
-import navigation.PositionProxy;
-import navigation.PositionUtmDataMsg;
+import rack.main.defines.Position3d;
+import rack.navigation.PositionDataMsg;
+import rack.navigation.PositionProxy;
+import rack.navigation.PositionUtmDataMsg;
 
 public class PositionNavi extends RackModuleGui implements MapViewInterface
 {

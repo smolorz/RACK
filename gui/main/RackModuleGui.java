@@ -13,7 +13,7 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
-package gui.main;
+package rack.gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -24,9 +24,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import gui.GuiElement;
-import gui.GuiElementDescriptor;
-import main.RackProxy;
+import rack.gui.GuiElement;
+import rack.gui.GuiElementDescriptor;
+import rack.main.RackProxy;
 
 public abstract class RackModuleGui extends GuiElement
 {

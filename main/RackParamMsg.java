@@ -12,11 +12,11 @@
  * Authors
  *      Oliver Wulf        <oliver.wulf@gmx.de>
  */
-package main;
+package rack.main;
 
 import java.io.*;
 
-import main.tims.*;
+import rack.main.tims.*;
 
 public class RackParamMsg extends TimsMsg
 {

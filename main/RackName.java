@@ -14,7 +14,7 @@
  *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
-package main;
+package rack.main;
 
 import java.util.Hashtable;
 

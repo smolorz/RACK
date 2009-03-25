@@ -13,13 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package navigation;
+package rack.navigation;
 
-import main.*;
-import main.defines.Position3d;
-import main.tims.*;
-import navigation.PilotDestMsg;
-import navigation.PilotHoldMsg;
+import rack.main.*;
+import rack.main.defines.Position3d;
+import rack.main.tims.*;
+import rack.navigation.PilotDestMsg;
+import rack.navigation.PilotHoldMsg;
 
 public class PilotProxy extends RackDataProxy
 {

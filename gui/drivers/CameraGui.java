@@ -14,18 +14,18 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package gui.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import drivers.CameraDataMsg;
-import drivers.CameraFormatMsg;
-import drivers.CameraProxy;
-import gui.GuiElementDescriptor;
-import gui.main.RackModuleGui;
+import rack.drivers.CameraDataMsg;
+import rack.drivers.CameraFormatMsg;
+import rack.drivers.CameraProxy;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.RackModuleGui;
 
 public class CameraGui extends RackModuleGui
 {

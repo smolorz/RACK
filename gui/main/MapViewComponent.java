@@ -13,7 +13,7 @@
  *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
-package gui.main;
+package rack.gui.main;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -44,9 +44,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import main.AngleTool;
-import main.defines.Position2d;
-import navigation.PositionDataMsg;
+import rack.main.AngleTool;
+import rack.main.defines.Position2d;
+import rack.navigation.PositionDataMsg;
 
 public class MapViewComponent extends JComponent
 {

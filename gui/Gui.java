@@ -15,7 +15,7 @@
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
-package gui;
+package rack.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -27,8 +27,8 @@ import java.util.Vector;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import main.*;
-import main.tims.*;
+import rack.main.*;
+import rack.main.tims.*;
 
 public final class Gui extends Thread
 {
@@ -317,7 +317,7 @@ public final class Gui extends Thread
         
         if (this.timsClass == null)
         {
-            this.timsClass = "main.tims.TimsTcp";
+            this.timsClass = "rack.main.tims.TimsTcp";
         }
     
         if(timsParam != "")
@@ -1273,8 +1273,8 @@ public final class Gui extends Thread
                 default:
                     JOptionPane.showMessageDialog(frame,
                             "Invalid argument count \"" + args.length + "\". Start Gui like:\n" +
-                            "'java -jar jar <config-file> <ip>' or\n" +
-                            "'java -classpath ... gui.Gui <config-file> <ip>",
+                            "'java -jar rack.jar <config-file> <ip>' or\n" +
+                            "'java -classpath ... rack.gui.Gui <config-file> <ip>",
                             "RACK GUI", JOptionPane.ERROR_MESSAGE);
                     throw new Exception("Invalid argument count " + args.length);
             }

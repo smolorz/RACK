@@ -13,10 +13,10 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package drivers;
+package rack.drivers;
 
-import main.*;
-import main.tims.*;
+import rack.main.*;
+import rack.main.tims.*;
 
 
 public class ChassisProxy extends RackDataProxy

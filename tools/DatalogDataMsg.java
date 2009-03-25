@@ -13,13 +13,13 @@
  *      Oliver Wulf        <oliver.wulf@gmx.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
-package tools;
+package rack.tools;
 
 import java.io.*;
 
-import main.RackProxy;
-import main.tims.*;
-import tools.DatalogLogInfo;
+import rack.main.RackProxy;
+import rack.main.tims.*;
+import rack.tools.DatalogLogInfo;
 
 
 public class DatalogDataMsg extends TimsMsg

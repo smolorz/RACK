@@ -13,12 +13,12 @@
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *
  */
-package perception;
+package rack.perception;
 
 import java.io.*;
 
-import main.tims.*;
-import main.defines.*;
+import rack.main.tims.*;
+import rack.main.defines.*;
 
 /**
  * @author wulf

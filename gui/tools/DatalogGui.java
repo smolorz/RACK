@@ -13,18 +13,18 @@
  *      Oliver Wulf        <oliver.wulf@gmx.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
-package gui.tools;
+package rack.gui.tools;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import gui.GuiElementDescriptor;
-import gui.main.*;
-import main.*;
-import tools.DatalogProxy;
-import tools.DatalogLogInfo;
-import tools.DatalogDataMsg;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.*;
+import rack.main.*;
+import rack.tools.DatalogProxy;
+import rack.tools.DatalogLogInfo;
+import rack.tools.DatalogDataMsg;
 
 public class DatalogGui extends RackModuleGui
 {

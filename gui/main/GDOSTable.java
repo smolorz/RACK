@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package gui.main;
+package rack.gui.main;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -23,7 +23,7 @@ import java.io.PrintWriter;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
-import main.*;
+import rack.main.*;
 
 public class GDOSTable extends AbstractTableModel
 {

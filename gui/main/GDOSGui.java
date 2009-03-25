@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package gui.main;
+package rack.gui.main;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,12 +22,12 @@ import java.util.Vector;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
-import gui.GuiElement;
-import gui.GuiElementDescriptor;
-import main.GDOS;
-import main.GDOSDataMsg;
-import main.RackName;
-import main.tims.*;
+import rack.gui.GuiElement;
+import rack.gui.GuiElementDescriptor;
+import rack.main.GDOS;
+import rack.main.GDOSDataMsg;
+import rack.main.RackName;
+import rack.main.tims.*;
 
 public class GDOSGui extends GuiElement
 {

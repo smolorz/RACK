@@ -14,7 +14,7 @@
  *      Marco Langerwisch <marco.langerwisch@web.de>
  *
  */
-package gui.drivers;
+package rack.gui.drivers;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,11 +25,11 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 
-import gui.GuiElementDescriptor;
-import gui.main.*;
-import main.*;
-import drivers.ChassisDataMsg;
-import drivers.ChassisProxy;
+import rack.gui.GuiElementDescriptor;
+import rack.gui.main.*;
+import rack.main.*;
+import rack.drivers.ChassisDataMsg;
+import rack.drivers.ChassisProxy;
 
 public class ChassisGui extends RackModuleGui
 {

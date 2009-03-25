@@ -13,12 +13,12 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
-package main.defines;
+package rack.main.defines;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import main.tims.EndianDataInputStream;
+import rack.main.tims.EndianDataInputStream;
 
 public class Waypoint2d
 {

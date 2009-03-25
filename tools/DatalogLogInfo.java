@@ -13,11 +13,11 @@
  *      Oliver Wulf        <oliver.wulf@gmx.de>
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  */
-package tools;
+package rack.tools;
 
 import java.io.*;
 
-import main.tims.*;
+import rack.main.tims.*;
 
 
 public class DatalogLogInfo

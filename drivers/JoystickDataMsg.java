@@ -13,13 +13,13 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package drivers;
+package rack.drivers;
 
 import java.io.*;
 
-import main.RackProxy;
-import main.tims.*;
-import main.defines.Position3d;
+import rack.main.RackProxy;
+import rack.main.tims.*;
+import rack.main.defines.Position3d;
 
 public class JoystickDataMsg extends TimsMsg
 {

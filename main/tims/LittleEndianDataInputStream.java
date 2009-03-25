@@ -1,4 +1,4 @@
-package main.tims;
+package rack.main.tims;
 
 import java.io.*;
 

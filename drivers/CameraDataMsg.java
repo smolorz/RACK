@@ -14,7 +14,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package drivers;
+package rack.drivers;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -25,8 +25,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
 
-import main.RackProxy;
-import main.tims.*;
+import rack.main.RackProxy;
+import rack.main.tims.*;
 
 public class CameraDataMsg extends TimsMsg
 {

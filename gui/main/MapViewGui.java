@@ -13,7 +13,7 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package gui.main;
+package rack.gui.main;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -26,12 +26,12 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.imageio.*;
 
-import main.RackName;
-import main.defines.*;
-import drivers.*;
-import gui.GuiElement;
-import gui.GuiElementDescriptor;
-import navigation.*;
+import rack.main.RackName;
+import rack.main.defines.*;
+import rack.drivers.*;
+import rack.gui.GuiElement;
+import rack.gui.GuiElementDescriptor;
+import rack.navigation.*;
 
 public class MapViewGui extends GuiElement implements MapViewInterface
 {

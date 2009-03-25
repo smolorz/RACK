@@ -13,11 +13,11 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
-package navigation;
+package rack.navigation;
 
 import java.io.*;
 
-import main.tims.*;
+import rack.main.tims.*;
 
 public class PositionUtmDataMsg extends TimsMsg
 {

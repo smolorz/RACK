@@ -13,15 +13,15 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-package perception;
+package rack.perception;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import main.*;
-import main.tims.*;
+import rack.main.*;
+import rack.main.tims.*;
 
 public class Scan2dProxy extends RackDataProxy
 {
