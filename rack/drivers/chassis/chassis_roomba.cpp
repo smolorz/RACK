@@ -331,6 +331,24 @@ int ChassisRoomba::moduleLoop(void)
     putDataBufferWorkSpace(datalength);
 
 
+    // check motor commands
+    if ((getInt32Param("motorMainBrush") != motorMainBrush) ||
+        (getInt32Param("motorVacuum") != motorVacuum) ||
+        (getInt32Param("motorSideBrush") != motorSideBrush))
+    {
+        motorMainBrush          = getInt32Param("motorMainBrush");
+        motorVacuum             = getInt32Param("motorVacuum");
+        motorSideBrush          = getInt32Param("motorSideBrush");
+
+        // set cleaning motor
+        ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
+        if (ret)
+        {
+            return ret;
+        }
+    }
+
+
     // send scan2d data
     if (scan2dInst >= 0)
     {
@@ -606,6 +624,8 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
     serialBuffer[2] = (char)(speed & 0xff);
     serialBuffer[3] = (char)(radius >> 8);
     serialBuffer[4] = (char)(radius & 0xff);
+
+    GDOS_PRINT("speed %d, omega %a, radius %x, %x %d\n", speed, omega, radius, serialBuffer[3], serialBuffer[4]);
 
     ret = serialPort.send(serialBuffer, 5);
     if (ret)
