@@ -207,7 +207,9 @@ class LadarIbeoLux : public RackDataModule {
     private:
         char                        *ladarIp;
         int                         ladarPort;
+        int                         objRecogBoundSys;
         int                         objRecogBoundInst;
+        int                         objRecogContourSys;
         int                         objRecogContourInst;
 
         int                         tcpSocket;

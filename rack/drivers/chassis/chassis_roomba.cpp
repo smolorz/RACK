@@ -36,6 +36,9 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
 
+    { ARGOPT_OPT, "scan2dSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "System for the bumper and wall sensor data relay, default 0", { 0 } },
+
     { ARGOPT_OPT, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Instance for the bumper and wall sensor data relay, default -1", { -1 } },
 
@@ -212,11 +215,11 @@ chassis_param_data param = {
                          workMbx.getAdr(), scan2dMbxAdr, sizeof(scan2d_data));
         }
 
-        GDOS_DBG_DETAIL("Turn on Scan2d(%d)\n", scan2dInst);
+        GDOS_DBG_DETAIL("Turn on Scan2d(%d/%d)\n", scan2dSys, scan2dInst);
         ret = scan2d->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on Scan2d(%i), code = %d\n", scan2dInst, ret);
+            GDOS_ERROR("Can't turn on Scan2d(%i/%i), code = %d\n", scan2dSys, scan2dInst, ret);
             return ret;
         }
     }
@@ -330,24 +333,22 @@ int ChassisRoomba::moduleLoop(void)
     datalength = sizeof(chassis_data);
     putDataBufferWorkSpace(datalength);
 
-
     // check motor commands
     if ((getInt32Param("motorMainBrush") != motorMainBrush) ||
         (getInt32Param("motorVacuum") != motorVacuum) ||
         (getInt32Param("motorSideBrush") != motorSideBrush))
     {
-        motorMainBrush          = getInt32Param("motorMainBrush");
-        motorVacuum             = getInt32Param("motorVacuum");
-        motorSideBrush          = getInt32Param("motorSideBrush");
+	 motorMainBrush          = getInt32Param("motorMainBrush");
+	 motorVacuum             = getInt32Param("motorVacuum");
+	 motorSideBrush          = getInt32Param("motorSideBrush");
 
-        // set cleaning motor
-        ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
-        if (ret)
-        {
-            return ret;
-        }
+	 // set cleaning motor
+	 ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
+	 if (ret)
+	 {
+             return ret;
+         }
     }
-
 
     // send scan2d data
     if (scan2dInst >= 0)
@@ -625,8 +626,6 @@ int ChassisRoomba::sendMoveCommand(int speed, float omega)
     serialBuffer[3] = (char)(radius >> 8);
     serialBuffer[4] = (char)(radius & 0xff);
 
-    GDOS_PRINT("speed %d, omega %a, radius %x, %x %d\n", speed, omega, radius, serialBuffer[3], serialBuffer[4]);
-
     ret = serialPort.send(serialBuffer, 5);
     if (ret)
     {
@@ -855,7 +854,7 @@ int ChassisRoomba::moduleInit(void)
     // create scan2d proxy
     if (scan2dInst >= 0)
     {
-        scan2d = new Scan2dProxy(&workMbx, 0, scan2dInst);
+        scan2d = new Scan2dProxy(&workMbx, scan2dSys, scan2dInst);
         if (!scan2d)
         {
             ret = -ENOMEM;
@@ -925,6 +924,7 @@ ChassisRoomba::ChassisRoomba()
 {
     // get static module parameter
     serialDev               = getIntArg("serialDev", argTab);
+    scan2dSys               = getIntArg("scan2dSys", argTab);
     scan2dInst              = getIntArg("scan2dInst", argTab);
 
     // scan2d mbx adress

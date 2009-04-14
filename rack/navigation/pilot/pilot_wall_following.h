@@ -56,8 +56,11 @@ typedef struct {
 class PilotWallFollowing : public RackDataModule {
       private:
 
+        int                 scan2dSys;
         int                 scan2dInst;
+        int                 chassisSys;
         int                 chassisInst;
+        int                 positionSys;
         int                 positionInst;
         int                 mode;
         int                 maxSpeed;

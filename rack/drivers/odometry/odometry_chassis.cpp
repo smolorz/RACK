@@ -32,6 +32,9 @@ OdometryChassis *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "chassisSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the chassis module", { 0 } },
+
     { ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the chassis module", { 0 } },
 
@@ -60,7 +63,8 @@ int  OdometryChassis::moduleOn(void)
     ret = chassis->on();
     if (ret)
     {
-        GDOS_ERROR("Can't switch on chassis, code = %d\n", ret);
+        GDOS_ERROR("Can't switch on chassis(%d/%d), code = %d\n", 
+                   chassisSys, chassisInst, ret);
         return ret;
     }
 
@@ -296,7 +300,7 @@ int  OdometryChassis::moduleInit(void)
     initBits.setBit(INIT_BIT_MBX_CHASSIS);
 
     // chassis
-    chassis = new ChassisProxy(&workMbx, 0, chassisInst);
+    chassis = new ChassisProxy(&workMbx, chassisSys, chassisInst);
     if (!chassis)
     {
         ret = -ENOMEM;
@@ -348,6 +352,7 @@ OdometryChassis::OdometryChassis()
                     10)               // data buffer listener
 {
     // get static module parameter
+    chassisSys    = getIntArg("chassisSys", argTab);
     chassisInst   = getIntArg("chassisInst", argTab);
 
     dataBufferMaxDataSize = sizeof(odometry_data);

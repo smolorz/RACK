@@ -34,11 +34,20 @@ PilotLab *p_inst;
 // external module parameter
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "chassisSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the chassis module, default 0", { 0 } },
+
     { ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the chassis module, default 0", { 0 } },
 
+    { ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module, default 0", { 0 } },
+
     { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the position module, default 0", { 0 } },
+
+    { ARGOPT_OPT, "scan2dSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the scan2d module, default 0", { 0 } },
 
     { ARGOPT_OPT, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the scan2d module, default 0", { 0 } },
@@ -87,7 +96,8 @@ argTable_t argTab[] = {
     ret = chassis->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Chassis(%d), code = %d\n", chassisInst, ret);
+        GDOS_ERROR("Can't turn on Chassis(%d/%d), code = %d\n", 
+                   chassisSys, chassisInst, ret);
         return ret;
     }
 
@@ -95,7 +105,8 @@ argTable_t argTab[] = {
     ret = chassis->getParam(&chasParData, sizeof(chassis_param_data));
     if (ret)
     {
-        GDOS_ERROR("Can't get parameter from Chassis(%d), code = %d\n", chassisInst, ret);
+        GDOS_ERROR("Can't get parameter from Chassis(%d/%d), code = %d\n", 
+                   chassisSys, chassisInst, ret);
         return ret;
     }
 
@@ -103,7 +114,8 @@ argTable_t argTab[] = {
     ret = position->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Position(%d), code = %d\n", positionInst, ret);
+        GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n", 
+                   positionSys, positionInst, ret);
         return ret;
     }
 
@@ -111,7 +123,8 @@ argTable_t argTab[] = {
     ret = scan2d->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Scan2d(%d), code = %d\n", scan2dInst, ret);
+        GDOS_ERROR("Can't turn on Scan2d(%d/%d), code = %d\n", 
+                   scan2dSys, scan2dInst, ret);
         return ret;
     }
 
@@ -120,7 +133,8 @@ argTable_t argTab[] = {
     ret = scan2d->getContData(0, &scan2dDataMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from Scan2d(%d), code = %d\n", scan2dInst, ret);
+        GDOS_ERROR("Can't get continuous data from Scan2d(%d/%d), code = %d\n", 
+                   scan2dSys, scan2dInst, ret);
         return ret;
     }
 
@@ -169,7 +183,8 @@ int  PilotLab::moduleLoop(void)
                                          sizeof(scan2dMsg), &msgInfo);
     if (ret)
     {
-        GDOS_ERROR("Can't read continuous data from Scan2d(%d), code = %d\n", scan2dInst, ret);
+        GDOS_ERROR("Can't read continuous data from Scan2d(%d/%d), code = %d\n", 
+                   scan2dSys, scan2dInst, ret);
         return ret;
     }
 
@@ -184,7 +199,8 @@ int  PilotLab::moduleLoop(void)
         ret = position->getData(&positionData, sizeof(position_data), scan2dMsg.data.recordingTime);
         if (ret)
         {
-            GDOS_ERROR("Can't get data from Position(%d), code = %d\n", positionInst, ret);
+            GDOS_ERROR("Can't get data from Position(%d/%d), code = %d\n", 
+                       positionSys, positionInst, ret);
             return ret;
         }
 
@@ -430,7 +446,7 @@ int  PilotLab::moduleInit(void)
     //
 
     // chassis proxy
-    chassis = new ChassisProxy(&workMbx, 0, chassisInst);
+    chassis = new ChassisProxy(&workMbx, chassisSys, chassisInst);
     if (!chassis)
     {
         ret = -ENOMEM;
@@ -439,7 +455,7 @@ int  PilotLab::moduleInit(void)
     initBits.setBit(INIT_BIT_PROXY_CHASSIS);
 
     // position proxy
-    position = new PositionProxy(&workMbx, 0, positionInst);
+    position = new PositionProxy(&workMbx, positionSys, positionInst);
     if (!position)
     {
         ret = -ENOMEM;
@@ -448,7 +464,7 @@ int  PilotLab::moduleInit(void)
     initBits.setBit(INIT_BIT_PROXY_POSITION);
 
     // scan2d proxy
-    scan2d = new Scan2dProxy(&workMbx, 0, scan2dInst);
+    scan2d = new Scan2dProxy(&workMbx, scan2dSys, scan2dInst);
     if (!scan2d)
     {
         ret = -ENOMEM;
@@ -515,8 +531,11 @@ PilotLab::PilotLab()
                     10)               // data buffer listener
 {
     // get static module parameter
+    chassisSys   = getIntArg("chassisSys", argTab);
     chassisInst  = getIntArg("chassisInst", argTab);
+    positionSys  = getIntArg("positionSys", argTab);
     positionInst = getIntArg("positionInst", argTab);
+    scan2dSys    = getIntArg("scan2dSys", argTab);
     scan2dInst   = getIntArg("scan2dInst", argTab);
 
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);

@@ -36,11 +36,20 @@ PilotWallFollowing *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "scan2dSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the Scan2d module", { 0 } },
+
     { ARGOPT_REQ, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the Scan2d module", { -1 } },
 
+    { ARGOPT_OPT, "chassisSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the chassis module", { 0 } },
+
     { ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the chassis module", { 0 } },
+
+    { ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module", { 0 } },
 
     { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the position module", { 0 } },
@@ -90,7 +99,7 @@ argTable_t argTab[] = {
     ret = chassis->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on chassis, code = %d\n", ret);
+        GDOS_ERROR("Can't turn on Chassis, code = %d\n", ret);
         return ret;
     }
 
@@ -122,7 +131,8 @@ argTable_t argTab[] = {
     ret = position->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Position(%i), code = %d\n", positionInst, ret);
+        GDOS_ERROR("Can't turn on Position(%i/%i), code = %d\n", 
+                   positionSys, positionInst, ret);
         return ret;
     }
 
@@ -130,8 +140,8 @@ argTable_t argTab[] = {
     ret = scan2d->on();
     if (ret)
     {
-          GDOS_ERROR("Can't turn on Scan2d(%i), code = %d\n",
-                     scan2dInst, ret);
+          GDOS_ERROR("Can't turn on Scan2d(%i/%i), code = %d\n",
+                     scan2dSys, scan2dInst, ret);
       return ret;
     }
 
@@ -140,8 +150,8 @@ argTable_t argTab[] = {
     ret = scan2d->getContData(0, &scan2dDataMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from Scan2d(%i), "
-                   "code = %d\n", scan2dInst, ret);
+        GDOS_ERROR("Can't get continuous data from Scan2d(%i/%i), "
+                   "code = %d\n", scan2dSys, scan2dInst, ret);
         return ret;
     }
 
@@ -159,8 +169,8 @@ argTable_t argTab[] = {
     globalSpeed             = 0;
     radius                  = 0;
 
-    GDOS_PRINT("maxSpeed %f m/s, Scan2d(%i)\n",
-                (float)maxSpeed / 1000.0f, scan2dInst);
+    GDOS_PRINT("maxSpeed %f m/s, Scan2d(%i/%i)\n",
+                (float)maxSpeed / 1000.0f, scan2dSys, scan2dInst);
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -191,7 +201,8 @@ int  PilotWallFollowing::moduleLoop(void)
                                          &msgInfo);
     if (ret)
     {
-        GDOS_ERROR("Can't read continuous data from Scan2d(%d), code = %d\n", scan2dInst, ret);
+        GDOS_ERROR("Can't read continuous data from Scan2d(%d/%d), code = %d\n", 
+                   scan2dSys, scan2dInst, ret);
         return ret;
     }
 
@@ -1819,7 +1830,7 @@ int  PilotWallFollowing::moduleInit(void)
     //
 
     // scan2d
-    scan2d = new Scan2dProxy(&workMbx, 0, scan2dInst);
+    scan2d = new Scan2dProxy(&workMbx, scan2dSys, scan2dInst);
     if (!scan2d)
     {
         ret = -ENOMEM;
@@ -1828,7 +1839,7 @@ int  PilotWallFollowing::moduleInit(void)
     initBits.setBit(INIT_BIT_PROXY_SCAN2D);
 
     // position
-    position = new PositionProxy(&workMbx, 0, positionInst);
+    position = new PositionProxy(&workMbx, positionSys, positionInst);
     if (!position)
     {
         ret = -ENOMEM;
@@ -1837,7 +1848,7 @@ int  PilotWallFollowing::moduleInit(void)
     initBits.setBit(INIT_BIT_PROXY_POSITION);
 
     // chassis
-    chassis = new ChassisProxy(&workMbx, 0, chassisInst);
+    chassis = new ChassisProxy(&workMbx, chassisSys, chassisInst);
     if (!chassis)
     {
         ret = -ENOMEM;
@@ -1905,8 +1916,11 @@ PilotWallFollowing::PilotWallFollowing()
                     10)               // data buffer listener
 {
     // get static module parameter
+    chassisSys   = getIntArg("chassisSys", argTab);
     chassisInst  = getIntArg("chassisInst", argTab);
+    scan2dSys    = getIntArg("scan2dSys", argTab);
     scan2dInst   = getIntArg("scan2dInst", argTab);
+    positionSys  = getIntArg("positionSys", argTab);
     positionInst = getIntArg("positionInst", argTab);
 
     dataBufferMaxDataSize   = sizeof(pilot_data_msg);

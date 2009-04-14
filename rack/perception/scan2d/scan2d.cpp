@@ -54,8 +54,14 @@ Scan2d *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "ladarSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the ladar driver", { 0 } },
+
     { ARGOPT_REQ, "ladarInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the ladar driver", { -1 } },
+
+    { ARGOPT_OPT, "cameraSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the camera driver", { 0 } },
 
     { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the camera driver", { -1 } },
@@ -136,7 +142,7 @@ argTable_t argTab[] = {
     ret = ladar->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Ladar(%d), code = %d \n", ladarInst, ret);
+        GDOS_ERROR("Can't turn on Ladar(%d/%d), code = %d \n", ladarSys, ladarInst, ret);
         return ret;
     }
 
@@ -145,7 +151,7 @@ argTable_t argTab[] = {
         ret = camera->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on Camera(%d), code = %d\n", cameraInst, ret);
+            GDOS_ERROR("Can't turn on Camera(%d/%d), code = %d\n", cameraSys, cameraInst, ret);
             return ret;
         }
     }
@@ -153,8 +159,8 @@ argTable_t argTab[] = {
     ret = ladar->getContData(0, &ladarMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from Ladar(%d), "
-                   "code = %d \n", ladarInst, ret);
+        GDOS_ERROR("Can't get continuous data from Ladar(%d/%d), "
+                   "code = %d \n", ladarSys, ladarInst, ret);
         return ret;
     }
 
@@ -573,7 +579,7 @@ int Scan2d::moduleInit(void)
     initBits.setBit(INIT_BIT_MBX_LADAR);
 
     // create Ladar Proxy
-    ladar = new LadarProxy(&workMbx, 0, ladarInst);
+    ladar = new LadarProxy(&workMbx, ladarSys, ladarInst);
     if (!ladar)
     {
         ret = -ENOMEM;
@@ -584,7 +590,7 @@ int Scan2d::moduleInit(void)
     // create Camera Proxy
     if (cameraInst >= 0)
     {
-        camera = new CameraProxy(&workMbx, 0, cameraInst);
+        camera = new CameraProxy(&workMbx, cameraSys, cameraInst);
         if (!camera)
         {
             ret = -ENOMEM;
@@ -643,7 +649,9 @@ Scan2d::Scan2d(void)
                     10)               // data buffer listener
 {
     // get static module parameter
+    ladarSys        = getIntArg("ladarSys", argTab);
     ladarInst       = getIntArg("ladarInst", argTab);
+    cameraSys       = getIntArg("cameraSys", argTab);
     cameraInst      = getIntArg("cameraInst", argTab);
 
     dataBufferMaxDataSize = sizeof(scan2d_msg);

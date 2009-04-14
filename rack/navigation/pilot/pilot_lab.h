@@ -48,8 +48,11 @@ class PilotLab : public RackDataModule {
       private:
 
         // external module parameter
+        int                 chassisSys;
         int                 chassisInst;
+        int                 positionSys;
         int                 positionInst;
+        int                 scan2dSys;
         int                 scan2dInst;
         int                 speedMax;
         float               omegaMax;

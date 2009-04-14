@@ -37,7 +37,9 @@ typedef struct {
 
 class Scan2dMerge : public RackDataModule {
     private:
+        int                 odometrySys;
         int                 odometryInst;
+        int                 scan2dSys[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dInst[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dTimeout[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dSectorNum[SCAN2D_SECTOR_NUM_MAX];

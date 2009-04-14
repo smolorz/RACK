@@ -33,8 +33,14 @@ LadarIbeoLux *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "objRecogBoundSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the object recognition relay for bounding-boxes, default 0", { 0 } },
+
     { ARGOPT_OPT, "objRecogBoundInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the object recognition relay for bounding-boxes, default -1", { -1 } },
+
+    { ARGOPT_OPT, "objRecogContourSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the object recognition relay for contours, default 0", { 0 } },
 
     { ARGOPT_OPT, "objRecogContourInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the object recognition relay for contours, default -1", { -1 } },
@@ -84,11 +90,12 @@ int LadarIbeoLux::moduleOn(void)
                          workMbx.getAdr(), objRecogBoundMbxAdr, sizeof(obj_recog_data));
         }
 
-        GDOS_DBG_DETAIL("Turn on ObjRecog(%d)\n", objRecogBoundInst);
+        GDOS_DBG_DETAIL("Turn on ObjRecog(%d/%d)\n", objRecogBoundSys, objRecogBoundInst);
         ret = objRecogBound->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on ObjRecogBound(%i), code = %d\n", objRecogBoundInst, ret);
+            GDOS_ERROR("Can't turn on ObjRecogBound(%i/%i), code = %d\n", 
+                       objRecogBoundSys, objRecogBoundInst, ret);
             return ret;
         }
     }
@@ -108,11 +115,12 @@ int LadarIbeoLux::moduleOn(void)
                          workMbx.getAdr(), objRecogContourMbxAdr, sizeof(obj_recog_data));
         }
 
-        GDOS_DBG_DETAIL("Turn on ObjRecog(%d)\n", objRecogContourInst);
+        GDOS_DBG_DETAIL("Turn on ObjRecog(%d/%d)\n", objRecogContourSys, objRecogContourInst);
         ret = objRecogContour->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on ObjRecogBound(%i), code = %d\n", objRecogContourInst, ret);
+            GDOS_ERROR("Can't turn on ObjRecogBound(%i), code = %d\n", 
+                       objRecogContourSys, objRecogContourInst, ret);
             return ret;
         }
     }
@@ -629,7 +637,7 @@ int LadarIbeoLux::moduleInit(void)
     // create objRecogBound proxy
     if (objRecogBoundInst >= 0)
     {
-        objRecogBound       = new ObjRecogProxy(&workMbx, 0, objRecogBoundInst);
+        objRecogBound       = new ObjRecogProxy(&workMbx, objRecogBoundSys, objRecogBoundInst);
         if (!objRecogBound)
         {
             ret = -ENOMEM;
@@ -641,8 +649,8 @@ int LadarIbeoLux::moduleInit(void)
     // create objRecogContour proxy
     if (objRecogContourInst >= 0)
     {
-        objRecogContourMbxAdr = RackName::create(OBJ_RECOG, objRecogContourInst);
-        objRecogContour       = new ObjRecogProxy(&workMbx, 0, objRecogContourInst);
+        objRecogContourMbxAdr = RackName::create(objRecogContourSys, OBJ_RECOG, objRecogContourInst);
+        objRecogContour       = new ObjRecogProxy(&workMbx, objRecogContourSys, objRecogContourInst);
         if (!objRecogContour)
         {
             ret = -ENOMEM;
@@ -701,10 +709,12 @@ LadarIbeoLux::LadarIbeoLux()
                     10)               // data buffer listener
 {
     // get static module parameter
+    objRecogBoundSys    = getIntArg("objRecogBoundSys", argTab);
     objRecogBoundInst   = getIntArg("objRecogBoundInst", argTab);
+    objRecogContourSys  = getIntArg("objRecogContourSys", argTab);
     objRecogContourInst = getIntArg("objRecogContourInst", argTab);
 
-    objRecogBoundMbxAdr = RackName::create(OBJ_RECOG, objRecogBoundInst);
+    objRecogBoundMbxAdr = RackName::create(objRecogBoundSys, OBJ_RECOG, objRecogBoundInst);
 
     dataBufferMaxDataSize   = sizeof(ladar_data_msg);
     dataBufferPeriodTime    = 100; // 100 ms (10 per sec)

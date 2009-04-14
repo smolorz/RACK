@@ -36,6 +36,9 @@ Scan2dSim *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "odometrySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the odometry module", { 0 } },
+
     { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry module", { 0 } },
 
@@ -93,21 +96,21 @@ argTable_t argTab[] = {
     }
     GDOS_PRINT("Using DXF map with %i features\n", dxfMap.featureNum);
 
-    GDOS_DBG_DETAIL("Turning on Odometry(%d) \n", odometryInst);
+    GDOS_DBG_DETAIL("Turning on Odometry(%d/%d) \n", odometrySys, odometryInst);
     ret = odometry->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Odometry(%d), code = %d \n", odometryInst, ret);
+        GDOS_ERROR("Can't turn on Odometry(%d/%d), code = %d \n", odometrySys, odometryInst, ret);
         return ret;
     }
-    GDOS_DBG_DETAIL("Odometry(%d) has been turned on \n", odometryInst);
+    GDOS_DBG_DETAIL("Odometry(%d/%d) has been turned on \n", odometrySys, odometryInst);
 
-    GDOS_DBG_DETAIL("Request continuous data from Odometry(%d)\n", odometryInst);
+    GDOS_DBG_DETAIL("Request continuous data from Odometry(%d/%d)\n", odometrySys, odometryInst);
     ret = odometry->getContData(0, &odometryMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from Odometry(%d), "
-                   "code = %d \n", odometryInst, ret);
+        GDOS_ERROR("Can't get continuous data from Odometry(%d/%d), "
+                   "code = %d \n", odometrySys, odometryInst, ret);
         return ret;
     }
 
@@ -290,7 +293,7 @@ int Scan2dSim::moduleInit(void)
     initBits.setBit(INIT_BIT_MBX_ODOMETRY);
 
     // create Odometry Proxy
-    odometry = new OdometryProxy(&workMbx, 0, odometryInst);
+    odometry = new OdometryProxy(&workMbx, odometrySys, odometryInst);
     if (!odometry)
     {
         ret = -ENOMEM;
@@ -343,6 +346,7 @@ Scan2dSim::Scan2dSim(void)
       , dxfMap(300)
 {
     // get static module parameter
+    odometrySys  = getIntArg("odometrySys", argTab);
     odometryInst = getIntArg("odometryInst", argTab);
 
     dataBufferMaxDataSize   = sizeof(scan2d_msg);

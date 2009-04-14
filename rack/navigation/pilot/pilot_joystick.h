@@ -47,10 +47,12 @@ typedef struct {
 class PilotJoystick : public RackDataModule {
       private:
 
+        int                 scan2dSys;
         int                 scan2dInst;
+        int                 chassisSys;
         int                 chassisInst;
-        int                 joystickInst;
         int                 joystickSys;
+        int                 joystickInst;
         int                 mode;
         int                 chassisMinTurnRadius;
         float               joystickExpX;

@@ -32,6 +32,9 @@ Position *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "odometrySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the odometry module", { 0 } },
+
     { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry module", { 0 } },
 
@@ -111,7 +114,8 @@ int  Position::moduleOn(void)
     ret = odometry->on();
     if (ret)
     {
-        GDOS_ERROR("Can't switch on odometry(%i), code = %d\n", odometryInst, ret);
+        GDOS_ERROR("Can't switch on Odometry(%i/%i), code = %d\n", 
+                   odometrySys, odometryInst, ret);
         return ret;
     }
 
@@ -119,15 +123,16 @@ int  Position::moduleOn(void)
     ret = odometry->getData(&odometryData, sizeof(odometry_data), 0);
     if (ret)
     {
-        GDOS_ERROR("Can't get data from Odometry(%i), code = %d\n", odometryInst, ret);
+        GDOS_ERROR("Can't get data from Odometry(%i/%i), code = %d\n", 
+                   odometrySys, odometryInst, ret);
         return ret;
     }
 
     ret = odometry->getContData(0, &odometryMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from odometry(%i) module, "
-                   "code = %d\n", odometryInst, ret);
+        GDOS_ERROR("Can't get continuous data from Odometry(%i/%i) module, "
+                   "code = %d\n", odometrySys, odometryInst, ret);
         return ret;
     }
 
@@ -181,7 +186,8 @@ int  Position::moduleLoop(void)
                                       sizeof(odometryData), &msgInfo);
     if (ret)
     {
-        GDOS_ERROR("Can't read odometry(%i) data, code = %d\n", odometryInst, ret);
+        GDOS_ERROR("Can't read Odometry(%i/%i) data, code = %d\n", 
+                   odometrySys, odometryInst, ret);
         return ret;
     }
 
@@ -717,7 +723,7 @@ int  Position::moduleInit(void)
     initBits.setBit(INIT_BIT_MBX_ODOMETRY);
 
     // odometry
-    odometry = new OdometryProxy(&workMbx, 0, odometryInst);
+    odometry = new OdometryProxy(&workMbx, odometrySys, odometryInst);
     if (!odometry)
     {
         ret = -ENOMEM;
@@ -797,6 +803,7 @@ Position::Position()
                     10)               // data buffer listener
 {
     // get static module parameter parameter
+    odometrySys       = getIntArg("odometrySys", argTab);
     odometryInst      = getIntArg("odometryInst", argTab);
 
     oldPos.x    = 0;

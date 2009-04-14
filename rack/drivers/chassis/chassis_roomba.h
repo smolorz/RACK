@@ -91,6 +91,7 @@ class ChassisRoomba : public RackDataModule {
   private:
     // your values
     int                         serialDev;
+    int                         scan2dSys;
     int                         scan2dInst;
     int                         motorMainBrush;
     int                         motorVacuum;

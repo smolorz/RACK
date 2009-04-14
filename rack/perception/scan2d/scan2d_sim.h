@@ -29,6 +29,7 @@
 
 class Scan2dSim : public RackDataModule {
     private:
+        int          odometrySys;
         int          odometryInst;
         int          maxRange;
         int          mapOffsetX;

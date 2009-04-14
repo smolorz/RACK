@@ -36,7 +36,9 @@ class Scan2d : public RackDataModule {
     private:
 
         // own vars
+        int          ladarSys;
         int          ladarInst;
+        int          cameraSys;
         int          cameraInst;
 
         int          ladarOffsetX;

@@ -32,6 +32,7 @@ class OdometryChassis : public RackDataModule {
         float               oldPositionY;
         float               oldPositionRho;
 
+        int                 chassisSys;
         int                 chassisInst;
 
         // mailboxes

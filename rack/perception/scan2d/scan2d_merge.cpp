@@ -32,17 +32,32 @@ Scan2dMerge *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "odometrySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the odometry module", { 0 } },
+
     { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry module", { 0 } },
+
+    { ARGOPT_OPT, "scan2dSysA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of a scan2d module", { 0 } },
 
     { ARGOPT_REQ, "scan2dInstA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of a scan2d module", { -1 } },
 
+    { ARGOPT_OPT, "scan2dSysB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of a scan2d module", { 0 } },
+
     { ARGOPT_OPT, "scan2dInstB", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of a scan2d module", { -1 } },
 
+    { ARGOPT_OPT, "scan2dSysC", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of a scan2d module", { 0 } },
+
     { ARGOPT_OPT, "scan2dInstC", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of a scan2d module", { -1 } },
+
+    { ARGOPT_OPT, "scan2dSysD", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of a scan2d module", { 0 } },
 
     { ARGOPT_OPT, "scan2dInstD", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of a scan2d module", { -1 } },
@@ -67,12 +82,12 @@ int  Scan2dMerge::moduleOn(void)
     int ret, k, i;
 
     // turn on odometry
-    GDOS_DBG_DETAIL("Turn on odometry(%d)\n", odometryInst);
+    GDOS_DBG_DETAIL("Turn on Odometry(%d/%d)\n", odometrySys, odometryInst);
     ret = odometry->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on odometry(%d), code = %d\n",
-                   odometryInst, ret);
+        GDOS_ERROR("Can't turn on Odometry(%d/%d), code = %d\n",
+                   odometrySys, odometryInst, ret);
         return ret;
     }
 
@@ -81,12 +96,12 @@ int  Scan2dMerge::moduleOn(void)
     {
         if (scan2dInst[k] >= 0)
         {
-            GDOS_DBG_DETAIL("Turn on scan2d(%d)\n", scan2dInst);
+            GDOS_DBG_DETAIL("Turn on Scan2d(%d/%d)\n", scan2dSys[k], scan2dInst[k]);
             ret = scan2d[k]->on();
             if (ret)
             {
-                GDOS_ERROR("Can't turn on scan2d(%i), code = %d\n",
-                           scan2dInst[k], ret);
+                GDOS_ERROR("Can't turn on Scan2d(%i/%i), code = %d\n",
+                           scan2dSys[k], scan2dInst[k], ret);
                 return ret;
             }
         }
@@ -97,8 +112,8 @@ int  Scan2dMerge::moduleOn(void)
     ret = odometry->getContData(0, &dataMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from odometry(%i), code = %d\n",
-                   odometryInst, ret);
+        GDOS_ERROR("Can't get continuous data from Odometry(%i/%i), code = %d\n",
+                   odometrySys, odometryInst, ret);
         return ret;
     }
 
@@ -110,8 +125,8 @@ int  Scan2dMerge::moduleOn(void)
             ret = scan2d[k]->getContData(0, &dataMbx, NULL);
             if (ret)
             {
-                GDOS_ERROR("Can't get continuous data from scan2d(%i), "
-                           "code = %d\n", scan2dInst[k], ret);
+                GDOS_ERROR("Can't get continuous data from Scan2d(%i/%i), "
+                           "code = %d\n", scan2dSys[k], scan2dInst[k], ret);
                 return ret;
             }
         }
@@ -174,7 +189,7 @@ int  Scan2dMerge::moduleLoop(void)
             if (scan2dInst[k] >= 0)
             {
                 // message received
-                if ((dataInfo.src == RackName::create(SCAN2D, scan2dInst[k])) &&
+                if ((dataInfo.src == RackName::create(scan2dSys[k], SCAN2D, scan2dInst[k])) &&
                     (dataInfo.type == MSG_DATA))
                 {
                     // message parsing
@@ -195,7 +210,8 @@ int  Scan2dMerge::moduleLoop(void)
                                             scanData->recordingTime);
                     if (ret)
                     {
-                        GDOS_ERROR("Can't get data from odometry(%i), code = %d\n", odometryInst, ret);
+                        GDOS_ERROR("Can't get data from Odometry(%i/%i), code = %d\n", 
+                                   odometrySys, odometryInst, ret);
                         dataMbx.peekEnd();
                         return ret;
                     }
@@ -229,8 +245,8 @@ int  Scan2dMerge::moduleLoop(void)
                     scanBuffer[k][curSector].data.pointNum      = j;
                     scan2dTimeout[k] = 0;
 
-                    GDOS_DBG_DETAIL("Buffer Scan2D(%i) recordingtime %i "
-                                    "pointNum %i x %i y %i\n", scan2dInst[k],
+                    GDOS_DBG_DETAIL("Buffer Scan2D(%i/%i) recordingtime %i "
+                                    "pointNum %i x %i y %i\n", scan2dSys[k], scan2dInst[k],
                                     scanData->recordingTime,
                                     scanData->pointNum,
                                     odometryBuffer[k][curSector].pos.x,
@@ -241,7 +257,7 @@ int  Scan2dMerge::moduleLoop(void)
 
 
         // new odometry data, build new scan2d_data_msg
-        if ((dataInfo.src == RackName::create(ODOMETRY, odometryInst)) &&
+        if ((dataInfo.src == RackName::create(odometrySys, ODOMETRY, odometryInst)) &&
             (dataInfo.type == MSG_DATA))
         {
             odoData = OdometryData::parse(&dataInfo);
@@ -263,7 +279,7 @@ int  Scan2dMerge::moduleLoop(void)
                     // scan2d timeout 5s
                     if (scan2dTimeout[k] > 5 * ((float)1000.0f / dataBufferPeriodTime))
                     {
-                        GDOS_ERROR("Data timeout Scan2d(%i)\n", scan2dInst[k]);
+                        GDOS_ERROR("Data timeout Scan2d(%i/%i)\n", scan2dSys[k], scan2dInst[k]);
 
                         dataMbx.peekEnd();
                         return -ETIMEDOUT;
@@ -285,7 +301,8 @@ int  Scan2dMerge::moduleLoop(void)
                                 {
                                     if (scan2dInst[k] >= 0)
                                     {
-                                        GDOS_WARNING("Scan2d(%i) pointNum %i", scan2dInst[k], scanBuffer[k][l].data.pointNum);
+                                        GDOS_WARNING("Scan2d(%i/%i) pointNum %i", 
+                                                     scan2dSys[k], scan2dInst[k], scanBuffer[k][l].data.pointNum);
                                     }
                                 }
                                 dataMbx.peekEnd();
@@ -392,7 +409,7 @@ int Scan2dMerge::moduleInit(void)
     //
 
     // odometry
-    odometry = new OdometryProxy(&workMbx, 0, odometryInst);
+    odometry = new OdometryProxy(&workMbx, odometrySys, odometryInst);
     if (!odometry)
     {
         ret = -ENOMEM;
@@ -405,7 +422,7 @@ int Scan2dMerge::moduleInit(void)
     {
         if (scan2dInst[k] >= 0)
         {
-            scan2d[k] = new Scan2dProxy(&workMbx, 0, scan2dInst[k]);
+            scan2d[k] = new Scan2dProxy(&workMbx, scan2dSys[k], scan2dInst[k]);
             if (!scan2d)
             {
                 ret = -ENOMEM;
@@ -477,10 +494,15 @@ Scan2dMerge::Scan2dMerge(void)
                     10)               // data buffer listener
 {
     // get static module parameter
+    odometrySys   = getIntArg("odometrySys", argTab);
     odometryInst  = getIntArg("odometryInst", argTab);
+    scan2dSys [0] = getIntArg("scan2dSysA", argTab);
     scan2dInst[0] = getIntArg("scan2dInstA", argTab);
+    scan2dSys [1] = getIntArg("scan2dSysB", argTab);
     scan2dInst[1] = getIntArg("scan2dInstB", argTab);
+    scan2dSys [2] = getIntArg("scan2dSysC", argTab);
     scan2dInst[2] = getIntArg("scan2dInstC", argTab);
+    scan2dSys [3] = getIntArg("scan2dSysD", argTab);
     scan2dInst[3] = getIntArg("scan2dInstD", argTab);
 
     dataBufferMaxDataSize   =sizeof(scan2d_data_msg);

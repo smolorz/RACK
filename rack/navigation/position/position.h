@@ -34,6 +34,7 @@
 
 class Position : public RackDataModule {
     private:
+        int                 odometrySys;
         int                 odometryInst;
         unsigned int        updateInterpol;
         double              offsetLatitude;

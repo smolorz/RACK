@@ -204,8 +204,9 @@ class RackModule {
 // module values
 //
     protected:
-        uint32_t  inst;      // instance number
-        uint32_t  name;      // module name (12345678) == cmdMbxAdr
+        uint32_t  system;        // system number
+        uint32_t  instance;      // instance number
+        uint32_t  name;          // module name (12345678) == cmdMbxAdr
 
         rack_param_msg *paramMsg;
 
@@ -220,10 +221,16 @@ class RackModule {
         void      setFloatParam(const char* paramName, float value);
 
     public:
-        /** Get instance number of the module */
-        uint32_t getInst(void)
+        /** Get system of the module */
+        uint32_t getSystem(void)
         {
-            return inst;
+            return system;
+        }
+
+        /** Get instance number of the module */
+        uint32_t getInstance(void)
+        {
+            return instance;
         }
 
         /** Get the name of the module */
