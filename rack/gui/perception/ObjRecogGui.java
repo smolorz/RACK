@@ -456,7 +456,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
         if (objRecogData == null)
             return;
         
-        Graphics2D g = mvg.getRobotGraphics(objRecogData.recordingTime);
+        Graphics2D g = mvg.getRobotGraphics(objRecogData.recordingTime, ge.getSystem());
         g.setStroke(new BasicStroke(100));
         
         // object painting

@@ -23,11 +23,11 @@ public class OdometryProxy extends RackDataProxy
     public static final byte MSG_ODOMETRY_RESET =
         RackProxy.MSG_POS_OFFSET + 1;
 
-  public OdometryProxy(int id, TimsMbx replyMbx)
+  public OdometryProxy(int system, int instance, TimsMbx replyMbx)
   {
-    super(RackName.create(RackName.ODOMETRY, id), replyMbx, 500);
+    super(RackName.create(system, RackName.ODOMETRY, instance, 0), replyMbx, 500);
   }
-
+  
   public synchronized OdometryDataMsg getData(int recordingTime)
   {
     try {

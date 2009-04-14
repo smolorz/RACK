@@ -20,9 +20,9 @@ import rack.main.tims.*;
 
 public class JoystickProxy extends RackDataProxy
 {
-    public JoystickProxy(int id, TimsMbx replyMbx)
+    public JoystickProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.JOYSTICK, id), replyMbx, 1000);
+        super(RackName.create(system, RackName.JOYSTICK, instance, 0), replyMbx, 1000);
     }
 
     public synchronized JoystickDataMsg getData(int recordingTime)

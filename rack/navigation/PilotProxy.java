@@ -29,9 +29,9 @@ public class PilotProxy extends RackDataProxy
   public static final byte PILOT_HOLD_ENABLED = 1;
   public static final byte PILOT_HOLD_DISABLED = 0;
 
-  public PilotProxy(int id, TimsMbx replyMbx)
+  public PilotProxy(int system, int instance, TimsMbx replyMbx)
   {
-    super(RackName.create(RackName.PILOT, id), replyMbx, 500);
+    super(RackName.create(system, RackName.PILOT, instance, 0), replyMbx, 500);
   }
 
   public synchronized PilotDataMsg getData(int recordingTime)

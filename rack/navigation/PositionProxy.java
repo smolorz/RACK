@@ -45,14 +45,14 @@ public class PositionProxy extends RackDataProxy
         RackProxy.MSG_NEG_OFFSET - 7;    
 
     
-    public PositionProxy(int id , TimsMbx replyMbx)
+    public PositionProxy(int system, int instance , TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.POSITION, id), replyMbx, 500);
+        super(RackName.create(system, RackName.POSITION, instance, 0), replyMbx, 500);
     }
-
-    public PositionProxy(int id , TimsMbx replyMbx, TimsMbx dataMbx)
+    
+    public PositionProxy(int system, int instance , TimsMbx replyMbx, TimsMbx dataMbx)
     {
-        super(RackName.create(RackName.POSITION, id), replyMbx, dataMbx, 500);
+        super(RackName.create(system, RackName.POSITION, instance), replyMbx, dataMbx, 500);
     }
 
     public synchronized PositionDataMsg getData(int recordingTime)

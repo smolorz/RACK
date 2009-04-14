@@ -34,9 +34,9 @@ public class CameraProxy extends RackDataProxy {
         RackProxy.MSG_NEG_OFFSET - 2;
 
 
-    public CameraProxy(int id, TimsMbx replyMbx)
+    public CameraProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.CAMERA, id), replyMbx, 2500);
+        super(RackName.create(system, RackName.CAMERA, instance, 0), replyMbx, 2500);
     }
 
     public synchronized CameraDataMsg getData(int recordingTime)

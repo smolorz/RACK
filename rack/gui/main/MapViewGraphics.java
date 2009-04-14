@@ -44,21 +44,28 @@ public class MapViewGraphics
         return world;
     }
 
-    public Graphics2D getRobotGraphics()
+    public Graphics2D getRobotGraphics(int robotSys)
     {
         Graphics2D robot = (Graphics2D) world.create();
 
-        PositionDataMsg position = robotPosition.lastElement();
+        for (int i = robotPosition.size()-1; i >= 0; i--)
+        {
+        	PositionDataMsg position = robotPosition.elementAt(i);
+        	
+        	if (position.var.x == robotSys)
+        	{
+                robot.translate(position.pos.x, position.pos.y);
+                robot.rotate(position.pos.rho);
+                break;
+        	}
+        }
 
-        robot.translate(position.pos.x, position.pos.y);
-        robot.rotate(position.pos.rho);
-        
         return robot;
     }
 
-    public Graphics2D getRobotGraphics(int time)
+    public Graphics2D getRobotGraphics(int time, int robotSys)
     {
-        return getRobotGraphics();
+        return getRobotGraphics(robotSys);
     }
 
     public Position2d getRobotPosition()

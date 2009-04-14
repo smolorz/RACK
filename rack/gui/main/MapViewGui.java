@@ -44,7 +44,8 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected Vector<MapViewInterface>     actionTargets = new Vector<MapViewInterface>();
     protected MapViewMouseListener         mouseListener = new MapViewMouseListener();
     protected ActionMenuListener           actionMenuListener = new ActionMenuListener();
-
+    protected ActionListener    		   robotButtonAction;
+    
     protected JRadioButton                 worldButton;
     protected JRadioButton                 chaseButton;
     protected JRadioButton                 robotButton;
@@ -59,11 +60,12 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected int                          bgH;
     protected boolean                      bgBicubic;
 
-    protected int                          positionInst;
-    protected PositionProxy                positionProxy;
+    protected int                          systemNumMax;
+    protected int						   currRobotSys = 0;
+    protected PositionProxy                positionProxy[];
+    protected ChassisProxy                 chassisProxy[];
+    protected ChassisParamMsg              chassisParam[];
     protected Vector<PositionDataMsg>      robotPosition;
-    protected ChassisProxy                 chassisProxy;
-    protected ChassisParamMsg              chassisParam;
     
     //protected int                          windowW  = 640; ////
     //protected int                          windowH  = 480; ////
@@ -110,29 +112,36 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     {
         super(guiElement);
                 
-        String param = ge.getParameter("positionInst");
+        String param = ge.getParameter("systemNumMax");
         if (param.length() > 0)
-            positionInst = Integer.parseInt(param);
+            systemNumMax = Integer.parseInt(param);
         else
-            positionInst = 0;
+            systemNumMax = 1;
 
+        // init arrays
+        positionProxy = new PositionProxy[systemNumMax];
+        chassisProxy  = new ChassisProxy[systemNumMax];
+        chassisParam  = new ChassisParamMsg[systemNumMax];
+        
         // create MapView proxies
-        if(positionInst >= 0)
-            positionProxy = (PositionProxy) mainGui.getProxy(RackName.POSITION, positionInst);
-        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, 0);
+        for (int i = 0; i < systemNumMax; i++)
+        {
+        	positionProxy[i] = (PositionProxy) mainGui.getProxy(RackName.POSITION, i, 0);
+        	chassisProxy[i]  = (ChassisProxy)  mainGui.getProxy(RackName.CHASSIS, i, 0);
 
-        // get chassis parameter message
-        if (chassisProxy != null)
-        {
-            chassisParam = chassisProxy.getParam();
-        }
-        if (chassisParam == null)
-        {
-            chassisParam = new ChassisParamMsg();
-            chassisParam.boundaryFront = 400;
-            chassisParam.boundaryBack = 400;
-            chassisParam.boundaryLeft = 400;
-            chassisParam.boundaryRight = 400;
+        	// get chassis parameter message
+	        if (chassisProxy[i] != null)
+	        {
+	            chassisParam[i] = chassisProxy[i].getParam();
+	        }
+	        if (chassisParam[i] == null)
+	        {
+	            chassisParam[i] = new ChassisParamMsg();
+	            chassisParam[i].boundaryFront = 400;
+	            chassisParam[i].boundaryBack  = 400;
+	            chassisParam[i].boundaryLeft  = 400;
+	            chassisParam[i].boundaryRight = 400;
+	        }
         }
 
         // create MapView components
@@ -156,6 +165,21 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         worldButton.addKeyListener(mapComponent.keyListener);
         chaseButton.addKeyListener(mapComponent.keyListener);
         robotButton.addKeyListener(mapComponent.keyListener);
+        
+        robotButtonAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+            	currRobotSys++;
+            	
+            	if (currRobotSys >= systemNumMax)
+            	{
+            		currRobotSys = 0;
+            	}
+            }
+        };
+        chaseButton.addActionListener(robotButtonAction);
+        robotButton.addActionListener(robotButtonAction);
+        
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
         buttonPanel.add(worldButton);
@@ -364,17 +388,28 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         return null;
     }
 
-    public void addRobotPosition(PositionDataMsg position)
+    public void addRobotPosition(int robotSys, PositionDataMsg position)
     {
-        PositionDataMsg lastPosition = robotPosition.lastElement();
-        
+    	position.var.x = robotSys;
+    	PositionDataMsg lastPosition = new PositionDataMsg();
+
+    	for (int i = robotPosition.size()-1; i >= 0; i--)
+        {
+        	lastPosition = robotPosition.elementAt(i);
+        	
+        	if (lastPosition.var.x == robotSys)
+        	{
+                break;
+        	}
+        }
+
         if((position.recordingTime > lastPosition.recordingTime) ||
                 robotPosition.isEmpty());
         {
             // add new position data
             robotPosition.add(position);
             
-            while(robotPosition.size() > 50)
+            while(robotPosition.size() > systemNumMax * 50)
             {
                 robotPosition.removeElementAt(0);
             }
@@ -383,9 +418,17 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     
     public void repaint()
     {
-        PositionDataMsg position;
-
-        position = robotPosition.lastElement();
+        PositionDataMsg position = new PositionDataMsg();
+       
+    	for (int i = robotPosition.size()-1; i >= 0; i--)
+        {
+        	position = robotPosition.elementAt(i);
+        	
+        	if (position.var.x == currRobotSys)
+        	{
+                break;
+        	}
+        }        
         
         Position2d worldCenter;
         if(chaseButton.isSelected())
@@ -449,82 +492,84 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             {
                 PositionDataMsg position;
                 
-                if(positionProxy != null)
-                {   
-                    position = positionProxy.getData(); 
-                    if(position != null)
-                    {
-                        //mapComponent.zoomInAction(1,3);
-                        //System.out.println("Zoom level: " + mapComponent.zoomRange);
-                        if(usingMultipleImages)
-                        {
-                            int i;
-                            for(i = 0;i<resLevels; i++)
-                            {
-                                workingResLevel = i;
-                                if(mapComponent.zoomRange < zoomLevels[i])
-                                {
-                                    break;
-                                }
-                                    
-                            }
-                            
-                            if(res_change = (oldWorkingResLevel != workingResLevel))
-                            {                                                                                  
-                                ReadLocalInfo(workingResLevel);
-                                oldWorkingResLevel = workingResLevel;
-                                System.out.println("Working Res Level: " + workingResLevel);
-                                System.out.println("Zoom level: " + mapComponent.zoomRange);
-
-                            };
-                            oldZoom = mapComponent.zoomRange;
-
-                            actRowCol = PositionToRowCol(mapComponent.getViewPortCenter().x, mapComponent.getViewPortCenter().y);
-
-                            if((actRowCol[0] != oldRowCol[0]) | (actRowCol[1] != oldRowCol[1]) | res_change)
-                            {
-                                res_change = false;
-                                try
-                                {
-                                    File file = new File(rowColToImageString(actRowCol));
-                                    System.out.println("Image File: " + rowColToImageString(actRowCol));
-                                    bgImg = ImageIO.read(file);
-
-                                }
-                                catch(Exception e)
-                                {
-                                    System.out.println("Error reading image file "+rowColToImageString(actRowCol));    
-                                }
-                                bgW = (int)( bgImg.getWidth() * 1000.0 * Math.abs(resY)) +500;
-                                bgH = (int)(bgImg.getHeight() * 1000.0 * Math.abs(resX));
-
-                                double d_row = (double)actRowCol[0]; //needed for avoiding rounding errors
-                                double d_col = (double)actRowCol[1]; //needed for avoiding rounding errors
-                                int ovlH_mm  = (int)(ovlH*1000.0*Math.abs(resY));
-                                int ovlW_mm  = (int)(ovlW*1000.0*Math.abs(resX));
-
-                                bgX = (int)( (rows - d_row - 1.0)*rowH*Math.abs(resY) )*1000 - ovlH_mm;
-                                bgX = Math.max(bgX,0);
-                                bgX = bgX + bgH/2;
-
-                                bgY = (int)( d_col*colW*Math.abs(resX)*1000.0) - ovlW_mm;
-                                bgY = Math.max(bgY,0);
-                                bgY = bgY + bgW/2;
-
-                                mapComponent.setBackgroundImage(0, bgImg, bgX+offsetX, bgY+offsetY, bgW, bgH, bgBicubic);
-                            }
-                            oldRowCol = actRowCol;
-                            if(!mapComponent.imageFillsFrame())
-                            {
-                                oldWorkingResLevel = workingResLevel;
-                                workingResLevel++;
-                            }
-                            /*else
-                                break;*/
-                            
-                        }
-
-                        addRobotPosition(position);
+                for (int i = 0; i < systemNumMax; i++)
+                {
+                	if(positionProxy[i] != null)
+                	{   
+                		position = positionProxy[i].getData();
+                		if(position != null)
+                		{
+	                        //mapComponent.zoomInAction(1,3);
+	                        //System.out.println("Zoom level: " + mapComponent.zoomRange);
+	                        if(usingMultipleImages)
+	                        {
+	                            int j;
+	                            for(j = 0;j<resLevels; j++)
+	                            {
+	                                workingResLevel = j;
+	                                if(mapComponent.zoomRange < zoomLevels[j])
+	                                {
+	                                    break;
+	                                }
+	                                    
+	                            }
+	                            
+	                            if(res_change = (oldWorkingResLevel != workingResLevel))
+	                            {                                                                                  
+	                                ReadLocalInfo(workingResLevel);
+	                                oldWorkingResLevel = workingResLevel;
+	                                System.out.println("Working Res Level: " + workingResLevel);
+	                                System.out.println("Zoom level: " + mapComponent.zoomRange);
+	
+	                            };
+	                            oldZoom = mapComponent.zoomRange;
+	
+	                            actRowCol = PositionToRowCol(mapComponent.getViewPortCenter().x, mapComponent.getViewPortCenter().y);
+	
+	                            if((actRowCol[0] != oldRowCol[0]) | (actRowCol[1] != oldRowCol[1]) | res_change)
+	                            {
+	                                res_change = false;
+	                                try
+	                                {
+	                                    File file = new File(rowColToImageString(actRowCol));
+	                                    System.out.println("Image File: " + rowColToImageString(actRowCol));
+	                                    bgImg = ImageIO.read(file);
+	
+	                                }
+	                                catch(Exception e)
+	                                {
+	                                    System.out.println("Error reading image file "+rowColToImageString(actRowCol));    
+	                                }
+	                                bgW = (int)( bgImg.getWidth() * 1000.0 * Math.abs(resY)) +500;
+	                                bgH = (int)(bgImg.getHeight() * 1000.0 * Math.abs(resX));
+	
+	                                double d_row = (double)actRowCol[0]; //needed for avoiding rounding errors
+	                                double d_col = (double)actRowCol[1]; //needed for avoiding rounding errors
+	                                int ovlH_mm  = (int)(ovlH*1000.0*Math.abs(resY));
+	                                int ovlW_mm  = (int)(ovlW*1000.0*Math.abs(resX));
+	
+	                                bgX = (int)( (rows - d_row - 1.0)*rowH*Math.abs(resY) )*1000 - ovlH_mm;
+	                                bgX = Math.max(bgX,0);
+	                                bgX = bgX + bgH/2;
+	
+	                                bgY = (int)( d_col*colW*Math.abs(resX)*1000.0) - ovlW_mm;
+	                                bgY = Math.max(bgY,0);
+	                                bgY = bgY + bgW/2;
+	
+	                                mapComponent.setBackgroundImage(0, bgImg, bgX+offsetX, bgY+offsetY, bgW, bgH, bgBicubic);
+	                            }
+	                            oldRowCol = actRowCol;
+	                            if(!mapComponent.imageFillsFrame())
+	                            {
+	                                oldWorkingResLevel = workingResLevel;
+	                                workingResLevel++;
+	                            }
+	                            /*else
+	                                break;*/
+	                            
+	                        }
+	                        addRobotPosition(i, position);
+                		}
                     }
                 }
                 
@@ -556,8 +601,11 @@ public class MapViewGui extends GuiElement implements MapViewInterface
 
     public synchronized void paintMapView(MapViewGraphics mvg)
     {
-        Graphics2D rg = mvg.getRobotGraphics();
-        paintRobot(rg);
+    	for (int i = 0; i < systemNumMax; i++)
+    	{
+    		Graphics2D rg = mvg.getRobotGraphics(i);
+    		paintRobot(rg, i);
+    	}
     }
 
     public void mapViewActionPerformed(MapViewActionEvent event)
@@ -574,7 +622,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         		{
         			Position3d position = new Position3d(event.getWorldCursorPos());
 
-        			positionProxy.update(new PositionDataMsg(position));
+        			positionProxy[0].update(new PositionDataMsg(position));
         		}
         	}
         }
@@ -584,35 +632,40 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         //}
     }
 
-    protected void paintRobot(Graphics2D g)
+    protected void paintRobot(Graphics2D g, int robotSys)
     {
-        int chassisWidth = chassisParam.boundaryLeft + chassisParam.boundaryRight;
-        int chassisLength = chassisParam.boundaryBack + chassisParam.boundaryFront;
+        int chassisWidth  = chassisParam[robotSys].boundaryLeft + 
+        				    chassisParam[robotSys].boundaryRight;
+        int chassisLength = chassisParam[robotSys].boundaryBack + 
+        					chassisParam[robotSys].boundaryFront;
 
         g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(-chassisParam.boundaryBack - chassisParam.safetyMargin,
-                   -chassisParam.boundaryLeft - chassisParam.safetyMargin,
-                   chassisLength + 2 * chassisParam.safetyMargin + chassisParam.safetyMarginMove,
-                   chassisWidth + 2 * chassisParam.safetyMargin);
+        g.fillRect(-chassisParam[robotSys].boundaryBack - 
+        			chassisParam[robotSys].safetyMargin,
+                   -chassisParam[robotSys].boundaryLeft - 
+                    chassisParam[robotSys].safetyMargin,
+                    chassisLength + 2 * chassisParam[robotSys].safetyMargin + 
+                    chassisParam[robotSys].safetyMarginMove,
+                    chassisWidth + 2 * chassisParam[robotSys].safetyMargin);
 
         g.setColor(Color.GRAY);
-        g.fillRect(-chassisParam.boundaryBack,
-                   -chassisParam.boundaryLeft,
-                   chassisLength, chassisWidth);
+        g.fillRect(-chassisParam[robotSys].boundaryBack,
+                   -chassisParam[robotSys].boundaryLeft,
+                    chassisLength, chassisWidth);
 
         g.setColor(Color.BLACK);
-        g.drawRect(-chassisParam.boundaryBack,
-                   -chassisParam.boundaryLeft,
-                   chassisLength, chassisWidth);
+        g.drawRect(-chassisParam[robotSys].boundaryBack,
+                   -chassisParam[robotSys].boundaryLeft,
+                    chassisLength, chassisWidth);
         g.drawLine(0,
-                   -chassisParam.boundaryLeft,
-                   chassisParam.boundaryFront,
-                   0);
+                   -chassisParam[robotSys].boundaryLeft,
+                    chassisParam[robotSys].boundaryFront,
+                    0);
         
-        g.drawLine(chassisParam.boundaryFront,
+        g.drawLine(chassisParam[robotSys].boundaryFront,
                    0,
                    0,
-                   chassisParam.boundaryRight);
+                   chassisParam[robotSys].boundaryRight);
     }
 
     public class MapViewMouseListener extends MouseAdapter implements MouseMotionListener, MouseWheelListener
@@ -838,7 +891,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             PositionGkDataMsg posGK = new PositionGkDataMsg();
             posGK.easting  = origTfwX * 1000.0;
             posGK.northing = origTfwY * 1000.0;
-            position = positionProxy.gkToPos(posGK);
+            position = positionProxy[0].gkToPos(posGK);
         
             if (position != null)
             {

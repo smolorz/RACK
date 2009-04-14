@@ -81,7 +81,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         int i;
         for(i = 0; i < 4; i++)
         {
-            if(mainGui.getGuiElement(RackName.GPS, i) == null)
+            if(mainGui.getGuiElement(RackName.GPS, guiElement.getSystem(), i) == null)
             {
                 break;
             }
@@ -90,7 +90,7 @@ public class PositionGui extends RackModuleGui implements MapViewInterface
         gpsName = new String[i];
         for(i = 0; i < gpsProxy.length; i++)
         {
-            GuiElementDescriptor ge = mainGui.getGuiElement(RackName.GPS, i);
+            GuiElementDescriptor ge = mainGui.getGuiElement(RackName.GPS, guiElement.getSystem(), i);
             gpsProxy[i] = (GpsProxy)ge.getProxy();
             gpsName[i] = ge.getName();
         }

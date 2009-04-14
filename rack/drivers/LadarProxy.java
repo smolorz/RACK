@@ -20,9 +20,9 @@ import rack.main.tims.*;
 
 public class LadarProxy extends RackDataProxy
 {
-    public LadarProxy(int id, TimsMbx replyMbx)
+    public LadarProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.LADAR, id), replyMbx, 500);
+        super(RackName.create(system, RackName.LADAR, instance, 0), replyMbx, 500);
     }
 
     public synchronized LadarDataMsg getData(int recordingTime)

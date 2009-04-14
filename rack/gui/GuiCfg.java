@@ -137,6 +137,7 @@ public class GuiCfg
                             newElement.group = currentGroup;
                             newElement.workspace = currentWorkspace; 
 
+                            getSystem(newElement);
                             getGuiProxyClass(newElement);
                             getName(newElement);
 
@@ -284,6 +285,16 @@ public class GuiCfg
         cfgWriter.close();
     }
 
+    private void getSystem(GuiElementDescriptor ge)
+    {
+        String param = ge.getParameter("system");
+
+        if (param.length() > 0)
+            ge.system = Integer.parseInt(param);
+        else
+            ge.system = 0;        
+    }
+    
     private void getName(GuiElementDescriptor ge)
     {
         // erstmal sehen, ob der parameter "-name=..." in der gui.cfg benutzt
@@ -304,7 +315,7 @@ public class GuiCfg
 
         if(ge.instance >= 0)
         {
-            ge.name = ge.name + "(" + ge.instance + ")";
+            ge.name = ge.name + "(" + ge.system + "/" + ge.instance + ")";
         }
     }
 
@@ -328,7 +339,7 @@ public class GuiCfg
                     ge.proxyClass = ge.proxyClass.replaceAll("gui.", "");
                 }
             }
-            System.out.println("ProxyClass: " + ge.proxyClass + " Instance: " + ge.instance);
+            System.out.println("ProxyClass: " + ge.proxyClass + " System: " + ge.system + " Instance: " + ge.instance);
         }
         catch (NumberFormatException e)
         {

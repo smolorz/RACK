@@ -91,9 +91,10 @@ public class RackName
 
     public static String nameString(int rackName)
     {
-        int instanceId = RackName.instanceId(rackName);
+        int systemId   = RackName.systemId(rackName);
+    	int instanceId = RackName.instanceId(rackName);
         
-        return classString(rackName) + "(" + instanceId + ")";
+        return classString(rackName) + "(" + systemId + "/" + instanceId + ")";
     }
 
     public static String string(int rackName)

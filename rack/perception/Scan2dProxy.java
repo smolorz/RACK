@@ -25,9 +25,9 @@ import rack.main.tims.*;
 
 public class Scan2dProxy extends RackDataProxy
 {
-    public Scan2dProxy(int id, TimsMbx replyMbx)
+    public Scan2dProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.SCAN2D, id), replyMbx, 2500);
+        super(RackName.create(system, RackName.SCAN2D, instance, 0), replyMbx, 2500);
     }
 
     public synchronized Scan2dDataMsg getData(int recordingTime)

@@ -36,6 +36,7 @@ public class GuiElementDescriptor
     GuiElement             gui;
 
     RackProxy              proxy;
+    int					   system     = -1;
     int                    instance   = -1;
     int                    status     = Tims.MSG_NOT_AVAILABLE;
     TimsMbx                replyMbx;
@@ -71,6 +72,11 @@ public class GuiElementDescriptor
     public RackProxy getProxy()
     {
         return proxy;
+    }
+    
+    public int getSystem()
+    {
+        return system;
     }
     
     public int getInstance()

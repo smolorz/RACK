@@ -1,2 +1,5 @@
 rack/build
+*.class
+.project
+.classpath
 

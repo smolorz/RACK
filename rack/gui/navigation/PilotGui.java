@@ -309,7 +309,7 @@ public class PilotGui extends RackModuleGui implements MapViewInterface
         }        
 
         // draw current robot movement
-        g = mvg.getRobotGraphics();        
+        g = mvg.getRobotGraphics(0, ge.getSystem());        
         g.setStroke(new BasicStroke(100.0f));        
         g.setColor(Color.GREEN);
 

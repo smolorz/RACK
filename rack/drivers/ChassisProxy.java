@@ -35,9 +35,9 @@ public class ChassisProxy extends RackDataProxy
 
     public static final byte INVAL_PILOT = -1;
 
-    public ChassisProxy(int id, TimsMbx replyMbx)
+    public ChassisProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.CHASSIS, id), replyMbx, 500);
+        super(RackName.create(system, RackName.CHASSIS, instance, 0), replyMbx, 500);
     }
 
     public synchronized ChassisDataMsg getData(int recordingTime)

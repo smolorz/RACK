@@ -57,6 +57,7 @@ public class JoystickSoftware extends RackDataModuleGui
     protected JPanel pilotPanel;
     protected JButton pilotButton[];
     
+    protected int          chassisSys;
     protected int          chassisInst;
     protected ChassisProxy chassisProxy;
     protected PilotProxy[] pilotProxy;
@@ -68,18 +69,24 @@ public class JoystickSoftware extends RackDataModuleGui
 
         joystickProxy = (JoystickProxy)proxy;
 
-        String param = ge.getParameter("chassisInst");
+        String param = ge.getParameter("chassisSys");
+        if (param.length() > 0)
+            chassisSys = Integer.parseInt(param);
+        else
+            chassisSys = 0;
+
+        param = ge.getParameter("chassisInst");
         if (param.length() > 0)
             chassisInst = Integer.parseInt(param);
         else
             chassisInst = 0;
         
-        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, chassisInst);
+        chassisProxy = (ChassisProxy) mainGui.getProxy(RackName.CHASSIS, chassisSys, chassisInst);
 
         int i;
         for(i = 0; i < 8; i++)
         {
-            if(mainGui.getGuiElement(RackName.PILOT, i) == null)
+            if(mainGui.getGuiElement(RackName.PILOT, ge.getSystem(), i) == null)
             {
                 break;
             }
@@ -88,7 +95,7 @@ public class JoystickSoftware extends RackDataModuleGui
         pilotName = new String[i];
         for(i = 0; i < pilotProxy.length; i++)
         {
-            GuiElementDescriptor ge = mainGui.getGuiElement(RackName.PILOT, i);
+            GuiElementDescriptor ge = mainGui.getGuiElement(RackName.PILOT, guiElement.getSystem(), i);
             pilotProxy[i] = (PilotProxy)ge.getProxy();
             pilotName[i] = ge.getName();
         }
@@ -403,7 +410,7 @@ public class JoystickSoftware extends RackDataModuleGui
         if((pilot >= 0) && (chassisProxy != null))
         {
             chassisProxy.on();
-            chassisProxy.setActivePilot(RackName.create(RackName.PILOT, pilot));
+            chassisProxy.setActivePilot(RackName.create(chassisSys, RackName.PILOT, pilot, 0));
         }
         else
         {

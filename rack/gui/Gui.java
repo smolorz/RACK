@@ -211,6 +211,19 @@ public final class Gui extends Thread
     //
     // public interface
     //
+    public GuiElementDescriptor getGuiElement(int moduleName, int system, int instance)
+    {
+        for(int i = 0; i < elements.size(); i++)
+        {
+            GuiElementDescriptor ge = elements.get(i);
+            
+            if((ge.proxy != null) && (ge.proxy.getCommandMbx() == RackName.create(system, moduleName, instance, 0)))
+            {
+                return ge;
+            }
+        }
+        return null;
+    }
     
     public GuiElementDescriptor getGuiElement(int moduleName, int instance)
     {
@@ -226,14 +239,29 @@ public final class Gui extends Thread
         return null;
     }
 
+
     public Vector<GuiElementDescriptor> getGuiElements()
     {
         return elements;
     }
 
+    public RackProxy getProxy(int moduleName, int system, int instance)
+    {
+        GuiElementDescriptor ge = getGuiElement(moduleName, system, instance);
+        
+        if(ge != null)
+        {
+            return ge.proxy;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
     public RackProxy getProxy(int moduleName, int instance)
     {
-        GuiElementDescriptor ge = getGuiElement(moduleName, instance);
+        GuiElementDescriptor ge = getGuiElement(moduleName, 0, instance);
         
         if(ge != null)
         {
@@ -359,7 +387,7 @@ public final class Gui extends Thread
             try
             {
                 inst = (int)(Math.random() * 255.0);
-                getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, 0));
+                getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst));
                 break;
             }
             catch (TimsException e)
@@ -435,14 +463,16 @@ public final class Gui extends Thread
             throw e;
         }
         
-        Class<?>[] proxyConstrArgsTypes = new Class<?>[2];
-        Object[] proxyConstrArgs = new Object[2];
+        Class<?>[] proxyConstrArgsTypes = new Class<?>[3];
+        Object[] proxyConstrArgs = new Object[3];
 
         proxyConstrArgsTypes[0] = int.class;
-        proxyConstrArgs[0] = new Integer(ge.instance);
-        proxyConstrArgsTypes[1] = TimsMbx.class;
-        proxyConstrArgs[1] = ge.replyMbx;
-
+        proxyConstrArgs[0] = new Integer(ge.system);
+        proxyConstrArgsTypes[1] = int.class;
+        proxyConstrArgs[1] = new Integer(ge.instance);
+        proxyConstrArgsTypes[2] = TimsMbx.class;
+        proxyConstrArgs[2] = ge.replyMbx;
+        
         try
         {
             ge.proxy = (RackProxy) rackProxyClass.getConstructor(proxyConstrArgsTypes)

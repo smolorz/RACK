@@ -175,7 +175,7 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
         if (scan2dData == null)
             return;
 
-        Graphics2D g = mvg.getRobotGraphics(scan2dData.recordingTime);
+        Graphics2D g = mvg.getRobotGraphics(scan2dData.recordingTime, ge.getSystem());
 
         for (int i = 0; i < scan2dData.pointNum; i++) {
             ScanPoint point = scan2dData.point[i];
@@ -229,6 +229,7 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
 	                    g.setColor(Color.PINK);
 	                    break;
                 }
+                g.setColor(Color.BLUE);
             }
 
             // draw scanpoints in mm

@@ -32,9 +32,9 @@ public class DatalogProxy extends RackDataProxy
     public static final byte MSG_DATALOG_LOG_STATUS =
         RackProxy.MSG_NEG_OFFSET - 3;
 
-    public DatalogProxy(int id, TimsMbx replyMbx)
+    public DatalogProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.DATALOG, id), replyMbx, 1000);
+        super(RackName.create(system, RackName.DATALOG, instance, 0), replyMbx, 1000);
     }
     
     public synchronized DatalogDataMsg getData(int recordingTime)

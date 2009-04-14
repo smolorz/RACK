@@ -37,7 +37,7 @@ public class Waypoint2d
 
     static public int getDataLen()
     {
-        return (84);
+        return (48);
     }
 
     public Waypoint2d()

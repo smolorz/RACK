@@ -21,9 +21,9 @@ import rack.main.tims.*;
 public class GpsProxy extends RackDataProxy
 {
 
-    public GpsProxy(int id, TimsMbx replyMbx)
+    public GpsProxy(int system, int instance, TimsMbx replyMbx)
     {
-        super(RackName.create(RackName.GPS, id), replyMbx, 1000);
+        super(RackName.create(system, RackName.GPS, instance, 0), replyMbx, 1000);
     }
 
     public synchronized GpsDataMsg getData(int recordingTime)
