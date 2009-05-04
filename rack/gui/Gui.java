@@ -467,7 +467,7 @@ public final class Gui extends Thread
         Object[] proxyConstrArgs = new Object[3];
 
         proxyConstrArgsTypes[0] = int.class;
-        proxyConstrArgs[0] = new Integer(ge.system);
+        proxyConstrArgs[0] = new Integer(ge.systemId);
         proxyConstrArgsTypes[1] = int.class;
         proxyConstrArgs[1] = new Integer(ge.instance);
         proxyConstrArgsTypes[2] = TimsMbx.class;
