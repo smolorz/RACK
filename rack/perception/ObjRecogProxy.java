@@ -25,9 +25,9 @@ public class ObjRecogProxy extends RackDataProxy
   public static final byte MSG_SET_ESTIMATE =
         RackProxy.MSG_POS_OFFSET + 1;
     
-  public ObjRecogProxy(int system, int instance, TimsMbx replyMbx)
+  public ObjRecogProxy(int systemId, int instance, TimsMbx replyMbx)
   {
-    super(RackName.create(system, RackName.OBJ_RECOG, instance, 0), replyMbx, 2500);
+    super(RackName.create(systemId, RackName.OBJ_RECOG, instance, 0), replyMbx, 2500);
   }
 
   public synchronized ObjRecogDataMsg getData(int recordingTime)

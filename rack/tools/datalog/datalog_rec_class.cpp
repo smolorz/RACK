@@ -1041,190 +1041,190 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logNum = 0;
     num = data->logNum;
 
-    data->logInfo[num].moduleMbx  = RackName::create(system, CAMERA, 0);
+    data->logInfo[num].moduleMbx  = RackName::create(systemId, CAMERA, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_0.dat");
     data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, CAMERA, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CAMERA, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_1.dat");
     data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, CAMERA, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CAMERA, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_2.dat");
     data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, CAMERA, 3);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CAMERA, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "camera_3.dat");
     data->logInfo[num].maxDataLen = sizeof(camera_data) + CAMERA_MAX_BYTES;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, CHASSIS, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CHASSIS, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "chassis_0.dat");
     data->logInfo[num].maxDataLen = sizeof(chassis_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, GPS, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, GPS, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_0.dat");
     data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, GPS, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, GPS, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_1.dat");
     data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, GPS, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, GPS, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_2.dat");
     data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, GPS, 3);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, GPS, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_3.dat");
     data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, LADAR, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, LADAR, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_0.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
                                     sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, LADAR, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, LADAR, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_1.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
                                     sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, LADAR, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, LADAR, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_2.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
                                     sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, LADAR, 3);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, LADAR, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_3.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
                                     sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, ODOMETRY, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, ODOMETRY, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_0.dat");
     data->logInfo[num].maxDataLen = sizeof(odometry_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, ODOMETRY, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, ODOMETRY, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_1.dat");
     data->logInfo[num].maxDataLen = sizeof(odometry_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, ODOMETRY, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, ODOMETRY, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_2.dat");
     data->logInfo[num].maxDataLen = sizeof(odometry_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, PILOT, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, PILOT, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_0.dat");
     data->logInfo[num].maxDataLen = sizeof(pilot_data) +
                                     sizeof(polar_spline) * PILOT_DATA_SPLINE_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, PILOT, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, PILOT, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_1.dat");
     data->logInfo[num].maxDataLen = sizeof(pilot_data) +
                                     sizeof(polar_spline) * PILOT_DATA_SPLINE_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, PILOT, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, PILOT, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "pilot_2.dat");
     data->logInfo[num].maxDataLen = sizeof(pilot_data) +
                                     sizeof(polar_spline) * PILOT_DATA_SPLINE_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, POSITION, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, POSITION, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "position_0.dat");
     data->logInfo[num].maxDataLen = sizeof(position_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, POSITION, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, POSITION, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "position_1.dat");
     data->logInfo[num].maxDataLen = sizeof(position_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, POSITION, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, POSITION, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "position_2.dat");
     data->logInfo[num].maxDataLen = sizeof(position_data);
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, OBJ_RECOG, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, OBJ_RECOG, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_0.dat");
     data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
                                     sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, OBJ_RECOG, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, OBJ_RECOG, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_1.dat");
     data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
                                     sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, OBJ_RECOG, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, OBJ_RECOG, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_2.dat");
     data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
                                     sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, OBJ_RECOG, 3);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, OBJ_RECOG, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_3.dat");
     data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
                                     sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, OBJ_RECOG, 4);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, OBJ_RECOG, 4);
     snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_4.dat");
     data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
                                     sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, OBJ_RECOG, 5);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, OBJ_RECOG, 5);
     snprintf((char *)data->logInfo[num].filename, 40, "obj_recog_5.dat");
     data->logInfo[num].maxDataLen = sizeof(obj_recog_data) +
                                     sizeof(obj_recog_object) * OBJ_RECOG_OBJECT_MAX;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, SCAN2D, 0);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_0.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, SCAN2D, 1);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 1);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_1.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, SCAN2D, 2);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_2.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, SCAN2D, 3);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 3);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_3.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, SCAN2D, 4);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 4);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_4.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
-    data->logInfo[num].moduleMbx = RackName::create(system, SCAN2D, 5);
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 5);
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_5.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
