@@ -204,7 +204,7 @@ class RackModule {
 // module values
 //
     protected:
-        uint32_t  system;        // system number
+        uint32_t  systemId;      // system number
         uint32_t  instance;      // instance number
         uint32_t  name;          // module name (12345678) == cmdMbxAdr
 
@@ -224,7 +224,7 @@ class RackModule {
         /** Get system of the module */
         uint32_t getSystem(void)
         {
-            return system;
+            return systemId;
         }
 
         /** Get instance number of the module */
