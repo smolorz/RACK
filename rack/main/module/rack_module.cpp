@@ -354,7 +354,7 @@ RackModule::RackModule( uint32_t classId,
 {
     // get instance from module_argTab
     instance                  = getIntArg("instance", module_argTab);
-    system                    = getIntArg("system", module_argTab);
+    systemId                  = getIntArg("system", module_argTab);
     gdosLevel                 = GDOS_MSG_DEBUG_BEGIN - getIntArg("gdosLevel", module_argTab);
     cmdTaskPrio               = getIntArg("cmdTaskPrio", module_argTab);
     dataTaskPrio              = getIntArg("dataTaskPrio", module_argTab);
@@ -364,7 +364,7 @@ RackModule::RackModule( uint32_t classId,
         cpu = 0;
     }
 
-    name                      = RackName::create(system, classId, instance);
+    name                      = RackName::create(systemId, classId, instance);
 
     mailboxBaseAdr            = name;
     mailboxFreeAdr            = name + 1;
@@ -761,7 +761,7 @@ int       RackModule::moduleInit(void)
 
     // create command task
     snprintf(cmdTaskName, sizeof(cmdTaskName), "%.28s%u%uC", classname,
-             (unsigned int)system, (unsigned int)instance);
+             (unsigned int)systemId, (unsigned int)instance);
 
     ret = cmdTask.create(cmdTaskName, 0, cmdTaskPrio,
                          RACK_TASK_FPU | RACK_TASK_JOINABLE | RACK_TASK_CPU(cpu));
@@ -774,7 +774,7 @@ int       RackModule::moduleInit(void)
 
     // create data task
     snprintf(dataTaskName, sizeof(dataTaskName), "%.28s%u%uD", classname,
-             (unsigned int)system, (unsigned int)instance);
+             (unsigned int)systemId, (unsigned int)instance);
 
     ret = dataTask.create(dataTaskName, 0, dataTaskPrio,
                           RACK_TASK_FPU | RACK_TASK_JOINABLE | RACK_TASK_CPU(cpu));
