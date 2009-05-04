@@ -290,9 +290,9 @@ public class GuiCfg
         String param = ge.getParameter("system");
 
         if (param.length() > 0)
-            ge.system = Integer.parseInt(param);
+            ge.systemId = Integer.parseInt(param);
         else
-            ge.system = 0;        
+            ge.systemId = 0;        
     }
     
     private void getName(GuiElementDescriptor ge)
@@ -315,7 +315,7 @@ public class GuiCfg
 
         if(ge.instance >= 0)
         {
-            ge.name = ge.name + "(" + ge.system + "/" + ge.instance + ")";
+            ge.name = ge.name + "(" + ge.systemId + "/" + ge.instance + ")";
         }
     }
 
@@ -339,7 +339,7 @@ public class GuiCfg
                     ge.proxyClass = ge.proxyClass.replaceAll("gui.", "");
                 }
             }
-            System.out.println("ProxyClass: " + ge.proxyClass + " System: " + ge.system + " Instance: " + ge.instance);
+            System.out.println("ProxyClass: " + ge.proxyClass + " System: " + ge.systemId + " Instance: " + ge.instance);
         }
         catch (NumberFormatException e)
         {
