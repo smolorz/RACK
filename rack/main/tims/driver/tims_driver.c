@@ -2010,14 +2010,11 @@ static int pipe_receive_router_config(RT_PIPE_MSG* recvMsg)
         ret = rtnet_read_config(configMsg);
         if (ret)
         {
-            if (test_and_clear_bit(TIMS_INIT_BIT_RTNET, &init_flags))
-            {
-                rtnet_cleanup();
-                tims_print("RTnet disabled\n");
-            }
+                tims_error("Failed to read configuration\n");
+        } else {
+            set_bit(TIMS_STATE_BIT_RTNET_ENABLED, &td.state_flags);
+            tims_print("RTnet enabled\n");
         }
-        set_bit(TIMS_STATE_BIT_RTNET_ENABLED, &td.state_flags);
-        tims_print("RTnet enabled\n");
     }
     return 0;
 }
