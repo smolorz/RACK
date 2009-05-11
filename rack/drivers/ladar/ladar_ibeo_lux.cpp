@@ -306,10 +306,11 @@ int  LadarIbeoLux::moduleLoop(void)
                         break;
                 }
 
-                if (ladarScanData->point[i].pulseWidth < 100)
+                // special rain filter 
+/*                if (ladarScanData->point[i].pulseWidth < 100)
                 {
                     p_data->point[i].type = LADAR_POINT_TYPE_RAIN;
-                }
+                }*/
             }
             GDOS_DBG_DETAIL("Data recordingtime %i pointNum %i\n",
                             p_data->recordingTime, p_data->pointNum);

@@ -28,6 +28,9 @@ CameraJpeg *p_inst;
 
 argTable_t argTab[] = {
 
+    { ARGOPT_OPT, "cameraSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "camera system", { 0 } },
+
     { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "cameraInst", { 0 } },
 
@@ -53,6 +56,9 @@ argTable_t argTab[] = {
 {
     int ret;
 
+    // get dynamic module parameter
+    quality       = getInt32Param("quality");
+
     GDOS_DBG_DETAIL("Initialising static compression structs \n");
 
     RackTask::disableRealtimeMode();
@@ -62,23 +68,23 @@ argTable_t argTab[] = {
 
     jpeg_stdmem_dest( &cinfo, jpegBuffer );
 
-    GDOS_DBG_DETAIL("Turn on Camera(%d) \n", cameraInst);
+    GDOS_DBG_DETAIL("Turn on Camera(%d/%d) \n", cameraSys, cameraInst);
 
     ret = camera->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Camera(%d), code = %d \n", cameraInst, ret);
+        GDOS_ERROR("Can't turn on Camera(%d/%d), code = %d \n", cameraSys, cameraInst, ret);
         return ret;
     }
-    GDOS_DBG_DETAIL("Camera(%d) has been turned on \n", cameraInst);
+    GDOS_DBG_DETAIL("Camera(%d/%d) has been turned on \n", cameraSys, cameraInst);
 
     //get one image to get all needed parameter
-    GDOS_DBG_DETAIL("Request data from Camera(%d)\n", cameraInst);
+    GDOS_DBG_DETAIL("Request data from Camera(%d/%d)\n", cameraSys, cameraInst);
     ret = camera->getData(&cameraInputMsg.data, sizeof(cameraInputMsg), 0);
     if (ret)
     {
-        GDOS_ERROR("Can't get single data from Camera(%d), "
-                   "code = %d \n", cameraInst, ret);
+        GDOS_ERROR("Can't get single data from Camera(%d/%d), "
+                   "code = %d \n", cameraSys, cameraInst, ret);
         return ret;
     }
 
@@ -91,12 +97,12 @@ argTable_t argTab[] = {
     jpeg_set_quality( &cinfo, quality, TRUE /* limit to baseline-JPEG values */ );
 
 
-    GDOS_DBG_DETAIL("Request continuous data from Camera(%d)\n", cameraInst);
+    GDOS_DBG_DETAIL("Request continuous data from Camera(%d/%d)\n", cameraSys, cameraInst);
     ret = camera->getContData(dataBufferPeriodTime, &cameraMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from Camera(%d), "
-                   "code = %d \n", cameraInst, ret);
+        GDOS_ERROR("Can't get continuous data from Camera(%d/%d), "
+                   "code = %d \n", cameraSys, cameraInst, ret);
         return ret;
     }
 
@@ -128,7 +134,7 @@ int CameraJpeg::moduleLoop(void)
     // get datapointer from rackdatabuffer
     p_data = (camera_data_msg *)getDataBufferWorkSpace();
 
-    GDOS_DBG_INFO("getting data from camera %i\n", cameraInst);
+    GDOS_DBG_INFO("getting data from Camera(%d/%d\n", cameraSys, cameraInst);
 
     // get Camera data
     ret = cameraMbx.peek(&msgInfo);
@@ -276,7 +282,7 @@ int CameraJpeg::moduleInit(void)
     initBits.setBit(INIT_BIT_MBX_CAMERA);
 
     // create Camera Proxy
-    camera = new CameraProxy(&workMbx, 0, cameraInst);
+    camera = new CameraProxy(&workMbx, cameraSys, cameraInst);
     if (!camera)
     {
         ret = -ENOMEM;
@@ -352,8 +358,8 @@ CameraJpeg::CameraJpeg()
                       10)                   // data buffer listener
 {
     // get static module parameter
+    cameraSys     = getIntArg("cameraSys", argTab);
     cameraInst    = getIntArg("cameraInst", argTab);
-    quality       = getIntArg("quality", argTab);
 
     dataBufferMaxDataSize = sizeof(camera_data_msg);
 }

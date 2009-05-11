@@ -11,7 +11,6 @@
  *
  * Authors
  *      Marko Reimer     <reimer@l3s.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 #ifndef __JPEG_DATA_DST_MEM_H__

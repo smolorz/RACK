@@ -131,6 +131,12 @@ int CameraV4L::autoBrightness(camera_data_msg *dataPackage)
 
  int CameraV4L::moduleOn(void)
 {
+    // get dynamic module parameter
+    minHue              = getInt32Param("minHue");
+    maxHue              = getInt32Param("maxHue");
+    gainMult            = getInt32Param("gainMult");
+    autoBrightnessSize  = getInt32Param("autoBrightnessSize");
+
     GDOS_DBG_INFO("camera_v4l on\n");
 
     RackTask::disableRealtimeMode();
@@ -441,10 +447,6 @@ CameraV4L::CameraV4L()
     depth               = getIntArg("depth", argTab);
     mode                = getIntArg("mode", argTab);
     videoId             = getIntArg("videoId", argTab);
-    minHue              = getIntArg("minHue", argTab);
-    maxHue              = getIntArg("maxHue", argTab);
-    gainMult            = getIntArg("gainMult", argTab);
-    autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
 
     dataBufferMaxDataSize   = sizeof(camera_data_msg);
     dataBufferPeriodTime    = 200; // hardcoded in loop!!!

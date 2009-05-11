@@ -478,6 +478,27 @@ ChassisEr1::ChassisEr1()
 {
     // get static module parameter
     serialDev               = getStrArg("serialDev", argTab);
+    param.vxMax             = getIntArg("vxMax", argTab);
+    param.vxMin             = getIntArg("vxMin", argTab);
+    param.accMax            = getIntArg("accMax", argTab);
+    param.decMax            = getIntArg("decMax", argTab);
+    param.omegaMax          = getIntArg("omegaMax", argTab) * M_PI / 180.0;
+    param.minTurningRadius  = getIntArg("minTurningRadius", argTab);
+    param.breakConstant     = (float)getIntArg("breakConstant", argTab) / 100.0f;
+    param.safetyMargin      = getIntArg("safetyMargin", argTab);
+    param.safetyMarginMove  = getIntArg("safetyMarginMove", argTab);
+    param.comfortMargin     = getIntArg("comfortMargin", argTab);
+    param.boundaryFront     = getIntArg("front", argTab);
+    param.boundaryBack      = getIntArg("back", argTab);
+    param.boundaryLeft      = getIntArg("left", argTab);
+    param.boundaryRight     = getIntArg("right", argTab);
+    param.wheelBase         = getIntArg("wheelBase", argTab);
+    param.wheelRadius       = getIntArg("wheelRadius", argTab);
+    param.trackWidth        = getIntArg("trackWidth", argTab);
+    param.pilotParameterA   = (float)getIntArg("pilotParameterA", argTab) / 10000.0f;
+    param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
+    param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
+
 
     dataBufferMaxDataSize   = sizeof(chassis_data);
     dataBufferPeriodTime    = 1000 / SAMPLING_RATE;

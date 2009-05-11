@@ -11,7 +11,6 @@
  *
  * Authors
  *      Marko Reimer     <reimer@l3s.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 package rack.drivers;

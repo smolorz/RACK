@@ -43,6 +43,7 @@ class CameraJpeg : public RackDataModule {
     struct jpeg_error_mgr       jerr;
 
     //variables for parameter
+    int cameraSys;
     int cameraInst;
     int quality;
 

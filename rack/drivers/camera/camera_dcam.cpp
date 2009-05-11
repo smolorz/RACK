@@ -536,6 +536,20 @@ int CameraDcam::setupCaptureFormat7()
     unsigned int uvValue, uuValue;
     int ret;
 
+    // get dynamic module parameter
+    vValue              = getInt32Param("vValue");
+    uValue              = getInt32Param("uValue");
+    minHue              = getInt32Param("minHue");
+    maxHue              = getInt32Param("maxHue");
+    gainMult            = getInt32Param("gainMult");
+    shutterMult         = getInt32Param("shutterMult");
+    autoBrightnessSize  = getInt32Param("autoBrightnessSize");
+    whitebalanceMode    = getInt32Param("whitebalanceMode");
+    whitebalanceRows    = getInt32Param("whitebalanceRows");
+    whitebalanceCols    = getInt32Param("whitebalanceCols");
+    intrParFile         = getStringParam("intrParFile");
+    extrParFile         = getStringParam("extrParFile");
+
     RackTask::disableRealtimeMode();
 
     if (lossRate < 1)
@@ -842,7 +856,7 @@ int CameraDcam::moduleInit(void)
     if((dataBuffer = (char *)malloc( CAMERA_MAX_WIDTH * CAMERA_MAX_WIDTH * 2)) == NULL)
     {
         GDOS_ERROR("Can't allocate output data buffer\n");
-        return ENOMEM;
+        return -ENOMEM;
     }
 
     return 0;
@@ -866,7 +880,7 @@ CameraDcam::CameraDcam()
                       16,                   // command mailbox slots
                       48,                   // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags //## it should be user space
-                      25,                    // max buffer entries
+                      5,                    // max buffer entries
                       10)                   // data buffer listener
 {
     // get static module parameter
@@ -877,20 +891,8 @@ CameraDcam::CameraDcam()
     cameraGuid          = getIntArg("cameraGuid", argTab);
     mode                = getIntArg("mode", argTab);
                         //bytesPerPixel[i]    included in mode
-    vValue              = getIntArg("vValue", argTab);
-    uValue              = getIntArg("uValue", argTab);
-    minHue              = getIntArg("minHue", argTab);
-    maxHue              = getIntArg("maxHue", argTab);
     fps                 = getIntArg("fps", argTab);
-    gainMult            = getIntArg("gainMult", argTab);
-    shutterMult         = getIntArg("shutterMult", argTab);
     lossRate            = getIntArg("lossrate", argTab);
-    autoBrightnessSize  = getIntArg("autoBrightnessSize", argTab);
-    whitebalanceMode    = getIntArg("whitebalanceMode", argTab);
-    whitebalanceRows    = getIntArg("whitebalanceRows", argTab);
-    whitebalanceCols    = getIntArg("whitebalanceCols", argTab);
-    intrParFile         = getStrArg("intrParFile", argTab);
-    extrParFile         = getStrArg("extrParFile", argTab);
 
     if (fps > 10)
         fps = 10;

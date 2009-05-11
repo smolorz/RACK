@@ -11,7 +11,6 @@
  *
  * Authors
  *      Oliver Wulf      <oliver.wulf@web.de>
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
 package rack.gui.navigation;

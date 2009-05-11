@@ -10,7 +10,8 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf      <oliver.wulf@web.de>
+ *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
 package rack.gui.main;
