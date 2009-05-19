@@ -348,7 +348,7 @@ int rtnet_read_config(tims_router_config_msg *configMsg)
         if (!localIp)
         {
             memcpy(&rtnet.mbxRoute[rtnet.mbxRouteNum],
-                   &entry, sizeof(tims_router_mbx_route));
+                   entry, sizeof(tims_router_mbx_route));
 
             tims_info("[RTnet]: add route [%02d]: mbx: %08x - ip: %08x \n",
                       rtnet.mbxRouteNum, entry->mbx, entry->ip);
