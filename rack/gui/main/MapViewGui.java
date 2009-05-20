@@ -62,6 +62,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
     protected boolean                      bgBicubic;
 
     protected int                          systemNumMax;
+    protected int						   positionUpdate;
     protected int						   currRobotSys = 0;
     protected PositionProxy                positionProxy[];
     protected ChassisProxy                 chassisProxy[];
@@ -118,6 +119,16 @@ public class MapViewGui extends GuiElement implements MapViewInterface
             systemNumMax = Integer.parseInt(param);
         else
             systemNumMax = 1;
+        
+        param = ge.getParameter("positionUpdate");
+        if (param.length() > 0)
+        {
+        	positionUpdate = Integer.parseInt(param);
+        }
+        else
+        {
+        	positionUpdate = 0;
+        }
 
         // init arrays
         positionProxy = new PositionProxy[systemNumMax];
@@ -127,7 +138,10 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         // create MapView proxies
         for (int i = 0; i < systemNumMax; i++)
         {
-        	positionProxy[i] = (PositionProxy) mainGui.getProxy(RackName.POSITION, i, 0);
+        	if (positionUpdate == 1)
+        	{
+        		positionProxy[i] = (PositionProxy) mainGui.getProxy(RackName.POSITION, i, 0);
+        	}
         	chassisProxy[i]  = (ChassisProxy)  mainGui.getProxy(RackName.CHASSIS, i, 0);
 
         	// get chassis parameter message
