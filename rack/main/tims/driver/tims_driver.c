@@ -673,8 +673,8 @@ static int tims_sendmsg_global(rtdm_user_info_t *user_info,
     if (test_bit(TIMS_STATE_BIT_RTNET_ENABLED, &td.state_flags))
     {
         ret = rtnet_sendmsg(user_info, msg);
-        if (!ret)    // handled
-            return 0;
+        if (ret >=0 )    // handled
+            return ret;
     }
 
     // no real-time route available -> forward to TCP-client

@@ -89,7 +89,7 @@ int rtnet_sendmsg(rtdm_user_info_t *user_info, const struct msghdr *msg)
 
             tims_dbginfo("%x -> %x, send global message (%d bytes) over RTnet\n",
                          p_head->src, p_head->dest, p_head->msglen);
-            return 0;
+            return ret;
         }
     }
     return -ENODEV;    // destination address not found in table
