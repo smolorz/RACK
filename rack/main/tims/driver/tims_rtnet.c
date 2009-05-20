@@ -76,7 +76,7 @@ int rtnet_sendmsg(rtdm_user_info_t *user_info, const struct msghdr *msg)
             rtnet_msg.msg_flags           = 0;
 
             ret = rtdm_sendmsg(rtnet.fd, &rtnet_msg, 0);
-            if (ret < rtnet_msg.msg_namelen + p_head->msglen)
+            if (ret < p_head->msglen)
             {
                 tims_error("[RTnet]: %x -> %x: Can't forward message, "
                            "type %i, msglen %i. "
