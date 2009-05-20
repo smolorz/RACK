@@ -165,8 +165,6 @@ static int rtnet_recv_message(tims_mbx* p_recv_mbx, tims_msg_head *head)
     }
     else // receive mailbox is in kernelspace
     {
-        struct iovec iov[1];
-
         iov[0].iov_base     = recv_slot->p_head;
         iov[0].iov_len      = recv_bytes;
 
