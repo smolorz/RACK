@@ -147,6 +147,7 @@ static int rtnet_recv_message(tims_mbx* p_recv_mbx, tims_msg_head *head)
             recv_msg.msg_iovlen++;
 
             free_in_page -= akt_copy_size;
+            recv_bytes -= akt_copy_size;
 
             if (!free_in_page)
             {
@@ -180,6 +181,11 @@ static int rtnet_recv_message(tims_mbx* p_recv_mbx, tims_msg_head *head)
         goto recvmsg_error;
     }
 
+/* The following part needs a major rework and is incomplete anyway. As a
+ * temporary workaround we disable it as there should only be a theoretical
+ * need for it.
+ */
+#if 0
     // parse message head
     if (unlikely(iov[0].iov_len < sizeof(tims_msg_head))) // head on two pages
     {
@@ -195,7 +201,7 @@ static int rtnet_recv_message(tims_mbx* p_recv_mbx, tims_msg_head *head)
     {
         tims_parse_head_byteorder((tims_msg_head*)iov[0].iov_base);
     }
-
+#endif
 
 
     tims_put_write_slot(p_recv_mbx, recv_slot);
