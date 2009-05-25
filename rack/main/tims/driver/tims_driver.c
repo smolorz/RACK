@@ -29,7 +29,7 @@
 #include <main/tims/driver/tims_clock.h>
 
 #define DRIVER_AUTHOR   "RACK project team"
-#define DRIVER_VERSION  "0.2.0"
+#define DRIVER_VERSION  "0.2.1"
 #define DRIVER_DESC     "Tiny Messaging Service (TIMS)"
 
 //
