@@ -11,7 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
- *      Sebastian Smolorz <Sebastian.Smolorz@stud.uni-hannover.de>
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *
  */
@@ -29,8 +29,8 @@
 #include <main/tims/driver/tims_clock.h>
 
 #define DRIVER_AUTHOR   "RACK project team"
-#define DRIVER_VERSION  "0.2.1"
-#define DRIVER_DESC     "Tiny Messaging Service (TIMS)"
+#define DRIVER_VERSION  "0.3.0"
+#define DRIVER_DESC     "Tiny Messaging Service (TiMS)"
 
 //
 // state flags
@@ -510,6 +510,42 @@ tims_mbx_slot* tims_get_write_slot(tims_mbx *p_mbx, __s8 prio_new)
     return slot;
 }
 
+/* Messages which are sent over RTnet and are larger than the size of an UDP
+ * packet have to be splitted. This funcion gets a write slot which is already
+ * in the write list and waits for completion. */
+tims_mbx_slot *tims_get_cont_write_slot(tims_mbx *p_mbx, uint32_t src_addr)
+{
+    tims_mbx_slot       *slot = NULL;
+    tims_mbx_slot       *tmp_slot;
+    struct list_head    *list;
+    tims_msg_head       *head;
+    rtdm_lockctx_t      lock_ctx;
+
+    rtdm_lock_get_irqsave(&p_mbx->list_lock, lock_ctx);
+    /* Search for the write slot with the given src address. */
+    if (!list_empty(&p_mbx->write_list)) {
+        list = p_mbx->write_list.next;
+        do {
+            tmp_slot = list_entry(list, tims_mbx_slot, mbx_list);
+            head = (void *)tmp_slot->p_head_map;
+
+            if (head->src == src_addr) {
+                slot = tmp_slot;
+                break;
+            }
+            list = list->next;
+        } while (list != &p_mbx->write_list);
+    }
+    rtdm_lock_put_irqrestore(&p_mbx->list_lock, lock_ctx);
+
+    if (!slot)
+        return NULL;
+
+    tims_dbgdetail("[RTnet] Get incomplete write slot 0x%p (0x%lx) in "
+                    "mailbox %08x\n", slot->p_head, slot->p_head_map,
+                    p_mbx->address);
+    return slot;
+}
 
 void tims_put_write_slot(tims_mbx *p_mbx, tims_mbx_slot *slot)
 {
