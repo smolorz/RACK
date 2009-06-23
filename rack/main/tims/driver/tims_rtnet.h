@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2009 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -11,7 +11,7 @@
  *
  * Authors
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
- *      Sebastian Smolorz <Sebastian.Smolorz@stud.uni-hannover.de>
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  *
  */
 #ifndef __TIMS_RTNET_H__
@@ -20,6 +20,7 @@
 #include "tims_driver.h"
 
 #include <net/ip.h>
+#include <linux/udp.h>
 
 typedef struct {
     void    (*func)(struct rtdm_dev_context *, void *);
@@ -42,5 +43,8 @@ typedef struct
     char                    enabled;
     unsigned long           init_flags;
 } tims_rtnet_extension;
+
+#define TIMS_RTNET_MAX_MSG_SIZE (0xFFFF - sizeof(struct iphdr) \
+                                        - sizeof(struct udphdr))
 
 #endif // __TIMS_RTNET_H__
