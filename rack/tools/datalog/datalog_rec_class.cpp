@@ -1230,6 +1230,24 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
     num++;
 
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 6);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_6.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 7);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_7.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(systemId, SCAN2D, 8);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan2d_8.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
+                                    sizeof(scan_point) * SCAN2D_POINT_MAX ;
+    num++;
+
     data->logNum = num;
 }
 
