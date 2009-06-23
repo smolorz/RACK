@@ -161,7 +161,7 @@ class DatalogProxy : public RackDataProxy {
 // WARNING -> look at module class id in constuctor
 //
     DatalogProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
-            : RackDataProxy(workMbx, sys_id, SCAN2D, instance)
+            : RackDataProxy(workMbx, sys_id, DATALOG, instance)
     {
     };
 
