@@ -335,8 +335,10 @@ public class TimsTcp extends Tims
         }
         else
         {
-
-            throw (new TimsException("Can't init mbx " + Integer.toHexString(mbxName) + ". Already initialised"));
+        	if (reply != null)
+        		throw (new TimsException("Can't init mbx " + Integer.toHexString(mbxName) + ". Already initialised. reply="+reply.type));
+        	else
+        		throw (new TimsException("Can't init mbx " + Integer.toHexString(mbxName) + ". Already initialised. reply=null"));        		
         }
         return mbx;
     }
