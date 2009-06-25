@@ -36,7 +36,7 @@ public final class Gui extends Thread
     // global variables
     //
     
-    protected static final int MAX_INST_TRIES = 3;
+    protected static final int MAX_INST_TRIES = 250;
 
     public static int FRAME_STATE_NORMAL    = 0;
     public static int FRAME_STATE_MAX       = 1;
@@ -386,13 +386,14 @@ public final class Gui extends Thread
         {
             try
             {
-                inst = (int)(Math.random() * 255.0);
+                inst = inst + 1;// (int)(Math.random() * 255.0);
+                System.out.println("try to init:"+RackName.create(RackName.GUI, inst) );
                 getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst));
                 break;
             }
             catch (TimsException e)
             {
-                System.out.println(e);
+                System.out.println("Caught exception: "+e);
                 if (instTries == MAX_INST_TRIES - 1)
                 {
                     JOptionPane.showMessageDialog(mainFrameContent,
@@ -405,12 +406,14 @@ public final class Gui extends Thread
         
         try
         {
+        	System.out.println("init (dez) mbx:"+RackName.create(RackName.GUI, inst,0)+"-"+RackName.create(RackName.GUI, inst, elements.size()));
             int j = 0;
             for (int i = 0; i < elements.size(); i++)
             {
                 try
                 {
                     j++;
+                    System.out.println("try to init(sub):"+RackName.create(RackName.GUI, inst,j) );
                     elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
                 catch (TimsException e)
@@ -420,6 +423,7 @@ public final class Gui extends Thread
 						Thread.sleep(1000);
 					} catch (InterruptedException e1) {}
                     j++;
+                    System.out.println("try to init(ssub):"+RackName.create(RackName.GUI, inst,j) );
                     elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
             }
@@ -427,7 +431,7 @@ public final class Gui extends Thread
         catch (TimsException e)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
-                    "Can't create Mailbox\n" + e.getMessage(),
+                    "Can't create (Sub) Mailbox\n" + e.getMessage(),
                     "Tims Exception", JOptionPane.ERROR_MESSAGE);
             throw e;
         }
