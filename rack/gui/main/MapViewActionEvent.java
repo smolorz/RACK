@@ -17,6 +17,7 @@ package rack.gui.main;
 
 import rack.main.AngleTool;
 import rack.main.defines.Position2d;
+import java.awt.event.KeyEvent;
 
 public class MapViewActionEvent
 {
@@ -26,11 +27,13 @@ public class MapViewActionEvent
     public static final int	MOUSE_PRESED_EVENT 		= 3;
     public static final int	MOUSE_CLICKED_EVENT 	= 4;
     public static final int	MOUSE_WHEEL_EVENT 		= 5;
+    public static final int KEY_EVENT               = 6;
     
     protected int eventId;
 	protected String command;
     protected Position2d cursorPosition;
     protected Position2d robotPosition;
+    protected KeyEvent keyEvent;
     
     public MapViewActionEvent(int eventId, String command, Position2d cursorPosition, Position2d robotPosition)
     {
@@ -46,10 +49,22 @@ public class MapViewActionEvent
         this.cursorPosition = cursorPosition;
         this.robotPosition = robotPosition;
     }
+    
+    public MapViewActionEvent(int eventId, KeyEvent keyEvent)
+    {
+    	this.eventId = eventId;
+    	this.keyEvent = keyEvent;
+    	this.command = null;
+    }
 
     public int getEventId()
     {
         return eventId;
+    }
+    
+    public KeyEvent getKeyEvent()
+    {
+    	return keyEvent;
     }
     
     public String getActionCommand()

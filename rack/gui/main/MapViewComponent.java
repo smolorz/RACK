@@ -22,6 +22,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -50,7 +51,8 @@ import rack.navigation.PositionDataMsg;
 
 public class MapViewComponent extends JComponent
 {
-    private static final int           MAX_BACKGROUND_IMAGES = 4;
+	MapViewGui mapViewGui;
+    private static final int           MAX_BACKGROUND_IMAGES = 40;
     private static final long          serialVersionUID      = 1L;
 
     public static double               DEFAULT_ZOOM_FACTOR   = 1.141;
@@ -66,7 +68,7 @@ public class MapViewComponent extends JComponent
     protected double                   centerX;
     protected double                   centerY;
     protected Position2d               worldCenter           = new Position2d();
-    protected AffineTransform          world2frame           = new AffineTransform();
+    protected AffineTransform          worldToFrame          = new AffineTransform();
     
     protected boolean                  showGrid;
     protected boolean                  showCursor;
@@ -98,6 +100,63 @@ public class MapViewComponent extends JComponent
     public double                      zoomRange;            //a public copy of visibleRange
                                
    
+    public MapViewComponent(MapViewGui mapViewGui)
+    {
+    	this.mapViewGui = mapViewGui;
+    	this.setDoubleBuffered(true);
+        this.setBackground(Color.WHITE);
+        this.setPreferredSize(new Dimension(400, 400));
+        this.visibleRange = DEFAULT_VISIBLE_RANGE;
+        this.zoomRange = DEFAULT_VISIBLE_RANGE;
+        this.showGrid = true;
+        this.showCursor = false;
+        this.bgAssigned[0] = false;
+        
+        this.robotPosition = new Vector<PositionDataMsg>();
+        robotPosition.add(new PositionDataMsg());
+        
+        this.addKeyListener(keyListener);
+        this.addMouseListener(mouseListener);
+        this.addMouseMotionListener((MouseMotionListener)mouseListener);
+        this.addMouseWheelListener((MouseWheelListener)mouseListener);
+        
+        zoomInButton = new JButton("zoom in");
+        zoomInButton.addKeyListener(keyListener);
+        zoomInAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                zoomIn(defaultZoomFactor);
+            }
+        };
+        zoomInButton.addActionListener(zoomInAction);
+
+        zoomOutButton = new JButton("zoom out");
+        zoomOutButton.addKeyListener(keyListener);
+        zoomOutAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                zoomOut(defaultZoomFactor);
+            }
+        };
+        zoomOutButton.addActionListener(zoomOutAction);
+        
+        zoomCenterButton = new JButton("center");
+        zoomCenterButton.addKeyListener(keyListener);
+        zoomCenterAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                
+                zoomCenter();
+            }
+        };
+        zoomCenterButton.addActionListener(zoomCenterAction);
+
+        zoomPanel = new JPanel(new GridLayout(1, 0, 4, 2));
+        zoomPanel.add(zoomInButton);
+        zoomPanel.add(zoomOutButton);
+        zoomPanel.add(zoomCenterButton);
+    }
+    
     public MapViewComponent()
     {
         this.setDoubleBuffered(true);
@@ -186,10 +245,18 @@ public class MapViewComponent extends JComponent
     {
         setBackgroundImage(0, bgImg, bgX, bgY, bgW, bgH, bgBicubic);
     }
+    
+    public synchronized void removeBackgroundImage()
+    {
+    	for (int i= 0; i < MAX_BACKGROUND_IMAGES; i++)
+    	{
+    		this.bgAssigned[i] = false;
+    	}
+    }
  
     public void setWorldCenter(Position2d worldCenter)
     {
-        synchronized(world2frame)
+        synchronized(worldToFrame)
         {
             this.worldCenter   = worldCenter;
         }
@@ -211,11 +278,16 @@ public class MapViewComponent extends JComponent
     {
         Position2d cursorPosition = new Position2d();
         
-        cursorPosition = frame2world(getMousePosition());
+        Point mousePosition = getMousePosition();
+        if (mousePosition != null)
+        {
+        	cursorPosition = frame2world(mousePosition);
 
-        cursorRho = AngleTool.normalise(cursorRho);
-        cursorPosition.rho = AngleTool.normalise(cursorRho + worldCenter.rho);
-        return cursorPosition;
+        	cursorRho = AngleTool.normalise(cursorRho);
+        	cursorPosition.rho = AngleTool.normalise(cursorRho + worldCenter.rho);
+        	return cursorPosition;
+        }
+        return null; 
     }
     
     public Position2d getViewPortCenter()
@@ -226,19 +298,39 @@ public class MapViewComponent extends JComponent
         return viewPortCenter;
     }
     
+    public Rectangle getViewPort()
+    {
+    	Point viewPortPoint = new Point();
+    	Position2d viewPortPos = new Position2d();
+    	viewPortPoint.x = 0;
+    	viewPortPoint.y = 0;
+    	viewPortPos = frame2world(viewPortPoint);
+    	Rectangle viewPort = new Rectangle();
+    	viewPort.x = viewPortPos.x;
+    	viewPort.y = viewPortPos.y;
+
+    	viewPortPoint.x = getWidth();
+    	viewPortPoint.y = getHeight();
+    	
+    	viewPortPos = frame2world(viewPortPoint);
+    	viewPort.height = Math.abs(viewPortPos.x - viewPort.x);
+    	viewPort.width  = Math.abs(viewPortPos.y - viewPort.y);
+    	return viewPort;
+    }
+    
     protected Position2d frame2world(Point framePoint)
     {
         Point worldPoint = new Point();
 
-        synchronized(world2frame)
+        synchronized(worldToFrame)
         {
             try
             {
-                world2frame.inverseTransform(framePoint, worldPoint);
+                worldToFrame.inverseTransform(framePoint, worldPoint);
             }
             catch (NoninvertibleTransformException e)
             {
-                world2frame.setToIdentity();
+                worldToFrame.setToIdentity();
             }
         }
         return new Position2d(worldPoint.x, worldPoint.y, 0.0f);
@@ -249,9 +341,9 @@ public class MapViewComponent extends JComponent
         Point worldPoint = new Point(worldPosition.x, worldPosition.y);
         Point framePoint = new Point();
         
-        synchronized(world2frame)
+        synchronized(worldToFrame)
         {
-            world2frame.transform(worldPoint, framePoint);
+            worldToFrame.transform(worldPoint, framePoint);
         }
         
         return framePoint;
@@ -290,13 +382,13 @@ public class MapViewComponent extends JComponent
         Graphics2D frame = (Graphics2D)g.create();
         Graphics2D world = (Graphics2D)g.create();
         
-        synchronized(world2frame)
+        synchronized(worldToFrame)
         {
-            world2frame.setToIdentity();
+            worldToFrame.setToIdentity();
             
-            world2frame.translate((double)getWidth() / 2.0, (double)getHeight() / 2.0);
-            world2frame.translate(centerX, centerY);
-            world2frame.rotate(-Math.PI/2.0);
+            worldToFrame.translate((double)getWidth() / 2.0, (double)getHeight() / 2.0);
+            worldToFrame.translate(centerX, centerY);
+            worldToFrame.rotate(-Math.PI/2.0);
             
             double scale;
             if(getHeight() > getWidth())
@@ -307,12 +399,12 @@ public class MapViewComponent extends JComponent
             {
                 scale = (double)getHeight() / 2.0 / visibleRange;
             }
-            world2frame.scale(scale, scale);
+            worldToFrame.scale(scale, scale);
             
-            world2frame.rotate(-worldCenter.rho);
-            world2frame.translate(-worldCenter.x, -worldCenter.y);
+            worldToFrame.rotate(-worldCenter.rho);
+            worldToFrame.translate(-worldCenter.x, -worldCenter.y);
 
-            world.transform(world2frame);
+            world.transform(worldToFrame);
         }
 
         synchronized(this)
@@ -525,7 +617,7 @@ public class MapViewComponent extends JComponent
     {
         public void keyPressed(KeyEvent e)
         {
-            if (e.getKeyCode() == KeyEvent.VK_UP)
+        	if (e.getKeyCode() == KeyEvent.VK_UP)
             {
                 centerY += 10;
                 repaint();
@@ -585,6 +677,18 @@ public class MapViewComponent extends JComponent
                 }
                 repaint();
             }
+            else
+        	{
+        		MapViewActionEvent actionEvent = new MapViewActionEvent(MapViewActionEvent.KEY_EVENT, e);
+                MapViewInterface mapView;
+
+                synchronized(this)
+                {
+                    int index = mapViewGui.actionMenu.getSelectedIndex();              
+                    mapView = mapViewGui.actionTargets.elementAt(index);
+                }
+        		mapView.mapViewActionPerformed(actionEvent);
+        	}
         }
     };
     
