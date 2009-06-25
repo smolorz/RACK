@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2007 University of Hannover
+ * Copyright (C) 2005-2009 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -14,7 +14,7 @@
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *      Oliver Wulf <oliver.wulf@web.de>
- *
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  */
 #ifndef __TIMS_H__
 #define __TIMS_H__
@@ -50,8 +50,17 @@ typedef struct
 
 #define TIMS_HEADLEN        sizeof(tims_msg_head)
 
+
+/* TiMS flags (first byte of the head) */
 #define TIMS_HEAD_BYTEORDER_LE  0x01
 #define TIMS_BODY_BYTEORDER_LE  0x02
+/* Since RTnet transfers UDP packets TiMS messages larger than 64kbyte must
+ * be split up. These flags tag splitted messages as beginning, following and
+ * ending parts. */
+#define TIMS_RTNET_SPLIT_START  0x04
+#define TIMS_RTNET_SPLIT        0x08
+#define TIMS_RTNET_SPLIT_STOP   (TIMS_RTNET_SPLIT_START | TIMS_RTNET_SPLIT)
+#define TIMS_RTNET_SPLIT_MASK   TIMS_RTNET_SPLIT_STOP
 
 #include <main/tims/tims_api.h>
 

@@ -53,6 +53,10 @@ public class ScanPoint {
         return 20;
     }
 
+    public ScanPoint()
+    {
+    }
+
     /**
      * @param dataIn
      */

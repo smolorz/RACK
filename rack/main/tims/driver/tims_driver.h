@@ -69,6 +69,12 @@ typedef struct
     struct list_head        mbx_list;       // to hold it in free|read|writelist
 
     int                     map_idx;        // start index of page table
+
+    void                    *next_part;
+    unsigned long           next_part_map;
+    int                     next_map_idx;
+    int                     seq_nr;
+
     struct tims_mbx*        p_mbx;          // pointer to mailbox
 } tims_mbx_slot;
 

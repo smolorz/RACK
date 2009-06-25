@@ -30,7 +30,7 @@
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
 
-#define PILOT_DATA_SPLINE_MAX   4
+#define PILOT_DATA_SPLINE_MAX   1000
 
 #define PILOT_HOLD_ENABLED      1
 #define PILOT_HOLD_DISABLED     0
