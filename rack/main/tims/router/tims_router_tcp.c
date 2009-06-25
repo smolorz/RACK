@@ -105,7 +105,7 @@ typedef struct {
     int32_t conIndex;
 } mbx_data_t;
 
-#define MAX_MBX 256
+#define MAX_MBX 1024
 
 mbx_data_t mbxList[MAX_MBX];
 int        mbxNum = 0;
