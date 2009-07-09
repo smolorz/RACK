@@ -20,6 +20,7 @@
 #if defined (__XENO__) || defined (__KERNEL__)
 
 #include <native/mutex.h>
+#include <nucleus/version.h>
 
 /*!
  * \ingroup rackos
@@ -202,7 +203,11 @@ class RackMutex
  */
         int lock(int64_t timeout)
         {
+#if XENO_VERSION_CODE < XENO_VERSION(2,4,90)
             return rt_mutex_lock(&mutex, timeout);
+#else
+            return rt_mutex_acquire(&mutex, timeout);
+#endif
         }
 
         int lock(void)
@@ -240,7 +245,11 @@ class RackMutex
  */
         int unlock(void)
         {
+#if XENO_VERSION_CODE < XENO_VERSION(2,4,90)
             return rt_mutex_unlock(&mutex);
+#else
+            return rt_mutex_release(&mutex);
+#endif
         }
 
 };
