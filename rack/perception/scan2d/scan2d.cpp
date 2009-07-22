@@ -247,7 +247,7 @@ int  Scan2d::moduleLoop(void)
             j = data2D->pointNum;
             data2D->point[j].type      = SCAN_POINT_TYPE_UNKNOWN;
             data2D->point[j].segment   = 0;
-            data2D->point[j].intensity = 0;
+            data2D->point[j].intensity = (int16_t)dataLadar->point[i].intensity;
 
             // type handling
             switch (dataLadar->point[i].type)

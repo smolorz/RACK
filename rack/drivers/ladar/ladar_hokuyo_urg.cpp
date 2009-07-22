@@ -202,7 +202,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
                                                  angleResolution * p_data->pointNum);
 
     GDOS_DBG_DETAIL("pointNum %i, startAngle %a, endAngle %a, angleResolution %a\n",p_data->pointNum,p_data->startAngle,p_data->endAngle, angleResolution);
-    
+
     serialDataLen = 15 + p_data->pointNum * 2 + p_data->pointNum / 32;
 
     ret = serialPort.recv(serialBuffer, serialDataLen, NULL, 5000000000ll);
@@ -227,8 +227,9 @@ int  LadarHokuyoUrg::moduleLoop(void)
             p_data->point[i].distance = 0;
         }
 
-        p_data->point[i].angle = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
-        p_data->point[i].type  = LADAR_POINT_TYPE_UNKNOWN;
+        p_data->point[i].angle     = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
+        p_data->point[i].type      = LADAR_POINT_TYPE_UNKNOWN;
+        p_data->point[i].intensity = 0;
 
         j += 2;
     }

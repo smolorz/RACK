@@ -291,8 +291,9 @@ int  LadarSickS::moduleLoop(void)
         distance = distance & 0x1fff;  // use bits 0-12
         distance = 10 * distance;      // convert cm to mm
 
-        p_data->point[i].distance = distance;
-        p_data->point[i].angle    = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
+        p_data->point[i].distance  = distance;
+        p_data->point[i].angle     = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
+        p_data->point[i].intensity = 0;
     }
 
     putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(ladar_point) * p_data->pointNum);

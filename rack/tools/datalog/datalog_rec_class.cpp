@@ -338,7 +338,8 @@ int DatalogRec::initLogFile()
                     ret = fprintf(fileptr[i], "%% Ladar(%i/%i)\n"
                                   "%% recordingTime duration maxRange"
                                   " startAngle endAngle pointNum"
-                                  " point[0].angle point[0].distance point[0].type\n",
+                                  " point[0].angle point[0].distance point[0].type"
+                                  " point[0].intensity\n",
                                   RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
@@ -545,10 +546,11 @@ int DatalogRec::logData(message_info *msgInfo)
 
                     for (j = 0; j < ladarData->pointNum; j++)
                     {
-                        bytes += fprintf(fileptr[i], " %f %i %i",
+                        bytes += fprintf(fileptr[i], " %f %i %i %i",
                             ladarData->point[j].angle,
                             ladarData->point[j].distance,
-                            ladarData->point[j].type);
+                            ladarData->point[j].type,
+                            ladarData->point[j].intensity);
                     }
 
                     bytes += fprintf(fileptr[i], "\n");
