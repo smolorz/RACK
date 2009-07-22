@@ -278,9 +278,10 @@ int  LadarIbeo::moduleLoop(void)
             p_data->point[pointIndex].distance =
                 (int)((float)distance * 1000.0f / 256.0f);
 
-            p_data->point[pointIndex].angle    = normaliseAngleSym0(p_data->startAngle +
-                                                                    angleResolution * pointIndex);
-            p_data->point[pointIndex].type     = LADAR_POINT_TYPE_UNKNOWN;
+            p_data->point[pointIndex].angle     = normaliseAngleSym0(p_data->startAngle +
+                                                                     angleResolution * pointIndex);
+            p_data->point[pointIndex].type      = LADAR_POINT_TYPE_UNKNOWN;
+            p_data->point[pointIndex].intensity = 0;
 
             profileIdx += 2;
         }

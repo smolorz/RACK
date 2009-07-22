@@ -29,9 +29,10 @@
 //######################################################################
 
 typedef struct {
-    float   angle;
-    int32_t distance;
-    int32_t type;
+    float       angle;
+    int32_t     distance;
+    int32_t     type;
+    int32_t     intensity;
 } __attribute__((packed)) ladar_point;
 
 class LadarPoint {
@@ -42,6 +43,7 @@ class LadarPoint {
             data->angle     = __le32_float_to_cpu(data->angle);
             data->distance  = __le32_to_cpu(data->distance);
             data->type      = __le32_to_cpu(data->type);
+            data->intensity = __le32_to_cpu(data->intensity);
         }
 
         static void be_to_cpu(ladar_point *data)
@@ -49,6 +51,7 @@ class LadarPoint {
             data->angle     = __be32_float_to_cpu(data->angle);
             data->distance  = __be32_to_cpu(data->distance);
             data->type      = __be32_to_cpu(data->type);
+            data->intensity = __be32_to_cpu(data->intensity);
         }
 };
 

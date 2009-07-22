@@ -374,6 +374,8 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
             {
                 data->point[n].type = LADAR_POINT_TYPE_UNKNOWN;
             }
+
+            data->point[n].intensity = 0;
         }
 
         // mm mode 36m, 15bit distance 1Bit reflector
@@ -390,6 +392,8 @@ void LadarSickLms200::analyseLadarData(unsigned char* serialBuffer,
             {
                 data->point[n].type = LADAR_POINT_TYPE_UNKNOWN;
             }
+
+            data->point[n].intensity = 0;
         }
     }
 

@@ -94,7 +94,7 @@ int LadarIbeoLux::moduleOn(void)
         ret = objRecogBound->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on ObjRecogBound(%i/%i), code = %d\n", 
+            GDOS_ERROR("Can't turn on ObjRecogBound(%i/%i), code = %d\n",
                        objRecogBoundSys, objRecogBoundInst, ret);
             return ret;
         }
@@ -119,7 +119,7 @@ int LadarIbeoLux::moduleOn(void)
         ret = objRecogContour->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on ObjRecogBound(%i), code = %d\n", 
+            GDOS_ERROR("Can't turn on ObjRecogBound(%i), code = %d\n",
                        objRecogContourSys, objRecogContourInst, ret);
             return ret;
         }
@@ -306,7 +306,9 @@ int  LadarIbeoLux::moduleLoop(void)
                         break;
                 }
 
-                // special rain filter 
+                p_data->point[i].intensity = 0;
+
+                // special rain filter
 /*                if (ladarScanData->point[i].pulseWidth < 100)
                 {
                     p_data->point[i].type = LADAR_POINT_TYPE_RAIN;
