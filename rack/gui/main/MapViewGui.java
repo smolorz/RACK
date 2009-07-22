@@ -127,7 +127,7 @@ public class MapViewGui extends GuiElement implements MapViewInterface
         }
         else
         {
-        	positionUpdate = 0;
+        	positionUpdate = 1;
         }
 
         // init arrays
