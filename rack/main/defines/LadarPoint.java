@@ -32,11 +32,12 @@ public class LadarPoint {
 	
     public float angle        = 0;    // 4 Bytes
     public int distance       = 0;    // 4 Bytes
-    public int type           = 0;    // 4 Bytes --> 12 Bytes completely
+    public int type           = 0;    // 4 Bytes
+    public int intensity      = 0;    // 4 Bytes --> 16 Bytes completely
     
     static public int getDataLen()
     {
-        return 20;
+        return 16;
     }
 
     /**
@@ -47,6 +48,7 @@ public class LadarPoint {
         angle          = dataIn.readFloat();
         distance       = dataIn.readInt();
         type           = dataIn.readInt();
+        intensity      = dataIn.readInt();
     }
     
     /**
@@ -57,6 +59,7 @@ public class LadarPoint {
         dataOut.writeFloat(angle);
         dataOut.writeInt(distance);
         dataOut.writeInt(type);
+        dataOut.writeInt(intensity);
     }
     
     public String toString()
