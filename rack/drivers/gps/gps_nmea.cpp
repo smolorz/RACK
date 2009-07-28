@@ -261,12 +261,12 @@ int GpsNmea::moduleLoop(void)
                 gpsData.var.psi = INFINITY;
             }
 
+            gpsData.recordingTime = nmea.recordingTime;
             memcpy(p_data, &gpsData, sizeof(gps_data));
             putDataBufferWorkSpace(sizeof(gps_data));
 
             utcTimeOld            = utcTime;
             satelliteNumOld       = gpsData.satelliteNum;
-            gpsData.recordingTime = nmea.recordingTime;
         }
 
         // RMC - Message
