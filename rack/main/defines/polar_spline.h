@@ -20,8 +20,6 @@
 #include <main/defines/position2d.h>
 #include <main/defines/waypoint2d.h>
 
-#define MAX_ROTATION_ANGLE  (350.0 * M_PI / 180.0)
-
 //######################################################################
 //# PolarSpline (static size - no message)
 //######################################################################
@@ -92,7 +90,7 @@ class PolarSpline
             point_2d        point;
             double          x, y, cosRho, sinRho;
             double          a, a2, a3, a4, b, b2;
-            int             r;
+            double          r, r1;
             int             lengthSign, radiusSign;
 
             // transform position into spline coordinate system
@@ -107,35 +105,30 @@ class PolarSpline
 
             // set length sign
             if (spline->length >= 0)
+            {
                 lengthSign = 1;
+            }
             else
+            {
                 lengthSign = -1;
+            }
 
             // set radius sign
             if (spline->radius > 0)
+            {
                 radiusSign = 1;
+            }
             else
+            {
                 radiusSign = -1;
-
+            }
 
             // process curved spline
             if (spline->radius != 0)
             {
-                // calculate longitudinal position
-                double fixedAngle=normaliseAngle(lengthSign * radiusSign * point_2d_polar_angle(point));
-
-                // 360 degree turns are not plausible (wa are not dancing!)
-                if(fixedAngle > MAX_ROTATION_ANGLE){
-                    fixedAngle=0.0;
-                }
-
-                result->x = (int)rint(fabs(spline->radius  * fixedAngle ) * lengthSign);
-
-                /*
-                result->x = (int)rint(fabs(spline->radius *
-                                 normaliseAngle(lengthSign * radiusSign *
-                                               point_2d_polar_angle(point))) * lengthSign);
-                */
+                result->x = (int)rint(fabs((double)spline->radius *
+                                      normaliseAngleSym0((double)lengthSign * (double)radiusSign *
+                                      point_2d_polar_angle(point))) * (double)lengthSign);
 
                 // calculate transversal deviation
                 a = (double)result->x / (double)spline->radius;
@@ -144,17 +137,18 @@ class PolarSpline
                 a3 = a2 * a;
                 a4 = a3 * a;
                 b2 = b  * b;
-                r = (int)rint(spline->radius *
-                              (1.0 + a2/2.0 - a3/b + a4/(2.0*b2)));
-                result->y = r - point_2d_polar_distance(point) * radiusSign;
+                r  = (double)rint(spline->radius *
+                                 (1.0 + a2/2.0 - a3/b + a4/(2.0*b2)));
+                r1 = (double)spline->radius *
+                                 (a - (3.0 * a2 / b) + (2.0 * a3 / b2));
+                result->y = (int)r - point_2d_polar_distance(point) * radiusSign;
 
                 // calculate angle error
                 result->rho = normaliseAngleSym0(position->rho -
-                                            spline->startPos.rho -
-                                           (result->x / (float)spline->radius));
+                                                (spline->startPos.rho + (a - atan(r1/r))));
             }
 
-              // process direct line
+            // process direct line
             else
             {
                 // calculate longitudinal, transversal and angle values
@@ -182,10 +176,13 @@ class PolarSpline
 
             // set radius sign
             if (spline->radius > 0)
+            {
                 radiusSign = 1;
+            }
             else
+            {
                 radiusSign = -1;
-
+            }
 
             // process curved spline
             if (spline->radius != 0)
