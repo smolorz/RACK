@@ -229,7 +229,6 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
 	                    g.setColor(Color.PINK);
 	                    break;
                 }
-                g.setColor(Color.BLUE);
             }
 
             // draw scanpoints in mm
