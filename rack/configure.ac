@@ -694,6 +694,23 @@ if test "$CONFIG_RACK_LADAR_SICK_S" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - LadarSickLms100
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build LadarSickLms100])
+AC_ARG_ENABLE(ladar-sick-lms100,
+    AS_HELP_STRING([--enable-ladar-sick-lms100], [building LadarSickLms100]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_SICK_LMS100=y ;;
+        *) CONFIG_RACK_LADAR_SICK_LMS100=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_SICK_LMS100:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_SICK_LMS100,[test "$CONFIG_RACK_LADAR_SICK_LMS100" = "y"])
+if test "$CONFIG_RACK_LADAR_SICK_LMS100" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_SICK_LMS100,1,[building LadarSickLms100])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - OdometryChassis
 dnl -----------------------------------------------------------------
 

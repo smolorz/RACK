@@ -22,3 +22,7 @@ config RACK_LADAR_SICK_S
     default y
     help
     SICK S300, SICK S3000
+
+config RACK_LADAR_SICK_LMS100
+    bool "Ladar - SickLms100"
+    default y
