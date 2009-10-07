@@ -34,7 +34,7 @@
 #define MODULE_CLASS_ID             DATALOG
 
 #define DATALOG_SMALL_MBX_SIZE_MAX            20*1024  //20Kb
-#define DATALOG_LARGE_MBX_SIZE_MAX        1*1024*1024  //1Mb
+#define DATALOG_LARGE_MBX_SIZE_MAX        5*1024*1024  //5Mb
 
 typedef struct {
     datalog_data         data;
