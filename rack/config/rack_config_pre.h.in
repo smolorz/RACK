@@ -54,6 +54,9 @@
 /* building LadarIbeoLux */
 #undef CONFIG_RACK_LADAR_IBEO_LUX
 
+/* building LadarSickLms100 */
+#undef CONFIG_RACK_LADAR_SICK_LMS100
+
 /* building LadarSickLms200 */
 #undef CONFIG_RACK_LADAR_SICK_LMS200
 

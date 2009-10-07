@@ -21,6 +21,10 @@ if CONFIG_RACK_LADAR_SICK_S
 bin_PROGRAMS +=	LadarSickS
 endif
 
+if CONFIG_RACK_LADAR_SICK_LMS100
+bin_PROGRAMS +=	LadarSickLms100
+endif
+
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
@@ -46,6 +50,9 @@ LadarSickS_SOURCES = \
 	ladar_sick_s.h \
 	ladar_sick_s.cpp
 
+LadarSickLms100_SOURCES = \
+	ladar_sick_lms100.h \
+	ladar_sick_lms100.cpp
 
 EXTRA_DIST = \
 	Kconfig
