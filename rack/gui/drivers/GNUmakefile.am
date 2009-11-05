@@ -9,6 +9,7 @@ dist_java_JAVA += \
 	CameraMisColorConvert.java \
 	CameraGui.java \
 	ChassisGui.java \
+	ClockGui.java \
 	GpsGui.java \
 	JoystickGui.java \
 	JoystickSoftware.java \

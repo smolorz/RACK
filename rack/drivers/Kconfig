@@ -8,6 +8,10 @@ menu "Chassis"
 source "drivers/chassis/Kconfig"
 endmenu
 
+menu "Clock"
+source "drivers/clock/Kconfig"
+endmenu
+
 menu "Gps"
 source "drivers/gps/Kconfig"
 endmenu

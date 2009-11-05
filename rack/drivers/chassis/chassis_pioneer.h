@@ -20,12 +20,24 @@
 
 #include <main/serial_port.h>
 #include <drivers/chassis_proxy.h>
+#include <drivers/ladar_proxy.h>
 
 // define module class
 #define MODULE_CLASS_ID     CHASSIS
 
 const unsigned char moveTemplate[]     = {0xFA, 0xFB, 6, 11, 0, 0, 0, 0, 0};
 const unsigned char turnTemplate[]     = {0xFA, 0xFB, 6, 21, 0, 0, 0, 0, 0};
+
+#define CHASSIS_PIONEER_SONAR_NUM_MAX          16
+#define CHASSIS_PIONEER_SIP_SONAR_NR_OFFSET    22
+#define CHASSIS_PIONEER_SIP_SONAR_VALUE_OFFSET (CHASSIS_PIONEER_SIP_SONAR_NR_OFFSET+1)
+
+// sonar output
+typedef struct
+{
+    ladar_data          data;
+    ladar_point         point[CHASSIS_PIONEER_SONAR_NUM_MAX];
+} __attribute__((packed)) ladar_data_msg;
 
 //######################################################################
 //# class ChassisPioneerModule
@@ -37,6 +49,8 @@ class ChassisPioneer : public RackDataModule {
     // your values
     int             serialDev;
     SerialPort      serialPort;
+    int             ladarSonarSys;
+    int             ladarSonarInst;
 
     int             sonar;
 
@@ -51,6 +65,15 @@ class ChassisPioneer : public RackDataModule {
 
     float           battery;
     uint32_t        activePilot;
+    ladar_data_msg  sonarData;
+
+    uint32_t        ladarSonarMbxAdr;
+
+    // mailboxes
+    RackMailbox     workMbx;
+
+    // proxies
+    LadarProxy      *ladarSonar;
 
     int  calculate_checksum(unsigned char *ptr);
     int  receivePackage(unsigned char *sipBuffer, rack_time_t *timestamp);

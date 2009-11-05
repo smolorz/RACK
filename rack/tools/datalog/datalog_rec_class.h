@@ -22,6 +22,7 @@
 
 #include <drivers/camera_proxy.h>
 #include <drivers/chassis_proxy.h>
+#include <drivers/clock_proxy.h>
 #include <drivers/gps_proxy.h>
 #include <drivers/ladar_proxy.h>
 #include <drivers/odometry_proxy.h>

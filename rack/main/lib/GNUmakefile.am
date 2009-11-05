@@ -11,6 +11,7 @@ librack_la_SOURCES = \
 	\
 	$(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
+	$(top_srcdir)/drivers/clock_proxy.cpp \
 	$(top_srcdir)/drivers/gps_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \

@@ -59,6 +59,7 @@ librack_la_LIBADD =
 am__librack_la_SOURCES_DIST = version_string.cpp \
 	$(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
+	$(top_srcdir)/drivers/clock_proxy.cpp \
 	$(top_srcdir)/drivers/gps_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
@@ -84,16 +85,16 @@ am__librack_la_SOURCES_DIST = version_string.cpp \
 @CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-can_port.lo
 am_librack_la_OBJECTS = librack_la-version_string.lo \
 	librack_la-camera_proxy.lo librack_la-chassis_proxy.lo \
-	librack_la-gps_proxy.lo librack_la-joystick_proxy.lo \
-	librack_la-ladar_proxy.lo librack_la-odometry_proxy.lo \
-	librack_la-obj_recog_proxy.lo librack_la-scan2d_proxy.lo \
-	librack_la-pilot_proxy.lo librack_la-position_proxy.lo \
-	librack_la-datalog_proxy.lo librack_la-datalog_rec_class.lo \
-	librack_la-argopts.lo librack_la-dxf_map.lo \
-	librack_la-position_tool.lo librack_la-camera_tool.lo \
-	librack_la-rack_mailbox.lo librack_la-rack_module.lo \
-	librack_la-rack_data_module.lo librack_la-rack_proxy.lo \
-	$(am__objects_1)
+	librack_la-clock_proxy.lo librack_la-gps_proxy.lo \
+	librack_la-joystick_proxy.lo librack_la-ladar_proxy.lo \
+	librack_la-odometry_proxy.lo librack_la-obj_recog_proxy.lo \
+	librack_la-scan2d_proxy.lo librack_la-pilot_proxy.lo \
+	librack_la-position_proxy.lo librack_la-datalog_proxy.lo \
+	librack_la-datalog_rec_class.lo librack_la-argopts.lo \
+	librack_la-dxf_map.lo librack_la-position_tool.lo \
+	librack_la-camera_tool.lo librack_la-rack_mailbox.lo \
+	librack_la-rack_module.lo librack_la-rack_data_module.lo \
+	librack_la-rack_proxy.lo $(am__objects_1)
 librack_la_OBJECTS = $(am_librack_la_OBJECTS)
 librack_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -280,6 +281,7 @@ lib_LTLIBRARIES = \
 librack_la_SOURCES = version_string.cpp \
 	$(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
+	$(top_srcdir)/drivers/clock_proxy.cpp \
 	$(top_srcdir)/drivers/gps_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
@@ -374,6 +376,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-camera_tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-can_port.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-chassis_proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-clock_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-datalog_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-datalog_rec_class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-dxf_map.Plo@am__quote@
@@ -434,6 +437,13 @@ librack_la-chassis_proxy.lo: $(top_srcdir)/drivers/chassis_proxy.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/drivers/chassis_proxy.cpp' object='librack_la-chassis_proxy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-chassis_proxy.lo `test -f '$(top_srcdir)/drivers/chassis_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/chassis_proxy.cpp
+
+librack_la-clock_proxy.lo: $(top_srcdir)/drivers/clock_proxy.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-clock_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-clock_proxy.Tpo -c -o librack_la-clock_proxy.lo `test -f '$(top_srcdir)/drivers/clock_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/clock_proxy.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-clock_proxy.Tpo $(DEPDIR)/librack_la-clock_proxy.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/drivers/clock_proxy.cpp' object='librack_la-clock_proxy.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-clock_proxy.lo `test -f '$(top_srcdir)/drivers/clock_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/clock_proxy.cpp
 
 librack_la-gps_proxy.lo: $(top_srcdir)/drivers/gps_proxy.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-gps_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-gps_proxy.Tpo -c -o librack_la-gps_proxy.lo `test -f '$(top_srcdir)/drivers/gps_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/gps_proxy.cpp

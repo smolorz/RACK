@@ -324,6 +324,14 @@ int DatalogRec::initLogFile()
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
+                case CLOCK:
+                    ret = fprintf(fileptr[i], "%% Clock(%i/%i)\n"
+                                  "%% recordingTime hour second day month year"
+                                  " utcTime dayOfWeek syncMode varT\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
                 case GPS:
                     ret = fprintf(fileptr[i], "%% Gps(%i/%i)\n"
                                   "%% recordingTime mode latitude longitude"
@@ -427,6 +435,7 @@ int DatalogRec::logData(message_info *msgInfo)
 
     camera_data     *cameraData;
     chassis_data    *chassisData;
+    clock_data      *clockData;
     gps_data        *gpsData;
     ladar_data      *ladarData;
     odometry_data   *odometryData;
@@ -498,6 +507,25 @@ int DatalogRec::logData(message_info *msgInfo)
                         chassisData->omega,
                         chassisData->battery,
                         chassisData->activePilot);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+              case CLOCK:
+                    clockData = ClockData::parse(msgInfo);
+                    bytes = fprintf(fileptr[i], "%u %i %i %i %i %i %i %li %i %i %i\n",
+                        (unsigned int)clockData->recordingTime,
+                        clockData->hour,
+                        clockData->minute,
+                        clockData->second,
+                        clockData->day,
+                        clockData->month,
+                        clockData->year,
+                        (long int)clockData->utcTime,
+                        clockData->dayOfWeek,
+                        clockData->syncMode,
+                        clockData->varT);
 
                     datalogInfoMsg.logInfo[i].bytesLogged += bytes;
                     datalogInfoMsg.logInfo[i].setsLogged  += 1;

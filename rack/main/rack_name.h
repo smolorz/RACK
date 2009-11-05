@@ -35,6 +35,7 @@
 #define SCAN2D                  0x19
 #define DATALOG                 0x20
 #define OBJ_RECOG               0x21
+#define CLOCK                   0x22
 
 #define RACK_NAME_OFFSET        0x80
 

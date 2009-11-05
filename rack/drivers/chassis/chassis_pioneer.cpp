@@ -25,15 +25,13 @@
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_RTSERIAL_OPENED            1
 #define INIT_BIT_MTX_CREATED                2
+#define INIT_BIT_MBX_WORK                   3
+#define INIT_BIT_PROXY_SONAR                4
 
 #define MAX_SIP_PACKAGE_SIZE 208
 
 #define CALIBRATION_ROT 0.66
 #define TICKS_PER_MM    12426.34 //durch messung. bei 3bar reifendruck rechnerisch: 8700000.0 / (208.0 * M_PI) ;
-
-//#define MAX_NUMBER_OF_SONARS 16
-//#define SIP_SONAR_NR_OFFSET    22
-//#define SIP_SONAR_VALUE_OFFSET (SIP_SONAR_NR_OFFSET+1)
 
 const unsigned char sync0Command[]     = {0xFA, 0xFB, 3, 0, 0x00, 0x00};
 const unsigned char sync1Command[]     = {0xFA, 0xFB, 3, 1, 0x00, 0x01};
@@ -63,6 +61,12 @@ argTable_t argTab[] = {
 
     { ARGOPT_REQ, "sonar", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "disable sonar = 0; enable sonar = 1", { 0 } },
+
+    { ARGOPT_OPT, "ladarSonarSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the ladar relay for sonar data, default 0", { 0 } },
+
+    { ARGOPT_OPT, "ladarSonarInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the ladar relay for sonar data, default -1", { -1 } },
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "max vehicle velocity in x direction, default 700 m/s", { 700 } },
@@ -345,6 +349,35 @@ chassis_param_data param = {
         }
     }
 
+    // sonar on
+    else
+    {
+        // ladar relay
+        if (ladarSonarInst >= 0)
+        {
+            // init sonar values and send first dataMsg
+            sonarData.data.recordingTime = rackTime.get();
+            sonarData.data.pointNum      = 0;
+
+            ret = workMbx.sendDataMsg(MSG_DATA, ladarSonarMbxAdr + 1, 1, 1,
+                                      &sonarData, sizeof(ladar_data));
+            if (ret)
+            {
+                GDOS_WARNING("Error while sending first sonar data from %x to %x (bytes %d)\n",
+                             workMbx.getAdr(), ladarSonarMbxAdr, sizeof(ladar_data));
+            }
+
+            GDOS_DBG_DETAIL("Turn on Ladar(%d/%d)\n", ladarSonarSys, ladarSonarInst);
+            ret = ladarSonar->on();
+            if (ret)
+            {
+                GDOS_ERROR("Can't turn on Ladar(%i/%i), code = %d\n",
+                           ladarSonarSys, ladarSonarInst, ret);
+                return ret;
+            }
+        }
+    }
+
     RackTask::sleep(200000000llu);
 
     //pulse
@@ -399,15 +432,12 @@ int ChassisPioneer::moduleLoop(void)
     chassis_data*   p_data = NULL;
     ssize_t         datalength = 0;
     unsigned char   buffer[MAX_SIP_PACKAGE_SIZE];
-    rack_time_t       time;
+    rack_time_t     time;
     float           deltaT, vL, vR;
-    int             ret, leftEncoderNew, rightEncoderNew;
-
-    /* SONAR_DATA_PACKAGE sonarData;  // datastructure for sonar mbx
-        int i;
-        int sonarsChanged;
-        int sonarnumber;
-        int sonarvalue; */
+    int             ret, i;
+    int             leftEncoderNew, rightEncoderNew;
+    int             sonarsChanged;
+    int             sonarNum, sonarValue;
 
     // get datapointer from rackdatabuffer
     p_data = (chassis_data *)getDataBufferWorkSpace();
@@ -430,31 +460,99 @@ int ChassisPioneer::moduleLoop(void)
 
         battery = (float)buffer[14] / 10.0;
 
-        /*// begin sonar driver pioneer2AT +++++++++++++++++++++++++++++++++++++++++++
+        // sonar data
+        sonarsChanged = (unsigned int) buffer[CHASSIS_PIONEER_SIP_SONAR_NR_OFFSET]; // p2opman.pdf sonarReadings SIP
+        if (sonarsChanged > 0)
+        {
+            GDOS_PRINT("sonarsChanged %d\n", sonarsChanged);
+            for (i = 0; i <= sonarsChanged; i++)
+            {
+                sonarNum   = buffer[CHASSIS_PIONEER_SIP_SONAR_VALUE_OFFSET + 3*i];   //sonarnumber SIP
+                sonarValue =0.268*(          // 0.0268 for centimeters
+                         (buffer[CHASSIS_PIONEER_SIP_SONAR_VALUE_OFFSET+1+3*i])+     //low byte Sonarrange SIP
+                          0xff*(buffer[CHASSIS_PIONEER_SIP_SONAR_VALUE_OFFSET+2+3*i])   ); //low byte Sonarrange SIP
+                sonarData.point[sonarNum].distance = sonarValue;
+                GDOS_DBG_DETAIL("sonar[%d]: distance %d\n", sonarNum, sonarValue);
 
-          sonarData.body.distanceNum = MAX_NUMBER_OF_SONARS;
-          sonarsChanged = (unsigned int) buffer[SIP_SONAR_NR_OFFSET]; // p2opman.pdf sonarReadings SIP
-          if (sonarsChanged > 0)           // sonarvalues are changed
-          {
-                 for (i=0;i<=sonarsChanged;i++)
-                  {
-                      sonarnumber=buffer[SIP_SONAR_VALUE_OFFSET+3*i];   //Sonarnumber SIP
-                      sonarvalue=0.268*(          // 0.0268 for centimeters
-                         (buffer[SIP_SONAR_VALUE_OFFSET+1+3*i])+     //low byte Sonarrange SIP
-                          0xff*(buffer[SIP_SONAR_VALUE_OFFSET+2+3*i])   ); //low byte Sonarrange SIP
-                      sonarData.body.distance[sonarnumber] = sonarvalue;      //assign values to datastructur from sonar.h for MBX
-                  } // for
+                switch (sonarNum)
+                {
+                    case 0:
+                        sonarData.point[sonarNum].angle = -90.0f * M_PI / 180.0;
+                        break;
+                    case 1:
+                        sonarData.point[sonarNum].angle = -50.0f * M_PI / 180.0;
+                        break;
+                    case 2:
+                        sonarData.point[sonarNum].angle = -30.0f * M_PI / 180.0;
+                        break;
+                    case 3:
+                        sonarData.point[sonarNum].angle = -10.0f * M_PI / 180.0;
+                        break;
+                    case 4:
+                        sonarData.point[sonarNum].angle = +10.0f * M_PI / 180.0;
+                        break;
+                    case 5:
+                        sonarData.point[sonarNum].angle = +30.0f * M_PI / 180.0;
+                        break;
+                    case 6:
+                        sonarData.point[sonarNum].angle = +50.0f * M_PI / 180.0;
+                        break;
+                    case 7:
+                        sonarData.point[sonarNum].angle = +90.0f * M_PI / 180.0;
+                        break;
 
-                 sonarData.body.recordingtime = time; //timestamp
-                 sonarData.head.flags = 0;
-                 sonarData.head.dataLen = 2 * sizeof(int) + sonarData.body.distanceNum * sizeof(int);
-                 package_set_body_byteorder((PACKAGE_HEAD*)&sonarData);// set byteorder Wichtig Head und Body setzen
-                 package_set_head_byteorder((PACKAGE_HEAD*)&sonarData);
-                 package_send(DATA, NAME_CREATE(SONAR,0)+1, CMD_MBX(id), PACKAGE_RP, 0, &sonarData); //senden der Daten an die SonarMBX
-
-              GDOS_DBG_DETAIL("Sonar distanceNum %i\n", sonarData.body.distanceNum);
+                    case 8:
+                        sonarData.point[sonarNum].angle = +90.0f * M_PI / 180.0;
+                        break;
+                    case 9:
+                        sonarData.point[sonarNum].angle = +130.0f * M_PI / 180.0;
+                        break;
+                    case 10:
+                        sonarData.point[sonarNum].angle = 150.0f * M_PI / 180.0;
+                        break;
+                    case 11:
+                        sonarData.point[sonarNum].angle = 170.0f * M_PI / 180.0;
+                        break;
+                    case 12:
+                        sonarData.point[sonarNum].angle = 190.0f * M_PI / 180.0;
+                        break;
+                    case 13:
+                        sonarData.point[sonarNum].angle = 210.0f * M_PI / 180.0;
+                        break;
+                    case 14:
+                        sonarData.point[sonarNum].angle = 230.0f * M_PI / 180.0;
+                        break;
+                    case 15:
+                        sonarData.point[sonarNum].angle = 270.0f * M_PI / 180.0;
+                        break;
+                    default:
+                        sonarData.point[sonarNum].angle = 0.0f;
+                        sonarData.point[sonarNum].distance = 0;
                 }
-        // end sonar driver pioneer2AT +++++++++++++++++++++++++++++++++++++++++++*/
+            }
+
+            sonarData.data.recordingTime = time;
+            sonarData.data.pointNum      = CHASSIS_PIONEER_SONAR_NUM_MAX;
+
+            // send sonar data
+            if (ladarSonarInst >= 0)
+            {
+                GDOS_DBG_DETAIL("sonarData recordingtime %i pointNum %i\n",
+                                sonarData.data.recordingTime,
+                                sonarData.data.pointNum);
+                datalength =  sizeof(ladar_data) +
+                              sonarData.data.pointNum * sizeof(ladar_point);
+
+                ret = workMbx.sendDataMsg(MSG_DATA, ladarSonarMbxAdr + 1, 1, 1,
+                                         &sonarData, datalength);
+                if (ret)
+                {
+                    GDOS_ERROR("Error while sending objRecogBound data from %x to %x (bytes %d)\n",
+                               workMbx.getAdr(), ladarSonarMbxAdr, datalength);
+                    return ret;
+                }
+            }
+        }
     }
 
     if (buffer[3] == 0x90) //Encoder Package
@@ -783,6 +881,28 @@ int ChassisPioneer::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_MTX_CREATED);
 
+    // create mailbox
+    ret = createMbx(&workMbx, 10, sizeof(ladar_data_msg),
+                    MBX_IN_USERSPACE | MBX_SLOT);
+    if (ret)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_MBX_WORK);
+
+    // create ladarSonar proxy
+    if (ladarSonarInst >= 0)
+    {
+        ladarSonarMbxAdr = RackName::create(ladarSonarSys, LADAR, ladarSonarInst);
+        ladarSonar       = new LadarProxy(&workMbx, ladarSonarSys, ladarSonarInst);
+        if (!ladarSonar)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_SONAR);
+    }
+
     return 0;
 
 init_error:
@@ -796,6 +916,20 @@ void ChassisPioneer::moduleCleanup(void)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
+    }
+
+    // destroy ladarSonar proxy
+    if (ladarSonarInst >= 0)
+    {
+        if (initBits.testAndClearBit(INIT_BIT_PROXY_SONAR))
+        {
+            delete ladarSonar;
+        }
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_MBX_WORK))
+    {
+        destroyMbx(&workMbx);
     }
 
     // destroy mutex
@@ -822,6 +956,8 @@ ChassisPioneer::ChassisPioneer()
 {
     // get static module parameter
     serialDev               = getIntArg("serialDev", argTab);
+    ladarSonarSys           = getIntArg("ladarSonarSys", argTab);
+    ladarSonarInst          = getIntArg("ladarSonarInst", argTab);
     param.vxMax             = getIntArg("vxMax", argTab);
     param.vxMin             = getIntArg("vxMin", argTab);
     param.accMax            = getIntArg("accMax", argTab);

@@ -1,0 +1,4 @@
+
+config RACK_CLOCK_DCF77_EMC_PRO
+    bool "Clock - Dcf77EmcPro"
+    default y

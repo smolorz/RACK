@@ -592,6 +592,23 @@ if test "$CONFIG_RACK_CHASSIS_ROOMBA" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - ClockDcf77EmcPro
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ClockDcf77EmcPro])
+AC_ARG_ENABLE(clock-dcf77-emc-pro,
+    AS_HELP_STRING([--enable-clock-dcf77-emc-pro], [building ClockDcf77EmcPro]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CLOCK_DCF77_EMC_PRO=y ;;
+        *) CONFIG_RACK_CLOCK_DCF77_EMC_PRO=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CLOCK_DCF77_EMC_PRO:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CLOCK_DCF77_EMC_PRO,[test "$CONFIG_RACK_CLOCK_DCF77_EMC_PRO" = "y"])
+if test "$CONFIG_RACK_CLOCK_DCF77_EMC_PRO" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CLOCK_DCF77_EMC_PRO,1,[building ClockDcf77EmcPro])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - GpsNmea
 dnl -----------------------------------------------------------------
 
@@ -1573,6 +1590,7 @@ AC_CONFIG_FILES([GNUmakefile \
     drivers/GNUmakefile \
     drivers/camera/GNUmakefile \
     drivers/chassis/GNUmakefile \
+    drivers/clock/GNUmakefile \
     drivers/gps/GNUmakefile \
     drivers/ladar/GNUmakefile \
     drivers/odometry/GNUmakefile \
