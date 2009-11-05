@@ -56,7 +56,8 @@ class GpsNmea : public RackDataModule {
         int             positionInst;
         int             serialDev;
         int             periodTime;
-        int             trigMsg;
+        int             trigMsgStart;
+        int             trigMsgEnd;
         int             varXY;
         float           varRho;
 

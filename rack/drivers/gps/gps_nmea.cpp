@@ -43,8 +43,12 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "PeriodTime of the GPS - Receiver (in ms), default 1000", { 1000 } },
 
-    { ARGOPT_OPT, "trigMsg", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "NMEA-message to trigger (RMC = 0, GGA = 1, GSA = 2), default RMC (0)",
+    { ARGOPT_OPT, "trigMsgStart", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "First NMEA-message of the data set (RMC = 0, GGA = 1, GSA = 2, VTG = 3), default RMC (0)",
+      { 0 } },
+
+    { ARGOPT_OPT, "trigMsgEnd", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Last NMEA-message of the data set (RMC = 0, GGA = 1, GSA = 2, VTG = 3), default VTG (3)",
       { 0 } },
 
     { ARGOPT_OPT, "varXY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -89,7 +93,8 @@ int GpsNmea::moduleOn(void)
 {
     // get dynamic module parameter
     periodTime              = getInt32Param("periodTime");
-    trigMsg                 = getInt32Param("trigMsg");
+    trigMsgStart            = getInt32Param("trigMsgStart");
+    trigMsgEnd              = getInt32Param("trigMsgEnd");
     varXY                   = getInt32Param("varXY");
     varRho                  = (float)(getInt32Param("varRho") * M_PI / 180.0);
     dataBufferPeriodTime    = periodTime;
@@ -143,13 +148,13 @@ int GpsNmea::moduleLoop(void)
         {
             nmeaMsg = GSA_MSG;
         }
-        if (strstr(&nmea.data[0], "VTG") != NULL)
+        if (strstr(&nmea.data[0], "GPVTG") != NULL)
         {
             nmeaMsg = VTG_MSG;
         }
 
         // write package if a complete dataset is read
-        if (nmeaMsg == trigMsg)
+        if (nmeaMsg == trigMsgEnd)
         {
             // gps data invalid by utcTime
             if ((utcTime != 0) && (utcTimeOld != 0) && (utcTime == utcTimeOld))
@@ -261,12 +266,17 @@ int GpsNmea::moduleLoop(void)
                 gpsData.var.psi = INFINITY;
             }
 
-            gpsData.recordingTime = nmea.recordingTime;
             memcpy(p_data, &gpsData, sizeof(gps_data));
             putDataBufferWorkSpace(sizeof(gps_data));
 
             utcTimeOld            = utcTime;
             satelliteNumOld       = gpsData.satelliteNum;
+        }
+
+        // first data package, store recordingTime
+        if (nmeaMsg == trigMsgStart)
+        {
+            gpsData.recordingTime = nmea.recordingTime;
         }
 
         // RMC - Message
