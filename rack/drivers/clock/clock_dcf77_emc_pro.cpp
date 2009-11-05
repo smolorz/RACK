@@ -97,17 +97,24 @@ int ClockDcf77EmcPro::moduleLoop(void)
     ret = readSerialMessage(&serialData);
     if (ret)
     {
-        GDOS_ERROR("Can't read data from serial device %i, code %i\n", serialDev, ret);
+        GDOS_ERROR("Can't read serial message from serial device %i, code %i\n", serialDev, ret);
         return ret;
     }
 
     // decode message
+    ret = analyseSerialMessage(&serialData, p_data);
+    if (ret)
+    {
+        GDOS_ERROR("Can't decode serial message, code %d\n", ret);
+    }
 
-    RackTask::disableRealtimeMode();
+    /*RackTask::disableRealtimeMode();
     printf("clock data: %s\n", serialData.data);
-    RackTask::enableRealtimeMode();
+    RackTask::enableRealtimeMode();*/
 
     p_data->recordingTime = serialData.recordingTime;
+    GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
+
     putDataBufferWorkSpace(sizeof(clock_data));
 
     return 0;
@@ -118,7 +125,6 @@ int ClockDcf77EmcPro::moduleCommand(message_info *msgInfo)
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
 }
-
 
 int ClockDcf77EmcPro::readSerialMessage(clock_serial_data *serialData)
 {
@@ -140,7 +146,7 @@ int ClockDcf77EmcPro::readSerialMessage(clock_serial_data *serialData)
         ret = serialPort.recv(&currChar, 1, &recordingTime);
         if (ret)
         {
-            GDOS_ERROR("Can't read data from serial dev %i, code = %d\n",
+            GDOS_ERROR("Can't read message head from serial device %i, code = %d\n",
                        serialDev, ret);
             return ret;
         }
@@ -154,9 +160,11 @@ int ClockDcf77EmcPro::readSerialMessage(clock_serial_data *serialData)
         GDOS_ERROR("Can't synchronize on message head\n");
         return -ETIME;
     }
+    // store first character
     else
     {
-        i = 0;
+        serialData->data[0] = currChar;
+        i = 1;
     }
 
 
@@ -168,7 +176,7 @@ int ClockDcf77EmcPro::readSerialMessage(clock_serial_data *serialData)
         ret = serialPort.recv(&currChar, 1, &recordingTime);
         if (ret)
         {
-            GDOS_ERROR("Can't read data from serial dev %i, code = %d\n",
+            GDOS_ERROR("Can't read data from serial device %i, code = %d\n",
                        serialDev, ret);
             return ret;
         }
@@ -193,6 +201,109 @@ int ClockDcf77EmcPro::readSerialMessage(clock_serial_data *serialData)
     return 0;
 }
 
+int ClockDcf77EmcPro::analyseSerialMessage(clock_serial_data *serialData, clock_data *data)
+{
+    char    subStr[8];
+    char    *endPtr;
+    int     month, year;
+
+    // hour
+    strncpy (subStr, &serialData->data[1], 2);
+    subStr[2]='\0';
+    data->hour = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read hours from serial data");
+        return -EIO;
+    }
+
+    // minute
+    strncpy (subStr, &serialData->data[3], 2);
+    subStr[2]='\0';
+    data->minute = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read minutes from serial data");
+        return -EIO;
+    }
+
+    // second
+    strncpy (subStr, &serialData->data[21], 2);
+    subStr[2]='\0';
+    data->second = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read seconds from serial data");
+        return -EIO;
+    }
+
+    // day
+    strncpy (subStr, &serialData->data[5], 2);
+    subStr[2]='\0';
+    data->day = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read days from serial data");
+        return -EIO;
+    }
+
+    // month
+    strncpy (subStr, &serialData->data[7], 2);
+    subStr[2]='\0';
+    data->month = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read months from serial data");
+        return -EIO;
+    }
+
+    // year
+    strncpy (subStr, &serialData->data[9], 2);
+    subStr[2]='\0';
+    data->year = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read years from serial data");
+        return -EIO;
+    }
+
+    // day of week
+    strncpy (subStr, &serialData->data[11], 1);
+    subStr[1]='\0';
+    data->dayOfWeek = strtol(subStr, &endPtr, 10);
+    if (*endPtr != 0)
+    {
+        GDOS_ERROR("Cannot read day of week from serial data");
+        return -EIO;
+    }
+
+    // utc time
+    month = data->month;
+    year  = data->year + 2000;
+
+    if (0 >= (int)(month -= 2))
+    {
+        month  += 12;              // puts feb last since it has leap day
+        year   -= 1;
+    }
+    data->utcTime = ((((long)(year/4 - year/100 + year/400 + 367*month/12 + data->day) +
+                              year*365 - 719499
+                                      )*24 + data->hour
+                                      )*60 + data->minute
+                                      )*60 + data->second;
+
+    // sync mode
+    if (serialData->data[12] == 'F')
+    {
+        data->syncMode = CLOCK_SYNC_MODE_REMOTE;
+    }
+    else
+    {
+        data->syncMode = CLOCK_SYNC_MODE_NONE;
+    }
+
+    return 0;
+}
 
 /*******************************************************************************
  *   !!! NON REALTIME CONTEXT !!!

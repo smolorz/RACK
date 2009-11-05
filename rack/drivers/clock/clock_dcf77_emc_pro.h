@@ -19,10 +19,10 @@
 #include <main/rack_data_module.h>
 #include <main/serial_port.h>
 #include <drivers/clock_proxy.h>
-#include <time.h>
+#include <sys/time.h>
 
 // define module class
-#define MODULE_CLASS_ID                     GPS
+#define MODULE_CLASS_ID                     CLOCK
 
 typedef struct
 {
@@ -48,6 +48,7 @@ class ClockDcf77EmcPro : public RackDataModule {
         RackMailbox         workMbx;
 
         int readSerialMessage(clock_serial_data *serialData);
+        int analyseSerialMessage(clock_serial_data *serialData, clock_data *data);
 
     protected:
         // -> realtime context
