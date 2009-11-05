@@ -30,6 +30,9 @@
 /* building ClockDcf77EmcPro */
 #undef CONFIG_RACK_CLOCK_DCF77_EMC_PRO
 
+/* building ClockDcf77MbgC51 */
+#undef CONFIG_RACK_CLOCK_DCF77_MBG_C51
+
 /* Compiler */
 #undef CONFIG_RACK_COMPILER
 

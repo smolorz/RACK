@@ -609,6 +609,23 @@ if test "$CONFIG_RACK_CLOCK_DCF77_EMC_PRO" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - ClockDcf77MbgC51
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ClockDcf77MbgC51])
+AC_ARG_ENABLE(clock-dcf77-mbg-c51,
+    AS_HELP_STRING([--enable-clock-dcf77-mbg-c51], [building ClockDcf77MbgC51]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CLOCK_DCF77_MBG_C51=y ;;
+        *) CONFIG_RACK_CLOCK_DCF77_MBG_C51=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CLOCK_DCF77_MBG_C51:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CLOCK_DCF77_MBG_C51,[test "$CONFIG_RACK_CLOCK_DCF77_MBG_C51" = "y"])
+if test "$CONFIG_RACK_CLOCK_DCF77_MBG_C51" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CLOCK_DCF77_MBG_C51,1,[building ClockDcf77MbgC51])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - GpsNmea
 dnl -----------------------------------------------------------------
 

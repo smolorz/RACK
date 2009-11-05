@@ -32,8 +32,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1)
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
 @CONFIG_RACK_CLOCK_DCF77_EMC_PRO_TRUE@am__append_1 = ClockDcf77EmcPro
+@CONFIG_RACK_CLOCK_DCF77_MBG_C51_TRUE@am__append_2 = ClockDcf77MbgC51
 subdir = drivers/clock
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -45,6 +46,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 @CONFIG_RACK_CLOCK_DCF77_EMC_PRO_TRUE@am__EXEEXT_1 = ClockDcf77EmcPro$(EXEEXT)
+@CONFIG_RACK_CLOCK_DCF77_MBG_C51_TRUE@am__EXEEXT_2 = ClockDcf77MbgC51$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -52,6 +54,10 @@ am_ClockDcf77EmcPro_OBJECTS = clock_dcf77_emc_pro.$(OBJEXT)
 ClockDcf77EmcPro_OBJECTS = $(am_ClockDcf77EmcPro_OBJECTS)
 ClockDcf77EmcPro_LDADD = $(LDADD)
 ClockDcf77EmcPro_DEPENDENCIES =
+am_ClockDcf77MbgC51_OBJECTS = clock_dcf77_mbg_c51.$(OBJEXT)
+ClockDcf77MbgC51_OBJECTS = $(am_ClockDcf77MbgC51_OBJECTS)
+ClockDcf77MbgC51_LDADD = $(LDADD)
+ClockDcf77MbgC51_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/config@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -73,8 +79,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(ClockDcf77EmcPro_SOURCES)
-DIST_SOURCES = $(ClockDcf77EmcPro_SOURCES)
+SOURCES = $(ClockDcf77EmcPro_SOURCES) $(ClockDcf77MbgC51_SOURCES)
+DIST_SOURCES = $(ClockDcf77EmcPro_SOURCES) $(ClockDcf77MbgC51_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -241,6 +247,10 @@ ClockDcf77EmcPro_SOURCES = \
 	clock_dcf77_emc_pro.h \
 	clock_dcf77_emc_pro.cpp
 
+ClockDcf77MbgC51_SOURCES = \
+	clock_dcf77_mbg_c51.h \
+	clock_dcf77_mbg_c51.cpp
+
 EXTRA_DIST = \
 	Kconfig
 
@@ -308,6 +318,9 @@ clean-binPROGRAMS:
 ClockDcf77EmcPro$(EXEEXT): $(ClockDcf77EmcPro_OBJECTS) $(ClockDcf77EmcPro_DEPENDENCIES) 
 	@rm -f ClockDcf77EmcPro$(EXEEXT)
 	$(CXXLINK) $(ClockDcf77EmcPro_OBJECTS) $(ClockDcf77EmcPro_LDADD) $(LIBS)
+ClockDcf77MbgC51$(EXEEXT): $(ClockDcf77MbgC51_OBJECTS) $(ClockDcf77MbgC51_DEPENDENCIES) 
+	@rm -f ClockDcf77MbgC51$(EXEEXT)
+	$(CXXLINK) $(ClockDcf77MbgC51_OBJECTS) $(ClockDcf77MbgC51_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -316,6 +329,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clock_dcf77_emc_pro.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clock_dcf77_mbg_c51.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

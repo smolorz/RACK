@@ -5,6 +5,10 @@ if CONFIG_RACK_CLOCK_DCF77_EMC_PRO
 bin_PROGRAMS += ClockDcf77EmcPro
 endif
 
+if CONFIG_RACK_CLOCK_DCF77_MBG_C51
+bin_PROGRAMS += ClockDcf77MbgC51
+endif
+
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -14,6 +18,10 @@ LDADD    = @RACK_LIBS@
 ClockDcf77EmcPro_SOURCES = \
 	clock_dcf77_emc_pro.h \
 	clock_dcf77_emc_pro.cpp
+
+ClockDcf77MbgC51_SOURCES = \
+	clock_dcf77_mbg_c51.h \
+	clock_dcf77_mbg_c51.cpp
 
 
 EXTRA_DIST = \
