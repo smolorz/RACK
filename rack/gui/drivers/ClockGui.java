@@ -34,11 +34,11 @@ public class ClockGui extends RackModuleGui
     protected JLabel     dayOfWeekLabel     = new JLabel();
     protected JLabel     dayOfWeekNameLabel = new JLabel("Day", SwingConstants.RIGHT);
     protected JLabel     utcTimeLabel       = new JLabel();
-    protected JLabel     utcTimeNameLabel   = new JLabel("Utc-time", SwingConstants.RIGHT);
+    protected JLabel     utcTimeNameLabel   = new JLabel("UTC Time", SwingConstants.RIGHT);
     protected JLabel     syncModeLabel      = new JLabel();
     protected JLabel     syncModeNameLabel  = new JLabel("Mode", SwingConstants.RIGHT);
     protected JLabel     varTLabel          = new JLabel();
-    protected JLabel     varTNameLabel      = new JLabel("varT", SwingConstants.RIGHT);
+    protected JLabel     varTNameLabel      = new JLabel("Variance T", SwingConstants.RIGHT);
 
     public ClockGui(GuiElementDescriptor guiElement)
     {
