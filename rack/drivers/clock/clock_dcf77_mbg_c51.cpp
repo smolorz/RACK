@@ -35,7 +35,7 @@ argTable_t argTab[] = {
       "Serial device number", { -1 } },
 
     { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Baudrate of serial device, default 19200", { 19200 } },
+      "Baudrate of serial device, default 9600", { 9600 } },
 
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Period time of the timing signal (in ms), default 1000", { 1000 } },
@@ -111,9 +111,9 @@ int ClockDcf77MbgC51::moduleLoop(void)
         GDOS_ERROR("Can't decode serial message, code %d\n", ret);
     }
 
-    RackTask::disableRealtimeMode();
+/*    RackTask::disableRealtimeMode();
     printf("clock data: %s\n", serialData.data);
-    RackTask::enableRealtimeMode();
+    RackTask::enableRealtimeMode();*/
 
     p_data->recordingTime = serialData.recordingTime;
     GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
