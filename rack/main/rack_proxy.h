@@ -16,6 +16,8 @@
 #ifndef _RACK_PROXY_H_
 #define _RACK_PROXY_H_
 
+#include <stdlib.h>
+
 #include <main/rack_mailbox.h>
 #include <main/rack_time.h>
 #include <main/rack_debug.h>

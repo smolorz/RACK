@@ -20,6 +20,8 @@
 #ifndef __RACK_MODULE_H__
 #define __RACK_MODULE_H__
 
+#include <stdlib.h>
+
 #include <main/tims/tims.h>
 
 #include <main/rack_debug.h>

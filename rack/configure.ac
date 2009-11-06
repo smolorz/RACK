@@ -55,6 +55,7 @@ AC_ARG_WITH(CC,
     esac
     CC="$withval"])
 AC_PROG_CC
+AC_PROG_CXX
 
 AC_DEFINE_UNQUOTED(CONFIG_RACK_BUILD_STRING, "$build", [Build system alias])
 RACK_BUILD_STRING="$build"
@@ -80,7 +81,7 @@ dnl ======================================================================
 
 AC_MSG_CHECKING([for target architecture])
 case "$host" in
-  i*86*-*)
+  *86*-*)
     RACK_TARGET_ARCH=i386
     wanted_kernel_arch=CONFIG_X86
     ;;

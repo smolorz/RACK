@@ -392,8 +392,9 @@ class RackTask
 
 #define RACK_TASK_FPU       1
 #define RACK_TASK_JOINABLE  2
-#define RACK_TASK_PRIMARY   3
-#define RACK_TASK_WARNSW    4
+#define RACK_TASK_CPU(c)    3
+#define RACK_TASK_PRIMARY   4
+#define RACK_TASK_WARNSW    5
 
 class RackTask
 {
