@@ -413,12 +413,12 @@ void      RackModule::mailboxList(void)
 {
   MbxListHead *p_list = (MbxListHead *)mbxList.next;
   printf("**** RACK MAILBOX-LIST @ 0x%p *** \n", &mbxList );
-  printf("  Address |   prev     |    this    |    next    \n");
-  printf("--------------------------------------------------\n");
+  printf("  Address |        prev        |        this        |        next        \n");
+  printf("-------------------------------------------------------------------------\n");
   while(p_list != &mbxList) {
-    printf(" %8x | 0x%08x | 0x%08x | 0x%08x |\n", (unsigned int)p_list->p_mbx->getAdr(),
-           (unsigned int)p_list->prev, (unsigned int)p_list,
-           (unsigned int)p_list->next );
+    printf(" %8x | 0x%016x | 0x%016x | 0x%016x |\n", (uint8_t)p_list->p_mbx->getAdr(),
+           (intptr_t)p_list->prev, (intptr_t)p_list,
+           (intptr_t)p_list->next );
     p_list = (MbxListHead *)p_list->next;
   }
   printf("--------------------------------------------------\n");

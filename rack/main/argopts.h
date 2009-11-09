@@ -16,6 +16,7 @@
 #ifndef _ARGOPTS_H_
 #define _ARGOPTS_H_
 
+#include <stdlib.h>
 #include <string>
 #include <getopt.h>
 #include <errno.h>
