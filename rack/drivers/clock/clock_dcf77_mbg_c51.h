@@ -40,8 +40,11 @@ class ClockDcf77MbgC51 : public RackDataModule {
         int                 serialDev;
         int                 baudrate;
         int                 periodTime;
+        int                 biosUpdate;
+        int                 biosUpdateTime;
 
         clock_serial_data   serialData;
+        rack_time_t         lastUpdateTime;
 
         SerialPort          serialPort;
 

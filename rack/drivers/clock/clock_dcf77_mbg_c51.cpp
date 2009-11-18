@@ -40,6 +40,12 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Period time of the timing signal (in ms), default 1000", { 1000 } },
 
+    { ARGOPT_OPT, "biosUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable update of the bios clock, 0=off, 1=on, default 1", { 1 } },
+
+    { ARGOPT_OPT, "biosUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Time interval for updating the bios clock in ms, default 60000 ", { 60000 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -72,11 +78,16 @@ int ClockDcf77MbgC51::moduleOn(void)
 {
     // get dynamic module parameter
     dataBufferPeriodTime    = getInt32Param("periodTime");
+    biosUpdate              = getInt32Param("biosUpdate");
+    biosUpdateTime          = getInt32Param("biosUpdateTime");
 
     serialPort.clean();
 
     // set rx timeout 2 * periodTime
     serialPort.setRecvTimeout(rackTime.toNano(2 * periodTime));
+
+    // init variables
+    lastUpdateTime = rackTime.get() - biosUpdateTime;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -92,6 +103,7 @@ int ClockDcf77MbgC51::moduleLoop(void)
 {
     int                 ret;
     clock_data*         p_data;
+    timeval             currBiosTime, setBiosTime;
 
     // get datapointer from rackdatabuffer
     p_data = (clock_data *)getDataBufferWorkSpace();
@@ -111,15 +123,37 @@ int ClockDcf77MbgC51::moduleLoop(void)
         GDOS_ERROR("Can't decode serial message, code %d\n", ret);
     }
 
+
 /*    RackTask::disableRealtimeMode();
     printf("clock data: %s\n", serialData.data);
     RackTask::enableRealtimeMode();*/
 
+
     p_data->recordingTime = serialData.recordingTime;
+
+    // update bios time
+    if ((biosUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
+    {
+        // each biosUpdateTime
+        if (((int)p_data->recordingTime - (int)lastUpdateTime) > biosUpdateTime)
+        {
+            RackTask::disableRealtimeMode();
+            gettimeofday(&currBiosTime, 0);
+
+            setBiosTime.tv_sec  = (unsigned long)p_data->utcTime;
+            setBiosTime.tv_usec = ((long)rackTime.get() - (long)p_data->recordingTime) * 1000;
+            settimeofday(&setBiosTime, 0);
+            GDOS_DBG_INFO("update bios time from to %ds,%dusec to %ds,%dusec\n",
+                          currBiosTime.tv_sec, currBiosTime.tv_usec,
+                          setBiosTime.tv_sec, setBiosTime.tv_usec);
+            RackTask::enableRealtimeMode();
+
+            lastUpdateTime = serialData.recordingTime;
+        }
+    }
+
     GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
-
     putDataBufferWorkSpace(sizeof(clock_data));
-
     return 0;
 }
 
@@ -166,7 +200,7 @@ int ClockDcf77MbgC51::readSerialMessage(clock_serial_data *serialData)
     // store first character
     else
     {
-        serialData->data[0] = currChar;
+        serialData->data[0]       = currChar;
         i = 1;
     }
 
@@ -189,7 +223,7 @@ int ClockDcf77MbgC51::readSerialMessage(clock_serial_data *serialData)
         i++;
     }
 
-    // if last read character != "Carriage Return" an error occured
+    // if last read character != "0x03" an error occured
     if (currChar != 0x03)
     {
         GDOS_ERROR("Can't read end of serial message\n");
