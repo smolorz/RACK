@@ -112,7 +112,7 @@ int ClockDcf77EmcPro::moduleLoop(void)
     printf("clock data: %s\n", serialData.data);
     RackTask::enableRealtimeMode();*/
 
-    p_data->recordingTime = serialData.recordingTime;
+    p_data->recordingTime = serialData.recordingTime - 22;
     GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
 
     putDataBufferWorkSpace(sizeof(clock_data));
