@@ -37,11 +37,11 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Period time of the timing signal (in ms), default 1000", { 1000 } },
 
-    { ARGOPT_OPT, "systemClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Enable update of the system clock, 0=off, 1=on, default 1", { 1 } },
+    { ARGOPT_OPT, "realtimeClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable update of the realtime clock, 0=off, 1=on, default 1", { 1 } },
 
-    { ARGOPT_OPT, "systemClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Time interval for updating the system clock in ms, default 60000 ", { 60000 } },
+    { ARGOPT_OPT, "realtimeClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Time interval for updating the realtime clock in ms, default 60000 ", { 60000 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -75,8 +75,8 @@ int ClockDcf77EmcPro::moduleOn(void)
 {
     // get dynamic module parameter
     dataBufferPeriodTime    = getInt32Param("periodTime");
-    systemClockUpdate       = getInt32Param("systemClockUpdate");
-    systemClockUpdateTime   = getInt32Param("systemClockUpdateTime");
+    realtimeClockUpdate     = getInt32Param("realtimeClockUpdate");
+    realtimeClockUpdateTime = getInt32Param("realtimeClockUpdateTime");
 
     serialPort.clean();
 
@@ -84,7 +84,7 @@ int ClockDcf77EmcPro::moduleOn(void)
     serialPort.setRecvTimeout(rackTime.toNano(2 * periodTime));
 
     // init variables
-    lastUpdateTime = rackTime.get() - systemClockUpdateTime;
+    lastUpdateTime = rackTime.get() - realtimeClockUpdateTime;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -100,7 +100,6 @@ int ClockDcf77EmcPro::moduleLoop(void)
 {
     int                 ret;
     clock_data*         p_data;
-    struct timespec     currSystemTime, setSystemTime;
 
     // get datapointer from rackdatabuffer
     p_data = (clock_data *)getDataBufferWorkSpace();
@@ -126,21 +125,16 @@ int ClockDcf77EmcPro::moduleLoop(void)
 
     p_data->recordingTime = serialData.recordingTime - 22;
 
-    // update system clock
-    if ((systemClockUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
+    // update realtime clock
+    if ((realtimeClockUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
     {
-        // each systemClockUpdateTime
-        if (((int)p_data->recordingTime - (int)lastUpdateTime) > systemClockUpdateTime)
+        // each realtimeClockUpdateTime
+        if (((int)p_data->recordingTime - (int)lastUpdateTime) > realtimeClockUpdateTime)
         {
-            clock_gettime(CLOCK_REALTIME, &currSystemTime);
+            rackTime.set(p_data->utcTime, p_data->recordingTime);
 
-            setSystemTime.tv_sec  = (unsigned long)p_data->utcTime;
-            setSystemTime.tv_nsec = ((long)rackTime.get() - (long)p_data->recordingTime) * 1000000;
-            clock_settime(CLOCK_REALTIME, &setSystemTime);
-
-            GDOS_DBG_INFO("update system clock from to %ds,%dnsec to %ds,%dnsec\n",
-                          currSystemTime.tv_sec, currSystemTime.tv_nsec,
-                          setSystemTime.tv_sec, setSystemTime.tv_nsec);
+            GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
+                          p_data->recordingTime, p_data->utcTime);
 
             lastUpdateTime = serialData.recordingTime;
         }

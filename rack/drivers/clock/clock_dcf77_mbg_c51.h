@@ -19,7 +19,6 @@
 #include <main/rack_data_module.h>
 #include <main/serial_port.h>
 #include <drivers/clock_proxy.h>
-#include <time.h>
 
 // define module class
 #define MODULE_CLASS_ID                     CLOCK
@@ -40,8 +39,8 @@ class ClockDcf77MbgC51 : public RackDataModule {
         int                 serialDev;
         int                 baudrate;
         int                 periodTime;
-        int                 systemClockUpdate;
-        int                 systemClockUpdateTime;
+        int                 realtimeClockUpdate;
+        int                 realtimeClockUpdateTime;
 
         clock_serial_data   serialData;
         rack_time_t         lastUpdateTime;
