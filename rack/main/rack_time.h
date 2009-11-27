@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2007 University of Hannover
+ * Copyright (C) 2005-2009 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -14,6 +14,7 @@
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
  *      Oliver Wulf <oliver.wulf@web.de>
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  *
  */
 
@@ -164,6 +165,17 @@ public:
         return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
     }
 
+    int set(int64_t utcTime, rack_time_t recordingTime)
+    {
+        tims_clock_setvalue setValue = {utcTime, recordingTime};
+      
+        if (tims_fd < 0 ||
+                    rt_dev_ioctl(tims_fd, TIMS_RTIOC_SETTIME, &setValue) < 0)
+            return -EINVAL;
+        else
+            return 0;
+    }
+
     /**
      * @brief Gets the current RACK time in nanoseconds, synchonised on a
      * reference clock if TIMS is configured accordingly.
@@ -245,6 +257,11 @@ public:
     rack_time_t get(void)
     {
         return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
+    }
+
+    int set(int64_t utcTime, rack_time_t recordingTime)
+    {
+        return 0;
     }
 
     uint64_t getNano(void)

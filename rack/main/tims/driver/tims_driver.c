@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2007 University of Hannover
+ * Copyright (C) 2005-2009 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -1507,6 +1507,7 @@ int rt_tims_ioctl(struct rtdm_dev_context *context,
     {
         case TIMS_RTIOC_GETCLOCKOFFSET:
         case TIMS_RTIOC_GETTIME:
+        case TIMS_RTIOC_SETTIME:
             return tims_clock_ioctl(user_info, request, arg);
 
         case TIMS_RTIOC_RECVBEGIN:

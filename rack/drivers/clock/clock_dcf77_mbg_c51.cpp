@@ -137,9 +137,9 @@ int ClockDcf77MbgC51::moduleLoop(void)
         {
             clock_gettime(CLOCK_REALTIME, &currSystemTime);
 
-            setSystemTime.tv_sec  = (unsigned long)p_data->utcTime;
-            setSystemTime.tv_nsec = ((long)rackTime.get() - (long)p_data->recordingTime) * 1000000;
-            clock_settime(CLOCK_REALTIME, &setSystemTime);
+//            setSystemTime.tv_sec  = (unsigned long)p_data->utcTime;
+//            setSystemTime.tv_nsec = ((long)rackTime.get() - (long)p_data->recordingTime) * 1000000;
+            rackTime.set(p_data->utcTime, p_data->recordingTime);
 
             GDOS_DBG_INFO("update system clock from to %ds,%dnsec to %ds,%dnsec\n",
                           currSystemTime.tv_sec, currSystemTime.tv_nsec,
