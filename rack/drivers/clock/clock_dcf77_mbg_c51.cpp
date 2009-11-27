@@ -40,11 +40,11 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Period time of the timing signal (in ms), default 1000", { 1000 } },
 
-    { ARGOPT_OPT, "biosUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Enable update of the bios clock, 0=off, 1=on, default 1", { 1 } },
+    { ARGOPT_OPT, "systemClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable update of the system clock clock, 0=off, 1=on, default 1", { 1 } },
 
-    { ARGOPT_OPT, "biosUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Time interval for updating the bios clock in ms, default 60000 ", { 60000 } },
+    { ARGOPT_OPT, "systemClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Time interval for updating the system clock in ms, default 60000 ", { 60000 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -78,8 +78,8 @@ int ClockDcf77MbgC51::moduleOn(void)
 {
     // get dynamic module parameter
     dataBufferPeriodTime    = getInt32Param("periodTime");
-    biosUpdate              = getInt32Param("biosUpdate");
-    biosUpdateTime          = getInt32Param("biosUpdateTime");
+    systemClockUpdate       = getInt32Param("systemClockUpdate");
+    systemClockUpdateTime   = getInt32Param("systemClockUpdateTime");
 
     serialPort.clean();
 
@@ -87,7 +87,7 @@ int ClockDcf77MbgC51::moduleOn(void)
     serialPort.setRecvTimeout(rackTime.toNano(2 * periodTime));
 
     // init variables
-    lastUpdateTime = rackTime.get() - biosUpdateTime;
+    lastUpdateTime = rackTime.get() - systemClockUpdateTime;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -103,7 +103,7 @@ int ClockDcf77MbgC51::moduleLoop(void)
 {
     int                 ret;
     clock_data*         p_data;
-    timeval             currBiosTime, setBiosTime;
+    struct timespec     currSystemTime, setSystemTime;
 
     // get datapointer from rackdatabuffer
     p_data = (clock_data *)getDataBufferWorkSpace();
@@ -123,30 +123,27 @@ int ClockDcf77MbgC51::moduleLoop(void)
         GDOS_ERROR("Can't decode serial message, code %d\n", ret);
     }
 
-
 /*    RackTask::disableRealtimeMode();
     printf("clock data: %s\n", serialData.data);
     RackTask::enableRealtimeMode();*/
 
-
     p_data->recordingTime = serialData.recordingTime;
 
-    // update bios time
-    if ((biosUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
+    // update system clock
+    if ((systemClockUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
     {
-        // each biosUpdateTime
-        if (((int)p_data->recordingTime - (int)lastUpdateTime) > biosUpdateTime)
+        // each systemClockUpdateTime
+        if (((int)p_data->recordingTime - (int)lastUpdateTime) > systemClockUpdateTime)
         {
-            RackTask::disableRealtimeMode();
-            gettimeofday(&currBiosTime, 0);
+            clock_gettime(CLOCK_REALTIME, &currSystemTime);
 
-            setBiosTime.tv_sec  = (unsigned long)p_data->utcTime;
-            setBiosTime.tv_usec = ((long)rackTime.get() - (long)p_data->recordingTime) * 1000;
-            settimeofday(&setBiosTime, 0);
-            GDOS_DBG_INFO("update bios time from to %ds,%dusec to %ds,%dusec\n",
-                          currBiosTime.tv_sec, currBiosTime.tv_usec,
-                          setBiosTime.tv_sec, setBiosTime.tv_usec);
-            RackTask::enableRealtimeMode();
+            setSystemTime.tv_sec  = (unsigned long)p_data->utcTime;
+            setSystemTime.tv_nsec = ((long)rackTime.get() - (long)p_data->recordingTime) * 1000000;
+            clock_settime(CLOCK_REALTIME, &setSystemTime);
+
+            GDOS_DBG_INFO("update system clock from to %ds,%dnsec to %ds,%dnsec\n",
+                          currSystemTime.tv_sec, currSystemTime.tv_nsec,
+                          setSystemTime.tv_sec, setSystemTime.tv_nsec);
 
             lastUpdateTime = serialData.recordingTime;
         }

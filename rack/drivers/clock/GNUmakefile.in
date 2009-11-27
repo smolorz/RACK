@@ -50,14 +50,22 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_ClockDcf77EmcPro_OBJECTS = clock_dcf77_emc_pro.$(OBJEXT)
+am_ClockDcf77EmcPro_OBJECTS =  \
+	ClockDcf77EmcPro-clock_dcf77_emc_pro.$(OBJEXT)
 ClockDcf77EmcPro_OBJECTS = $(am_ClockDcf77EmcPro_OBJECTS)
 ClockDcf77EmcPro_LDADD = $(LDADD)
 ClockDcf77EmcPro_DEPENDENCIES =
-am_ClockDcf77MbgC51_OBJECTS = clock_dcf77_mbg_c51.$(OBJEXT)
+ClockDcf77EmcPro_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(ClockDcf77EmcPro_LDFLAGS) $(LDFLAGS) -o $@
+am_ClockDcf77MbgC51_OBJECTS =  \
+	ClockDcf77MbgC51-clock_dcf77_mbg_c51.$(OBJEXT)
 ClockDcf77MbgC51_OBJECTS = $(am_ClockDcf77MbgC51_OBJECTS)
 ClockDcf77MbgC51_LDADD = $(LDADD)
 ClockDcf77MbgC51_DEPENDENCIES =
+ClockDcf77MbgC51_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(ClockDcf77MbgC51_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/config@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -189,6 +197,8 @@ VERSION = @VERSION@
 XENOMAI_CPPFLAGS = @XENOMAI_CPPFLAGS@
 XENOMAI_LDFLAGS = @XENOMAI_LDFLAGS@
 XENOMAI_LIBS = @XENOMAI_LIBS@
+XENOMAI_POSIX_CPPFLAGS = @XENOMAI_POSIX_CPPFLAGS@
+XENOMAI_POSIX_LDFLAGS = @XENOMAI_POSIX_LDFLAGS@
 XENO_LIBRARIES = @XENO_LIBRARIES@
 XENO_USER_PREFIX = @XENO_USER_PREFIX@
 abs_builddir = @abs_builddir@
@@ -251,6 +261,10 @@ ClockDcf77MbgC51_SOURCES = \
 	clock_dcf77_mbg_c51.h \
 	clock_dcf77_mbg_c51.cpp
 
+ClockDcf77EmcPro_CPPFLAGS = @XENOMAI_POSIX_CPPFLAGS@
+ClockDcf77EmcPro_LDFLAGS = @XENOMAI_POSIX_LDFLAGS@
+ClockDcf77MbgC51_CPPFLAGS = @XENOMAI_POSIX_CPPFLAGS@
+ClockDcf77MbgC51_LDFLAGS = @XENOMAI_POSIX_LDFLAGS@
 EXTRA_DIST = \
 	Kconfig
 
@@ -317,10 +331,10 @@ clean-binPROGRAMS:
 	done
 ClockDcf77EmcPro$(EXEEXT): $(ClockDcf77EmcPro_OBJECTS) $(ClockDcf77EmcPro_DEPENDENCIES) 
 	@rm -f ClockDcf77EmcPro$(EXEEXT)
-	$(CXXLINK) $(ClockDcf77EmcPro_OBJECTS) $(ClockDcf77EmcPro_LDADD) $(LIBS)
+	$(ClockDcf77EmcPro_LINK) $(ClockDcf77EmcPro_OBJECTS) $(ClockDcf77EmcPro_LDADD) $(LIBS)
 ClockDcf77MbgC51$(EXEEXT): $(ClockDcf77MbgC51_OBJECTS) $(ClockDcf77MbgC51_DEPENDENCIES) 
 	@rm -f ClockDcf77MbgC51$(EXEEXT)
-	$(CXXLINK) $(ClockDcf77MbgC51_OBJECTS) $(ClockDcf77MbgC51_LDADD) $(LIBS)
+	$(ClockDcf77MbgC51_LINK) $(ClockDcf77MbgC51_OBJECTS) $(ClockDcf77MbgC51_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -328,8 +342,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clock_dcf77_emc_pro.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clock_dcf77_mbg_c51.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -351,6 +365,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+ClockDcf77EmcPro-clock_dcf77_emc_pro.o: clock_dcf77_emc_pro.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77EmcPro_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ClockDcf77EmcPro-clock_dcf77_emc_pro.o -MD -MP -MF $(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Tpo -c -o ClockDcf77EmcPro-clock_dcf77_emc_pro.o `test -f 'clock_dcf77_emc_pro.cpp' || echo '$(srcdir)/'`clock_dcf77_emc_pro.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Tpo $(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='clock_dcf77_emc_pro.cpp' object='ClockDcf77EmcPro-clock_dcf77_emc_pro.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77EmcPro_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ClockDcf77EmcPro-clock_dcf77_emc_pro.o `test -f 'clock_dcf77_emc_pro.cpp' || echo '$(srcdir)/'`clock_dcf77_emc_pro.cpp
+
+ClockDcf77EmcPro-clock_dcf77_emc_pro.obj: clock_dcf77_emc_pro.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77EmcPro_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ClockDcf77EmcPro-clock_dcf77_emc_pro.obj -MD -MP -MF $(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Tpo -c -o ClockDcf77EmcPro-clock_dcf77_emc_pro.obj `if test -f 'clock_dcf77_emc_pro.cpp'; then $(CYGPATH_W) 'clock_dcf77_emc_pro.cpp'; else $(CYGPATH_W) '$(srcdir)/clock_dcf77_emc_pro.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Tpo $(DEPDIR)/ClockDcf77EmcPro-clock_dcf77_emc_pro.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='clock_dcf77_emc_pro.cpp' object='ClockDcf77EmcPro-clock_dcf77_emc_pro.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77EmcPro_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ClockDcf77EmcPro-clock_dcf77_emc_pro.obj `if test -f 'clock_dcf77_emc_pro.cpp'; then $(CYGPATH_W) 'clock_dcf77_emc_pro.cpp'; else $(CYGPATH_W) '$(srcdir)/clock_dcf77_emc_pro.cpp'; fi`
+
+ClockDcf77MbgC51-clock_dcf77_mbg_c51.o: clock_dcf77_mbg_c51.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77MbgC51_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ClockDcf77MbgC51-clock_dcf77_mbg_c51.o -MD -MP -MF $(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Tpo -c -o ClockDcf77MbgC51-clock_dcf77_mbg_c51.o `test -f 'clock_dcf77_mbg_c51.cpp' || echo '$(srcdir)/'`clock_dcf77_mbg_c51.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Tpo $(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='clock_dcf77_mbg_c51.cpp' object='ClockDcf77MbgC51-clock_dcf77_mbg_c51.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77MbgC51_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ClockDcf77MbgC51-clock_dcf77_mbg_c51.o `test -f 'clock_dcf77_mbg_c51.cpp' || echo '$(srcdir)/'`clock_dcf77_mbg_c51.cpp
+
+ClockDcf77MbgC51-clock_dcf77_mbg_c51.obj: clock_dcf77_mbg_c51.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77MbgC51_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ClockDcf77MbgC51-clock_dcf77_mbg_c51.obj -MD -MP -MF $(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Tpo -c -o ClockDcf77MbgC51-clock_dcf77_mbg_c51.obj `if test -f 'clock_dcf77_mbg_c51.cpp'; then $(CYGPATH_W) 'clock_dcf77_mbg_c51.cpp'; else $(CYGPATH_W) '$(srcdir)/clock_dcf77_mbg_c51.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Tpo $(DEPDIR)/ClockDcf77MbgC51-clock_dcf77_mbg_c51.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='clock_dcf77_mbg_c51.cpp' object='ClockDcf77MbgC51-clock_dcf77_mbg_c51.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(ClockDcf77MbgC51_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ClockDcf77MbgC51-clock_dcf77_mbg_c51.obj `if test -f 'clock_dcf77_mbg_c51.cpp'; then $(CYGPATH_W) 'clock_dcf77_mbg_c51.cpp'; else $(CYGPATH_W) '$(srcdir)/clock_dcf77_mbg_c51.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

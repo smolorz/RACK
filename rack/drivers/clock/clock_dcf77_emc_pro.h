@@ -39,8 +39,11 @@ class ClockDcf77EmcPro : public RackDataModule {
         // own vars
         int                 serialDev;
         int                 periodTime;
+        int                 systemClockUpdate;
+        int                 systemClockUpdateTime;
 
         clock_serial_data   serialData;
+        rack_time_t         lastUpdateTime;
 
         SerialPort          serialPort;
 
