@@ -287,7 +287,7 @@ int ClockDcf77EmcPro::analyseSerialMessage(clock_serial_data *serialData, clock_
     // year
     strncpy (subStr, &serialData->data[9], 2);
     subStr[2]='\0';
-    data->year = strtol(subStr, &endPtr, 10);
+    data->year = strtol(subStr, &endPtr, 10) + 2000;
     if (*endPtr != 0)
     {
         GDOS_ERROR("Cannot read years from serial data");
@@ -306,7 +306,7 @@ int ClockDcf77EmcPro::analyseSerialMessage(clock_serial_data *serialData, clock_
 
     // utc time
     month = data->month;
-    year  = data->year + 2000;
+    year  = data->year;
 
     if (0 >= (int)(month -= 2))
     {
