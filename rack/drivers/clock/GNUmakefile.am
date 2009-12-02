@@ -9,6 +9,10 @@ if CONFIG_RACK_CLOCK_DCF77_MBG_C51
 bin_PROGRAMS += ClockDcf77MbgC51
 endif
 
+if CONFIG_RACK_CLOCK_SYSTEM
+bin_PROGRAMS += ClockSystem
+endif
+
 
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
@@ -23,6 +27,9 @@ ClockDcf77MbgC51_SOURCES = \
 	clock_dcf77_mbg_c51.h \
 	clock_dcf77_mbg_c51.cpp
 
+ClockSystem_SOURCES = \
+	clock_system.h \
+	clock_system.cpp
 
 EXTRA_DIST = \
 	Kconfig

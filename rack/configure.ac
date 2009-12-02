@@ -627,6 +627,23 @@ if test "$CONFIG_RACK_CLOCK_DCF77_MBG_C51" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - ClockSystem
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ClockSystem])
+AC_ARG_ENABLE(clock-system,
+    AS_HELP_STRING([--enable-clock-system], [building ClockSystem]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CLOCK_SYSTEM=y ;;
+        *) CONFIG_RACK_CLOCK_SYSTEM=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CLOCK_SYSTEM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CLOCK_SYSTEM,[test "$CONFIG_RACK_CLOCK_SYSTEM" = "y"])
+if test "$CONFIG_RACK_CLOCK_SYSTEM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CLOCK_SYSTEM,1,[building ClockSystem])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - GpsNmea
 dnl -----------------------------------------------------------------
 
@@ -974,7 +991,6 @@ if test x"${CONFIG_RACK_OS_XENOMAI}" = x"y"; then
 XENOMAI_CPPFLAGS="`${XENO_USER_CONFIG} --xeno-cflags`"
 XENOMAI_LDFLAGS="`${XENO_USER_CONFIG} --xeno-ldflags`"
 XENOMAI_LIBS="-lnative -lrtdm"
-
 fi
 
 AC_SUBST(XENOMAI_CPPFLAGS)

@@ -6,3 +6,7 @@ config RACK_CLOCK_DCF77_EMC_PRO
 config RACK_CLOCK_DCF77_MBG_C51
     bool "Clock - Dcf77MbgC51"
     default y
+
+config RACK_CLOCK_SYSTEM
+    bool "Clock - System"
+    default y
