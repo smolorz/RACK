@@ -22,6 +22,7 @@
 #define INIT_BIT_SERIALPORT_OPEN            1
 #define INIT_BIT_MBX_WORK                   2
 #define INIT_BIT_PROXY_POSITION             3
+#define INIT_BIT_PROXY_CLOCK_RELAY          4
 
 //
 // data structures
@@ -34,8 +35,17 @@ argTable_t argTab[] = {
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
 
+    { ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module", { 0 } },
+
     { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the position module", { 0 } },
+
+    { ARGOPT_OPT, "clockRelaySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the clock relay module", { 0 } },
+
+    { ARGOPT_OPT, "clockRelayInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the clock relay module", { -1 } },
 
     { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Baudrate of serial device, default 4800", { 4800 } },
@@ -52,12 +62,16 @@ argTable_t argTab[] = {
       { 0 } },
 
     { ARGOPT_OPT, "varXY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "variance of xy position in mm [default 20000 mm]",
-      { 20000 } },
+      "variance of xy position in mm [default 20000 mm]", { 20000 } },
 
     { ARGOPT_OPT, "varRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "variance of heading in deg [default 20 deg]",
-      { 20 } },
+      "variance of heading in deg [default 20 deg]", { 20 } },
+
+    { ARGOPT_OPT, "realtimeClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable update of the realtime clock clock, 0=off, 1=on, default 0", { 0 } },
+
+    { ARGOPT_OPT, "realtimeClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Time interval for updating the realtime clock in ms, default 60000 ", { 60000 } },
 
   { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -91,23 +105,53 @@ struct rtser_config gps_serial_config = {
 
 int GpsNmea::moduleOn(void)
 {
+    int     ret;
+
     // get dynamic module parameter
     periodTime              = getInt32Param("periodTime");
     trigMsgStart            = getInt32Param("trigMsgStart");
     trigMsgEnd              = getInt32Param("trigMsgEnd");
     varXY                   = getInt32Param("varXY");
     varRho                  = (float)(getInt32Param("varRho") * M_PI / 180.0);
+    realtimeClockUpdate     = getInt32Param("realtimeClockUpdate");
+    realtimeClockUpdateTime = getInt32Param("realtimeClockUpdateTime");
     dataBufferPeriodTime    = periodTime;
 
+    // prepare serial port
     serialPort.clean();
-    // set rx timeout 2 * periodTime in ns
     serialPort.setRecvTimeout((int64_t)periodTime * 2000000llu);
 
-    // set values
+    // clock relay
+    if (clockRelayInst >= 0)
+    {
+        GDOS_DBG_DETAIL("Turning on ClockRelay(%d/%d)\n", clockRelaySys, clockRelayInst);
+        clockRelayData.recordingTime = rackTime.get();
+        clockRelayData.syncMode      = CLOCK_SYNC_MODE_NONE;
+
+        ret = workMbx.sendDataMsg(MSG_DATA, clockRelayMbxAdr + 1, 1, 1,
+                                  &clockRelayData, sizeof(clock_data));
+        if (ret)
+        {
+            GDOS_ERROR("Error while sending clock data from %x to %x (bytes %d), code = %d\n",
+                       workMbx.getAdr(), clockRelayMbxAdr, sizeof(clock_data), ret);
+        }
+
+        GDOS_DBG_DETAIL("Turning on ClockRelay(%d/%d)\n", clockRelaySys, clockRelayInst);
+        ret = clockRelay->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on ClockRelay(%d/%d), code = %d\n",
+                       clockRelaySys, clockRelayInst, ret);
+            return ret;
+        }
+    }
+
+    // init values
     utcTime               = 0.0f;
     utcTimeOld            = 0.0f;
     satelliteNumOld       = 0;
     gpsData.recordingTime = rackTime.get();
+    lastClockUpdateTime   = rackTime.get() - realtimeClockUpdateTime;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -116,6 +160,11 @@ int GpsNmea::moduleOn(void)
 void GpsNmea::moduleOff(void)
 {
     RackDataModule::moduleOff();       // has to be first command in moduleOff();
+
+    if (clockRelayInst >= 0)
+    {
+        clockRelay->off();
+    }
 }
 
 // realtime context
@@ -151,6 +200,53 @@ int GpsNmea::moduleLoop(void)
         if (strstr(&nmea.data[0], "GPVTG") != NULL)
         {
             nmeaMsg = VTG_MSG;
+        }
+
+        // RMC - Message
+        if (nmeaMsg == RMC_MSG)
+        {
+            if (analyseRMC(&gpsData) == 0)
+            {
+                GDOS_DBG_DETAIL("received RMC message, recordingTime %i\n", nmea.recordingTime);
+            }
+        }
+
+        // GGA - Message
+        else if (nmeaMsg == GGA_MSG)
+        {
+            if (analyseGGA(&gpsData) == 0)
+            {
+                GDOS_DBG_DETAIL("received GGA message, recordingTime %i\n", nmea.recordingTime);
+            }
+        }
+
+        // GSA - Message
+        else if (nmeaMsg == GSA_MSG)
+        {
+            if (analyseGSA(&gpsData) == 0)
+            {
+                GDOS_DBG_DETAIL("received GSA message, recordingTime %i\n", nmea.recordingTime);
+            }
+        }
+
+        // VTG - Message
+        else if (nmeaMsg == VTG_MSG)
+        {
+            if (analyseVTG(&gpsData) == 0)
+            {
+                GDOS_DBG_DETAIL("received VTG message, recordingTime %i\n", nmea.recordingTime);
+            }
+        }
+
+        else
+        {
+            GDOS_DBG_DETAIL("received unknown message, recordingTime %i\n", nmea.recordingTime);
+        }
+
+        // first data package, store recordingTime
+        if (nmeaMsg == trigMsgStart)
+        {
+            gpsData.recordingTime = nmea.recordingTime;
         }
 
         // write package if a complete dataset is read
@@ -264,6 +360,24 @@ int GpsNmea::moduleLoop(void)
                 }
                 gpsData.var.phi = INFINITY;
                 gpsData.var.psi = INFINITY;
+
+
+                // realtime clock update
+                if (realtimeClockUpdate == 1)
+                {
+                    GDOS_DBG_DETAIL("recordingtime %d, utcTime %d\n",
+                                    gpsData.recordingTime, gpsData.utcTime);
+
+                    // each realtimeClockUpdateTime
+                    if (((int)gpsData.recordingTime - (int)lastClockUpdateTime) > realtimeClockUpdateTime)
+                    {
+                        rackTime.set(gpsData.utcTime, gpsData.recordingTime);
+
+                        GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
+                                      gpsData.recordingTime, gpsData.utcTime);
+                        lastClockUpdateTime = gpsData.recordingTime;
+                    }
+                }
             }
 
             memcpy(p_data, &gpsData, sizeof(gps_data));
@@ -271,53 +385,6 @@ int GpsNmea::moduleLoop(void)
 
             utcTimeOld            = utcTime;
             satelliteNumOld       = gpsData.satelliteNum;
-        }
-
-        // first data package, store recordingTime
-        if (nmeaMsg == trigMsgStart)
-        {
-            gpsData.recordingTime = nmea.recordingTime;
-        }
-
-        // RMC - Message
-        if (nmeaMsg == RMC_MSG)
-        {
-            if (analyseRMC(&gpsData) == 0)
-            {
-                GDOS_DBG_DETAIL("received RMC message, recordingTime %i\n", nmea.recordingTime);
-            }
-        }
-
-        // GGA - Message
-        else if (nmeaMsg == GGA_MSG)
-        {
-            if (analyseGGA(&gpsData) == 0)
-            {
-                GDOS_DBG_DETAIL("received GGA message, recordingTime %i\n", nmea.recordingTime);
-            }
-        }
-
-        // GSA - Message
-        else if (nmeaMsg == GSA_MSG)
-        {
-            if (analyseGSA(&gpsData) == 0)
-            {
-                GDOS_DBG_DETAIL("received GSA message, recordingTime %i\n", nmea.recordingTime);
-            }
-        }
-
-        // VTG - Message
-        else if (nmeaMsg == VTG_MSG)
-        {
-            if (analyseVTG(&gpsData) == 0)
-            {
-                GDOS_DBG_DETAIL("received VTG message, recordingTime %i\n", nmea.recordingTime);
-            }
-        }
-
-        else
-        {
-            GDOS_DBG_DETAIL("received unknown message, recordingTime %i\n", nmea.recordingTime);
         }
     }
     else
@@ -358,6 +425,30 @@ int GpsNmea::moduleLoop(void)
         putDataBufferWorkSpace(sizeof(gps_data));
 
         satelliteNumOld = gpsData.satelliteNum;
+    }
+
+
+    // clock relay
+    if (clockRelayInst >= 0)
+    {
+        clockRelayData.recordingTime = gpsData.recordingTime;
+        clockRelayData.utcTime       = gpsData.utcTime;
+        clockRelayData.syncMode      = CLOCK_SYNC_MODE_NONE;
+        clockRelayData.dayOfWeek     = -1;
+        clockRelayData.varT          = 0;
+
+        if (gpsData.satelliteNum >= 4)
+        {
+            clockRelayData.syncMode = CLOCK_SYNC_MODE_REMOTE;
+        }
+
+        ret = workMbx.sendDataMsg(MSG_DATA, clockRelayMbxAdr + 1, 1, 1,
+                                  &clockRelayData, sizeof(clock_data));
+        if (ret)
+        {
+            GDOS_ERROR("Error while sending clock data from %x to %x (bytes %d), code = %d\n",
+                       workMbx.getAdr(), clockRelayMbxAdr, sizeof(clock_data), ret);
+        }
     }
 
     return 0;
@@ -958,9 +1049,17 @@ long GpsNmea::toCalendarTime(float time, int date)
     // date
     day    = date / 10000;
     idiff  = date - day * 10000;
-    mon    = (idiff / 100) - 1;
-    idiff -= mon * 100;
+    mon    = (idiff / 100);
+    idiff -= (mon - 1) * 100;
     year   = idiff + 1900;
+
+    // clock relay
+    clockRelayData.hour     = hour;
+    clockRelayData.minute   = min;
+    clockRelayData.second   = sec;
+    clockRelayData.day      = day;
+    clockRelayData.month    = mon;
+    clockRelayData.year     = year;
 
     if (0 >= (int)(mon -= 2))
     {
@@ -1168,13 +1267,27 @@ int GpsNmea::moduleInit(void)
     //
 
     // position
-    position = new PositionProxy(&workMbx, 0, positionInst);
+    position = new PositionProxy(&workMbx, positionSys, positionInst);
     if (!position)
     {
         ret = -ENOMEM;
         goto init_error;
     }
     initBits.setBit(INIT_BIT_PROXY_POSITION);
+
+    // clock relay
+    if (clockRelayInst >= 0)
+    {
+        // clock relay mbx adress
+        clockRelayMbxAdr = RackName::create(clockRelaySys, CLOCK, clockRelayInst);
+        clockRelay = new ClockProxy(&workMbx, clockRelaySys, clockRelayInst);
+        if (!clockRelay)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_CLOCK_RELAY);
+    }
 
 
     return 0;
@@ -1190,6 +1303,12 @@ void GpsNmea::moduleCleanup(void)
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
+    }
+
+    // free clock proxy
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_CLOCK_RELAY))
+    {
+        delete clockRelay;
     }
 
     // free position proxy
@@ -1220,7 +1339,10 @@ GpsNmea::GpsNmea()
                       10)               // data buffer listener
 {
     // get static module parameter
+    positionSys                  = getIntArg("positionSys", argTab);
     positionInst                 = getIntArg("positionInst", argTab);
+    clockRelaySys                = getIntArg("clockRelaySys", argTab);
+    clockRelayInst               = getIntArg("clockRelayInst", argTab);
     serialDev                    = getIntArg("serialDev", argTab);
     gps_serial_config.baud_rate  = getIntArg("baudrate", argTab);
 
