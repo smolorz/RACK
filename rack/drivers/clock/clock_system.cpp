@@ -160,6 +160,12 @@ int ClockSystem::moduleLoop(void)
     p_data->syncMode      = currSyncMode;
     p_data->varT          = 0;
 
+    // sunday correction
+    if (p_data->dayOfWeek == 0)
+    {
+        p_data->dayOfWeek = 7;
+    }
+
     GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
     putDataBufferWorkSpace(sizeof(clock_data));
 
