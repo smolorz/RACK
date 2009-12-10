@@ -31,6 +31,7 @@
 #define LADAR_IBEO_LUX_MESSAGE_SIZE_MAX     51000
 
 #define LADAR_IBEO_LUX_SCAN_POINT_MAX       10000
+#define LADAR_IBEO_LUX_LAYER_MAX            4
 
 #define LADAR_IBEO_LUX_MAGIC_WORD           0xAFFEC0C2
 #define LADAR_IBEO_LUX_SCAN_DATA            0x2202
@@ -211,6 +212,7 @@ class LadarIbeoLux : public RackDataModule {
         int                         objRecogBoundInst;
         int                         objRecogContourSys;
         int                         objRecogContourInst;
+        int                         distanceFilter;
 
         int                         tcpSocket;
         struct sockaddr_in          tcpAddr;
@@ -226,6 +228,8 @@ class LadarIbeoLux : public RackDataModule {
         ladar_ibeo_lux_command      ladarCommand;
         ladar_ibeo_lux_command      ladarCommandReply;
 
+        ladar_data_msg              ladarWorkMsg[LADAR_IBEO_LUX_LAYER_MAX];
+
         obj_recog_data_msg          objRecogBoundData;
         obj_recog_data_msg          objRecogContourData;
 
@@ -238,6 +242,9 @@ class LadarIbeoLux : public RackDataModule {
 
         uint32_t                    objRecogBoundMbxAdr;
         uint32_t                    objRecogContourMbxAdr;
+
+        int ukTypeNum;
+        int ukType[LADAR_DATA_MAX_POINT_NUM];
 
 
     protected:
