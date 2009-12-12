@@ -24,6 +24,9 @@
 // init_flags (for init and cleanup)
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_MTX_CREATED                1
+#define INIT_BIT_MBX_WORK                   3
+#define INIT_BIT_PROXY_LADAR                4
+#define INIT_BIT_PROXY_ODOMETRY             5
 
 ChassisSim *p_inst;
 
@@ -202,6 +205,10 @@ int ChassisSim::moduleOn(void)
     usarsimIp               = getStringParam("usarsimIp");
     usarsimPort             = getInt32Param("usarsimPort");
     usarsimChassis          = getStringParam("usarsimChassis");
+    ladarRelaySys           = getInt32Param("ladarRelaySys");
+    ladarRelayInst          = getInt32Param("ladarRelayInst");
+    odometryRelaySys        = getInt32Param("odometryRelaySys");
+    odometryRelayInst       = getInt32Param("odometryRelayInst");
     chassisInitPos.x        = getInt32Param("chassisInitPosX");
     if (chassisInitPos.x == 0)
     {
@@ -251,7 +258,55 @@ int ChassisSim::moduleOn(void)
         GDOS_ERROR("Can't send init command to USARSIM server\n");
         return  ret;
     }
-    
+
+    //odometryRelay
+    odometryData.recordingTime = rackTime.get();
+ 
+    ret = workMbx.sendDataMsg(MSG_DATA, odometryRelayMbxAdr + 1, 1, 1,
+                             &odometryData, sizeof(odometry_data));
+    if (ret)
+    {
+        GDOS_WARNING("Error while sending first odometry data from %x to %x (bytes %d)\n",
+                     workMbx.getAdr(), odometryRelayMbxAdr, sizeof(odometry_data));
+    }
+
+    GDOS_DBG_DETAIL("Turn on Odometry(%d/%d)\n", odometryRelaySys, odometryRelayInst);
+    ret = odometryRelay->on();
+    if (ret)
+    {
+        GDOS_ERROR("Can't turn on OdometryRelay(%i/%i), code = %d\n",
+                   odometryRelaySys, odometryRelayInst, ret);
+        return ret;
+    }
+
+    // ladar relay
+    if (ladarRelayInst >= 0)
+    {
+        // init sonar values and send first dataMsg
+        ladarData.data.recordingTime = rackTime.get();
+        ladarData.data.maxRange = 30000;
+        ladarData.data.duration = 200;
+        ladarData.data.endAngle = 90.0 * M_PI /180.0;
+        ladarData.data.pointNum      = 0;
+
+        ret = workMbx.sendDataMsg(MSG_DATA, ladarRelayMbxAdr + 1, 1, 1,
+                                  &ladarData, sizeof(ladar_data));
+        if (ret)
+        {
+            GDOS_WARNING("Error while sending first ladar relay data from %x to %x (bytes %d)\n",
+                         workMbx.getAdr(), ladarRelayMbxAdr, sizeof(ladar_data));
+        }
+
+        GDOS_DBG_DETAIL("Turn on Ladar(%d/%d)\n", ladarRelaySys, ladarRelayInst);
+        ret = ladarRelay->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on Ladar(%i/%i), code = %d\n",
+                       ladarRelaySys, ladarRelayInst, ret);
+            return ret;
+        }
+    }
+        
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
 
@@ -484,8 +539,7 @@ int ChassisSim::sendMoveCommand(int speed, float omega, int type)
 int ChassisSim::searchRangeScannerData()
 {
     size_t magicWordPos, startPos, endPos;
-    int dataNum;
-    float test;
+    int ret;
 
     magicWordPos = messageStr.find("{Type RangeScanner");
     
@@ -503,7 +557,7 @@ int ChassisSim::searchRangeScannerData()
                 printf("data: %s", parseData);
                 startPos = 0;
                 endPos = 0;
-                dataNum = 0;
+                ladarData.data.pointNum = 0;
 
                 while ((startPos != string::npos) && (endPos != string::npos))
                 {
@@ -517,10 +571,21 @@ int ChassisSim::searchRangeScannerData()
                     {
                         valueStr = dataStr.substr(startPos);
                     }
-                    //strcpy(parseData, dataStr.c_str());
-                    test = atof(valueStr.c_str());
-                    dataNum++;
-                    GDOS_PRINT("Data %f, data Num %i\n", test, dataNum);
+                    ladarData.data.point[ladarData.data.pointNum].distance = (int)(atof(valueStr.c_str()) * 1000.0);
+                    ladarData.data.point[ladarData.data.pointNum].angle    =
+                                                ladarData.data.endAngle - (0.01745f * (float)ladarData.data.pointNum);
+                    ladarData.data.point[ladarData.data.pointNum].type = LADAR_POINT_TYPE_UNKNOWN;
+                    ladarData.data.pointNum++;
+                }
+                ladarData.data.startAngle = ladarData.data.endAngle - (0.01745f * (float)ladarData.data.pointNum);
+
+                ret = workMbx.sendDataMsg(MSG_DATA, ladarRelayMbxAdr + 1, 1, 1,
+                                         &ladarData, sizeof(ladar_data) + ladarData.data.pointNum * sizeof(ladar_point));
+                if (ret)
+                {
+                    GDOS_ERROR("Error while sending ladarData data from %x to %x\n",
+                               workMbx.getAdr(), ladarRelayMbxAdr);
+                    return ret;
                 }
             }
             else
@@ -570,6 +635,37 @@ int ChassisSim::moduleInit(void)
         goto init_error;
     }
     initBits.setBit(INIT_BIT_MTX_CREATED);
+    
+    // create mailbox
+    ret = createMbx(&workMbx, 10, sizeof(ladar_data_msg),
+                    MBX_IN_USERSPACE | MBX_SLOT);
+    if (ret)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_MBX_WORK);
+
+    // create ladarSonar proxy
+    if (ladarRelayInst >= 0)
+    {
+        ladarRelayMbxAdr = RackName::create(ladarRelaySys, LADAR, ladarRelayInst);
+        ladarRelay       = new LadarProxy(&workMbx, ladarRelaySys, ladarRelayInst);
+        if (!ladarRelay)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_LADAR);
+    }
+
+    odometryRelayMbxAdr = RackName::create(odometryRelaySys, ODOMETRY, odometryRelayInst);
+    odometryRelay       = new OdometryProxy(&workMbx, odometryRelaySys, odometryRelayInst);
+    if (!odometryRelay)
+    {
+        ret = -ENOMEM;
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
     return 0;
 
@@ -586,7 +682,26 @@ void ChassisSim::moduleCleanup(void)
     {
         RackDataModule::moduleCleanup();
     }
+    
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_ODOMETRY))
+    {
+        delete odometryRelay;
+    }
 
+    // destroy ladarRelay proxy
+    if (ladarRelayInst >= 0)
+    {
+        if (initBits.testAndClearBit(INIT_BIT_PROXY_LADAR))
+        {
+            delete ladarRelay;
+        }
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_MBX_WORK))
+    {
+        destroyMbx(&workMbx);
+    }
+    
     // destroy mutex
     if (initBits.testAndClearBit(INIT_BIT_MTX_CREATED))
     {

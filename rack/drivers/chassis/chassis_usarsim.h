@@ -19,6 +19,8 @@
 #include <main/rack_data_module.h>
 #include <drivers/chassis_proxy.h>
 #include <main/defines/position3d.h>
+#include <drivers/ladar_proxy.h>
+#include <drivers/odometry_proxy.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -34,6 +36,12 @@ using namespace std;
 #define USARSIM_BUFFER      200
 #define USARSIM_MAX_MSG_SIZE    9216
 
+typedef struct
+{
+    ladar_data          data;
+    ladar_point         point[LADAR_DATA_MAX_POINT_NUM];
+} __attribute__((packed)) ladar_data_msg;
+
 //######################################################################
 //# class ChassisSimModule
 //######################################################################
@@ -43,6 +51,10 @@ class ChassisSim : public RackDataModule {
     chassis_move_data   commandData;
     uint32_t            activePilot;
     RackMutex           mtx;
+    int                 ladarRelaySys;
+    int                 ladarRelayInst;
+    int                 odometryRelaySys;
+    int                 odometryRelayInst;
     int                 chassisInitPosX;
     int                 chassisInitPosY;
     int                 chassisInitPosZ;
@@ -61,8 +73,21 @@ class ChassisSim : public RackDataModule {
     string              dataStr;
     string              valueStr;
 
-    
+    ladar_data_msg      ladarData;
+    odometry_data       odometryData;
     position_3d         chassisInitPos;
+
+
+    uint32_t        ladarRelayMbxAdr;
+    uint32_t        odometryRelayMbxAdr;
+
+    // mailboxes
+    RackMailbox     workMbx;
+
+    // proxies
+    LadarProxy      *ladarRelay;
+    OdometryProxy   *odometryRelay;
+
     
   protected:
     // -> realtime context
@@ -74,7 +99,7 @@ class ChassisSim : public RackDataModule {
     int chassisInit(char *usarsimChassis, position_3d chassisInitPos);
     int sendMoveCommand(int speed, float omega, int type);
     int searchRangeScannerData();
-    
+
     // -> non realtime context
     void moduleCleanup(void);
 
