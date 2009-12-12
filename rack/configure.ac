@@ -576,6 +576,23 @@ if test "$CONFIG_RACK_CHASSIS_SIM" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - ChassisUsarsim
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ChassisUsarsim])
+AC_ARG_ENABLE(chassis-usarsim,
+    AS_HELP_STRING([--enable-chassis-usarsim], [building ChassisUsarsim]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_CHASSIS_USARSIM=y ;;
+        *) CONFIG_RACK_CHASSIS_USARSIM=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_CHASSIS_USARSIM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_CHASSIS_USARSIM,[test "$CONFIG_RACK_CHASSIS_USARSIM" = "y"])
+if test "$CONFIG_RACK_CHASSIS_USARSIM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_CHASSIS_USARSIM,1,[building ChassisUsarsim])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - ChassisRoomba
 dnl -----------------------------------------------------------------
 

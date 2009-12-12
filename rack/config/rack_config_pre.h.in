@@ -27,6 +27,9 @@
 /* building ChassisSim */
 #undef CONFIG_RACK_CHASSIS_SIM
 
+/* building ChassisUsarsim */
+#undef CONFIG_RACK_CHASSIS_USARSIM
+
 /* building ClockDcf77EmcPro */
 #undef CONFIG_RACK_CLOCK_DCF77_EMC_PRO
 

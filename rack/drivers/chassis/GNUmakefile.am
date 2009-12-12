@@ -5,6 +5,10 @@ if CONFIG_RACK_CHASSIS_SIM
 bin_PROGRAMS += ChassisSim
 endif
 
+if CONFIG_RACK_CHASSIS_USARSIM
+bin_PROGRAMS += ChassisUsarsim
+endif
+
 if CONFIG_RACK_CHASSIS_PIONEER
 bin_PROGRAMS += ChassisPioneer
 endif
@@ -26,6 +30,10 @@ LDADD    = @RACK_LIBS@
 ChassisSim_SOURCES = \
 	chassis_sim.h \
 	chassis_sim.cpp
+
+ChassisUsarsim_SOURCES = \
+	chassis_usarsim.h \
+	chassis_usarsim.cpp
 
 ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \

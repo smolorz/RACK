@@ -3,6 +3,10 @@ config RACK_CHASSIS_SIM
     bool "Chassis - Sim"
     default y
 
+config RACK_CHASSIS_USARSIM
+    bool "Chassis - Usarsim"
+    default y
+
 config RACK_CHASSIS_PIONEER
     bool "Chassis - Pioneer"
     default y

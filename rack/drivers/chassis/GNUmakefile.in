@@ -33,11 +33,12 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4)
+	$(am__EXEEXT_4) $(am__EXEEXT_5)
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__append_1 = ChassisSim
-@CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__append_2 = ChassisPioneer
-@CONFIG_RACK_CHASSIS_ER1_TRUE@am__append_3 = ChassisEr1
-@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__append_4 = ChassisRoomba
+@CONFIG_RACK_CHASSIS_USARSIM_TRUE@am__append_2 = ChassisUsarsim
+@CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__append_3 = ChassisPioneer
+@CONFIG_RACK_CHASSIS_ER1_TRUE@am__append_4 = ChassisEr1
+@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__append_5 = ChassisRoomba
 subdir = drivers/chassis
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -49,10 +50,12 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 @CONFIG_RACK_CHASSIS_SIM_TRUE@am__EXEEXT_1 = ChassisSim$(EXEEXT)
-@CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__EXEEXT_2 =  \
+@CONFIG_RACK_CHASSIS_USARSIM_TRUE@am__EXEEXT_2 =  \
+@CONFIG_RACK_CHASSIS_USARSIM_TRUE@	ChassisUsarsim$(EXEEXT)
+@CONFIG_RACK_CHASSIS_PIONEER_TRUE@am__EXEEXT_3 =  \
 @CONFIG_RACK_CHASSIS_PIONEER_TRUE@	ChassisPioneer$(EXEEXT)
-@CONFIG_RACK_CHASSIS_ER1_TRUE@am__EXEEXT_3 = ChassisEr1$(EXEEXT)
-@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__EXEEXT_4 =  \
+@CONFIG_RACK_CHASSIS_ER1_TRUE@am__EXEEXT_4 = ChassisEr1$(EXEEXT)
+@CONFIG_RACK_CHASSIS_ROOMBA_TRUE@am__EXEEXT_5 =  \
 @CONFIG_RACK_CHASSIS_ROOMBA_TRUE@	ChassisRoomba$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -73,6 +76,10 @@ am_ChassisSim_OBJECTS = chassis_sim.$(OBJEXT)
 ChassisSim_OBJECTS = $(am_ChassisSim_OBJECTS)
 ChassisSim_LDADD = $(LDADD)
 ChassisSim_DEPENDENCIES =
+am_ChassisUsarsim_OBJECTS = chassis_usarsim.$(OBJEXT)
+ChassisUsarsim_OBJECTS = $(am_ChassisUsarsim_OBJECTS)
+ChassisUsarsim_LDADD = $(LDADD)
+ChassisUsarsim_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/config@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -95,9 +102,11 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(ChassisEr1_SOURCES) $(ChassisPioneer_SOURCES) \
-	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES)
+	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES) \
+	$(ChassisUsarsim_SOURCES)
 DIST_SOURCES = $(ChassisEr1_SOURCES) $(ChassisPioneer_SOURCES) \
-	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES)
+	$(ChassisRoomba_SOURCES) $(ChassisSim_SOURCES) \
+	$(ChassisUsarsim_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -264,6 +273,10 @@ ChassisSim_SOURCES = \
 	chassis_sim.h \
 	chassis_sim.cpp
 
+ChassisUsarsim_SOURCES = \
+	chassis_usarsim.h \
+	chassis_usarsim.cpp
+
 ChassisPioneer_SOURCES = \
 	chassis_pioneer.h \
 	chassis_pioneer.cpp
@@ -352,6 +365,9 @@ ChassisRoomba$(EXEEXT): $(ChassisRoomba_OBJECTS) $(ChassisRoomba_DEPENDENCIES)
 ChassisSim$(EXEEXT): $(ChassisSim_OBJECTS) $(ChassisSim_DEPENDENCIES) 
 	@rm -f ChassisSim$(EXEEXT)
 	$(CXXLINK) $(ChassisSim_OBJECTS) $(ChassisSim_LDADD) $(LIBS)
+ChassisUsarsim$(EXEEXT): $(ChassisUsarsim_OBJECTS) $(ChassisUsarsim_DEPENDENCIES) 
+	@rm -f ChassisUsarsim$(EXEEXT)
+	$(CXXLINK) $(ChassisUsarsim_OBJECTS) $(ChassisUsarsim_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -363,6 +379,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_pioneer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_roomba.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_sim.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chassis_usarsim.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
