@@ -298,15 +298,11 @@ int ChassisSim::moduleLoop(void)
     }
     
     messageStr = messageData;
-    printf("%s",messageData);
-
 
     if (messageStr.find("SEN") != string::npos)
     {
-        searchRangeScannerData(messageStr);
+        searchRangeScannerData();
     }
-    
-    
     
     
     mtx.lock(RACK_INFINITE);
@@ -485,9 +481,11 @@ int ChassisSim::sendMoveCommand(int speed, float omega, int type)
     return 0;
 }
 
-int ChassisSim::searchRangeSannerData()
+int ChassisSim::searchRangeScannerData()
 {
     size_t magicWordPos, startPos, endPos;
+    int dataNum;
+    float test;
 
     magicWordPos = messageStr.find("{Type RangeScanner");
     
@@ -497,29 +495,33 @@ int ChassisSim::searchRangeSannerData()
         if (magicWordPos != string::npos)
         {
             startPos = magicWordPos + sizeof("{Range");
-            endPos = = messageStr.find("}", startPos);
+            endPos = messageStr.find("}", startPos);
             if (endPos != string::npos)
             {
                 dataStr = messageStr.substr(startPos, endPos - startPos);
-                
+                strcpy(parseData, dataStr.c_str());
+                printf("data: %s", parseData);
+                startPos = 0;
+                endPos = 0;
+                dataNum = 0;
 
-
-
-
-	while (p1>=0&&p2>=0) {
-		p1 = dataStr.Find(delimiter,p2)+1;
-		if (p1>0) {
-			p2 = dataStr.Find(delimiter,p1);
-			if (p2>0)
-				tmp = dataStr.Mid(p1,p2-p1);
-			else tmp = dataStr.Mid(p1);
-		}
-		else tmp = dataStr;
-		data[idx++] = tmp;
-		if (idx>=*count) return;
-                	}
-
-
+                while ((startPos != string::npos) && (endPos != string::npos))
+                {
+                    endPos = dataStr.find(',', startPos);
+                    if (endPos != string::npos)
+                    {
+                        valueStr = dataStr.substr(startPos, endPos - startPos);
+                        startPos = endPos + 1;
+                    }
+                    else
+                    {
+                        valueStr = dataStr.substr(startPos);
+                    }
+                    //strcpy(parseData, dataStr.c_str());
+                    test = atof(valueStr.c_str());
+                    dataNum++;
+                    GDOS_PRINT("Data %f, data Num %i\n", test, dataNum);
+                }
             }
             else
             {
@@ -532,12 +534,8 @@ int ChassisSim::searchRangeSannerData()
             GDOS_ERROR("Can't receive Range Scanner Data. Incomplete message");
             return -1;
         }
-
-
-        searchRangeScannerData(messageStr);
     }
-    
-    return 0; // Can't find Range Scanner Data
+    return 0;
 }
 
 

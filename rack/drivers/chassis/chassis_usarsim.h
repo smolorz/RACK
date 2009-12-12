@@ -71,8 +71,9 @@ class ChassisSim : public RackDataModule {
     int  moduleLoop(void);
     int  moduleCommand(message_info *msgInfo);
 
-    int  chassisInit(char *usarsimChassis, position_3d chassisInitPos);
-    int  sendMoveCommand(int speed, float omega, int type);
+    int chassisInit(char *usarsimChassis, position_3d chassisInitPos);
+    int sendMoveCommand(int speed, float omega, int type);
+    int searchRangeScannerData();
     
     // -> non realtime context
     void moduleCleanup(void);
