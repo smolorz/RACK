@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2009 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
  *      Oliver Wulf <oliver.wulf@web.de>
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  *
  */
 #ifndef __TIMS_API_H__
@@ -148,6 +149,12 @@ typedef struct
     uint32_t    buffer_size;
 } tims_mbx_cfg;
 
+typedef struct
+{
+    int64_t     utc_time;
+    int32_t     rec_time;
+} tims_clock_setvalue;
+
 #define RTIOC_TYPE_TIMS             RTDM_CLASS_NETWORK
 
 #define TIMS_RTIOC_MBXCFG          _IOW(RTIOC_TYPE_TIMS, 0x00,        \
@@ -170,6 +177,9 @@ typedef struct
 
 #define TIMS_RTIOC_GETTIME         _IOW(RTIOC_TYPE_TIMS, 0x06,        \
                                         nanosecs_abs_t)
+
+#define TIMS_RTIOC_SETTIME         _IOW(RTIOC_TYPE_TIMS, 0x07,        \
+                                        tims_clock_setvalue)
 
 //
 // functions

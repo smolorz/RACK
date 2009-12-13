@@ -13,44 +13,36 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
-#ifndef __CLOCK_DCF77_EMC_PRO_H__
-#define __CLOCK_DCF77_EMC_PRO_H__
+#ifndef __CLOCK_SYSTEM_H__
+#define __CLOCK_SYSTEM_H__
 
 #include <main/rack_data_module.h>
-#include <main/serial_port.h>
 #include <drivers/clock_proxy.h>
+#include <sys/time.h>
 
 // define module class
 #define MODULE_CLASS_ID                     CLOCK
 
-typedef struct
-{
-    rack_time_t        recordingTime;
-    char               data[1024];
-} clock_serial_data;
-
 //######################################################################
-//# class ClockDcf77EmcPro
+//# class ClockSystem
 //######################################################################
 
-class ClockDcf77EmcPro : public RackDataModule {
+class ClockSystem : public RackDataModule {
     private:
         // own vars
-        int                 serialDev;
-        int                 periodTime;
-        int                 realtimeClockUpdate;
-        int                 realtimeClockUpdateTime;
+        int                 clockSys;
+        int                 clockInst;
+        int                 systemClockUpdate;
+        int                 systemClockUpdateTime;
 
-        clock_serial_data   serialData;
+        clock_data          clockData;
         rack_time_t         lastUpdateTime;
+        int                 currSyncMode;
 
-        SerialPort          serialPort;
+        ClockProxy          *clock;
 
         // additional mailboxes
         RackMailbox         workMbx;
-
-        int readSerialMessage(clock_serial_data *serialData);
-        int analyseSerialMessage(clock_serial_data *serialData, clock_data *data);
 
     protected:
         // -> realtime context
@@ -64,11 +56,11 @@ class ClockDcf77EmcPro : public RackDataModule {
 
     public:
         // constructor und destructor
-        ClockDcf77EmcPro();
-        ~ClockDcf77EmcPro() {};
+        ClockSystem();
+        ~ClockSystem() {};
 
         // -> realtime context
         int  moduleInit(void);
 };
 
-#endif // __CLOCK_DCF77_EMC_PRO_H__
+#endif // __CLOCK_SYSTEM_H__

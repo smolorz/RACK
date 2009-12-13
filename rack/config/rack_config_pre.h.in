@@ -36,6 +36,9 @@
 /* building ClockDcf77MbgC51 */
 #undef CONFIG_RACK_CLOCK_DCF77_MBG_C51
 
+/* building ClockSystem */
+#undef CONFIG_RACK_CLOCK_SYSTEM
+
 /* Compiler */
 #undef CONFIG_RACK_COMPILER
 

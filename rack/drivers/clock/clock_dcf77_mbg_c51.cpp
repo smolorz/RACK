@@ -40,6 +40,12 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Period time of the timing signal (in ms), default 1000", { 1000 } },
 
+    { ARGOPT_OPT, "realtimeClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable update of the realtime clock clock, 0=off, 1=on, default 1", { 1 } },
+
+    { ARGOPT_OPT, "realtimeClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Time interval for updating the realtime clock in ms, default 60000 ", { 60000 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -72,11 +78,16 @@ int ClockDcf77MbgC51::moduleOn(void)
 {
     // get dynamic module parameter
     dataBufferPeriodTime    = getInt32Param("periodTime");
+    realtimeClockUpdate     = getInt32Param("realtimeClockUpdate");
+    realtimeClockUpdateTime = getInt32Param("realtimeClockUpdateTime");
 
     serialPort.clean();
 
     // set rx timeout 2 * periodTime
     serialPort.setRecvTimeout(rackTime.toNano(2 * periodTime));
+
+    // init variables
+    lastUpdateTime = rackTime.get() - realtimeClockUpdateTime;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -116,10 +127,23 @@ int ClockDcf77MbgC51::moduleLoop(void)
     RackTask::enableRealtimeMode();*/
 
     p_data->recordingTime = serialData.recordingTime;
+
+    // update realtime clock
+    if ((realtimeClockUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
+    {
+        // each realtimeClockUpdateTime
+        if (((int)p_data->recordingTime - (int)lastUpdateTime) > realtimeClockUpdateTime)
+        {
+            rackTime.set(p_data->utcTime, p_data->recordingTime);
+
+            GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
+                          p_data->recordingTime, p_data->utcTime);
+            lastUpdateTime = serialData.recordingTime;
+        }
+    }
+
     GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
-
     putDataBufferWorkSpace(sizeof(clock_data));
-
     return 0;
 }
 
@@ -166,7 +190,7 @@ int ClockDcf77MbgC51::readSerialMessage(clock_serial_data *serialData)
     // store first character
     else
     {
-        serialData->data[0] = currChar;
+        serialData->data[0]       = currChar;
         i = 1;
     }
 
@@ -189,7 +213,7 @@ int ClockDcf77MbgC51::readSerialMessage(clock_serial_data *serialData)
         i++;
     }
 
-    // if last read character != "Carriage Return" an error occured
+    // if last read character != "0x03" an error occured
     if (currChar != 0x03)
     {
         GDOS_ERROR("Can't read end of serial message\n");
@@ -263,7 +287,7 @@ int ClockDcf77MbgC51::analyseSerialMessage(clock_serial_data *serialData, clock_
     // year
     strncpy (subStr, &serialData->data[9], 2);
     subStr[2]='\0';
-    data->year = strtol(subStr, &endPtr, 10);
+    data->year = strtol(subStr, &endPtr, 10) + 2000;
     if (*endPtr != 0)
     {
         GDOS_ERROR("Cannot read years from serial data");
@@ -282,7 +306,7 @@ int ClockDcf77MbgC51::analyseSerialMessage(clock_serial_data *serialData, clock_
 
     // utc time
     month = data->month;
-    year  = data->year + 2000;
+    year  = data->year;
 
     if (0 >= (int)(month -= 2))
     {

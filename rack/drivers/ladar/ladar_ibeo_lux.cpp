@@ -51,6 +51,8 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "ladarPort", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Port of the ibeo lux ladar, default 12002", { 12002 } },
 
+    { ARGOPT_OPT, "distanceFilter", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Filter to select the shortest distance for each angle measurement, 1=on, 0=0ff, default off", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -72,8 +74,9 @@ int LadarIbeoLux::moduleOn(void)
     struct timeval  recvTimeout;
 
     // read dynamic module parameter
-    ladarIp   = getStringParam("ladarIp");
-    ladarPort = getInt32Param("ladarPort");
+    ladarIp           = getStringParam("ladarIp");
+    ladarPort         = getInt32Param("ladarPort");
+    distanceFilter    = getInt32Param("distanceFilter");
 
     // object recognition bounding-box
     if (objRecogBoundInst >= 0)
@@ -203,6 +206,8 @@ int  LadarIbeoLux::moduleLoop(void)
     int                         ret, i, j, l;
     int                         dx, dy, length;
     int                         dT;
+    int                         layer, echo;
+    int                         currId;
     uint32_t                    datalength         = 0;
     float                       angle;
     double                      scanStartTime;
@@ -216,6 +221,7 @@ int  LadarIbeoLux::moduleLoop(void)
     ladar_ibeo_lux_point2d      *ladarContourPoint = NULL;
     ladar_ibeo_lux_point2d      ladarContourPointOld;
     point_2d                    startPoint, endPoint;
+    ladar_point                 point;
 
     // get datapointer from rackdatabuffer
     p_data = (ladar_data *)getDataBufferWorkSpace();
@@ -267,53 +273,101 @@ int  LadarIbeoLux::moduleLoop(void)
                                         (int)rint((ladarSendTime - scanEndTime +
                                                  ((scanEndTime - scanStartTime) / 2.0)) * 1000.0);
 
-            // create ladar data message
+            // reset pointNum for each layer buffer
+            for (i = 0; i < LADAR_IBEO_LUX_LAYER_MAX; i++)
+            {
+                ladarWorkMsg[i].data.pointNum = 0;
+            }
+
+            // store scanpoints in layer buffer
+            for (i = 0; i < ladarScanData->scanPoints; i++)
+            {
+                point.angle    = -(2.0 * M_PI * ladarScanData->point[i].angle) /
+                                 ladarScanData->angleTicksPerRot;
+                point.distance = ladarScanData->point[i].distance * 10;
+
+                // set ladar type
+                point.intensity = 0;
+                point.type      = LADAR_POINT_TYPE_INVALID;
+
+                if ((ladarScanData->point[i].flags & 0x08) == 0x08)     // dirt
+                {
+                    point.type = LADAR_POINT_TYPE_DIRT;
+                }
+                if ((ladarScanData->point[i].flags & 0x04) == 0x04)     // ground
+                {
+                    point.type = LADAR_POINT_TYPE_INVALID;
+                }
+                if ((ladarScanData->point[i].flags & 0x02) == 0x02)     // rain
+                {
+                    point.type = LADAR_POINT_TYPE_RAIN;
+                }
+                if ((ladarScanData->point[i].flags & 0x01) == 0x01)     // transparent
+                {
+                    point.type = LADAR_POINT_TYPE_TRANSPARENT;
+                }
+                if ((ladarScanData->point[i].flags & 0x01) == 0x00)     // object
+                {
+                    point.type = LADAR_POINT_TYPE_UNKNOWN;
+                }
+
+                layer =   (ladarScanData->point[i].layerEcho & 0x0F);
+                echo  =  ((ladarScanData->point[i].layerEcho & 0xF0) >> 4);
+                currId = ladarWorkMsg[layer].data.pointNum;
+
+                // distance filter activated and at least one point stored in this layer
+                if ((distanceFilter == 1) && (currId > 0))
+                {
+                    // check if angle of current point is equal to previous point
+                    if (point.angle == ladarWorkMsg[layer].point[currId - 1].angle)
+                    {
+                        // consider only object measurements
+                        if (point.type == 0x00)
+                        {
+                            // replace previous point if current distance is smaller or if 
+                            // previous point was not an object measurement
+                            if ((point.distance < ladarWorkMsg[layer].point[currId - 1].distance) ||
+                                (ladarWorkMsg[layer].point[currId - 1].type != 0x00))
+                            {
+                                memcpy(&ladarWorkMsg[layer].point[currId - 1], &point, sizeof(ladar_point));
+                            }
+                        }
+                    }
+
+                    // new angle point
+                    else
+                    {
+                        memcpy(&ladarWorkMsg[layer].point[currId], &point, sizeof(ladar_point));
+                        ladarWorkMsg[layer].data.pointNum++;
+                    }
+                }
+                else
+                {
+                    memcpy(&ladarWorkMsg[layer].point[currId], &point, sizeof(ladar_point));
+                    ladarWorkMsg[layer].data.pointNum++;
+                }
+            }
+
+            // create ladar data output
             p_data->duration        = (int)rint((scanEndTime - scanStartTime) * 1000.0);
             p_data->maxRange        = LADAR_IBEO_LUX_MAX_RANGE;
             p_data->startAngle      = -(2.0 * M_PI * ladarScanData->startAngle) /
                                         ladarScanData->angleTicksPerRot;
             p_data->endAngle        = -(2.0 * M_PI * ladarScanData->endAngle) /
                                         ladarScanData->angleTicksPerRot;
-            p_data->pointNum        = ladarScanData->scanPoints;
+            p_data->pointNum        = 0;
 
-
-            for (i = 0; i < ladarScanData->scanPoints; i++)
+            // concatenate layer data
+            for (i = 0; i < LADAR_IBEO_LUX_LAYER_MAX; i++)
             {
-                p_data->point[i].angle    = -(2.0 * M_PI * ladarScanData->point[i].angle) /
-                                              ladarScanData->angleTicksPerRot;
-                p_data->point[i].distance = ladarScanData->point[i].distance * 10;
-
-                // ladar type
-                switch (ladarScanData->point[i].flags)
+                if (ladarWorkMsg[i].data.pointNum != 0)
                 {
-                    case 0:
-                        p_data->point[i].type = LADAR_POINT_TYPE_UNKNOWN;           // unknown
-                        break;
-                    case 1:
-                        p_data->point[i].type = LADAR_POINT_TYPE_TRANSPARENT;       // transparent
-                        break;
-                    case 2:
-                        p_data->point[i].type = LADAR_POINT_TYPE_RAIN;              // rain
-                        break;
-                    case 4:
-                        p_data->point[i].type = LADAR_POINT_TYPE_INVALID;           // ground
-                        break;
-                    case 8:
-                        p_data->point[i].type = LADAR_POINT_TYPE_DIRT;              // dirt
-                        break;
-                    default:
-                        p_data->point[i].type = LADAR_POINT_TYPE_INVALID;
-                        break;
+                    memcpy(&p_data->point[p_data->pointNum], &ladarWorkMsg[i].point[0], 
+                           ladarWorkMsg[i].data.pointNum * sizeof(ladar_point));
+                    p_data->pointNum += ladarWorkMsg[i].data.pointNum;
                 }
-
-                p_data->point[i].intensity = 0;
-
-                // special rain filter
-/*                if (ladarScanData->point[i].pulseWidth < 100)
-                {
-                    p_data->point[i].type = LADAR_POINT_TYPE_RAIN;
-                }*/
             }
+
             GDOS_DBG_DETAIL("Data recordingtime %i pointNum %i\n",
                             p_data->recordingTime, p_data->pointNum);
             datalength = sizeof(ladar_data) + sizeof(ladar_point) * p_data->pointNum;

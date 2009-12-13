@@ -19,6 +19,7 @@
 #include <main/rack_data_module.h>
 #include <main/serial_port.h>
 #include <main/angle_tool.h>
+#include <drivers/clock_proxy.h>
 #include <drivers/gps_proxy.h>
 #include <navigation/position_proxy.h>
 #include <time.h>
@@ -53,15 +54,21 @@ typedef struct
 
 class GpsNmea : public RackDataModule {
     private:
+        int             positionSys;
         int             positionInst;
+        int             clockRelaySys;
+        int             clockRelayInst;
         int             serialDev;
         int             periodTime;
         int             trigMsgStart;
         int             trigMsgEnd;
         int             varXY;
         float           varRho;
+        int             realtimeClockUpdate;
+        int             realtimeClockUpdateTime;
 
         rack_time_t     lastRecordingTime;
+        rack_time_t     lastClockUpdateTime;
         int             satelliteNumOld;
         float           utcTime;
         float           utcTimeOld;
@@ -70,7 +77,11 @@ class GpsNmea : public RackDataModule {
         gps_nmea        nmea;
         gps_data        gpsData;
         position_data   posDataOld;
+        clock_data      clockRelayData;
+
         PositionProxy   *position;
+        ClockProxy      *clockRelay;
+        uint32_t        clockRelayMbxAdr;
 
         // additional mailboxes
         RackMailbox     workMbx;

@@ -1433,7 +1433,7 @@ DatalogRec::DatalogRec(void)
                     16,               // command mailbox slots
                     sizeof(datalog_data) + // command mailbox data size per slot
                     DATALOG_LOGNUM_MAX * sizeof(datalog_log_info),
-                    MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
+                    MBX_IN_USERSPACE | MBX_SLOT,  // command mailbox flags
                     10,               // max buffer entries
                     10)               // data buffer listener
 {

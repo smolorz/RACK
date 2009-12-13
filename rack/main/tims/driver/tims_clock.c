@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2007 University of Hannover
+ * Copyright (C) 2005-2009 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de> 
  *
  */
 
@@ -64,7 +65,33 @@ int tims_clock_ioctl(rtdm_user_info_t *user_info, unsigned int request,
                      void *arg)
 {
     rtdm_lockctx_t lock_ctx;
+    spl_t s;
+    xnticks_t now, new_date, rec_time;
     nanosecs_rel_t result = 0;
+    tims_clock_setvalue *setval;
+
+    if (request == TIMS_RTIOC_SETTIME) {    
+        if (!arg)
+            return -EINVAL;
+
+        setval = (tims_clock_setvalue *)arg;
+
+        new_date = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->utc_time *
+                                                           1000000000llu));
+        rec_time = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->rec_time *
+                                                           1000000llu));
+
+        xnlock_get_irqsave(&nklock, s);
+        now = xntbase_get_time(rtdm_tbase);
+        xntbase_adjust_time(rtdm_tbase, (xnsticks_t)((new_date - now) +
+                                                     (rec_time - now)));
+        xnlock_put_irqrestore(&nklock, s);
+
+        clock_offset = 0;
+        sync_delay = 0;
+
+        return 0;
+    }
 
     switch(clock_sync_mode) {
         case SYNC_RTNET:
