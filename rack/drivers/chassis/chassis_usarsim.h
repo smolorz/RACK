@@ -21,6 +21,7 @@
 #include <main/defines/position3d.h>
 #include <drivers/ladar_proxy.h>
 #include <drivers/odometry_proxy.h>
+#include <navigation/position_proxy.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -43,10 +44,10 @@ typedef struct
 } __attribute__((packed)) ladar_data_msg;
 
 //######################################################################
-//# class ChassisSimModule
+//# class ChassisUsarsimModule
 //######################################################################
 
-class ChassisSim : public RackDataModule {
+class ChassisUsarsim : public RackDataModule {
   private:
     chassis_move_data   commandData;
     uint32_t            activePilot;
@@ -55,6 +56,8 @@ class ChassisSim : public RackDataModule {
     int                 ladarRelayInst;
     int                 odometryRelaySys;
     int                 odometryRelayInst;
+    int                 positionGndTruthRelaySys;
+    int                 positionGndTruthRelayInst;
     int                 chassisInitPosX;
     int                 chassisInitPosY;
     int                 chassisInitPosZ;
@@ -65,29 +68,32 @@ class ChassisSim : public RackDataModule {
     char                 *usarsimIp;
     char                 *usarsimChassis;
     int                  usarsimPort;
+    int                 maxBatteryState;
 
-    char                 messageData[USARSIM_MAX_MSG_SIZE];
-    char                 parseData[USARSIM_MAX_MSG_SIZE];
-    
+    char                messageData[USARSIM_MAX_MSG_SIZE];
+
+    rack_time_t         statusMsgTime;
+
     string              messageStr;
     string              dataStr;
     string              valueStr;
 
     ladar_data_msg      ladarData;
     odometry_data       odometryData;
+    position_data       groundTruthData;
     position_3d         chassisInitPos;
 
 
     uint32_t        ladarRelayMbxAdr;
     uint32_t        odometryRelayMbxAdr;
-
+    uint32_t        positionGndTruthRelayMbxAdr;
     // mailboxes
     RackMailbox     workMbx;
 
     // proxies
     LadarProxy      *ladarRelay;
     OdometryProxy   *odometryRelay;
-
+    PositionProxy   *positionGndTruthRelay;
     
   protected:
     // -> realtime context
@@ -99,17 +105,21 @@ class ChassisSim : public RackDataModule {
     int chassisInit(char *usarsimChassis, position_3d chassisInitPos);
     int sendMoveCommand(int speed, float omega, int type);
     int searchRangeScannerData();
+    int searchOdometryData();
+    int searchGroundTruthData();
+    int getBatteryState();
+    int getUsarsimTime();
 
     // -> non realtime context
     void moduleCleanup(void);
 
   public:
     // constructor und destructor
-    ChassisSim();
-    ~ChassisSim() {};
+    ChassisUsarsim();
+    ~ChassisUsarsim() {};
 
     // -> non realtime context
     int  moduleInit(void);
 };
 
-#endif // __CHASSIS_SIM_H__
+#endif // __CHASSIS_USARSIM_H__

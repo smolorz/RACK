@@ -27,8 +27,9 @@
 #define INIT_BIT_MBX_WORK                   3
 #define INIT_BIT_PROXY_LADAR                4
 #define INIT_BIT_PROXY_ODOMETRY             5
+#define INIT_BIT_PROXY_POSITION             6
 
-ChassisSim *p_inst;
+ChassisUsarsim *p_inst;
 
 argTable_t argTab[] = {
 
@@ -93,7 +94,7 @@ argTable_t argTab[] = {
       "pilotVTransMax, default 200", { 200 } },
 
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-        "1 / sampling rate in ms, default 100", { 5 } },
+        "1 / sampling rate in ms, default 200", { 200 } },
 
     { ARGOPT_REQ, "usarsimIp", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "Ip address of the USARSIM server", { 0 } },
@@ -103,13 +104,19 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "usarsimPort", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Port address of the usarsim port, default '3000'", { 3000 } },
-      
+
     { ARGOPT_OPT, "odometryRelaySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the odometry relay, default 0", { 0 } },
 
     { ARGOPT_OPT, "odometryRelayInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry relay, default 0", { 0 } },
 
+    { ARGOPT_OPT, "positionGndTruthRelaySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position relay, default 0", { 0 } },
+
+    { ARGOPT_OPT, "positionGndTruthRelayInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the position relay, default -1", { -1 } },
+      
     { ARGOPT_OPT, "ladarRelaySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the ladar relay, default 0", { 0 } },
 
@@ -176,7 +183,7 @@ chassis_param_data param = {
  *   own realtime user functions
  ******************************************************************************/
 
-int ChassisSim::moduleOn(void)
+int ChassisUsarsim::moduleOn(void)
 {
     int ret;
 
@@ -209,6 +216,8 @@ int ChassisSim::moduleOn(void)
     ladarRelayInst          = getInt32Param("ladarRelayInst");
     odometryRelaySys        = getInt32Param("odometryRelaySys");
     odometryRelayInst       = getInt32Param("odometryRelayInst");
+    positionGndTruthRelaySys  = getInt32Param("positionGndTruthRelaySys");
+    positionGndTruthRelayInst = getInt32Param("positionGndTruthRelayInst");
     chassisInitPos.x        = getInt32Param("chassisInitPosX");
     if (chassisInitPos.x == 0)
     {
@@ -268,6 +277,7 @@ int ChassisSim::moduleOn(void)
     {
         GDOS_WARNING("Error while sending first odometry data from %x to %x (bytes %d)\n",
                      workMbx.getAdr(), odometryRelayMbxAdr, sizeof(odometry_data));
+        return ret;
     }
 
     GDOS_DBG_DETAIL("Turn on Odometry(%d/%d)\n", odometryRelaySys, odometryRelayInst);
@@ -295,6 +305,7 @@ int ChassisSim::moduleOn(void)
         {
             GDOS_WARNING("Error while sending first ladar relay data from %x to %x (bytes %d)\n",
                          workMbx.getAdr(), ladarRelayMbxAdr, sizeof(ladar_data));
+            return ret;
         }
 
         GDOS_DBG_DETAIL("Turn on Ladar(%d/%d)\n", ladarRelaySys, ladarRelayInst);
@@ -306,11 +317,37 @@ int ChassisSim::moduleOn(void)
             return ret;
         }
     }
-        
+    
+    if (positionGndTruthRelayInst >= 0)
+    {
+        //positionGroundTruthRelay
+        groundTruthData.recordingTime = rackTime.get();
+
+        ret = workMbx.sendDataMsg(MSG_DATA, positionGndTruthRelayMbxAdr + 1, 1, 1,
+                                 &groundTruthData, sizeof(position_data));
+        if (ret)
+        {
+            GDOS_WARNING("Error while sending first position ground truth data from %x to %x (bytes %d)\n",
+                         workMbx.getAdr(), positionGndTruthRelayMbxAdr, sizeof(position_data));
+            return ret;
+        }
+
+        GDOS_DBG_DETAIL("Turn on Position Ground Truth(%d/%d)\n",  positionGndTruthRelaySys, positionGndTruthRelayInst);
+        ret = positionGndTruthRelay->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on positionGndTruthRelay(%i/%i), code = %d\n",
+                       positionGndTruthRelaySys, positionGndTruthRelayInst, ret);
+            return ret;
+        }
+    }
+    
+    statusMsgTime = rackTime.get();
+
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
 
-void ChassisSim::moduleOff(void)
+void ChassisUsarsim::moduleOff(void)
 {
     RackDataModule::moduleOff();       // has to be first command in moduleOff();
 
@@ -328,14 +365,13 @@ void ChassisSim::moduleOff(void)
     RackTask::enableRealtimeMode();
 }
 
-int ChassisSim::moduleLoop(void)
+int ChassisUsarsim::moduleLoop(void)
 {
     chassis_data* p_data = NULL;
     ssize_t datalength = 0;
     int ret;
-
-    // get datapointer from rackdatabuffer
-    p_data = (chassis_data *)getDataBufferWorkSpace();
+    int currentBatteryState;
+    rack_time_t currentTime;
 
 
     RackTask::disableRealtimeMode();
@@ -356,47 +392,93 @@ int ChassisSim::moduleLoop(void)
 
     if (messageStr.find("SEN") != string::npos)
     {
-        searchRangeScannerData();
+        ret = searchOdometryData();
+        if (ret)
+        {
+            GDOS_ERROR("Can't receive odometry data\n");
+            return ret;
+        }
+        
+        if (ladarRelayInst >= 0)
+        {
+            ret = searchRangeScannerData();
+            if (ret)
+            {
+                GDOS_ERROR("Can't receive range scanner data\n");
+                return ret;
+            }
+        }
+
+        if (positionGndTruthRelayInst >= 0)
+        {
+            ret = searchGroundTruthData();
+            if (ret)
+            {
+                GDOS_ERROR("Can't receive ground truth data\n");
+                return ret;
+            }
+        }
     }
-    
-    
-    mtx.lock(RACK_INFINITE);
 
-    p_data->recordingTime = rackTime.get();
-    p_data->vx            = (float)commandData.vx;    // in mm/s
-    p_data->vy            = 0.0f;
-    p_data->omega         = (float)commandData.omega; // in rad/s
-    p_data->deltaX        = p_data->vx * (float)dataBufferPeriodTime / 1000.0f;       // in mm
-    p_data->deltaY        = 0.0f;
-    p_data->deltaRho      = p_data->omega * (float)dataBufferPeriodTime / 1000.0f;    // in rad
-    p_data->battery       = 0.0f;
-    p_data->activePilot   = activePilot;
-
-    mtx.unlock();
-
-    ret  = sendMoveCommand(commandData.vx, commandData.omega, 0);
-    if(ret)
+    if (messageStr.find("STA") != string::npos)
     {
-        GDOS_ERROR("Can't send drive command to USARSIM server\n");
-        return  ret;
+        // get datapointer from rackdatabuffer
+        p_data = (chassis_data *)getDataBufferWorkSpace();
+        
+        statusMsgTime = rackTime.get();
+    
+        currentBatteryState = getBatteryState();
+        if (currentBatteryState < 0)
+        {
+            GDOS_ERROR("Can't get battery state\n");
+        }
+        else if (currentBatteryState > maxBatteryState)
+        {
+            maxBatteryState = currentBatteryState;
+        }
+    
+        mtx.lock(RACK_INFINITE);
+
+        p_data->recordingTime = statusMsgTime;
+        p_data->vx            = (float)commandData.vx;    // in mm/s
+        p_data->vy            = 0.0f;
+        p_data->omega         = (float)commandData.omega; // in rad/s
+        p_data->deltaX        = p_data->vx * (float)dataBufferPeriodTime / 1000.0f;       // in mm
+        p_data->deltaY        = 0.0f;
+        p_data->deltaRho      = p_data->omega * (float)dataBufferPeriodTime / 1000.0f;    // in rad
+        p_data->battery       = (float)(int)(currentBatteryState * 100 / maxBatteryState);
+        p_data->activePilot   = activePilot;
+
+        mtx.unlock();
+
+        ret  = sendMoveCommand(commandData.vx, commandData.omega, 0);
+        if(ret)
+        {
+            GDOS_ERROR("Can't send drive command to USARSIM server\n");
+            return  ret;
+        }
+
+        datalength = sizeof(chassis_data);
+
+        putDataBufferWorkSpace( datalength );
+
+
+        GDOS_DBG_DETAIL("vx:%f mm/s, vx:%f mm/s, omega:%a deg/s, timestamp: %d\n",
+                        p_data->vx, p_data->vy, p_data->omega,
+                        p_data->recordingTime);
     }
 
-    datalength = sizeof(chassis_data);
-
-    putDataBufferWorkSpace( datalength );
-
-    GDOS_DBG_DETAIL("timestamp offset: %u\n",(unsigned long) rackTime.getOffset());
-
-    GDOS_DBG_DETAIL("vx:%f mm/s, vx:%f mm/s, omega:%a deg/s, timestamp: %d\n",
-                    p_data->vx, p_data->vy, p_data->omega,
-                    p_data->recordingTime);
-
-    RackTask::sleep(dataBufferPeriodTime * 1000000llu);
-
+    currentTime = rackTime.get();
+    if ( (currentTime - statusMsgTime) > (dataBufferPeriodTime * 5) )
+    {
+        GDOS_ERROR("Can't get status message from usarsim server\n");
+        return -1;
+    }
+    
     return 0;
 }
 
-int ChassisSim::moduleCommand(message_info *msgInfo)
+int ChassisUsarsim::moduleCommand(message_info *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask()   |
                               RackName::getClassMask() |
@@ -468,7 +550,7 @@ int ChassisSim::moduleCommand(message_info *msgInfo)
     return 0;
 }
 
-int ChassisSim::chassisInit(char *usarsimChassis, position_3d chassisInitPos)
+int ChassisUsarsim::chassisInit(char *usarsimChassis, position_3d chassisInitPos)
 {
     char buffer[USARSIM_BUFFER];
     int ret, strLen;
@@ -493,7 +575,7 @@ int ChassisSim::chassisInit(char *usarsimChassis, position_3d chassisInitPos)
 }
 
 
-int ChassisSim::sendMoveCommand(int speed, float omega, int type)
+int ChassisUsarsim::sendMoveCommand(int speed, float omega, int type)
 {
     char buffer[USARSIM_BUFFER];
     int ret, strLen;
@@ -536,10 +618,12 @@ int ChassisSim::sendMoveCommand(int speed, float omega, int type)
     return 0;
 }
 
-int ChassisSim::searchRangeScannerData()
+int ChassisUsarsim::searchRangeScannerData()
 {
     size_t magicWordPos, startPos, endPos;
     int ret;
+    dataStr.clear();
+    valueStr.clear();
 
     magicWordPos = messageStr.find("{Type RangeScanner");
     
@@ -553,8 +637,6 @@ int ChassisSim::searchRangeScannerData()
             if (endPos != string::npos)
             {
                 dataStr = messageStr.substr(startPos, endPos - startPos);
-                strcpy(parseData, dataStr.c_str());
-                printf("data: %s", parseData);
                 startPos = 0;
                 endPos = 0;
                 ladarData.data.pointNum = 0;
@@ -583,8 +665,8 @@ int ChassisSim::searchRangeScannerData()
                                          &ladarData, sizeof(ladar_data) + ladarData.data.pointNum * sizeof(ladar_point));
                 if (ret)
                 {
-                    GDOS_ERROR("Error while sending ladarData data from %x to %x\n",
-                               workMbx.getAdr(), ladarRelayMbxAdr);
+                    GDOS_ERROR("Error while sending ladarData data from %x to %x, error code %i\n LadarDataPointNum %i\n",
+                               workMbx.getAdr(), ladarRelayMbxAdr, ret, ladarData.data.pointNum );
                     return ret;
                 }
             }
@@ -603,6 +685,268 @@ int ChassisSim::searchRangeScannerData()
     return 0;
 }
 
+int ChassisUsarsim::searchOdometryData()
+{
+    size_t magicWordPos, startPos, endPos;
+    int ret;
+    int dataNum;
+    dataStr.clear();
+    valueStr.clear();
+
+    magicWordPos = messageStr.find("{Type Odometry");
+
+    if (magicWordPos != string::npos)
+    {
+        magicWordPos = messageStr.find("{Pose", magicWordPos);
+        if (magicWordPos != string::npos)
+        {
+            startPos = magicWordPos + sizeof("{Pose");
+            endPos = messageStr.find("}", startPos);
+            if (endPos != string::npos)
+            {
+                dataStr = messageStr.substr(startPos, endPos - startPos);
+                startPos = 0;
+                endPos = 0;
+                dataNum = 0;
+
+                while ((startPos != string::npos) && (endPos != string::npos))
+                {
+                    endPos = dataStr.find(',', startPos);
+                    if (endPos != string::npos)
+                    {
+                        valueStr = dataStr.substr(startPos, endPos - startPos);
+                        startPos = endPos + 1;
+                    }
+                    else
+                    {
+                        valueStr = dataStr.substr(startPos);
+                    }
+                    
+                    switch (dataNum)
+                    {
+                        case 0:
+                                odometryData.pos.x = (int)(atof(valueStr.c_str()) * 1000.0);
+                            break;
+
+                        case 1:
+                                odometryData.pos.y = (int)(atof(valueStr.c_str()) * 1000.0);
+                            break;
+
+                        case 2:
+                                odometryData.pos.rho = atof(valueStr.c_str());
+                            break;
+                        default:
+                                GDOS_ERROR("Received odometry message doesn't match data format !");
+                    }
+                    dataNum++;
+                }
+                //odometryRelay
+                odometryData.recordingTime = rackTime.get();
+
+                ret = workMbx.sendDataMsg(MSG_DATA, odometryRelayMbxAdr + 1, 1, 1,
+                                 &odometryData, sizeof(odometry_data));
+                if (ret)
+                {
+                    GDOS_WARNING("Error while sending odometry data from %x to %x (bytes %d), %i\n",
+                        workMbx.getAdr(), odometryRelayMbxAdr, sizeof(odometry_data), ret);
+                    return ret;
+                }
+            }
+            else
+            {
+                GDOS_ERROR("Can't receive odometry data. Incomplete message");
+                return -1;
+            }
+        }
+        else
+        {
+            GDOS_ERROR("Can't receive odometry data. Incomplete message");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int ChassisUsarsim::searchGroundTruthData()
+{
+    size_t magicWordPos, startPos, endPos;
+    int ret;
+    int dataNum;
+    dataStr.clear();
+    valueStr.clear();
+
+    magicWordPos = messageStr.find("{Type GroundTruth");
+
+    if (magicWordPos != string::npos)
+    {
+        magicWordPos = messageStr.find("{Location", magicWordPos);
+        if (magicWordPos != string::npos)
+        {
+            startPos = magicWordPos + sizeof("{Location");
+            endPos = messageStr.find("}", startPos);
+            if (endPos != string::npos)
+            {
+                dataStr = messageStr.substr(startPos, endPos - startPos);
+                startPos = 0;
+                endPos = 0;
+                dataNum = 0;
+
+                while ((startPos != string::npos) && (endPos != string::npos))
+                {
+                    endPos = dataStr.find(',', startPos);
+                    if (endPos != string::npos)
+                    {
+                        valueStr = dataStr.substr(startPos, endPos - startPos);
+                        startPos = endPos + 1;
+                    }
+                    else
+                    {
+                        valueStr = dataStr.substr(startPos);
+                    }
+
+                    switch (dataNum)
+                    {
+                        case 0:
+                                groundTruthData.pos.x = (int)(atof(valueStr.c_str()) * 1000.0);
+                            break;
+
+                        case 1:
+                                groundTruthData.pos.y = (int)(atof(valueStr.c_str()) * 1000.0);
+                            break;
+
+                        case 2:
+                                groundTruthData.pos.z = (int)(atof(valueStr.c_str()) * 1000.0);
+                            break;
+                        default:
+                                GDOS_ERROR("Received ground truth doesn't match data format !");
+                    }
+                    dataNum++;
+                }
+            }
+            else
+            {
+                GDOS_ERROR("Can't receive ground truth data. Incomplete message");
+                return -1;
+            }
+        }
+        magicWordPos = messageStr.find("{Orientation", magicWordPos);
+        if (magicWordPos != string::npos)
+        {
+            startPos = magicWordPos + sizeof("{Orientation");
+            endPos = messageStr.find("}", startPos);
+            if (endPos != string::npos)
+            {
+                dataStr = messageStr.substr(startPos, endPos - startPos);
+                startPos = 0;
+                endPos = 0;
+                dataNum = 0;
+
+                while ((startPos != string::npos) && (endPos != string::npos))
+                {
+                    endPos = dataStr.find(',', startPos);
+                    if (endPos != string::npos)
+                    {
+                        valueStr = dataStr.substr(startPos, endPos - startPos);
+                        startPos = endPos + 1;
+                    }
+                    else
+                    {
+                        valueStr = dataStr.substr(startPos);
+                    }
+
+                    switch (dataNum)
+                    {
+                        case 0:
+                                groundTruthData.pos.psi = atof(valueStr.c_str());
+                            break;
+
+                        case 1:
+                                groundTruthData.pos.rho = atof(valueStr.c_str());
+                            break;
+
+                        case 2:
+                                groundTruthData.pos.phi = atof(valueStr.c_str());
+                            break;
+                        default:
+                                GDOS_ERROR("Received ground truth message doesn't match data format !");
+                    }
+                    dataNum++;
+                }
+            }
+            else
+            {
+                GDOS_ERROR("Can't receive ground truth data. Incomplete message");
+                return -1;
+            }
+        }
+        else
+        {
+            GDOS_ERROR("Can't ground truth data. Incomplete message");
+            return -1;
+        }
+
+        //positionRelay
+        groundTruthData.recordingTime = rackTime.get();
+
+        ret = workMbx.sendDataMsg(MSG_DATA, positionGndTruthRelayMbxAdr + 1, 1, 1,
+                         &groundTruthData, sizeof(position_data));
+        if (ret)
+        {
+            GDOS_WARNING("Error while sending ground truth data from %x to %x (bytes %d), errno %i\n",
+                workMbx.getAdr(), positionGndTruthRelayMbxAdr, sizeof(position_data), ret);
+            return ret;
+        }
+    }
+    return 0;
+}
+
+int ChassisUsarsim::getBatteryState()
+{
+    size_t magicWordPos, startPos, endPos;
+    valueStr.clear();
+
+    magicWordPos = messageStr.find("{Battery");
+
+    if (magicWordPos != string::npos)
+    {
+        startPos = magicWordPos + sizeof("{Battery");
+        endPos = messageStr.find("}", startPos);
+        if (endPos != string::npos)
+        {
+            valueStr = messageStr.substr(startPos, endPos - startPos);
+
+            return (atoi(valueStr.c_str()));
+        }
+    }
+
+    GDOS_ERROR("Can't receive battery state. Incomplete message");
+
+    return -1;
+}
+
+int ChassisUsarsim::getUsarsimTime()
+{
+    size_t magicWordPos, startPos, endPos;
+    valueStr.clear();
+
+    magicWordPos = messageStr.find("{Time");
+
+    if (magicWordPos != string::npos)
+    {
+        startPos = magicWordPos + sizeof("{Time");
+        endPos = messageStr.find("}", startPos);
+        if (endPos != string::npos)
+        {
+            valueStr = messageStr.substr(startPos, endPos - startPos);
+
+            return ((int)(atof(valueStr.c_str()) * 1000.0));
+        }
+    }
+
+    GDOS_ERROR("Can't receive Usarsim time. Incomplete message");
+
+    return -1;
+}
 
 /*******************************************************************************
  *   !!! NON REALTIME CONTEXT !!!
@@ -616,7 +960,7 @@ int ChassisSim::searchRangeScannerData()
  *   own non realtime user functions
  ******************************************************************************/
 
-int ChassisSim::moduleInit(void)
+int ChassisUsarsim::moduleInit(void)
 {
     int ret;
 
@@ -667,20 +1011,40 @@ int ChassisSim::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
+    if (positionGndTruthRelayInst >= 0)
+    {
+        positionGndTruthRelayMbxAdr = RackName::create(positionGndTruthRelaySys, POSITION, positionGndTruthRelayInst);
+        positionGndTruthRelay       = new PositionProxy(&workMbx, positionGndTruthRelaySys, positionGndTruthRelayInst);
+        if (!positionGndTruthRelay)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_POSITION);
+    }
+    
     return 0;
 
 init_error:
     // !!! call local cleanup function !!!
-    ChassisSim::moduleCleanup();
+    ChassisUsarsim::moduleCleanup();
     return ret;
 }
 
-void ChassisSim::moduleCleanup(void)
+void ChassisUsarsim::moduleCleanup(void)
 {
     // call RackDataModule cleanup function
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
     {
         RackDataModule::moduleCleanup();
+    }
+
+    if (positionGndTruthRelayInst >= 0)
+    {
+        if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION))
+        {
+            delete positionGndTruthRelay;
+        }
     }
     
     if (initBits.testAndClearBit(INIT_BIT_PROXY_ODOMETRY))
@@ -709,7 +1073,7 @@ void ChassisSim::moduleCleanup(void)
     }
 }
 
-ChassisSim::ChassisSim()
+ChassisUsarsim::ChassisUsarsim()
         : RackDataModule( MODULE_CLASS_ID,
                       5000000000llu,    // 5s datatask error sleep time
                       16,               // command mailbox slots
@@ -740,6 +1104,9 @@ ChassisSim::ChassisSim()
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
     dataBufferMaxDataSize   = sizeof(chassis_data);
+
+    maxBatteryState = 0;
+
 }
 
 int main(int argc, char *argv[])
@@ -748,19 +1115,19 @@ int main(int argc, char *argv[])
 
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "ChassisSim");
+    ret = RackModule::getArgs(argc, argv, argTab, "ChassisUsarsim");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new ChassisSim
+    // create new ChassisUsarsim
 
-    p_inst = new ChassisSim();
+    p_inst = new ChassisUsarsim();
     if (!p_inst)
     {
-        printf("Can't create new ChassisSim -> EXIT\n");
+        printf("Can't create new ChassisUsarsim -> EXIT\n");
         return -ENOMEM;
     }
 
