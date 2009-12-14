@@ -24,7 +24,8 @@
 // init_flags (for init and cleanup)
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_MTX_CREATED                1
-#define INIT_BIT_MBX_WORK                   3
+#define INIT_BIT_MBX_WORK                   2
+#define INIT_BIT_PROXY_POSITION_UPDATE      3
 #define INIT_BIT_PROXY_LADAR                4
 #define INIT_BIT_PROXY_ODOMETRY             5
 #define INIT_BIT_PROXY_POSITION             6
@@ -46,7 +47,7 @@ argTable_t argTab[] = {
       "max vehicle deceleration, default 500", { 500 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "omegaMax, default 20 deg/s", { 20 } },
+      "omegaMax, default 60 deg/s", { 60 } },
 
     { ARGOPT_OPT, "minTurningRadius", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "min vehicle turning radius, default 200 (mm)", { 200 } },
@@ -111,6 +112,12 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "odometryRelayInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry relay, default 0", { 0 } },
 
+    { ARGOPT_OPT, "positionUpdateSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module, default 0", { 0 } },
+
+    { ARGOPT_OPT, "positionUpdateInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the position module, default -1", { -1 } },
+
     { ARGOPT_OPT, "positionGndTruthRelaySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the position relay, default 0", { 0 } },
 
@@ -135,6 +142,12 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "chassisInitPosRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The init orientation of the simulated robot in degree, default 0", { 0 } },
 
+    { ARGOPT_OPT, "controlTraceState", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Tracing the path that the robot takes (on = 1), default 0", { 0 } },
+
+    { ARGOPT_OPT, "controlTraceColor", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "color of the trace red 0, yellow 1 ... until 6, default 0", { 0 } },
+      
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -212,12 +225,9 @@ int ChassisUsarsim::moduleOn(void)
     usarsimIp               = getStringParam("usarsimIp");
     usarsimPort             = getInt32Param("usarsimPort");
     usarsimChassis          = getStringParam("usarsimChassis");
-    ladarRelaySys           = getInt32Param("ladarRelaySys");
-    ladarRelayInst          = getInt32Param("ladarRelayInst");
-    odometryRelaySys        = getInt32Param("odometryRelaySys");
-    odometryRelayInst       = getInt32Param("odometryRelayInst");
-    positionGndTruthRelaySys  = getInt32Param("positionGndTruthRelaySys");
-    positionGndTruthRelayInst = getInt32Param("positionGndTruthRelayInst");
+    controlTraceState       = getInt32Param("controlTraceState");
+    controlTraceColor       = getInt32Param("controlTraceColor");
+    
     chassisInitPos.x        = getInt32Param("chassisInitPosX");
     if (chassisInitPos.x == 0)
     {
@@ -267,7 +277,8 @@ int ChassisUsarsim::moduleOn(void)
         GDOS_ERROR("Can't send init command to USARSIM server\n");
         return  ret;
     }
-
+    
+    
     //odometryRelay
     odometryData.recordingTime = rackTime.get();
  
@@ -288,7 +299,30 @@ int ChassisUsarsim::moduleOn(void)
                    odometryRelaySys, odometryRelayInst, ret);
         return ret;
     }
+    
+/*
+    if (positionUpdateInst >= 0)
+    {
+        ret = positionUpdate->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on positionUpdate(%i/%i), code = %d\n",
+                        positionUpdateSys, positionUpdateInst, ret);
+            return ret;
+        }
 
+        positionData.recordingTime = rackTime.get();
+        positionData.pos = chassisInitPos;
+        positionData.var.x      = 0;
+        positionData.var.y      = 0;
+        positionData.var.z      = 0;
+        positionData.var.phi    = 0.0f;
+        positionData.var.psi    = 0.0f;
+        positionData.var.rho    = 0.0f;
+
+        positionUpdate->update(&positionData);
+    }
+*/
     // ladar relay
     if (ladarRelayInst >= 0)
     {
@@ -342,6 +376,8 @@ int ChassisUsarsim::moduleOn(void)
         }
     }
     
+    controlTrace(controlTraceState, 0.0f, controlTraceColor);
+    
     statusMsgTime = rackTime.get();
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
@@ -373,7 +409,6 @@ int ChassisUsarsim::moduleLoop(void)
     int currentBatteryState;
     rack_time_t currentTime;
 
-
     RackTask::disableRealtimeMode();
     
     ret = recv(tcpSocket, messageData, USARSIM_MAX_MSG_SIZE, 0);
@@ -398,14 +433,14 @@ int ChassisUsarsim::moduleLoop(void)
             GDOS_ERROR("Can't receive odometry data\n");
             return ret;
         }
-        
+
         if (ladarRelayInst >= 0)
         {
             ret = searchRangeScannerData();
             if (ret)
             {
                 GDOS_ERROR("Can't receive range scanner data\n");
-                return ret;
+                //return ret;
             }
         }
 
@@ -618,6 +653,27 @@ int ChassisUsarsim::sendMoveCommand(int speed, float omega, int type)
     return 0;
 }
 
+int ChassisUsarsim::controlTrace(int state, float interval, int color)
+{
+    char buffer[USARSIM_BUFFER];
+    int ret, strLen;
+
+    strLen = snprintf(buffer, USARSIM_BUFFER, "Trace {On %i} {Interval %f} {Color %i} \r\n", state, interval, color);
+    if (strLen >= USARSIM_BUFFER)
+    {
+        GDOS_ERROR("Can't create trace message.");
+        return -1;
+    }
+
+    ret = send(tcpSocket, buffer, strLen, 0);
+    if (ret < 0)
+    {
+        GDOS_ERROR("Error sending data, (%ret)",ret);
+        return ret;
+    }
+    return 0;
+}
+
 int ChassisUsarsim::searchRangeScannerData()
 {
     size_t magicWordPos, startPos, endPos;
@@ -660,6 +716,8 @@ int ChassisUsarsim::searchRangeScannerData()
                     ladarData.data.pointNum++;
                 }
                 ladarData.data.startAngle = ladarData.data.endAngle - (0.01745f * (float)ladarData.data.pointNum);
+
+                GDOS_DBG_DETAIL("ladarData.data.pointNum = %i",ladarData.data.pointNum);
 
                 ret = workMbx.sendDataMsg(MSG_DATA, ladarRelayMbxAdr + 1, 1, 1,
                                          &ladarData, sizeof(ladar_data) + ladarData.data.pointNum * sizeof(ladar_point));
@@ -971,6 +1029,15 @@ int ChassisUsarsim::moduleInit(void)
         goto init_error;
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
+    
+    ladarRelaySys               = getInt32Param("ladarRelaySys");
+    ladarRelayInst              = getInt32Param("ladarRelayInst");
+    odometryRelaySys            = getInt32Param("odometryRelaySys");
+    odometryRelayInst           = getInt32Param("odometryRelayInst");
+    positionGndTruthRelaySys    = getInt32Param("positionGndTruthRelaySys");
+    positionGndTruthRelayInst   = getInt32Param("positionGndTruthRelayInst");
+    positionUpdateSys           = getInt32Param("positionUpdateSys");
+    positionUpdateInst          = getInt32Param("positionUpdateInst");
 
     // create mutex
     ret = mtx.create();
@@ -988,6 +1055,19 @@ int ChassisUsarsim::moduleInit(void)
         goto init_error;
     }
     initBits.setBit(INIT_BIT_MBX_WORK);
+
+    // create positionUpdate proxy
+    if (positionUpdateInst >= 0)
+    {
+        // position
+        positionUpdate = new PositionProxy(&workMbx, positionUpdateSys, positionUpdateInst);
+        if (!positionUpdate)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_POSITION_UPDATE);
+    }
 
     // create ladarSonar proxy
     if (ladarRelayInst >= 0)
@@ -1061,6 +1141,15 @@ void ChassisUsarsim::moduleCleanup(void)
         }
     }
 
+    // free position proxy
+    if (positionUpdateInst >= 0)
+    {
+        if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION_UPDATE))
+        {
+            delete positionUpdate;
+        }
+    }
+    
     if (initBits.testAndClearBit(INIT_BIT_MBX_WORK))
     {
         destroyMbx(&workMbx);
@@ -1075,12 +1164,12 @@ void ChassisUsarsim::moduleCleanup(void)
 
 ChassisUsarsim::ChassisUsarsim()
         : RackDataModule( MODULE_CLASS_ID,
-                      5000000000llu,    // 5s datatask error sleep time
-                      16,               // command mailbox slots
-                      48,               // command mailbox data size per slot
-                      MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
-                      5,                // max buffer entries
-                      10)               // data buffer listener
+                    5000000000llu,    // 5s datatask error sleep time
+                    16,               // command mailbox slots
+                    240,              // command mailbox data size per slot
+                    MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
+                    10,               // max buffer entries
+                    10)               // data buffer listener
 {
     // get static module parameter
     param.vxMax             = getIntArg("vxMax", argTab);
@@ -1104,9 +1193,6 @@ ChassisUsarsim::ChassisUsarsim()
     param.pilotParameterB   = (float)getIntArg("pilotParameterB", argTab) / 100.0f;
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
     dataBufferMaxDataSize   = sizeof(chassis_data);
-
-    maxBatteryState = 0;
-
 }
 
 int main(int argc, char *argv[])

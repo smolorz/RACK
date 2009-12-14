@@ -35,7 +35,7 @@ using namespace std;
 
 
 #define USARSIM_BUFFER      200
-#define USARSIM_MAX_MSG_SIZE    9216
+#define USARSIM_MAX_MSG_SIZE    18432
 
 typedef struct
 {
@@ -58,10 +58,14 @@ class ChassisUsarsim : public RackDataModule {
     int                 odometryRelayInst;
     int                 positionGndTruthRelaySys;
     int                 positionGndTruthRelayInst;
+    int                 positionUpdateSys;
+    int                 positionUpdateInst;
     int                 chassisInitPosX;
     int                 chassisInitPosY;
     int                 chassisInitPosZ;
     int                 chassisInitPosRho;
+    int                 controlTraceState;
+    int                 controlTraceColor;
 
     int                  tcpSocket;
     struct               sockaddr_in tcpAddr;
@@ -81,6 +85,7 @@ class ChassisUsarsim : public RackDataModule {
     ladar_data_msg      ladarData;
     odometry_data       odometryData;
     position_data       groundTruthData;
+    position_data       positionData;
     position_3d         chassisInitPos;
 
 
@@ -94,6 +99,7 @@ class ChassisUsarsim : public RackDataModule {
     LadarProxy      *ladarRelay;
     OdometryProxy   *odometryRelay;
     PositionProxy   *positionGndTruthRelay;
+    PositionProxy   *positionUpdate;
     
   protected:
     // -> realtime context
@@ -109,6 +115,7 @@ class ChassisUsarsim : public RackDataModule {
     int searchGroundTruthData();
     int getBatteryState();
     int getUsarsimTime();
+    int controlTrace(int state, float interval, int color);
 
     // -> non realtime context
     void moduleCleanup(void);
