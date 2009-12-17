@@ -994,6 +994,13 @@ CONFIG_OPENCV_TRUE
 CONFIG_OPENCV_FALSE
 CONFIG_RACK_OPENCV_SUPPORT_TRUE
 CONFIG_RACK_OPENCV_SUPPORT_FALSE
+GSL_CPPFLAGS
+GSL_LDFLAGS
+GSL_LIBS
+CONFIG_GSL_TRUE
+CONFIG_GSL_FALSE
+CONFIG_RACK_GSL_SUPPORT_TRUE
+CONFIG_RACK_GSL_SUPPORT_FALSE
 RACK_GLOBAL_CPPFLAGS
 RACK_GLOBAL_LDFLAGS
 RACK_CPPFLAGS
@@ -1631,6 +1638,7 @@ Optional Features:
                           enable libjpeg support
   --enable-libpng-support enable libpng support
   --enable-opencv-support enable opencv support
+  --enable-gsl-support    enable gsl support
   --enable-java           building java
   --enable-java-gui       building java gui
   --enable-camera-dcam    building CameraDcam
@@ -1701,6 +1709,7 @@ Optional Packages:
                           Install directory of libpng
   --with-opencv=<opencv-dir>
                           Install directory of opencv
+  --with-gsl=<gsl-dir>    Install directory of gsl
   --with-module-dir=<module-dir>
                           Installation directory for modules
 
@@ -5092,7 +5101,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5095 "configure"' > conftest.$ac_ext
+  echo '#line 5104 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7357,11 +7366,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7360: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7369: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7364: \$? = $ac_status" >&5
+   echo "$as_me:7373: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7647,11 +7656,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7650: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7659: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7654: \$? = $ac_status" >&5
+   echo "$as_me:7663: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7751,11 +7760,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7754: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7763: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7758: \$? = $ac_status" >&5
+   echo "$as_me:7767: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10100,7 +10109,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10103 "configure"
+#line 10112 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10200,7 +10209,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10203 "configure"
+#line 10212 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12620,11 +12629,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12623: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12632: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12627: \$? = $ac_status" >&5
+   echo "$as_me:12636: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12724,11 +12733,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12727: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12736: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12731: \$? = $ac_status" >&5
+   echo "$as_me:12740: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14286,11 +14295,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14289: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14298: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14293: \$? = $ac_status" >&5
+   echo "$as_me:14302: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14390,11 +14399,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14393: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14402: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14397: \$? = $ac_status" >&5
+   echo "$as_me:14406: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16577,11 +16586,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16580: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16589: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16584: \$? = $ac_status" >&5
+   echo "$as_me:16593: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16867,11 +16876,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16870: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16879: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16874: \$? = $ac_status" >&5
+   echo "$as_me:16883: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16971,11 +16980,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16974: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16983: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16978: \$? = $ac_status" >&5
+   echo "$as_me:16987: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20403,6 +20412,31 @@ fi
 
 
 
+# Check whether --enable-gsl-support was given.
+if test "${enable_gsl_support+set}" = set; then
+  enableval=$enable_gsl_support; case "$enableval" in
+        y | yes) CONFIG_RACK_GSL_SUPPORT=y ;;
+        *) CONFIG_RACK_GSL_SUPPORT=n ;;
+    esac
+fi
+
+
+
+# Check whether --with-gsl-dir was given.
+if test "${with_gsl_dir+set}" = set; then
+  withval=$with_gsl_dir; case "${withval}" in
+        "" | y | ye | yes | n | no)
+            { { echo "$as_me:$LINENO: error: You must supply an argument to --with-gsl." >&5
+echo "$as_me: error: You must supply an argument to --with-gsl." >&2;}
+   { (exit 1); exit 1; }; }
+      ;;
+    esac
+    CONFIG_RACK_GSLDIR="$withval"
+
+fi
+
+
+
 
 { echo "$as_me:$LINENO: checking build java" >&5
 echo $ECHO_N "checking build java... $ECHO_C" >&6; }
@@ -23205,6 +23239,446 @@ fi
 
 
 
+{ echo "$as_me:$LINENO: checking gsl support" >&5
+echo $ECHO_N "checking gsl support... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: result: ${CONFIG_RACK_GSL_SUPPORT}" >&5
+echo "${ECHO_T}${CONFIG_RACK_GSL_SUPPORT}" >&6; }
+
+if test x"${CONFIG_RACK_GSL_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    GSL_CPPFLAGS=""
+    GSL_LDFLAGS=""
+    GSL_LIBS=""
+
+    if test x${CONFIG_RACK_GSLDIR} != "x"; then
+        { echo "$as_me:$LINENO: checking gsl directory" >&5
+echo $ECHO_N "checking gsl directory... $ECHO_C" >&6; }
+        if test -d ${CONFIG_RACK_GSLDIR}; then
+            { echo "$as_me:$LINENO: result: ${CONFIG_RACK_GSLDIR}" >&5
+echo "${ECHO_T}${CONFIG_RACK_GSLDIR}" >&6; }
+
+            GSL_CPPFLAGS="-I${CONFIG_RACK_GSLDIR}/include"
+            GSL_LDFLAGS="-L${CONFIG_RACK_GSLDIR}/lib"
+            GSL_LIBS="-lm -lgslcblas -lgsl"
+
+            CPPFLAGS="${GSL_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${GSL_LDFLAGS} ${LDFLAGS}"
+            LIBS="$GSL_LIBS"
+        else
+            { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_GSLDIR}" >&5
+echo "$as_me: error: cannot find ${CONFIG_RACK_GSLDIR}" >&2;}
+   { (exit 1); exit 1; }; }
+        fi
+    fi
+
+
+
+
+for ac_header in math.h gsl/gsl_cblas.h gsl/gsl_blas.h
+do
+as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  { echo "$as_me:$LINENO: checking for $ac_header" >&5
+echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6; }
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+ac_res=`eval echo '${'$as_ac_Header'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+else
+  # Is the header compilable?
+{ echo "$as_me:$LINENO: checking $ac_header usability" >&5
+echo $ECHO_N "checking $ac_header usability... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <$ac_header>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ echo "$as_me:$LINENO: checking $ac_header presence" >&5
+echo $ECHO_N "checking $ac_header presence... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$ac_header>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: $ac_header: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: $ac_header: present but cannot be compiled" >&5
+echo "$as_me: WARNING: $ac_header: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $ac_header:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: $ac_header:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $ac_header: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: $ac_header: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: $ac_header: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $ac_header: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: $ac_header: in the future, the compiler will take precedence" >&2;}
+
+    ;;
+esac
+{ echo "$as_me:$LINENO: checking for $ac_header" >&5
+echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6; }
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  eval "$as_ac_Header=\$ac_header_preproc"
+fi
+ac_res=`eval echo '${'$as_ac_Header'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+
+fi
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+{ echo "$as_me:$LINENO: checking for cos in -lm" >&5
+echo $ECHO_N "checking for cos in -lm... $ECHO_C" >&6; }
+if test "${ac_cv_lib_m_cos+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char cos ();
+int
+main ()
+{
+return cos ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_m_cos=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_m_cos=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_m_cos" >&5
+echo "${ECHO_T}$ac_cv_lib_m_cos" >&6; }
+if test $ac_cv_lib_m_cos = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find function cos" >&5
+echo "$as_me: error: cannot find function cos" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+
+{ echo "$as_me:$LINENO: checking for cblas_dgemm in -lgslcblas" >&5
+echo $ECHO_N "checking for cblas_dgemm in -lgslcblas... $ECHO_C" >&6; }
+if test "${ac_cv_lib_gslcblas_cblas_dgemm+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgslcblas  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char cblas_dgemm ();
+int
+main ()
+{
+return cblas_dgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_gslcblas_cblas_dgemm=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_gslcblas_cblas_dgemm=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_gslcblas_cblas_dgemm" >&5
+echo "${ECHO_T}$ac_cv_lib_gslcblas_cblas_dgemm" >&6; }
+if test $ac_cv_lib_gslcblas_cblas_dgemm = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBGSLCBLAS 1
+_ACEOF
+
+  LIBS="-lgslcblas $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find function cblas_dgemm" >&5
+echo "$as_me: error: cannot find function cblas_dgemm" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+
+{ echo "$as_me:$LINENO: checking for gsl_blas_dgemm in -lgsl" >&5
+echo $ECHO_N "checking for gsl_blas_dgemm in -lgsl... $ECHO_C" >&6; }
+if test "${ac_cv_lib_gsl_gsl_blas_dgemm+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgsl  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gsl_blas_dgemm ();
+int
+main ()
+{
+return gsl_blas_dgemm ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_gsl_gsl_blas_dgemm=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_gsl_gsl_blas_dgemm=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_gsl_gsl_blas_dgemm" >&5
+echo "${ECHO_T}$ac_cv_lib_gsl_gsl_blas_dgemm" >&6; }
+if test $ac_cv_lib_gsl_gsl_blas_dgemm = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBGSL 1
+_ACEOF
+
+  LIBS="-lgsl $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find function gsl_blas_dgemm" >&5
+echo "$as_me: error: cannot find function gsl_blas_dgemm" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+else
+  { { echo "$as_me:$LINENO: error: cannot find gsl header files" >&5
+echo "$as_me: error: cannot find gsl header files" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+
+done
+
+    RACK_SUPPORTS="gsl ${RACK_SUPPORTS}"
+
+
+
+
+
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
+fi
+
+ if test x"${GSL_LIBS}" != x""; then
+  CONFIG_GSL_TRUE=
+  CONFIG_GSL_FALSE='#'
+else
+  CONFIG_GSL_TRUE='#'
+  CONFIG_GSL_FALSE=
+fi
+
+
+ if test x"${CONFIG_RACK_GSL_SUPPORT}" = "xy"; then
+  CONFIG_RACK_GSL_SUPPORT_TRUE=
+  CONFIG_RACK_GSL_SUPPORT_FALSE='#'
+else
+  CONFIG_RACK_GSL_SUPPORT_TRUE='#'
+  CONFIG_RACK_GSL_SUPPORT_FALSE=
+fi
+
+
+
 RACK_GLOBAL_CPPFLAGS="-Wall -pipe -O2 -fstrict-aliasing"
 RACK_GLOBAL_LDFLAGS="--export-dynamic"
 
@@ -23938,6 +24412,20 @@ if test -z "${CONFIG_RACK_OPENCV_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_OPENCV
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_OPENCV_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"CONFIG_RACK_OPENCV_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_GSL_TRUE}" && test -z "${CONFIG_GSL_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_GSL\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_GSL\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_RACK_GSL_SUPPORT_TRUE}" && test -z "${CONFIG_RACK_GSL_SUPPORT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_GSL_SUPPORT\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_GSL_SUPPORT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -24846,6 +25334,13 @@ CONFIG_OPENCV_TRUE!$CONFIG_OPENCV_TRUE$ac_delim
 CONFIG_OPENCV_FALSE!$CONFIG_OPENCV_FALSE$ac_delim
 CONFIG_RACK_OPENCV_SUPPORT_TRUE!$CONFIG_RACK_OPENCV_SUPPORT_TRUE$ac_delim
 CONFIG_RACK_OPENCV_SUPPORT_FALSE!$CONFIG_RACK_OPENCV_SUPPORT_FALSE$ac_delim
+GSL_CPPFLAGS!$GSL_CPPFLAGS$ac_delim
+GSL_LDFLAGS!$GSL_LDFLAGS$ac_delim
+GSL_LIBS!$GSL_LIBS$ac_delim
+CONFIG_GSL_TRUE!$CONFIG_GSL_TRUE$ac_delim
+CONFIG_GSL_FALSE!$CONFIG_GSL_FALSE$ac_delim
+CONFIG_RACK_GSL_SUPPORT_TRUE!$CONFIG_RACK_GSL_SUPPORT_TRUE$ac_delim
+CONFIG_RACK_GSL_SUPPORT_FALSE!$CONFIG_RACK_GSL_SUPPORT_FALSE$ac_delim
 RACK_GLOBAL_CPPFLAGS!$RACK_GLOBAL_CPPFLAGS$ac_delim
 RACK_GLOBAL_LDFLAGS!$RACK_GLOBAL_LDFLAGS$ac_delim
 RACK_CPPFLAGS!$RACK_CPPFLAGS$ac_delim
@@ -24870,7 +25365,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 54; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 61; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

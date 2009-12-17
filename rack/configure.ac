@@ -396,6 +396,25 @@ AC_ARG_WITH(opencv-dir,
     CONFIG_RACK_OPENCVDIR="$withval"
     ])
 
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(gsl-support,
+    AS_HELP_STRING([--enable-gsl-support], [enable gsl support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_GSL_SUPPORT=y ;;
+        *) CONFIG_RACK_GSL_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(gsl-dir,
+    AS_HELP_STRING([--with-gsl=<gsl-dir>], [Install directory of gsl]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-gsl.])
+      ;;
+    esac
+    CONFIG_RACK_GSLDIR="$withval"
+    ])
+
 dnl ======================================================================
 dnl    JAVA Part
 dnl ======================================================================
@@ -1388,6 +1407,75 @@ AM_CONDITIONAL(CONFIG_OPENCV,
 
 AM_CONDITIONAL(CONFIG_RACK_OPENCV_SUPPORT,
                [test x"${CONFIG_RACK_OPENCV_SUPPORT}" = "xy"])
+
+dnl ----- gsl ------------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
+
+AC_MSG_CHECKING([gsl support])
+AC_MSG_RESULT([${CONFIG_RACK_GSL_SUPPORT}])
+
+if test x"${CONFIG_RACK_GSL_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    GSL_CPPFLAGS=""
+    GSL_LDFLAGS=""
+    GSL_LIBS=""
+
+    if test x${CONFIG_RACK_GSLDIR} != "x"; then
+        AC_MSG_CHECKING([gsl directory])
+        if test -d ${CONFIG_RACK_GSLDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_GSLDIR}])
+
+            GSL_CPPFLAGS="-I${CONFIG_RACK_GSLDIR}/include"
+            GSL_LDFLAGS="-L${CONFIG_RACK_GSLDIR}/lib"
+            GSL_LIBS="-lm -lgslcblas -lgsl"
+
+            CPPFLAGS="${GSL_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${GSL_LDFLAGS} ${LDFLAGS}"
+            LIBS="$GSL_LIBS"
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_GSLDIR})
+        fi
+    fi
+
+    AC_CHECK_HEADERS(math.h gsl/gsl_cblas.h gsl/gsl_blas.h,
+                    AC_CHECK_LIB(m,
+                                 cos,,
+                                 [AC_MSG_ERROR(cannot find function cos)]
+                                )
+                    AC_CHECK_LIB(gslcblas,
+                                 cblas_dgemm,,
+                                 [AC_MSG_ERROR(cannot find function cblas_dgemm)]
+                                )
+                    AC_CHECK_LIB(gsl,
+                                 gsl_blas_dgemm,,
+                                 [AC_MSG_ERROR(cannot find function gsl_blas_dgemm)]
+                                ),
+                    [AC_MSG_ERROR(cannot find gsl header files)]
+                   )
+    RACK_SUPPORTS="gsl ${RACK_SUPPORTS}"
+
+    AC_SUBST(GSL_CPPFLAGS)
+    AC_SUBST(GSL_LDFLAGS)
+    AC_SUBST(GSL_LIBS)
+
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
+fi
+
+AM_CONDITIONAL(CONFIG_GSL,
+               [test x"${GSL_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_GSL_SUPPORT,
+               [test x"${CONFIG_RACK_GSL_SUPPORT}" = "xy"])
 
 dnl ======================================================================
 dnl  set flags / libs

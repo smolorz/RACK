@@ -123,6 +123,14 @@ config RACK_OPENCVDIR
     depends on RACK_OPENCV_SUPPORT
     default "/usr/src/LiRE/opencv"
 
+config RACK_GSL_SUPPORT
+    bool "Enable gsl support"
+
+config RACK_GSLDIR
+    string "gsl install directory"
+    depends on RACK_GSL_SUPPORT
+    default "/usr/src/LiRE/gsl"
+
 endmenu
 
 endmenu

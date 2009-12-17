@@ -122,6 +122,12 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
+/* Define to 1 if you have the <gsl/gsl_blas.h> header file. */
+#undef HAVE_GSL_GSL_BLAS_H
+
+/* Define to 1 if you have the <gsl/gsl_cblas.h> header file. */
+#undef HAVE_GSL_GSL_CBLAS_H
+
 /* Define to 1 if you have the <highgui.h> header file. */
 #undef HAVE_HIGHGUI_H
 
@@ -140,17 +146,29 @@
 /* Define to 1 if you have the `dc1394_control' library (-ldc1394_control). */
 #undef HAVE_LIBDC1394_CONTROL
 
+/* Define to 1 if you have the `gsl' library (-lgsl). */
+#undef HAVE_LIBGSL
+
+/* Define to 1 if you have the `gslcblas' library (-lgslcblas). */
+#undef HAVE_LIBGSLCBLAS
+
 /* Define to 1 if you have the `highgui' library (-lhighgui). */
 #undef HAVE_LIBHIGHGUI
 
 /* Define to 1 if you have the `jpeg' library (-ljpeg). */
 #undef HAVE_LIBJPEG
 
+/* Define to 1 if you have the `m' library (-lm). */
+#undef HAVE_LIBM
+
 /* Define to 1 if you have the `png12' library (-lpng12). */
 #undef HAVE_LIBPNG12
 
 /* Define to 1 if you have the `raw1394' library (-lraw1394). */
 #undef HAVE_LIBRAW1394
+
+/* Define to 1 if you have the <math.h> header file. */
+#undef HAVE_MATH_H
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
