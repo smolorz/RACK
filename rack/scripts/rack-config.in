@@ -55,6 +55,10 @@ OPENCV_CPPFLAGS="@OPENCV_CPPFLAGS@"
 OPENCV_LDFLAGS="@OPENCV_LDFLAGS@"
 OPENCV_LIBS="@OPENCV_LIBS@"
 
+GSL_CPPFLAGS="@GSL_CPPFLAGS@"
+GSL_LDFLAGS="@GSL_LDFLAGS@"
+GSL_LIBS="@GSL_LIBS@"
+
 unset prefix exec_prefix libdir datadir pkgdatadir pkgincludedir
 
 usage ()
@@ -131,6 +135,7 @@ while test $# -gt 0; do
                 libjpeg)    echo $LIBJPEG_CPPFLAGS    ;;
                 libpng)     echo $LIBPNG_CPPFLAGS     ;;
                 opencv)     echo $OPENCV_CPPFLAGS     ;;
+                gsl)        echo $GSL_CPPFLAGS        ;;
                 *)          echo ""                   ;;
             esac
             shift
@@ -143,6 +148,7 @@ while test $# -gt 0; do
                 libjpeg)    echo $LIBJPEG_LDFLAGS    ;;
                 libpng)     echo $LIBPNG_LDFLAGS     ;;
                 opencv)     echo $OPENCV_LDFLAGS     ;;
+                gsl)        echo $GSL_LDFLAGS        ;;
                 *)          echo ""                  ;;
             esac
             shift
@@ -155,6 +161,7 @@ while test $# -gt 0; do
                 libjpeg)    echo $LIBJPEG_LIBS    ;;
                 libpng)     echo $LIBPNG_LIBS     ;;
                 opencv)     echo $OPENCV_LIBS     ;;
+                gsl)        echo $GSL_LIBS        ;;
                 *)          echo ""               ;;
             esac
             shift
