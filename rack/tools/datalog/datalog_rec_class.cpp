@@ -1096,6 +1096,21 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].maxDataLen = sizeof(chassis_data);
     num++;
 
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CLOCK, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "clock_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(clock_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CLOCK, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "clock_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(clock_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(systemId, CLOCK, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "clock_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(clock_data);
+    num++;
+
     data->logInfo[num].moduleMbx = RackName::create(systemId, GPS, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "gps_0.dat");
     data->logInfo[num].maxDataLen = sizeof(gps_data);
