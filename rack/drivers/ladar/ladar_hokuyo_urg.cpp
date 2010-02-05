@@ -222,14 +222,17 @@ int  LadarHokuyoUrg::moduleLoop(void)
 
         p_data->point[i].distance = ((int32_t)(serialBuffer[j] - 0x30) << 6) |
                                      (int32_t)(serialBuffer[j + 1] - 0x30);
-        if (p_data->point[i].distance < 20)
-        {
-            p_data->point[i].distance = 0;
-        }
 
         p_data->point[i].angle     = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
         p_data->point[i].type      = LADAR_POINT_TYPE_UNKNOWN;
         p_data->point[i].intensity = 0;
+
+        if (p_data->point[i].distance < 20)
+        {
+            p_data->point[i].distance = 0;
+            p_data->point[i].type     = LADAR_POINT_TYPE_INVALID;
+        }
+
 
         j += 2;
     }
