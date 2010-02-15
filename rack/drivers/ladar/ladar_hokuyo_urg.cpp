@@ -229,7 +229,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
 
         if (p_data->point[i].distance < 20)
         {
-            p_data->point[i].distance = 0;
+            p_data->point[i].distance = p_data->maxRange;
             p_data->point[i].type     = LADAR_POINT_TYPE_INVALID;
         }
 
