@@ -243,8 +243,8 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
             }
             else
             {
-                int dist = (int) Math.sqrt(point.x * point.x + point.y
-                        * point.y);
+                int dist = (int) Math.sqrt((double)point.x * (double)point.x +
+                                           (double)point.y * (double)point.y);
                 size += (int) (dist * 0.025);
             }               
 
