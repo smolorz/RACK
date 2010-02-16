@@ -35,6 +35,9 @@ argTable_t argTab[] = {
     {ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The period time of the source in ms, default vertical (1s)", { 1000 } },
 
+    {ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module (default 0)", { 0 } },
+
     {ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the position module (default -1)", { -1 } },
 
@@ -73,7 +76,7 @@ int  ObjRecogRelayLadar::moduleOn(void)
         ret = position->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on Position(%d), code = %d\n", positionInst, ret);
+            GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n", positionSys, positionInst, ret);
             return ret;
         }
     }
@@ -119,7 +122,7 @@ int  ObjRecogRelayLadar::moduleLoop(void)
         ret = position->getData(&positionData, sizeof(position_data), 0);
         if (ret)
         {
-            GDOS_ERROR("Can't get data from Position(%d), code = %d\n", positionInst, ret);
+            GDOS_ERROR("Can't get data from Position(%d/%d), code = %d\n", positionSys, positionInst, ret);
             return ret;
         }
         GDOS_DBG_DETAIL("Received position data, recordingTime %d, pos %d %d %a\n",
@@ -191,7 +194,7 @@ int  ObjRecogRelayLadar::moduleInit(void)
     // position proxy
     if (positionInst >= 0)
     {
-        position = new PositionProxy(&workMbx, 0, positionInst);
+        position = new PositionProxy(&workMbx, positionSys, positionInst);
         if (!position)
         {
             ret = -ENOMEM;
@@ -247,6 +250,7 @@ ObjRecogRelayLadar::ObjRecogRelayLadar(void)
     // get static module parameter
     size_t maxDataSize     = getIntArg("maxDataSize", argTab);
     rack_time_t periodTime = getIntArg("periodTime", argTab);
+    positionSys            = getIntArg("positionSys", argTab);
     positionInst           = getIntArg("positionInst", argTab);
 
     this->inited = false;

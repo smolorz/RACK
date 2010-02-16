@@ -39,6 +39,7 @@ class ObjRecogRelayLadar : public RackDataModule
 {
     private:
 
+    int                 positionSys;
     int                 positionInst;
     int                 ladarOffsetX;
     int                 ladarOffsetY;
