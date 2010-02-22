@@ -306,7 +306,7 @@ int  LadarIbeoLux::moduleLoop(void)
                 {
                     point.type = LADAR_POINT_TYPE_TRANSPARENT;
                 }
-                if ((ladarScanData->point[i].flags & 0x01) == 0x00)     // object
+                if (ladarScanData->point[i].flags == 0)     // object
                 {
                     point.type = LADAR_POINT_TYPE_UNKNOWN;
                 }
