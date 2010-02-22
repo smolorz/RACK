@@ -26,8 +26,11 @@
 
 typedef struct {
     int32_t     objectId;
+    int32_t     type;
     position_3d pos;
+    position_3d varPos;
     position_3d vel;
+    position_3d varVel;
     point_3d    dim;
     float       prob;
     image_rect  imageArea;
@@ -38,8 +41,11 @@ class ObjRecogObject {
         static void le_to_cpu(obj_recog_object *data)
         {
             data->objectId = __le32_to_cpu(data->objectId);
+            data->type     = __le32_to_cpu(data->type);
             Position3D::le_to_cpu(&data->pos);
+            Position3D::le_to_cpu(&data->varPos);
             Position3D::le_to_cpu(&data->vel);
+            Position3D::le_to_cpu(&data->varVel);
             Point3D::le_to_cpu(&data->dim);
             data->prob     = __le32_float_to_cpu(data->prob);
             ImageRect::le_to_cpu(&data->imageArea);
@@ -48,8 +54,11 @@ class ObjRecogObject {
         static void be_to_cpu(obj_recog_object *data)
         {
             data->objectId = __be32_to_cpu(data->objectId);
+            data->type     = __be32_to_cpu(data->type);
             Position3D::be_to_cpu(&data->pos);
+            Position3D::be_to_cpu(&data->varPos);
             Position3D::be_to_cpu(&data->vel);
+            Position3D::be_to_cpu(&data->varVel);
             Point3D::be_to_cpu(&data->dim);
             data->prob     = __be32_float_to_cpu(data->prob);
             ImageRect::be_to_cpu(&data->imageArea);

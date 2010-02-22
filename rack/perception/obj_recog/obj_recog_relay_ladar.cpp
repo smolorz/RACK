@@ -129,6 +129,7 @@ int  ObjRecogRelayLadar::moduleLoop(void)
                         positionData.recordingTime, positionData.pos.x, positionData.pos.y,
                         positionData.pos.rho);
         memcpy(&p_data->refPos, &positionData.pos, sizeof(position_3d));
+        memset(&p_data->varRefPos, 0, sizeof(position_3d));
     }
 
     // add offsets
