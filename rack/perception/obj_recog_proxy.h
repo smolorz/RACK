@@ -63,6 +63,7 @@ ACCESS: msg.data.object[...] OR msg.object[...]; !!!
 typedef struct {
     rack_time_t         recordingTime;  // has to be first element
     position_3d         refPos;         // position of the reference cooridnate system
+    position_3d         varRefPos;      // variance of the reference position
     int32_t             objectNum;      // number of recognized objects
     obj_recog_object    object[0];      // list of recognized objects
 } __attribute__((packed)) obj_recog_data;
@@ -75,6 +76,7 @@ class ObjRecogData
             int i;
             data->recordingTime = __le32_to_cpu(data->recordingTime);
             Position3D::le_to_cpu(&data->refPos);
+            Position3D::le_to_cpu(&data->varRefPos);
             data->objectNum     = __le32_to_cpu(data->objectNum);
             for (i = 0; i < data->objectNum; i++)
             {
@@ -87,6 +89,7 @@ class ObjRecogData
             int i;
             data->recordingTime = __be32_to_cpu(data->recordingTime);
             Position3D::be_to_cpu(&data->refPos);
+            Position3D::be_to_cpu(&data->varRefPos);
             data->objectNum     = __be32_to_cpu(data->objectNum);
             for (i = 0; i < data->objectNum; i++)
             {

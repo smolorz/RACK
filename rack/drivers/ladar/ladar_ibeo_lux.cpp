@@ -306,7 +306,7 @@ int  LadarIbeoLux::moduleLoop(void)
                 {
                     point.type = LADAR_POINT_TYPE_TRANSPARENT;
                 }
-                if ((ladarScanData->point[i].flags & 0x01) == 0x00)     // object
+                if (ladarScanData->point[i].flags == 0)     // object
                 {
                     point.type = LADAR_POINT_TYPE_UNKNOWN;
                 }
@@ -396,6 +396,12 @@ int  LadarIbeoLux::moduleLoop(void)
             objRecogBoundData.data.refPos.phi    = 0.0f;
             objRecogBoundData.data.refPos.psi    = 0.0f;
             objRecogBoundData.data.refPos.rho    = 0.0f;
+            objRecogBoundData.data.varRefPos.x   = 0;
+            objRecogBoundData.data.varRefPos.y   = 0;
+            objRecogBoundData.data.varRefPos.z   = 0;
+            objRecogBoundData.data.varRefPos.phi = 0.0f;
+            objRecogBoundData.data.varRefPos.psi = 0.0f;
+            objRecogBoundData.data.varRefPos.rho = 0.0f;
             objRecogBoundData.data.objectNum     = 0;
 
             // contour data
@@ -408,6 +414,12 @@ int  LadarIbeoLux::moduleLoop(void)
             objRecogContourData.data.refPos.phi    = 0.0f;
             objRecogContourData.data.refPos.psi    = 0.0f;
             objRecogContourData.data.refPos.rho    = 0.0f;
+            objRecogContourData.data.varRefPos.x   = 0;
+            objRecogContourData.data.varRefPos.y   = 0;
+            objRecogContourData.data.varRefPos.z   = 0;
+            objRecogContourData.data.varRefPos.phi = 0.0f;
+            objRecogContourData.data.varRefPos.psi = 0.0f;
+            objRecogContourData.data.varRefPos.rho = 0.0f;
             objRecogContourData.data.objectNum     = 0;
 
 
@@ -422,6 +434,7 @@ int  LadarIbeoLux::moduleLoop(void)
                 {
                     objRecogBoundData.data.objectNum++;
                     objRecogBoundData.object[i].objectId =  ladarObj->id;
+                    objRecogBoundData.object[i].type     =  0;
                     objRecogBoundData.object[i].pos.x    =  ladarObj->objBoxCenter.x * 10;
                     objRecogBoundData.object[i].pos.y    = -ladarObj->objBoxCenter.y * 10;
                     objRecogBoundData.object[i].pos.z    =  0;
@@ -429,12 +442,24 @@ int  LadarIbeoLux::moduleLoop(void)
                     objRecogBoundData.object[i].pos.psi  =  0.0f;
                     objRecogBoundData.object[i].pos.rho  = -(float)ladarObj->objBoxOrientation *
                                                                    M_PI / (180.0 * 32.0);
+                    objRecogBoundData.object[i].varPos.x   = 0;
+                    objRecogBoundData.object[i].varPos.y   = 0;
+                    objRecogBoundData.object[i].varPos.z   = 0;
+                    objRecogBoundData.object[i].varPos.phi = 0.f;
+                    objRecogBoundData.object[i].varPos.psi = 0.f;
+                    objRecogBoundData.object[i].varPos.rho = 0.f;
                     objRecogBoundData.object[i].vel.x    =  ladarObj->velRel.x * 10;
                     objRecogBoundData.object[i].vel.y    = -ladarObj->velRel.y * 10;
                     objRecogBoundData.object[i].vel.z    =  0;
                     objRecogBoundData.object[i].vel.phi  =  0.0f;
                     objRecogBoundData.object[i].vel.psi  =  0.0f;
                     objRecogBoundData.object[i].vel.rho  =  0.0f;
+                    objRecogBoundData.object[i].varVel.x   = 0;
+                    objRecogBoundData.object[i].varVel.y   = 0;
+                    objRecogBoundData.object[i].varVel.z   = 0;
+                    objRecogBoundData.object[i].varVel.phi = 0.f;
+                    objRecogBoundData.object[i].varVel.psi = 0.f;
+                    objRecogBoundData.object[i].varVel.rho = 0.f;
                     objRecogBoundData.object[i].dim.x    =  ladarObj->objBoxSize.x * 10;
                     objRecogBoundData.object[i].dim.y    =  ladarObj->objBoxSize.y * 10;
                     objRecogBoundData.object[i].dim.z    =  0;
@@ -468,18 +493,31 @@ int  LadarIbeoLux::moduleLoop(void)
 
                             objRecogContourData.data.objectNum++;
                             objRecogContourData.object[j].objectId =  ladarObj->id;
+                            objRecogContourData.object[j].type     =  0;
                             objRecogContourData.object[j].pos.x    =  (startPoint.x + endPoint.x) / 2;
                             objRecogContourData.object[j].pos.y    =  (startPoint.y + endPoint.y) / 2;
                             objRecogContourData.object[j].pos.z    =  0;
                             objRecogContourData.object[j].pos.phi  =  0.0f;
                             objRecogContourData.object[j].pos.psi  =  0.0f;
                             objRecogContourData.object[j].pos.rho  =  angle;
+                            objRecogContourData.object[j].varPos.x   =  0;
+                            objRecogContourData.object[j].varPos.y   =  0;
+                            objRecogContourData.object[j].varPos.z   =  0;
+                            objRecogContourData.object[j].varPos.phi =  0.f;
+                            objRecogContourData.object[j].varPos.psi =  0.f;
+                            objRecogContourData.object[j].varPos.rho =  0.f;
                             objRecogContourData.object[j].vel.x    =  ladarObj->velRel.x * 10;
                             objRecogContourData.object[j].vel.y    = -ladarObj->velRel.y * 10;
                             objRecogContourData.object[j].vel.z    =  0;
                             objRecogContourData.object[j].vel.phi  =  0.0f;
                             objRecogContourData.object[j].vel.psi  =  0.0f;
                             objRecogContourData.object[j].vel.rho  =  0.0f;
+                            objRecogContourData.object[j].varVel.x   =  0;
+                            objRecogContourData.object[j].varVel.y   =  0;
+                            objRecogContourData.object[j].varVel.z   =  0;
+                            objRecogContourData.object[j].varVel.phi =  0.f;
+                            objRecogContourData.object[j].varVel.psi =  0.f;
+                            objRecogContourData.object[j].varVel.rho =  0.f;
                             objRecogContourData.object[j].dim.x    =  length;
                             objRecogContourData.object[j].dim.y    =  0;
                             objRecogContourData.object[j].dim.z    =  0;
