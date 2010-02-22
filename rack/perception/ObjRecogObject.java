@@ -30,15 +30,18 @@ public class ObjRecogObject
 {
 
     public int objectId = 0;
+    public int type = 0;
     public Position3d pos = new Position3d();
+    public Position3d varPos = new Position3d();
     public Position3d vel = new Position3d();
+    public Position3d varVel = new Position3d();
     public Point3d    dim = new Point3d();
-    public float     prob = 0.0f;
-    public ImageRect imageArea = new ImageRect();
+    public float      prob = 0.0f;
+    public ImageRect  imageArea = new ImageRect();
  
     public static int getDataLen()
     {
-        return (4 + 4 + 2 * Position3d.getDataLen() + ImageRect.getDataLen()+ Point3d.getDataLen());
+        return (4 + 4 + 4 + 4 * Position3d.getDataLen() + ImageRect.getDataLen() + Point3d.getDataLen());
     }
     
     public ObjRecogObject()
@@ -52,8 +55,11 @@ public class ObjRecogObject
             throws IOException
     {
         objectId = dataIn.readInt();
+        type = dataIn.readInt();
         pos.readData(dataIn);
+        varPos.readData(dataIn);
         vel.readData(dataIn);
+        varVel.readData(dataIn);
         dim.readData(dataIn);
         prob = dataIn.readFloat();
         imageArea.readData(dataIn);
@@ -65,8 +71,11 @@ public class ObjRecogObject
     public void writeDataOut(DataOutputStream dataOut) throws IOException
     {
         dataOut.writeInt(objectId);
+        dataOut.writeInt(type);
         pos.writeData(dataOut);
+        varPos.writeData(dataOut);
         vel.writeData(dataOut);
+        varVel.writeData(dataOut);
         dim.writeData(dataOut);
         dataOut.writeFloat(prob);
         imageArea.writeData(dataOut);
@@ -75,6 +84,6 @@ public class ObjRecogObject
 
     public String toString()
     {
-        return objectId + " pos " + pos + " vel " + vel + " dim " + dim + " prob " + prob + " imageArea " + imageArea;
+        return objectId + " " + type + " pos " + pos + " varPos " +  varPos + " vel " + vel + " varVel " + varVel + " dim " + dim + " prob " + prob + " imageArea " + imageArea;
     }
 }

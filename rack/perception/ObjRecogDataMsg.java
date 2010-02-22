@@ -24,12 +24,13 @@ import rack.main.tims.*;
 public class ObjRecogDataMsg extends TimsMsg {
 
     public int                       recordingTime = 0; // 4 Bytes
-    public Position3d 				 refPos 	   = new Position3d();  
+    public Position3d 				 refPos 	   = new Position3d(); 
+    public Position3d                varRefPos     = new Position3d();
     public int                       objectNum     = 0; // 4 Bytes
     public ObjRecogObject[]          object;
 
     public int getDataLen() {
-        return (8 + Position3d.getDataLen() + objectNum * ObjRecogObject.getDataLen());
+        return (4 + 4 + 2 * Position3d.getDataLen() + objectNum * ObjRecogObject.getDataLen());
     }
 
     public ObjRecogDataMsg()
@@ -68,6 +69,7 @@ public class ObjRecogDataMsg extends TimsMsg {
 
         recordingTime = dataIn.readInt();
         refPos.readData(dataIn);
+        varRefPos.readData(dataIn);
         objectNum = dataIn.readInt();
         
         object = new ObjRecogObject[objectNum];
@@ -84,6 +86,7 @@ public class ObjRecogDataMsg extends TimsMsg {
         DataOutputStream dataOut = new DataOutputStream(out);
         dataOut.writeInt(recordingTime);
         refPos.writeData(dataOut);
+        varRefPos.writeData(dataOut);
         dataOut.writeInt(objectNum);
 
         for (int i = 0; i < objectNum; i++) 
