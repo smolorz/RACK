@@ -559,7 +559,8 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
 	            Position3d estimate = new Position3d(event.getRobotCursorPos());
 	            
 	            objEstimateData.object = new ObjRecogObject[1];   
-	            objEstimateData.objectNum = 1;  
+	            objEstimateData.objectNum = 1;
+	            objEstimateData.object[0] = new ObjRecogObject();
 	            objEstimateData.object[0].pos = estimate;
 	          
 	            objRecog.setEstimate(objEstimateData, 0);
