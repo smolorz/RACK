@@ -22,6 +22,7 @@
 #define INIT_BIT_MBX_LADAR          2
 #define INIT_BIT_PROXY_LADAR        3
 #define INIT_BIT_PROXY_CAMERA       4
+#define INIT_BIT_PROXY_POSITION     5
 
 // filter flags:
 #define FILTER_REFLECTOR_90DEG   0x01
@@ -65,6 +66,12 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "cameraInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the camera driver", { -1 } },
+
+    { ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module", { 0 } },
+
+    { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the position module", { -1 } },
 
     { ARGOPT_OPT, "ladarOffsetX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Ladar X offset (default 0)", { 0 } },
@@ -162,6 +169,16 @@ argTable_t argTab[] = {
         GDOS_ERROR("Can't get continuous data from Ladar(%d/%d), "
                    "code = %d \n", ladarSys, ladarInst, ret);
         return ret;
+    }
+
+    if (positionInst >= 0)
+    {
+        ret = position->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n", positionSys, positionInst, ret);
+            return ret;
+        }
     }
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
@@ -305,6 +322,33 @@ int  Scan2d::moduleLoop(void)
             GDOS_ERROR("Can't add scan intensity, code = %d\n", ret);
             return ret;
         }
+    }
+
+    if (positionInst >= 0)
+    {
+        //add position to scan2d data
+        ret = position->getData(&positionData, sizeof(positionData), data2D->recordingTime);
+        if (ret)
+        {
+            GDOS_ERROR("Can't get data from Position(%i/%i), code = %d\n", positionSys, positionInst, ret);
+            return ret;
+        }
+
+        data2D->refPos.x   = positionData.pos.x;
+        data2D->refPos.y   = positionData.pos.y;
+        data2D->refPos.z   = positionData.pos.z;
+        data2D->refPos.phi = positionData.pos.phi;
+        data2D->refPos.psi = positionData.pos.psi;
+        data2D->refPos.rho = positionData.pos.rho;
+    }
+    else
+    {
+        data2D->refPos.x   = 0;
+        data2D->refPos.y   = 0;
+        data2D->refPos.z   = 0;
+        data2D->refPos.phi = 0.f;
+        data2D->refPos.psi = 0.f;
+        data2D->refPos.rho = 0.f;
     }
 
     ladarMbx.peekEnd();
@@ -597,6 +641,18 @@ int Scan2d::moduleInit(void)
         initBits.setBit(INIT_BIT_PROXY_CAMERA);
     }
 
+    // create Position Proxy
+    if (positionInst > -1)
+    {
+        position = new PositionProxy(&workMbx, positionSys, positionInst);
+        if (!position)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_POSITION);
+    }
+
     return 0;
 
 init_error:
@@ -625,6 +681,11 @@ void Scan2d::moduleCleanup(void)
         delete ladar;
     }
 
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION))
+    {
+        delete position;
+    }
+
     // delete mailboxes
     if (initBits.testAndClearBit(INIT_BIT_MBX_WORK))
     {
@@ -651,6 +712,8 @@ Scan2d::Scan2d(void)
     ladarInst       = getIntArg("ladarInst", argTab);
     cameraSys       = getIntArg("cameraSys", argTab);
     cameraInst      = getIntArg("cameraInst", argTab);
+    positionSys     = getIntArg("positionSys", argTab);
+    positionInst    = getIntArg("positionInst", argTab);
 
     dataBufferMaxDataSize = sizeof(scan2d_msg);
 }

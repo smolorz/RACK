@@ -20,6 +20,7 @@
 #include <perception/scan2d_proxy.h>
 #include <drivers/ladar_proxy.h>
 #include <drivers/camera_proxy.h>
+#include <navigation/position_proxy.h>
 
 typedef struct {
     camera_data     data;
@@ -40,6 +41,8 @@ class Scan2d : public RackDataModule {
         int          ladarInst;
         int          cameraSys;
         int          cameraInst;
+        int          positionSys;
+        int          positionInst;
 
         int          ladarOffsetX;
         int          ladarOffsetY;
@@ -64,10 +67,12 @@ class Scan2d : public RackDataModule {
         RackMailbox ladarMbx;
 
         camera_data_ladar_msg cameraMsg;
+        position_data         positionData;
 
         // proxies
-        LadarProxy  *ladar;
-        CameraProxy *camera;
+        LadarProxy    *ladar;
+        CameraProxy   *camera;
+        PositionProxy *position;
 
         void turnUpsideDown(ladar_data* dataLadar);
         void filterMedian(ladar_data* dataLadar);
