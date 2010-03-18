@@ -61,11 +61,20 @@ argTable_t argTab[] = {
       "Last NMEA-message of the data set (RMC = 0, GGA = 1, GSA = 2, VTG = 3), default VTG (3)",
       { 0 } },
 
-    { ARGOPT_OPT, "varXY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "variance of xy position in mm [default 20000 mm]", { 20000 } },
+    { ARGOPT_OPT, "sdXYMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "standard deviation of xy position with 4 satellites in mm [default 50000 mm]", { 50000 } },
 
-    { ARGOPT_OPT, "varRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "variance of heading in deg [default 20 deg]", { 20 } },
+    { ARGOPT_OPT, "sdZMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "standard deviation of z position with 4 satellites in mm [default 100000 mm]", { 100000 } },
+
+    { ARGOPT_OPT, "sdRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "standard deviation of the heading in deg [default 20 deg]", { 20 } },
+
+    { ARGOPT_OPT, "sdXYMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "standard deviation of xy position with 12 satellites in mm [default 10000 mm]", { 10000 } },
+
+    { ARGOPT_OPT, "sdZMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "standard deviation of z position with 12 satellites in mm [default 20000 mm]", { 20000 } },
 
     { ARGOPT_OPT, "realtimeClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Enable update of the realtime clock clock, 0=off, 1=on, default 0", { 0 } },
@@ -111,8 +120,11 @@ int GpsNmea::moduleOn(void)
     periodTime              = getInt32Param("periodTime");
     trigMsgStart            = getInt32Param("trigMsgStart");
     trigMsgEnd              = getInt32Param("trigMsgEnd");
-    varXY                   = getInt32Param("varXY");
-    varRho                  = (float)(getInt32Param("varRho") * M_PI / 180.0);
+    sdXYMax                 = getInt32Param("sdXYMax");
+    sdZMax                  = getInt32Param("sdZMax");
+    sdRho                   = (float)(getInt32Param("sdRho") * M_PI / 180.0);
+    sdXYMin                 = getInt32Param("sdXYMin");
+    sdZMin                  = getInt32Param("sdZMin");
     realtimeClockUpdate     = getInt32Param("realtimeClockUpdate");
     realtimeClockUpdateTime = getInt32Param("realtimeClockUpdateTime");
     dataBufferPeriodTime    = periodTime;
@@ -284,7 +296,7 @@ int GpsNmea::moduleLoop(void)
             else
             {
                 // calculate position and orientation in global cartesian coordinates
-                if (gpsData.satelliteNum >= 3)
+                if (gpsData.satelliteNum >= 4)
                 {
                     posWgs84Data.latitude  = gpsData.latitude;
                     posWgs84Data.longitude = gpsData.longitude;
@@ -308,38 +320,25 @@ int GpsNmea::moduleLoop(void)
                     gpsData.pos.rho = 0.0f;
                 }
 
-                // estimate GPS position variance
-                if (gpsData.satelliteNum >= 6)
+                // estimate GPS standard deviation
+                if (gpsData.satelliteNum >= 4)
                 {
-                    gpsData.var.x = varXY;               // default 20m
-                    gpsData.var.y = varXY;
-                    gpsData.var.z = varXY * 5;           // default 100m
+                    gpsData.var.x = sdXYMax + (sdXYMin - sdXYMax) * (gpsData.satelliteNum - 4) / (12 - 4);
+                    gpsData.var.y = sdXYMax + (sdXYMin - sdXYMax) * (gpsData.satelliteNum - 4) / (12 - 4);
+                    gpsData.var.z = sdZMax  + (sdZMin - sdZMax)   * (gpsData.satelliteNum - 4) / (12 - 4);
                 }
-                else if (gpsData.satelliteNum >= 5)
+                else if (gpsData.satelliteNum > 12)
                 {
-                    gpsData.var.x = varXY * 3;           // default 60m
-                    gpsData.var.y = varXY * 3;
-                    gpsData.var.z = varXY * 3 * 5;      // deault 300m
+                    gpsData.var.x = sdXYMin;
+                    gpsData.var.y = sdXYMin;
+                    gpsData.var.z = sdZMin;
                 }
-                else if (gpsData.satelliteNum >= 4)
-                {
-                    gpsData.var.x = varXY * 5;           // default 100m
-                    gpsData.var.y = varXY * 5;
-                    gpsData.var.z = varXY * 5 * 5;       // default 500m
-                }
-                else if (gpsData.satelliteNum >= 3)
-                {
-                    gpsData.var.x = varXY * 5;           // default 100m
-                    gpsData.var.y = varXY * 5;
-                    gpsData.var.z = (int)1e12;           // Mode 2D
-                }
-                else  // satelliteNum < 3
+                else  // satelliteNum < 4
                 {
                     gpsData.var.x = INT_MAX;
                     gpsData.var.y = INT_MAX;
                     gpsData.var.z = INT_MAX;
                 }
-
 
                 // estimate GPS heading variance
                 if ((gpsData.satelliteNum >= 4) & (gpsData.satelliteNum == satelliteNumOld))
@@ -347,7 +346,7 @@ int GpsNmea::moduleLoop(void)
                     // use gps heading only with motion of at least 0.3m/s
                     if (gpsData.speed > 300)
                     {
-                        gpsData.var.rho = varRho;          // default 90 deg
+                        gpsData.var.rho = sdRho;          // default 90 deg
                     }
                     else
                     {
