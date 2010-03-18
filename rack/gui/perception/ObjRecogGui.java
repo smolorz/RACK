@@ -553,13 +553,15 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
         {
         	if (event.getEventId() == MapViewActionEvent.MOUSE_CLICKED_EVENT)
 	        { 
-	            System.out.println("ObjRecog set estimate " + event.getRobotCursorPos());
+	            System.out.println("ObjRecog set estimate " + event.getRobotCursorPos() + " (ref " + event.getRobotPosition() + ")");
 	            
 	            ObjRecogDataMsg objEstimateData = new ObjRecogDataMsg();
+	            objEstimateData.refPos = new Position3d(event.getRobotPosition());
 	            Position3d estimate = new Position3d(event.getRobotCursorPos());
 	            
 	            objEstimateData.object = new ObjRecogObject[1];   
-	            objEstimateData.objectNum = 1;  
+	            objEstimateData.objectNum = 1;
+	            objEstimateData.object[0] = new ObjRecogObject();
 	            objEstimateData.object[0].pos = estimate;
 	          
 	            objRecog.setEstimate(objEstimateData, 0);
