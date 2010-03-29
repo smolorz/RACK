@@ -190,6 +190,11 @@ int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp,
     return recv(data, dataLen, timestamp);
 }
 
+int SerialPort::waitEvent(struct rtser_event *event)
+{
+    return rt_dev_ioctl(fd, RTSER_RTIOC_WAIT_EVENT, event);
+}
+
 int SerialPort::clean(void)
 {
     return rt_dev_ioctl(fd, RTIOC_PURGE, RTDM_PURGE_RX_BUFFER |

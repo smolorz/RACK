@@ -56,6 +56,8 @@ class SerialPort
         int recv(void *data, int dataLen, rack_time_t *timestamp,
                  int64_t timeout_ns);
 
+        int waitEvent(struct rtser_event *event);
+
         int clean(void);
 };
 
