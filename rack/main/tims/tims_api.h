@@ -327,7 +327,7 @@ static inline int tims_mbx_remove(int fd)
 
 
 // delete all messages
-static inline int tims_mbx_clean(int fd)
+static inline int tims_mbx_clean(int fd, int addr)
 {
     return rt_dev_ioctl(fd, TIMS_RTIOC_MBXCLEAN, 0);
 }
@@ -624,9 +624,13 @@ static inline int tims_mbx_remove(int fd)
     return 0;
 }
 
-static inline int tims_mbx_clean(int fd)
+static inline int tims_mbx_clean(int fd, int addr)
 {
-    return -1;//rt_dev_ioctl(fd, TIMS_RTIOC_MBXCLEAN, 0);
+    // close socket to clean socket buffer
+    tims_mbx_remove(fd);
+    tims_mbx_create(addr, 0, 0, NULL, 0);
+
+    return 0;
 }
 
 static inline int tims_peek_timed(int fd, tims_msg_head **pp_head,

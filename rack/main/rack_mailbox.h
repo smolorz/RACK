@@ -107,7 +107,7 @@ class RackMailbox {
 
     private:
         int             fd;
-        uint32_t        adr;
+        uint32_t        addr;
         uint8_t         sendPrio;
 
         RackMutex       sendMtx;
@@ -123,7 +123,7 @@ class RackMailbox {
         static uint32_t getMsgOverhead(void)  { return TIMS_HEADLEN; }
 
         /** Get address of the mailbox */
-        uint32_t        getAdr(void)          { return adr; }
+        uint32_t        getAdr(void)          { return addr; }
 
         /** Get mailbox priority */
         uint8_t         getPriority(void)     { return sendPrio; }

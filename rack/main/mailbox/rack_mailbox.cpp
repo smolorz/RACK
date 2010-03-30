@@ -68,7 +68,7 @@ void RackMailbox::fillMessagePeekInfo(message_info *msgInfo, tims_msg_head* p_pe
 RackMailbox::RackMailbox()
 {
     fd          = -1;
-    adr         = 0;
+    addr         = 0;
     sendPrio    = 0;
 }
 
@@ -114,7 +114,7 @@ int RackMailbox::create(uint32_t address, int messageSlots,
 
     if (fd < 0)
     {
-        adr         = 0;
+        addr         = 0;
         sendPrio    = 0;
 
         sendMtx.destroy();
@@ -123,7 +123,7 @@ int RackMailbox::create(uint32_t address, int messageSlots,
         return fd;
     }
 
-    adr         = address;
+    addr         = address;
     sendPrio    = sendPriority;
 
     return 0;
@@ -152,7 +152,7 @@ int RackMailbox::remove(void)
     ret = tims_mbx_remove(fd);
 
     fd          = -1;
-    adr         = 0;
+    addr         = 0;
     sendPrio    = 0;
 
     sendMtx.destroy();
@@ -182,7 +182,7 @@ int RackMailbox::clean(void)
 
     recvMtx.lock();
 
-    ret = tims_mbx_clean(fd);
+    ret = tims_mbx_clean(fd, addr);
 
     recvMtx.unlock();
 
@@ -219,7 +219,7 @@ int RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seqNr)
 
     sendMtx.lock();
 
-    tims_fill_head(&head, type, dest, adr, sendPrio, seqNr, 0, TIMS_HEADLEN);
+    tims_fill_head(&head, type, dest, addr, sendPrio, seqNr, 0, TIMS_HEADLEN);
 
     ret = tims_sendmsg(fd, &head, NULL, 0, 0);
 
@@ -259,7 +259,7 @@ int RackMailbox::sendMsgReply(int8_t type, message_info* msgInfo)
 
     sendMtx.lock();
 
-    tims_fill_head(&head, type, msgInfo->src, adr, msgInfo->priority, msgInfo->seq_nr, 0, TIMS_HEADLEN);
+    tims_fill_head(&head, type, msgInfo->src, addr, msgInfo->priority, msgInfo->seq_nr, 0, TIMS_HEADLEN);
 
     ret = tims_sendmsg(fd, &head, NULL, 0, 0);
 
@@ -325,7 +325,7 @@ int RackMailbox::sendDataMsg(int8_t type, uint32_t dest, uint8_t seqNr,
     }
     va_end(ap);
 
-    tims_fill_head(&head, type, dest, adr, sendPrio, seqNr, 0, msglen);
+    tims_fill_head(&head, type, dest, addr, sendPrio, seqNr, 0, msglen);
 
     ret = tims_sendmsg(fd, &head, iov, dataPointers, 0);
 
@@ -452,7 +452,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
     }
     va_end(ap);
 
-    tims_fill_head(&head, type, msgInfo->src, adr, msgInfo->priority, msgInfo->seq_nr, 0, msglen);
+    tims_fill_head(&head, type, msgInfo->src, addr, msgInfo->priority, msgInfo->seq_nr, 0, msglen);
 
     ret = tims_sendmsg(fd, &head, iov, dataPointers, 0);
 
