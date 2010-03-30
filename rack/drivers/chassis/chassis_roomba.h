@@ -29,11 +29,13 @@
 #define CHASSIS_ROOMBA_ROI_BAUD        0x81
 #define CHASSIS_ROOMBA_ROI_CONTROL     0x82
 #define CHASSIS_ROOMBA_ROI_FULL        0x84
+#define CHASSIS_ROOMBA_ROI_CLEAN       0x87
 #define CHASSIS_ROOMBA_ROI_DRIVE       0x89
 #define CHASSIS_ROOMBA_ROI_MOTORS      0x8A
 #define CHASSIS_ROOMBA_ROI_SONG        0x8C
 #define CHASSIS_ROOMBA_ROI_PLAY        0x8D
 #define CHASSIS_ROOMBA_ROI_SENSORS     0x8E
+#define CHASSIS_ROOMBA_ROI_FORCE_DOCK  0x8F
 
 #define CHASSIS_ROOMBA_RADIUS_MAX      2000                     // mm
 #define CHASSIS_ROOMBA_DEGREES_PER_MM  360.0 / (258.0 * M_PI)
@@ -96,6 +98,7 @@ class ChassisRoomba : public RackDataModule {
     int                         motorMainBrush;
     int                         motorVacuum;
     int                         motorSideBrush;
+    int                         startDocking;
     SerialPort                  serialPort;
 
     int                         overcurrentCounter;

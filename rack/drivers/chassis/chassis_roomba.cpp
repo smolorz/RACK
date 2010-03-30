@@ -111,6 +111,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "motorSideBrush", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "State of the side brush motor, 0 = off, 1 = on, default 0", { 0 } },
 
+    { ARGOPT_OPT, "startDocking", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "State of docking, 0 = off, 1 = start seeking docking station, default 0", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -200,6 +203,7 @@ chassis_param_data param = {
     motorMainBrush          = getInt32Param("motorMainBrush");
     motorVacuum             = getInt32Param("motorVacuum");
     motorSideBrush          = getInt32Param("motorSideBrush");
+    startDocking            = getInt32Param("startDocking");
 
     if (scan2dInst >= 0)
     {
@@ -338,9 +342,9 @@ int ChassisRoomba::moduleLoop(void)
         (getInt32Param("motorVacuum") != motorVacuum) ||
         (getInt32Param("motorSideBrush") != motorSideBrush))
     {
-	 motorMainBrush          = getInt32Param("motorMainBrush");
-	 motorVacuum             = getInt32Param("motorVacuum");
-	 motorSideBrush          = getInt32Param("motorSideBrush");
+        motorMainBrush          = getInt32Param("motorMainBrush");
+        motorVacuum             = getInt32Param("motorVacuum");
+        motorSideBrush          = getInt32Param("motorSideBrush");
 
 	 // set cleaning motor
 	 ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
@@ -348,6 +352,23 @@ int ChassisRoomba::moduleLoop(void)
 	 {
              return ret;
          }
+    }
+
+    // check docking
+    if (getInt32Param("startDocking") != startDocking)
+    {
+        startDocking = getInt32Param("startDocking");
+
+        GDOS_PRINT("Start seeking for docking station...\n");
+
+        if (startDocking == 1)
+        {
+            ret = setMode(CHASSIS_ROOMBA_ROI_FORCE_DOCK);
+            if (ret)
+            {
+                return ret;
+            }
+        }
     }
 
     // send scan2d data
@@ -504,7 +525,7 @@ int ChassisRoomba::setMode(int mode)
     ret = serialPort.send(serialBuffer, 1);
     if (ret)
     {
-        GDOS_ERROR("Can't send mode coomand %x to roomba, code = %d\n", mode, ret);
+        GDOS_ERROR("Can't send mode command %x to roomba, code = %d\n", mode, ret);
     }
     RackTask::sleep(20000000llu);   // 20ms
 

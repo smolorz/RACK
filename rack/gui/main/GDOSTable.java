@@ -28,7 +28,7 @@ import rack.main.*;
 public class GDOSTable extends AbstractTableModel
 {
   protected int debugLevel = GDOS.DBG_DETAIL;
-  protected int maxMessages = 1000;
+  protected int maxMessages = 30000;
   protected Vector<GDOSDataMsg> messageList = new Vector<GDOSDataMsg>(maxMessages);
   protected Vector<GDOSDataMsg> filteredMessageList = new Vector<GDOSDataMsg>(maxMessages);
 

@@ -82,6 +82,9 @@ argTable_t argTab[] = {
     { ARGOPT_OPT, "realtimeClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Time interval for updating the realtime clock in ms, default 60000 ", { 60000 } },
 
+    { ARGOPT_OPT, "enablePPSTiming", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable timing from PPS output of GPS receiver for realtimeClockUpdate, 0=off, 1=on, default 1", { 1 } },
+
   { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -99,6 +102,7 @@ struct rtser_config gps_serial_config = {
     event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
     event_mask        : RTSER_EVENT_RXPEND
+
 };
 
 /*******************************************************************************
@@ -131,7 +135,7 @@ int GpsNmea::moduleOn(void)
 
     // prepare serial port
     serialPort.clean();
-    serialPort.setRecvTimeout((int64_t)periodTime * 2000000llu);
+    serialPort.setRecvTimeout(rackTime.toNano(2 * periodTime));
 
     // clock relay
     if (clockRelayInst >= 0)
@@ -159,11 +163,12 @@ int GpsNmea::moduleOn(void)
     }
 
     // init values
-    utcTime               = 0.0f;
-    utcTimeOld            = 0.0f;
-    satelliteNumOld       = 0;
-    gpsData.recordingTime = rackTime.get();
-    lastClockUpdateTime   = rackTime.get() - realtimeClockUpdateTime;
+    utcTime                      = 0.0f;
+    utcTimeOld                   = 0.0f;
+    satelliteNumOld              = 0;
+    pps.valid                    = 0;
+    gpsData.recordingTime        = rackTime.get();
+    lastClockUpdateTime          = rackTime.get() - realtimeClockUpdateTime;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -193,7 +198,6 @@ int GpsNmea::moduleLoop(void)
 
     // read next NMEA message
     ret = readNMEAMessage();
-
     if (!ret)
     {
         // decode NMEA message type
@@ -360,6 +364,15 @@ int GpsNmea::moduleLoop(void)
                 gpsData.var.phi = INFINITY;
                 gpsData.var.psi = INFINITY;
 
+                // pps timing
+                if (enablePPSTiming == 1)
+                {
+                    // correct gps recordingtime on valid pps 
+                    if ((gpsData.satelliteNum >= 4) && (pps.valid))
+                    {
+                        gpsData.recordingTime = pps.recordingTime;
+                    }
+                }
 
                 // realtime clock update
                 if (realtimeClockUpdate == 1)
@@ -465,7 +478,8 @@ int GpsNmea::moduleCommand(message_info *msgInfo)
 * character (0x0A) from the serial device. The characters and the            *
 * recordingtime of the first character ('$') are saved to the nmea_data      *
 * structure. This structure will be analyzed by the specific functions,      *
-* like analyseRMC.                                                              *
+* like analyseRMC. In addition, the GPS PPS timing on serial modem line DCD  *
+* is checked and the recordingTime stored for further processing.            *
 ******************************************************************************/
 int GpsNmea::readNMEAMessage()
 {
@@ -473,7 +487,7 @@ int GpsNmea::readNMEAMessage()
     int             msgSize;
     unsigned char   currChar;
     rack_time_t     recordingTime;
-
+    rtser_event_t   serialEvent;
 
     // Initalisation of local variables
     recordingTime   = 0;
@@ -481,28 +495,50 @@ int GpsNmea::readNMEAMessage()
     msgSize         = sizeof(nmea.data);
     i               = 0;
 
-    // Synchronize to message head, timeout after 200 attempts
+    // synchronize to message head, timeout after 200 attempts
     while ((i < 200) && (currChar != '$'))
     {
-        // Read next character
-        ret = serialPort.recv(&currChar, 1, &recordingTime);
+        // wait for next event on serial port
+        ret = serialPort.waitEvent(&serialEvent);
         if (ret)
         {
-            GDOS_ERROR("Can't read data from serial dev %i, code = %d\n",
+            GDOS_ERROR("Can't get data on serial dev %i, code = %d\n",
                        serialDev, ret);
             return ret;
+        }
+
+        // RX event: read next character
+        if ((serialEvent.events & RTSER_EVENT_RXPEND) == RTSER_EVENT_RXPEND)
+        {
+            // get timestamp of character
+            recordingTime = rackTime.fromNano(serialEvent.rxpend_timestamp);
+
+            ret = serialPort.recv(&currChar, 1);
+            if (ret)
+            {
+                GDOS_ERROR("Can't read data from serial dev %i, code = %d\n",
+                           serialDev, ret);
+                return ret;
+            }
+        }
+
+        // MODEMHI event: check modem control status
+        if ((serialEvent.events & RTSER_EVENT_MODEMHI) == RTSER_EVENT_MODEMHI)
+        {
+            pps.recordingTime = rackTime.fromNano(serialEvent.last_timestamp);
+            pps.valid         = 1;
+            GDOS_DBG_DETAIL("Receivd PPS timing input, time %d\n",pps.recordingTime);
         }
         i++;
     }
 
-
-    // Check for timeout
+    // check for timeout
     if (i >= 200)
     {
         GDOS_ERROR("Can't synchronize on package head\n");
         return -ETIME;
     }
-    // First character of NMEA-Message -> set recordingTime
+    // first character of NMEA-Message -> set recordingTime
     else
     {
         i = 0;
@@ -510,24 +546,46 @@ int GpsNmea::readNMEAMessage()
     }
 
 
-    // Read NMEA-Message until currChar == "Line-Feed",
+    // read NMEA-Message until currChar == "Line-Feed",
     // timout if msgSize is reached
     while ((i < msgSize) && (currChar != 0x0A))
     {
-        // Read next character
-        ret = serialPort.recv(&currChar, 1, &recordingTime);
+        // wait for next event on serial port
+        ret = serialPort.waitEvent(&serialEvent);
         if (ret)
         {
-            GDOS_ERROR("Can't read data from serial dev %i, code = %d\n",
+            GDOS_ERROR("Can't get data on serial dev %i, code = %d\n",
                        serialDev, ret);
             return ret;
         }
 
-        // Store last character
+        // RX event: read next character
+        if ((serialEvent.events & RTSER_EVENT_RXPEND) == RTSER_EVENT_RXPEND)
+        {
+            // get timestamp of character
+            recordingTime = rackTime.fromNano(serialEvent.rxpend_timestamp);
+
+            ret = serialPort.recv(&currChar, 1);
+            if (ret)
+            {
+                GDOS_ERROR("Can't read data from serial dev %i, code = %d\n",
+                           serialDev, ret);
+                return ret;
+            }
+        }
+
+        // MODEMHI event: check modem control status
+        if ((serialEvent.events & RTSER_EVENT_MODEMHI) == RTSER_EVENT_MODEMHI)
+        {
+            pps.recordingTime = rackTime.fromNano(serialEvent.last_timestamp);
+            pps.valid         = 1;
+            GDOS_DBG_DETAIL("Receivd PPS timing input, time %d\n",pps.recordingTime);
+        }
+
+        // store last character
         nmea.data[i] = currChar;
         i++;
     }
-
 
     // if last read character != "Line-Feed" an error occured
     if (currChar != 0x0A)
@@ -536,7 +594,9 @@ int GpsNmea::readNMEAMessage()
         return -EINVAL;
     }
     else
+    {
           return 0;
+    }
 }
 
 /*****************************************************************************
@@ -1343,7 +1403,14 @@ GpsNmea::GpsNmea()
     clockRelaySys                = getIntArg("clockRelaySys", argTab);
     clockRelayInst               = getIntArg("clockRelayInst", argTab);
     serialDev                    = getIntArg("serialDev", argTab);
+    enablePPSTiming              = getIntArg("enablePPSTiming", argTab);
     gps_serial_config.baud_rate  = getIntArg("baudrate", argTab);
+
+    // enable receive of serial events on rising edge of modem control register
+    if (enablePPSTiming == 1)
+    {
+        gps_serial_config.event_mask |= RTSER_EVENT_MODEMHI; 
+    }
 
     dataBufferMaxDataSize   = sizeof(gps_data);
 }

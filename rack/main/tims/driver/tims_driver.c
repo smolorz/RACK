@@ -2126,7 +2126,7 @@ static void pipe_recv_proc(void *arg)
     {
         // read message from pipe (blocking)
         ret = rt_pipe_receive(&td.pipeFromClient, &recvMsg, TM_INFINITE);
-        if (ret <= 0)
+        if (ret < 0)
         {
             if (ret == -EINTR) { // waked up without data
                 tims_warn("[PIPE]: Recv -EINTR while receiving -> continue\n");
@@ -2137,6 +2137,11 @@ static void pipe_recv_proc(void *arg)
                 tims_error("[PIPE]: Can't receive data, code = %d\n", ret);
                 return;
             }
+        } else if (ret == 0) {
+	    /* waked up without data or pipe closed by peer */
+	    tims_warn("[PIPE]: Closed by peer while receiving or received "
+		      "empty msg -> continue\n");
+            continue;
         }
         else if (ret > 1 && ret < TIMS_HEADLEN) // smaller than tims_msg_head
         {
