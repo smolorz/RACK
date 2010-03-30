@@ -48,6 +48,12 @@ typedef struct
     char               data[1024];
 } gps_nmea;
 
+typedef struct
+{
+    rack_time_t        recordingTime;
+    int                valid;
+} gps_pps;
+
 //######################################################################
 //# class GpsNmea
 //######################################################################
@@ -68,17 +74,20 @@ class GpsNmea : public RackDataModule {
         int             sdXYMin;
         int             sdZMin;
         float           sdRhoMin;
+        int             enablePPSTiming;
         int             realtimeClockUpdate;
         int             realtimeClockUpdateTime;
 
         rack_time_t     lastRecordingTime;
         rack_time_t     lastClockUpdateTime;
+        rack_time_t     recordingTimePPS;
         int             satelliteNumOld;
         float           utcTime;
         float           utcTimeOld;
 
         SerialPort      serialPort;
         gps_nmea        nmea;
+        gps_pps         pps;
         gps_data        gpsData;
         position_data   posDataOld;
         clock_data      clockRelayData;
