@@ -92,6 +92,9 @@ argTable_t module_argTab[] = {
   {ARGOPT_OPT, "cpu", ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "cpu to run the cmd and data tasks on, [0]", { 0 } },
 
+  {ARGOPT_OPT, "errorTimeout", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+   "timeout to wait before restarting the module [ms] (-1 = random(2-4s), [-1]", { -1 } },
+
   {0, "", 0, 0, "", { 0 } }
 };
 
@@ -247,8 +250,15 @@ void data_task_proc(void *arg)
 
             case MODULE_STATE_ERROR:
 
-                // wait for a random time between 2s and 4s
-                p_mod->dataTaskErrorTimer = (int)(20 * (1.0 + (double)rand() / (double)RAND_MAX));
+                if (p_mod->errorTimeout >= 0)
+                {
+                    p_mod->dataTaskErrorTimer = p_mod->errorTimeout / 100;
+                }
+                else
+                {
+                    // wait for a random time between 2s and 4s
+                    p_mod->dataTaskErrorTimer = (int)(20 * (1.0 + (double)rand() / (double)RAND_MAX));
+                }
 
                 p_mod->status = MODULE_STATE_ERROR_WAIT;
 
@@ -258,13 +268,15 @@ void data_task_proc(void *arg)
 
                 if (p_mod->targetStatus == MODULE_TSTATE_ON)
                 {
-                    RackTask::sleep(100000000llu);  // 100ms
-
-                    p_mod->dataTaskErrorTimer--;
-
                     if(p_mod->dataTaskErrorTimer <= 0)
                     {
                         p_mod->status = MODULE_STATE_ERROR_RETRY;
+                    }
+                    else
+                    {
+                        RackTask::sleep(100000000llu);  // 100ms
+
+                        p_mod->dataTaskErrorTimer--;
                     }
                 }
                 else
@@ -358,6 +370,7 @@ RackModule::RackModule( uint32_t classId,
     gdosLevel                 = GDOS_MSG_DEBUG_BEGIN - getIntArg("gdosLevel", module_argTab);
     cmdTaskPrio               = getIntArg("cmdTaskPrio", module_argTab);
     dataTaskPrio              = getIntArg("dataTaskPrio", module_argTab);
+    errorTimeout              = getIntArg("errorTimeout", module_argTab);
     cpu                       = getIntArg("cpu", module_argTab);
     if (cpu > (sysconf(_SC_NPROCESSORS_ONLN) - 1))
     {

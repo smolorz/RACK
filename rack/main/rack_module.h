@@ -142,6 +142,7 @@ class RackModule {
         int terminate;      // to stop the tasks
         int targetStatus;   // next module state
         int initializing;   // =1 if this module is still loading
+        int errorTimeout;   // time [ms] to wait until restart of module
 
         /** Message info to reply a message */
         message_info  replyMsgInfo;
