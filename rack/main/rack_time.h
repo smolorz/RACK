@@ -165,10 +165,10 @@ public:
         return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
     }
 
-    int set(int64_t utcTime, rack_time_t recordingTime)
+    int set(uint64_t utcTimestamp, uint64_t recTimestamp)
     {
-        tims_clock_setvalue setValue = {utcTime, recordingTime};
-      
+        tims_clock_setvalue setValue = {utcTimestamp, recTimestamp};
+
         if (tims_fd < 0 ||
                     rt_dev_ioctl(tims_fd, TIMS_RTIOC_SETTIME, &setValue) < 0)
             return -EINVAL;
@@ -259,7 +259,7 @@ public:
         return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
     }
 
-    int set(int64_t utcTime, rack_time_t recordingTime)
+    int set(uint64_t utcTimestamp, uint64_t recTimestamp)
     {
         return 0;
     }

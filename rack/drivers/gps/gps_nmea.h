@@ -44,14 +44,15 @@ typedef struct
 
 typedef struct
 {
-    rack_time_t        recordingTime;
-    char               data[1024];
+    rack_time_t         recordingTime;
+    char                data[1024];
 } gps_nmea;
 
 typedef struct
 {
-    rack_time_t        recordingTime;
-    int                valid;
+    rack_time_t         recordingTime;
+    uint64_t            timestamp;
+    int                 valid;
 } gps_pps;
 
 //######################################################################

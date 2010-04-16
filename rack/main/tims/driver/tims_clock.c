@@ -12,7 +12,7 @@
  * Authors
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *      Jan Kiszka <kiszka@rts.uni-hannover.de>
- *      Sebastian Smolorz <smolorz@rts.uni-hannover.de> 
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  *
  */
 
@@ -70,16 +70,14 @@ int tims_clock_ioctl(rtdm_user_info_t *user_info, unsigned int request,
     nanosecs_rel_t result = 0;
     tims_clock_setvalue *setval;
 
-    if (request == TIMS_RTIOC_SETTIME) {    
+    if (request == TIMS_RTIOC_SETTIME) {
         if (!arg)
             return -EINVAL;
 
         setval = (tims_clock_setvalue *)arg;
 
-        new_date = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->utc_time *
-                                                           1000000000llu));
-        rec_time = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->rec_time *
-                                                           1000000llu));
+        new_date = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->utc_timestamp));
+        rec_time = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->rec_timestamp));
 
         xnlock_get_irqsave(&nklock, s);
         now = xntbase_get_time(rtdm_tbase);

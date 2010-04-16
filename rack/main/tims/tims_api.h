@@ -151,8 +151,8 @@ typedef struct
 
 typedef struct
 {
-    int64_t     utc_time;
-    int32_t     rec_time;
+    uint64_t     utc_timestamp;
+    uint64_t     rec_timestamp;
 } tims_clock_setvalue;
 
 #define RTIOC_TYPE_TIMS             RTDM_CLASS_NETWORK

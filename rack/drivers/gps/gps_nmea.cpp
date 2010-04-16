@@ -189,6 +189,7 @@ int GpsNmea::moduleLoop(void)
 {
     int                 ret;
     int                 nmeaMsg = -1;
+    uint64_t            timestamp;
     gps_data*           p_data;
     position_wgs84_data posWgs84Data;
     position_data       posData;
@@ -364,30 +365,32 @@ int GpsNmea::moduleLoop(void)
                 gpsData.var.phi = INFINITY;
                 gpsData.var.psi = INFINITY;
 
+                timestamp = rackTime.toNano(gpsData.recordingTime);
+
                 // pps timing
                 if (enablePPSTiming == 1)
                 {
-                    // correct gps recordingtime on valid pps 
+                    // correct gps recordingtime on valid pps
                     if ((gpsData.satelliteNum >= 4) && (pps.valid))
                     {
+                        GDOS_DBG_INFO("PPS: recordingTimeOld %dn recordingTimeNew %d\n",
+                                      gpsData.recordingTime, pps.recordingTime);
                         gpsData.recordingTime = pps.recordingTime;
+                        timestamp             = pps.timestamp;
                     }
                 }
 
                 // realtime clock update
                 if (realtimeClockUpdate == 1)
                 {
-                    GDOS_DBG_DETAIL("recordingtime %d, utcTime %d\n",
-                                    gpsData.recordingTime, gpsData.utcTime);
-
                     // each realtimeClockUpdateTime
                     if (((int)gpsData.recordingTime - (int)lastClockUpdateTime) > realtimeClockUpdateTime)
                     {
-                        rackTime.set(gpsData.utcTime, gpsData.recordingTime);
+                        ret = rackTime.set(((uint64_t)gpsData.utcTime * 1000000000llu), timestamp);
 
                         GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
                                       gpsData.recordingTime, gpsData.utcTime);
-                        lastClockUpdateTime = gpsData.recordingTime;
+                        lastClockUpdateTime = rackTime.get();
                     }
                 }
             }
@@ -397,6 +400,7 @@ int GpsNmea::moduleLoop(void)
 
             utcTimeOld            = utcTime;
             satelliteNumOld       = gpsData.satelliteNum;
+            gpsData.recordingTime = rackTime.get();
         }
     }
     else
@@ -511,7 +515,7 @@ int GpsNmea::readNMEAMessage()
         if ((serialEvent.events & RTSER_EVENT_RXPEND) == RTSER_EVENT_RXPEND)
         {
             // get timestamp of character
-            recordingTime = rackTime.fromNano(serialEvent.rxpend_timestamp);
+            recordingTime = (rack_time_t)(serialEvent.rxpend_timestamp / RACK_TIME_FACTOR);
 
             ret = serialPort.recv(&currChar, 1);
             if (ret)
@@ -525,7 +529,8 @@ int GpsNmea::readNMEAMessage()
         // MODEMHI event: check modem control status
         if ((serialEvent.events & RTSER_EVENT_MODEMHI) == RTSER_EVENT_MODEMHI)
         {
-            pps.recordingTime = rackTime.fromNano(serialEvent.last_timestamp);
+            pps.recordingTime = (rack_time_t)(serialEvent.last_timestamp / RACK_TIME_FACTOR);
+            pps.timestamp     = serialEvent.last_timestamp;
             pps.valid         = 1;
             GDOS_DBG_DETAIL("Receivd PPS timing input, time %d\n",pps.recordingTime);
         }
@@ -563,7 +568,7 @@ int GpsNmea::readNMEAMessage()
         if ((serialEvent.events & RTSER_EVENT_RXPEND) == RTSER_EVENT_RXPEND)
         {
             // get timestamp of character
-            recordingTime = rackTime.fromNano(serialEvent.rxpend_timestamp);
+            recordingTime = (rack_time_t)(serialEvent.rxpend_timestamp / RACK_TIME_FACTOR);
 
             ret = serialPort.recv(&currChar, 1);
             if (ret)
@@ -577,7 +582,8 @@ int GpsNmea::readNMEAMessage()
         // MODEMHI event: check modem control status
         if ((serialEvent.events & RTSER_EVENT_MODEMHI) == RTSER_EVENT_MODEMHI)
         {
-            pps.recordingTime = rackTime.fromNano(serialEvent.last_timestamp);
+            pps.recordingTime = (rack_time_t)(serialEvent.last_timestamp / RACK_TIME_FACTOR);
+            pps.timestamp     = serialEvent.last_timestamp;
             pps.valid         = 1;
             GDOS_DBG_DETAIL("Receivd PPS timing input, time %d\n",pps.recordingTime);
         }
@@ -1409,7 +1415,7 @@ GpsNmea::GpsNmea()
     // enable receive of serial events on rising edge of modem control register
     if (enablePPSTiming == 1)
     {
-        gps_serial_config.event_mask |= RTSER_EVENT_MODEMHI; 
+        gps_serial_config.event_mask |= RTSER_EVENT_MODEMHI;
     }
 
     dataBufferMaxDataSize   = sizeof(gps_data);
