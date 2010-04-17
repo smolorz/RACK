@@ -66,7 +66,7 @@ int tims_clock_ioctl(rtdm_user_info_t *user_info, unsigned int request,
 {
     rtdm_lockctx_t lock_ctx;
     spl_t s;
-    xnticks_t now, new_date, rec_time;
+    xnticks_t new_date, rec_time;
     nanosecs_rel_t result = 0;
     tims_clock_setvalue *setval;
 
@@ -80,9 +80,7 @@ int tims_clock_ioctl(rtdm_user_info_t *user_info, unsigned int request,
         rec_time = xntbase_ns2ticks(rtdm_tbase, (xntime_t)(setval->rec_timestamp));
 
         xnlock_get_irqsave(&nklock, s);
-        now = xntbase_get_time(rtdm_tbase);
-        xntbase_adjust_time(rtdm_tbase, (xnsticks_t)((new_date - now) +
-                                                     (rec_time - now)));
+        xntbase_adjust_time(rtdm_tbase, (xnsticks_t)(new_date - rec_time));
         xnlock_put_irqrestore(&nklock, s);
 
         clock_offset = 0;
