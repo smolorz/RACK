@@ -138,7 +138,7 @@ int ClockDcf77MbgC51::moduleLoop(void)
 
             GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
                           p_data->recordingTime, p_data->utcTime);
-            lastUpdateTime = serialData.recordingTime;
+            lastUpdateTime = rackTime.get();
         }
     }
 
