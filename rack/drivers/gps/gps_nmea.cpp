@@ -371,7 +371,7 @@ int GpsNmea::moduleLoop(void)
                 if (enablePPSTiming == 1)
                 {
                     // correct gps recordingtime on valid pps
-                    if ((gpsData.satelliteNum >= 4) && (pps.valid))
+                    if ((gpsData.satelliteNum >= 4) && (pps.valid == 1))
                     {
                         GDOS_DBG_INFO("PPS: recordingTimeOld %dn recordingTimeNew %d\n",
                                       gpsData.recordingTime, pps.recordingTime);
@@ -401,6 +401,7 @@ int GpsNmea::moduleLoop(void)
             utcTimeOld            = utcTime;
             satelliteNumOld       = gpsData.satelliteNum;
             gpsData.recordingTime = rackTime.get();
+            pps.valid             = 0;
         }
     }
     else
