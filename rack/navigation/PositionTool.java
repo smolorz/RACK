@@ -23,8 +23,16 @@ public class PositionTool
     protected static final double utmA     = 6378137.0;             // Semi-major axis of ellipsoid in meters
     protected static final double utmF     = 1.0 / 298.257223563;   // flattening of ellipsoid
 
-	protected static double offsetX = 5804519.0;					// offsets Uni Hannover, parkinglot hard-coded
-	protected static double offsetY =  548406.0; 					// offsets Uni Hannover, parkinglot hard-coded
+//	protected static double offsetX = 5804519.0;					// offsets Uni Hannover, parkinglot hard-coded
+//	protected static double offsetY =  548406.0; 					// offsets Uni Hannover, parkinglot hard-coded
+
+//	protected static double offsetX = 5547651.0;					// offsets Hammelburg
+//	protected static double offsetY =  564686.0; 					// offsets Hammelburg
+	
+    protected static double offsetX = 5515889.0;					// offsets Wtd41 Trierd
+    protected static double offsetY = 332830.0;						// offsets Wtd41 Trier
+
+
 
 	public static PositionUtmDataMsg wgs84ToUtm(PositionWgs84DataMsg posWgs84)
 	{
@@ -223,5 +231,177 @@ public class PositionTool
 	    posUtm.heading  = posWgs84.heading;
 	    
 	    return posUtm;
+	}
+	
+	public static PositionWgs84DataMsg utmToWgs84(PositionUtmDataMsg posUtm)
+	{
+	    double c;
+	    double de, de2, de3, de4;
+	    double de5, de6, de7, de8;
+	    double dlam;
+	    double eta, eta2, eta3, eta4;
+	    double ftphi;
+	    int    i;
+	    double a;
+	    double s;
+	    double sn, sn3, sn5, sn7;
+	    double sr;
+	    double t, tan2, tan4, tan6;
+	    double t10, t11, t12, t13;
+	    double t14, t15, t16, t17;
+	    double tmd, tmdo;
+	    double tn, tn2, tn3, tn4, tn5;
+	    double tranMercB;
+	    double tranMercEs;
+	    double tranMercEbs;
+	    double tranMercAp, tranMercBp;
+	    double tranMercCp, tranMercDp, tranMercEp;
+	    double utmScale2, utmScale3, utmScale4;
+	    double utmScale5, utmScale6, utmScale7, utmScale8;
+	    double easting, northing;
+	    double centralMeridian = 0;
+	    double falseEasting    = 500000;
+	    double falseNorthing   = 0;
+	    PositionWgs84DataMsg posWgs84 = new PositionWgs84DataMsg();
+	    
+	    northing = posUtm.northing / 1000.0 + offsetX;
+	    easting  = posUtm.easting / 1000.0  + offsetY;
+    
+	    if (posUtm.zone >= 31)
+	    {
+	        centralMeridian = ((6 * posUtm.zone - 183) * Math.PI / 180.0 /*+ 0.00000005*/);
+	    }
+	    else
+	    {
+	        centralMeridian = ((6 * posUtm.zone + 177) * Math.PI / 180.0 /*+ 0.00000005*/);
+	    }
+	    if (northing < 0)
+	    {
+	        falseNorthing = 10000000;
+	    }
+
+	    //
+	    // transverse mercator projection
+	    //
+
+	    // calc transverse mercator parameter
+	    tranMercEs  = 2.0 * utmF - utmF * utmF;
+	    tranMercEbs = (1.0 / (1.0 - tranMercEs)) - 1.0;
+	    tranMercB   = utmA * (1.0 - utmF);
+	 
+	    // true meridianal constants
+	    tn = (utmA - tranMercB) / (utmA + tranMercB);
+	    tn2 = tn * tn;
+	    tn3 = tn2 * tn;
+	    tn4 = tn3 * tn;
+	    tn5 = tn4 * tn;
+
+	    tranMercAp = utmA * (1.0 - tn + 5.0 * (tn2 - tn3) / 4.0 +
+	                 81.0 * (tn4 - tn5) / 64.0 );
+	    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) / 
+	                 8.0 + 55.0 * tn5 / 64.0 ) / 2.0;
+	    tranMercCp = 15.0 * utmA  * (tn2 - tn3 + 3.0 * (tn4 - tn5 ) / 4.0) / 16.0;
+	    tranMercDp = 35.0 * utmA  * (tn3 - tn4 + 11.0 * tn5 / 16.0) / 48.0;
+	    tranMercEp = 315.0 * utmA * (tn4 - tn5) / 512.0;
+
+	    // true meridional distances for latitude of origin 
+	    tmdo = 0.0;
+
+	    // origin
+	    tmd = tmdo +  (northing - falseNorthing) / utmScale; 
+
+	    // first estimate
+	    sr    = utmA * (1.0 - tranMercEs);
+	    ftphi = tmd / sr;
+
+	    for (i = 0; i < 5 ; i++)
+	    {
+	        t10   = tranMercAp * ftphi - 
+	                tranMercBp * Math.sin(2.0 * ftphi) + tranMercCp * Math.sin(4.0 * ftphi) - 
+	                tranMercDp * Math.sin(6.0 * ftphi) - tranMercEp * Math.sin(8.0 * ftphi);
+	        s     = Math.sin(ftphi);
+	        a     = Math.sqrt(1.0 - tranMercEs * s * s);
+	        sr    = utmA * (1.0 - tranMercEs) / (a * a * a);
+	        ftphi = ftphi + (tmd - t10) / sr;
+	    }
+
+	    // radius of curvature in the meridian
+	    s   = Math.sin(ftphi);
+	    a   = Math.sqrt(1.0 - tranMercEs * s * s);
+	    sr  = utmA * (1.0 - tranMercEs) / (a * a * a);
+	    sn  = utmA / a;
+
+	    c   = Math.cos(ftphi);
+	    sn3 = sn * sn * sn;
+	    sn5 = sn3 * sn * sn;
+	    sn7 = sn5 * sn * sn;
+
+	    // tangent value
+	    t = Math.tan(ftphi);
+	    tan2 = t * t;
+	    tan4 = tan2 * tan2;
+	    tan6 = tan4 * tan2;
+	    eta  = tranMercEbs * Math.pow(c,2);
+	    eta2 = eta * eta;
+	    eta3 = eta2 * eta;
+	    eta4 = eta3 * eta;
+	    de   = easting - falseEasting;
+
+	    if (Math.abs(de) < 0.0001)
+	    {
+	        de = 0.0;
+	    }
+
+	    de2  = de * de;
+	    de3  = de2 * de;
+	    de4  = de2 * de2;
+	    de5  = de3 * de2;
+	    de6  = de4 * de2;
+	    de7  = de4 * de3;
+	    de8  = de4 * de4;
+	    utmScale2 = utmScale * utmScale;
+	    utmScale3 = utmScale2 * utmScale;
+	    utmScale4 = utmScale2 * utmScale2;
+	    utmScale5 = utmScale3 * utmScale2;
+	    utmScale6 = utmScale4 * utmScale2;
+	    utmScale7 = utmScale4 * utmScale3;
+	    utmScale8 = utmScale6 * utmScale2;
+
+	    // latitude
+	    t10 = t / (2.0 * sr * sn * utmScale2);
+	    t11 = t * (5.0  + 3.0 * tan2 + eta - 4.0 * eta2 -
+	               9.0 * tan2 * eta) / (24.0 * sr * sn3 * utmScale4);
+	    t12 = t * (61.0 + 90.0 * tan2 + 46.0 * eta + 45.0 * tan4 -
+	               252.0 * tan2 * eta  - 3.0 * eta2 + 100.0 * eta3 - 
+	               66.0 * tan2 * eta2 - 90.0 * tan4 * eta + 
+	               88.0 * eta4 + 225.0 * tan4 * eta2 + 84.0 * tan2 * eta3 - 
+	               192.0 * tan2 * eta4) / ( 720.0 * sr * sn5 * utmScale6);
+	    t13 = t * (1385.0 + 3633.0 * tan2 + 4095.0 * tan4 + 1575.0 * tan6) / 
+	              (40320.0 * sr * sn7 * utmScale8);
+	    posWgs84.latitude = ftphi - de2 * t10 + de4 * t11 - de6 * t12 + de8 * t13;
+
+	    t14 = 1.0 / (sn * c * utmScale);
+	    t15 = (1.0 + 2.0 * tan2 + eta) / (6.0 * sn3 * c * utmScale3);
+	    t16 = (5.0 + 6.0 * eta + 28.0 * tan2 - 3.0 * eta2 +
+	           8.0 * tan2 * eta + 24.0 * tan4 - 4.0 * eta3 +
+	           4.0 * tan2 * eta2 + 24.0 * tan2 * eta3) / (120.0 * sn5 * c * utmScale5);
+	    t17 = (61.0 +  662.0 * tan2 + 1320.0 * tan4 + 720.0 * tan6) / 
+	          (5040.0 * sn7 * c * utmScale7);
+
+	    // difference in longitude
+	    dlam = de * t14 - de3 * t15 + de5 * t16 - de7 * t17;
+
+	    // longitude
+	    posWgs84.longitude = centralMeridian + dlam;
+
+	    if (posWgs84.longitude > Math.PI)
+	    {
+	        posWgs84.longitude -= (2.0 * Math.PI);
+	    }
+
+	    posWgs84.altitude  = posUtm.altitude;
+	    posWgs84.heading   = posUtm.heading;
+	    
+	    return posWgs84;
 	}
 }
