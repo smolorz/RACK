@@ -21,8 +21,10 @@
 #define INIT_BIT_DATA_MODULE        0
 #define INIT_BIT_MBX_WORK           1
 #define INIT_BIT_MBX_DATA           2
+#define INIT_BIT_PROXY_POSITION     4
 #define INIT_BIT_PROXY_ODOMETRY     5
 #define INIT_BIT_PROXY_SCAN2D       6       // has to be highest bit!
+
 
 //
 // data structures
@@ -37,6 +39,12 @@ argTable_t argTab[] = {
 
     { ARGOPT_OPT, "odometryInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the odometry module", { 0 } },
+
+    { ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module", { 0 } },
+
+    { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the position module", { -1 } },
 
     { ARGOPT_OPT, "scan2dSysA", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of a scan2d module", { 0 } },
@@ -82,7 +90,7 @@ int  Scan2dMerge::moduleOn(void)
     int ret, k, i;
 
     // turn on odometry
-    GDOS_DBG_DETAIL("Turn on Odometry(%d/%d)\n", odometrySys, odometryInst);
+    GDOS_DBG_INFO("Turn on Odometry(%d/%d)\n", odometrySys, odometryInst);
     ret = odometry->on();
     if (ret)
     {
@@ -91,12 +99,25 @@ int  Scan2dMerge::moduleOn(void)
         return ret;
     }
 
+    // turn on position if required
+    if (positionInst >= 0)
+    {
+        GDOS_DBG_INFO("Turn on Position(%d/%d)\n", positionSys, positionInst);
+        ret = position->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n", 
+                       positionSys, positionInst, ret);
+            return ret;
+        }
+    }
+
     // turn on scan2d modules
     for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
     {
         if (scan2dInst[k] >= 0)
         {
-            GDOS_DBG_DETAIL("Turn on Scan2d(%d/%d)\n", scan2dSys[k], scan2dInst[k]);
+            GDOS_DBG_INFO("Turn on Scan2d(%d/%d)\n", scan2dSys[k], scan2dInst[k]);
             ret = scan2d[k]->on();
             if (ret)
             {
@@ -272,6 +293,31 @@ int  Scan2dMerge::moduleLoop(void)
             mergeData->sectorIndex   = 0;
             mergeData->pointNum      = 0;
 
+            // reference position
+            if (positionInst >= 0)
+            {
+                ret = position->getData(&positionData, sizeof(position_data),
+                                        mergeData->recordingTime);
+                if (ret)
+                {
+                    GDOS_ERROR("Can't get data from Position(%i/%i), code = %d\n", 
+                               positionSys, positionInst, ret);
+                    dataMbx.peekEnd();
+                    return ret;
+                }
+            }
+            else
+            {
+                memset(&positionData, 0, sizeof(position_data));
+            }
+            mergeData->refPos.x   = positionData.pos.x;
+            mergeData->refPos.y   = positionData.pos.y;
+            mergeData->refPos.z   = positionData.pos.z;
+            mergeData->refPos.phi = positionData.pos.phi;
+            mergeData->refPos.psi = positionData.pos.psi;
+            mergeData->refPos.rho = positionData.pos.rho;
+
+            // scan points
             for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
             {
                 if (scan2dInst[k] >= 0)
@@ -417,6 +463,18 @@ int Scan2dMerge::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_PROXY_ODOMETRY);
 
+    // position
+    if (positionInst >= 0)
+    {
+        position = new PositionProxy(&workMbx, positionSys, positionInst);
+        if (!position)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_POSITION);
+    }
+
     // scan2d
     for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
     {
@@ -465,6 +523,12 @@ void Scan2dMerge::moduleCleanup(void)
         }
     }
 
+    // free position proxy
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION))
+    {
+        delete position;
+    }
+
     // free odometry proxy
     if (initBits.testAndClearBit(INIT_BIT_PROXY_ODOMETRY))
     {
@@ -496,6 +560,8 @@ Scan2dMerge::Scan2dMerge(void)
     // get static module parameter
     odometrySys   = getIntArg("odometrySys", argTab);
     odometryInst  = getIntArg("odometryInst", argTab);
+    positionSys   = getIntArg("positionSys", argTab);
+    positionInst  = getIntArg("positionInst", argTab);
     scan2dSys [0] = getIntArg("scan2dSysA", argTab);
     scan2dInst[0] = getIntArg("scan2dInstA", argTab);
     scan2dSys [1] = getIntArg("scan2dSysB", argTab);

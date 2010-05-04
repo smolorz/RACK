@@ -18,6 +18,7 @@
 
 #include <main/rack_data_module.h>
 #include <drivers/odometry_proxy.h>
+#include <navigation/position_proxy.h>
 #include <perception/scan2d_proxy.h>
 
 #define MODULE_CLASS_ID             SCAN2D
@@ -39,6 +40,8 @@ class Scan2dMerge : public RackDataModule {
     private:
         int                 odometrySys;
         int                 odometryInst;
+        int                 positionSys;
+        int                 positionInst;
         int                 scan2dSys[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dInst[SCAN2D_SENSOR_NUM_MAX];
         int                 scan2dTimeout[SCAN2D_SENSOR_NUM_MAX];
@@ -46,6 +49,7 @@ class Scan2dMerge : public RackDataModule {
 
         odometry_data       odometryBuffer[SCAN2D_SENSOR_NUM_MAX][SCAN2D_SECTOR_NUM_MAX];
         scan2d_data_msg     scanBuffer[SCAN2D_SENSOR_NUM_MAX][SCAN2D_SECTOR_NUM_MAX];
+        position_data       positionData;
 
         // additional mailboxes
         RackMailbox         workMbx;
@@ -53,6 +57,7 @@ class Scan2dMerge : public RackDataModule {
 
         // proxies
         OdometryProxy       *odometry;
+        PositionProxy       *position;
         Scan2dProxy         *scan2d[SCAN2D_SENSOR_NUM_MAX];
 
     protected:
