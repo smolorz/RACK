@@ -163,6 +163,9 @@ argTable_t argTab[] = {
         }
     }
 
+
+    ladarMbx.clean();
+
     ret = ladar->getContData(0, &ladarMbx, &dataBufferPeriodTime);
     if (ret)
     {
@@ -331,6 +334,7 @@ int  Scan2d::moduleLoop(void)
         if (ret)
         {
             GDOS_ERROR("Can't get data from Position(%i/%i), code = %d\n", positionSys, positionInst, ret);
+            ladarMbx.peekEnd();
             return ret;
         }
 
