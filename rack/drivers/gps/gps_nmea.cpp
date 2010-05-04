@@ -377,20 +377,20 @@ int GpsNmea::moduleLoop(void)
                                       gpsData.recordingTime, pps.recordingTime);
                         gpsData.recordingTime = pps.recordingTime;
                         timestamp             = pps.timestamp;
-                    }
-                }
 
-                // realtime clock update
-                if (realtimeClockUpdate == 1)
-                {
-                    // each realtimeClockUpdateTime
-                    if (((int)gpsData.recordingTime - (int)lastClockUpdateTime) > realtimeClockUpdateTime)
-                    {
-                        ret = rackTime.set(((uint64_t)gpsData.utcTime * 1000000000llu), timestamp);
+                        // realtime clock update
+                        if (realtimeClockUpdate == 1)
+                        {
+                            // each realtimeClockUpdateTime
+                            if (((int)gpsData.recordingTime - (int)lastClockUpdateTime) > realtimeClockUpdateTime)
+                            {
+                                ret = rackTime.set(((uint64_t)gpsData.utcTime * 1000000000llu), timestamp);
 
-                        GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
-                                      gpsData.recordingTime, gpsData.utcTime);
-                        lastClockUpdateTime = rackTime.get();
+                                GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
+                                            gpsData.recordingTime, gpsData.utcTime);
+                                lastClockUpdateTime = rackTime.get();
+                            }
+                        }
                     }
                 }
             }
@@ -516,7 +516,8 @@ int GpsNmea::readNMEAMessage()
         if ((serialEvent.events & RTSER_EVENT_RXPEND) == RTSER_EVENT_RXPEND)
         {
             // get timestamp of character
-            recordingTime = (rack_time_t)(serialEvent.rxpend_timestamp / RACK_TIME_FACTOR);
+//            recordingTime = (rack_time_t)(serialEvent.rxpend_timestamp / RACK_TIME_FACTOR);
+            recordingTime = rackTime.fromNano(serialEvent.rxpend_timestamp);
 
             ret = serialPort.recv(&currChar, 1);
             if (ret)
@@ -569,7 +570,8 @@ int GpsNmea::readNMEAMessage()
         if ((serialEvent.events & RTSER_EVENT_RXPEND) == RTSER_EVENT_RXPEND)
         {
             // get timestamp of character
-            recordingTime = (rack_time_t)(serialEvent.rxpend_timestamp / RACK_TIME_FACTOR);
+//            recordingTime = (rack_time_t)(serialEvent.rxpend_timestamp / RACK_TIME_FACTOR);
+            recordingTime = rackTime.fromNano(serialEvent.rxpend_timestamp);
 
             ret = serialPort.recv(&currChar, 1);
             if (ret)
