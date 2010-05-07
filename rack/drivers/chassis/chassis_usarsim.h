@@ -110,9 +110,9 @@ class ChassisUsarsim : public RackDataModule {
 
     int chassisInit(char *usarsimChassis, position_3d chassisInitPos);
     int sendMoveCommand(int speed, float omega, int type);
-    int searchRangeScannerData();
-    int searchOdometryData();
-    int searchGroundTruthData();
+    int searchRangeScannerData(rack_time_t currentTime);
+    int searchOdometryData(rack_time_t currentTime);
+    int searchGroundTruthData(rack_time_t currentTime);
     int getBatteryState();
     int getUsarsimTime();
     int controlTrace(int state, float interval, int color);
