@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -11,6 +11,7 @@
  *
  * Authors
  *      Matthias Hentschel      <hentschel@rts.uni-hannover.de>
+ *      Sebastian Smolorz       <smolorz@rts.uni-hannover.de>
  *
  */
 
@@ -229,7 +230,7 @@ int  LadarIbeoLux::moduleLoop(void)
     RackTask::disableRealtimeMode();
 
     // read ladar header
-    ret = recvLadarHeader(&ladarHeader, &recordingTime, 1000);
+    ret = recvLadarHeader(&ladarHeader, &recordingTime);
     if (ret)
     {
         return ret;
@@ -583,51 +584,72 @@ int  LadarIbeoLux::moduleCommand(message_info *p_msginfo)
 }
 
 
-int LadarIbeoLux::recvLadarHeader(ladar_ibeo_lux_header *data, rack_time_t *recordingTime,
-                                  unsigned int retryNumMax)
+int LadarIbeoLux::recvLadarHeader(ladar_ibeo_lux_header *data, rack_time_t *recordingTime)
 {
-    int          ret;
-    unsigned int len, i;
-    uint32_t     magicWord = 0;
+    int             ret;
+    unsigned int    len, i;
+    uint32_t        retryNumMax = LADAR_IBEO_LUX_MESSAGE_SIZE_MAX;
+    uint32_t        magicWord = 0;
+    char            *magicWordBuf = (char *)&magicWord;
 
     // synchronize to header by reading the magic word (4 bytes)
+    len = 0;
+    while (len < sizeof(magicWord))
+    {
+        ret = recv(tcpSocket, magicWordBuf + len, sizeof(magicWord) - len, 0);
+        if (ret == -1)          // error
+        {
+            if (errno == EAGAIN)
+            {
+                GDOS_ERROR("Timeout on receiving ladar header, (%d)\n", errno);
+            }
+            else
+            {
+                GDOS_ERROR("Can't receive header magic word, (%d)\n", errno);
+            }
+            return -errno;
+        }
+        if (ret == 0)           // socket closed
+        {
+            GDOS_ERROR("Tcp socket closed\n");
+            return -1;
+        }
+        len += ret;
+    }
+
     for (i = 0; i < retryNumMax; i++)
     {
-        len = 0;
-        while (len < sizeof(magicWord))
-        {
-            ret = recv(tcpSocket, (char*)&magicWord + len, sizeof(magicWord) - len, 0);
-            if (ret == -1)          // error
-            {
-                if (errno == EAGAIN)
-                {
-                    GDOS_ERROR("Timeout on receiving ladar header, (%d)\n", errno);
-                }
-                else
-                {
-                    GDOS_ERROR("Can't receive header magic word, (%d)\n", errno);
-                }
-                return -errno;
-            }
-            if (ret == 0)           // socket closed
-            {
-                GDOS_ERROR("Tcp socket closed\n");
-                return -1;
-            }
-            len += ret;
-        }
-
-        // adjust byteorder and search for magic word
-        magicWord = __be32_to_cpu(magicWord);
+        // search for magic word
         if (magicWord == LADAR_IBEO_LUX_MAGIC_WORD)
         {
             *recordingTime = rackTime.get();
             break;
         }
+        magicWordBuf[0] = magicWordBuf[1];
+        magicWordBuf[1] = magicWordBuf[2];
+        magicWordBuf[2] = magicWordBuf[3];
+        ret = recv(tcpSocket, magicWordBuf + 3, 1, 0);
+        if (ret == -1)          // error
+        {
+            if (errno == EAGAIN)
+            {
+                GDOS_ERROR("Timeout on receiving ladar header, (%d)\n", errno);
+            }
+            else
+            {
+                GDOS_ERROR("Can't receive header magic word, (%d)\n", errno);
+            }
+            return -errno;
+        }
+        if (ret == 0)           // socket closed
+        {
+            GDOS_ERROR("Tcp socket closed\n");
+            return -1;
+        }
     }
 
     // synchronization timeout
-    if (i >= retryNumMax)
+    if (i == retryNumMax)
     {
         GDOS_ERROR("Can't synchronize to ladar header, timeout after %d attempts\n", i);
         return -ETIMEDOUT;
