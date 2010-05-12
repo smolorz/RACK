@@ -290,6 +290,10 @@ int  LadarIbeoLux::moduleLoop(void)
                 point.intensity = 0;
                 point.type      = LADAR_POINT_TYPE_INVALID;
 
+                if ((ladarScanData->point[i].flags & 0x10) == 0x10)     // object
+                {
+                    point.type = LADAR_POINT_TYPE_UNKNOWN;
+                }
                 if ((ladarScanData->point[i].flags & 0x08) == 0x08)     // dirt
                 {
                     point.type = LADAR_POINT_TYPE_DIRT;
