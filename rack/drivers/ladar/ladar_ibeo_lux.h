@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -11,6 +11,7 @@
  *
  * Authors
  *      Matthias Hentschel      <hentschel@rts.uni-hannover.de>
+ *      Sebastian Smolorz       <smolorz@rts.uni-hannover.de>
  *
  */
 #ifndef __LADAR_IBEO_LUX_H__
@@ -33,7 +34,7 @@
 #define LADAR_IBEO_LUX_SCAN_POINT_MAX       10000
 #define LADAR_IBEO_LUX_LAYER_MAX            4
 
-#define LADAR_IBEO_LUX_MAGIC_WORD           0xAFFEC0C2
+#define LADAR_IBEO_LUX_MAGIC_WORD           0xC2C0FEAF
 #define LADAR_IBEO_LUX_SCAN_DATA            0x2202
 #define LADAR_IBEO_LUX_OBJ_DATA             0x2221
 
@@ -258,8 +259,7 @@ class LadarIbeoLux : public RackDataModule {
         // -> non realtime context
         void moduleCleanup(void);
 
-        int  recvLadarHeader(ladar_ibeo_lux_header *data, rack_time_t *recordingTime,
-                             unsigned int retryNumMax);
+        int  recvLadarHeader(ladar_ibeo_lux_header *data, rack_time_t *recordingTime);
         int  recvLadarData(void *data, unsigned int messageSize);
 
     public:

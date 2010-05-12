@@ -412,7 +412,7 @@ int ChassisUsarsim::moduleLoop(void)
     RackTask::disableRealtimeMode();
     
     ret = recv(tcpSocket, messageData, USARSIM_MAX_MSG_SIZE, 0);
-    
+    RackTask::enableRealtimeMode();
     if (ret <= 0)
     {
         GDOS_ERROR("Can't get data from USARSIM server\n");
@@ -422,12 +422,14 @@ int ChassisUsarsim::moduleLoop(void)
     {
         GDOS_ERROR("USARSim message exceeds buffer size !\n");
     }
+	
+	currentTime = rackTime.get();
     
     messageStr = messageData;
 
     if (messageStr.find("SEN") != string::npos)
     {
-        ret = searchOdometryData();
+        ret = searchOdometryData(currentTime);
         if (ret)
         {
             GDOS_ERROR("Can't receive odometry data\n");
@@ -436,7 +438,7 @@ int ChassisUsarsim::moduleLoop(void)
 
         if (ladarRelayInst >= 0)
         {
-            ret = searchRangeScannerData();
+            ret = searchRangeScannerData(currentTime);
             if (ret)
             {
                 GDOS_ERROR("Can't receive range scanner data\n");
@@ -446,7 +448,7 @@ int ChassisUsarsim::moduleLoop(void)
 
         if (positionGndTruthRelayInst >= 0)
         {
-            ret = searchGroundTruthData();
+            ret = searchGroundTruthData(currentTime);
             if (ret)
             {
                 GDOS_ERROR("Can't receive ground truth data\n");
@@ -460,7 +462,7 @@ int ChassisUsarsim::moduleLoop(void)
         // get datapointer from rackdatabuffer
         p_data = (chassis_data *)getDataBufferWorkSpace();
         
-        statusMsgTime = rackTime.get();
+        statusMsgTime = currentTime;
     
         currentBatteryState = getBatteryState();
         if (currentBatteryState < 0)
@@ -674,7 +676,7 @@ int ChassisUsarsim::controlTrace(int state, float interval, int color)
     return 0;
 }
 
-int ChassisUsarsim::searchRangeScannerData()
+int ChassisUsarsim::searchRangeScannerData(rack_time_t currentTime)
 {
     size_t magicWordPos, startPos, endPos;
     int ret;
@@ -716,6 +718,7 @@ int ChassisUsarsim::searchRangeScannerData()
                     ladarData.data.pointNum++;
                 }
                 ladarData.data.startAngle = ladarData.data.endAngle - (0.01745f * (float)ladarData.data.pointNum);
+				ladarData.data.recordingTime = currentTime;
 
                 GDOS_DBG_DETAIL("ladarData.data.pointNum = %i",ladarData.data.pointNum);
 
@@ -743,7 +746,7 @@ int ChassisUsarsim::searchRangeScannerData()
     return 0;
 }
 
-int ChassisUsarsim::searchOdometryData()
+int ChassisUsarsim::searchOdometryData(rack_time_t currentTime)
 {
     size_t magicWordPos, startPos, endPos;
     int ret;
@@ -799,7 +802,7 @@ int ChassisUsarsim::searchOdometryData()
                     dataNum++;
                 }
                 //odometryRelay
-                odometryData.recordingTime = rackTime.get();
+                odometryData.recordingTime = currentTime;
 
                 ret = workMbx.sendDataMsg(MSG_DATA, odometryRelayMbxAdr + 1, 1, 1,
                                  &odometryData, sizeof(odometry_data));
@@ -825,7 +828,7 @@ int ChassisUsarsim::searchOdometryData()
     return 0;
 }
 
-int ChassisUsarsim::searchGroundTruthData()
+int ChassisUsarsim::searchGroundTruthData(rack_time_t currentTime)
 {
     size_t magicWordPos, startPos, endPos;
     int ret;
@@ -944,7 +947,7 @@ int ChassisUsarsim::searchGroundTruthData()
         }
 
         //positionRelay
-        groundTruthData.recordingTime = rackTime.get();
+        groundTruthData.recordingTime = currentTime;
 
         ret = workMbx.sendDataMsg(MSG_DATA, positionGndTruthRelayMbxAdr + 1, 1, 1,
                          &groundTruthData, sizeof(position_data));
