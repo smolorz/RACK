@@ -54,7 +54,7 @@ public final class Gui extends Thread
 
     GuiCfg                  cfg;
 
-    ClassLoader             guiCL;
+    private ClassLoader             guiCL;
 
     Tims                    tims;
     String                  timsClass = null;
@@ -284,7 +284,7 @@ public final class Gui extends Thread
 
     protected void initClassLoader() throws Exception
     {
-        guiCL = this.getContextClassLoader();
+        setGuiCL(this.getContextClassLoader());
         
         // load additional jar files
         for (int i = 0; i < jarfiles.size(); i++)
@@ -294,7 +294,7 @@ public final class Gui extends Thread
                 File jarfile = new File(jarfiles.get(i));
                 
                 URL urls[] = new URL[] { jarfile.toURI().toURL() };
-                guiCL = new URLClassLoader(urls, guiCL);
+                setGuiCL(new URLClassLoader(urls, getGuiCL()));
     
                 System.out.println("File " + jarfile + " has been loaded");
             }
@@ -316,7 +316,7 @@ public final class Gui extends Thread
         {
             try
             {
-                guiCL.loadClass(rackName)
+                getGuiCL().loadClass(rackName)
                     .getMethod("initClassStringTable", (Class<?>[])null)
                     .invoke((Object)null, (Object[])null);
             }
@@ -361,7 +361,7 @@ public final class Gui extends Thread
     
         try
         {
-           tims = (Tims) guiCL.loadClass(this.timsClass)
+           tims = (Tims) getGuiCL().loadClass(this.timsClass)
                    .getConstructor(timsConstrArgType)
                    .newInstance(timsConstrArg);
         }
@@ -456,13 +456,13 @@ public final class Gui extends Thread
 
         try
         {
-            rackProxyClass = guiCL.loadClass(ge.proxyClass);
+            rackProxyClass = getGuiCL().loadClass(ge.getProxyClass());
         }
         catch (Exception e)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't load RackProxy.\n" +
-                    ge.proxyClass,
+                    ge.getProxyClass(),
                     "RACK GUI", JOptionPane.ERROR_MESSAGE);
             throw e;
         }
@@ -471,7 +471,7 @@ public final class Gui extends Thread
         Object[] proxyConstrArgs = new Object[3];
 
         proxyConstrArgsTypes[0] = int.class;
-        proxyConstrArgs[0] = new Integer(ge.systemId);
+        proxyConstrArgs[0] = new Integer(ge.getSystemId());
         proxyConstrArgsTypes[1] = int.class;
         proxyConstrArgs[1] = new Integer(ge.instance);
         proxyConstrArgsTypes[2] = TimsMbx.class;
@@ -747,7 +747,7 @@ public final class Gui extends Thread
 
         try
         {
-            guiElementClass = guiCL.loadClass(ge.guiClass);
+            guiElementClass = getGuiCL().loadClass(ge.guiClass);
         }
         catch (ClassNotFoundException e)
         {
@@ -1342,6 +1342,14 @@ public final class Gui extends Thread
             System.exit(-1);
         }
     }
+
+	public void setGuiCL(ClassLoader guiCL) {
+		this.guiCL = guiCL;
+	}
+
+	public ClassLoader getGuiCL() {
+		return guiCL;
+	}
 }
 
 class FxOpenGuiElementAction extends AbstractAction

@@ -36,7 +36,7 @@ public class GuiElementDescriptor
     GuiElement             gui;
 
     RackProxy              proxy;
-    int					   systemId   = -1;
+    int			   		   systemId   = -1;
     int                    instance   = -1;
     int                    status     = Tims.MSG_NOT_AVAILABLE;
     TimsMbx                replyMbx;
@@ -45,7 +45,7 @@ public class GuiElementDescriptor
     String                 cfg        = "";
     String[]               cfgSplit   = new String[] {""};
     String                 guiClass   = "";
-    String                 proxyClass = "";
+    String         		   proxyClass = "";
     int                    fx         = 0;
 
     // swing
@@ -76,7 +76,7 @@ public class GuiElementDescriptor
     
     public int getSystem()
     {
-        return systemId;
+        return getSystemId();
     }
     
     public int getInstance()
@@ -139,4 +139,20 @@ public class GuiElementDescriptor
             navButton.setBackground(navButtonBackground);
         }
     }
+
+	public void setProxyClass(String proxyClass) {
+		this.proxyClass = proxyClass;
+	}
+
+	public String getProxyClass() {
+		return proxyClass;
+	}
+
+	public void setSystemId(int systemId) {
+		this.systemId = systemId;
+	}
+
+	public int getSystemId() {
+		return systemId;
+	}
 }
