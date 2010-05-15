@@ -36,9 +36,18 @@ public class TimsTcp extends Tims
 
         try
         {
-            addr = InetAddress.getByName(tcpParam.trim());
-            port = 2000;
-
+        	int splitIndex = tcpParam.indexOf(":");
+        	if (splitIndex == -1)
+        	{
+        		addr = InetAddress.getByName(tcpParam.trim());
+            	port = 2000;        		
+        	}
+        	else
+        	{
+        		addr = InetAddress.getByName(tcpParam.substring(0, splitIndex).trim());
+            	port = Integer.parseInt(tcpParam.substring(splitIndex+1).trim());
+        	}            
+            
             socket = new Socket(addr, port); // open socket connection to TimsMsgGateway
             socket.setSoTimeout(10000);
             socket.setTcpNoDelay(true);
