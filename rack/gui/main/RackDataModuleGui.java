@@ -84,7 +84,7 @@ public abstract class RackDataModuleGui extends RackModuleGui
         super(guiElement);
 
         this.periodTime = periodTime;
-        this.tims = mainGui.getTims();
+        this.tims = mainGui.getTims(guiElement.getTimsId());
 
         try
         {

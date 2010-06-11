@@ -40,6 +40,7 @@ public class GuiElementDescriptor
     int                    instance   = -1;
     int                    status     = Tims.MSG_NOT_AVAILABLE;
     TimsMbx                replyMbx;
+    int                    timsId     = -1;
 
     // gui.cfg
     String                 cfg        = "";
@@ -155,4 +156,14 @@ public class GuiElementDescriptor
 	public int getSystemId() {
 		return systemId;
 	}
+
+    public void setTimsId(int timsId)
+    {
+        this.timsId = timsId;
+    }
+
+    public int getTimsId()
+    {
+        return timsId;
+    }
 }

@@ -83,12 +83,12 @@ public class GuiCfg
                     else if (cfg.startsWith("TIMS_PARAM "))
                     {
                         cfg = cfg.substring(11).trim();  // cut TIMS_PARAM
-                        gui.timsParam = cfg;
+                        gui.timsParam[0] = cfg;
                     }
                     else if (cfg.startsWith("TIMS "))
                     {
                         cfg = cfg.substring(5).trim();  // cut TIMS
-                        gui.timsClass = cfg;
+                        gui.timsClass[0] = cfg;
                     }
                     else if (cfg.startsWith("JAR_FILES"))
                     {
@@ -140,6 +140,7 @@ public class GuiCfg
                             getSystem(newElement);
                             getGuiProxyClass(newElement);
                             getName(newElement);
+                            getTims(newElement);
 
                             newElement.frameState = getLocationSizeState(newElement.cfg, newElement.location, newElement.size);
 
@@ -294,7 +295,26 @@ public class GuiCfg
         else
             ge.systemId = 0;        
     }
-    
+
+    private void getTims(GuiElementDescriptor ge)
+    {
+        String param = ge.getParameter("tims");
+
+        if (param.length() > 0)
+        {
+            ge.timsId = Integer.parseInt(param);
+        }
+        else
+        {
+            ge.timsId = 0;
+        }
+
+        if ((ge.timsId >= gui.tims.length) || (ge.timsId < 0))
+        {
+            ge.timsId = 0;
+        }
+    }
+
     private void getName(GuiElementDescriptor ge)
     {
         // erstmal sehen, ob der parameter "-name=..." in der gui.cfg benutzt
