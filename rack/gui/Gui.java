@@ -56,13 +56,13 @@ public final class Gui extends Thread
 
     private ClassLoader             guiCL;
 
-    Tims                    tims;
-    String                  timsClass = null;
-    String                  timsParam = "";
+    Tims                    tims[] = new Tims[1];
+    String                  timsClass[] = new String[1];
+    String                  timsParam[] = new String[1];
     String                  rackName = "";
 
     byte                    getStatusSeqNr = 100;
-    TimsMbx                 getStatusReplyMbx;
+    TimsMbx                 getStatusReplyMbx[] = new TimsMbx[1];
 
     // main frame
     JFrame                  mainFrame;
@@ -91,12 +91,27 @@ public final class Gui extends Thread
     // constructor
     //
     
-    public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader, String timsClass,
-            String timsParam) throws Exception
+    public Gui(JFrame mainFrame, Container mainFrameContent, BufferedReader cfgReader, String timsClass[],
+               String timsParam[]) throws Exception
     {
         this.setName("Gui");
         this.mainFrame = mainFrame;
         this.mainFrameContent = mainFrameContent;
+
+        if (timsParam.length > 1)
+        {
+            this.timsParam = new String[timsParam.length];
+            this.timsClass = new String[timsParam.length];
+            this.tims = new Tims[timsParam.length];
+            this.getStatusReplyMbx = new TimsMbx[timsParam.length];
+        }
+        this.timsParam[0] = "";
+        this.timsClass[0] = null;
+        for (int i = 1; i < this.timsParam.length; i++)
+        {
+        	this.timsParam[i] = "";
+            this.timsClass[i] = null;
+        }
 
         try
         {
@@ -110,8 +125,11 @@ public final class Gui extends Thread
             System.out.println("Initializing RackName extension ...");
             initRackName();
 
-            System.out.println("Initializing Tims  ...");
-            initTims(timsClass, timsParam);
+            for (int i = 0; i < timsParam.length; i++)
+            {
+                System.out.println("Initializing Tims " + i + " ...");
+                initTims(timsClass[i], timsParam[i], i);
+            }
 
             System.out.println("Initializing Proxies ...");
             initMbx();
@@ -125,7 +143,12 @@ public final class Gui extends Thread
 
             if (mainFrame != null)
             {
-                mainFrame.setTitle("RACK GUI " + timsParam);
+            	String titleString = "RACK GUI";
+            	for (int j = 0; j < tims.length; j++)
+            	{
+            	    titleString += " " + timsParam[j];
+            	}
+                mainFrame.setTitle(titleString);
                 mainFrame.setLocation(mainFrameLocation);
                 mainFrame.setSize(mainFrameSize);
                 if ((mainFrameState == FRAME_STATE_MAX) || (mainFrameState == FRAME_STATE_FIXED_MAX))
@@ -273,9 +296,16 @@ public final class Gui extends Thread
         }
     }
 
-    public Tims getTims()
+    public Tims getTims(int timsId)
     {
-        return tims;
+        if ((timsId >= 0) && (timsId < tims.length))
+        {
+            return tims[timsId];
+        }
+        else
+        {
+            return tims[0];
+        }
     }
 
     //
@@ -335,41 +365,41 @@ public final class Gui extends Thread
         }
     }
 
-    protected void initTims(String timsClass, String timsParam) throws Exception
+    protected void initTims(String timsClass, String timsParam, int timsId) throws Exception
     {
         // constructor parameter overwrites config file
         if(timsClass != null)
         {
-            this.timsClass = timsClass;
+            this.timsClass[timsId] = timsClass;
         }
         
-        if (this.timsClass == null)
+        if (this.timsClass[timsId] == null)
         {
-            this.timsClass = "rack.main.tims.TimsTcp";
+            this.timsClass[timsId] = "rack.main.tims.TimsTcp";
         }
     
         if(timsParam != "")
         {
-            this.timsParam = timsParam;
+            this.timsParam[timsId] = timsParam;
         }
     
-        System.out.println("Connect to TimsRouter \"" + this.timsClass + "\" param \"" + this.timsParam + "\"");
+        System.out.println("Connect to TimsRouter \"" + this.timsClass[timsId] + "\" param \"" + this.timsParam[timsId] + "\"");
     
         Class<?>[] timsConstrArgType = new Class<?>[] {String.class};
         Object[] timsConstrArg = new Object[1];
-        timsConstrArg[0] = this.timsParam;
+        timsConstrArg[0] = this.timsParam[timsId];
     
         try
         {
-           tims = (Tims) getGuiCL().loadClass(this.timsClass)
-                   .getConstructor(timsConstrArgType)
-                   .newInstance(timsConstrArg);
+           tims[timsId] = (Tims) getGuiCL().loadClass(this.timsClass[timsId])
+                                 .getConstructor(timsConstrArgType)
+                                 .newInstance(timsConstrArg);
         }
         catch (Exception e)
         {
             JOptionPane.showMessageDialog(mainFrameContent,
                     "Can't connect to TimsRouter\n" +
-                    "\"" + this.timsClass + "\" param \"" + this.timsParam + "\"\n",
+                    "\"" + this.timsClass + "\" param \"" + this.timsParam[timsId] + "\"\n",
                     "RACK GUI",
                     JOptionPane.ERROR_MESSAGE);
             throw e;
@@ -381,25 +411,27 @@ public final class Gui extends Thread
         int inst = 0;
 
         // randomize timer
-        
-        for(int instTries = 0; instTries < MAX_INST_TRIES; instTries++)
+
+        for (int i = 0; i < tims.length; i++)
         {
-            try
+            for(int instTries = 0; instTries < MAX_INST_TRIES; instTries++)
             {
-                inst = inst + 1;// (int)(Math.random() * 255.0);
-                System.out.println("try to init:"+RackName.create(RackName.GUI, inst) );
-                getStatusReplyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst));
-                break;
-            }
-            catch (TimsException e)
-            {
-                System.out.println("Caught exception: "+e);
-                if (instTries == MAX_INST_TRIES - 1)
-                {
-                    JOptionPane.showMessageDialog(mainFrameContent,
-                            "Can't create Mailbox\n" + e.getMessage(),
-                            "Tims Exception", JOptionPane.ERROR_MESSAGE);
-                    throw e;
+        	    try
+        	    {
+        		    inst = inst + 1;// (int)(Math.random() * 255.0);
+        		    System.out.println("try to init:"+RackName.create(RackName.GUI, inst) );
+        		    getStatusReplyMbx[i] = tims[i].mbxInit(RackName.create(RackName.GUI, inst));
+        		    break;
+        	    }
+        	    catch (TimsException e)
+        	    {
+                    System.out.println("Caught exception: "+e);
+                    if (instTries == MAX_INST_TRIES - 1)
+                    {
+        			    JOptionPane.showMessageDialog(mainFrameContent, "Can't create Mailbox\n" + e.getMessage(),
+                                                      "Tims Exception", JOptionPane.ERROR_MESSAGE);
+                        throw e;
+                    }
                 }
             }
         }
@@ -414,7 +446,7 @@ public final class Gui extends Thread
                 {
                     j++;
                     System.out.println("try to init(sub):"+RackName.create(RackName.GUI, inst,j) );
-                    elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
+                    elements.get(i).replyMbx = tims[elements.get(i).getTimsId()].mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
                 catch (TimsException e)
                 {
@@ -424,7 +456,7 @@ public final class Gui extends Thread
 					} catch (InterruptedException e1) {}
                     j++;
                     System.out.println("try to init(ssub):"+RackName.create(RackName.GUI, inst,j) );
-                    elements.get(i).replyMbx = tims.mbxInit(RackName.create(RackName.GUI, inst, j));
+                    elements.get(i).replyMbx = tims[elements.get(i).getTimsId()].mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
             }
         }
@@ -999,6 +1031,7 @@ public final class Gui extends Thread
     {
         GuiElementDescriptor ge; 
         int i;
+        String titleString;
         
         navStatusButtonBG = groups.get(0).button.getBackground();
 
@@ -1022,7 +1055,12 @@ public final class Gui extends Thread
             {
                 if(mainFrame != null)
                 {
-                    mainFrame.setTitle("RACK GUI " + timsParam + " " + tims.getDataRate());
+                	titleString = "RACK GUI";
+                	for (int j = 0; j < tims.length; j++)
+                	{
+                	    titleString += " " + timsParam[j] + " " + tims[j].getDataRate();
+                	}
+                    mainFrame.setTitle(titleString);
                 }
                 
                 try
@@ -1071,7 +1109,7 @@ public final class Gui extends Thread
                 
                 try
                 {
-                    getStatusReplyMbx.send0(RackProxy.MSG_GET_STATUS, 
+                    getStatusReplyMbx[ge.getTimsId()].send0(RackProxy.MSG_GET_STATUS, 
                             ge.proxy.getCommandMbx(),
                             (byte) 0,
                             (byte) getStatusSeqNr);
@@ -1086,97 +1124,100 @@ public final class Gui extends Thread
                 Thread.sleep(navUpdate/elements.size());
             }
             catch (InterruptedException e) {}
-            
-            try
+
+            for (int k = 0; k < getStatusReplyMbx.length; k++)
             {
-                while (true)
+                try
                 {
-                    TimsMsg reply = getStatusReplyMbx.receiveIf();
-                    
-                    // update module status array
-                    for (int j = 0; j < elements.size(); j++)
+                    while (true)
                     {
-                        ge = elements.get(j);
+                        TimsMsg reply = getStatusReplyMbx[k].receiveIf();
 
-                        if(ge.proxy != null)
+                        // update module status array
+                        for (int j = 0; j < elements.size(); j++)
                         {
-                            if (ge.proxy.getCommandMbx() == reply.src)
-                            {
-                                ge.status = reply.type;
+                            ge = elements.get(j);
 
-                                // always show navButton of GuiElements with parameter -show and -start
-                                if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                            if(ge.proxy != null)
+                            {
+                                if (ge.proxy.getCommandMbx() == reply.src)
                                 {
-                                    ge.status = RackProxy.MSG_DISABLED;
-                                }
-                                if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
-                                {
-                                    ge.status = RackProxy.MSG_DISABLED;
-                                }
-                    
-                                switch (ge.status)
-                                {
-                                    case RackProxy.MSG_ERROR:
-                                        if (ge.navPanel == null)
-                                        {
-                                            addNavPanel(ge);
-                                        }
-                                        ge.navStatusButton.setEnabled(true);
-                                        ge.navStatusButton.setSelected(true);
-                                        ge.navStatusButton.setBackground(Color.RED);
-                                        ge.navButton.setEnabled(true);
-                                        break;
-                    
-                                    case RackProxy.MSG_ENABLED:
-                                        if (ge.navPanel == null)
-                                        {
-                                            addNavPanel(ge);
-                                        }
-                                        ge.navStatusButton.setEnabled(true);
-                                        ge.navStatusButton.setSelected(true);
-                                        ge.navStatusButton.setBackground(Color.GREEN);
-                                        ge.navButton.setEnabled(true);
-                                        break;
-                    
-                                    case RackProxy.MSG_DISABLED:
-                                        if (ge.navPanel == null)
-                                        {
-                                            addNavPanel(ge);
-                                        }
-                                        ge.navStatusButton.setEnabled(true);
-                                        ge.navStatusButton.setSelected(false);
-                                        ge.navStatusButton.setBackground(navStatusButtonBG);
-                                        ge.navButton.setEnabled(true);
-                                        break;
-                    
-                                    case RackProxy.MSG_NOT_AVAILABLE:
-                                        if (ge.navPanel != null)
-                                        {
-                                            ge.navStatusButton.setEnabled(false);
-                                            ge.navStatusButton.setSelected(false);
-                                            ge.navStatusButton.setBackground(navStatusButtonBG);
-                                            ge.navButton.setEnabled(false);
-                                        }
-                                        break;
-                    
-                                    case RackProxy.MSG_TIMEOUT:
-                                    default:
-                                        if (ge.navPanel != null)
-                                        {
+                                    ge.status = reply.type;
+
+                                    // always show navButton of GuiElements with parameter -show and -start
+                                    if (ge.hasParameter("show") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                                    {
+                                        ge.status = RackProxy.MSG_DISABLED;
+                                    }
+                                    if (ge.hasParameter("start") && ge.status == RackProxy.MSG_NOT_AVAILABLE)
+                                    {
+                                        ge.status = RackProxy.MSG_DISABLED;
+                                    }
+
+                                    switch (ge.status)
+                                    {
+                                        case RackProxy.MSG_ERROR:
+                                            if (ge.navPanel == null)
+                                            {
+                                                addNavPanel(ge);
+                                            }
+                                            ge.navStatusButton.setEnabled(true);
+                                            ge.navStatusButton.setSelected(true);
+                                            ge.navStatusButton.setBackground(Color.RED);
+                                            ge.navButton.setEnabled(true);
+                                            break;
+
+                                         case RackProxy.MSG_ENABLED:
+                                            if (ge.navPanel == null)
+                                            {
+                                                addNavPanel(ge);
+                                            }
+                                            ge.navStatusButton.setEnabled(true);
+                                            ge.navStatusButton.setSelected(true);
+                                            ge.navStatusButton.setBackground(Color.GREEN);
+                                            ge.navButton.setEnabled(true);
+                                            break;
+
+                                        case RackProxy.MSG_DISABLED:
+                                            if (ge.navPanel == null)
+                                            {
+                                                addNavPanel(ge);
+                                            }
                                             ge.navStatusButton.setEnabled(true);
                                             ge.navStatusButton.setSelected(false);
-                                            ge.navStatusButton.setBackground(Color.ORANGE);
-                                            ge.navButton.setEnabled(false);
-                                        }
+                                            ge.navStatusButton.setBackground(navStatusButtonBG);
+                                            ge.navButton.setEnabled(true);
+                                            break;
+
+                                        case RackProxy.MSG_NOT_AVAILABLE:
+                                            if (ge.navPanel != null)
+                                            {
+                                                ge.navStatusButton.setEnabled(false);
+                                                ge.navStatusButton.setSelected(false);
+                                                ge.navStatusButton.setBackground(navStatusButtonBG);
+                                                ge.navButton.setEnabled(false);
+                                            }
+                                            break;
+
+                                        case RackProxy.MSG_TIMEOUT:
+                                        default:
+                                            if (ge.navPanel != null)
+                                            {
+                                                ge.navStatusButton.setEnabled(true);
+                                                ge.navStatusButton.setSelected(false);
+                                                ge.navStatusButton.setBackground(Color.ORANGE);
+                                                ge.navButton.setEnabled(false);
+                                            }
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                catch (TimsException e)
+                {}
             }
-            catch (TimsException e)
-            {}
-            
+
             navPanel.revalidate();
 
             i++;
@@ -1186,7 +1227,12 @@ public final class Gui extends Thread
 
                 if(mainFrame != null)
                 {
-                    mainFrame.setTitle("RACK GUI " + timsParam + " " + tims.getDataRate());
+                	titleString = "RACK GUI";
+                	for (int j = 0; j < tims.length; j++)
+                	{
+                	    titleString += " " + timsParam[j] + " " + tims[j].getDataRate();
+                	}
+                    mainFrame.setTitle(titleString);
                 }
                 
                 getStatusSeqNr++;
@@ -1223,9 +1269,12 @@ public final class Gui extends Thread
         }
 
         // terminate connection to TimsRouter
-        if(tims != null)
+        for (int i = 0; i < tims.length; i++)
         {
-            tims.terminate();
+        	if (tims[i] != null)
+            {
+                tims[i].terminate();
+            }
         }
 
         // JOptionPane.showMessageDialog(frame,
@@ -1283,7 +1332,10 @@ public final class Gui extends Thread
             // reading config file
 
             String      fileName    = "";
-            String      timsParam   = "";
+            String      timsParam[] = new String[1];
+            timsParam[0] = "";
+            String      timsClass[] = new String[1];
+            timsClass[0] = null;
 
             switch (args.length)
             {
@@ -1300,7 +1352,16 @@ public final class Gui extends Thread
                 case 1: // only config file
                     fileName = args[0];
                     break;
-                case 2: // config file and ip
+                default: // config file and one or more ip/ports
+                	fileName = args[0];
+                    timsParam = new String[args.length-1];
+                    timsClass = new String[args.length-1];
+                    for (int i = 1; i < args.length; i++)
+                    {
+                        timsParam[i-1] = args[i];
+                        timsClass[i-1] = null;
+                    }
+                /*case 2: // config file and ip
                     fileName = args[0];
                     timsParam = args[1];
                     break;
@@ -1310,7 +1371,7 @@ public final class Gui extends Thread
                             "'java -jar rack.jar <config-file> <ip>' or\n" +
                             "'java -classpath ... rack.gui.Gui <config-file> <ip>",
                             "RACK GUI", JOptionPane.ERROR_MESSAGE);
-                    throw new Exception("Invalid argument count " + args.length);
+                    throw new Exception("Invalid argument count " + args.length);*/
             }
 
             try
@@ -1320,7 +1381,7 @@ public final class Gui extends Thread
                 BufferedReader cfgReader = new BufferedReader(new FileReader(fileName));
                 mainSaveConfigFile  = new File(fileName);
 
-                mainGui = new Gui(frame, frame.getContentPane(), cfgReader, null, timsParam);
+                mainGui = new Gui(frame, frame.getContentPane(), cfgReader, timsClass, timsParam);
             }
             catch(IOException e)
             {
