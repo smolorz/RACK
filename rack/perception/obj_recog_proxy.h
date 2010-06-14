@@ -17,7 +17,7 @@
 #define __OBJ_RECOG_PROXY_H__
 
 /*!
- * @ingroup rtsperception
+ * @ingroup perception
  * @defgroup objrecog Object Recognition
  *
  * Perception components that extract objects and object positions from sensor input.
