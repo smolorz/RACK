@@ -63,7 +63,7 @@ int  OdometryChassis::moduleOn(void)
     ret = chassis->on();
     if (ret)
     {
-        GDOS_ERROR("Can't switch on chassis(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't switch on chassis(%d/%d), code = %d\n",
                    chassisSys, chassisInst, ret);
         return ret;
     }
@@ -97,7 +97,7 @@ int  OdometryChassis::moduleLoop(void)
 
     p_odo = (odometry_data *)getDataBufferWorkSpace();
 
-    ret = chassisMbx.recvDataMsgTimed(2 * dataBufferPeriodTime * 1000000llu, &chassisData,
+    ret = chassisMbx.recvDataMsgTimed(rackTime.toNano(2 * dataBufferPeriodTime), &chassisData,
                                       sizeof(chassisData), &info);
     if (ret)
     {

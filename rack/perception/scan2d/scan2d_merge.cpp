@@ -106,7 +106,7 @@ int  Scan2dMerge::moduleOn(void)
         ret = position->on();
         if (ret)
         {
-            GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n", 
+            GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n",
                        positionSys, positionInst, ret);
             return ret;
         }
@@ -231,7 +231,7 @@ int  Scan2dMerge::moduleLoop(void)
                                             scanData->recordingTime);
                     if (ret)
                     {
-                        GDOS_ERROR("Can't get data from Odometry(%i/%i), code = %d\n", 
+                        GDOS_ERROR("Can't get data from Odometry(%i/%i), code = %d\n",
                                    odometrySys, odometryInst, ret);
                         dataMbx.peekEnd();
                         return ret;
@@ -300,7 +300,7 @@ int  Scan2dMerge::moduleLoop(void)
                                         mergeData->recordingTime);
                 if (ret)
                 {
-                    GDOS_ERROR("Can't get data from Position(%i/%i), code = %d\n", 
+                    GDOS_ERROR("Can't get data from Position(%i/%i), code = %d\n",
                                positionSys, positionInst, ret);
                     dataMbx.peekEnd();
                     return ret;
@@ -323,8 +323,9 @@ int  Scan2dMerge::moduleLoop(void)
                 if (scan2dInst[k] >= 0)
                 {
                     // scan2d timeout 5s
-                    if (scan2dTimeout[k] > 5 * ((float)1000.0f / dataBufferPeriodTime))
+                    if (scan2dTimeout[k] > 100 * ((float)1000.0f / dataBufferPeriodTime))
                     {
+                        GDOS_PRINT("dataBufferPeriodTIme %d\n", dataBufferPeriodTime);
                         GDOS_ERROR("Data timeout Scan2d(%i/%i)\n", scan2dSys[k], scan2dInst[k]);
 
                         dataMbx.peekEnd();
@@ -347,7 +348,7 @@ int  Scan2dMerge::moduleLoop(void)
                                 {
                                     if (scan2dInst[k] >= 0)
                                     {
-                                        GDOS_WARNING("Scan2d(%i/%i) pointNum %i", 
+                                        GDOS_WARNING("Scan2d(%i/%i) pointNum %i",
                                                      scan2dSys[k], scan2dInst[k], scanBuffer[k][l].data.pointNum);
                                     }
                                 }
