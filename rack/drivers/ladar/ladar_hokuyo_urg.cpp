@@ -180,7 +180,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
     while((i < 2000) && (serialBuffer[0] != 'G'))
     {
         // Read next character
-        ret = serialPort.recv(serialBuffer, 1, &(p_data->recordingTime), 2000000000ll);
+        ret = serialPort.recv(serialBuffer, 1, &(p_data->recordingTime));
         if (ret)
         {
             GDOS_ERROR("Can't read data from serial dev, code=%d\n", ret);
@@ -205,7 +205,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
 
     serialDataLen = 15 + p_data->pointNum * 2 + p_data->pointNum / 32;
 
-    ret = serialPort.recv(serialBuffer, serialDataLen, NULL, 5000000000ll);
+    ret = serialPort.recv(serialBuffer, serialDataLen, NULL);
     if (ret)
     {
         GDOS_ERROR("Can't read data 3 from serial dev, code=%d\n",ret);
@@ -278,6 +278,14 @@ int  LadarHokuyoUrg::moduleInit(void)
     }
 
     GDOS_DBG_INFO("serialDev %d has been opened \n", serialDev);
+
+    ret = serialPort.setRecvTimeout(2000000000ll);
+    if (ret)
+    {
+        GDOS_ERROR("Can't set serial receive timeout, code=%d\n", ret);
+        goto init_error;
+    }
+
     initBits.setBit(INIT_BIT_SERIALPORT_OPEN);
     return 0;
 
