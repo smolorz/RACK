@@ -10,17 +10,14 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Frauke Wübbold	<wuebbold@rts.uni-hannover.de>
+ *      Frauke Wï¿½bbold	<wuebbold@rts.uni-hannover.de>
  *
  */
 package rack.gui.tools;
 
 import java.util.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
