@@ -50,10 +50,13 @@
 //# Position Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * position data structure
+ */
 typedef struct{
-    rack_time_t  recordingTime; // has to be first element
-    position_3d  pos;
-    position_3d  var;
+    rack_time_t  recordingTime;             /**< [ms] global timestamp (has to be first element)*/
+    position_3d  pos;                       /**< global position and orientation */
+    position_3d  var;                       /**< standard deviation of position and orientation */
 } __attribute__((packed)) position_data;
 
 class PositionData
@@ -96,11 +99,15 @@ class PositionData
 //######################################################################
 //# Position WGS84 Data (static size - MESSAGE)
 //######################################################################
+
+/**
+ * position WGS84 data structure
+ */
 typedef struct{
-    double        latitude;       // rad
-    double        longitude;      // rad
-    int32_t       altitude;       // mm over mean sea level
-    float         heading;        // rad
+    double        latitude;                 /**< [rad] latitude in WGS84 reference frame */
+    double        longitude;                /**< [rad] longitude in WGS84 reference frame */
+    int32_t       altitude;                 /**< [mm] height over mean sea level, positive up */
+    float         heading;                  /**< [rad] 0 = north, positive clockwise */
 } __attribute__((packed)) position_wgs84_data;
 
 class PositionWgs84Data
@@ -145,11 +152,15 @@ class PositionWgs84Data
 //######################################################################
 //# Position GK Data (static size - MESSAGE)
 //######################################################################
+
+/**
+ * position Gauss Krueger data structure
+ */
 typedef struct{
-    double        northing;       // mm
-    double        easting;        // mm
-    int32_t       altitude;       // mm over mean sea level
-    float         heading;        // rad
+    double        northing;       /**< [mm] northing in Gauss-Krueger reference frame */
+    double        easting;        /**< [mm] easting in Gauss-Krueger reference frame */
+    int32_t       altitude;       /**< [mm] height over mean sea level, positive up */
+    float         heading;        /**< [rad] 0 = north, positive clockwise */
 } __attribute__((packed)) position_gk_data;
 
 class PositionGkData
@@ -194,12 +205,26 @@ class PositionGkData
 //######################################################################
 //# Position UTM Data (static size - MESSAGE)
 //######################################################################
-typedef struct{
-    int           zone;           // utm zone
-    double        northing;       // mm
-    double        easting;        // mm
-    int32_t       altitude;       // mm over mean sea level
-    float         heading;        // rad
+
+/**
+ * UTM lateral band A...Z without I and O. Band >= N is northern hemisphere
+ */
+typedef enum position_utm_band_e
+{
+    A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, T, U, V, W, X, Y, Z
+} position_utm_band;
+
+/**
+ * UTM data structure
+ */
+typedef struct position_utm_data_s
+{
+    int64_t             northing;       /**< [mm] 0 (0km) <= northing <= 10000000000 (10,000km) */
+    int64_t             easting;        /**< [mm] 100000000 (100km) <= easting < 900000000 (900km) */
+    int32_t             zone;           /**< longitudinal zone 1 <= zone <= 60 */
+    position_utm_band   band;           /**< see position_utm_band */
+    int32_t             altitude;       /**< [mm] height over mean sea level, positive up */
+    float               heading;        /**< [rad] 0 = north, positive clockwise */
 } __attribute__((packed)) position_utm_data;
 
 class PositionUtmData
@@ -207,18 +232,18 @@ class PositionUtmData
     public:
         static void le_to_cpu(position_utm_data *data)
         {
+            data->northing      = __le64_to_cpu(data->northing);
+            data->easting       = __le64_to_cpu(data->easting);
             data->zone          = __le32_to_cpu(data->zone);
-            data->northing      = __le64_float_to_cpu(data->northing);
-            data->easting       = __le64_float_to_cpu(data->easting);
             data->altitude      = __le32_to_cpu(data->altitude);
             data->heading       = __le32_float_to_cpu(data->heading);
         }
 
         static void be_to_cpu(position_utm_data *data)
         {
+            data->northing      = __be64_to_cpu(data->northing);
+            data->easting       = __be64_to_cpu(data->easting);
             data->zone          = __be32_to_cpu(data->zone);
-            data->northing      = __be64_float_to_cpu(data->northing);
-            data->easting       = __be64_float_to_cpu(data->easting);
             data->altitude      = __be32_to_cpu(data->altitude);
             data->heading       = __be32_float_to_cpu(data->heading);
         }
@@ -264,7 +289,7 @@ class PositionProxy : public RackDataProxy {
         // overwriting getData (includes parsing and type conversion)
         //
 
-        int getData(position_data *recv_data, ssize_t recv_datalen,
+       int getData(position_data *recv_data, ssize_t recv_datalen,
                     rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
         int getData(position_data *recv_data, ssize_t recv_datalen,
