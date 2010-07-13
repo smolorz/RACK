@@ -16,19 +16,12 @@
 
 #include "clock_system.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_MBX_WORK                   1
-#define INIT_BIT_PROXY_CLOCK                2
-
 #define STATE_INIT                          0
 #define STATE_RUN                           1
 
 //
 // data structures
 //
-
-ClockSystem *p_inst;
 
 argTable_t argTab[] = {
 
@@ -173,7 +166,7 @@ int ClockSystem::moduleLoop(void)
     return 0;
 }
 
-int ClockSystem::moduleCommand(message_info *msgInfo)
+int ClockSystem::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -190,6 +183,12 @@ int ClockSystem::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_MBX_WORK                   1
+#define INIT_BIT_PROXY_CLOCK                2
+
 int ClockSystem::moduleInit(void)
 {
     int ret;
@@ -284,6 +283,9 @@ int main(int argc, char *argv[])
     }
 
     // create new ClockSystem
+
+    ClockSystem *p_inst;
+
     p_inst = new ClockSystem();
     if (!p_inst)
     {

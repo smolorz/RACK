@@ -105,14 +105,14 @@ class PilotData
             }
         }
 
-        static pilot_data* parse(message_info *msgInfo)
+        static pilot_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             pilot_data *p_data = (pilot_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -120,7 +120,7 @@ class PilotData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -148,14 +148,14 @@ class PilotDestData
             data->speed = __be32_to_cpu(data->speed);
         }
 
-        static pilot_dest_data* parse(message_info *msgInfo)
+        static pilot_dest_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             pilot_dest_data *p_data = (pilot_dest_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -163,7 +163,7 @@ class PilotDestData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -194,14 +194,14 @@ class PilotHoldData
             Position3D::be_to_cpu(&data->pos);
         }
 
-        static pilot_hold_data* parse(message_info *msgInfo)
+        static pilot_hold_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             pilot_hold_data *p_data = (pilot_hold_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -209,7 +209,7 @@ class PilotHoldData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -234,14 +234,14 @@ class PilotRevertData
             data->revertTime = __be32_to_cpu(data->revertTime);
         }
 
-        static pilot_revert_data* parse(message_info *msgInfo)
+        static pilot_revert_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             pilot_revert_data *p_data = (pilot_revert_data*)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -249,7 +249,7 @@ class PilotRevertData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };

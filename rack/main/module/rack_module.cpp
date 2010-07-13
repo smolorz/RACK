@@ -39,12 +39,11 @@
 
 // initStatus bits
 #define INIT_BIT_CMDMBX_CREATED         0
-#define INIT_BIT_GDOS_CREATED           1
-#define INIT_BIT_CMDTSK_CREATED         2
-#define INIT_BIT_DATATSK_CREATED        3
-#define INIT_BIT_CMDTSK_STARTED         4
-#define INIT_BIT_DATATSK_STARTED        5
-#define INIT_BIT_MALLOC_PARAM_MSG       6
+#define INIT_BIT_CMDTSK_CREATED         1
+#define INIT_BIT_DATATSK_CREATED        2
+#define INIT_BIT_CMDTSK_STARTED         3
+#define INIT_BIT_DATATSK_STARTED        4
+#define INIT_BIT_MALLOC_PARAM_MSG       5
 
 class MbxListHead : public ListHead {
 
@@ -113,8 +112,8 @@ static char classname[50];
 void cmd_task_proc(void *arg)
 {
     RackModule*  p_mod     = (RackModule *)arg;
-    GdosMailbox* gdos      = p_mod->gdos;
-    message_info  msgInfo;
+    RackGdos* gdos         = p_mod->gdos;
+    RackMessage  msgInfo;
     char recv_data[p_mod->cmdMbxMsgDataSize];
     int ret;
 
@@ -139,7 +138,7 @@ void cmd_task_proc(void *arg)
         else
         {
             ret = p_mod->moduleCommand(&msgInfo);
-            if (ret && msgInfo.type > 0)
+            if (ret && msgInfo.getType() > 0)
             {
                 p_mod->cmdMbx.sendMsgReply(MSG_ERROR, &msgInfo);
             }
@@ -156,10 +155,10 @@ void cmd_task_proc(void *arg)
 // realtime context
 inline void notify(int8_t type, RackModule *p_mod)
 {
-    if (p_mod->replyMsgInfo.dest > 0)
+    if (p_mod->replyMsgInfo.getDest() > 0)
     {
         p_mod->cmdMbx.sendMsgReply(type, &p_mod->replyMsgInfo);
-        clearMsgInfo(&p_mod->replyMsgInfo);
+        p_mod->replyMsgInfo.clear();
     }
 }
 
@@ -168,7 +167,7 @@ void data_task_proc(void *arg)
 {
     int ret;
     RackModule*     p_mod = (RackModule*)arg;
-    GdosMailbox*    gdos  = p_mod->gdos;
+    RackGdos*       gdos  = p_mod->gdos;
 
     RackTask::enableRealtimeMode();
 
@@ -364,10 +363,12 @@ RackModule::RackModule( uint32_t classId,
                 uint32_t cmdMbxMsgDataSize,
                 uint32_t cmdMbxFlags)
 {
+    gdosLevel = GDOS_MSG_DEBUG_BEGIN - getIntArg("gdosLevel", module_argTab);
+    gdos = new RackGdos(gdosLevel);
+
     // get instance from module_argTab
     instance                  = getIntArg("instance", module_argTab);
     systemId                  = getIntArg("system", module_argTab);
-    gdosLevel                 = GDOS_MSG_DEBUG_BEGIN - getIntArg("gdosLevel", module_argTab);
     cmdTaskPrio               = getIntArg("cmdTaskPrio", module_argTab);
     dataTaskPrio              = getIntArg("dataTaskPrio", module_argTab);
     errorTimeout              = getIntArg("errorTimeout", module_argTab);
@@ -410,11 +411,12 @@ RackModule::RackModule( uint32_t classId,
         targetStatus = MODULE_TSTATE_OFF;
     }
 
-    clearMsgInfo(&replyMsgInfo);
+    replyMsgInfo.clear();
 }
 
 RackModule::~RackModule()
 {
+    delete gdos;
 }
 
 //
@@ -601,18 +603,6 @@ int       RackModule::createCmdMbx(void)
 // RackModule init and cleanup
 //
 
-// non realtime context (linux)
-void      RackModule::deleteGdosMbx()
-{
-    // delete gdos mailbox -> messages now on local console
-    if (moduleInitBits.testAndClearBit(INIT_BIT_GDOS_CREATED))
-    {
-        GDOS_DBG_INFO("Deleting GDOS -> next message on local console\n");
-        delete gdos;
-        gdos = NULL;
-    }
-}
-
 int     RackModule::parseArgTable(argTable_t *argTable, rack_param_msg *paramMsg)
 {
     int i = 0;
@@ -737,21 +727,16 @@ int       RackModule::moduleInit(void)
     ret = createCmdMbx();
     if (ret)
     {
-        GDOS_ERROR("Can't create command mailbox\n");
+        printf("%s error: Can't create command mailbox (%x), code %d\n", classname, name, ret);
         goto exit_error;
     }
     moduleInitBits.setBit(INIT_BIT_CMDMBX_CREATED);
-    GDOS_DBG_INFO("Command mailbox created\n");
 
-    // create gdos --> Messages are transmitted to GUI now
-    gdos = new GdosMailbox(&cmdMbx, gdosLevel);
-    if (!gdos)
+    // Start transmitting messages to GUI
+    if (gdos)
     {
-        ret = -ENOMEM;
-        GDOS_ERROR("Can't create gdos, code = %d\n", ret);
-        goto exit_error;
+        gdos->setMbx(&cmdMbx);
     }
-    moduleInitBits.setBit(INIT_BIT_GDOS_CREATED);
 
     GDOS_PRINT("Init\n");
 
@@ -852,7 +837,11 @@ void      RackModule::moduleCleanup(void)
 
     GDOS_PRINT("Terminated\n");
 
-    deleteGdosMbx();
+    // Stop transmitting messages to GUI
+    if (gdos)
+    {
+        gdos->setMbx(NULL);
+    }
 
     // delete command mailbox
     if (moduleInitBits.testAndClearBit(INIT_BIT_CMDMBX_CREATED))
@@ -860,16 +849,16 @@ void      RackModule::moduleCleanup(void)
         destroyMbx(&cmdMbx);
     }
 
-    GDOS_DBG_INFO("Finished cleanup\n");
+    GDOS_PRINT("Finished cleanup\n");
 }
 
 // realtime context
-int RackModule::moduleCommand(message_info *msgInfo)
+int RackModule::moduleCommand(RackMessage *msgInfo)
 {
   rack_param_msg *newParam;
   int statusReply, ret;
 
-  switch(msgInfo->type) {
+  switch(msgInfo->getType()) {
 
     case MSG_ON:
         switch(targetStatus) {
@@ -894,7 +883,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
           case MODULE_TSTATE_OFF:
 
               targetStatus = MODULE_TSTATE_ON;
-              memcpy(&replyMsgInfo, msgInfo, sizeof(message_info));
+              memcpy(&replyMsgInfo, msgInfo, sizeof(RackMessage));
               return 0;
 
           default:
@@ -915,9 +904,9 @@ int RackModule::moduleCommand(message_info *msgInfo)
           return ret;
         }
 
-        if (replyMsgInfo.src > 0) {
+        if (replyMsgInfo.getSrc() > 0) {
           ret = cmdMbx.sendMsgReply(MSG_ERROR, &replyMsgInfo);
-          clearMsgInfo(&replyMsgInfo);
+          replyMsgInfo.clear();
           return ret;
         }
         return 0;
@@ -968,7 +957,7 @@ int RackModule::moduleCommand(message_info *msgInfo)
             if(strncmp(newParam->parameter[i].name, "gdosLevel", RACK_PARAM_MAX_STRING_LEN) == 0)
             {
                 gdosLevel = GDOS_MSG_DEBUG_BEGIN - newParam->parameter[i].valueInt32;
-                gdos->setGdosLevel(gdosLevel);
+                gdos->setLevel(gdosLevel);
             }
         }
 

@@ -145,7 +145,7 @@ class RackModule {
         int errorTimeout;   // time [ms] to wait until restart of module
 
         /** Message info to reply a message */
-        message_info  replyMsgInfo;
+        RackMessage replyMsgInfo;
 
         /** Module state */
         int status;
@@ -177,24 +177,15 @@ class RackModule {
         int           initCmdMbx(int slots, size_t data_size, uint32_t flags);
         int           createCmdMbx(void);
 
-        /** Get the pointer to the command mailbox */
-        RackMailbox*  getCmdMbx(void)
-        {
-            return &cmdMbx;
-        };
-
 //
 // Debugging
 //
     protected:
         /** Debugging mailbox */
-        GdosMailbox*  gdos;
+        RackGdos      *gdos;
 
         /** Debugging level */
         char          gdosLevel;
-
-        /** Delete the debugging mailbox */
-        void deleteGdosMbx();
 
 //
 // Rack time
@@ -279,7 +270,7 @@ class RackModule {
         }
 
         /** The moduleCommand function of the module */
-        virtual int   moduleCommand(message_info* p_msginfo);
+        virtual int   moduleCommand(RackMessage* p_msginfo);
 
 //
 // signal handler shutdown function

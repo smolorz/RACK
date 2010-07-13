@@ -21,17 +21,6 @@
 // data structures
 //
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_MTX_CREATED                1
-#define INIT_BIT_MBX_WORK                   2
-#define INIT_BIT_PROXY_POSITION_UPDATE      3
-#define INIT_BIT_PROXY_LADAR                4
-#define INIT_BIT_PROXY_ODOMETRY             5
-#define INIT_BIT_PROXY_POSITION             6
-
-ChassisUsarsim *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -515,7 +504,7 @@ int ChassisUsarsim::moduleLoop(void)
     return 0;
 }
 
-int ChassisUsarsim::moduleCommand(message_info *msgInfo)
+int ChassisUsarsim::moduleCommand(RackMessage *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask()   |
                               RackName::getClassMask() |
@@ -523,7 +512,7 @@ int ChassisUsarsim::moduleCommand(message_info *msgInfo)
     chassis_move_data               *p_move;
     chassis_set_active_pilot_data   *p_pilot;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
         case MSG_CHASSIS_MOVE:
             if (status != MODULE_STATE_ENABLED)
@@ -533,7 +522,7 @@ int ChassisUsarsim::moduleCommand(message_info *msgInfo)
             }
 
             p_move = ChassisMoveData::parse(msgInfo);
-            if ((msgInfo->src & pilot_mask) != activePilot)
+            if ((msgInfo->getSrc() & pilot_mask) != activePilot)
             {
                 cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
                 break;
@@ -576,7 +565,7 @@ int ChassisUsarsim::moduleCommand(message_info *msgInfo)
 
             mtx.unlock();
 
-            GDOS_PRINT("%n changed active pilot to %n", msgInfo->src, activePilot);
+            GDOS_PRINT("%n changed active pilot to %n", msgInfo->getSrc(), activePilot);
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
 
@@ -1021,6 +1010,15 @@ int ChassisUsarsim::getUsarsimTime()
  *   own non realtime user functions
  ******************************************************************************/
 
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_MTX_CREATED                1
+#define INIT_BIT_MBX_WORK                   2
+#define INIT_BIT_PROXY_POSITION_UPDATE      3
+#define INIT_BIT_PROXY_LADAR                4
+#define INIT_BIT_PROXY_ODOMETRY             5
+#define INIT_BIT_PROXY_POSITION             6
+
 int ChassisUsarsim::moduleInit(void)
 {
     int ret;
@@ -1212,6 +1210,8 @@ int main(int argc, char *argv[])
     }
 
     // create new ChassisUsarsim
+
+    ChassisUsarsim *p_inst;
 
     p_inst = new ChassisUsarsim();
     if (!p_inst)

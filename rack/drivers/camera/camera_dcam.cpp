@@ -19,8 +19,6 @@
 
 #define INIT_BIT_DATA_MODULE 0
 
-CameraDcam *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_OPT, "cameraGuid", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -784,11 +782,11 @@ int CameraDcam::moduleLoop(void)
 //
 // Command handling
 //
-int CameraDcam::moduleCommand(message_info *msgInfo)
+int CameraDcam::moduleCommand(RackMessage *msgInfo)
 {
     camera_format_data      *p_format;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
     case MSG_CAMERA_GET_PARAMETER:
         cmdMbx.sendDataMsgReply(MSG_CAMERA_PARAMETER, msgInfo, 1, &param,
@@ -924,6 +922,8 @@ int main(int argc, char *argv[])
     }
 
     // create new CameraDcam
+
+    CameraDcam *p_inst;
 
     p_inst = new CameraDcam();
     if (!p_inst)

@@ -16,14 +16,6 @@
 #include "scan2d.h"
 #include <main/argopts.h>
 
-// init_flags
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_WORK           1
-#define INIT_BIT_MBX_LADAR          2
-#define INIT_BIT_PROXY_LADAR        3
-#define INIT_BIT_PROXY_CAMERA       4
-#define INIT_BIT_PROXY_POSITION     5
-
 // filter flags:
 #define FILTER_REFLECTOR_90DEG   0x01
 
@@ -50,8 +42,6 @@ static inline void swap(int32_t *a, int32_t *b)
 //
 // data structures
 //
-
-Scan2d *p_inst;
 
 argTable_t argTab[] = {
 
@@ -198,7 +188,7 @@ int  Scan2d::moduleLoop(void)
 {
     scan2d_data*    data2D;
     ladar_data*     dataLadar;
-    message_info    msgInfo;
+    RackMessage     msgInfo;
     double          x, y;
     int             i, j, ret;
 
@@ -214,11 +204,11 @@ int  Scan2d::moduleLoop(void)
         return ret;
     }
 
-    if ((msgInfo.type != MSG_DATA) ||
-        (msgInfo.src  != ladar->getDestAdr()))
+    if ((msgInfo.getType() != MSG_DATA) ||
+        (msgInfo.getSrc()  != ladar->getDestAdr()))
     {
         GDOS_ERROR("Received unexpected message from %n to %n type %d on "
-                   "data mailbox\n", msgInfo.src, msgInfo.dest, msgInfo.type);
+                   "data mailbox\n", msgInfo.getSrc(), msgInfo.getDest(), msgInfo.getType());
 
         ladarMbx.peekEnd();
         return -EINVAL;
@@ -577,7 +567,7 @@ int Scan2d::getRegressLine(scan2d_data* data, int left, int right, double *m, do
 }
 
 
-int  Scan2d::moduleCommand(message_info *msgInfo)
+int  Scan2d::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -594,6 +584,14 @@ int  Scan2d::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_WORK           1
+#define INIT_BIT_MBX_LADAR          2
+#define INIT_BIT_PROXY_LADAR        3
+#define INIT_BIT_PROXY_CAMERA       4
+#define INIT_BIT_PROXY_POSITION     5
 
 int Scan2d::moduleInit(void)
 {
@@ -735,6 +733,9 @@ int  main(int argc, char *argv[])
     }
 
     // create new Scan2d
+
+    Scan2d *p_inst;
+
     p_inst = new Scan2d();
     if (!p_inst)
     {

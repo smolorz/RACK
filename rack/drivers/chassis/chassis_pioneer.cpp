@@ -21,13 +21,6 @@
 // data structures
 //
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_RTSERIAL_OPENED            1
-#define INIT_BIT_MTX_CREATED                2
-#define INIT_BIT_MBX_WORK                   3
-#define INIT_BIT_PROXY_SONAR                4
-
 #define MAX_SIP_PACKAGE_SIZE 208
 
 #define CALIBRATION_ROT 0.66
@@ -51,8 +44,6 @@ const unsigned char encoderOnCommand[] = {0xFA, 0xFB, 6, 19, 0x3b, 0x02, 0x00,
 
 const unsigned char sonarOffCommand[]  = {0xFA, 0xFB, 6, 28, 0x3b, 0x00, 0x00,
                                           0x1C, 0x3b};
-
-ChassisPioneer *p_inst;
 
 argTable_t argTab[] = {
 
@@ -626,7 +617,7 @@ int ChassisPioneer::moduleLoop(void)
 }
 
 // realtime context
-int ChassisPioneer::moduleCommand(message_info *msgInfo)
+int ChassisPioneer::moduleCommand(RackMessage *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask() |
                               RackName::getClassMask() |
@@ -634,7 +625,7 @@ int ChassisPioneer::moduleCommand(message_info *msgInfo)
     chassis_move_data               *p_move;
     chassis_set_active_pilot_data   *p_pilot;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
     case MSG_CHASSIS_MOVE:
         if (status != MODULE_STATE_ENABLED)
@@ -644,7 +635,7 @@ int ChassisPioneer::moduleCommand(message_info *msgInfo)
         }
 
         p_move = ChassisMoveData::parse(msgInfo);
-        if ((msgInfo->src & pilot_mask) != activePilot)
+        if ((msgInfo->getSrc() & pilot_mask) != activePilot)
         {
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
@@ -676,7 +667,7 @@ int ChassisPioneer::moduleCommand(message_info *msgInfo)
 
         sendMovePackage(0, 0);
 
-        GDOS_PRINT("%n nhanged active pilot to %n", msgInfo->src, activePilot);
+        GDOS_PRINT("%n nhanged active pilot to %n", msgInfo->getSrc(), activePilot);
         cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         break;
 
@@ -852,6 +843,13 @@ int ChassisPioneer::sendMovePackage(int vx, float omega)
  *   own non realtime user functions
  ******************************************************************************/
 
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_RTSERIAL_OPENED            1
+#define INIT_BIT_MTX_CREATED                2
+#define INIT_BIT_MBX_WORK                   3
+#define INIT_BIT_PROXY_SONAR                4
+
 int ChassisPioneer::moduleInit(void)
 {
     int ret;
@@ -987,7 +985,6 @@ int main(int argc, char *argv[])
 {
     int ret;
 
-
     // get args
     ret = RackModule::getArgs(argc, argv, argTab, "ChassisPioneer");
     if (ret)
@@ -997,6 +994,8 @@ int main(int argc, char *argv[])
     }
 
     // create new ChassisPioneer
+
+    ChassisPioneer *p_inst;
 
     p_inst = new ChassisPioneer();
     if (!p_inst)

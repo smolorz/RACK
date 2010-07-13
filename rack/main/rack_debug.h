@@ -39,20 +39,23 @@
 // debug functions
 //
 
-#define printf_level(level, fmt, ... )                                  \
-                    char *tfmt = (char *)fmt;                           \
-                    do                                                  \
-                    {                                                   \
-                        char *pch;                                      \
-                        do                                              \
-                        {                                               \
-                            pch = strstr(tfmt, "%n");                   \
-                            if (pch)                                    \
-                                strncpy(pch, "%x", 2);                  \
-                        }                                               \
-                        while (pch);                                    \
-                        printf(tfmt, ##__VA_ARGS__);                    \
-                    } while(0)
+#define rack_print(level, fmt, ...)                                   \
+            do                                                        \
+            {                                                         \
+                if (gdos)                                             \
+                {                                                     \
+                    gdos->print(level, fmt, ##__VA_ARGS__);           \
+                }                                                     \
+            }                                                         \
+            while(0)
+
+#define GDOS_PRINT(fmt, ...)       rack_print(GDOS_MSG_PRINT, fmt, ##__VA_ARGS__)
+#define GDOS_ERROR(fmt, ...)       rack_print(GDOS_MSG_ERROR, fmt, ##__VA_ARGS__)
+#define GDOS_WARNING(fmt, ...)     rack_print(GDOS_MSG_WARNING, fmt, ##__VA_ARGS__)
+#define GDOS_DBG_INFO(fmt, ...)    rack_print(GDOS_MSG_DBG_INFO, fmt, ##__VA_ARGS__)
+#define GDOS_DBG_DETAIL(fmt, ...)  rack_print(GDOS_MSG_DBG_DETAIL, fmt, ##__VA_ARGS__)
+
+
 
 #if defined (__XENO__) || defined (__KERNEL__)
 
@@ -67,59 +70,19 @@ static inline int in_rt_context(void)
     return 1;
 }
 
-#define rack_print(level, fmt, ...)                                   \
-            do                                                        \
-            {                                                         \
-                if (in_rt_context())                                  \
-                {                                                     \
-                    if (gdos)                                         \
-                    {                                                 \
-                        gdos->print(level, fmt, ##__VA_ARGS__);       \
-                    }                                                 \
-                    else                                              \
-                    {                                                 \
-                        /* do nothing */                              \
-                    }                                                 \
-                }                                                     \
-                else                                                  \
-                {                                                     \
-                    if (gdos)                                         \
-                    {                                                 \
-                        gdos->print(level, fmt, ##__VA_ARGS__);       \
-                    }                                                 \
-                    else                                              \
-                    {                                                 \
-                        printf_level(level, fmt, ##__VA_ARGS__);      \
-                    }                                                 \
-                }                                                     \
-            }                                                         \
-            while(0)
-
 #else // !__XENO__ && !__KERNEL__
 
-#define rack_print(level, fmt, ...)                                   \
-            do                                                        \
-            {                                                         \
-                if (gdos)                                             \
-                {                                                     \
-                    gdos->print(level, fmt, ##__VA_ARGS__);           \
-                }                                                     \
-                else                                                  \
-                {                                                     \
-                    printf_level(level, fmt, ##__VA_ARGS__);          \
-                }                                                     \
-            }                                                         \
-            while(0)
+// non realtime / realtime context
+static inline int in_rt_context(void)
+{
+    return 0;
+}
+
 #endif // __XENO__ || __KERNEL__
 
-#define GDOS_PRINT(fmt, ...)       rack_print(GDOS_MSG_PRINT, fmt, ##__VA_ARGS__)
-#define GDOS_ERROR(fmt, ...)       rack_print(GDOS_MSG_ERROR, fmt, ##__VA_ARGS__)
-#define GDOS_WARNING(fmt, ...)     rack_print(GDOS_MSG_WARNING, fmt, ##__VA_ARGS__)
-#define GDOS_DBG_INFO(fmt, ...)    rack_print(GDOS_MSG_DBG_INFO, fmt, ##__VA_ARGS__)
-#define GDOS_DBG_DETAIL(fmt, ...)  rack_print(GDOS_MSG_DBG_DETAIL, fmt, ##__VA_ARGS__)
 
 
-class GdosMailbox
+class RackGdos
 {
     private:
         RackMailbox*    sendMbx;
@@ -127,23 +90,34 @@ class GdosMailbox
 
     public:
 
-        GdosMailbox(RackMailbox *p_mbx, int gdos_level )
+        RackGdos( void )
         {
-            this->sendMbx   = p_mbx;
-            this->gdosLevel = gdos_level;
+            this->sendMbx   = NULL;
+            this->gdosLevel = GDOS_MSG_DBG_DETAIL;
         }
 
-        ~GdosMailbox()
+        RackGdos( int level )
+        {
+            this->sendMbx   = NULL;
+            this->gdosLevel = level;
+        }
+
+        RackGdos( RackMailbox *mbx, int level )
+        {
+            this->sendMbx   = mbx;
+            this->gdosLevel = level;
+        }
+
+        ~RackGdos()
         {
         }
 
-        void setMailbox(RackMailbox *p_newMbx)
+        void setMbx(RackMailbox *newMbx)
         {
-            if (p_newMbx)
-                this->sendMbx = p_newMbx;
+            this->sendMbx = newMbx;
         }
 
-        void setGdosLevel(int newLevel)
+        void setLevel(int newLevel)
         {
             if (newLevel > GDOS_MSG_PRINT &&
                 newLevel < GDOS_MSG_DBG_DETAIL)
@@ -163,11 +137,6 @@ class GdosMailbox
             va_list         args;
             int             datasize = 0;
             int             valuesize = 0;
-
-            if (!sendMbx)
-            {
-                return;
-            }
 
             if (level < gdosLevel ||
                 level > GDOS_MSG_PRINT)
@@ -275,11 +244,21 @@ class GdosMailbox
 
             va_end(args);
 
-            // init message head
-            tims_fill_head(&head, level, RackName::create(GDOS, 0), sendMbx->getAdr(),
-                          sendMbx->getPriority(), 0, 0, TIMS_HEADLEN + datasize);
+            if (sendMbx)
+            {
+                // init message head
+                tims_fill_head(&head, level, RackName::create(GDOS, 0), sendMbx->getAdr(),
+                              sendMbx->getPriority(), 0, 0, TIMS_HEADLEN + datasize);
 
-            sendMbx->sendDataMsg(&head, 1, &buffer, datasize);
+                sendMbx->sendDataMsg(&head, 1, &buffer, datasize);
+            }
+            else
+            {
+                if(!in_rt_context())
+                {
+                    printf("%s", buffer);
+                }
+            }
         }
 };
 

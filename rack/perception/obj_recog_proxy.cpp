@@ -18,7 +18,7 @@
 int ObjRecogProxy::getData(obj_recog_data *recv_data, ssize_t recv_datalen,
                            rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                      reply_timeout_ns, &msgInfo);
@@ -34,7 +34,7 @@ int ObjRecogProxy::getData(obj_recog_data *recv_data, ssize_t recv_datalen,
 int ObjRecogProxy::getNextData(obj_recog_data *recv_data, ssize_t recv_datalen,
                                uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = RackDataProxy::getNextData((void *)recv_data, recv_datalen,
                                      reply_timeout_ns, &msgInfo);

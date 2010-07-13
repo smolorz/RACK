@@ -21,12 +21,6 @@
 // data structures
 //
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_MTX_CREATED                1
-
-ChassisSim *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -217,7 +211,7 @@ int ChassisSim::moduleLoop(void)
     return 0;
 }
 
-int ChassisSim::moduleCommand(message_info *msgInfo)
+int ChassisSim::moduleCommand(RackMessage *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask()   |
                               RackName::getClassMask() |
@@ -225,7 +219,7 @@ int ChassisSim::moduleCommand(message_info *msgInfo)
     chassis_move_data               *p_move;
     chassis_set_active_pilot_data   *p_pilot;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
         case MSG_CHASSIS_MOVE:
             if (status != MODULE_STATE_ENABLED)
@@ -235,7 +229,7 @@ int ChassisSim::moduleCommand(message_info *msgInfo)
             }
 
             p_move = ChassisMoveData::parse(msgInfo);
-            if ((msgInfo->src & pilot_mask) != activePilot)
+            if ((msgInfo->getSrc() & pilot_mask) != activePilot)
             {
                 cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
                 break;
@@ -278,7 +272,7 @@ int ChassisSim::moduleCommand(message_info *msgInfo)
 
             mtx.unlock();
 
-            GDOS_PRINT("%n changed active pilot to %n", msgInfo->src, activePilot);
+            GDOS_PRINT("%n changed active pilot to %n", msgInfo->getSrc(), activePilot);
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
             break;
 
@@ -300,6 +294,10 @@ int ChassisSim::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_MTX_CREATED                1
 
 int ChassisSim::moduleInit(void)
 {
@@ -391,6 +389,8 @@ int main(int argc, char *argv[])
     }
 
     // create new ChassisSim
+
+    ChassisSim *p_inst;
 
     p_inst = new ChassisSim();
     if (!p_inst)

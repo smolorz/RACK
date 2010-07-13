@@ -134,14 +134,14 @@ class CameraData
             }
         }
 
-        static camera_data* parse(message_info *msgInfo)
+        static camera_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             camera_data *p_data = (camera_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -149,7 +149,7 @@ class CameraData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 
@@ -239,14 +239,14 @@ class CameraParamData
                 data->coordinateTranslation[i] = __be32_float_to_cpu(data->coordinateTranslation[i]);}
         }
 
-        static camera_param_data *parse(message_info *msgInfo)
+        static camera_param_data *parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             camera_param_data *p_data = (camera_param_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -254,7 +254,7 @@ class CameraParamData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 
@@ -293,14 +293,14 @@ class CameraFormatData
             data->mode              = __be32_to_cpu(data->mode);
         }
 
-        static camera_format_data *parse(message_info *msgInfo)
+        static camera_format_data *parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             camera_format_data *p_data = (camera_format_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -308,7 +308,7 @@ class CameraFormatData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 

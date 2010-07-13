@@ -73,14 +73,14 @@ class PositionData
             Position3D::be_to_cpu(&data->var);
         }
 
-        static position_data* parse(message_info *msgInfo)
+        static position_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             position_data *p_data = (position_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -88,7 +88,7 @@ class PositionData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -122,14 +122,14 @@ class PositionWgs84Data
             data->heading       = __be32_float_to_cpu(data->heading);
         }
 
-        static position_wgs84_data* parse(message_info *msgInfo)
+        static position_wgs84_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             position_wgs84_data *p_data = (position_wgs84_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -137,7 +137,7 @@ class PositionWgs84Data
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -171,14 +171,14 @@ class PositionGkData
             data->heading       = __be32_float_to_cpu(data->heading);
         }
 
-        static position_gk_data* parse(message_info *msgInfo)
+        static position_gk_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             position_gk_data *p_data = (position_gk_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -186,7 +186,7 @@ class PositionGkData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -223,14 +223,14 @@ class PositionUtmData
             data->heading       = __be32_float_to_cpu(data->heading);
         }
 
-        static position_utm_data* parse(message_info *msgInfo)
+        static position_utm_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             position_utm_data *p_data = (position_utm_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -238,7 +238,7 @@ class PositionUtmData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };

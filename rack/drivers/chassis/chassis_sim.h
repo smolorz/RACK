@@ -26,8 +26,9 @@
 //# class ChassisSimModule
 //######################################################################
 
-class ChassisSim : public RackDataModule {
-  private:
+class ChassisSim : public RackDataModule
+{
+  protected:
     chassis_move_data   commandData;
     uint32_t            activePilot;
     RackMutex           mtx;
@@ -37,7 +38,7 @@ class ChassisSim : public RackDataModule {
     int  moduleOn(void);
     void moduleOff(void);
     int  moduleLoop(void);
-    int  moduleCommand(message_info *msgInfo);
+    int  moduleCommand(RackMessage *msgInfo);
 
     // -> non realtime context
     void moduleCleanup(void);

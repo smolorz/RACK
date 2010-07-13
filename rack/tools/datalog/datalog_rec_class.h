@@ -62,7 +62,7 @@ class DatalogRec : public RackDataModule {
         int  moduleOn(void);
         void moduleOff(void);
         int  moduleLoop(void);
-        int  moduleCommand(message_info *msgInfo);
+        int  moduleCommand(RackMessage *msgInfo);
 
         int  getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx,
                        uint64_t reply_timeout_ns);
@@ -90,7 +90,7 @@ class DatalogRec : public RackDataModule {
 
         virtual void logInfoAllModules(datalog_data *data);
         virtual int  initLogFile();
-        virtual int  logData(message_info *msgInfo);
+        virtual int  logData(RackMessage *msgInfo);
 
         // constructor und destructor
         DatalogRec();

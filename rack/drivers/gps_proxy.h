@@ -37,76 +37,60 @@
 //# Gps Data (static size - MESSAGE)
 //######################################################################
 
-typedef struct {
+typedef struct gps_data_s
+{
     rack_time_t   recordingTime;  // has to be first element
     int32_t       mode;
-    double        latitude;       // rad
-    double        longitude;      // rad
-    int32_t       altitude;       // mm over mean sea level
-    float         heading;        // rad
-    int32_t       speed;          // mm/s
+    double        latitude;       /**< rad */
+    double        longitude;      /**< rad */
+    int32_t       altitude;       /**< mm over mean sea level */
+    float         heading;        /**< rad */
+    int32_t       speed;          /**< mm/s */
     int32_t       satelliteNum;
-    int64_t       utcTime;        // POSIX time in sec since 1.1.1970
+    int64_t       utcTime;        /**< POSIX time in sec since 1.1.1970 */
     float         pdop;
     position_3d   pos;
     position_3d   var;
+
 } __attribute__((packed)) gps_data;
 
 
 class GpsData
 {
     public:
-        static void le_to_cpu(gps_data *data)
-        {
-            data->recordingTime = __le32_to_cpu(data->recordingTime);
-            data->mode          = __le32_to_cpu(data->mode);
-            data->latitude      = __le64_float_to_cpu(data->latitude);
-            data->longitude     = __le64_float_to_cpu(data->longitude);
-            data->altitude      = __le32_to_cpu(data->altitude);
-            data->heading       = __le32_float_to_cpu(data->heading);
-            data->speed         = __le32_to_cpu(data->speed);
-            data->satelliteNum  = __le32_to_cpu(data->satelliteNum);
-            data->utcTime       = __le64_to_cpu(data->utcTime);
-            data->pdop          = __le32_float_to_cpu(data->pdop);
-            Position3D::le_to_cpu(&data->pos);
-            Position3D::le_to_cpu(&data->var);
-        }
-
-        static void be_to_cpu(gps_data *data)
-        {
-            data->recordingTime = __be32_to_cpu(data->recordingTime);
-            data->mode          = __be32_to_cpu(data->mode);
-            data->latitude      = __be64_float_to_cpu(data->latitude);
-            data->longitude     = __be64_float_to_cpu(data->longitude);
-            data->altitude      = __be32_to_cpu(data->altitude);
-            data->heading       = __be32_float_to_cpu(data->heading);
-            data->speed         = __be32_to_cpu(data->speed);
-            data->satelliteNum  = __be32_to_cpu(data->satelliteNum);
-            data->utcTime       = __be64_to_cpu(data->utcTime);
-            data->pdop          = __be32_float_to_cpu(data->pdop);
-            Position3D::be_to_cpu(&data->pos);
-            Position3D::be_to_cpu(&data->var);
-        }
-
-        static gps_data* parse(message_info *msgInfo)
+        static gps_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            gps_data *p_data = (gps_data *)msgInfo->p_data;
+            gps_data *data = (gps_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            data->recordingTime = msgInfo->data32ToCpu(data->recordingTime);
+            data->mode          = msgInfo->data32ToCpu(data->mode);
+            data->latitude      = msgInfo->data64FloatToCpu(data->latitude);
+            data->longitude     = msgInfo->data64FloatToCpu(data->longitude);
+            data->altitude      = msgInfo->data32ToCpu(data->altitude);
+            data->heading       = msgInfo->data32FloatToCpu(data->heading);
+            data->speed         = msgInfo->data32ToCpu(data->speed);
+            data->satelliteNum  = msgInfo->data32ToCpu(data->satelliteNum);
+            data->utcTime       = msgInfo->data64ToCpu(data->utcTime);
+            data->pdop          = msgInfo->data32FloatToCpu(data->pdop);
+
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
-                le_to_cpu(p_data);
+                Position3D::le_to_cpu(&data->pos);
+                Position3D::le_to_cpu(&data->var);
             }
             else // data in big endian
             {
-                be_to_cpu(p_data);
+                Position3D::be_to_cpu(&data->pos);
+                Position3D::be_to_cpu(&data->var);
             }
-            setDataByteorder(msgInfo);
-            return p_data;
-        }
 
+            msgInfo->setDataByteorder();
+
+            return data;
+        }
 };
 
 //######################################################################

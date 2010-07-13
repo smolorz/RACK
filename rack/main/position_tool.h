@@ -54,7 +54,7 @@ class PositionTool {
   private:
 
     // only for debugging:
-    GdosMailbox    *gdos;
+    RackGdos    *gdos;
 
   public:
 

@@ -92,14 +92,14 @@ class LadarData
             }
         }
 
-        static ladar_data *parse(message_info *msgInfo)
+        static ladar_data *parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             ladar_data *p_data = (ladar_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -107,7 +107,7 @@ class LadarData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 

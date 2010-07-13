@@ -15,15 +15,9 @@
  */
 #include "ladar_sick_lms200.h"
 
-// init_flags
-#define INIT_BIT_DATA_MODULE            0
-#define INIT_BIT_RTSERIAL_OPENED        1
-
 //
 // init data structures
 //
-
-LadarSickLms200 *p_inst;
 
 argTable_t argTab[] = {
 
@@ -219,7 +213,7 @@ int  LadarSickLms200::moduleLoop(void)
     return 0;
 }
 
-int  LadarSickLms200::moduleCommand(message_info *p_msginfo)
+int  LadarSickLms200::moduleCommand(RackMessage *p_msginfo)
 {
   // not for me -> ask RackDataModule
   return RackDataModule::moduleCommand(p_msginfo);
@@ -1040,6 +1034,10 @@ unsigned short LadarSickLms200::crcCheck(unsigned char* data, int len)
  *   own non realtime user functions
  ******************************************************************************/
 
+// init_flags
+#define INIT_BIT_DATA_MODULE            0
+#define INIT_BIT_RTSERIAL_OPENED        1
+
 int  LadarSickLms200::moduleInit(void)
 {
     int ret;
@@ -1170,6 +1168,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    LadarSickLms200 *p_inst;
 
     // create new LadarSick
     p_inst = new LadarSickLms200();

@@ -97,14 +97,14 @@ class ObjRecogData
             }
         }
 
-        static obj_recog_data* parse(message_info *msgInfo)
+        static obj_recog_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             obj_recog_data *p_data = (obj_recog_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -112,7 +112,7 @@ class ObjRecogData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 

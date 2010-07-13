@@ -47,8 +47,9 @@ typedef struct
 //# class ChassisUsarsimModule
 //######################################################################
 
-class ChassisUsarsim : public RackDataModule {
-  private:
+class ChassisUsarsim : public RackDataModule
+{
+  protected:
     chassis_move_data   commandData;
     uint32_t            activePilot;
     RackMutex           mtx;
@@ -106,7 +107,7 @@ class ChassisUsarsim : public RackDataModule {
     int  moduleOn(void);
     void moduleOff(void);
     int  moduleLoop(void);
-    int  moduleCommand(message_info *msgInfo);
+    int  moduleCommand(RackMessage *msgInfo);
 
     int chassisInit(char *usarsimChassis, position_3d chassisInitPos);
     int sendMoveCommand(int speed, float omega, int type);

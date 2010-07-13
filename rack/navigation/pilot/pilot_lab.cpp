@@ -15,21 +15,13 @@
 
 #include "pilot_lab.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_WORK           1
-#define INIT_BIT_MBX_SCAN2D         2
-#define INIT_BIT_PROXY_CHASSIS      3
-#define INIT_BIT_PROXY_POSITION     4
-#define INIT_BIT_PROXY_SCAN2D       5
-
 // pilot states
 #define PILOT_STATE_IDLE            0
 #define PILOT_STATE_NEW_DEST        1
 
+//
 // data structures
 //
-PilotLab *p_inst;
 
 // external module parameter
 argTable_t argTab[] = {
@@ -174,7 +166,7 @@ int  PilotLab::moduleLoop(void)
     int          ret;
     int          radius = 0;
     float        curve  = 0.0f;
-    message_info msgInfo;
+    RackMessage msgInfo;
     scan_point   scanPointMin;
     pilot_data*  pilotData = NULL;
 
@@ -189,8 +181,8 @@ int  PilotLab::moduleLoop(void)
     }
 
     // new scan2d data received
-    if (msgInfo.type == MSG_DATA &&
-        msgInfo.src  == scan2d->getDestAdr())
+    if (msgInfo.getType() == MSG_DATA &&
+        msgInfo.getSrc()  == scan2d->getDestAdr())
     {
         // message parsing
         Scan2dData::parse(&msgInfo);
@@ -290,11 +282,10 @@ int  PilotLab::moduleLoop(void)
     // invalid data received
     else
     {
-        GDOS_ERROR("Received unexpected message from %x to %x, type %d "
-                   "on scan2dDataMbx\n",
-                   msgInfo.src, msgInfo.dest, msgInfo.type);
+        GDOS_ERROR("Received unexpected message from %x to %x, type %d on scan2dDataMbx\n",
+                   msgInfo.getSrc(), msgInfo.getDest(), msgInfo.getType());
 
-        if (msgInfo.type > 0)
+        if (msgInfo.getType() > 0)
         {
             scan2dDataMbx.sendMsgReply(MSG_ERROR, &msgInfo);
         }
@@ -305,11 +296,11 @@ int  PilotLab::moduleLoop(void)
 }
 
 
-int  PilotLab::moduleCommand(message_info *msgInfo)
+int  PilotLab::moduleCommand(RackMessage *msgInfo)
 {
     pilot_dest_data     *pDest;
 
-    switch(msgInfo->type)
+    switch(msgInfo->getType())
     {
         // new pilot destination received
         case MSG_PILOT_SET_DESTINATION:
@@ -406,6 +397,15 @@ float PilotLab::controlOmega(int speed, int dCurr, int dSet, float rhoCurr, floa
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_WORK           1
+#define INIT_BIT_MBX_SCAN2D         2
+#define INIT_BIT_PROXY_CHASSIS      3
+#define INIT_BIT_PROXY_POSITION     4
+#define INIT_BIT_PROXY_SCAN2D       5
+
 int  PilotLab::moduleInit(void)
 {
     int ret;
@@ -553,6 +553,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    PilotLab *p_inst;
 
     // create new PilotLab
     p_inst = new PilotLab();

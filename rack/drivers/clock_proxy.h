@@ -80,14 +80,14 @@ class ClockData
             data->syncMode      = __be32_to_cpu(data->syncMode);
         }
 
-        static clock_data* parse(message_info *msgInfo)
+        static clock_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             clock_data *p_data = (clock_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -95,7 +95,7 @@ class ClockData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 

@@ -17,20 +17,9 @@
 #include <iostream>
 #include "pilot_joystick.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_JOYSTICK       1
-#define INIT_BIT_MBX_SCAN2D         2
-#define INIT_BIT_MBX_WORK           3
-#define INIT_BIT_PROXY_JOYSTICK     4
-#define INIT_BIT_PROXY_SCAN2D       5
-#define INIT_BIT_PROXY_CHASSIS      6
-
 //
 // data structures
 //
-
-PilotJoystick *p_inst;
 
 argTable_t argTab[] = {
 
@@ -222,16 +211,16 @@ int  PilotJoystick::moduleLoop(void)
     int         ret;
     float       omega;
     float       joystickPositionY;
-    message_info jstkInfo;
-    message_info s2dInfo;
-    pilot_data*    pilotData = NULL;
+    RackMessage jstkMsg;
+    RackMessage s2dMsg;
+    pilot_data* pilotData = NULL;
     // get all joystick messages
 
-    jstkInfo.type = 0;
+    jstkMsg.clear();
     do
     {
         ret = joystickMbx.recvDataMsgIf(&jstkData, sizeof(joystick_data),
-                                        &jstkInfo);
+                                        &jstkMsg);
         if (ret && ret != -EWOULDBLOCK) // error
             return ret;
     }
@@ -239,12 +228,12 @@ int  PilotJoystick::moduleLoop(void)
 
     // newest message received and mailbox is empty
 
-    if ((jstkInfo.src  == RackName::create(joystickSys, JOYSTICK, joystickInst)) &&
-        (jstkInfo.type == MSG_DATA))
+    if ((jstkMsg.getSrc()  == RackName::create(joystickSys, JOYSTICK, joystickInst)) &&
+        (jstkMsg.getType() == MSG_DATA))
     {
         // joystick data message received
 
-        JoystickData::parse(&jstkInfo);
+        JoystickData::parse(&jstkMsg);
 
         if (joystickExpX <= 0.0f)
         {
@@ -309,8 +298,8 @@ int  PilotJoystick::moduleLoop(void)
         }
     }
 
-    if ((jstkInfo.src  == RackName::create(joystickSys, JOYSTICK, joystickInst)) &&
-        (jstkInfo.type == MSG_ERROR))
+    if ((jstkMsg.getSrc()  == RackName::create(joystickSys, JOYSTICK, joystickInst)) &&
+        (jstkMsg.getType() == MSG_ERROR))
     {
         GDOS_ERROR("Joystick(%i/%i) reported ERROR\n", joystickSys, joystickInst);
         return -EFAULT;
@@ -318,11 +307,11 @@ int  PilotJoystick::moduleLoop(void)
 
     if (scan2dInst >= 0) // scan2d is not used if id is -1
     {
-        s2dInfo.type = 0;
+        s2dMsg.clear();
         do
         {
             ret = scan2dMbx.recvDataMsgIf(&scan2dMsg.data,
-                                          sizeof(scan2d_data_msg), &s2dInfo);
+                                          sizeof(scan2d_data_msg), &s2dMsg);
             if (ret && ret != -EWOULDBLOCK) // error
                 return ret;
         }
@@ -330,11 +319,11 @@ int  PilotJoystick::moduleLoop(void)
 
         // joystick data message received
 
-        if ((s2dInfo.src  == RackName::create(scan2dSys, SCAN2D, scan2dInst)) &&
-            (s2dInfo.type == MSG_DATA))
+        if ((s2dMsg.getSrc()  == RackName::create(scan2dSys, SCAN2D, scan2dInst)) &&
+            (s2dMsg.getType() == MSG_DATA))
         {
             scan2dDataMissing = 0;
-            Scan2dData::parse(&s2dInfo);
+            Scan2dData::parse(&s2dMsg);
         }
         else
         {
@@ -347,8 +336,8 @@ int  PilotJoystick::moduleLoop(void)
             }
         }
 
-        if ((s2dInfo.src  == RackName::create(scan2dSys, SCAN2D, scan2dInst)) &&
-            (s2dInfo.type == MSG_ERROR))
+        if ((s2dMsg.getSrc()  == RackName::create(scan2dSys, SCAN2D, scan2dInst)) &&
+            (s2dMsg.getType() == MSG_ERROR))
         {
             GDOS_ERROR("Scan2D(%i/%i) reported ERROR\n", scan2dSys, scan2dInst);
             return -EFAULT;
@@ -504,9 +493,9 @@ int  PilotJoystick::moduleLoop(void)
     return 0;
 }
 
-int  PilotJoystick::moduleCommand(message_info *msgInfo)
+int  PilotJoystick::moduleCommand(RackMessage *msgInfo)
 {
-    switch(msgInfo->type)
+    switch(msgInfo->getType())
     {
         case MSG_PILOT_SET_DESTINATION:  // not supported by this module
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
@@ -530,6 +519,15 @@ int  PilotJoystick::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_JOYSTICK       1
+#define INIT_BIT_MBX_SCAN2D         2
+#define INIT_BIT_MBX_WORK           3
+#define INIT_BIT_PROXY_JOYSTICK     4
+#define INIT_BIT_PROXY_SCAN2D       5
+#define INIT_BIT_PROXY_CHASSIS      6
 
 int  PilotJoystick::moduleInit(void)
 {
@@ -693,6 +691,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    PilotJoystick *p_inst;
 
     // create new PilotJoystick
     p_inst = new PilotJoystick();

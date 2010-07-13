@@ -78,7 +78,7 @@ rack_time_t RackDataModule::getRecordingTime(void *p_data)
 
 // realtime context (cmdTask)
 int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNextData, uint32_t destMbxAdr,
-                                    message_info* msgInfo)
+                                    RackMessage* msgInfo)
 {
     unsigned int i, idx;
 
@@ -89,7 +89,7 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNext
     // check if listener is in table yet
     for (i = 0; i < listenerNum; i++)
     {
-        if (destMbxAdr == listener[i].msgInfo.src) // in table
+        if (destMbxAdr == listener[i].msgInfo.getSrc()) // in table
         {
             GDOS_WARNING("Listener %n (datambx: %x) is already in list\n",
                          destMbxAdr, destMbxAdr);
@@ -110,8 +110,8 @@ int         RackDataModule::addListener(rack_time_t periodTime, uint32_t getNext
             return -EBUSY;
         }
 
-        memcpy(&listener[idx].msgInfo, msgInfo, sizeof(message_info));
-        listener[idx].msgInfo.src = destMbxAdr;
+        memcpy(&listener[idx].msgInfo, msgInfo, sizeof(RackMessage));
+        listener[idx].msgInfo.getHead()->src = destMbxAdr;
         listenerNum++;
     }
 
@@ -154,7 +154,7 @@ void        RackDataModule::removeListener(uint32_t destMbxAdr)
 
     for(; read < listenerNum; read++)
     {
-        if (listener[read].msgInfo.src != destMbxAdr)
+        if (listener[read].msgInfo.getSrc() != destMbxAdr)
         {
             if (read != write)
             {
@@ -174,7 +174,7 @@ void        RackDataModule::removeAllListener(void)
 
     for (i = 0; i < listenerNum; i++)
     {
-        GDOS_DBG_INFO("Remove listener %n (datambx: %x)\n", listener[i].msgInfo.src, listener[i].msgInfo.src);
+        GDOS_DBG_INFO("Remove listener %n (datambx: %x)\n", listener[i].msgInfo.getSrc(), listener[i].msgInfo.getSrc());
         dataBufferSendMbx->sendMsgReply(MSG_ERROR, &listener[i].msgInfo);
     }
 
@@ -189,7 +189,7 @@ rack_time_t   RackDataModule::getListenerPeriodTime(uint32_t dataMbx)
 
     for (i=0; i<listenerNum; i++)
     {
-        if (listener[i].msgInfo.src == dataMbx)
+        if (listener[i].msgInfo.getSrc() == dataMbx)
         {
             listenerMtx.unlock();
             return listener[i].reduction * dataBufferPeriodTime;
@@ -287,7 +287,7 @@ int         RackDataModule::getDataBufferIndex(rack_time_t time)
     return new_index;
 }
 
-int         RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
+int         RackDataModule::sendDataReply(rack_time_t time, RackMessage *msgInfo)
 {
     int index, ret;
 
@@ -369,7 +369,7 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
         {
 /*
             GDOS_ERROR("Sending continuous data to listener[%d] %n, listenernum: %d, "
-                       "reduction %d\n", i, listener[i].msgInfo.src,
+                       "reduction %d\n", i, listener[i].msgInfo.getSrc(),
                        listenerNum, listener[i].reduction);
 */
             ret = dataBufferSendMbx->sendDataMsgReply(MSG_DATA,
@@ -381,17 +381,17 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
             {
                 GDOS_ERROR("DataBuffer: Can't send continuous data "
                            "to listener %n, code = %d\n",
-                           listener[i].msgInfo.src, ret);
+                           listener[i].msgInfo.getSrc(), ret);
 
-                removeListener(listener[i].msgInfo.src);
+                removeListener(listener[i].msgInfo.getSrc());
             }
             else if (listener[i].getNextData)
             {
 /*
                 GDOS_DBG_DETAIL("DataBuffer: Remove nextData listener %n time %i\n",
-                                listener[i].msgInfo.src, rackTime.get());
+                                listener[i].msgInfo.getSrc(), rackTime.get());
 */
-                removeListener(listener[i].msgInfo.src);
+                removeListener(listener[i].msgInfo.getSrc());
             }
         }
     }
@@ -419,7 +419,7 @@ int         RackDataModule::moduleInit(void)
     dataModuleInitBits.setBit(INIT_BIT_RACK_MODULE);
 
     // now the command mailbox exists
-    dataBufferSendMbx = getCmdMbx();
+    dataBufferSendMbx = &cmdMbx;
 
     GDOS_DBG_DETAIL("RackDataModule::moduleInit ... \n");
 
@@ -593,11 +593,11 @@ void        RackDataModule::moduleOff(void)
 }
 
 // realtime context (cmdTask)
-int         RackDataModule::moduleCommand(message_info *msgInfo)
+int         RackDataModule::moduleCommand(RackMessage *msgInfo)
 {
     int ret = 0;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
 
         case MSG_GET_DATA:
@@ -640,8 +640,8 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
 
             GDOS_DBG_DETAIL("CmdTask: GET_CONT_DATA: %n -> %n,type: %d, Prio: %d, "
                             " seq: %d, len: %d, dataMbx: %x, periodTime: %d\n",
-                            msgInfo->src, msgInfo->dest, msgInfo->type,
-                            msgInfo->priority, msgInfo->seq_nr,
+                            msgInfo->getSrc(), msgInfo->getDest(), msgInfo->getType(),
+                            msgInfo->getPriority(), msgInfo->getSeqNr(),
                             msgInfo->datalen, p_data->dataMbxAdr,
                             p_data->periodTime);
 
@@ -691,7 +691,7 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
             rack_stop_cont_data *p_data = RackStopContData::parse(msgInfo);
 
             GDOS_DBG_DETAIL("CmdTask: STOP_CONT_DATA: from %n, to %n, dataMbx: %x\n",
-                            msgInfo->src, msgInfo->dest, p_data->dataMbxAdr);
+                            msgInfo->getSrc(), msgInfo->getDest(), p_data->dataMbxAdr);
 
             listenerMtx.lock(RACK_INFINITE);
 
@@ -715,7 +715,7 @@ int         RackDataModule::moduleCommand(message_info *msgInfo)
 
             if (status == MODULE_STATE_ENABLED)
             {
-                ret = addListener(0, 1, msgInfo->src, msgInfo);
+                ret = addListener(0, 1, msgInfo->getSrc(), msgInfo);
                 if (ret)
                 {
                     ret = cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);

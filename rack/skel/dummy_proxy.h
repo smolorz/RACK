@@ -67,7 +67,7 @@ ACCESS: msg.data.value[...] OR msg.value[...];
 // long long    -> int64_t
 // ...
 
-typedef struct {
+typedef struct dummy_data_s {
     rack_time_t recordingTime; // has to be first element
     float       valA;
     uint32_t    valB;
@@ -80,53 +80,29 @@ typedef struct {
 class DummyData
 {
     public:
-        static void le_to_cpu(dummy_data *data)
-        {
-            int i;
-
-            data->recordingTime = __le32_to_cpu(data->recordingTime);
-            data->valA          = __le32_float_to_cpu(data->valA);
-            data->valB          = __le32_to_cpu(data->valB);
-            data->valueNum      = __le32_to_cpu(data->valueNum);
-            for (i = 0; i < data->valueNum; i++)
-            {
-                data->value[i] = __le32_to_cpu(data->value[i]);
-            }
-        }
-
-        static void be_to_cpu(dummy_data *data)
-        {
-            int i;
-
-            data->recordingTime = __be32_to_cpu(data->recordingTime);
-            data->valA          = __be32_float_to_cpu(data->valA);
-            data->valB          = __be32_to_cpu(data->valB);
-            data->valueNum      = __be32_to_cpu(data->valueNum);
-            for (i = 0; i < data->valueNum; i++)
-            {
-                data->value[i] = __be32_to_cpu(data->value[i]);
-            }
-        }
-
-        static dummy_data *parse(message_info *msgInfo)
+        static dummy_data *parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             dummy_data *pData = (dummy_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            int i;
+
+            pData->recordingTime = msgInfo->data32ToCpu(pData->recordingTime);
+            pData->valA          = msgInfo->data32FloatToCpu(pData->valA);
+            pData->valB          = msgInfo->data32ToCpu(pData->valB);
+            pData->valueNum      = msgInfo->data32ToCpu(pData->valueNum);
+
+            for (i = 0; i < pData->valueNum; i++)
             {
-                le_to_cpu(pData);
+                pData->value[i] = msgInfo->data32ToCpu(pData->value[i]);
             }
-            else // data in big endian
-            {
-                be_to_cpu(pData);
-            }
-            setDataByteorder(msgInfo);
+
+            msgInfo->setDataByteorder();
+
             return pData;
         }
-
 };
 
 //######################################################################
@@ -137,7 +113,8 @@ class DummyData
 // -> DUMMY_SEND_DATA_CMD
 // -> DUMMY_SEND_RECV_DATA_CMD
 
-typedef struct {
+typedef struct dummy_param_s
+{
     float   valX;
     int32_t valY;
 } __attribute__((packed)) dummy_param;
@@ -145,37 +122,20 @@ typedef struct {
 class DummyParam
 {
     public:
-        static void le_to_cpu(dummy_param *data)
-        {
-            data->valX = __le32_float_to_cpu(data->valX);
-            data->valY = __le32_to_cpu(data->valY);
-        }
-
-        static void be_to_cpu(dummy_param *data)
-        {
-            data->valX = __be32_float_to_cpu(data->valX);
-            data->valY = __be32_to_cpu(data->valY);
-        }
-
-        static dummy_param *parse(message_info *msgInfo)
+        static dummy_param *parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             dummy_param *pData = (dummy_param *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
-            {
-                le_to_cpu(pData);
-            }
-            else // data in big endian
-            {
-                be_to_cpu(pData);
-            }
-            setDataByteorder(msgInfo);
+            pData->valX = msgInfo->data32FloatToCpu(pData->valX);
+            pData->valY = msgInfo->data32ToCpu(pData->valY);
+
+            msgInfo->setDataByteorder();
+
             return pData;
         }
-
 };
 
 //######################################################################

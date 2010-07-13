@@ -60,14 +60,14 @@ class OdometryData
             Position3D::be_to_cpu(&data->pos);
         }
 
-        static odometry_data* parse(message_info *msgInfo)
+        static odometry_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             odometry_data *p_data = (odometry_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -75,7 +75,7 @@ class OdometryData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };

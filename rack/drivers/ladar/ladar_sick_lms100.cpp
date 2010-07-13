@@ -19,17 +19,12 @@
 
 #include "ladar_sick_lms100.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-
 #define START_MEAS                          "\02sRN LMDscandata\03"
 #define LADAR_MAX_RANGE                      20000
 
 //
 // data structures
 //
-
-LadarSickLms100 *p_inst;
 
 argTable_t argTab[] = {
 
@@ -299,9 +294,9 @@ int LadarSickLms100::Recvfail (int ret, int error)
 }
 
 
-int  LadarSickLms100::moduleCommand(message_info *msgInfo)
+int  LadarSickLms100::moduleCommand(RackMessage *msgInfo)
 {
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
         default:
             // not for me -> ask RackDataModule
@@ -366,6 +361,9 @@ int LadarSickLms100::hextodec (char tmpbuff[], int n)
  *   own non realtime user functions
  ******************************************************************************/
 
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+
 int  LadarSickLms100::moduleInit(void)
 {
     int ret;
@@ -428,6 +426,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    LadarSickLms100 *p_inst;
 
     // create new LadarSickLms100
     p_inst = new LadarSickLms100();

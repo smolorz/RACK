@@ -76,14 +76,14 @@ class RackGetData
             data->recordingTime = __be32_to_cpu(data->recordingTime);
         }
 
-        static rack_get_data* parse(message_info *msgInfo)
+        static rack_get_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             rack_get_data *p_data = (rack_get_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -91,7 +91,7 @@ class RackGetData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 
@@ -122,14 +122,14 @@ class RackGetContData
             data->dataMbxAdr = __be32_to_cpu(data->dataMbxAdr);
         }
 
-        static rack_get_cont_data* parse(message_info *msgInfo)
+        static rack_get_cont_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             rack_get_cont_data *p_data = (rack_get_cont_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -137,7 +137,7 @@ class RackGetContData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 
@@ -165,14 +165,14 @@ class RackContData
             data->periodTime = __be32_to_cpu(data->periodTime);
         }
 
-        static rack_cont_data* parse(message_info *msgInfo)
+        static rack_cont_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             rack_cont_data *p_data = (rack_cont_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -180,7 +180,7 @@ class RackContData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 
@@ -208,14 +208,14 @@ class RackStopContData
             data->dataMbxAdr = __be32_to_cpu(data->dataMbxAdr);
         }
 
-        static rack_stop_cont_data* parse(message_info *msgInfo)
+        static rack_stop_cont_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             rack_stop_cont_data *p_data = (rack_stop_cont_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -223,7 +223,7 @@ class RackStopContData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 
@@ -297,14 +297,14 @@ class RackParamMsg
             }
         }
 
-        static rack_param_msg* parse(message_info *msgInfo)
+        static rack_param_msg* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             rack_param_msg *p_data = (rack_param_msg *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -312,7 +312,7 @@ class RackParamMsg
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };
@@ -335,7 +335,7 @@ class RackProxy {
     uint32_t        destMbxAdr;
 
     // only for debugging:
-    GdosMailbox*    gdos;
+    RackGdos        *gdos;
 
 //
 // constructor and destructor
@@ -354,11 +354,11 @@ class RackProxy {
                         uint64_t timeout);
     int proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
                          void *recv_data, size_t recv_datalen, uint64_t timeout,
-                         message_info *p_msginfo);
+                         RackMessage *p_msginfo);
     int proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
                              size_t send_datalen, const int8_t recv_msgtype,
                              void *recv_data, size_t recv_datalen,
-                             uint64_t timeout, message_info *p_msginfo);
+                             uint64_t timeout, RackMessage *p_msginfo);
 
   public:
 
@@ -474,14 +474,14 @@ class RackDataProxy : public RackProxy {
 //
 
     int getData(void *recv_data, ssize_t recv_max_len, rack_time_t timeStamp,
-                uint64_t reply_timeout_ns, message_info *p_msginfo);
+                uint64_t reply_timeout_ns, RackMessage *p_msginfo);
 
 //
 // get next data
 //
 
     int getNextData(void *recv_data, ssize_t recv_max_len,
-                    uint64_t reply_timeout_ns, message_info *p_msginfo);
+                    uint64_t reply_timeout_ns, RackMessage *p_msginfo);
 
     public:
 

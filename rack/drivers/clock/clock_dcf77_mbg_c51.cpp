@@ -17,17 +17,9 @@
 
 #include "clock_dcf77_mbg_c51.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_SERIALPORT_OPEN            1
-#define INIT_BIT_MBX_WORK                   2
-#define INIT_BIT_PROXY_POSITION             3
-
 //
 // data structures
 //
-
-ClockDcf77MbgC51 *p_inst;
 
 argTable_t argTab[] = {
 
@@ -147,7 +139,7 @@ int ClockDcf77MbgC51::moduleLoop(void)
     return 0;
 }
 
-int ClockDcf77MbgC51::moduleCommand(message_info *msgInfo)
+int ClockDcf77MbgC51::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -343,6 +335,13 @@ int ClockDcf77MbgC51::analyseSerialMessage(clock_serial_data *serialData, clock_
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_SERIALPORT_OPEN            1
+#define INIT_BIT_MBX_WORK                   2
+#define INIT_BIT_PROXY_POSITION             3
+
 int ClockDcf77MbgC51::moduleInit(void)
 {
     int ret;
@@ -432,6 +431,9 @@ int main(int argc, char *argv[])
     }
 
     // create new ClockDcf77MbgC51
+
+    ClockDcf77MbgC51 *p_inst;
+
     p_inst = new ClockDcf77MbgC51();
     if (!p_inst)
     {

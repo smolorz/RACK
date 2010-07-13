@@ -16,19 +16,9 @@
 #include "position.h"
 #include <main/angle_tool.h>
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE            0
-#define INIT_BIT_MBX_ODOMETRY           1
-#define INIT_BIT_MBX_WORK               2
-#define INIT_BIT_PROXY_ODOMETRY         3
-#define INIT_BIT_MTX_CREATED            4
-#define INIT_BIT_PT_CREATED             5
-
 //
 // data structures
 //
-
-Position *p_inst;
 
 argTable_t argTab[] = {
 
@@ -177,7 +167,7 @@ int  Position::moduleLoop(void)
     int             ret;
     position_data*  pPosition;
     odometry_data   odometryData;
-    message_info    msgInfo;
+    RackMessage    msgInfo;
     double          interpolFactor;
 
     pPosition = (position_data *)getDataBufferWorkSpace();
@@ -191,8 +181,8 @@ int  Position::moduleLoop(void)
         return ret;
     }
 
-    if (msgInfo.type == MSG_DATA &&
-        msgInfo.src  == odometry->getDestAdr())
+    if (msgInfo.getType() == MSG_DATA &&
+        msgInfo.getSrc()  == odometry->getDestAdr())
     {
         OdometryData::parse(&msgInfo);
 
@@ -266,9 +256,9 @@ int  Position::moduleLoop(void)
     else
     {
         GDOS_ERROR("Received unexpected message from %n to %n, type %d\n",
-                   msgInfo.src, msgInfo.dest, msgInfo.type);
+                   msgInfo.getSrc(), msgInfo.getDest(), msgInfo.getType());
 
-        if (msgInfo.type > 0)
+        if (msgInfo.getType() > 0)
         {
             odometryMbx.sendMsgReply(MSG_ERROR, &msgInfo);
         }
@@ -277,7 +267,7 @@ int  Position::moduleLoop(void)
     return 0;
 }
 
-int  Position::moduleCommand(message_info *msgInfo)
+int  Position::moduleCommand(RackMessage *msgInfo)
 {
     position_data       *pUpdate;
     position_3d         posOldRefI;
@@ -293,7 +283,7 @@ int  Position::moduleCommand(message_info *msgInfo)
     position_gk_data    posGkData;
     int                 ret;
 
-    switch(msgInfo->type)
+    switch(msgInfo->getType())
     {
         case MSG_POSITION_UPDATE:
             pUpdate = PositionData::parse(msgInfo);
@@ -693,6 +683,14 @@ void    Position::getPosition(position_3d* odo, position_3d* pos)
  *   own non realtime user functions
  ******************************************************************************/
 
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE            0
+#define INIT_BIT_MBX_ODOMETRY           1
+#define INIT_BIT_MBX_WORK               2
+#define INIT_BIT_PROXY_ODOMETRY         3
+#define INIT_BIT_MTX_CREATED            4
+#define INIT_BIT_PT_CREATED             5
+
 int  Position::moduleInit(void)
 {
     int ret;
@@ -740,7 +738,7 @@ int  Position::moduleInit(void)
     initBits.setBit(INIT_BIT_MTX_CREATED);
 
     // init positionTool
-    positionTool = new PositionTool(getCmdMbx(), gdosLevel);
+    positionTool = new PositionTool(&cmdMbx, gdosLevel);
     if (!positionTool)
     {
         goto init_error;
@@ -829,8 +827,9 @@ int  main(int argc, char *argv[])
         return ret;
       }
 
-      // create new Position
+      Position *p_inst;
 
+      // create new Position
       p_inst = new Position();
       if (!p_inst)
       {

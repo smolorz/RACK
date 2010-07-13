@@ -19,18 +19,9 @@
 
 #include "ladar_ibeo_lux.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_MBX_WORK                   1
-#define INIT_BIT_PROXY_OBJ_RECOG_BOUND      2
-#define INIT_BIT_PROXY_OBJ_RECOG_CONTOUR    3
-
-
 //
 // data structures
 //
-
-LadarIbeoLux *p_inst;
 
 argTable_t argTab[] = {
 
@@ -581,7 +572,7 @@ int  LadarIbeoLux::moduleLoop(void)
     return 0;
 }
 
-int  LadarIbeoLux::moduleCommand(message_info *p_msginfo)
+int  LadarIbeoLux::moduleCommand(RackMessage *p_msginfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(p_msginfo);
@@ -734,6 +725,13 @@ int LadarIbeoLux::recvLadarData(void *data, unsigned int messageSize)
  *
  *   own non realtime user functions
  ****************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_MBX_WORK                   1
+#define INIT_BIT_PROXY_OBJ_RECOG_BOUND      2
+#define INIT_BIT_PROXY_OBJ_RECOG_CONTOUR    3
+
 int LadarIbeoLux::moduleInit(void)
 {
     int ret;
@@ -853,7 +851,9 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    // create new NewRackDataModule
+    LadarIbeoLux *p_inst;
+
+    // create new LadarIbeoLux
     p_inst = new LadarIbeoLux();
     if (!p_inst)
     {

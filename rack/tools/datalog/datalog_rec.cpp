@@ -21,7 +21,6 @@
 //
 // data structures
 //
-DatalogRec *p_inst;
 
 argTable_t argTab[] = {
 
@@ -42,6 +41,9 @@ int  main(int argc, char *argv[])
     }
 
     // create new DatalogRec
+
+    DatalogRec *p_inst;
+
     p_inst = new DatalogRec();
     if (!p_inst)
     {

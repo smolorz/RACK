@@ -28,11 +28,6 @@
 // include own header file
 #include "ladar_ibeo.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_CAN_OPEN                   1
-
-
 #define PROFILEFORMAT_PROFILESENT  (1 << 0)
 #define PROFILEFORMAT_PROFILECOUNT (1 << 1)
 #define PROFILEFORMAT_LAYERNUM     (1 << 2)
@@ -49,8 +44,6 @@
 #define IDLE_MODE    0x1
 #define ROTATE_MODE  0x2
 #define MEASURE_MODE 0x3
-
-LadarIbeo *p_inst;
 
 //
 // data structures
@@ -316,7 +309,7 @@ int  LadarIbeo::moduleLoop(void)
         return 0;
 }
 
-int  LadarIbeo::moduleCommand(message_info *p_msginfo)
+int  LadarIbeo::moduleCommand(RackMessage *p_msginfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(p_msginfo);
@@ -789,6 +782,10 @@ int LadarIbeo::byteorder_read_be_u16(void* u16)
  *   own non realtime user functions
  ****************************************************************************/
 
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_CAN_OPEN                   1
+
 int LadarIbeo::moduleInit(void)
 {
     int ret;
@@ -901,7 +898,9 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    // create new NewRackDataModule
+    LadarIbeo *p_inst;
+
+    // create new LadarIbeo
     p_inst = new LadarIbeo();
     if (!p_inst)
     {

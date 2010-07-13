@@ -18,17 +18,9 @@
 #include "odometry_chassis.h"
 #include <main/angle_tool.h>
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE            0
-#define INIT_BIT_MBX_CHASSIS            1
-#define INIT_BIT_MBX_WORK               2
-#define INIT_BIT_PROXY_CHASSIS          3
-
 //
 // data structures
 //
-
-OdometryChassis *p_inst;
 
 argTable_t argTab[] = {
 
@@ -89,7 +81,7 @@ void OdometryChassis::moduleOff(void)
 int  OdometryChassis::moduleLoop(void)
 {
     int             ret;
-    message_info    info;
+    RackMessage     info;
     odometry_data*  p_odo;
     float           positionX, positionY, positionRho;
     float           sinOldRho, cosOldRho;
@@ -106,7 +98,7 @@ int  OdometryChassis::moduleLoop(void)
     }
 
     // check data
-    if (info.type != MSG_DATA)
+    if (info.getType() != MSG_DATA)
     {
         GDOS_ERROR("Message is no data message\n");
         return -EINVAL;
@@ -148,9 +140,9 @@ int  OdometryChassis::moduleLoop(void)
     return 0;
 }
 
-int  OdometryChassis::moduleCommand(message_info *msgInfo)
+int  OdometryChassis::moduleCommand(RackMessage *msgInfo)
 {
-    switch(msgInfo->type)
+    switch(msgInfo->getType())
     {
         case MSG_ODOMETRY_RESET:
             oldPositionX    = 0.0;
@@ -168,7 +160,7 @@ int  OdometryChassis::moduleCommand(message_info *msgInfo)
 }
 
 // getData with interpolation
-int  RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
+int  RackDataModule::sendDataReply(rack_time_t time, RackMessage *msgInfo)
 {
     int i, ret;
     odometry_data *odometryA, *odometryB, odometry;
@@ -269,6 +261,12 @@ int  RackDataModule::sendDataReply(rack_time_t time, message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE            0
+#define INIT_BIT_MBX_CHASSIS            1
+#define INIT_BIT_MBX_WORK               2
+#define INIT_BIT_PROXY_CHASSIS          3
 
 int  OdometryChassis::moduleInit(void)
 {
@@ -372,6 +370,8 @@ int  main(int argc, char *argv[])
       }
 
       // create new OdometryChassis
+
+      OdometryChassis *p_inst;
 
       p_inst = new OdometryChassis();
       if (!p_inst)

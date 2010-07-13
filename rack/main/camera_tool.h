@@ -27,7 +27,8 @@ class CameraTool {
   private:
 
     // only for debugging:
-    GdosMailbox    *gdos;
+    RackGdos        *gdos;
+
     int32_t         colorLookuptableThermalRed12[4096];
 
   public:

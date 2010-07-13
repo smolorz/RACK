@@ -19,12 +19,6 @@
 // include own header file
 #include "ladar_hokuyo_urg.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_SERIALPORT_OPEN            1
-
-LadarHokuyoUrg *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -241,7 +235,7 @@ int  LadarHokuyoUrg::moduleLoop(void)
     return 0;
 }
 
-int  LadarHokuyoUrg::moduleCommand(message_info *msgInfo)
+int  LadarHokuyoUrg::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -258,6 +252,10 @@ int  LadarHokuyoUrg::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_SERIALPORT_OPEN            1
 
 int  LadarHokuyoUrg::moduleInit(void)
 {
@@ -332,8 +330,9 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    // create new LadarHokuyoUrg
+    LadarHokuyoUrg *p_inst;
 
+    // create new LadarHokuyoUrg
     p_inst = new LadarHokuyoUrg();
     if (!p_inst)
     {

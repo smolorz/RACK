@@ -78,7 +78,7 @@ class CameraV4L : public RackDataModule {
     int  moduleOn(void);
     void moduleOff(void);
     int  moduleLoop(void);
-    int  moduleCommand(message_info *msgInfo);
+    int  moduleCommand(RackMessage *msgInfo);
 
     // -> non realtime context
     void moduleCleanup(void);

@@ -15,24 +15,9 @@
  */
 #include "scan2d_sim.h"
 
-#include <main/argopts.h>
-
-// init_flags
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_WORK           1
-#define INIT_BIT_MBX_ODOMETRY       2
-#define INIT_BIT_PROXY_ODOMETRY     3
-
-typedef struct {
-      scan2d_data     data;
-      scan_point      point[SCAN2D_POINT_MAX];
-} __attribute__((packed)) scan2d_msg;
-
 //
 // data structures
 //
-
-Scan2dSim *p_inst;
 
 argTable_t argTab[] = {
 
@@ -62,6 +47,11 @@ argTable_t argTab[] = {
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
+
+typedef struct {
+      scan2d_data     data;
+      scan_point      point[SCAN2D_POINT_MAX];
+} __attribute__((packed)) scan2d_msg;
 
 /*******************************************************************************
  *   !!! REALTIME CONTEXT !!!
@@ -128,7 +118,7 @@ int  Scan2dSim::moduleLoop(void)
 {
     scan2d_data*    data2D       = NULL;
     odometry_data*  dataOdometry = NULL;
-    message_info    msgInfo;
+    RackMessage    msgInfo;
     double          angle, angleResolution, distance;
     double          cosRho, sinRho, featureDistance, a;
     double          x1, x2, x3, x4, y1, y2, y3, y4, denominator;
@@ -147,11 +137,11 @@ int  Scan2dSim::moduleLoop(void)
         return ret;
     }
 
-    if ((msgInfo.type != MSG_DATA) ||
-        (msgInfo.src  != odometry->getDestAdr()))
+    if ((msgInfo.getType() != MSG_DATA) ||
+        (msgInfo.getSrc()  != odometry->getDestAdr()))
     {
         GDOS_ERROR("Received unexpected message from %n to %n type %d on "
-                   "data mailbox\n", msgInfo.src, msgInfo.dest, msgInfo.type);
+                   "data mailbox\n", msgInfo.getSrc(), msgInfo.getDest(), msgInfo.getType());
 
         return -EINVAL;
     }
@@ -245,7 +235,7 @@ int  Scan2dSim::moduleLoop(void)
     return 0;
 }
 
-int  Scan2dSim::moduleCommand(message_info *msgInfo)
+int  Scan2dSim::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -262,6 +252,12 @@ int  Scan2dSim::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_WORK           1
+#define INIT_BIT_MBX_ODOMETRY       2
+#define INIT_BIT_PROXY_ODOMETRY     3
 
 int Scan2dSim::moduleInit(void)
 {
@@ -363,6 +359,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    Scan2dSim *p_inst;
 
     // create new Scan2DSim
     p_inst = new Scan2dSim();

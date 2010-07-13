@@ -15,24 +15,14 @@
 
 #include "pilot_wall_following.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_SCAN2D         1
-#define INIT_BIT_MBX_WORK           2
-#define INIT_BIT_PROXY_SCAN2D       3
-#define INIT_BIT_PROXY_POSITION     4
-#define INIT_BIT_PROXY_CHASSIS      5
-
 // define globalState
 #define STATE_RUNNING               0
 #define STATE_OBST                  1
 #define STATE_OBST_UNAVOIDABLE      2
 
-
+//
 // data structures
 //
-
-PilotWallFollowing *p_inst;
 
 argTable_t argTab[] = {
 
@@ -188,7 +178,7 @@ int  PilotWallFollowing::moduleLoop(void)
 {
     int          speed = 0;
     int          ret;
-    message_info msgInfo;
+    RackMessage msgInfo;
     scan2d_data  *pS2dData = NULL;
     pilot_data*  pilotData = NULL;
 
@@ -207,8 +197,8 @@ int  PilotWallFollowing::moduleLoop(void)
     }
 
     //scan2d data received
-    if (msgInfo.type == MSG_DATA &&
-        msgInfo.src  == scan2d->getDestAdr())
+    if (msgInfo.getType() == MSG_DATA &&
+        msgInfo.getSrc()  == scan2d->getDestAdr())
     {
         // message parsing
         pS2dData = Scan2dData::parse(&msgInfo);
@@ -303,7 +293,7 @@ int  PilotWallFollowing::moduleLoop(void)
     return 0;
 }
 
-int  PilotWallFollowing::moduleCommand(message_info *msgInfo)
+int  PilotWallFollowing::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -1789,6 +1779,14 @@ int  PilotWallFollowing::modeWallFollowingBraitenberger(int* state)
  *   own non realtime user functions
  ******************************************************************************/
 
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_SCAN2D         1
+#define INIT_BIT_MBX_WORK           2
+#define INIT_BIT_PROXY_SCAN2D       3
+#define INIT_BIT_PROXY_POSITION     4
+#define INIT_BIT_PROXY_CHASSIS      5
+
 int  PilotWallFollowing::moduleInit(void)
 {
     int ret;
@@ -1938,6 +1936,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    PilotWallFollowing *p_inst;
 
     // create new PilotWallFollowing
     p_inst = new PilotWallFollowing();

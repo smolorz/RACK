@@ -47,7 +47,7 @@ class LadarSickS : public RackDataModule {
         int      moduleOn(void);
         void     moduleOff(void);
         int      moduleLoop(void);
-        int      moduleCommand(message_info *p_msginfo);
+        int      moduleCommand(RackMessage *p_msginfo);
 
         // -> non realtime context
         void     moduleCleanup(void);

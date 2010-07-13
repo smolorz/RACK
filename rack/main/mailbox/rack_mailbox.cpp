@@ -16,34 +16,11 @@
  */
 
 #include <stdarg.h>
-#include <string.h> // memset
 
 #include <main/rack_mailbox.h>
 
 // init bits
 #define     INIT_BIT_TIMS_MBX_CREATED       0
-
-//
-// internal functions
-//
-
-void RackMailbox::fillMessageRecvInfo(message_info *msgInfo, void *p_data)
-{
-    msgInfo->p_data    = p_data;
-    msgInfo->datalen  -= TIMS_HEADLEN;
-}
-
-void RackMailbox::fillMessagePeekInfo(message_info *msgInfo, tims_msg_head* p_peek_head)
-{
-    msgInfo->flags    = p_peek_head->flags;
-    msgInfo->type     = p_peek_head->type;
-    msgInfo->priority = p_peek_head->priority;
-    msgInfo->seq_nr   = p_peek_head->seq_nr;
-    msgInfo->dest     = p_peek_head->dest;
-    msgInfo->src      = p_peek_head->src;
-    msgInfo->datalen  = p_peek_head->msglen - TIMS_HEADLEN;
-    msgInfo->p_data   = &p_peek_head->data;
-}
 
  /*!
  * @ingroup mailbox
@@ -252,14 +229,14 @@ int RackMailbox::sendMsg(int8_t type, uint32_t dest, uint8_t seqNr)
  *
  * Rescheduling: possible
  */
-int RackMailbox::sendMsgReply(int8_t type, message_info* msgInfo)
+int RackMailbox::sendMsgReply(int8_t type, RackMessage* msgInfo)
 {
     tims_msg_head head;
     int ret;
 
     sendMtx.lock();
 
-    tims_fill_head(&head, type, msgInfo->src, addr, msgInfo->priority, msgInfo->seq_nr, 0, TIMS_HEADLEN);
+    tims_fill_head(&head, type, msgInfo->getSrc(), addr, msgInfo->getPriority(), msgInfo->getSeqNr(), 0, TIMS_HEADLEN);
 
     ret = tims_sendmsg(fd, &head, NULL, 0, 0);
 
@@ -425,7 +402,7 @@ int RackMailbox::sendDataMsg(tims_msg_head *p_head, int dataPointers, void* data
  *
  * Rescheduling: possible
  */
-int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
+int RackMailbox::sendDataMsgReply(int8_t type, RackMessage* msgInfo,
                                   int dataPointers, void* data1, uint32_t datalen1, ...)
 {
     int             i = 1;
@@ -452,7 +429,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
     }
     va_end(ap);
 
-    tims_fill_head(&head, type, msgInfo->src, addr, msgInfo->priority, msgInfo->seq_nr, 0, msglen);
+    tims_fill_head(&head, type, msgInfo->getSrc(), addr, msgInfo->getPriority(), msgInfo->getSeqNr(), 0, msglen);
 
     ret = tims_sendmsg(fd, &head, iov, dataPointers, 0);
 
@@ -492,7 +469,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
  * The @a peek() function can be called once a time. The next @a peek() call
  * have to occur after the mailbox is unlocked again.
  *
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -504,7 +481,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
  *
  * Rescheduling: possible
  */
- int RackMailbox::peek(message_info *msgInfo)
+ int RackMailbox::peek(RackMessage *msgInfo)
 {
     tims_msg_head *p_peek_head;
     int ret;
@@ -519,7 +496,10 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
         return ret;
     }
 
-    fillMessagePeekInfo(msgInfo, p_peek_head);
+    memcpy(msgInfo->getHead(), p_peek_head, sizeof(tims_msg_head));
+    msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
+    msgInfo->p_data = msgInfo->getHead()->data;
+
     return 0;
 }
 
@@ -544,7 +524,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
  * have to occur after the mailbox is unlocked again.
  *
  * @param timeout_ns Receive timeout in nanoceconds
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -556,7 +536,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, message_info* msgInfo,
  *
  * Rescheduling: possible
  */
-int RackMailbox::peekTimed(uint64_t timeout_ns, message_info *msgInfo)
+int RackMailbox::peekTimed(uint64_t timeout_ns, RackMessage *msgInfo)
 {
     tims_msg_head *p_peek_head;
     int ret;
@@ -571,7 +551,10 @@ int RackMailbox::peekTimed(uint64_t timeout_ns, message_info *msgInfo)
         return ret;
     }
 
-    fillMessagePeekInfo(msgInfo, p_peek_head);
+    memcpy(msgInfo->getHead(), p_peek_head, sizeof(tims_msg_head));
+    msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
+    msgInfo->p_data = msgInfo->getHead()->data;
+
     return 0;
 }
 
@@ -595,7 +578,7 @@ int RackMailbox::peekTimed(uint64_t timeout_ns, message_info *msgInfo)
  * The @a peek() function can be called once a time. The next @a peek() call
  * have to occur after the mailbox is unlocked again.
  *
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -607,7 +590,7 @@ int RackMailbox::peekTimed(uint64_t timeout_ns, message_info *msgInfo)
  *
  * Rescheduling: none
  */
-int RackMailbox::peekIf(message_info *msgInfo)
+int RackMailbox::peekIf(RackMessage *msgInfo)
 {
     tims_msg_head *p_peek_head;
     int ret;
@@ -622,7 +605,10 @@ int RackMailbox::peekIf(message_info *msgInfo)
         return ret;
     }
 
-    fillMessagePeekInfo(msgInfo, p_peek_head);
+    memcpy(msgInfo->getHead(), p_peek_head, sizeof(tims_msg_head));
+    msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
+    msgInfo->p_data = msgInfo->getHead()->data;
+
     return 0;
 }
 
@@ -662,7 +648,7 @@ int RackMailbox::peekEnd(void)
  *
  * This function receives the newest message with the highest priority.
  * The received message (without data) is written into the message info
- * data structure @a message_info.
+ * data structure @a RackMessage.
  *
  * This function can be called if the mailbox is created in userspace or in
  * kernelspace.
@@ -670,7 +656,7 @@ int RackMailbox::peekEnd(void)
  * If no message is inside the mailbox @a recvMsg() is blocking until
  * a message is received.
  *
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -682,20 +668,22 @@ int RackMailbox::peekEnd(void)
  *
  * Rescheduling: possible
  */
-int RackMailbox::recvMsg(message_info *msgInfo)
+int RackMailbox::recvMsg(RackMessage *msgInfo)
 {
     int ret;
 
     recvMtx.lock();
 
-    ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, NULL, 0, TIMS_INFINITE, 0);
+    ret = tims_recvmsg_timed(fd, msgInfo->getHead(), NULL, 0, TIMS_INFINITE, 0);
 
     recvMtx.unlock();
 
     if (ret < 0)
         return ret;
 
-    fillMessageRecvInfo(msgInfo, NULL);
+    msgInfo->datalen = 0;
+    msgInfo->p_data = NULL;
+
     return 0;
 }
 
@@ -704,7 +692,7 @@ int RackMailbox::recvMsg(message_info *msgInfo)
  *
  * This function receives the newest message with the highest priority.
  * The received message (without data) is written into the message info
- * data structure @a message_info.
+ * data structure @a RackMessage.
  *
  * This function can be called if the mailbox is created in userspace or in
  * kernelspace.
@@ -713,7 +701,7 @@ int RackMailbox::recvMsg(message_info *msgInfo)
  * a message is received or the timeout is expired.
  *
  * @param timeout_ns Receive timeout in nanoceconds
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -725,20 +713,22 @@ int RackMailbox::recvMsg(message_info *msgInfo)
  *
  * Rescheduling: possible
  */
-int RackMailbox::recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo)
+int RackMailbox::recvMsgTimed(uint64_t timeout_ns, RackMessage *msgInfo)
 {
     int ret;
 
     recvMtx.lock();
 
-    ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, NULL, 0, timeout_ns, 0);
+    ret = tims_recvmsg_timed(fd, msgInfo->getHead(), NULL, 0, timeout_ns, 0);
 
     recvMtx.unlock();
 
     if (ret < 0)
         return ret;
 
-    fillMessageRecvInfo(msgInfo, NULL);
+    msgInfo->datalen = 0;
+    msgInfo->p_data = NULL;
+
     return 0;
 }
 
@@ -747,7 +737,7 @@ int RackMailbox::recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo)
  *
  * This function receives the newest message with the highest priority.
  * The received message (without data) is written into the message info
- * data structure @a message_info.
+ * data structure @a RackMessage.
  *
  * This function can be called if the mailbox is created in userspace or in
  * kernelspace.
@@ -755,7 +745,7 @@ int RackMailbox::recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo)
  * If no message is inside the mailbox @a recvMsgIf() returns immediately
  * with the returncode -EWOULDBLOCK.
  *
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -767,20 +757,22 @@ int RackMailbox::recvMsgTimed(uint64_t timeout_ns, message_info *msgInfo)
  *
  * Rescheduling: none
  */
-int     RackMailbox::recvMsgIf(message_info *msgInfo)
+int     RackMailbox::recvMsgIf(RackMessage *msgInfo)
 {
     int ret;
 
     recvMtx.lock();
 
-    ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, NULL, 0, TIMS_NONBLOCK, 0);
+    ret = tims_recvmsg_timed(fd, msgInfo->getHead(), NULL, 0, TIMS_NONBLOCK, 0);
 
     recvMtx.unlock();
 
     if (ret < 0)
         return ret;
 
-    fillMessageRecvInfo(msgInfo, NULL);
+    msgInfo->datalen = 0;
+    msgInfo->p_data = NULL;
+
     return 0;
 }
 
@@ -789,7 +781,7 @@ int     RackMailbox::recvMsgIf(message_info *msgInfo)
  *
  * This function receives the newest message with the highest priority.
  * The received message head is written into the message info
- * data structure @a message_info and all data into the given data buffer.
+ * data structure @a RackMessage and all data into the given data buffer.
  *
  * This function can be called if the mailbox is created in userspace or in
  * kernelspace.
@@ -799,7 +791,7 @@ int     RackMailbox::recvMsgIf(message_info *msgInfo)
  *
  * @param p_data Pointer to the receive data buffer
  * @param maxDatalen Size of the receive data buffer
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -811,20 +803,22 @@ int     RackMailbox::recvMsgIf(message_info *msgInfo)
  *
  * Rescheduling: possible
  */
-int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, message_info *msgInfo)
+int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, RackMessage *msgInfo)
 {
     int ret;
 
     recvMtx.lock();
 
-    ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, p_data, maxDatalen, TIMS_INFINITE, 0);
+    ret = tims_recvmsg_timed(fd, msgInfo->getHead(), p_data, maxDatalen, TIMS_INFINITE, 0);
 
     recvMtx.unlock();
 
     if (ret < 0)
         return ret;
 
-    fillMessageRecvInfo(msgInfo, p_data);
+    msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
+    msgInfo->p_data = p_data;
+
     return 0;
 }
 
@@ -833,7 +827,7 @@ int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, message_info
  *
  * This function receives the newest message with the highest priority.
  * The received message head is written into the message info
- * data structure @a message_info and all data into the given data buffer.
+ * data structure @a RackMessage and all data into the given data buffer.
  *
  * This function can be called if the mailbox is created in userspace or in
  * kernelspace.
@@ -844,7 +838,7 @@ int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, message_info
  * @param timeout_ns Receive timeout in nanoceconds
  * @param p_data Pointer to the receive data buffer
  * @param maxDatalen Size of the receive data buffer
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -856,20 +850,22 @@ int     RackMailbox::recvDataMsg(void *p_data, uint32_t maxDatalen, message_info
  *
  * Rescheduling: possible
  */
-int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_t maxDatalen, message_info *msgInfo)
+int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_t maxDatalen, RackMessage *msgInfo)
 {
     int ret;
 
     recvMtx.lock();
 
-    ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, p_data, maxDatalen, timeout_ns, 0);
+    ret = tims_recvmsg_timed(fd, msgInfo->getHead(), p_data, maxDatalen, timeout_ns, 0);
 
     recvMtx.unlock();
 
     if (ret < 0)
         return ret;
 
-    fillMessageRecvInfo(msgInfo, p_data);
+    msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
+    msgInfo->p_data = p_data;
+
     return 0;
 }
 
@@ -878,7 +874,7 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_
  *
  * This function receives the newest message with the highest priority.
  * The received message head is written into the message info
- * data structure @a message_info and all data into the given data buffer.
+ * data structure @a RackMessage and all data into the given data buffer.
  *
  * This function can be called if the mailbox is created in userspace or in
  * kernelspace.
@@ -888,7 +884,7 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_
 *
  * @param p_data Pointer to the receive data buffer
  * @param maxDatalen Size of the receive data buffer
- * @param msgInfo Pointer to a @a message_info
+ * @param msgInfo Pointer to a @a RackMessage
  *
  * @return 0 on success, otherwise negative error code
  *
@@ -900,20 +896,22 @@ int     RackMailbox::recvDataMsgTimed(uint64_t timeout_ns, void *p_data, uint32_
  *
  * Rescheduling: none
  */
-int     RackMailbox::recvDataMsgIf(void *p_data, uint32_t maxDatalen, message_info *msgInfo)
+int     RackMailbox::recvDataMsgIf(void *p_data, uint32_t maxDatalen, RackMessage *msgInfo)
 {
     int ret;
 
     recvMtx.lock();
 
-    ret = tims_recvmsg_timed(fd, (tims_msg_head *)msgInfo, p_data, maxDatalen, TIMS_NONBLOCK, 0);
+    ret = tims_recvmsg_timed(fd, msgInfo->getHead(), p_data, maxDatalen, TIMS_NONBLOCK, 0);
 
     recvMtx.unlock();
 
     if (ret < 0)
         return ret;
 
-    fillMessageRecvInfo(msgInfo, p_data);
+    msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
+    msgInfo->p_data = p_data;
+
     return 0;
 }
 

@@ -17,17 +17,9 @@
 
 #include "clock_dcf77_emc_pro.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_SERIALPORT_OPEN            1
-#define INIT_BIT_MBX_WORK                   2
-#define INIT_BIT_PROXY_POSITION             3
-
 //
 // data structures
 //
-
-ClockDcf77EmcPro *p_inst;
 
 argTable_t argTab[] = {
 
@@ -147,7 +139,7 @@ int ClockDcf77EmcPro::moduleLoop(void)
     return 0;
 }
 
-int ClockDcf77EmcPro::moduleCommand(message_info *msgInfo)
+int ClockDcf77EmcPro::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -343,6 +335,13 @@ int ClockDcf77EmcPro::analyseSerialMessage(clock_serial_data *serialData, clock_
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_SERIALPORT_OPEN            1
+#define INIT_BIT_MBX_WORK                   2
+#define INIT_BIT_PROXY_POSITION             3
+
 int ClockDcf77EmcPro::moduleInit(void)
 {
     int ret;
@@ -431,6 +430,9 @@ int main(int argc, char *argv[])
     }
 
     // create new ClockDcf77EmcPro
+
+    ClockDcf77EmcPro *p_inst;
+
     p_inst = new ClockDcf77EmcPro();
     if (!p_inst)
     {

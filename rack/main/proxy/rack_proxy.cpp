@@ -41,7 +41,7 @@ RackProxy::RackProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t class_id,
     destMbxAdr = RackName::create(sysId, classId, instance);
 
     // only for debug messages
-    gdos = new GdosMailbox(workMbx, GDOS_MSG_DEBUG_DEFAULT);
+    gdos = new RackGdos(workMbx, GDOS_MSG_DEBUG_DEFAULT);
 }
 
 RackProxy::~RackProxy()
@@ -58,7 +58,7 @@ RackProxy::~RackProxy()
  */
 int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
     int ret;
 
     if (!workMbx)
@@ -87,9 +87,9 @@ int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type)
+            switch(msgInfo.getType())
             {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
@@ -121,7 +121,7 @@ int RackProxy::proxySendCmd(int8_t send_msgtype, uint64_t timeout)
 int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
                                 size_t send_datalen, uint64_t timeout)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
     int ret;
 
     if (!workMbx)
@@ -148,9 +148,9 @@ int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type) {
+            switch(msgInfo.getType()) {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
                                  send_msgtype, destMbxAdr);
@@ -180,7 +180,7 @@ int RackProxy::proxySendDataCmd(int8_t send_msgtype, void *send_data,
  */
 int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
                                 void *recv_data, size_t recv_datalen,
-                                uint64_t timeout, message_info *msgInfo)
+                                uint64_t timeout, RackMessage *msgInfo)
 {
     int ret;
 
@@ -208,9 +208,9 @@ int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
             return ret;
         }
 
-        if (msgInfo->src == destMbxAdr)
+        if (msgInfo->getSrc() == destMbxAdr)
         {
-            switch(msgInfo->type) {
+            switch(msgInfo->getType()) {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
                                  send_msgtype, destMbxAdr);
@@ -227,7 +227,7 @@ int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
                     return -ENODATA;
             }
 
-            if ( msgInfo->type == recv_msgtype)
+            if ( msgInfo->getType() == recv_msgtype)
             {
                 return 0;
             }
@@ -243,7 +243,7 @@ int RackProxy::proxyRecvDataCmd(int8_t send_msgtype, const int8_t recv_msgtype,
 int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
                                     size_t send_datalen, const int8_t recv_msgtype,
                                     void *recv_data, size_t recv_datalen,
-                                    uint64_t timeout, message_info *msgInfo)
+                                    uint64_t timeout, RackMessage *msgInfo)
 {
     int ret;
 
@@ -270,9 +270,9 @@ int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
             return ret;
         }
 
-        if (msgInfo->src == destMbxAdr)
+        if (msgInfo->getSrc() == destMbxAdr)
         {
-            switch(msgInfo->type) {
+            switch(msgInfo->getType()) {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
                                  send_msgtype, destMbxAdr);
@@ -289,7 +289,7 @@ int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
                     return -ENODATA;
             }
 
-            if ( msgInfo->type == recv_msgtype)
+            if ( msgInfo->getType() == recv_msgtype)
             {
                 return 0;
             }
@@ -300,7 +300,7 @@ int RackProxy::proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
 
 int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
     int ret;
 
     if (!workMbx)
@@ -329,9 +329,9 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type)
+            switch(msgInfo.getType())
             {
                 case MSG_TIMEOUT:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - timeout -\n",
@@ -346,7 +346,7 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
                 case MSG_ENABLED:
                 case MSG_DISABLED:
                 case MSG_ERROR:
-                    return msgInfo.type;
+                    return msgInfo.getType();
             }
         }
     } // while-loop
@@ -355,7 +355,7 @@ int RackProxy::getStatus(uint64_t reply_timeout_ns) // use special timeout
 
 int RackProxy::getParameter(rack_param_msg *parameter, int maxParameterNum, uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     return proxyRecvDataCmd(MSG_GET_PARAM, MSG_PARAM,
                             parameter, sizeof(rack_param_msg) + maxParameterNum * sizeof(rack_param),
@@ -393,7 +393,7 @@ RackDataProxy::~RackDataProxy()
 
 int RackDataProxy::getData(void *recv_data, ssize_t recv_datalen,
                            rack_time_t timeStamp, uint64_t reply_timeout_ns,
-                           message_info *msgInfo)
+                           RackMessage *msgInfo)
 {
     rack_get_data send_data;
     send_data.recordingTime = timeStamp;
@@ -409,7 +409,7 @@ int RackDataProxy::getData(void *recv_data, ssize_t recv_datalen,
 
 int RackDataProxy::getNextData(void *recv_data, ssize_t recv_datalen,
                                uint64_t reply_timeout_ns,
-                               message_info *msgInfo)
+                               RackMessage *msgInfo)
 {
     return proxySendRecvDataCmd(MSG_GET_NEXT_DATA, NULL, 0,
                                 MSG_DATA, recv_data, recv_datalen,
@@ -424,7 +424,7 @@ int RackDataProxy::getContData(rack_time_t requestPeriodTime, RackMailbox *dataM
                                rack_time_t *realPeriodTime, uint64_t reply_timeout_ns)
 {
     int ret;
-    message_info        msgInfo;
+    RackMessage        msgInfo;
     rack_get_cont_data send_data;
     rack_cont_data     recv_data;
 

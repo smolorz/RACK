@@ -16,17 +16,9 @@
 
 #include "obj_recog_relay_ladar.h"
 
-// init_flags
-#define INIT_BIT_DATA_MODULE            0
-#define INIT_BIT_MBX_WORK               1
-#define INIT_BIT_MBX_DATA               2
-#define INIT_BIT_PROXY_POSITION         3
-
 //
 // init data structures
 //
-
-ObjRecogRelayLadar *p_inst;
 
 argTable_t argTab[] = {
     { ARGOPT_OPT, "maxDataSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -94,7 +86,7 @@ int  ObjRecogRelayLadar::moduleLoop(void)
 
     int             ret       = 0;
     int             i;
-    message_info    msgInfo;
+    RackMessage    msgInfo;
     position_data   positionData;
     obj_recog_data  *p_data   = (obj_recog_data *)getDataBufferWorkSpace();
 
@@ -108,10 +100,10 @@ int  ObjRecogRelayLadar::moduleLoop(void)
     }
 
 
-    if (msgInfo.type != MSG_DATA)
+    if (msgInfo.getType() != MSG_DATA)
     {
         GDOS_ERROR("Received unexpected message from %x to %x, type %d "
-                   "on objRecogMbx\n", msgInfo.src, msgInfo.dest, msgInfo.type);
+                   "on objRecogMbx\n", msgInfo.getSrc(), msgInfo.getDest(), msgInfo.getType());
         return -ECOMM;
     }
     ObjRecogData::parse(&msgInfo);
@@ -143,7 +135,7 @@ int  ObjRecogRelayLadar::moduleLoop(void)
     return 0;
 }
 
-int  ObjRecogRelayLadar::moduleCommand(message_info *p_msginfo)
+int  ObjRecogRelayLadar::moduleCommand(RackMessage *p_msginfo)
 {
   // not for me -> ask RackDataModule
   return RackDataModule::moduleCommand(p_msginfo);
@@ -161,6 +153,12 @@ int  ObjRecogRelayLadar::moduleCommand(message_info *p_msginfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags
+#define INIT_BIT_DATA_MODULE            0
+#define INIT_BIT_MBX_WORK               1
+#define INIT_BIT_MBX_DATA               2
+#define INIT_BIT_PROXY_POSITION         3
 
 int  ObjRecogRelayLadar::moduleInit(void)
 {
@@ -288,6 +286,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    ObjRecogRelayLadar *p_inst;
 
     // create new ObjRecogRelayLadar
     p_inst = new ObjRecogRelayLadar();

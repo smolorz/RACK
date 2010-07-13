@@ -177,7 +177,7 @@ void DatalogRec::moduleOff(void)
 int  DatalogRec::moduleLoop(void)
 {
     int             i, ret;
-    message_info    msgInfo;
+    RackMessage     msgInfo;
     datalog_data    *pDatalogData = NULL;
 
 
@@ -213,9 +213,9 @@ int  DatalogRec::moduleLoop(void)
         }
     }
 
-    if (msgInfo.type != MSG_DATA)
+    if (msgInfo.getType() != MSG_DATA)
     {
-        GDOS_ERROR("No data package from %i type %i\n", msgInfo.src, msgInfo.type);
+        GDOS_ERROR("No data package from %i type %i\n", msgInfo.getSrc(), msgInfo.getType());
 /*        targetStatus = MODULE_TSTATE_OFF;
         return -EINVAL;*/
     }
@@ -254,11 +254,11 @@ int  DatalogRec::moduleLoop(void)
     return 0;
 }
 
-int  DatalogRec::moduleCommand(message_info *msgInfo)
+int  DatalogRec::moduleCommand(RackMessage *msgInfo)
 {
     datalog_data *setLogData;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
         case MSG_DATALOG_INIT_LOG:
             if (status == MODULE_STATE_DISABLED)
@@ -423,7 +423,7 @@ int DatalogRec::initLogFile()
     return ret;
 }
 
-int DatalogRec::logData(message_info *msgInfo)
+int DatalogRec::logData(RackMessage *msgInfo)
 {
     int             i, j, ret;
     int             bytes;
@@ -447,9 +447,9 @@ int DatalogRec::logData(message_info *msgInfo)
 
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
-        if (datalogInfoMsg.logInfo[i].moduleMbx == msgInfo->src)
+        if (datalogInfoMsg.logInfo[i].moduleMbx == msgInfo->getSrc())
         {
-            switch (RackName::classId(msgInfo->src))
+            switch (RackName::classId(msgInfo->getSrc()))
             {
                 case CAMERA:
                     cameraData = CameraData::parse(msgInfo);
@@ -802,14 +802,14 @@ int DatalogRec::logData(message_info *msgInfo)
                     break;
 
                 default:
-                    GDOS_PRINT("No write function for module class %n\n", msgInfo->src);
+                    GDOS_PRINT("No write function for module class %n\n", msgInfo->getSrc());
                     return -EINVAL;
             }
 
             if (bytes < 0)
             {
                 GDOS_ERROR("Can't write data package from %n to file, code = %i\n",
-                           msgInfo->src, bytes);
+                           msgInfo->getSrc(), bytes);
                 return bytes;
             }
 
@@ -827,7 +827,7 @@ int DatalogRec::logData(message_info *msgInfo)
 
 int DatalogRec::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
     int ret;
 
     if (!replyMbx)
@@ -856,9 +856,9 @@ int DatalogRec::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t r
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type)
+            switch(msgInfo.getType())
             {
                 case MSG_TIMEOUT:
                     GDOS_DBG_DETAIL("Proxy cmd %d to %n: Replied - timeout -\n",
@@ -873,7 +873,7 @@ int DatalogRec::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t r
                 case MSG_ENABLED:
                 case MSG_DISABLED:
                 case MSG_ERROR:
-                    return msgInfo.type;
+                    return msgInfo.getType();
             }
         }
     } // while-loop
@@ -882,7 +882,7 @@ int DatalogRec::getStatus(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t r
 
 int DatalogRec::moduleOn(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
     int          ret;
 
     if (!replyMbx)
@@ -910,9 +910,9 @@ int DatalogRec::moduleOn(uint32_t destMbxAdr, RackMailbox *replyMbx, uint64_t re
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type)
+            switch(msgInfo.getType())
             {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
@@ -943,7 +943,7 @@ int DatalogRec::getContData(uint32_t destMbxAdr, rack_time_t requestPeriodTime,
                              rack_time_t *realPeriodTime, uint64_t reply_timeout_ns)
 {
     int ret;
-    message_info        msgInfo;
+    RackMessage        msgInfo;
     rack_get_cont_data  send_data;
     rack_cont_data      recv_data;
 
@@ -977,9 +977,9 @@ int DatalogRec::getContData(uint32_t destMbxAdr, rack_time_t requestPeriodTime,
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type)
+            switch(msgInfo.getType())
             {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",
@@ -997,7 +997,7 @@ int DatalogRec::getContData(uint32_t destMbxAdr, rack_time_t requestPeriodTime,
                     return -ENODATA;
             }
 
-            if (msgInfo.type == MSG_CONT_DATA)
+            if (msgInfo.getType() == MSG_CONT_DATA)
             {
 
                 RackContData::parse(&msgInfo);
@@ -1018,7 +1018,7 @@ int DatalogRec::stopContData(uint32_t destMbxAdr, RackMailbox *dataMbx, RackMail
                               uint64_t reply_timeout_ns)
 {
     rack_stop_cont_data     send_data;
-    message_info            msgInfo;
+    RackMessage             msgInfo;
     int                     ret;
 
     send_data.dataMbxAdr = dataMbx->getAdr();
@@ -1049,9 +1049,9 @@ int DatalogRec::stopContData(uint32_t destMbxAdr, RackMailbox *dataMbx, RackMail
             return ret;
         }
 
-        if (msgInfo.src == destMbxAdr)
+        if (msgInfo.getSrc() == destMbxAdr)
         {
-            switch(msgInfo.type)
+            switch(msgInfo.getType())
             {
                 case MSG_ERROR:
                     GDOS_WARNING("Proxy cmd %d to %n: Replied - error -\n",

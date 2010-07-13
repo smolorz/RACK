@@ -17,15 +17,9 @@
 
 #include "dummy_abc.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_DO_SOMETHING               1
-
 //
 // data structures
 //
-
-DummyAbc *p_inst;
 
 argTable_t argTab[] = {
 
@@ -90,12 +84,12 @@ int  DummyAbc::moduleLoop(void)
     return 0;
 }
 
-int  DummyAbc::moduleCommand(message_info *msgInfo)
+int  DummyAbc::moduleCommand(RackMessage *msgInfo)
 {
     dummy_param *param;
     dummy_param replyParam;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
         case DUMMY_SEND_CMD:
             GDOS_PRINT("handle DUMMY_SEND_CMD\n");
@@ -143,6 +137,10 @@ int  DummyAbc::moduleCommand(message_info *msgInfo)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_DO_SOMETHING               1
 
 int  DummyAbc::moduleInit(void)
 {
@@ -239,6 +237,8 @@ int  main(int argc, char *argv[])
     }
 
     // create new DummyAbc
+
+    DummyAbc *p_inst;
 
     p_inst = new DummyAbc();
     if (!p_inst)

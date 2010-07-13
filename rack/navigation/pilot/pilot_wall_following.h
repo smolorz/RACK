@@ -104,7 +104,7 @@ class PilotWallFollowing : public RackDataModule {
         int      moduleOn(void);
         int      moduleLoop(void);
         void     moduleOff(void);
-        int      moduleCommand(message_info *msgInfo);
+        int      moduleCommand(RackMessage *msgInfo);
         int      testRec(int x, int y, int xSize, int ySize, scan2d_data *scan);
         int      safeRot(float omega, scan2d_data *scan, chassis_param_data *param);
         int      controlSpeed(int oldSpeed);

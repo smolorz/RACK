@@ -15,17 +15,9 @@
  */
 #include "scan2d_lab.h"
 
-#include <main/argopts.h>
-
-// init_flags
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_WORK           1
-
 //
 // data structures
 //
-
-Scan2dLab *p_inst;
 
 argTable_t argTab[] = {
 
@@ -60,7 +52,7 @@ int  Scan2dLab::moduleLoop(void)
 {
     scan2d_data     *scanOutputData;
 //    int             ret;
-//    message_info    dataInfo;
+//    RackMessage    dataInfo;
 
     // get datapointer from rackdatabuffer
     scanOutputData = (scan2d_data *)getDataBufferWorkSpace();
@@ -72,7 +64,7 @@ int  Scan2dLab::moduleLoop(void)
     return 0;
 }
 
-int  Scan2dLab::moduleCommand(message_info *msgInfo)
+int  Scan2dLab::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -89,6 +81,11 @@ int  Scan2dLab::moduleCommand(message_info *msgInfo)
  *   main
  *
  ******************************************************************************/
+
+// init_flags
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_WORK           1
+
 int Scan2dLab::moduleInit(void)
 {
     int ret;
@@ -170,6 +167,8 @@ int  main(int argc, char *argv[])
        printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    Scan2dLab *p_inst;
 
     // create new Scan2dLab
     p_inst = new Scan2dLab();

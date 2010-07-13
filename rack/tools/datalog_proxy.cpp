@@ -21,7 +21,7 @@
 int DatalogProxy::getData(datalog_data *recv_data, ssize_t recv_datalen,
                          rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                     reply_timeout_ns, &msgInfo);
@@ -49,7 +49,7 @@ int DatalogProxy::setLog(datalog_data *recv_data, ssize_t recv_datalen,
 int DatalogProxy::getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
                                uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxyRecvDataCmd(MSG_DATALOG_GET_LOG_STATUS, MSG_DATALOG_LOG_STATUS,
                                recv_data, recv_datalen,

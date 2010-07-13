@@ -18,8 +18,6 @@
 
 #define INIT_BIT_DATA_MODULE 0
 
-CameraV4L *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_OPT, "width", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -347,11 +345,11 @@ int CameraV4L::moduleLoop(void)
 //
 // Command handling
 //
-int CameraV4L::moduleCommand(message_info *msgInfo)
+int CameraV4L::moduleCommand(RackMessage *msgInfo)
 {
     camera_format_data      *p_format;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
     case MSG_CAMERA_GET_PARAMETER:
         cmdMbx.sendDataMsgReply(MSG_CAMERA_PARAMETER, msgInfo, 1, &param,
@@ -456,7 +454,6 @@ int main(int argc, char *argv[])
 {
     int ret;
 
-
     // get args
     ret = RackModule::getArgs(argc, argv, argTab, "CameraV4L");
     if (ret)
@@ -465,12 +462,14 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    // create new CameraDcam
+    // create new CameraV4L
+
+    CameraV4L *p_inst;
 
     p_inst = new CameraV4L();
     if (!p_inst)
     {
-        printf("Can't create new CameraDcam -> EXIT\n");
+        printf("Can't create new CameraV4L -> EXIT\n");
         return -ENOMEM;
     }
 

@@ -79,7 +79,7 @@ class Position : public RackDataModule {
         int     moduleOn(void);
         int     moduleLoop(void);
         void    moduleOff(void);
-        int     moduleCommand(message_info *msgInfo);
+        int     moduleCommand(RackMessage *msgInfo);
 
         void    wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *posData);
         void    posToWgs84(position_data *posData, position_wgs84_data *posWgs84Data);

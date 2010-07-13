@@ -17,18 +17,9 @@
 
 #include "gps_nmea.h"
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_DATA_MODULE                0
-#define INIT_BIT_SERIALPORT_OPEN            1
-#define INIT_BIT_MBX_WORK                   2
-#define INIT_BIT_PROXY_POSITION             3
-#define INIT_BIT_PROXY_CLOCK_RELAY          4
-
 //
 // data structures
 //
-
-GpsNmea *p_inst;
 
 argTable_t argTab[] = {
 
@@ -471,7 +462,7 @@ int GpsNmea::moduleLoop(void)
     return 0;
 }
 
-int GpsNmea::moduleCommand(message_info *msgInfo)
+int GpsNmea::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -1296,6 +1287,14 @@ double GpsNmea:: newF(double f, double x, double y,
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_SERIALPORT_OPEN            1
+#define INIT_BIT_MBX_WORK                   2
+#define INIT_BIT_PROXY_POSITION             3
+#define INIT_BIT_PROXY_CLOCK_RELAY          4
+
 int GpsNmea::moduleInit(void)
 {
     int ret;
@@ -1437,6 +1436,9 @@ int main(int argc, char *argv[])
     }
 
     // create new GpsNmea
+
+    GpsNmea *p_inst;
+
     p_inst = new GpsNmea();
     if (!p_inst)
     {

@@ -15,22 +15,9 @@
  */
 #include "scan2d_merge.h"
 
-#include <main/argopts.h>
-
-// init_flags
-#define INIT_BIT_DATA_MODULE        0
-#define INIT_BIT_MBX_WORK           1
-#define INIT_BIT_MBX_DATA           2
-#define INIT_BIT_PROXY_POSITION     4
-#define INIT_BIT_PROXY_ODOMETRY     5
-#define INIT_BIT_PROXY_SCAN2D       6       // has to be highest bit!
-
-
 //
 // data structures
 //
-
-Scan2dMerge *p_inst;
 
 argTable_t argTab[] = {
 
@@ -183,7 +170,7 @@ void Scan2dMerge::moduleOff(void)
 // realtime context
 int  Scan2dMerge::moduleLoop(void)
 {
-    message_info    dataInfo;
+    RackMessage     dataInfo;
     odometry_data   *odoData   = NULL;
     scan2d_data     *scanData  = NULL;
     scan2d_data     *mergeData = NULL;
@@ -202,7 +189,7 @@ int  Scan2dMerge::moduleLoop(void)
         return ret;
     }
 
-    if (dataInfo.type == MSG_DATA)
+    if (dataInfo.getType() == MSG_DATA)
     {
         // store new scan2d data message from scan2dInst 0, 1, 2, ...
         for (k = 0; k < SCAN2D_SENSOR_NUM_MAX; k++)
@@ -210,8 +197,8 @@ int  Scan2dMerge::moduleLoop(void)
             if (scan2dInst[k] >= 0)
             {
                 // message received
-                if ((dataInfo.src == RackName::create(scan2dSys[k], SCAN2D, scan2dInst[k])) &&
-                    (dataInfo.type == MSG_DATA))
+                if ((dataInfo.getSrc() == RackName::create(scan2dSys[k], SCAN2D, scan2dInst[k])) &&
+                    (dataInfo.getType() == MSG_DATA))
                 {
                     // message parsing
                     scanData = Scan2dData::parse(&dataInfo);
@@ -278,8 +265,8 @@ int  Scan2dMerge::moduleLoop(void)
 
 
         // new odometry data, build new scan2d_data_msg
-        if ((dataInfo.src == RackName::create(odometrySys, ODOMETRY, odometryInst)) &&
-            (dataInfo.type == MSG_DATA))
+        if ((dataInfo.getSrc() == RackName::create(odometrySys, ODOMETRY, odometryInst)) &&
+            (dataInfo.getType() == MSG_DATA))
         {
             odoData = OdometryData::parse(&dataInfo);
 
@@ -387,9 +374,8 @@ int  Scan2dMerge::moduleLoop(void)
     }
     else
     {
-        GDOS_ERROR("Received unexpected message from %n to %n type %d on "
-                   "data mailbox\n", dataInfo.src, dataInfo.dest,
-                   dataInfo.type);
+        GDOS_ERROR("Received unexpected message from %n to %n type %d on data mailbox\n",
+                   dataInfo.getSrc(), dataInfo.getDest(), dataInfo.getType());
         dataMbx.peekEnd();
         return -EINVAL;
     }
@@ -399,7 +385,7 @@ int  Scan2dMerge::moduleLoop(void)
     return 0;
 }
 
-int  Scan2dMerge::moduleCommand(message_info *msgInfo)
+int  Scan2dMerge::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
@@ -416,6 +402,15 @@ int  Scan2dMerge::moduleCommand(message_info *msgInfo)
  *   main
  *
  ******************************************************************************/
+
+// init_flags
+#define INIT_BIT_DATA_MODULE        0
+#define INIT_BIT_MBX_WORK           1
+#define INIT_BIT_MBX_DATA           2
+#define INIT_BIT_PROXY_POSITION     4
+#define INIT_BIT_PROXY_ODOMETRY     5
+#define INIT_BIT_PROXY_SCAN2D       6       // has to be highest bit!
+
 int Scan2dMerge::moduleInit(void)
 {
     int     ret, k;
@@ -585,6 +580,8 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
+
+    Scan2dMerge *p_inst;
 
     // create new Scan2dMerge
     p_inst = new Scan2dMerge();

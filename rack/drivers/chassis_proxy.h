@@ -44,7 +44,7 @@
 //# Chassis Data (static size  - MESSAGE)
 //######################################################################
 
-typedef struct {
+typedef struct chassis_data_s {
     rack_time_t recordingTime;  // has to be first element
     float       deltaX;
     float       deltaY;
@@ -56,133 +56,91 @@ typedef struct {
     uint32_t    activePilot;
 } __attribute__((packed)) chassis_data;
 
-class ChassisData
+class ChassisData : public RackDataMessage
 {
     public:
-        static void le_to_cpu(chassis_data *data)
-        {
-            data->recordingTime = __le32_to_cpu(data->recordingTime);
-            data->deltaX        = __le32_float_to_cpu(data->deltaX);
-            data->deltaY        = __le32_float_to_cpu(data->deltaY);
-            data->deltaRho      = __le32_float_to_cpu(data->deltaRho);
-            data->vx            = __le32_float_to_cpu(data->vx);
-            data->vy            = __le32_float_to_cpu(data->vy);
-            data->omega         = __le32_float_to_cpu(data->omega);
-            data->battery       = __le32_float_to_cpu(data->battery);
-            data->activePilot   = __le32_to_cpu(data->activePilot);
-        }
-
-        static void be_to_cpu(chassis_data *data)
-        {
-            data->recordingTime = __be32_to_cpu(data->recordingTime);
-            data->deltaX        = __be32_float_to_cpu(data->deltaX);
-            data->deltaY        = __be32_float_to_cpu(data->deltaY);
-            data->deltaRho      = __be32_float_to_cpu(data->deltaRho);
-            data->vx            = __be32_float_to_cpu(data->vx);
-            data->vy            = __be32_float_to_cpu(data->vy);
-            data->omega         = __be32_float_to_cpu(data->omega);
-            data->battery       = __be32_float_to_cpu(data->battery);
-            data->activePilot   = __be32_to_cpu(data->activePilot);
-        }
-
-        static chassis_data* parse(message_info *msgInfo)
+        static chassis_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            chassis_data *p_data = (chassis_data *)msgInfo->p_data;
+            chassis_data *data = (chassis_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
-            {
-                le_to_cpu(p_data);
-            }
-            else // data in big endian
-            {
-                be_to_cpu(p_data);
-            }
-            setDataByteorder(msgInfo);
-            return p_data;
+            data->recordingTime = msgInfo->data32ToCpu(data->recordingTime);
+            data->deltaX        = msgInfo->data32FloatToCpu(data->deltaX);
+            data->deltaY        = msgInfo->data32FloatToCpu(data->deltaY);
+            data->deltaRho      = msgInfo->data32FloatToCpu(data->deltaRho);
+            data->vx            = msgInfo->data32FloatToCpu(data->vx);
+            data->vy            = msgInfo->data32FloatToCpu(data->vy);
+            data->omega         = msgInfo->data32FloatToCpu(data->omega);
+            data->battery       = msgInfo->data32FloatToCpu(data->battery);
+            data->activePilot   = msgInfo->data32ToCpu(data->activePilot);
+
+            msgInfo->setDataByteorder();
+
+            return data;
         }
-
 };
 
 //######################################################################
 //# Chassis Move Data (static size - MESSAGE)
 //######################################################################
 
-typedef struct {
+typedef struct chassis_move_data_s {
     int32_t   vx;
     int32_t   vy;
     float     omega;
 } __attribute__((packed)) chassis_move_data;
 
-class ChassisMoveData
+class ChassisMoveData : public RackMessage
 {
     public:
-        static void le_to_cpu(chassis_move_data *data)
-        {
-            data->vx      = __le32_to_cpu(data->vx);
-            data->vy      = __le32_to_cpu(data->vy);
-            data->omega   = __le32_float_to_cpu(data->omega);
-        }
-
-        static void be_to_cpu(chassis_move_data *data)
-        {
-            data->vx      = __be32_to_cpu(data->vx);
-            data->vy      = __be32_to_cpu(data->vy);
-            data->omega   = __be32_float_to_cpu(data->omega);
-        }
-
-        static chassis_move_data* parse(message_info *msgInfo)
+        static chassis_move_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            chassis_move_data *p_data = (chassis_move_data *)msgInfo->p_data;
+            chassis_move_data *data = (chassis_move_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
-            {
-                le_to_cpu(p_data);
-            }
-            else // data in big endian
-            {
-                be_to_cpu(p_data);
-            }
-            setDataByteorder(msgInfo);
-            return p_data;
+            data->vx      = msgInfo->data32ToCpu(data->vx);
+            data->vy      = msgInfo->data32ToCpu(data->vy);
+            data->omega   = msgInfo->data32FloatToCpu(data->omega);
+
+            msgInfo->setDataByteorder();
+
+            return data;
         }
-
 };
 
 //######################################################################
 //# Chassis Parameter Data (static size  - MESSAGE)
 //######################################################################
 
-typedef struct
+typedef struct chassis_param_data_s
 {
-  int32_t   vxMax;            // mm/s
+  int32_t   vxMax;            /**< mm/s */
   int32_t   vyMax;
-  int32_t   vxMin;            // mm/s
+  int32_t   vxMin;            /**< mm/s */
   int32_t   vyMin;
 
-  int32_t   accMax;           // mm/s/s
+  int32_t   accMax;           /**< mm/s/s */
   int32_t   decMax;
 
-  float     omegaMax;         // rad/s
-  int32_t   minTurningRadius; // mm
+  float     omegaMax;         /**< rad/s */
+  int32_t   minTurningRadius; /**< mm */
 
-  float     breakConstant;    // mm/mm/s
-  int32_t   safetyMargin;     // mm
-  int32_t   safetyMarginMove; // mm
-  int32_t   comfortMargin;    // mm
+  float     breakConstant;    /**< mm/mm/s */
+  int32_t   safetyMargin;     /**< mm */
+  int32_t   safetyMarginMove; /**< mm */
+  int32_t   comfortMargin;    /**< mm */
 
-  int32_t   boundaryFront;    // mm
-  int32_t   boundaryBack;     /**< Boundary in front of the robot*/
+  int32_t   boundaryFront;    /**< Boundary in front of the robot [mm] */
+  int32_t   boundaryBack;
   int32_t   boundaryLeft;
   int32_t   boundaryRight;
 
-  int32_t   wheelBase;        // mm
-  int32_t   wheelRadius;      // mm
+  int32_t   wheelBase;        /**< mm */
+  int32_t   wheelRadius;      /**< mm */
   int32_t   trackWidth;
 
   float     pilotParameterA;
@@ -191,90 +149,48 @@ typedef struct
 
 } __attribute__((packed)) chassis_param_data;
 
-class ChassisParamData
+class ChassisParamData : public RackMessage
 {
     public:
-        static void le_to_cpu(chassis_param_data *data)
-        {
-            data->vxMax             = __le32_to_cpu(data->vxMax);
-            data->vyMax             = __le32_to_cpu(data->vyMax);
-            data->vxMin             = __le32_to_cpu(data->vxMin);
-            data->vyMin             = __le32_to_cpu(data->vyMin);
-
-            data->accMax            = __le32_to_cpu(data->accMax);
-            data->decMax            = __le32_to_cpu(data->decMax);
-
-            data->omegaMax          = __le32_float_to_cpu(data->omegaMax);
-            data->minTurningRadius  = __le32_to_cpu(data->minTurningRadius);
-
-            data->breakConstant     = __le32_float_to_cpu(data->breakConstant);
-            data->safetyMargin      = __le32_to_cpu(data->safetyMargin);
-            data->safetyMarginMove  = __le32_to_cpu(data->safetyMarginMove);
-            data->comfortMargin     = __le32_to_cpu(data->comfortMargin);
-
-            data->boundaryFront     = __le32_to_cpu(data->boundaryFront);
-            data->boundaryBack      = __le32_to_cpu(data->boundaryBack);
-            data->boundaryLeft      = __le32_to_cpu(data->boundaryLeft);
-            data->boundaryRight     = __le32_to_cpu(data->boundaryRight);
-
-            data->wheelBase         = __le32_to_cpu(data->wheelBase);
-            data->wheelRadius       = __le32_to_cpu(data->wheelRadius);
-            data->trackWidth        = __le32_to_cpu(data->trackWidth);
-
-            data->pilotParameterA   = __le32_float_to_cpu(data->pilotParameterA);
-            data->pilotParameterB   = __le32_float_to_cpu(data->pilotParameterB);
-            data->pilotVTransMax    = __le32_to_cpu(data->pilotVTransMax);
-        }
-
-        static void be_to_cpu(chassis_param_data *data)
-        {
-            data->vxMax             = __be32_to_cpu(data->vxMax);
-            data->vyMax             = __be32_to_cpu(data->vyMax);
-            data->vxMin             = __be32_to_cpu(data->vxMin);
-            data->vyMin             = __be32_to_cpu(data->vyMin);
-
-            data->accMax            = __be32_to_cpu(data->accMax);
-            data->decMax            = __be32_to_cpu(data->decMax);
-
-            data->omegaMax          = __be32_float_to_cpu(data->omegaMax);
-            data->minTurningRadius  = __be32_to_cpu(data->minTurningRadius);
-
-            data->breakConstant     = __be32_float_to_cpu(data->breakConstant);
-            data->safetyMargin      = __be32_to_cpu(data->safetyMargin);
-            data->safetyMarginMove  = __be32_to_cpu(data->safetyMarginMove);
-            data->comfortMargin     = __be32_to_cpu(data->comfortMargin);
-
-            data->boundaryFront     = __be32_to_cpu(data->boundaryFront);
-            data->boundaryBack      = __be32_to_cpu(data->boundaryBack);
-            data->boundaryLeft      = __be32_to_cpu(data->boundaryLeft);
-            data->boundaryRight     = __be32_to_cpu(data->boundaryRight);
-
-            data->wheelBase         = __be32_to_cpu(data->wheelBase);
-            data->wheelRadius       = __be32_to_cpu(data->wheelRadius);
-            data->trackWidth        = __be32_to_cpu(data->trackWidth);
-
-            data->pilotParameterA   = __be32_float_to_cpu(data->pilotParameterA);
-            data->pilotParameterB   = __be32_float_to_cpu(data->pilotParameterB);
-            data->pilotVTransMax    = __be32_to_cpu(data->pilotVTransMax);
-        }
-
-        static chassis_param_data *parse(message_info *msgInfo)
+        static chassis_param_data *parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            chassis_param_data *p_data = (chassis_param_data *)msgInfo->p_data;
+            chassis_param_data *data = (chassis_param_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
-            {
-                le_to_cpu(p_data);
-            }
-            else // data in big endian
-            {
-                be_to_cpu(p_data);
-            }
-            setDataByteorder(msgInfo);
-            return p_data;
+            data->vxMax             = msgInfo->data32ToCpu(data->vxMax);
+            data->vyMax             = msgInfo->data32ToCpu(data->vyMax);
+            data->vxMin             = msgInfo->data32ToCpu(data->vxMin);
+            data->vyMin             = msgInfo->data32ToCpu(data->vyMin);
+
+            data->accMax            = msgInfo->data32ToCpu(data->accMax);
+            data->decMax            = msgInfo->data32ToCpu(data->decMax);
+
+            data->omegaMax          = msgInfo->data32FloatToCpu(data->omegaMax);
+            data->minTurningRadius  = msgInfo->data32ToCpu(data->minTurningRadius);
+
+            data->breakConstant     = msgInfo->data32FloatToCpu(data->breakConstant);
+            data->safetyMargin      = msgInfo->data32ToCpu(data->safetyMargin);
+            data->safetyMarginMove  = msgInfo->data32ToCpu(data->safetyMarginMove);
+            data->comfortMargin     = msgInfo->data32ToCpu(data->comfortMargin);
+
+            data->boundaryFront     = msgInfo->data32ToCpu(data->boundaryFront);
+            data->boundaryBack      = msgInfo->data32ToCpu(data->boundaryBack);
+            data->boundaryLeft      = msgInfo->data32ToCpu(data->boundaryLeft);
+            data->boundaryRight     = msgInfo->data32ToCpu(data->boundaryRight);
+
+            data->wheelBase         = msgInfo->data32ToCpu(data->wheelBase);
+            data->wheelRadius       = msgInfo->data32ToCpu(data->wheelRadius);
+            data->trackWidth        = msgInfo->data32ToCpu(data->trackWidth);
+
+            data->pilotParameterA   = msgInfo->data32FloatToCpu(data->pilotParameterA);
+            data->pilotParameterB   = msgInfo->data32FloatToCpu(data->pilotParameterB);
+            data->pilotVTransMax    = msgInfo->data32ToCpu(data->pilotVTransMax);
+
+            msgInfo->setDataByteorder();
+
+            return data;
         }
 
 };
@@ -283,41 +199,27 @@ class ChassisParamData
 //# Chassis Set Active Pilot Data (static size  - MESSAGE)
 //######################################################################
 
-typedef struct {
-    uint32_t  activePilot;    // Command MBX Number of the active pilot (control)
+typedef struct chassis_set_active_pilot_data_s
+{
+    uint32_t  activePilot;    /**< Command MBX Number of the active pilot (control) */
+
 } __attribute__((packed)) chassis_set_active_pilot_data;
 
-class ChassisSetActivePilotData
+class ChassisSetActivePilotData : public RackMessage
 {
     public:
-        static void le_to_cpu(chassis_set_active_pilot_data *data)
-        {
-            data->activePilot = __le32_to_cpu(data->activePilot);
-        }
-
-        static void be_to_cpu(chassis_set_active_pilot_data *data)
-        {
-            data->activePilot   = __be32_to_cpu(data->activePilot);
-        }
-
-        static chassis_set_active_pilot_data* parse(message_info *msgInfo)
+        static chassis_set_active_pilot_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
-            chassis_set_active_pilot_data *p_data =
-                               (chassis_set_active_pilot_data *)msgInfo->p_data;
+            chassis_set_active_pilot_data *data = (chassis_set_active_pilot_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
-            {
-                le_to_cpu(p_data);
-            }
-            else // data in big endian
-            {
-                be_to_cpu(p_data);
-            }
-            setDataByteorder(msgInfo);
-            return p_data;
+            data->activePilot = msgInfo->data32ToCpu(data->activePilot);
+
+            msgInfo->setDataByteorder();
+
+            return data;
         }
 
 };

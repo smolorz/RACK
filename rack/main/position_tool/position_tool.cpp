@@ -23,7 +23,7 @@ PositionTool::PositionTool()
 
 PositionTool::PositionTool(RackMailbox *p_mbx, int gdos_level)
 {
-    gdos = new GdosMailbox(p_mbx, gdos_level);
+    gdos = new RackGdos(p_mbx, gdos_level);
 }
 
 PositionTool::~PositionTool()

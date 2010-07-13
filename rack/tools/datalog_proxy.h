@@ -128,14 +128,14 @@ class DatalogData
             }
         }
 
-        static datalog_data* parse(message_info *msgInfo)
+        static datalog_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             datalog_data *p_data = (datalog_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -143,7 +143,7 @@ class DatalogData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 };

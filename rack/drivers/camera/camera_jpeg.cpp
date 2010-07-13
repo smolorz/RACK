@@ -23,9 +23,6 @@
 #define INIT_BIT_RGBARRAY     4
 #define INIT_BIT_JPEGBUFFER   5
 
-
-CameraJpeg *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_OPT, "cameraSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -126,7 +123,7 @@ int CameraJpeg::moduleLoop(void)
     camera_data_msg*   dataCameraInput = NULL;
     ssize_t            datalength = 0;
 //    rack_time_t          starttime;
-    message_info        msgInfo;
+    RackMessage        msgInfo;
     int                ret;
 
     GDOS_DBG_INFO("starting loop\n");
@@ -217,10 +214,10 @@ int CameraJpeg::moduleLoop(void)
 //
 // Command handling
 //
-int CameraJpeg::moduleCommand(message_info *msgInfo)
+int CameraJpeg::moduleCommand(RackMessage *msgInfo)
 {
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
     case MSG_CAMERA_GET_PARAMETER:
         //weiterleitung an ursprungskamera
@@ -378,6 +375,8 @@ int main(int argc, char *argv[])
     }
 
     // create new CameraJpeg
+
+    CameraJpeg *p_inst;
 
     p_inst = new CameraJpeg();
     if (!p_inst)

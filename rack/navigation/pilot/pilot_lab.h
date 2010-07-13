@@ -87,7 +87,7 @@ class PilotLab : public RackDataModule {
         int      moduleOn(void);
         int      moduleLoop(void);
         void     moduleOff(void);
-        int      moduleCommand(message_info *msgInfo);
+        int      moduleCommand(RackMessage *msgInfo);
 
         float controlOmega(int speed, int dCurr, int dSet, float rhoCurr, float rhoSet,
                            chassis_param_data *chassisParam);

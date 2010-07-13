@@ -101,14 +101,14 @@ class Scan2dData
             }
         }
 
-        static scan2d_data* parse(message_info *msgInfo)
+        static scan2d_data* parse(RackMessage *msgInfo)
         {
             if (!msgInfo->p_data)
                 return NULL;
 
             scan2d_data *p_data = (scan2d_data *)msgInfo->p_data;
 
-            if (isDataByteorderLe(msgInfo)) // data in little endian
+            if (msgInfo->isDataByteorderLe()) // data in little endian
             {
                 le_to_cpu(p_data);
             }
@@ -116,7 +116,7 @@ class Scan2dData
             {
                 be_to_cpu(p_data);
             }
-            setDataByteorder(msgInfo);
+            msgInfo->setDataByteorder();
             return p_data;
         }
 

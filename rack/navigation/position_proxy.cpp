@@ -13,12 +13,12 @@
  *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
- #include <navigation/position_proxy.h>
+#include <navigation/position_proxy.h>
 
 int PositionProxy::getData(position_data *recv_data, ssize_t recv_datalen,
                            rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
                                      reply_timeout_ns, &msgInfo);
@@ -40,7 +40,7 @@ int PositionProxy::update(position_data *posData, uint64_t reply_timeout_ns)
 int PositionProxy::wgs84ToPos(position_wgs84_data *wgs84Data, position_data *posData,
                               uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxySendRecvDataCmd(MSG_POSITION_WGS84_TO_POS, (void *)wgs84Data,
                               sizeof(position_wgs84_data),MSG_POSITION_POS,
@@ -59,7 +59,7 @@ int PositionProxy::wgs84ToPos(position_wgs84_data *wgs84Data, position_data *pos
 int PositionProxy::posToWgs84(position_data *posData, position_wgs84_data *wgs84Data,
                               uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxySendRecvDataCmd(MSG_POSITION_POS_TO_WGS84, (void *)posData,
                               sizeof(position_data),MSG_POSITION_WGS84,
@@ -77,7 +77,7 @@ int PositionProxy::posToWgs84(position_data *posData, position_wgs84_data *wgs84
 int PositionProxy::gkToPos(position_gk_data *gkData, position_data *posData,
                            uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxySendRecvDataCmd(MSG_POSITION_GK_TO_POS, (void *)gkData,
                               sizeof(position_gk_data),MSG_POSITION_POS,
@@ -96,7 +96,7 @@ int PositionProxy::gkToPos(position_gk_data *gkData, position_data *posData,
 int PositionProxy::posToGk(position_data *posData, position_gk_data *gkData,
                            uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxySendRecvDataCmd(MSG_POSITION_POS_TO_GK, (void *)posData,
                               sizeof(position_data),MSG_POSITION_GK,
@@ -114,7 +114,7 @@ int PositionProxy::posToGk(position_data *posData, position_gk_data *gkData,
 int PositionProxy::utmToPos(position_utm_data *utmData, position_data *posData,
                             uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxySendRecvDataCmd(MSG_POSITION_UTM_TO_POS, (void *)utmData,
                               sizeof(position_utm_data),MSG_POSITION_POS,
@@ -133,7 +133,7 @@ int PositionProxy::utmToPos(position_utm_data *utmData, position_data *posData,
 int PositionProxy::posToUtm(position_data *posData, position_utm_data *utmData,
                             uint64_t reply_timeout_ns)
 {
-    message_info msgInfo;
+    RackMessage msgInfo;
 
     int ret = proxySendRecvDataCmd(MSG_POSITION_POS_TO_UTM, (void *)posData,
                               sizeof(position_data),MSG_POSITION_UTM,

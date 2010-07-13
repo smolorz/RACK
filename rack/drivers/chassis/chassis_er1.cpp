@@ -33,8 +33,6 @@
 #define CALIBRATION_ROT 0.82
 
 
-ChassisEr1 *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_STR,
@@ -282,7 +280,7 @@ int ChassisEr1::moduleLoop(void)
 }
 
 // realtime context
-int ChassisEr1::moduleCommand(message_info *msgInfo)
+int ChassisEr1::moduleCommand(RackMessage *msgInfo)
 {
     unsigned int pilot_mask = RackName::getSysMask() |
                               RackName::getClassMask() |
@@ -292,7 +290,7 @@ int ChassisEr1::moduleCommand(message_info *msgInfo)
 
     RackTask::disableRealtimeMode();
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
     case MSG_CHASSIS_MOVE:
         if (status != MODULE_STATE_ENABLED)
@@ -302,7 +300,7 @@ int ChassisEr1::moduleCommand(message_info *msgInfo)
         }
 
         p_move = ChassisMoveData::parse(msgInfo);
-        if ((msgInfo->src & pilot_mask) != activePilot)
+        if ((msgInfo->getSrc() & pilot_mask) != activePilot)
         {
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
@@ -340,18 +338,18 @@ int ChassisEr1::moduleCommand(message_info *msgInfo)
     case MSG_CHASSIS_SET_ACTIVE_PILOT:
         p_pilot = ChassisSetActivePilotData::parse(msgInfo);
 
-        if (((msgInfo->src & pilot_mask) == RackName::create(GUI, 0)) ||
-                ((msgInfo->src & pilot_mask) == RackName::create(PILOT, 0)))
+        if (((msgInfo->getSrc() & pilot_mask) == RackName::create(GUI, 0)) ||
+                ((msgInfo->getSrc() & pilot_mask) == RackName::create(PILOT, 0)))
         {
             activePilot = p_pilot->activePilot & pilot_mask;
             sendMovePackage(0, 0);
-            GDOS_DBG_INFO("%x Changed active pilot to %x", msgInfo->src, activePilot);
+            GDOS_DBG_INFO("%x Changed active pilot to %x", msgInfo->getSrc(), activePilot);
             cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         }
         else
         {
             GDOS_ERROR("%x has no permission to change active pilot to %x",
-                       msgInfo->src, p_pilot->activePilot);
+                       msgInfo->getSrc(), p_pilot->activePilot);
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
         }
         break;
@@ -517,6 +515,8 @@ int main(int argc, char *argv[])
     }
 
     // create new ChassisEr1
+
+    ChassisEr1 *p_inst;
 
     p_inst = new ChassisEr1();
     if (!p_inst)

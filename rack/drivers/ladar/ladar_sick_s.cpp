@@ -16,21 +16,55 @@
  */
 #include "ladar_sick_s.h"
 
-// init_flags
-#define INIT_BIT_DATA_MODULE            0
-#define INIT_BIT_RTSERIAL_OPENED        1
+//
+// init data structures
+//
+
+argTable_t argTab[] = {
+
+    { ARGOPT_REQ, "devNumber", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The number of the device family", { -1 } },
+
+    { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The number of the local serial device", { -1 } },
+
+    { ARGOPT_OPT, "EFIdev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "EFI bus device (0:master, 1:slave)", { 0 } },
+
+    { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Working serial baudrate, default 500000", { 500000 } },
+    { 0, "", 0, 0, "", { 0 } } // last entry
+};
+
+/* serial configuration ( written in non realtime context -> Module::Init() )*/
+const struct rtser_config ladar_serial_config =
+{
+    config_mask       : 0xFFFF,
+    baud_rate         : 9600,
+    parity            : RTSER_NO_PARITY,
+    data_bits         : RTSER_8_BITS,
+    stop_bits         : RTSER_1_STOPB,
+    handshake         : RTSER_DEF_HAND,
+    fifo_depth        : RTSER_FIFO_DEPTH_4, //RTSER_DEF_FIFO_DEPTH,
+    rx_timeout        : RTSER_DEF_TIMEOUT,
+    tx_timeout        : RTSER_DEF_TIMEOUT,
+    event_timeout     : RTSER_DEF_TIMEOUT,
+    timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
+    event_mask        : RTSER_EVENT_RXPEND
+};
 
 #define MKSHORT(a,b) ((unsigned short)(a)|((unsigned short)(b)<<8))
 
-int32_t const scanningAngleS300 = 270;
-int32_t const durationS300 = 40;
-int32_t const maxRangeS300 = 30000;
+#define SCANNING_ANGLE_S300 270
+#define DURATION_S300 40
+#define MAX_RANGE_S300 30000
 
-int32_t const scanningAngleS3000 = 190;
-int32_t const durationS3000 = 30;
-int32_t const maxRangeS3000 = 30000;
+#define SCANNING_ANGLE_S3000 190
+#define DURATION_S3000 30
+#define MAX_RANGE_S3000 30000
 
-int32_t const maxBaudrate = 500000;
+#define MAX_BAUDRATE 500000
+
 //
 // init data structures
 //
@@ -76,41 +110,6 @@ static unsigned short crcTable[256] = {
     0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
 };
 
-LadarSickS *p_inst;
-
-argTable_t argTab[] = {
-
-    { ARGOPT_REQ, "devNumber", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The number of the device family", { -1 } },
-
-    { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The number of the local serial device", { -1 } },
-
-    { ARGOPT_OPT, "EFIdev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "EFI bus device (0:master, 1:slave)", { 0 } },
-
-    { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Working serial baudrate, default 500000", { 500000 } },
-    { 0, "", 0, 0, "", { 0 } } // last entry
-};
-
-/* serial configuration ( written in non realtime context -> Module::Init() )*/
-const struct rtser_config ladar_serial_config =
-{
-    config_mask       : 0xFFFF,
-    baud_rate         : 9600,
-    parity            : RTSER_NO_PARITY,
-    data_bits         : RTSER_8_BITS,
-    stop_bits         : RTSER_1_STOPB,
-    handshake         : RTSER_DEF_HAND,
-    fifo_depth        : RTSER_FIFO_DEPTH_4, //RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : RTSER_DEF_TIMEOUT,
-    tx_timeout        : RTSER_DEF_TIMEOUT,
-    event_timeout     : RTSER_DEF_TIMEOUT,
-    timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
-    event_mask        : RTSER_EVENT_RXPEND
-};
-
 /*******************************************************************************
  *   !!! REALTIME CONTEXT !!!
  *
@@ -137,11 +136,11 @@ int  LadarSickS::moduleOn(void)
     switch(devNumber)
     {
         case 300:
-            dataBufferPeriodTime = maxBaudrate / baudrate * durationS300;
+            dataBufferPeriodTime = MAX_BAUDRATE / baudrate * DURATION_S300;
             break;
 
         case 3000:
-            dataBufferPeriodTime = maxBaudrate / baudrate * durationS3000;
+            dataBufferPeriodTime = MAX_BAUDRATE / baudrate * DURATION_S3000;
             break;
 
         default:
@@ -241,10 +240,10 @@ int  LadarSickS::moduleLoop(void)
     {
         case 300:
             angleResolution         = -0.5 * M_PI/180.0;
-            p_data->pointNum        = 2 * scanningAngleS300 + 1;
-            p_data->duration        = durationS300;
-            p_data->maxRange        = maxRangeS300;
-            p_data->startAngle      = scanningAngleS300 * M_PI/360.0;
+            p_data->pointNum        = 2 * SCANNING_ANGLE_S300 + 1;
+            p_data->duration        = DURATION_S300;
+            p_data->maxRange        = MAX_RANGE_S300;
+            p_data->startAngle      = SCANNING_ANGLE_S300 * M_PI/360.0;
             p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
                                                          angleResolution * p_data->pointNum);
             p_data->recordingTime   = p_data->recordingTime - p_data->duration;
@@ -252,10 +251,10 @@ int  LadarSickS::moduleLoop(void)
 
         case 3000:
             angleResolution         = -0.5 * M_PI/180.0;
-            p_data->pointNum        = 2 * scanningAngleS3000 + 1;
-            p_data->duration        = durationS3000;
-            p_data->maxRange        = maxRangeS3000;
-            p_data->startAngle      = scanningAngleS3000 * M_PI/360.0;
+            p_data->pointNum        = 2 * SCANNING_ANGLE_S3000 + 1;
+            p_data->duration        = DURATION_S3000;
+            p_data->maxRange        = MAX_RANGE_S3000;
+            p_data->startAngle      = SCANNING_ANGLE_S3000 * M_PI/360.0;
             p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
                                                          angleResolution * p_data->pointNum);
             p_data->recordingTime   = p_data->recordingTime - p_data->duration;
@@ -300,7 +299,7 @@ int  LadarSickS::moduleLoop(void)
     return 0;
 }
 
-int  LadarSickS::moduleCommand(message_info *p_msginfo)
+int  LadarSickS::moduleCommand(RackMessage *p_msginfo)
 {
   // not for me -> ask RackDataModule
   return RackDataModule::moduleCommand(p_msginfo);
@@ -328,6 +327,10 @@ unsigned short LadarSickS::crc_check(unsigned char* data, int len)
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags
+#define INIT_BIT_DATA_MODULE            0
+#define INIT_BIT_RTSERIAL_OPENED        1
 
 int  LadarSickS::moduleInit(void)
 {
@@ -414,7 +417,9 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    // create new LadarSick
+    LadarSickS *p_inst;
+
+    // create new LadarSickS
     p_inst = new LadarSickS();
     if (!p_inst)
     {

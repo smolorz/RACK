@@ -21,16 +21,6 @@
 // data structures
 //
 
-// init_flags (for init and cleanup)
-#define INIT_BIT_MBX_WORK                   0
-#define INIT_BIT_DATA_MODULE                1
-#define INIT_BIT_RTSERIAL_OPENED            2
-#define INIT_BIT_PROXY_SCAN2D               3
-#define INIT_BIT_MTX_CREATED                4
-
-
-ChassisRoomba *p_inst;
-
 argTable_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
@@ -433,7 +423,7 @@ int ChassisRoomba::moduleLoop(void)
 }
 
 // realtime context
-int ChassisRoomba::moduleCommand(message_info *msgInfo)
+int ChassisRoomba::moduleCommand(RackMessage *msgInfo)
 {
     int             ret;
     unsigned int pilot_mask = RackName::getSysMask() |
@@ -442,7 +432,7 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
     chassis_move_data               *p_move;
     chassis_set_active_pilot_data   *p_pilot;
 
-    switch (msgInfo->type)
+    switch (msgInfo->getType())
     {
     case MSG_CHASSIS_MOVE:
         if (status != MODULE_STATE_ENABLED)
@@ -452,7 +442,7 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
         }
 
         p_move = ChassisMoveData::parse(msgInfo);
-        if ((msgInfo->src & pilot_mask) != activePilot)
+        if ((msgInfo->getSrc() & pilot_mask) != activePilot)
         {
             cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
             break;
@@ -490,7 +480,7 @@ int ChassisRoomba::moduleCommand(message_info *msgInfo)
             break;
         }
 
-        GDOS_PRINT("%n Changed active pilot to %n", msgInfo->src, activePilot);
+        GDOS_PRINT("%n Changed active pilot to %n", msgInfo->getSrc(), activePilot);
         cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         break;
 
@@ -842,6 +832,14 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
  *
  *   own non realtime user functions
  ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_MBX_WORK                   0
+#define INIT_BIT_DATA_MODULE                1
+#define INIT_BIT_RTSERIAL_OPENED            2
+#define INIT_BIT_PROXY_SCAN2D               3
+#define INIT_BIT_MTX_CREATED                4
+
 int ChassisRoomba::moduleInit(void)
 {
     int ret;
@@ -990,6 +988,9 @@ int main(int argc, char *argv[])
     }
 
     // create new ChassisRoomba
+
+    ChassisRoomba *p_inst;
+
     p_inst = new ChassisRoomba();
     if (!p_inst)
     {
