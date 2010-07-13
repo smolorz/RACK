@@ -19,14 +19,23 @@ import java.io.*;
 
 import rack.main.tims.*;
 
+/**
+ * UTM lateral band A...Z without I and O. Band >= N is northern hemisphere
+ */
+enum PositionUtmBand
+{
+    A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, T, U, V, W, X, Y, Z
+}
+
 public class PositionUtmDataMsg extends TimsMsg
 {
-    public int      zone;           // utm zone
-    public double   northing;       // mm
-    public double   easting;        // mm
-    public int      altitude;       // mm over mean sea level
-    public float    heading;        // rad
-    
+    public int              zone;           // utm zone
+    public double           northing;       // mm
+    public double           easting;        // mm
+    public PositionUtmBand  band;           // see PositionUtmBand
+    public int              altitude;       // mm over mean sea level
+    public float            heading;        // rad
+
     public int getDataLen()
     {
         return 28;
@@ -84,16 +93,16 @@ public class PositionUtmDataMsg extends TimsMsg
         dataOut.writeInt(altitude);
         dataOut.writeFloat(heading);
     }
-    
+
     public boolean isString(String utmString)
     {
         return utmString.startsWith("32U");
     }
-    
+
     public void fromString(String utmString) throws NumberFormatException
     {
         String token[] = utmString.split(" ");
-        
+
         if (token.length == 5)
         {
             String e = token[1].trim();
@@ -115,7 +124,7 @@ public class PositionUtmDataMsg extends TimsMsg
             throw new NumberFormatException("String is not in UTM format");
         }
     }
-    
+
     public String toString()
     {
         double e = (double)((int)(easting / 10.0)) / 100.0;
