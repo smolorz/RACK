@@ -20,11 +20,14 @@
 //# Image Rect (static size - no message)
 //######################################################################
 
+/**
+ * image rect structure
+ */
 typedef struct {
-    int32_t x;
-    int32_t y;
-    int32_t width;
-    int32_t height;
+    int32_t x;                              /**< [px] x-coordinate */
+    int32_t y;                              /**< [px] y-coordinate */
+    int32_t width;                          /**< [px] image rect width */
+    int32_t height;                         /**< [px] image rect height */
 } __attribute__((packed)) image_rect;
 
 class ImageRect
@@ -32,18 +35,18 @@ class ImageRect
     public:
         static void le_to_cpu(image_rect *data)
         {
-            data->x   = __le32_to_cpu(data->x);
-            data->y   = __le32_to_cpu(data->y);
+            data->x        = __le32_to_cpu(data->x);
+            data->y        = __le32_to_cpu(data->y);
             data->width    = __le32_to_cpu(data->width);
             data->height   = __le32_to_cpu(data->height);
         }
 
         static void be_to_cpu(image_rect *data)
         {
-            data->x   = __be32_to_cpu(data->x);
-            data->y   = __be32_to_cpu(data->y);
-            data->width    = __be32_to_cpu(data->width);
-            data->height   = __be32_to_cpu(data->height);
+            data->x         = __be32_to_cpu(data->x);
+            data->y         = __be32_to_cpu(data->y);
+            data->width     = __be32_to_cpu(data->width);
+            data->height    = __be32_to_cpu(data->height);
         }
 
 };

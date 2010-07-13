@@ -39,14 +39,18 @@
 //# ScanPoint (static size - no message )
 //######################################################################
 
+/**
+ * scan point structure
+ */
 typedef struct {
-    int32_t x;
-    int32_t y;
-    /** z coordinate is used to store range information in case of 2d scans */
-    int32_t z;
-    int32_t type;
-    int16_t segment;
-    int16_t intensity;
+    int32_t x;                              /**< [mm] x-coordinate */
+    int32_t y;                              /**< [mm] y-coordinate */
+    int32_t z;                              /**< [mm] z-coordinate, in case of 2d scanse the
+                                                      z-coordinate is used to store range
+                                                      information */
+    int32_t type;                           /**< bitmask defining the type of the scan point */
+    int16_t segment;                        /**< segment number of the scan point */
+    int16_t intensity;                      /**< intensity of the scan point */
 } __attribute__((packed)) scan_point;
 
 

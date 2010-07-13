@@ -28,11 +28,16 @@
 //# LadarPoint (static size - no message )
 //######################################################################
 
+/**
+ * ladar point structure
+ */
 typedef struct {
-    float       angle;
-    int32_t     distance;
-    int32_t     type;
-    int32_t     intensity;
+    float       angle;                      /**< [rad] angle of the ladar point in sensor
+                                                       reference frame, positive clockwise */
+    int32_t     distance;                   /**< [mm] distance of the ladar point in sensor
+                                                      reference frame */
+    int32_t     type;                       /**< bitmask defining the type of the ladar point */
+    int32_t     intensity;                  /**< intensity of the measurement */
 } __attribute__((packed)) ladar_point;
 
 class LadarPoint {
@@ -54,5 +59,7 @@ class LadarPoint {
             data->intensity = __be32_to_cpu(data->intensity);
         }
 };
+
+/*@}*/
 
 #endif // __LADAR_POINT_H__

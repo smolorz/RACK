@@ -21,7 +21,7 @@
  * @ingroup drivers
  * @defgroup camera Camera
  *
- * Hardware abstraction for still cameras.
+ * Hardware abstraction for optical cameras.
  *
  * @{
  */
@@ -39,37 +39,38 @@
 
 
 
-#define CAMERA_MAX_WIDTH  1280 //1280
-#define CAMERA_MAX_HEIGHT  960 //960
-#define CAMERA_MAX_DEPTH    24 //max bit per pixel(YUV Mode) //actual max of tims = 16 * 1280 * 960
-#define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * 2)
+#define CAMERA_MAX_WIDTH  1280              /**< maximum width of camera image */
+#define CAMERA_MAX_HEIGHT  960              /**< maximum height of camera image */
+#define CAMERA_MAX_DEPTH    24              /**< maximum depth per pixel of camera image */
+#define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * CAMERA_MAX_DEPTH / 8)
+                                            /**< maximum bytes of camera image */
 
-//CAMERA_MODE 50-59 are modi for the mono images
-#define CAMERA_MODE_MONO8  01
-#define CAMERA_MODE_MONO12 02
-#define CAMERA_MODE_MONO16 03
-#define CAMERA_MODE_MONO24 04
-//CAMERA_MODE 50-59 are modi for rgb images
-#define CAMERA_MODE_RGB24  11
-#define CAMERA_MODE_RGB565 12
-//CAMERA_MODE 50-59 are modi for yuv images
-#define CAMERA_MODE_YUV422 21
-//CAMERA_MODE 50-59 are modi for raw (bayer) images
-#define CAMERA_MODE_RAW8   31
-#define CAMERA_MODE_RAW12  32
-#define CAMERA_MODE_RAW16  33
-//CAMERA_MODE 50-59 are modi for jpeg compressed images
-#define CAMERA_MODE_JPEG   41
-//CAMERA_MODE 50-59 are modi for the 3d range images
-#define CAMERA_MODE_RANGE          51
-#define CAMERA_MODE_INTENSITY      52
-#define CAMERA_MODE_TYPE_INTENSITY 53
-#define CAMERA_MODE_RANGE_TYPE     54
-#define CAMERA_MODE_SEGMENT        55
-#define CAMERA_MODE_ELEVATION      56
-#define CAMERA_MODE_TYPE           57
-#define CAMERA_MODE_EDGE           58
-#define CAMERA_MODE_DISPARITY      59
+//CAMERA_MODE 01-54 are modi for the mono images
+#define CAMERA_MODE_MONO8  01               /**< mono image with 8bit depth */
+#define CAMERA_MODE_MONO12 02               /**< mono image with 12bit depth */
+#define CAMERA_MODE_MONO16 03               /**< mono image with 16bit depth */
+#define CAMERA_MODE_MONO24 04               /**< mono image with 24bit depth */
+//CAMERA_MODE 11-12 are modi for rgb images
+#define CAMERA_MODE_RGB24  11               /**< color image with 24bit depth */
+#define CAMERA_MODE_RGB565 12               /**< color image in 565 format */
+//CAMERA_MODE 21 is a modi for yuv images
+#define CAMERA_MODE_YUV422 21               /**< color image in yuv422 format */
+//CAMERA_MODE 31-33 are modi for raw (bayer) images
+#define CAMERA_MODE_RAW8   31               /**< color image in raw8 (bayer) format */
+#define CAMERA_MODE_RAW12  32               /**< color image in raw12 (bayer) format */
+#define CAMERA_MODE_RAW16  33               /**< color image in raw16 (bayer) format */
+//CAMERA_MODE 41 is modi for jpeg compressed images
+#define CAMERA_MODE_JPEG   41               /**< jpeg compressed image */
+//CAMERA_MODE 51-59 are modi for the 3d range images
+#define CAMERA_MODE_RANGE          51       /**< 3d range image */
+#define CAMERA_MODE_INTENSITY      52       /**< 3d intensity image */
+#define CAMERA_MODE_TYPE_INTENSITY 53       /**< 3d type and intensity image */
+#define CAMERA_MODE_RANGE_TYPE     54       /**< 3d range and type image */
+#define CAMERA_MODE_SEGMENT        55       /**< 3d segment image */
+#define CAMERA_MODE_ELEVATION      56       /**< 3d elevation image */
+#define CAMERA_MODE_TYPE           57       /**< 3d type image */
+#define CAMERA_MODE_EDGE           58       /**< 3d edge image */
+#define CAMERA_MODE_DISPARITY      59       /**< 3d disparity image */
 
 //Pattern for raw images
 #define COLORFILTER_RGGB  512
@@ -81,14 +82,17 @@
 //# Camera Data (static size  - MESSAGE)
 //######################################################################
 
+/**
+ * camera data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    uint16_t    width;
-    uint16_t    height;
-    uint16_t    depth;
-    uint16_t    mode;
-    uint32_t    colorFilterId;
-    uint8_t     byteStream[0];
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    uint16_t    width;                      /**< [px] width of the camera image  */
+    uint16_t    height;                     /**< [px] height of the camera image */
+    uint16_t    depth;                      /**< [bit/px] depth per pixel of the camera image */
+    uint16_t    mode;                       /**< color mode of the camera image */
+    uint32_t    colorFilterId;              /**< id of the color filter pattern */
+    uint8_t     byteStream[0];              /**< byte stream with the image data */
 } __attribute__((packed)) camera_data;
 
 class CameraData
@@ -130,7 +134,6 @@ class CameraData
             for (i = 0; i < bytes; i++)
             {
                 data->byteStream[i] = data->byteStream[i];
-//                data->byteStream[i] = __be32_to_cpu(data->byteStream[i]);
             }
         }
 
@@ -165,28 +168,33 @@ typedef struct {
 //# Camera Parameter Data (static size  - MESSAGE)
 //######################################################################
 
+/**
+ * camera parameter data structure
+ */
 typedef struct
 {
-  int32_t  calibration_width;  //#pixel x
-  int32_t  calibration_height; //#pixel y
-  float    f;  //focus of lens [mm]
-  float    fx; //f in pixel = 4.8 mm [pix]
-  float    fy;
-  float    sx; //scaling factor
-  float    sy; //scaling factor
-  float    dx; //size of sensor element[mm]
-  float    dy; //size of sensor element in [mm]
-  float    k1; //1. radial coeffizient  [1/mm^2]
-  float    k2; //2. radial coeffizient
-  float    p1; //1. tangential coeffizient [1/mm]
-  float    p2; //2. tangential coeffizient [1/mm]
-  float    e0; //Z axis intercept of camera coordinate system x-axis [pix]
-  float    n0; //Z axis intercept of camera coordinate system y-axis [pix]
-                   //coordinates of center of radial lens distortion
-                   //(also used as the piercing point of the camera coordinate
-                   //frame's Z axis with the camera's sensor plane)
-  float    coordinateRotation[9]; //rotation matrix (extrinsic parameter)
-  float    coordinateTranslation[3]; //translation vector [mm] (extrinsic parameter)
+  int32_t  calibration_width;               /**< [px] width  */
+  int32_t  calibration_height;              /**< [px] height */
+  float    f;                               /**< [mm] focus of lens */
+  float    fx;                              /**< [px] focus in pixel= 4.8 mm */
+  float    fy;                              /**< [px] focus in pixel= 4.8 mm */
+  float    sx;                              /**< scaling factor in x-direction */
+  float    sy;                              /**< scaling factor in y-direction */
+  float    dx;                              /**< [mm] width of the sensor element */
+  float    dy;                              /**< [mm] height of the sensor element */
+  float    k1;                              /**< [1/mm^2] first radial coeffizient */
+  float    k2;                              /**< [1/mm^2] second radial coeffizient */
+  float    p1;                              /**< [1/mm] first tangential coeffizient */
+  float    p2;                              /**< [1/mm] second tangential coeffizient */
+  float    e0;                              /**< [px] z-axis intercept of camera coordinate
+                                                      system x-axis */
+  float    n0;                              /**< [px] z-axis intercept of camera coordinate system
+                                                      y-axis, coordinates of center of radial lens
+                                                      distortion (also used as the piercing point
+                                                      of the camera coordinate frame's z-axis with
+                                                      the camera's sensor plane) */
+  float    coordinateRotation[9];           /**< [rad] rotation matrix (extrinsic parameter) */
+  float    coordinateTranslation[3];        /**< [mm] translation vector (extrinsic parameter) */
 
 } __attribute__((packed)) camera_param_data;
 
@@ -265,12 +273,15 @@ class CameraParamData
 //# Camera Format Data (static size  - MESSAGE)
 //######################################################################
 
+/**
+ * camera format data structure
+ */
 typedef struct
 {
-  int32_t   width;
-  int32_t   height;
-  int32_t   depth;
-  int32_t   mode;
+  int32_t   width;                          /**< [px] width of the camera image */
+  int32_t   height;                         /**< [px] height of the camera image */
+  int32_t   depth;                          /**< [bit/px] depth per pixel of the camera image */
+  int32_t   mode;                           /**< color mode of the camera image */
 
 } __attribute__((packed)) camera_format_data;
 
@@ -332,7 +343,7 @@ class CameraProxy : public RackDataProxy {
     { };
 
     ~CameraProxy()
-    { };
+   { };
 
 
 //

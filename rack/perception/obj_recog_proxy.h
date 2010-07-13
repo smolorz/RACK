@@ -41,7 +41,7 @@
 //# ObjRecog data defines
 //######################################################################
 
-#define OBJ_RECOG_OBJECT_MAX       100
+#define OBJ_RECOG_OBJECT_MAX       100      /**< maximum number of objects */
 
 //######################################################################
 //# ObjRecogData (!!! VARIABLE SIZE !!!)
@@ -60,12 +60,16 @@ ACCESS: msg.data.object[...] OR msg.object[...]; !!!
 
 */
 
+/**
+ * object recognition data structure
+ */
 typedef struct {
-    rack_time_t         recordingTime;  // has to be first element
-    position_3d         refPos;         // position of the reference cooridnate system
-    position_3d         varRefPos;      // variance of the reference position
-    int32_t             objectNum;      // number of recognized objects
-    obj_recog_object    object[0];      // list of recognized objects
+    rack_time_t         recordingTime;      /**< [ms]  global timestamp (has to be first element)*/
+    position_3d         refPos;             /**< global position of the reference coordinate
+                                                 system */
+    position_3d         varRefPos;          /**< standard deviation of the reference position */
+    int32_t             objectNum;          /**< number of following objects */
+    obj_recog_object    object[0];          /**< list of objects */
 } __attribute__((packed)) obj_recog_data;
 
 class ObjRecogData

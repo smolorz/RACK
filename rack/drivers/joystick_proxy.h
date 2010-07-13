@@ -32,10 +32,14 @@
 //# Joystick Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * joystick data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    position_3d position;       // joystick-position in percent -100<x<100 ...
-    int32_t     buttons;        // binary button information bit0->button0, ...
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    position_3d position;                   /**< joystick position in percent
+                                                 (-100 <= position <= 100) */
+    int32_t     buttons;                    /**< binary button information bit0->button0, etc */
 } __attribute__((packed)) joystick_data;
 
 class JoystickData

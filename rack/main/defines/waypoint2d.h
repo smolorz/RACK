@@ -19,19 +19,24 @@
 //######################################################################
 //# Waypoint2d (static size - no message )
 //######################################################################
+
+/**
+ * waypoint 2d structure
+ */
 typedef struct {
-    int32_t x;                              // x-coordinate
-    int32_t y;                              // y-coordinate
-    int32_t speed;                          // velocity
-    int32_t maxRadius;                      // maximum turning radius
-    int32_t type;                           // type flags
-    int32_t request;                        // request flags
-    int32_t lbo;                            // lateral boundary offset
-    int32_t id;                             // waypoint id
-    int32_t wayId;                          // way id
-    int32_t layer;                          // layer
-    int32_t actionStart;                    // start action
-    int32_t actionEnd;                      // end action
+    int32_t x;                              /**< [mm] x-coordinate */
+    int32_t y;                              /**< [mm] y-coordinate */
+    int32_t speed;                          /**< [mm/s] velocity */
+    int32_t maxRadius;                      /**< [mm] absolute value of the maximum turning
+                                                      radius */
+    int32_t type;                           /**< type flag */
+    int32_t request;                        /**< request flags */
+    int32_t lbo;                            /**< [mm] lateral boundary offset */
+    int32_t id;                             /**< waypoint id */
+    int32_t wayId;                          /**< way id */
+    int32_t layer;                          /**<  layer */
+    int32_t actionStart;                    /**< start action */
+    int32_t actionEnd;                      /**< end action */
 } __attribute__((packed))waypoint_2d;
 
 class Waypoint2d
@@ -51,7 +56,7 @@ class Waypoint2d
             data->wayId       = __le32_to_cpu(data->wayId);
             data->layer       = __le32_to_cpu(data->layer);
             data->actionStart = __le32_to_cpu(data->actionStart);
-            data->actionEnd   = __le32_to_cpu(data->actionEnd);
+           data->actionEnd   = __le32_to_cpu(data->actionEnd);
         }
 
         static void be_to_cpu(waypoint_2d *data)

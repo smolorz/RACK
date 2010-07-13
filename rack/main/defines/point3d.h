@@ -20,10 +20,13 @@
 //# Point3D (static size - no message)
 //######################################################################
 
+/**
+ * point 3d structure
+ */
 typedef struct {
-    int32_t x;
-    int32_t y;
-    int32_t z;
+    int32_t x;                              /**< [mm] x-coordinate */
+    int32_t y;                              /**< [mm] y-coordinate */
+    int32_t z;                              /**< [mm] z-coordinate */
 } __attribute__((packed)) point_3d;
 
 class Point3D

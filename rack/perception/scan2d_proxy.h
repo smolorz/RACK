@@ -32,7 +32,7 @@
 #include <main/defines/position3d.h>
 
 
-#define SCAN2D_POINT_MAX 8000
+#define SCAN2D_POINT_MAX 8000               /**< maximum number of scan points */
 
 //######################################################################
 //# Scan2DData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -51,15 +51,20 @@ ACCESS: msg.data.point[...] OR msg.point[...];
 
 */
 
+/**
+ * scan 2d data structure
+ */
 typedef struct {
-    rack_time_t     recordingTime;  // has to be first element !!!
-    rack_time_t     duration;
-    int32_t         maxRange;
-    int32_t         sectorNum;
-    int32_t         sectorIndex;
-    position_3d     refPos;         // position of the reference cooridnate system
-    int32_t         pointNum;
-    scan_point      point[0];
+    rack_time_t     recordingTime;          /**< [ms]  global timestamp (has to be first element)*/
+    rack_time_t     duration;               /**< [ms]  duration of the scan */
+    int32_t         maxRange;               /**< [mm] maximum range of the sensor */
+    int32_t         sectorNum;              /**< number of sectors the scan is divided in */
+    int32_t         sectorIndex;            /**< number of the current sector included in this
+                                                 data */
+    position_3d     refPos;                 /**< global position of the reference coordinate
+                                                 system */
+    int32_t         pointNum;               /**< number of following ladar scan points */
+    scan_point      point[0];               /**< list of scan points */
 } __attribute__((packed)) scan2d_data;
 
 class Scan2dData

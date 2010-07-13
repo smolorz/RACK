@@ -56,7 +56,7 @@ ACCESS: msg.data.value[...] OR msg.value[...];
 */
 
 // the maximum number of values
-#define DUMMY_MAX_VALUE_NUM                 20
+#define DUMMY_MAX_VALUE_NUM 20              /**< maximum number of values */
 
 // dummy_data will be replied to the sender of:
 // -> DUMMY_GET_DATA
@@ -67,12 +67,15 @@ ACCESS: msg.data.value[...] OR msg.value[...];
 // long long    -> int64_t
 // ...
 
+/**
+ * dummy data structure
+ */
 typedef struct {
-    rack_time_t recordingTime; // has to be first element
-    float       valA;
-    uint32_t    valB;
-    int32_t     valueNum;
-    int32_t     value[0];
+    rack_time_t recordingTime;              /**< [ms]  global timestamp (has to be first element)*/
+    float       valA;                       /**< examplary value a */
+    uint32_t    valB;                       /**< examplary value b */
+    int32_t     valueNum;                   /**< number of following values */
+    int32_t     value[0];                   /**< list of exemplary values */
 } __attribute__((packed)) dummy_data;
 
 // class for e.g. parsing functions
@@ -137,9 +140,12 @@ class DummyData
 // -> DUMMY_SEND_DATA_CMD
 // -> DUMMY_SEND_RECV_DATA_CMD
 
+/**
+ * dummy param data structure
+ */
 typedef struct {
-    float   valX;
-    int32_t valY;
+    float   valX;                           /**< exemplary parameter value x */
+    int32_t valY;                           /**< exemplary parameter value y */
 } __attribute__((packed)) dummy_param;
 
 class DummyParam

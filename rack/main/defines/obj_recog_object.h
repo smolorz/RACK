@@ -24,16 +24,19 @@
 //# object recognition object (static size)
 //######################################################################
 
+/**
+ * object recognition object structure
+ */
 typedef struct {
-    int32_t     objectId;
-    int32_t     type;
-    position_3d pos;
-    position_3d varPos;
-    position_3d vel;
-    position_3d varVel;
-    point_3d    dim;
-    float       prob;
-    image_rect  imageArea;
+    int32_t     objectId;                   /**< id of the object */
+    int32_t     type;                       /**< type of the object */
+    position_3d pos;                        /**< position of the object center */
+    position_3d varPos;                     /**< standard deviation of the position */
+    position_3d vel;                        /**< velocity of the object center */
+    position_3d varVel;                     /**< standard deviation of the velocity */
+    point_3d    dim;                        /**< dimension of the objects bounding box */
+    float       prob;                       /**< probability, still in use??? */
+    image_rect  imageArea;                  /**< image area (texture) representing the object */
 } __attribute__((packed)) obj_recog_object;
 
 class ObjRecogObject {

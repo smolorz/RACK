@@ -24,22 +24,28 @@
 //# PolarSpline (static size - no message)
 //######################################################################
 
+/**
+ * polar spline structure
+ */
 typedef struct
 {
-    waypoint_2d basepoint;
-    position_2d startPos;
-    position_2d endPos;
-    position_2d centerPos;
-    int32_t     length;
-    int32_t     radius;
-    int32_t     vMax;
-    int32_t     vStart;
-    int32_t     vEnd;
-    int32_t     accMax;
-    int32_t     decMax;
-    int32_t     type;
-    int32_t     request;
-    int32_t     lbo;
+    waypoint_2d basepoint;                  /**< next basepoint the spline is heading to */
+    position_2d startPos;                   /**< start position of the spline */
+    position_2d endPos;                     /**< end position of the spline */
+    position_2d centerPos;                  /**< center position of the spline */
+    int32_t     length;                     /**< [mm] length of the spline */
+    int32_t     radius;                     /**< [mm] radius of the spline */
+    int32_t     vMax;                       /**< [mm/s] absolute value of the maximum velocity of
+                                                        the spline */
+    int32_t     vStart;                     /**< [mm/s] absolute value of the velocity at the start
+                                                        of the spline */
+    int32_t     vEnd;                       /**< [mm/s] absolute value of the velocity at the end
+                                                        of the spline */
+    int32_t     accMax;                     /**< [mm/s^2] maximum acceleration on the spline */
+    int32_t     decMax;                     /**< [mm/s^2] maximum deceleration on the spline */
+    int32_t     type;                       /**< type flag */
+    int32_t     request;                    /**< request flag */
+    int32_t     lbo;                        /**< [mm] lateral boundary offset */
 } __attribute__((packed)) polar_spline;
 
 class PolarSpline
