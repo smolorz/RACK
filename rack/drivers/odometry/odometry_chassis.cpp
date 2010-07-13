@@ -22,7 +22,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "chassisSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the chassis module", { 0 } },
@@ -371,10 +371,10 @@ int  main(int argc, char *argv[])
 
       // create new OdometryChassis
 
-      OdometryChassis *p_inst;
+      OdometryChassis *pInst;
 
-      p_inst = new OdometryChassis();
-      if (!p_inst)
+      pInst = new OdometryChassis();
+      if (!pInst)
       {
         printf("Can't create new OdometryChassis -> EXIT\n");
         return -ENOMEM;
@@ -382,16 +382,16 @@ int  main(int argc, char *argv[])
 
       // init
 
-      ret = p_inst->moduleInit();
+      ret = pInst->moduleInit();
       if (ret)
         goto exit_error;
 
-      p_inst->run();
+      pInst->run();
 
       return 0;
 
 exit_error:
 
-      delete (p_inst);
+      delete (pInst);
       return ret;
 }

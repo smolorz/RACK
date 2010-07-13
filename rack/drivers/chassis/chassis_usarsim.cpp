@@ -21,7 +21,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "max vehicle velocity in x direction, default 700 m/s", { 700 } },
@@ -1211,10 +1211,10 @@ int main(int argc, char *argv[])
 
     // create new ChassisUsarsim
 
-    ChassisUsarsim *p_inst;
+    ChassisUsarsim *pInst;
 
-    p_inst = new ChassisUsarsim();
-    if (!p_inst)
+    pInst = new ChassisUsarsim();
+    if (!pInst)
     {
         printf("Can't create new ChassisUsarsim -> EXIT\n");
         return -ENOMEM;
@@ -1222,17 +1222,17 @@ int main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

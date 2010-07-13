@@ -19,7 +19,7 @@
 // init data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The number of the local serial device", { -1 } },
@@ -1169,25 +1169,25 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    LadarSickLms200 *p_inst;
+    LadarSickLms200 *pInst;
 
     // create new LadarSick
-    p_inst = new LadarSickLms200();
-    if (!p_inst || !p_inst->conf)
+    pInst = new LadarSickLms200();
+    if (!pInst || !pInst->conf)
     {
         printf("Can't create new LadarSickLms200 -> EXIT\n");
         return -ENOMEM;
     }
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

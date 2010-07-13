@@ -68,7 +68,7 @@ ListHead mbxList;
 // arguments
 //
 
-argTable_t module_argTab[] = {
+arg_table_t module_argTab[] = {
 
   {ARGOPT_OPT, "system" , ARGOPT_REQVAL, ARGOPT_VAL_INT,
    "The global system number of this module, [0]", { 0 } },
@@ -101,7 +101,7 @@ argTable_t module_argTab[] = {
 // arguments
 //
 
-static argTable_t* arg_table;
+static arg_table_t* arg_table;
 static char classname[50];
 
 //
@@ -603,7 +603,7 @@ int       RackModule::createCmdMbx(void)
 // RackModule init and cleanup
 //
 
-int     RackModule::parseArgTable(argTable_t *argTable, rack_param_msg *paramMsg)
+int     RackModule::parseArgTable(arg_table_t *argTable, rack_param_msg *paramMsg)
 {
     int i = 0;
     while(argTable[i].name.length() != 0)
@@ -1011,7 +1011,7 @@ exit_error:
 // save argument table and name of module
 //
 
-void save_argTab(argTable_t* p_tab, const char* name)
+void save_argTab(arg_table_t* p_tab, const char* name)
 {
     arg_table = p_tab;
     strncpy(classname, name, 50);

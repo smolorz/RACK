@@ -24,7 +24,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "scan2dSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the Scan2d module", { 0 } },
@@ -1937,26 +1937,26 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    PilotWallFollowing *p_inst;
+    PilotWallFollowing *pInst;
 
     // create new PilotWallFollowing
-    p_inst = new PilotWallFollowing();
-    if (!p_inst)
+    pInst = new PilotWallFollowing();
+    if (!pInst)
     {
         printf("Can't create new PilotWallFollowing -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
     return 0;
 
 exit_error:
-    delete (p_inst);
+    delete (pInst);
     return ret;
 
 }

@@ -45,7 +45,7 @@ const unsigned char encoderOnCommand[] = {0xFA, 0xFB, 6, 19, 0x3b, 0x02, 0x00,
 const unsigned char sonarOffCommand[]  = {0xFA, 0xFB, 6, 28, 0x3b, 0x00, 0x00,
                                           0x1C, 0x3b};
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
@@ -995,10 +995,10 @@ int main(int argc, char *argv[])
 
     // create new ChassisPioneer
 
-    ChassisPioneer *p_inst;
+    ChassisPioneer *pInst;
 
-    p_inst = new ChassisPioneer();
-    if (!p_inst)
+    pInst = new ChassisPioneer();
+    if (!pInst)
     {
         printf("Can't create new ChassisPioneer -> EXIT\n");
         return -ENOMEM;
@@ -1006,17 +1006,17 @@ int main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

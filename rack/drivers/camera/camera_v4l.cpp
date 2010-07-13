@@ -18,7 +18,7 @@
 
 #define INIT_BIT_DATA_MODULE 0
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "width", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "width", { 320 } },
@@ -464,10 +464,10 @@ int main(int argc, char *argv[])
 
     // create new CameraV4L
 
-    CameraV4L *p_inst;
+    CameraV4L *pInst;
 
-    p_inst = new CameraV4L();
-    if (!p_inst)
+    pInst = new CameraV4L();
+    if (!pInst)
     {
         printf("Can't create new CameraV4L -> EXIT\n");
         return -ENOMEM;
@@ -475,17 +475,17 @@ int main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

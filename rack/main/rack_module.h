@@ -59,9 +59,9 @@ using std::string;
 //
 // save argument table and name of module
 //
-void save_argTab(argTable_t* p_tab, const char* name);
+void save_argTab(arg_table_t* p_tab, const char* name);
 
-extern argTable_t module_argTab[];
+extern arg_table_t module_argTab[];
 
 //
 // some additional functions
@@ -204,7 +204,7 @@ class RackModule {
 
         rack_param_msg *paramMsg;
 
-        int       parseArgTable(argTable_t *argTable, rack_param_msg *paramMsg);
+        int       parseArgTable(arg_table_t *argTable, rack_param_msg *paramMsg);
 
         int32_t   getInt32Param(const char* paramName);
         char*     getStringParam(const char* paramName);
@@ -292,10 +292,10 @@ class RackModule {
 //
     public:
 
-        static int getArgs(int argc, char *argv[], argTable_t* p_tab,
+        static int getArgs(int argc, char *argv[], arg_table_t* p_tab,
                            const char *classname)
         {
-            argDescriptor_t module_argDesc[] =
+            arg_descriptor_t module_argDesc[] =
             {
                 { module_argTab}, {p_tab}, {NULL}
             };

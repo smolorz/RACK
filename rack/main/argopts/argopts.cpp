@@ -26,14 +26,14 @@
 
 struct argTab_longTab {
     int             index;
-    argTable_t*     tab;
+    arg_table_t*     tab;
 };
 
 static char arg_classname[50];
 
-void printAllArgs(argDescriptor_t *p_argdesc)
+void printAllArgs(arg_descriptor_t *p_argdesc)
 {
-    argTable_t *descTab;
+    arg_table_t *descTab;
     int table = 0;
     int tabidx = 0;
 
@@ -72,10 +72,10 @@ void printAllArgs(argDescriptor_t *p_argdesc)
     printf("\n");
 }
 
-void argUsage(argDescriptor_t *p_argdesc)
+void argUsage(arg_descriptor_t *p_argdesc)
 {
     const char *val_type_name[3] = { "int", "str", "flt" };
-    argTable_t *descTab;
+    arg_table_t *descTab;
     int table = 0;
     int tabidx = 0;
 
@@ -117,7 +117,7 @@ void argUsage(argDescriptor_t *p_argdesc)
 struct option         long_option[ARGOPTS_MAX_ENTRIES];
 struct argTab_longTab atlt[ARGOPTS_MAX_ENTRIES];
 
-int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
+int argScan(int argc, char *argv[], arg_descriptor_t *p_argdesc,
             const char *classname)
 {
     int option_index = 0;
@@ -147,7 +147,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
     tab_entries = 0;
     for (tab=0; tab <tables; tab++)
     {
-        argTable_t *descTab = p_argdesc[tab].tab;
+        arg_table_t *descTab = p_argdesc[tab].tab;
         tabidx = 0;
 
         while (descTab[tabidx++].name.length() != 0)
@@ -166,7 +166,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
     tab_entry = 0;
     for (tab=0; tab <tables; tab++)
     {
-        argTable_t *descTab = p_argdesc[tab].tab;
+        arg_table_t *descTab = p_argdesc[tab].tab;
         tabidx = 0;
 
         while (descTab[tabidx].name.length() != 0)
@@ -224,7 +224,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
             int error = 0;
             while ( i < tab_entries)
             {
-                argTable_t *descTab = atlt[i].tab;
+                arg_table_t *descTab = atlt[i].tab;
                 int index = atlt[i].index;
                 if (descTab[index].arg_type == ARGOPT_REQ)
                 {
@@ -265,7 +265,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
         }
 
         // check if integer value
-        argTable_t *descTab = atlt[option_index].tab;
+        arg_table_t *descTab = atlt[option_index].tab;
         int index = atlt[option_index].index;
 
         switch (descTab[index].val_type) {
@@ -297,7 +297,7 @@ int argScan(int argc, char *argv[], argDescriptor_t *p_argdesc,
     return -1;
 }
 
-arg_value_t __getArg(const char* argname, argTable_t *p_tab)
+arg_value_t __getArg(const char* argname, arg_table_t *p_tab)
 {
     int idx = 0;
     while (p_tab[idx].name != "")

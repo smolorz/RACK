@@ -20,7 +20,7 @@
 // init data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
     { ARGOPT_OPT, "maxDataSize", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The maximal size of the cameradata, default (max)", { sizeof(obj_recog_data_msg) } },
 
@@ -287,25 +287,25 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    ObjRecogRelayLadar *p_inst;
+    ObjRecogRelayLadar *pInst;
 
     // create new ObjRecogRelayLadar
-    p_inst = new ObjRecogRelayLadar();
-    if (!p_inst || !p_inst->inited)
+    pInst = new ObjRecogRelayLadar();
+    if (!pInst || !pInst->inited)
     {
         printf("Can't create new ObjRecogRelayLadar -> EXIT\n");
         return -ENOMEM;
     }
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

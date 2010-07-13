@@ -20,7 +20,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "odometrySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the odometry module", { 0 } },
@@ -827,11 +827,11 @@ int  main(int argc, char *argv[])
         return ret;
       }
 
-      Position *p_inst;
+      Position *pInst;
 
       // create new Position
-      p_inst = new Position();
-      if (!p_inst)
+      pInst = new Position();
+      if (!pInst)
       {
         printf("Can't create new Position -> EXIT\n");
         return -ENOMEM;
@@ -839,16 +839,16 @@ int  main(int argc, char *argv[])
 
       // init
 
-      ret = p_inst->moduleInit();
+      ret = pInst->moduleInit();
       if (ret)
         goto exit_error;
 
-      p_inst->run();
+      pInst->run();
 
       return 0;
 
 exit_error:
 
-      delete (p_inst);
+      delete (pInst);
       return ret;
 }

@@ -19,7 +19,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "odometrySys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the odometry module", { 0 } },
@@ -581,26 +581,26 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    Scan2dMerge *p_inst;
+    Scan2dMerge *pInst;
 
     // create new Scan2dMerge
-    p_inst = new Scan2dMerge();
-    if (!p_inst)
+    pInst = new Scan2dMerge();
+    if (!pInst)
     {
         printf("Can't create new Scan2dMerge -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

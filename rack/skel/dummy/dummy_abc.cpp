@@ -21,7 +21,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ,                                  // argument required
       "reqVal" ,                                   // name of argument
@@ -238,10 +238,10 @@ int  main(int argc, char *argv[])
 
     // create new DummyAbc
 
-    DummyAbc *p_inst;
+    DummyAbc *pInst;
 
-    p_inst = new DummyAbc();
-    if (!p_inst)
+    pInst = new DummyAbc();
+    if (!pInst)
     {
         printf("Can't create new DummyAbc -> EXIT\n");
         return -ENOMEM;
@@ -249,16 +249,16 @@ int  main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

@@ -21,7 +21,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
@@ -1437,27 +1437,27 @@ int main(int argc, char *argv[])
 
     // create new GpsNmea
 
-    GpsNmea *p_inst;
+    GpsNmea *pInst;
 
-    p_inst = new GpsNmea();
-    if (!p_inst)
+    pInst = new GpsNmea();
+    if (!pInst)
     {
         printf("Can't create new GpsNmea -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

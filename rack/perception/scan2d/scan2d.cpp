@@ -43,7 +43,7 @@ static inline void swap(int32_t *a, int32_t *b)
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "ladarSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the ladar driver", { 0 } },
@@ -734,26 +734,26 @@ int  main(int argc, char *argv[])
 
     // create new Scan2d
 
-    Scan2d *p_inst;
+    Scan2d *pInst;
 
-    p_inst = new Scan2d();
-    if (!p_inst)
+    pInst = new Scan2d();
+    if (!pInst)
     {
         printf("Can't create new Scan2d -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }
 

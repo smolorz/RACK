@@ -19,7 +19,7 @@
 // include own header file
 #include "ladar_hokuyo_urg.h"
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The number of the local serial device", { -1 } },
@@ -330,11 +330,11 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    LadarHokuyoUrg *p_inst;
+    LadarHokuyoUrg *pInst;
 
     // create new LadarHokuyoUrg
-    p_inst = new LadarHokuyoUrg();
-    if (!p_inst)
+    pInst = new LadarHokuyoUrg();
+    if (!pInst)
     {
         printf("Can't create new LadarHokuyoUrg -> EXIT\n");
         return -ENOMEM;
@@ -342,16 +342,16 @@ int  main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

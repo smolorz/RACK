@@ -49,18 +49,20 @@ typedef union arg_value {
     float f;
 } arg_value_t;
 
-typedef struct arg_table{
+typedef struct arg_table
+{
     int arg_type;
     string name;
     int has_val;
     int val_type;
     string help;
     arg_value_t val;
-} argTable_t;
+} arg_table_t;
 
-typedef struct arg_descriptor{
-    argTable_t* tab;
-} argDescriptor_t;
+typedef struct arg_descriptor
+{
+    arg_table_t* tab;
+} arg_descriptor_t;
 
 /* scans the start-options of the program.
  * nr: argument-number of an option
@@ -68,28 +70,28 @@ typedef struct arg_descriptor{
  * argv: argument vector
  * argdesc: pointer to an argDescriptor struct
  */
-int argScan(int argc, char *argv[], argDescriptor_t *p_ad,
+int argScan(int argc, char *argv[], arg_descriptor_t *p_ad,
             const char *classname);
 
-void argUsage(argDescriptor_t *p_ad);
+void argUsage(arg_descriptor_t *p_ad);
 
-arg_value_t __getArg(const char *argname, argTable_t *p_tab);
+arg_value_t __getArg(const char *argname, arg_table_t *p_tab);
 
-static inline int getIntArg(const char *argname, argTable_t *p_tab)
+static inline int getIntArg(const char *argname, arg_table_t *p_tab)
 {
     return __getArg(argname, p_tab).i;
 }
 
-static inline char *getStrArg(const char *argname, argTable_t *p_tab)
+static inline char *getStrArg(const char *argname, arg_table_t *p_tab)
 {
     return __getArg(argname, p_tab).s;
 }
 
-static inline float getFltArg(const char *argname, argTable_t *p_tab)
+static inline float getFltArg(const char *argname, arg_table_t *p_tab)
 {
     return __getArg(argname, p_tab).f;
 }
 
-void printAllArgs(argDescriptor_t *p_argdesc);
+void printAllArgs(arg_descriptor_t *p_argdesc);
 
 #endif // _ARGOPTS_H_

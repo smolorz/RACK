@@ -84,7 +84,7 @@ typedef struct {
     ladar_point   point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "canDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "CAN device number", { -1 } },
@@ -898,27 +898,27 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    LadarIbeo *p_inst;
+    LadarIbeo *pInst;
 
     // create new LadarIbeo
-    p_inst = new LadarIbeo();
-    if (!p_inst)
+    pInst = new LadarIbeo();
+    if (!pInst)
     {
         printf("Can't create new LadarIbeo -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

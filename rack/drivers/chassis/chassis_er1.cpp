@@ -33,7 +33,7 @@
 #define CALIBRATION_ROT 0.82
 
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "Serial device number", { 0 } },
@@ -516,10 +516,10 @@ int main(int argc, char *argv[])
 
     // create new ChassisEr1
 
-    ChassisEr1 *p_inst;
+    ChassisEr1 *pInst;
 
-    p_inst = new ChassisEr1();
-    if (!p_inst)
+    pInst = new ChassisEr1();
+    if (!pInst)
     {
         printf("Can't create new ChassisEr1 -> EXIT\n");
         return -ENOMEM;
@@ -527,17 +527,17 @@ int main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

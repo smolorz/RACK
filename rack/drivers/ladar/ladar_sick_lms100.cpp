@@ -26,7 +26,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "lmsIp", ARGOPT_REQVAL, ARGOPT_VAL_STR,
       "Ip address of the LMS 100", { 0 } },
@@ -427,28 +427,28 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    LadarSickLms100 *p_inst;
+    LadarSickLms100 *pInst;
 
     // create new LadarSickLms100
-    p_inst = new LadarSickLms100();
-    if (!p_inst)
+    pInst = new LadarSickLms100();
+    if (!pInst)
     {
         printf("Can't create new LadarSickLms100 -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }
 

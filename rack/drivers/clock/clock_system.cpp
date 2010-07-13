@@ -23,7 +23,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "clockSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system of the clock input module", { 0 } },
@@ -284,27 +284,27 @@ int main(int argc, char *argv[])
 
     // create new ClockSystem
 
-    ClockSystem *p_inst;
+    ClockSystem *pInst;
 
-    p_inst = new ClockSystem();
-    if (!p_inst)
+    pInst = new ClockSystem();
+    if (!pInst)
     {
         printf("Can't create new ClockSystem -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

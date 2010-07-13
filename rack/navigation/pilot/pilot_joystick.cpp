@@ -21,7 +21,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "scan2dSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the Scan2D module", { 0 } },
@@ -692,26 +692,26 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    PilotJoystick *p_inst;
+    PilotJoystick *pInst;
 
     // create new PilotJoystick
-    p_inst = new PilotJoystick();
-    if (!p_inst)
+    pInst = new PilotJoystick();
+    if (!pInst)
     {
         printf("Can't create new PilotJoystick -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
     return 0;
 
 exit_error:
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }
 

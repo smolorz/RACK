@@ -20,7 +20,7 @@
 // init data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "devNumber", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The number of the device family", { -1 } },
@@ -417,25 +417,25 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    LadarSickS *p_inst;
+    LadarSickS *pInst;
 
     // create new LadarSickS
-    p_inst = new LadarSickS();
-    if (!p_inst)
+    pInst = new LadarSickS();
+    if (!pInst)
     {
         printf("Can't create new LadarSickS -> EXIT\n");
         return -ENOMEM;
     }
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

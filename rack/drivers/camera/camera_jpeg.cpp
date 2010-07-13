@@ -23,7 +23,7 @@
 #define INIT_BIT_RGBARRAY     4
 #define INIT_BIT_JPEGBUFFER   5
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "cameraSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "camera system", { 0 } },
@@ -376,10 +376,10 @@ int main(int argc, char *argv[])
 
     // create new CameraJpeg
 
-    CameraJpeg *p_inst;
+    CameraJpeg *pInst;
 
-    p_inst = new CameraJpeg();
-    if (!p_inst)
+    pInst = new CameraJpeg();
+    if (!pInst)
     {
         printf("Can't create new CameraJpeg -> EXIT\n");
         return -ENOMEM;
@@ -387,17 +387,17 @@ int main(int argc, char *argv[])
 
     // init
 
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }

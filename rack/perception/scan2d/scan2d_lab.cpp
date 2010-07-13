@@ -19,7 +19,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -168,26 +168,26 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    Scan2dLab *p_inst;
+    Scan2dLab *pInst;
 
     // create new Scan2dLab
-    p_inst = new Scan2dLab();
-    if (!p_inst)
+    pInst = new Scan2dLab();
+    if (!pInst)
     {
         printf("Can't create new Scan2dLab -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
-    delete (p_inst);
+    delete (pInst);
     return ret;
 }

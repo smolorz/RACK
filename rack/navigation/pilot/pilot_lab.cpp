@@ -24,7 +24,7 @@
 //
 
 // external module parameter
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "chassisSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the chassis module, default 0", { 0 } },
@@ -554,26 +554,26 @@ int  main(int argc, char *argv[])
         return ret;
     }
 
-    PilotLab *p_inst;
+    PilotLab *pInst;
 
     // create new PilotLab
-    p_inst = new PilotLab();
-    if (!p_inst)
+    pInst = new PilotLab();
+    if (!pInst)
     {
         printf("Can't create new PilotLab -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
     return 0;
 
 exit_error:
-    delete (p_inst);
+    delete (pInst);
     return ret;
 
 }

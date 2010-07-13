@@ -21,7 +21,7 @@
 // data structures
 //
 
-argTable_t argTab[] = {
+arg_table_t argTab[] = {
 
     { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Serial device number", { -1 } },
@@ -432,27 +432,27 @@ int main(int argc, char *argv[])
 
     // create new ClockDcf77MbgC51
 
-    ClockDcf77MbgC51 *p_inst;
+    ClockDcf77MbgC51 *pInst;
 
-    p_inst = new ClockDcf77MbgC51();
-    if (!p_inst)
+    pInst = new ClockDcf77MbgC51();
+    if (!pInst)
     {
         printf("Can't create new ClockDcf77MbgC51 -> EXIT\n");
         return -ENOMEM;
     }
 
     // init
-    ret = p_inst->moduleInit();
+    ret = pInst->moduleInit();
     if (ret)
         goto exit_error;
 
-    p_inst->run();
+    pInst->run();
 
     return 0;
 
 exit_error:
 
-    delete (p_inst);
+    delete (pInst);
 
     return ret;
 }
