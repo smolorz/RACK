@@ -22,10 +22,14 @@
 //# Position2D (static size - no message )
 //######################################################################
 
+/**
+ * position 2d structure
+ */
 typedef struct {
-    int32_t x;
-    int32_t y;
-    float   rho;
+    int32_t x;                              /**< [mm] x-coordinate */
+    int32_t y;                              /**< [mm] y-coordinate */
+    float   rho;                            /**< [rad] rotation about the z-axis,
+                                                       clockwise positive */
 } __attribute__((packed)) position_2d;
 
 class Position2D

@@ -45,16 +45,21 @@ ACCESS: msg.data.distance[...] OR msg.distance[...];
 
 */
 
-#define LADAR_DATA_MAX_POINT_NUM 2160
+#define LADAR_DATA_MAX_POINT_NUM 2160       /**< maximum number of ladar scan points */
 
+/**
+ * ladar data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;    // has to be first element !!!
-    rack_time_t duration;
-    int32_t     maxRange;
-    float       startAngle;
-    float       endAngle;
-    int32_t     pointNum;
-    ladar_point point[0];
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    rack_time_t duration;                   /**< [ms] duration of the ladar scan */
+    int32_t     maxRange;                   /**< [mm] maximum range of the sensor */
+    float       startAngle;                 /**< [rad] start angle of the ladar scan in sensor
+                                                       reference frame, positive clockwise */
+    float       endAngle;                   /**< [rad] end angle of the ladar scan in sensor
+                                                       reference frame, positive clockwise */
+    int32_t     pointNum;                   /**< number of following ladar scan points */
+    ladar_point point[0];                   /**< list of ladar scan points */
 } __attribute__((packed)) ladar_data;
 
 class LadarData

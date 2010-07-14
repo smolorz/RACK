@@ -59,11 +59,14 @@ public final class AppletGui extends Applet
                 }
 
                 // get router address
-                String timsParam = documentBase.getHost();
+                String timsParam[] = new String[1];
+                timsParam[0] = documentBase.getHost();
+                String timsClass[] = new String[1];
+                timsClass[0] = "rack.main.tims.TimsTcp";
 
                 this.setLayout(new BorderLayout());
 
-                gui = new Gui(null, this, cfgReader, "rack.main.tims.TimsTcp", timsParam);
+                gui = new Gui(null, this, cfgReader, timsClass, timsParam);
             }
             catch (Exception e)
             {

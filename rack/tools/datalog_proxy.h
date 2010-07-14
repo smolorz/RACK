@@ -29,7 +29,7 @@
 #include <main/rack_proxy.h>
 #include <main/rack_name.h>
 
-#define DATALOG_LOGNUM_MAX 100
+#define DATALOG_LOGNUM_MAX 100              /**< maximum number of data logs */
 
 //######################################################################
 //# Datalog Message Types
@@ -45,14 +45,19 @@
 //######################################################################
 //# Datalog Log Info (static size - MESSAGE)
 //######################################################################
+
+/**
+ * datalog log info data structure
+ */
 typedef struct {
-    int32_t         logEnable;
-    uint32_t        moduleMbx;
-    rack_time_t     periodTime;
-    int32_t         maxDataLen;
-    uint8_t         filename[40];
-    uint32_t        bytesLogged;
-    uint32_t        setsLogged;
+    int32_t         logEnable;              /**< log enable flag, 1 = enable, else = disable */
+    uint32_t        moduleMbx;              /**< mailbox adress of the module */
+    rack_time_t     periodTime;             /**< [ms] periodtime of the module */
+    int32_t         maxDataLen;             /**< maxium number of bytes of the data output
+                                                 of the module */
+    uint8_t         filename[40];           /**< filename for datalogging */
+    uint32_t        bytesLogged;            /**< counter for logged bytes */
+    uint32_t        setsLogged;             /**< counter for logged full datasets */
 } __attribute__((packed)) datalog_log_info;
 
 class DatalogLogInfo
@@ -96,11 +101,14 @@ datalog_data_msg msg;
 ACCESS: msg.data.logInfo[...] OR msg.logInfo[...];
 */
 
+/**
+ * datalog data structure
+ */
 typedef struct {
-    rack_time_t      recordingTime;
-    uint8_t          logPathName[40];
-    int32_t          logNum;
-    datalog_log_info logInfo[0];
+    rack_time_t      recordingTime;         /**< [ms]  global timestamp (has to be first element)*/
+    uint8_t          logPathName[40];       /**< path for logging */
+    int32_t          logNum;                /**< number of following log infos */
+    datalog_log_info logInfo[0];            /**< list of log infos */
 } __attribute__((packed)) datalog_data;
 
 class DatalogData

@@ -121,7 +121,7 @@ arg_table_t argTab[] = {
     ret = position->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Position(%i/%i), code = %d\n", 
+        GDOS_ERROR("Can't turn on Position(%i/%i), code = %d\n",
                    positionSys, positionInst, ret);
         return ret;
     }
@@ -185,13 +185,13 @@ int  PilotWallFollowing::moduleLoop(void)
 
 
     // get continuous data from scan2d module
-    ret = scan2dDataMbx.recvDataMsgTimed(1000000000llu,
+    ret = scan2dDataMbx.recvDataMsgTimed(rackTime.toNano(2 * dataBufferPeriodTime),
                                          &scan2dMsg.data,
                                          sizeof(scan2dMsg),
                                          &msgInfo);
     if (ret)
     {
-        GDOS_ERROR("Can't read continuous data from Scan2d(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't read continuous data from Scan2d(%d/%d), code = %d\n",
                    scan2dSys, scan2dInst, ret);
         return ret;
     }

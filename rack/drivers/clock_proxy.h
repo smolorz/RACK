@@ -27,25 +27,29 @@
 
 #include <main/rack_proxy.h>
 
-#define CLOCK_SYNC_MODE_NONE   0
-#define CLOCK_SYNC_MODE_REMOTE 1
+#define CLOCK_SYNC_MODE_NONE   0            /**< no clock synchronisation */
+#define CLOCK_SYNC_MODE_REMOTE 1            /**< remote clock synchronisation */
 
 //######################################################################
 //# Clock Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * clock data structure
+ */
 typedef struct {
-    rack_time_t   recordingTime;  // has to be first element
-    int32_t       hour;           // hour   [00...23]
-    int32_t       minute;         // monute [00...59]
-    int32_t       second;         // second [00...59]
-    int32_t       day;            // day    [01...31]
-    int32_t       month;          // month  [01...12]
-    int32_t       year;           // year   [00...99] without century
-    int64_t       utcTime;        // POSIX time in sec since 1.1.1970
-    int32_t       dayOfWeek;      // day of week, 1=monday...7=sunday
-    int32_t       syncMode;       // mode for clock synchronisation
-    int32_t       varT;           // variance of the clock sensor in ms
+    rack_time_t   recordingTime;            /**< [ms] global timestamp (has to be first element)*/
+    int32_t       hour;                     /**< hour of day, 00 <= hour <= 23 */
+    int32_t       minute;                   /**< minute of hour, 00 <= minute <= 59 */
+    int32_t       second;                   /**< second of minute, 00 <= second <= 59 */
+    int32_t       day;                      /**< day of month, 01 <= day <= 31 */
+    int32_t       month;                    /**< month of year, 01 <= month <= 12 */
+    int32_t       year;                     /**< year, excluding century, 00 <= year <= 99 */
+    int64_t       utcTime;                  /**< [s] POSIX time since 1.1.1970 */
+    int32_t       dayOfWeek;                /**< day of week, 1=monday, 2=tuesday, 3=wednesday,
+                                                 4=thursday, 5=friday, 6=saturday, 7=sunday */
+    int32_t       syncMode;                 /**< mode used for clock synchronisation */
+    int32_t       varT;                     /**< [ms] standard deviation of the clock sensor */
 } __attribute__((packed)) clock_data;
 
 
@@ -76,7 +80,7 @@ class ClockData
             data->month         = __be32_to_cpu(data->month);
             data->year          = __be32_to_cpu(data->year);
             data->utcTime       = __be64_to_cpu(data->utcTime);
-            data->dayOfWeek     = __be32_to_cpu(data->dayOfWeek);
+           data->dayOfWeek     = __be32_to_cpu(data->dayOfWeek);
             data->syncMode      = __be32_to_cpu(data->syncMode);
         }
 

@@ -28,7 +28,7 @@
 
 #include <main/rack_proxy.h>
 
-#define CHASSIS_INVAL_PILOT            0xFFFFFF00
+#define CHASSIS_INVAL_PILOT            0xFFFFFF00   /**< preset define for an invalid pilot */
 
 //######################################################################
 //# Chassis Message Types
@@ -44,16 +44,26 @@
 //# Chassis Data (static size  - MESSAGE)
 //######################################################################
 
-typedef struct chassis_data_s {
-    rack_time_t recordingTime;  // has to be first element
-    float       deltaX;
-    float       deltaY;
-    float       deltaRho;
-    float       vx;
-    float       vy;
-    float       omega;
-    float       battery;
-    uint32_t    activePilot;
+/**
+ * chassis data structure
+ */
+typedef struct {
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    float       deltaX;                     /**< [mm] longitudinal movement since the last chassis
+                                                      data update, main driving direction positive*/
+    float       deltaY;                     /**< [mm] lateral movement since the last chassis
+                                                      data update, dexter to main driving direction
+                                                      positive */
+    float       deltaRho;                   /**< [rad] angular movement since the last chassis data
+                                                       update, positive clockwise */
+    float       vx;                         /**< [mm/s] longitudinal velocity,
+                                                        main driving direction positive*/
+    float       vy;                         /**< [mm/s] lateral velocity,
+                                                        dexter to main driving direction positive */
+    float       omega;                      /**< [rad/s] angular velocity, positive clockwise */
+    float       battery;                    /**< [v] battery voltage */
+    uint32_t    activePilot;                /**< command mailbox adress of active pilot which is
+                                                 allowed to send move commands */
 } __attribute__((packed)) chassis_data;
 
 class ChassisData : public RackDataMessage
@@ -86,10 +96,15 @@ class ChassisData : public RackDataMessage
 //# Chassis Move Data (static size - MESSAGE)
 //######################################################################
 
-typedef struct chassis_move_data_s {
-    int32_t   vx;
-    int32_t   vy;
-    float     omega;
+/**
+ * chassis move data structure
+ */
+typedef struct {
+    int32_t   vx;                           /**< [mm/s] longitudinal velocity,
+                                                        main driving direction positive*/
+    int32_t   vy;                           /**< [mm/s] lateral velocity,
+                                                        dexter to main driving direction positive */
+    float     omega;                        /**< [rad/s] angular velocity, positive clockwise */
 } __attribute__((packed)) chassis_move_data;
 
 class ChassisMoveData : public RackMessage
@@ -116,36 +131,57 @@ class ChassisMoveData : public RackMessage
 //# Chassis Parameter Data (static size  - MESSAGE)
 //######################################################################
 
-typedef struct chassis_param_data_s
+/**
+ * chassis parameter data structure
+ */
+typedef struct
 {
-  int32_t   vxMax;            /**< mm/s */
-  int32_t   vyMax;
-  int32_t   vxMin;            /**< mm/s */
-  int32_t   vyMin;
+  int32_t   vxMax;                          /**< [mm/s] maximum longitudinal velocity in main
+                                                        driving direction */
+  int32_t   vyMax;                          /**< [mm/s] maximum lateral velocity dexter to main
+                                                        driving direction */
+  int32_t   vxMin;                          /**< [mm/s] minimum longitudinal velocitiy in main
+                                                        driving direction */
+  int32_t   vyMin;                          /**< [mm/s] minimum lateral velocity dexter to main
+                                                        driving direction */
 
-  int32_t   accMax;           /**< mm/s/s */
-  int32_t   decMax;
+  int32_t   accMax;                         /**< [mm/s^2] maximum acceleration in main driving
+                                                          direction */
+  int32_t   decMax;                         /**< [mm/s^2] maximum deceleration in main driving
+                                                          direction */
 
-  float     omegaMax;         /**< rad/s */
-  int32_t   minTurningRadius; /**< mm */
+  float     omegaMax;                       /**< [rad/s] absolute value of maximum angular
+                                                         velocity */
+  int32_t   minTurningRadius;               /**< [mm] absolute value of minimum turning radius */
 
-  float     breakConstant;    /**< mm/mm/s */
-  int32_t   safetyMargin;     /**< mm */
-  int32_t   safetyMarginMove; /**< mm */
-  int32_t   comfortMargin;    /**< mm */
+  float     breakConstant;                  /**< [mm/mm/s] constant for adjusting the speed
+                                                           reduction in the proximity of obstacles*/
+  int32_t   safetyMargin;                   /**< [mm] additional safety margin added around the
+                                                      robot bounding box */
+  int32_t   safetyMarginMove;               /**< [mm] additional safety margin added to the robot
+                                                      bounding box in the current driving
+                                                      direction */
+  int32_t   comfortMargin;                  /**< [mm] additional comfort margin added laterally to
+                                                      the robot bounding, should be maintained to
+                                                      obstacles if possible */
+  int32_t   boundaryFront;                  /**< [mm] robot bounding box length, distance from the
+                                                      robot reference frame to the foremost point */
+  int32_t   boundaryBack;                   /**< [mm] robot bounding box length, distance from the
+                                                      robot reference frame to the sternmost point*/
+  int32_t   boundaryLeft;                   /**< [mm] robot bounding box width, distance from the
+                                                      robot reference frame to the leftmost point */
+  int32_t   boundaryRight;                  /**< [mm] robot bounding box width, distance from the
+                                                      robot reference frame to the rightmost point */
 
-  int32_t   boundaryFront;    /**< Boundary in front of the robot [mm] */
-  int32_t   boundaryBack;
-  int32_t   boundaryLeft;
-  int32_t   boundaryRight;
+  int32_t   wheelBase;                      /**< [mm] wheel base */
+  int32_t   wheelRadius;                    /**< [mm] radius of the drive wheels */
+  int32_t   trackWidth;                     /**< [mm] track width */
 
-  int32_t   wheelBase;        /**< mm */
-  int32_t   wheelRadius;      /**< mm */
-  int32_t   trackWidth;
-
-  float     pilotParameterA;
-  float     pilotParameterB;
-  int32_t   pilotVTransMax;   /**< Maximal transversal velocity in mm /s */
+  float     pilotParameterA;                /**< [rad/mm] control gain for lateral position
+                                                          controller */
+  float     pilotParameterB;                /**< [1/s]  control gain for angular position
+                                                        controller */
+  int32_t   pilotVTransMax;                 /**< [mm/s] maximum transversal velocity */
 
 } __attribute__((packed)) chassis_param_data;
 
@@ -199,10 +235,12 @@ class ChassisParamData : public RackMessage
 //# Chassis Set Active Pilot Data (static size  - MESSAGE)
 //######################################################################
 
-typedef struct chassis_set_active_pilot_data_s
-{
-    uint32_t  activePilot;    /**< Command MBX Number of the active pilot (control) */
-
+/**
+ * chassis set active pilot data structure
+ */
+typedef struct {
+    uint32_t  activePilot;                  /**< command mailbox adress of active pilot which is
+                                                 allowed to send move commands */
 } __attribute__((packed)) chassis_set_active_pilot_data;
 
 class ChassisSetActivePilotData : public RackMessage

@@ -23,9 +23,12 @@
 //# Point2D (static size - no message)
 //######################################################################
 
+/**
+ * point 2d structure
+ */
 typedef struct {
-    int32_t x;
-    int32_t y;
+    int32_t x;                              /**< [mm] x-coordinate */
+    int32_t y;                              /**< [mm] y-coordinate */
 } __attribute__((packed)) point_2d;
 
 class Point2D

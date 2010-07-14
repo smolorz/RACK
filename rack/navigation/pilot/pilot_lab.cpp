@@ -88,7 +88,7 @@ arg_table_t argTab[] = {
     ret = chassis->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Chassis(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't turn on Chassis(%d/%d), code = %d\n",
                    chassisSys, chassisInst, ret);
         return ret;
     }
@@ -97,7 +97,7 @@ arg_table_t argTab[] = {
     ret = chassis->getParam(&chasParData, sizeof(chassis_param_data));
     if (ret)
     {
-        GDOS_ERROR("Can't get parameter from Chassis(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't get parameter from Chassis(%d/%d), code = %d\n",
                    chassisSys, chassisInst, ret);
         return ret;
     }
@@ -106,7 +106,7 @@ arg_table_t argTab[] = {
     ret = position->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n",
                    positionSys, positionInst, ret);
         return ret;
     }
@@ -115,7 +115,7 @@ arg_table_t argTab[] = {
     ret = scan2d->on();
     if (ret)
     {
-        GDOS_ERROR("Can't turn on Scan2d(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't turn on Scan2d(%d/%d), code = %d\n",
                    scan2dSys, scan2dInst, ret);
         return ret;
     }
@@ -125,7 +125,7 @@ arg_table_t argTab[] = {
     ret = scan2d->getContData(0, &scan2dDataMbx, &dataBufferPeriodTime);
     if (ret)
     {
-        GDOS_ERROR("Can't get continuous data from Scan2d(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't get continuous data from Scan2d(%d/%d), code = %d\n",
                    scan2dSys, scan2dInst, ret);
         return ret;
     }
@@ -171,11 +171,11 @@ int  PilotLab::moduleLoop(void)
     pilot_data*  pilotData = NULL;
 
     // get continuous data from scan2d module
-    ret = scan2dDataMbx.recvDataMsgTimed(1000000000llu, &scan2dMsg.data,
+    ret = scan2dDataMbx.recvDataMsgTimed(rackTime.toNano(2 * dataBufferPeriodTime), &scan2dMsg.data,
                                          sizeof(scan2dMsg), &msgInfo);
     if (ret)
     {
-        GDOS_ERROR("Can't read continuous data from Scan2d(%d/%d), code = %d\n", 
+        GDOS_ERROR("Can't read continuous data from Scan2d(%d/%d), code = %d\n",
                    scan2dSys, scan2dInst, ret);
         return ret;
     }
@@ -191,7 +191,7 @@ int  PilotLab::moduleLoop(void)
         ret = position->getData(&positionData, sizeof(position_data), scan2dMsg.data.recordingTime);
         if (ret)
         {
-            GDOS_ERROR("Can't get data from Position(%d/%d), code = %d\n", 
+            GDOS_ERROR("Can't get data from Position(%d/%d), code = %d\n",
                        positionSys, positionInst, ret);
             return ret;
         }

@@ -128,7 +128,7 @@ int  Scan2dSim::moduleLoop(void)
     data2D = (scan2d_data *)getDataBufferWorkSpace();
 
     // get Odometry data
-    ret = odometryMbx.recvDataMsgTimed(1000000000llu, &odometryData,
+    ret = odometryMbx.recvDataMsgTimed(rackTime.toNano(2 * dataBufferPeriodTime), &odometryData,
                                        sizeof(odometryData), &msgInfo);
     if (ret)
     {

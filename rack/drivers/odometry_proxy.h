@@ -21,7 +21,7 @@
  * @defgroup odometry Odometry
  *
  * Hardware abstraction for incremental positioning sensors.
- * E.g. encoders, gyros, ...
+ * e.g. encoders, gyros, ...
  *
  * @{
  */
@@ -40,9 +40,13 @@
 //# Odometry Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * odometry data structure
+ */
 typedef struct{
-    rack_time_t  recordingTime; // has to be first element
-    position_3d  pos;
+    rack_time_t  recordingTime;             /**< [ms] global timestamp (has to be first element)*/
+    position_3d  pos;                       /**< position and orientation in odometry reference
+                                                 frame */
 } __attribute__((packed)) odometry_data;
 
 class OdometryData

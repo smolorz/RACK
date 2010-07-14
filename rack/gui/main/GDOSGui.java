@@ -58,7 +58,7 @@ public class GDOSGui extends GuiElement
     {
         super(guiElement);
 
-        gdosMbx = mainGui.getTims().mbxInit(RackName.create(RackName.GDOS, 0));
+        gdosMbx = mainGui.getTims(ge.getTimsId()).mbxInit(RackName.create(RackName.GDOS, 0));
         
         rootPanel = new JPanel(new BorderLayout());
 

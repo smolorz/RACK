@@ -20,13 +20,16 @@
 //#  Position3D (static size - no message)
 //######################################################################
 
+/**
+ * position 3d structure
+ */
 typedef struct {
-    int32_t     x;      // in mm
-    int32_t     y;      // in mm
-    int32_t     z;      // in mm
-    float       phi;    // Drehung um x-Achse in rad von 0 <= x < 2PI
-    float       psi;    // Drehung um y-Achse in rad von 0 <= x < 2PI
-    float       rho;    // Drehung um z-Achse in rad von 0 <= x < 2PI
+    int32_t     x;                          /**< [mm] x-coordinate */
+    int32_t     y;                          /**< [mm] y-coordinate */
+    int32_t     z;                          /**< [mm] z-coordinate */
+    float       phi;                        /**< [rad] rotation about x-axis, positive clockwise */
+    float       psi;                        /**< [rad] rotation about y-axis, positive clockwise */
+    float       rho;                        /**< [rad] rotation about z-axis, positive clockwise */
 } __attribute__((packed)) position_3d;
 
 class Position3D

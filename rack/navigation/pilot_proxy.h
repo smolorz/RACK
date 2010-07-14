@@ -30,7 +30,7 @@
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
 
-#define PILOT_DATA_SPLINE_MAX   1000
+#define PILOT_DATA_SPLINE_MAX   1000        /**< maximum number of splines */
 
 #define PILOT_HOLD_ENABLED      1
 #define PILOT_HOLD_DISABLED     0
@@ -59,15 +59,21 @@ pilot_data_msg msg;
 ACCESS: msg.data.spline[...] OR msg.spline[...];
 
 */
+
+/**
+ * pilot data structure
+ */
 typedef struct{
-    rack_time_t     recordingTime;
-    position_3d     pos;
-    position_3d     dest;
-    int32_t         speed;
-    float           curve;
-    int32_t         distanceToDest;
-    int32_t         splineNum;
-    polar_spline    spline[0];
+    rack_time_t     recordingTime;          /**< [ms]  global timestamp (has to be first element)*/
+    position_3d     pos;                    /**< position on the path */
+    position_3d     dest;                   /**< destination of the pilot */
+    int32_t         speed;                  /**< [mm/s] current speed set value */
+    float           curve;                  /**< [1/mm] current curve set value*/
+    int32_t         distanceToDest;         /**< [mm] distance to destination,
+                                                      -1 if no destination is set,
+                                                       0 if destination is reached */
+    int32_t         splineNum;              /**< number of following splines */
+    polar_spline    spline[0];              /**< list of splines */
 } __attribute__((packed)) pilot_data;
 
 class PilotData
@@ -128,9 +134,14 @@ class PilotData
 //######################################################################
 //# Pilot Destination Data (static size  - MESSAGE)
 //######################################################################
+
+/**
+ * pilot destination data structure
+ */
 typedef struct{
-    position_3d    pos;
-    int            speed;
+    position_3d    pos;                     /**< position of the destination */
+    int            speed;                   /**< [mm/s] maximum allowed velocity for moving
+                                                        to the destination */
 } __attribute__((packed)) pilot_dest_data;
 
 class PilotDestData
@@ -171,10 +182,14 @@ class PilotDestData
 //######################################################################
 //# Pilot Hold Data (static size  - MESSAGE)
 //######################################################################
+
+/**
+ * pilot hold data structure
+ */
 typedef struct{
-    int32_t         holdState;
-    rack_time_t     holdTime;
-    position_3d     pos;
+    int32_t         holdState;              /**< hold state */
+    rack_time_t     holdTime;               /**< [ms] requested hold time */
+    position_3d     pos;                    /**< requested hold position */
 } __attribute__((packed)) pilot_hold_data;
 
 class PilotHoldData
@@ -217,8 +232,12 @@ class PilotHoldData
 //######################################################################
 //# Pilot Revert Data (static size  - MESSAGE)
 //######################################################################
+
+/**
+ * pilot revert data structure
+ */
 typedef struct{
-    rack_time_t     revertTime;
+    rack_time_t     revertTime;             /**< [ms] time until revert */
 } __attribute__((packed)) pilot_revert_data;
 
 class PilotRevertData
@@ -253,8 +272,8 @@ class PilotRevertData
             return p_data;
         }
 };
-    
-    
+
+
 //######################################################################
 //# Pilot Proxy
 //######################################################################
@@ -265,7 +284,7 @@ class PilotProxy : public RackDataProxy
       public:
 
         PilotProxy(RackMailbox *workMbx, uint32_t sys_id, uint32_t instance)
-                : RackDataProxy(workMbx, sys_id, PILOT, instance)
+               : RackDataProxy(workMbx, sys_id, PILOT, instance)
         {
         };
 
@@ -295,7 +314,7 @@ class PilotProxy : public RackDataProxy
 
     int setDestination(pilot_dest_data *recv_data, ssize_t recv_datalen,
                        uint64_t reply_timeout_ns);
-                       
+
 
 //hold command
     int holdCommand(pilot_hold_data *recv_data, ssize_t recv_datalen)

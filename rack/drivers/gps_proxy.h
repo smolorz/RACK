@@ -29,29 +29,32 @@
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
-#define GPS_MODE_INVALID 1
-#define GPS_MODE_2D      2
-#define GPS_MODE_3D      3
+#define GPS_MODE_INVALID 1                  /**< no valid gps position fix */
+#define GPS_MODE_2D      2                  /**< latitude and longitude of gps position fix valid */
+#define GPS_MODE_3D      3                  /**< latitude, longitude and altitude of gps
+                                                 position fix valid */
 
 //######################################################################
 //# Gps Data (static size - MESSAGE)
 //######################################################################
 
-typedef struct gps_data_s
-{
-    rack_time_t   recordingTime;  // has to be first element
-    int32_t       mode;
-    double        latitude;       /**< rad */
-    double        longitude;      /**< rad */
-    int32_t       altitude;       /**< mm over mean sea level */
-    float         heading;        /**< rad */
-    int32_t       speed;          /**< mm/s */
-    int32_t       satelliteNum;
-    int64_t       utcTime;        /**< POSIX time in sec since 1.1.1970 */
-    float         pdop;
-    position_3d   pos;
-    position_3d   var;
-
+/**
+ * gps data structure
+ */
+typedef struct {
+    rack_time_t   recordingTime;            /**< [ms] global timestamp (has to be first element)*/
+    int32_t       mode;                     /**< gps mode used for position calculation */
+    double        latitude;                 /**< [rad] latitude in WGS84 reference frame */
+    double        longitude;                /**< [rad] longitude in WGS84 reference frame */
+    int32_t       altitude;                 /**< [mm] height over mean sea level, positive up */
+    float         heading;                  /**< [rad] 0 = north, positive clockwise */
+    int32_t       speed;                    /**< [mm/s] speed over ground */
+    int32_t       satelliteNum;             /**< number of satellites used for position fix
+                                                 calculation */
+    int64_t       utcTime;                  /**< [s] POSIX time since 1.1.1970 */
+    float         pdop;                     /**< gps pdop, positional dilution of precision */
+    position_3d   pos;                      /**< global position and orientation */
+    position_3d   var;                      /**< standard deviation of position and orientation */
 } __attribute__((packed)) gps_data;
 
 
