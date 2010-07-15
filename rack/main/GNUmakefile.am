@@ -59,19 +59,20 @@ install-dist_javaJAVA: classdist_java.stamp
 SUBDIRS = \
 	tims \
 	defines \
-	mailbox \
-	proxy \
-	module \
-	argopts \
-	dxfmap \
 	lib \
-	camera_tool \
-	position_tool
+	tools \
+	common
 
 if CONFIG_RACK_OS_XENOMAI
 
 SUBDIRS += \
-	canport \
-	serialport
+	xenomai
 
 endif
+
+#if CONFIG_RACK_OS_LINUX
+
+#SUBDIRS += \
+#	linux
+
+#endif

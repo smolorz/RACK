@@ -1711,17 +1711,12 @@ AC_CONFIG_FILES([GNUmakefile \
     config/kconfig/lxdialog/GNUmakefile \
     \
     main/GNUmakefile \
-    main/argopts/GNUmakefile \
     main/defines/GNUmakefile \
-    main/dxfmap/GNUmakefile \
     main/lib/GNUmakefile \
-    main/mailbox/GNUmakefile \
-    main/module/GNUmakefile \
-    main/proxy/GNUmakefile \
-    main/position_tool/GNUmakefile \
-    main/camera_tool/GNUmakefile \
-    main/canport/GNUmakefile \
-    main/serialport/GNUmakefile \
+    main/tools/GNUmakefile \
+    main/common/GNUmakefile \
+    main/xenomai/GNUmakefile \
+    main/linux/GNUmakefile \
     main/tims/GNUmakefile \
     main/tims/driver/GNUmakefile \
     main/tims/router/GNUmakefile \

@@ -1,0 +1,6 @@
+
+EXTRA_DIST = \
+	rack_module.cpp \
+	rack_data_module.cpp \
+	rack_mailbox.cpp \
+	rack_proxy.cpp

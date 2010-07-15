@@ -1,7 +1,0 @@
-
-CPPFLAGS = @RACK_CPPFLAGS@
-LDFLAGS  = @RACK_LDFLAGS@
-LDADD    = @RACK_LIBS@
-
-EXTRA_DIST = \
-	camera_tool.cpp
