@@ -106,7 +106,7 @@ class RackDataModule : public RackModule
         int                 sendDataReply(rack_time_t time, RackMessage *msgInfo);
 
         int                 addListener(rack_time_t periodTime, uint32_t getNextData, uint32_t destMbxAdr,
-                                        RackMessage* msgInfo);
+                                        RackMessage *msgInfo);
         void                removeListener(uint32_t destMbxAdr);
         void                removeAllListener(void);
         rack_time_t         getListenerPeriodTime(uint32_t dataMbx);
@@ -139,7 +139,7 @@ class RackDataModule : public RackModule
     void  moduleOff(void);
 
     int   moduleLoop(void) { return 0; };
-    int   moduleCommand(RackMessage* p_msginfo);
+    int   moduleCommand(RackMessage *msgInfo);
 };
 
 /*@}*/

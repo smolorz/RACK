@@ -270,7 +270,7 @@ class RackModule {
         }
 
         /** The moduleCommand function of the module */
-        virtual int   moduleCommand(RackMessage* p_msginfo);
+        virtual int   moduleCommand(RackMessage *msgInfo);
 
 //
 // signal handler shutdown function
