@@ -11,13 +11,32 @@
  *
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
+ *      Oliver Wulf <oliver.wulf@web.de> - add linux implementation
  *
  */
 #ifndef __SERIAL_PORT_H__
 #define __SERIAL_PORT_H__
 
 #include <main/rack_module.h>
+
+#if defined (__XENO__) || defined (__KERNEL__)
+
 #include <rtdm/rtserial.h>
+
+#else
+
+#include "linux/rtserial.h"
+
+#endif
+
+/*!
+ * @ingroup driverapi
+ * @defgroup rtserial Serial Port API
+ *
+ * This is the Serial Port interface of RACK provided to application programs
+ * in userspace.
+ * @{
+ */
 
 #define SERPORT_MCR_RTS   RTSER_MCR_RTS
 
@@ -51,8 +70,13 @@ class SerialPort
 
         int send(const void* data, int dataLen);
 
+        /** receive data with no timestamp and the default timeout */
         int recv(void *data, int dataLen);
+
+        /** receive data with timestamp and the default timeout */
         int recv(void *data, int dataLen, rack_time_t *timestamp);
+
+        /** receive data with timestamp and a specific timeout */
         int recv(void *data, int dataLen, rack_time_t *timestamp,
                  int64_t timeout_ns);
 
@@ -60,5 +84,7 @@ class SerialPort
 
         int clean(void);
 };
+
+/*@}*/
 
 #endif // __SERIAL_PORT_H__

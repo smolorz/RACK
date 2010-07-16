@@ -1,4 +1,4 @@
 
 EXTRA_DIST = \
-	can_port.cpp \
-	serial_port.cpp
+	can_port_xenomai.cpp \
+	serial_port_xenomai.cpp

@@ -39,8 +39,14 @@ librack_la_SOURCES = \
 if CONFIG_RACK_OS_XENOMAI
 
 librack_la_SOURCES += \
-	$(top_srcdir)/main/xenomai/serial_port.cpp \
-	$(top_srcdir)/main/xenomai/can_port.cpp
+	$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp \
+	$(top_srcdir)/main/xenomai/can_port_xenomai.cpp
+
+else
+
+librack_la_SOURCES += \
+	$(top_srcdir)/main/linux/serial_port_linux.cpp \
+	$(top_srcdir)/main/linux/can_port_linux.cpp
 
 endif
 

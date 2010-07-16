@@ -14,16 +14,6 @@
  *
  */
 
-  /*!
- * @ingroup driverapi
- * @defgroup rtcan CAN Port API
- *
- * This is the CAN Port interface of RACK provided to application programs
- * in userspace.
- * @{
- */
-
-
 #include <main/can_port.h>
 
 #include <iostream>
@@ -48,28 +38,6 @@ CanPort::~CanPort()
 // PortFunctions
 //
 
-/**
- * @brief Open a CAN device
- *
- * This function opens a new socket, gets the interface index and
- * binds the socket to the CAN IDs defined in the struct @a sockaddr_can.
- *
- * @param dev Number of the CAN device (e.g. 2 if you will open rtcan2)
- * @param filter_list Pointer to filter array (see RTDM CAN profile)
- * @param nr_filters Number of filter entries
- * @param module Pointer the RACK module. This pointer is needed to access
- *               the global timestamp.
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT)
- *
- * Rescheduling: possible.
- */
 int CanPort::open(int dev, can_filter_t *filter_list, int nr_filters, RackModule *module)
 {
     int                 ret;
@@ -116,21 +84,6 @@ exit_error:
     return ret;
 }
 
-/**
- * @brief Close a CAN device
- *
- * This function closes a CAN device which was opened with @a open().
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT)
- *
- * Rescheduling: possible.
- */
 int CanPort::close(void)
 {
     int i = 5;
@@ -152,79 +105,21 @@ int CanPort::close(void)
     return ret;
 }
 
-/**
- * @brief Set the send timeout of a CAN device
- *
- * @param timeout Send timeout in nanoseconds
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: none.
- */
 int CanPort::setTxTimeout(int64_t timeout)
 {
     return rt_dev_ioctl(fd, RTCAN_RTIOC_SND_TIMEOUT, &timeout);
 }
 
-/**
- * @brief Set the receive timeout of a CAN device
- *
- * @param timeout Receive timeout in nanoseconds
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: none.
- */
 int CanPort::setRxTimeout(int64_t timeout)
 {
     return rt_dev_ioctl(fd, RTCAN_RTIOC_RCV_TIMEOUT, &timeout);
 }
 
-/**
- * @brief Enable timestamp support
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: none.
- */
 int CanPort::getTimestamps()
 {
     return rt_dev_ioctl(fd, RTCAN_RTIOC_TAKE_TIMESTAMP, RTCAN_TAKE_TIMESTAMPS);
 }
 
-/**
- * @brief Send a CAN message
- *
- * @param frame Pointer to a CAN frame
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: none.
- */
 int CanPort::send(can_frame_t* frame)
 {
     int ret;
@@ -236,29 +131,6 @@ int CanPort::send(can_frame_t* frame)
     return 0;
 }
 
-/**
- * @brief Receive a CAN message
- *
- * The @a recv() function receives a CAN message mit a given timeout set
- * with @a setRxTimeout().
- *
- * If timestamp support is enabled the pointer to the timestamp buffer have
- * to be set. The format of the returned timestamp is @a rack_time_t, thus
- * it is a global time value.
- *
- * @param recv_frame Pointer to a CAN frame
- * @param timestamp Pointer to a timestamp variable
- *
- * @return 0 on success, otherwise negative error code
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: possible.
- */
 int CanPort::recv(can_frame_t *recv_frame, rack_time_t *timestamp)
 {
     int ret;
@@ -299,5 +171,3 @@ int CanPort::recv(can_frame_t *recv_frame, rack_time_t *timestamp)
 
     return 0;
 }
-
-/*@}*/

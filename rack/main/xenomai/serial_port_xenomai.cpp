@@ -14,21 +14,11 @@
  *
  */
 
-/*!
- * @ingroup driverapi
- * @defgroup rtserial Serial Port API
- *
- * This is the Serial Port interface of RACK provided to application programs
- * in userspace.
- * @{
- */
-
 #include <stdio.h>
 #include <unistd.h>
 
 #include <main/serial_port.h>
 #include <errno.h>
-
 
 //
 // Constructor and destructor
@@ -146,7 +136,6 @@ int SerialPort::send(const void* data, int dataLen)
     return 0;
 }
 
-// receive data with no timestamp and the default timeout
 int SerialPort::recv(void *data, int dataLen)
 {
     int ret;
@@ -158,7 +147,6 @@ int SerialPort::recv(void *data, int dataLen)
     return 0;
 }
 
-// receive data with timestamp and the default timeout
 int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp)
 {
     int ret;
@@ -177,7 +165,6 @@ int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp)
     return recv(data, dataLen);
 }
 
-// receive data with timestamp and a specific timeout
 int SerialPort::recv(void *data, int dataLen, rack_time_t *timestamp,
                      int64_t timeout_ns)
 {
@@ -200,5 +187,3 @@ int SerialPort::clean(void)
     return rt_dev_ioctl(fd, RTIOC_PURGE, RTDM_PURGE_RX_BUFFER |
                                          RTDM_PURGE_TX_BUFFER);
 }
-
-/*@}*/

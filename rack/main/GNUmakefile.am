@@ -18,12 +18,13 @@ maininclude_HEADERS = \
 	rack_time.h \
 	rack_task.h \
 	rack_rtmac.h
-
-if CONFIG_RACK_OS_XENOMAI
-
-maininclude_HEADERS += \
 	can_port.h \
 	serial_port.h
+
+if CONFIG_RACK_OS_LINUX
+
+maininclude_HEADERS += \
+	linux/rtserial.h
 
 endif
 
@@ -70,9 +71,9 @@ SUBDIRS += \
 
 endif
 
-#if CONFIG_RACK_OS_LINUX
+if CONFIG_RACK_OS_LINUX
 
-#SUBDIRS += \
-#	linux
+SUBDIRS += \
+	linux
 
-#endif
+endif
