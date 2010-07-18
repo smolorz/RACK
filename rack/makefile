@@ -113,6 +113,7 @@ defconfig: $(KCONFIG_DIR)
 	@$(MAKE) -C $(KCONFIG_DIR) \
 	-f $(srctree)/$(KCONFIG_DIR)/Makefile.kconfig defconfig \
 	srctree=$(srctree) ARCH=$(ARCH)
+	cp .rack_config defconfig
 
 $(KCONFIG_DIR):
 	@test -d $@ || mkdir -p $@

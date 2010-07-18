@@ -51,6 +51,7 @@ DISTCLEANFILES = \
 	@PROJNAME@_config.h \
 	.cfok \
 	.cfchanged \
+	.deps \
 	symbols
 
 reconfig xconfig gconfig mconfig menuconfig winconfig config oldconfig help:
