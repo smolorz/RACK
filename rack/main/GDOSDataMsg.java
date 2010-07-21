@@ -134,18 +134,15 @@ public class GDOSDataMsg extends TimsMsg
                                         dataIn.readDouble()) * 100.0) / 100.0
                                 + "";
                         break;
-/*
-TODO
-                    case 's':   // string
+                   case 's':   // string
                         StringBuffer buffer = new StringBuffer();
-                        byte ch;
-                        while ((ch = dataIn.readByte()) != 0) {
-                            buffer.append(ch);
+                        byte[] ch = new byte[1];
+                        while ((ch[0] = dataIn.readByte()) != 0) {
+                            buffer.append(new String(ch));
                         }
                         message = message
                                 + buffer.toString();
                         break;
-*/
                     case '%': // print character %
                         message = message + '%';
                         break;
