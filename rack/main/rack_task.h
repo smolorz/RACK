@@ -17,13 +17,13 @@
 #ifndef __RACK_TASK_H__
 #define __RACK_TASK_H__
 
-#if defined (__XENO__) || defined (__KERNEL__)
-
  /*!
  * @ingroup rackos
  * @defgroup task Rack Task
  * @{
  */
+
+#if defined (__XENO__)
 
 #include <native/task.h>
 
@@ -41,11 +41,35 @@
 #define RACK_TASK_PRIMARY   T_PRIMARY
 #define RACK_TASK_WARNSW    T_WARNSW
 
+#else // !__XENO__
+
+#include <pthread.h>
+
+#define RACK_TASK_FPU       1
+#define RACK_TASK_JOINABLE  2
+#define RACK_TASK_CPU(c)    3
+#define RACK_TASK_PRIMARY   4
+#define RACK_TASK_WARNSW    5
+
+#endif // __XENO__
+
+#include <inttypes.h>
+
 class RackTask
 {
+#if defined (__XENO__)
+
     private:
         int init;
         RT_TASK task;
+
+#else // !__XENO__
+
+    private:
+        int init;
+        pthread_t task;
+
+#endif // __XENO__
 
     public:
 
@@ -60,10 +84,7 @@ class RackTask
  *
  * Rescheduling: never.
  */
-        RackTask()
-        {
-            init = 0;
-        }
+        RackTask();
 
 /**
  * @brief RACK task destructor.
@@ -76,11 +97,7 @@ class RackTask
  *
  * Rescheduling: never.
  */
-        ~RackTask()
-        {
-            if (init)
-                destroy();
-        }
+        ~RackTask();
 
 /**
  * @brief Create a new RACK task.
@@ -116,20 +133,7 @@ class RackTask
  *
  * Rescheduling: possible.
  */
-        int create(const char *name, int stksize, int prio, int mode)
-        {
-            int ret;
-
-            if (init)
-                return -EBUSY;
-
-            ret = rt_task_create(&task, name, stksize, prio, mode);
-            if (ret)
-                return ret;
-
-            init = 1;
-            return 0;
-        }
+        int create(const char *name, int stksize, int prio, int mode);
 
 /**
  * @brief Delete a RACK task.
@@ -144,20 +148,7 @@ class RackTask
  *
  * Rescheduling: possible.
  */
-        int destroy(void)
-        {
-            int ret;
-
-            if (!init)
-                return -ENOSYS;
-
-            ret = rt_task_delete(&task);
-            if (ret)
-                return ret;
-
-            init = 0;
-            return 0;
-        }
+        int destroy(void);
 
 /**
   * @brief Start a RACK task.
@@ -181,10 +172,7 @@ class RackTask
  *
  * Rescheduling: possible.
  */
-        int start(void (*fun)(void *cookie), void *cookie)
-        {
-            return rt_task_start(&task, fun, cookie);
-        }
+        int start(void (*fun)(void *cookie), void *cookie);
 
 /**
  * @brief Wait on the termination of a real-time task.
@@ -208,11 +196,7 @@ class RackTask
  */
 
 /*@}*/
-        int join(void)
-        {
-            //rt_task_unblock()
-            return rt_task_join(&task);
-        }
+        int join(void);
 
 /**
  * @brief Change task mode bits.
@@ -263,10 +247,7 @@ class RackTask
  *
  * Rescheduling: possible
  */
-        static int setMode(int clrmask, int setmask, int *mode_r)
-        {
-            return rt_task_set_mode(clrmask, setmask, mode_r);
-        }
+        static int setMode(int clrmask, int setmask, int *mode_r);
 
 /**
  * @brief Delay the calling task (relative).
@@ -295,10 +276,7 @@ class RackTask
  *
  * Rescheduling: always unless a null delay is given.
  */
-        static int sleep(uint64_t delay)
-        {
-            return rt_task_sleep((RTIME)delay);
-        }
+        static int sleep(uint64_t delay);
 
 /**
  * @brief Delay the calling task (absolute).
@@ -331,10 +309,7 @@ class RackTask
  *
  * Rescheduling: always unless a date in the past is given.
  */
-        static int sleepUntil(int64_t date)
-        {
-            return rt_task_sleep_until(date);
-        }
+        static int sleepUntil(int64_t date);
 
 /**
  * @brief Set current task into realtime mode.
@@ -354,10 +329,7 @@ class RackTask
  *
  * Rescheduling: possible.
  */
-        static int enableRealtimeMode()
-        {
-            return setMode(0, T_PRIMARY | T_WARNSW, NULL);
-        }
+        static int enableRealtimeMode();
 
 /**
  * @brief Set current task into secondary mode.
@@ -376,90 +348,10 @@ class RackTask
  *
  * Rescheduling: possible.
  */
-        static int disableRealtimeMode()
-        {
-            return setMode(T_PRIMARY | T_WARNSW, 0, NULL);
-        }
+        static int disableRealtimeMode();
 
 };
 
 /** @} */
-
-#else // !__XENO__ && !__KERNEL__
-
-#include <pthread.h>
-#include <errno.h>
-
-#define RACK_TASK_FPU       1
-#define RACK_TASK_JOINABLE  2
-#define RACK_TASK_CPU(c)    3
-#define RACK_TASK_PRIMARY   4
-#define RACK_TASK_WARNSW    5
-
-class RackTask
-{
-    private:
-        int init;
-        pthread_t task;
-
-    public:
-
-        RackTask()
-        {
-        }
-
-        ~RackTask()
-        {
-        }
-
-        int create(const char *name, int stksize, int prio, int mode)
-        {
-            return 0;
-        }
-
-        int destroy(void)
-        {
-            return 0;
-        }
-
-        int start(void (*fun)(void *cookie), void *cookie)
-        {
-            return pthread_create(&task, NULL, (void *(*)(void *))fun, cookie);
-        }
-
-        int join(void)
-        {
-            //pthread_cancel
-            return pthread_join(task, NULL);
-        }
-
-        static int setMode(int clrmask, int setmask, int *mode_r)
-        {
-            return 0;
-        }
-
-        static int sleep(uint64_t delay)
-        {
-            return usleep(delay / (uint64_t)1000);
-        }
-
-        static int sleepUntil(int64_t date)
-        {
-            return -1;//return rt_task_sleep_until(date);
-        }
-
-        static int enableRealtimeMode()
-        {
-            return 0;
-        }
-
-        static int disableRealtimeMode()
-        {
-            return 0;
-        }
-
-};
-
-#endif // __XENO__ || __KERNEL__
 
 #endif

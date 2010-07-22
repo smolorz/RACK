@@ -17,11 +17,6 @@
 #ifndef __RACK_MUTEX_H__
 #define __RACK_MUTEX_H__
 
-#if defined (__XENO__) || defined (__KERNEL__)
-
-#include <native/mutex.h>
-#include <nucleus/version.h>
-
 /*!
  * \ingroup rackos
  * \defgroup mutex Rack Mutex
@@ -43,6 +38,11 @@
  *
  *@{*/
 
+#if defined (__XENO__)
+
+#include <native/mutex.h>
+#include <nucleus/version.h>
+
 /** Infinite timeout */
 #ifndef RACK_INFINITE
 #define RACK_INFINITE    TM_INFINITE
@@ -53,24 +53,43 @@
 #define RACK_NONBLOCK    TM_NONBLOCK
 #endif
 
+#else // !__XENO__
+
+#include <semaphore.h>
+
+#ifndef RACK_INFINITE
+#define RACK_INFINITE       -1
+//#define RACK_INFINITE       TM_INFINITE
+#endif
+
+#ifndef RACK_NONBLOCK
+#define RACK_NONBLOCK       0
+//#define RACK_NONBLOCK       TM_NONBLOCK
+#endif
+
+#endif // __XENO__
+
+#include <inttypes.h>
+
 class RackMutex
 {
+#if defined (__XENO__)
+
     private:
         int init;
         RT_MUTEX  mutex;
 
+#else // !__XENO__
+
+    private:
+        sem_t   sem;
+
+#endif // __XENO__
+
     public:
 
-        RackMutex()
-        {
-            init = 0;
-        }
-
-        ~RackMutex()
-        {
-            if  (init)
-                destroy();
-        }
+        RackMutex();
+        ~RackMutex();
 
 /**
  * @brief Create a mutex.
@@ -99,20 +118,7 @@ class RackMutex
  *
  * Rescheduling: possible.
  */
-        int create(void)
-        {
-            int ret;
-
-            if (init)
-                return -EEXIST;
-
-            ret = rt_mutex_create(&mutex, NULL);
-            if (ret)
-                return ret;
-
-            init = 1;
-            return 0;
-        }
+         int create(void);
 
 /**
  * @brief Delete a mutex.
@@ -132,20 +138,7 @@ class RackMutex
  *
  * Rescheduling: possible.
  */
-        int destroy(void)
-        {
-            int ret;
-
-            if (!init)
-                return -EINVAL;
-
-            ret = rt_mutex_delete(&mutex);
-            if (ret)
-                return ret;
-
-            init = 0;
-            return 0;
-        }
+        int destroy(void);
 
 /**
  * @brief Acquire a mutex.
@@ -201,19 +194,9 @@ class RackMutex
  * blocked, the current owner's priority might be temporarily raised
  * as a consequence of the priority inheritance protocol.
  */
-        int lock(int64_t timeout)
-        {
-#if XENO_VERSION_CODE < XENO_VERSION(2,4,90)
-            return rt_mutex_lock(&mutex, timeout);
-#else
-            return rt_mutex_acquire(&mutex, timeout);
-#endif
-        }
+        int lock(int64_t timeout);
 
-        int lock(void)
-        {
-            return lock(RACK_INFINITE);
-        }
+        int lock(void);
 
 /**
  * @brief Unlock mutex.
@@ -243,99 +226,10 @@ class RackMutex
  *
  * Rescheduling: possible.
  */
-        int unlock(void)
-        {
-#if XENO_VERSION_CODE < XENO_VERSION(2,4,90)
-            return rt_mutex_unlock(&mutex);
-#else
-            return rt_mutex_release(&mutex);
-#endif
-        }
+        int unlock(void);
 
 };
 
 /*@}*/
-
-#else // !__XENO__ && !__KERNEL__
-
-#include <semaphore.h>
-#include <errno.h>
-
-#ifndef RACK_INFINITE
-#define RACK_INFINITE       -1
-//#define RACK_INFINITE       TM_INFINITE
-#endif
-
-#ifndef RACK_NONBLOCK
-#define RACK_NONBLOCK       0
-//#define RACK_NONBLOCK       TM_NONBLOCK
-#endif
-
-class RackMutex
-{
-    private:
-        sem_t   sem;
-
-    public:
-
-        RackMutex()
-        {
-        }
-
-        ~RackMutex()
-        {
-            destroy();
-        }
-
-        int create(void)
-        {
-            int ret;
-
-            ret = sem_init(&sem, 0, 1);
-
-            if(ret)
-            {
-                return errno;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        int destroy(void)
-        {
-
-            int ret;
-
-            ret = sem_destroy(&sem);
-
-            if(ret)
-            {
-                return errno;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        int lock(int64_t timeout)
-        {
-            return sem_wait(&sem);
-        }
-
-        int lock(void)
-        {
-            return lock(RACK_INFINITE);
-        }
-
-        int unlock(void)
-        {
-            return sem_post(&sem);
-        }
-};
-
-#endif // __XENO__ || __KERNEL__
 
 #endif // __RACK_MUTEX_H__

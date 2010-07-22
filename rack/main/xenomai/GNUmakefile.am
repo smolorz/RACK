@@ -1,4 +1,7 @@
 
 EXTRA_DIST = \
+	rack_mutex_xenomai.cpp \
+	rack_task_xenomai.cpp \
+	rack_time_xenomai.cpp \
 	can_port_xenomai.cpp \
 	serial_port_xenomai.cpp

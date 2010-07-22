@@ -20,9 +20,10 @@
 #ifndef __RACK_MODULE_H__
 #define __RACK_MODULE_H__
 
+#include <stdio.h>
 #include <stdlib.h>
-
-#include <main/tims/tims.h>
+#include <inttypes.h>
+#include <unistd.h>
 
 #include <main/rack_debug.h>
 #include <main/rack_proxy.h>

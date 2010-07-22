@@ -21,13 +21,13 @@
 #ifndef __RACK_TIME_H__
 #define __RACK_TIME_H__
 
-#include <main/tims/tims.h>
-
  /*!
  * @ingroup rackos
  * @defgroup time Rack Time
  * @{
  */
+
+#include <inttypes.h>
 
 /** Maximum RACK time value */
 #define RACK_TIME_MAX           0x7fffffff
@@ -38,16 +38,19 @@
 /** RACK time (32 Bit) */
 typedef uint32_t rack_time_t;
 
-#if defined (__XENO__) || defined (__KERNEL__)
-
-#include <native/timer.h>
-
 class RackTime
 {
-private:
+#if defined (__XENO__)
 
+private:
     /** File decriptor to communicate with TIMS */
     int tims_fd;
+
+#else // !__XENO__
+
+private:
+
+#endif // __XENO__
 
 public:
 
@@ -62,10 +65,7 @@ public:
      *
      * Rescheduling: never.
      */
-    RackTime()
-    {
-        tims_fd = -1;
-    }
+    RackTime();
 
     /**
      * @brief Initializing the RackTime class. The function tries to open the
@@ -85,25 +85,7 @@ public:
      *
      * Rescheduling: never.
      */
-    int init(int tims_fd)
-    {
-        int err;
-        int64_t offset;
-
-        this->tims_fd = tims_fd;
-        err = rt_dev_ioctl(tims_fd, TIMS_RTIOC_GETCLOCKOFFSET, &offset);
-        if (err)
-        {
-            tims_fd = -1;
-            return err;
-        }
-        if (offset == 0)
-        {
-            /* Optimisation: we are (most probably) the time master */
-            tims_fd = -1;
-        }
-        return 0;
-    }
+    int init(int tims_fd);
 
     /**
      * @brief Converting nanoseconds into rack_time_t. If a global time offset is
@@ -121,10 +103,7 @@ public:
      *
      * Rescheduling: never.
      */
-    rack_time_t fromNano(uint64_t ntime)
-    {
-        return (rack_time_t)((ntime + getOffset()) / RACK_TIME_FACTOR);
-    }
+    rack_time_t fromNano(uint64_t ntime);
 
     /**
      * @brief Converting a given rack_time_t value into nanoseconds.
@@ -141,10 +120,7 @@ public:
      *
      * Rescheduling: never.
      */
-    uint64_t toNano(rack_time_t rtime)
-    {
-        return (uint64_t)(rtime * RACK_TIME_FACTOR) ;
-    }
+    uint64_t toNano(rack_time_t rtime);
 
     /**
      * @brief Gets the current RACK time, synchonised on a reference clock if TIMS
@@ -160,21 +136,9 @@ public:
      *
      * Rescheduling: never.
      */
-    rack_time_t get(void)
-    {
-        return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
-    }
+    rack_time_t get(void);
 
-    int set(uint64_t utcTimestamp, uint64_t recTimestamp)
-    {
-        tims_clock_setvalue setValue = {utcTimestamp, recTimestamp};
-
-        if (tims_fd < 0 ||
-                    rt_dev_ioctl(tims_fd, TIMS_RTIOC_SETTIME, &setValue) < 0)
-            return -EINVAL;
-        else
-            return 0;
-    }
+    int set(uint64_t utcTimestamp, uint64_t recTimestamp);
 
     /**
      * @brief Gets the current RACK time in nanoseconds, synchonised on a
@@ -190,16 +154,7 @@ public:
      *
      * Rescheduling: never.
      */
-    uint64_t getNano(void)
-    {
-        uint64_t ntime;
-
-        if (tims_fd < 0 ||
-            rt_dev_ioctl(tims_fd, TIMS_RTIOC_GETTIME, &ntime) < 0)
-            return rt_timer_read();
-        else
-            return ntime;
-    }
+    uint64_t getNano(void);
 
     /**
      * @brief Gets the offset to the reference clock in nanoseconds.
@@ -214,75 +169,9 @@ public:
      *
      * Rescheduling: never.
      */
-    int64_t getOffset(void)
-    {
-        int64_t offset;
+    int64_t getOffset(void);
 
-        if (tims_fd < 0 ||
-            rt_dev_ioctl(tims_fd, TIMS_RTIOC_GETCLOCKOFFSET, &offset) < 0)
-            offset = 0;
-
-        return offset;
-    }
 };
-
-#else // !__XENO__ && !__KERNEL__
-
-#include <sys/time.h>
-
-class RackTime
-{
-
-public:
-
-    RackTime()
-    {
-    }
-
-    int init(int tims_fd)
-    {
-        return 0;
-    }
-
-    rack_time_t fromNano(uint64_t ntime)
-    {
-        return (rack_time_t)(ntime / RACK_TIME_FACTOR);
-    }
-
-    uint64_t toNano(rack_time_t rtime)
-    {
-        return (uint64_t)(rtime * RACK_TIME_FACTOR) ;
-    }
-
-    rack_time_t get(void)
-    {
-        return (rack_time_t)(getNano() / RACK_TIME_FACTOR);
-    }
-
-    int set(uint64_t utcTimestamp, uint64_t recTimestamp)
-    {
-        return 0;
-    }
-
-    uint64_t getNano(void)
-    {
-        struct timeval time;
-        uint64_t nanoTime;
-
-        gettimeofday(&time, NULL);
-
-        nanoTime = (uint64_t) time.tv_sec * 1000000000llu + (uint64_t) time.tv_usec * 1000llu;
-
-        return nanoTime;
-    }
-
-    int64_t getOffset(void)
-    {
-        return 0;
-    }
-};
-
-#endif // __XENO__ || __KERNEL__
 
 /** @} */
 

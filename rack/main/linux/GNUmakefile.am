@@ -1,4 +1,7 @@
 
 EXTRA_DIST = \
+	rack_mutex_linux.cpp \
+	rack_task_linux.cpp \
+	rack_time_linux.cpp \
 	can_port_linux.cpp \
 	serial_port_linux.cpp
