@@ -162,7 +162,7 @@ int ClockSystem::moduleLoop(void)
     GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
     putDataBufferWorkSpace(sizeof(clock_data));
 
-    RackTask::sleep(rackTime.toNano(dataBufferPeriodTime));
+    sleepDataBufferPeriodTime();
     return 0;
 }
 

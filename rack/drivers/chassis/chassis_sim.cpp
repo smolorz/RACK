@@ -206,7 +206,7 @@ int ChassisSim::moduleLoop(void)
                     p_data->vx, p_data->vy, p_data->omega,
                     p_data->recordingTime);
 
-    RackTask::sleep(dataBufferPeriodTime * 1000000llu);
+    sleepDataBufferPeriodTime();
 
     return 0;
 }

@@ -14,6 +14,7 @@
  *      Oliver Wulf <oliver.wulf@web.de>
  *
  */
+
 #include <main/rack_data_module.h>
 #include <main/rack_proxy.h>
 
@@ -400,6 +401,27 @@ void        RackDataModule::putDataBufferWorkSpace(uint32_t datalength)
     bufferMtx.unlock();
 }
 
+void        RackDataModule::sleepDataBufferPeriodTime(void)
+{
+    dataBufferSleepTime += dataBufferPeriodTime;
+
+    rack_time_t currentTime = rackTime.get();
+    rack_time_t sleepTime = dataBufferSleepTime - currentTime;
+
+    if(sleepTime < 0)
+    {
+        dataBufferSleepTime = currentTime;
+        sleepTime = 0;
+    }
+    else if(sleepTime > dataBufferPeriodTime)
+    {
+        dataBufferSleepTime = currentTime + dataBufferPeriodTime;
+        sleepTime = dataBufferPeriodTime;
+    }
+
+    RackTask::sleep(rackTime.toNano(sleepTime));
+}
+
 //
 // virtual Module functions
 //
@@ -561,6 +583,8 @@ int         RackDataModule::moduleOn(void)
         GDOS_ERROR("You have to set this value before calling RackDataModule::moduleOn()\n");
         return -EINVAL;
     }
+
+    dataBufferSleepTime = rackTime.get();
 
     listenerNum     = 0;
     globalDataCount = 0;

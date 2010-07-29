@@ -488,7 +488,7 @@ int  PilotJoystick::moduleLoop(void)
 
     putDataBufferWorkSpace(sizeof(pilot_data) + pilotData->splineNum * sizeof(polar_spline));
 
-    RackTask::sleep(rackTime.toNano(dataBufferPeriodTime));
+    sleepDataBufferPeriodTime();
 
     return 0;
 }

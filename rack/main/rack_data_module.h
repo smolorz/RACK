@@ -100,6 +100,7 @@ class RackDataModule : public RackModule
         int16_t             dataBufferSendType;
         RackMailbox*        dataBufferSendMbx;
         rack_time_t         dataBufferPeriodTime;
+        rack_time_t         dataBufferSleepTime;
 
         rack_time_t         getRecordingTime(void *pData);
         int                 getDataBufferIndex(rack_time_t time);
@@ -127,6 +128,8 @@ class RackDataModule : public RackModule
 
     void*     getDataBufferWorkSpace(void);
     void      putDataBufferWorkSpace(uint32_t datalength);
+
+    void      sleepDataBufferPeriodTime(void);
 
     //
     // virtual module functions

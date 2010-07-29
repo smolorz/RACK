@@ -79,7 +79,7 @@ int  DummyAbc::moduleLoop(void)
     datalength = sizeof(dummy_data) + pData->valueNum * sizeof(int32_t);
     putDataBufferWorkSpace(datalength);
 
-    RackTask::sleep(1000000000ull);  // 1000ms = 1Hz
+    sleepDataBufferPeriodTime();
 
     return 0;
 }

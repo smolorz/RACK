@@ -289,7 +289,6 @@ int  PilotWallFollowing::moduleLoop(void)
         putDataBufferWorkSpace(sizeof(pilot_data));
     }
 
-        RackTask::sleep(rackTime.toNano(dataBufferPeriodTime));
     return 0;
 }
 

@@ -27,6 +27,7 @@
  *@{*/
 
 #include <main/tims/tims.h>
+#include <main/tims/tims_api.h>
 #include <main/rack_mutex.h>
 
 //######################################################################
