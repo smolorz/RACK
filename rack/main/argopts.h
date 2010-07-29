@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <getopt.h>
 #include <errno.h>
 #include <main/rack_debug.h>

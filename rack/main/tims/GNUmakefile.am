@@ -6,13 +6,24 @@ timsinclude_HEADERS = \
 	tims_api.h \
 	tims_byteorder.h \
 	tims_router.h \
+	tims_rtdm.h \
 	tims_types.h
 
 SUBDIRS = \
 	router
 
+if CONFIG_RACK_OS_XENOMAI
+
+SUBDIRS += xenomai
+
+else
+
+SUBDIRS += linux
+
+endif
+
 if CONFIG_RACK_BUILD_KMOD
-SUBDIRS += driver
+SUBDIRS += xenomai_kmod
 endif
 
 dist_java_JAVA =

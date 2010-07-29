@@ -1695,7 +1695,7 @@ dnl             create links to Makefiles used by linux-2.6.x
 dnl ======================================================================
 
 for DIR in \
-    main/tims/driver \
+    main/tims/xenomai_kmod \
     ; do
       AC_CONFIG_LINKS(${DIR}/Makefile:${DIR}/Makefile.kbuild)
 done
@@ -1718,7 +1718,9 @@ AC_CONFIG_FILES([GNUmakefile \
     main/xenomai/GNUmakefile \
     main/linux/GNUmakefile \
     main/tims/GNUmakefile \
-    main/tims/driver/GNUmakefile \
+    main/tims/xenomai/GNUmakefile \
+    main/tims/xenomai_kmod/GNUmakefile \
+    main/tims/linux/GNUmakefile \
     main/tims/router/GNUmakefile \
     \
     drivers/GNUmakefile \

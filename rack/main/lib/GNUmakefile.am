@@ -43,7 +43,8 @@ librack_la_SOURCES += \
 	$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp \
 	$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp \
 	$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp \
-	$(top_srcdir)/main/xenomai/can_port_xenomai.cpp
+	$(top_srcdir)/main/xenomai/can_port_xenomai.cpp \
+	$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c
 
 else
 
@@ -52,7 +53,8 @@ librack_la_SOURCES += \
 	$(top_srcdir)/main/linux/rack_task_linux.cpp \
 	$(top_srcdir)/main/linux/rack_time_linux.cpp \
 	$(top_srcdir)/main/linux/serial_port_linux.cpp \
-	$(top_srcdir)/main/linux/can_port_linux.cpp
+	$(top_srcdir)/main/linux/can_port_linux.cpp \
+	$(top_srcdir)/main/tims/linux/tims_api_linux.c
 
 endif
 

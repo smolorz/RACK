@@ -1,0 +1,16 @@
+
+EXTRA_DIST = \
+	tims_api_xenomai.c
+
+### tims_client ##############################
+
+bin_PROGRAMS = \
+	tims_client
+
+CFLAGS = -I$(top_srcdir)
+
+tims_client_SOURCES = \
+	tims_client.c
+
+tims_client_LDADD = \
+	-lpthread

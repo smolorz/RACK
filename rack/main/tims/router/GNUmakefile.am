@@ -1,19 +1,8 @@
 
 bin_PROGRAMS = \
-	tims_client \
 	tims_router_tcp
 
 CFLAGS = -I$(top_srcdir)
-
-### tims_client ########################################
-
-tims_client_SOURCES = \
-	tims_client.c
-
-tims_client_LDADD = \
-	-lpthread
-
-### tims_router_tcp ####################################
 
 tims_router_tcp_SOURCES = \
 	tims_router_tcp.c

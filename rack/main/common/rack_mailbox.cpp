@@ -15,9 +15,12 @@
  *
  */
 
-#include <stdarg.h>
-
 #include <main/rack_mailbox.h>
+
+#include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/uio.h>
 
 // init bits
 #define     INIT_BIT_TIMS_MBX_CREATED       0

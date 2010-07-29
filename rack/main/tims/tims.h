@@ -50,10 +50,87 @@ typedef struct
 
 #define TIMS_HEADLEN        sizeof(tims_msg_head)
 
-
 /* TiMS flags (first byte of the head) */
 #define TIMS_HEAD_BYTEORDER_LE  0x01
 #define TIMS_BODY_BYTEORDER_LE  0x02
+
+//
+// common static inline functions
+//
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static inline void tims_set_head_byteorder(tims_msg_head* p)
+{
+  #if defined __BIG_ENDIAN_BITFIELD
+      p->flags &= ~TIMS_HEAD_BYTEORDER_LE;
+  #elif defined __LITTLE_ENDIAN_BITFIELD
+      p->flags |= TIMS_HEAD_BYTEORDER_LE;
+  #else
+      #error There is no byteorder defined. Fix <main/tims/tims_byteorder.h>.
+  #endif
+}
+
+static inline void tims_set_body_byteorder(tims_msg_head* p)
+{
+    #if defined __BIG_ENDIAN_BITFIELD
+        p->flags &= ~TIMS_BODY_BYTEORDER_LE;
+    #elif defined __LITTLE_ENDIAN_BITFIELD
+        p->flags |= TIMS_BODY_BYTEORDER_LE;
+    #else
+        #error There is no byteorder defined. Fix <main/tims/tims_byteorder.h>.
+    #endif
+}
+
+static inline void tims_set_byteorder(tims_msg_head* p)
+{
+    tims_set_head_byteorder(p);
+    tims_set_body_byteorder(p);
+}
+
+static inline void tims_parse_head_byteorder(tims_msg_head* p)
+{
+    if (p->flags & TIMS_HEAD_BYTEORDER_LE)  /* head is little endian */
+    {
+        p->src     = __le32_to_cpu(p->src);
+        p->dest    = __le32_to_cpu(p->dest);
+        p->msglen  = __le32_to_cpu(p->msglen);
+    }
+    else                                    /* head is big endian */
+    {
+        p->src     = __be32_to_cpu(p->src);
+        p->dest    = __be32_to_cpu(p->dest);
+        p->msglen  = __be32_to_cpu(p->msglen);
+    }
+    tims_set_head_byteorder(p);
+}
+
+static inline void tims_fill_head(tims_msg_head *p_head, int8_t type,
+                                  uint32_t dest, uint32_t src,
+                                  uint8_t priority, uint8_t seq_nr, uint8_t flags,
+                                  uint32_t msglen)
+{
+    p_head->flags    = flags;
+    p_head->type     = type;
+    p_head->priority = priority;
+    p_head->seq_nr   = seq_nr;
+    p_head->dest     = dest;
+    p_head->src      = src;
+    p_head->msglen   = msglen;
+
+    tims_set_byteorder(p_head);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+//
+// Other defines (may be removed)
+//
+
 /* Since RTnet transfers UDP packets TiMS messages larger than 64kbyte must
  * be split up. These flags tag splitted messages as beginning, following and
  * ending parts. */
@@ -62,6 +139,6 @@ typedef struct
 #define TIMS_RTNET_SPLIT_STOP   (TIMS_RTNET_SPLIT_START | TIMS_RTNET_SPLIT)
 #define TIMS_RTNET_SPLIT_MASK   TIMS_RTNET_SPLIT_STOP
 
-#include <main/tims/tims_api.h>
+#define TIMS_ALLOW_KERNEL_TASKS 0
 
 #endif // __TIMS_H__

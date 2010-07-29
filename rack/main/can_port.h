@@ -27,6 +27,7 @@
 
 #else // !__XENO__ && !__KERNEL__
 
+#include <arpa/inet.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
