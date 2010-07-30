@@ -18,6 +18,16 @@
 #ifndef __TIMS_DRIVER_H__
 #define __TIMS_DRIVER_H__
 
+/* Since RTnet transfers UDP packets TiMS messages larger than 64kbyte must
+ * be split up. These flags tag splitted messages as beginning, following and
+ * ending parts. */
+#define TIMS_RTNET_SPLIT_START  0x04
+#define TIMS_RTNET_SPLIT        0x08
+#define TIMS_RTNET_SPLIT_STOP   (TIMS_RTNET_SPLIT_START | TIMS_RTNET_SPLIT)
+#define TIMS_RTNET_SPLIT_MASK   TIMS_RTNET_SPLIT_STOP
+
+#define TIMS_ALLOW_KERNEL_TASKS 0
+
 #include <linux/bitops.h>
 #include <linux/list.h>
 #include <linux/mm.h>
