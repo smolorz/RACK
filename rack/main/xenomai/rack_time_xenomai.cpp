@@ -19,6 +19,7 @@
  */
 
 #include <main/rack_time.h>
+#include <main/tims/tims_rtdm.h>
 
 #include <native/timer.h>
 

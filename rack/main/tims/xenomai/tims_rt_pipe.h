@@ -17,7 +17,6 @@
 #ifndef __TIMS_RT_PIPE_H__
 #define __TIMS_RT_PIPE_H__
 
-#include <main/tims/tims.h>
 #include <main/tims/tims_router.h>
 
 #define PIPE_TIMS_TO_CLIENT                     6

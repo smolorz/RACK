@@ -14,7 +14,7 @@
  *      Sebastian Smolorz <Sebastian.Smolorz@stud.uni-hannover.de>
  *
  */
-#include <main/tims/driver/tims_debug.h>
+#include "tims_debug.h"
 
 //
 // Module parameter

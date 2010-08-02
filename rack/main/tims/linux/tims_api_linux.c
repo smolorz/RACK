@@ -16,9 +16,7 @@
  *
  */
 
-#include <main/tims/tims.h>
 #include <main/tims/tims_api.h>
-#include <main/tims/tims_router.h>
 
 #include <netinet/in.h>
 #include <sys/socket.h>

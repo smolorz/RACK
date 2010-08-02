@@ -19,6 +19,25 @@
 #ifndef __TIMS_RTDM_H__
 #define __TIMS_RTDM_H__
 
+#include <main/tims/tims.h>
+
+#include <rtdm/rtdm.h>
+
+#ifdef __KERNEL__
+
+#include <linux/ioctl.h>
+#include <linux/socket.h>
+#include <linux/net.h>
+#include <linux/errno.h>
+
+#else  /* !__KERNEL__ */
+
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <errno.h>
+
+#endif /* !__KERNEL__ */
+
 //
 // TIMS rtdm socket api
 //

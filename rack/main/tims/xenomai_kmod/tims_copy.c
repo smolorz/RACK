@@ -13,8 +13,8 @@
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
  *
  */
-#include <main/tims/driver/tims_copy.h>
-#include <main/tims/driver/tims_debug.h>
+#include "tims_copy.h"
+#include "tims_debug.h"
 
 //
 // external vakues

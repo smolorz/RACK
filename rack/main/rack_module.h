@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <main/rack_debug.h>
 #include <main/rack_proxy.h>

@@ -33,7 +33,6 @@
 #define DEBUG
 //#define DEBUG_DETAIL
 
-#include <main/tims/tims.h>
 #include <main/tims/tims_router.h>
 
 #define TIMS_LEVEL_PRINT          0

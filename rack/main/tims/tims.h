@@ -48,11 +48,18 @@ typedef struct
                            //---> 16 Byte
 } __attribute__((packed)) tims_msg_head;
 
+//
+// TIMS defines
+//
+
 #define TIMS_HEADLEN        sizeof(tims_msg_head)
 
 /* TiMS flags (first byte of the head) */
 #define TIMS_HEAD_BYTEORDER_LE  0x01
 #define TIMS_BODY_BYTEORDER_LE  0x02
+
+#define TIMS_INFINITE               (0)
+#define TIMS_NONBLOCK               ((int64_t)-1)
 
 //
 // common static inline functions

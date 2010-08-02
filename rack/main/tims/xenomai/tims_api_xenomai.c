@@ -16,8 +16,6 @@
  *
  */
 
-#include <main/tims/tims.h>
-#include <main/tims/tims_rtdm.h>
 #include <main/tims/tims_api.h>
 
 #ifdef __cplusplus

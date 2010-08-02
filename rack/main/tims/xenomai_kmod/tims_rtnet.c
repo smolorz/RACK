@@ -13,8 +13,8 @@
  *      Joerg Langenberg  <joerg.langenberg@gmx.net>
  *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
  */
-#include <main/tims/driver/tims_rtnet.h>
-#include <main/tims/driver/tims_debug.h>
+#include "tims_rtnet.h"
+#include "tims_debug.h"
 
 #define RTNET_INIT_BIT_RTNET_SOCKET          0
 #define RTNET_INIT_BIT_RTNET_MBXROUTE        1

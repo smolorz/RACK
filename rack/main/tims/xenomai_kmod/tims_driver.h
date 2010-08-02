@@ -31,8 +31,8 @@
 #include <linux/bitops.h>
 #include <linux/list.h>
 #include <linux/mm.h>
-
 #include <rtdm/rtdm_driver.h>
+
 #include <main/tims/tims.h>
 #include <main/tims/tims_rtdm.h>
 #include <main/tims/tims_router.h>

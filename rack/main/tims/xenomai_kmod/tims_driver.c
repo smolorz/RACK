@@ -24,12 +24,12 @@
 #include <native/pipe.h>
 
 #include <rack_config.h>
-#include <main/tims/driver/tims_driver.h>
-#include <main/tims/driver/tims_debug.h>
-#include <main/tims/driver/tims_clock.h>
+#include "tims_driver.h"
+#include "tims_debug.h"
+#include "tims_clock.h"
 
 #define DRIVER_AUTHOR   "RACK project team"
-#define DRIVER_VERSION  "0.3.0"
+#define DRIVER_VERSION  PACKAGE_VERSION
 #define DRIVER_DESC     "Tiny Messaging Service (TiMS)"
 
 //

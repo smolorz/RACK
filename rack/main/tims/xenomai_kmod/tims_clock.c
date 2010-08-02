@@ -24,7 +24,7 @@
 #include <rtdm/rtserial.h>
 #include <main/rack_rtmac.h>
 #include <main/tims/tims.h>
-#include <main/tims/driver/tims_debug.h>
+#include "tims_debug.h"
 
 #define SYNC_NONE           0
 #define SYNC_RTNET          1

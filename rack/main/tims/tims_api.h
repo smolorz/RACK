@@ -21,37 +21,16 @@
 #include <main/tims/tims.h>
 
 //
-// api defines
-//
-
-#define TIMS_INFINITE               (0)
-#define TIMS_NONBLOCK               ((int64_t)-1)
-
-//
 // includes for xenomai, xenomai/kernel and linux
 //
 
 #if defined (__XENO__) || defined (__KERNEL__)
 
-#include <rtdm/rtdm.h>
 #include <main/tims/tims_rtdm.h>
 
-#ifdef __KERNEL__
-
-#include <linux/ioctl.h>
-#include <linux/socket.h>
-#include <linux/net.h>
-#include <linux/errno.h>
-
-#else  /* !__KERNEL__ */
-
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <errno.h>
-
-#endif /* !__KERNEL__ */
-
 #else // !__XENO__ && !__KERNEL__
+
+#include <main/tims/tims_router.h>
 
 #include <sys/uio.h>
 #include <errno.h>
