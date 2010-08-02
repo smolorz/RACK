@@ -297,7 +297,7 @@ int SerialPort::recv(void *data, int dataLen)
 
     do
     {
-        ret = read(fd, data + dataRead, (dataLen - dataRead));
+        ret = read(fd, (char*)data + dataRead, (dataLen - dataRead));
 
         if (ret == 0)
         {
