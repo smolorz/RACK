@@ -276,9 +276,9 @@ class RackParamMsg
         static void le_to_cpu(rack_param_msg *data)
         {
             int i;
-            
+
             data->parameterNum = __le32_to_cpu(data->parameterNum);
-            
+
             for(i = 0; i < data->parameterNum; i++)
             {
                 RackParam::le_to_cpu(&data->parameter[i]);
@@ -288,9 +288,9 @@ class RackParamMsg
         static void be_to_cpu(rack_param_msg *data)
         {
             int i;
-            
+
             data->parameterNum = __be32_to_cpu(data->parameterNum);
-            
+
             for(i = 0; i < data->parameterNum; i++)
             {
                 RackParam::be_to_cpu(&data->parameter[i]);
@@ -358,7 +358,7 @@ class RackProxy {
     int proxySendRecvDataCmd(int8_t send_msgtype, void *send_data,
                              size_t send_datalen, const int8_t recv_msgtype,
                              void *recv_data, size_t recv_datalen,
-                             uint64_t timeout, RackMessage *p_msginfo);
+                             uint64_t timeout, RackMessage *msgInfo);
 
   public:
 
@@ -474,14 +474,14 @@ class RackDataProxy : public RackProxy {
 //
 
     int getData(void *recv_data, ssize_t recv_max_len, rack_time_t timeStamp,
-                uint64_t reply_timeout_ns, RackMessage *p_msginfo);
+                uint64_t reply_timeout_ns, RackMessage *msgInfo);
 
 //
 // get next data
 //
 
     int getNextData(void *recv_data, ssize_t recv_max_len,
-                    uint64_t reply_timeout_ns, RackMessage *p_msginfo);
+                    uint64_t reply_timeout_ns, RackMessage *msgInfo);
 
     public:
 

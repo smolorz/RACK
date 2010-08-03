@@ -299,10 +299,10 @@ int  LadarSickS::moduleLoop(void)
     return 0;
 }
 
-int  LadarSickS::moduleCommand(RackMessage *p_msginfo)
+int  LadarSickS::moduleCommand(RackMessage *msgInfo)
 {
   // not for me -> ask RackDataModule
-  return RackDataModule::moduleCommand(p_msginfo);
+  return RackDataModule::moduleCommand(msgInfo);
 }
 
 unsigned short LadarSickS::crc_check(unsigned char* data, int len)

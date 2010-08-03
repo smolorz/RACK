@@ -320,7 +320,7 @@ int  LadarIbeoLux::moduleLoop(void)
                         // consider only object measurements
                         if (point.type == 0x00)
                         {
-                            // replace previous point if current distance is smaller or if 
+                            // replace previous point if current distance is smaller or if
                             // previous point was not an object measurement
                             if ((point.distance < ladarWorkMsg[layer].point[currId - 1].distance) ||
                                 (ladarWorkMsg[layer].point[currId - 1].type != 0x00))
@@ -358,7 +358,7 @@ int  LadarIbeoLux::moduleLoop(void)
             {
                 if (ladarWorkMsg[i].data.pointNum != 0)
                 {
-                    memcpy(&p_data->point[p_data->pointNum], &ladarWorkMsg[i].point[0], 
+                    memcpy(&p_data->point[p_data->pointNum], &ladarWorkMsg[i].point[0],
                            ladarWorkMsg[i].data.pointNum * sizeof(ladar_point));
                     p_data->pointNum += ladarWorkMsg[i].data.pointNum;
                 }
@@ -572,10 +572,10 @@ int  LadarIbeoLux::moduleLoop(void)
     return 0;
 }
 
-int  LadarIbeoLux::moduleCommand(RackMessage *p_msginfo)
+int  LadarIbeoLux::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
-    return RackDataModule::moduleCommand(p_msginfo);
+    return RackDataModule::moduleCommand(msgInfo);
 }
 
 

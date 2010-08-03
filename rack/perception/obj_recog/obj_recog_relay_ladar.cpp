@@ -135,10 +135,10 @@ int  ObjRecogRelayLadar::moduleLoop(void)
     return 0;
 }
 
-int  ObjRecogRelayLadar::moduleCommand(RackMessage *p_msginfo)
+int  ObjRecogRelayLadar::moduleCommand(RackMessage *msgInfo)
 {
   // not for me -> ask RackDataModule
-  return RackDataModule::moduleCommand(p_msginfo);
+  return RackDataModule::moduleCommand(msgInfo);
 }
 
 

@@ -213,10 +213,10 @@ int  LadarSickLms200::moduleLoop(void)
     return 0;
 }
 
-int  LadarSickLms200::moduleCommand(RackMessage *p_msginfo)
+int  LadarSickLms200::moduleCommand(RackMessage *msgInfo)
 {
   // not for me -> ask RackDataModule
-  return RackDataModule::moduleCommand(p_msginfo);
+  return RackDataModule::moduleCommand(msgInfo);
 }
 
 

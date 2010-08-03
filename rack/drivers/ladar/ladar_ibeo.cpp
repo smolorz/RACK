@@ -309,10 +309,10 @@ int  LadarIbeo::moduleLoop(void)
         return 0;
 }
 
-int  LadarIbeo::moduleCommand(RackMessage *p_msginfo)
+int  LadarIbeo::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
-    return RackDataModule::moduleCommand(p_msginfo);
+    return RackDataModule::moduleCommand(msgInfo);
 }
 
 int LadarIbeo::sendRequestPacket(int requestCommand, int parameterLen,

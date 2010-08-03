@@ -501,7 +501,7 @@ int RackMailbox::sendDataMsgReply(int8_t type, RackMessage* msgInfo,
 
     memcpy(msgInfo->getHead(), p_peek_head, sizeof(tims_msg_head));
     msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
-    msgInfo->p_data = msgInfo->getHead()->data;
+    msgInfo->p_data = &p_peek_head->data;
 
     return 0;
 }
@@ -556,7 +556,7 @@ int RackMailbox::peekTimed(uint64_t timeout_ns, RackMessage *msgInfo)
 
     memcpy(msgInfo->getHead(), p_peek_head, sizeof(tims_msg_head));
     msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
-    msgInfo->p_data = msgInfo->getHead()->data;
+    msgInfo->p_data = &p_peek_head->data;
 
     return 0;
 }
@@ -610,7 +610,7 @@ int RackMailbox::peekIf(RackMessage *msgInfo)
 
     memcpy(msgInfo->getHead(), p_peek_head, sizeof(tims_msg_head));
     msgInfo->datalen = msgInfo->getHead()->msglen - TIMS_HEADLEN;
-    msgInfo->p_data = msgInfo->getHead()->data;
+    msgInfo->p_data = &p_peek_head->data;
 
     return 0;
 }

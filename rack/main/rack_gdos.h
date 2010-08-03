@@ -210,8 +210,7 @@ class RackGdos
                                 dst              += valuesize;
                                 datasize         += valuesize;
                                 break;
-/*
-//TODO
+
                             case 's':
                                 valuesize = sizeof(char);
                                 char *ptr = va_arg(args, char*);
@@ -229,9 +228,10 @@ class RackGdos
                                     dst      += valuesize;
                                     datasize += valuesize;
                                 }
+
                                 *((char*)dst) = '\0';  // add char term
+                                datasize +=valuesize;
                                 break;
-*/
                         }
                         percent = 0;
                     }
