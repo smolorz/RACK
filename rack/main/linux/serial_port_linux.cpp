@@ -14,15 +14,6 @@
  *
  */
 
-/*!
- * @ingroup driverapi
- * @defgroup rtserial Serial Port API
- *
- * This is the Serial Port interface of RACK provided to application programs
- * in userspace.
- * @{
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
