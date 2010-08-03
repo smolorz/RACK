@@ -13,8 +13,8 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef __LIST_HEAD_H__
-#define __LIST_HEAD_H__
+#ifndef __RACK_LIST_HEAD_H__
+#define __RACK_LIST_HEAD_H__
 
 //######################################################################
 //# class ListHead
@@ -99,4 +99,4 @@ class ListHead
 
 };
 
-#endif /*__LIST_HEAD_H__*/
+#endif /*__RACK_LIST_HEAD_H__*/

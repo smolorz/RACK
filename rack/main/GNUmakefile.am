@@ -8,7 +8,9 @@ maininclude_HEADERS = \
 	pilot_tool.h \
 	position_tool.h \
 	rack_byteorder.h \
-	rack_debug.h \
+	rack_bits.h \
+	rack_list_head.h \
+	rack_gdos.h \
 	rack_mailbox.h \
 	rack_mutex.h \
 	rack_module.h \
@@ -17,21 +19,20 @@ maininclude_HEADERS = \
 	rack_proxy.h \
 	rack_time.h \
 	rack_task.h \
-	rack_rtmac.h
 	can_port.h \
 	serial_port.h
 
 if CONFIG_RACK_OS_LINUX
 
 maininclude_HEADERS += \
-	linux/rtserial.h
+	linux/rack_rtserial.h
 
 endif
 
 if CONFIG_RACK_LIBJPEG_SUPPORT
 
 maininclude_HEADERS += \
-	jpeg_data_dst_mem.h
+	jpeg_tool.h
 
 endif
 

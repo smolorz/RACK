@@ -25,7 +25,7 @@
 
 #include <main/rack_module.h>
 #include <main/rack_proxy.h>
-#include <main/defines/list_head.h>
+#include <main/rack_list_head.h>
 
 #define CMD_TASK_TIMEOUT 500000000llu
 

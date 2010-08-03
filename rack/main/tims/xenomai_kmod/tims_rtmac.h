@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef __RACK_RTMAC_H_
-#define __RACK_RTMAC_H_
+#ifndef __TIMS_RTMAC_H_
+#define __TIMS_RTMAC_H_
 
 #include <rtdm/rtdm.h>
 
@@ -37,4 +37,4 @@
 
 // ...
 
-#endif /* __RTMAC_H_ */
+#endif /* __TIMS_RTMAC_H_ */

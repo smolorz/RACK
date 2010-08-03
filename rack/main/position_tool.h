@@ -17,7 +17,7 @@
 #ifndef __POSITION_TOOL_H__
 #define __POSITION_TOOL_H__
 
-#include <main/rack_debug.h>
+#include <main/rack_gdos.h>
 #include <navigation/position_proxy.h>
 #include <math.h>
 

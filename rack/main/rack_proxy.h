@@ -20,7 +20,7 @@
 
 #include <main/rack_mailbox.h>
 #include <main/rack_time.h>
-#include <main/rack_debug.h>
+#include <main/rack_gdos.h>
 
 //######################################################################
 //# RACK message types

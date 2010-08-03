@@ -25,7 +25,7 @@
 
 #else
 
-#include "linux/rtserial.h"
+#include "linux/rack_rtserial.h"
 
 #endif
 

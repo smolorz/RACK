@@ -28,14 +28,14 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include <main/rack_debug.h>
+#include <main/rack_gdos.h>
 #include <main/rack_proxy.h>
 #include <main/rack_mailbox.h>
 #include <main/rack_mutex.h>
 #include <main/rack_name.h>
 #include <main/rack_task.h>
 #include <main/rack_time.h>
-#include <main/defines/rack_bitops.h>
+#include <main/rack_bits.h>
 #include <main/argopts.h>
 
 using std::string;

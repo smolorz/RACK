@@ -20,7 +20,7 @@
 #include <main/camera_tool.h>
 #include <drivers/camera_proxy.h>
 
-#include <main/jpeg_data_dst_mem.h> //destination manager for memory destination
+#include <main/jpeg_tool.h> //destination manager for memory destination
 
 // define module class
 #define MODULE_CLASS_ID     CAMERA

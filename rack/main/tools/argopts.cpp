@@ -15,6 +15,8 @@
  */
 #include <main/argopts.h>
 
+#include <stdio.h>
+
 #define ARGOPTS_MAX_ENTRIES 127
 
 //#define ARG_DEBUG

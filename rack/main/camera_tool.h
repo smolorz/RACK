@@ -17,7 +17,7 @@
 #ifndef __CAMERA_TOOL_H__
 #define __CAMERA_TOOL_H__
 
-#include <main/rack_debug.h>
+#include <main/rack_gdos.h>
 
 #include <math.h>
 #include <string.h>

@@ -10,6 +10,7 @@ libtims_a_CPPFLAGS = \
 libtims_a_SOURCES = \
 	tims_copy.c \
 	tims_copy.h \
+	tims_rtmac.h \
 	tims_rtnet.c \
 	tims_rtnet.h \
 	tims_clock.c \

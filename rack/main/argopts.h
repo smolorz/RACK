@@ -21,7 +21,6 @@
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
-#include <main/rack_debug.h>
 
 using std::string;
 

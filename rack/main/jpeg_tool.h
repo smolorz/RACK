@@ -13,8 +13,8 @@
  *      Marko Reimer     <reimer@l3s.de>
  *
  */
-#ifndef __JPEG_DATA_DST_MEM_H__
-#define __JPEG_DATA_DST_MEM_H__
+#ifndef __JPEG_TOOL_H__
+#define __JPEG_TOOL_H__
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -166,4 +166,4 @@ inline GLOBAL(void) jpeg_stdmem_dest (j_compress_ptr cinfo, char * outstream)
 }
 #endif
 
-#endif // __JPEG_DATA_DST_MEM_H__
+#endif // __JPEG_TOOL_H__

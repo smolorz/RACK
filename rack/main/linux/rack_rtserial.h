@@ -7,8 +7,8 @@
  * to be able to use the rtdm API also under rack/linux
  */
 
-#ifndef __RTSERIAL_H__
-#define __RTSERIAL_H__
+#ifndef __RACK_RTSERIAL_H__
+#define __RACK_RTSERIAL_H__
 
 #include <limits.h>
 
@@ -118,5 +118,5 @@ typedef struct rtser_event {
     uint64_t rxpend_timestamp;  
 } rtser_event_t;
 
-#endif // __RTSERIAL_H__
+#endif // __RACK_RTSERIAL_H__
 

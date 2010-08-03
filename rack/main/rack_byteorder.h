@@ -13,8 +13,8 @@
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *
  */
-#ifndef __RACK_DEFINES_H__
-#define __RACK_DEFINES_H__
+#ifndef __RACK_BYTEORDER_H__
+#define __RACK_BYTEORDER_H__
 
 #include <main/tims/tims_byteorder.h>
 
@@ -52,4 +52,4 @@ float64_t   __be64_float_to_cpu(float64_t x)
 
 */
 
-#endif // __RACK_DEFINES_H__
+#endif // __RACK_BYTEORDER_H__
