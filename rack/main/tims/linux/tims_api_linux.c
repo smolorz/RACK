@@ -23,6 +23,7 @@
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -224,6 +225,10 @@ int tims_mbx_create(uint32_t address, int messageSlots, ssize_t messageSize,
        close(fd);
         return ret;
     }
+
+    // minimize transmission latency
+    int flags = 1;
+    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&flags, sizeof(flags));
 
     // disable watchdog
     tims_fill_head(&msg, TIMS_MSG_ROUTER_DISABLE_WATCHDOG, 0, 0, 0, 0, 0, sizeof(msg));

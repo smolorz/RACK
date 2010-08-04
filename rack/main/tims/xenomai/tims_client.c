@@ -25,6 +25,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 #include <errno.h>
 #include <semaphore.h>
 
@@ -441,6 +442,10 @@ int connection_create()
         sleep(3);
         return ret;
     }
+
+    // minimize transmission latency
+    int flags = 1;
+    setsockopt(tcpSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&flags, sizeof(flags));
 
     // connected to TCP TimsRouter
     tims_fill_head(&connMsg, TIMS_MSG_ROUTER_CONNECTED, 0, 0, 0, 0, 0,
