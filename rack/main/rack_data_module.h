@@ -104,7 +104,7 @@ class RackDataModule : public RackModule
 
         rack_time_t         getRecordingTime(void *pData);
         int                 getDataBufferIndex(rack_time_t time);
-        int                 sendDataReply(rack_time_t time, RackMessage *msgInfo);
+        virtual int         sendDataReply(rack_time_t time, RackMessage *msgInfo);
 
         int                 addListener(rack_time_t periodTime, uint32_t getNextData, uint32_t destMbxAdr,
                                         RackMessage *msgInfo);
