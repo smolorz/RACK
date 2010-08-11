@@ -31,7 +31,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = main/module
+subdir = main/common
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
@@ -207,7 +207,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_DIST = \
 	rack_module.cpp \
-	rack_datamodule.cpp
+	rack_data_module.cpp \
+	rack_mailbox.cpp \
+	rack_proxy.cpp
 
 all: all-am
 
@@ -221,9 +223,9 @@ $(srcdir)/GNUmakefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/GNUmakefile.am  $(am_
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  main/module/GNUmakefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  main/common/GNUmakefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  main/module/GNUmakefile
+	  $(AUTOMAKE) --foreign  main/common/GNUmakefile
 .PRECIOUS: GNUmakefile
 GNUmakefile: $(srcdir)/GNUmakefile.in $(top_builddir)/config.status
 	@case '$?' in \

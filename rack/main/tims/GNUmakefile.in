@@ -32,8 +32,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_BUILD_KMOD_TRUE@am__append_1 = driver
-@CONFIG_RACK_JAVA_TRUE@am__append_2 = \
+@CONFIG_RACK_OS_XENOMAI_TRUE@am__append_1 = xenomai
+@CONFIG_RACK_OS_XENOMAI_FALSE@am__append_2 = linux
+@CONFIG_RACK_BUILD_KMOD_TRUE@am__append_3 = xenomai_kmod
+@CONFIG_RACK_JAVA_TRUE@am__append_4 = \
 @CONFIG_RACK_JAVA_TRUE@	BigEndianDataInputStream.java \
 @CONFIG_RACK_JAVA_TRUE@	EndianDataInputStream.java \
 @CONFIG_RACK_JAVA_TRUE@	LittleEndianDataInputStream.java \
@@ -89,7 +91,7 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = router driver
+DIST_SUBDIRS = router xenomai linux xenomai_kmod
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -258,10 +260,11 @@ timsinclude_HEADERS = \
 	tims_api.h \
 	tims_byteorder.h \
 	tims_router.h \
+	tims_rtdm.h \
 	tims_types.h
 
-SUBDIRS = router $(am__append_1)
-dist_java_JAVA = $(am__append_2)
+SUBDIRS = router $(am__append_1) $(am__append_2) $(am__append_3)
+dist_java_JAVA = $(am__append_4)
 EXTRA_DIST = \
 	Kconfig
 

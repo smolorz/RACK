@@ -31,7 +31,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = main/serialport
+subdir = main/linux
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
@@ -206,7 +206,11 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_DIST = \
-	serial_port.cpp
+	rack_mutex_linux.cpp \
+	rack_task_linux.cpp \
+	rack_time_linux.cpp \
+	can_port_linux.cpp \
+	serial_port_linux.cpp
 
 all: all-am
 
@@ -220,9 +224,9 @@ $(srcdir)/GNUmakefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/GNUmakefile.am  $(am_
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  main/serialport/GNUmakefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  main/linux/GNUmakefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  main/serialport/GNUmakefile
+	  $(AUTOMAKE) --foreign  main/linux/GNUmakefile
 .PRECIOUS: GNUmakefile
 GNUmakefile: $(srcdir)/GNUmakefile.in $(top_builddir)/config.status
 	@case '$?' in \

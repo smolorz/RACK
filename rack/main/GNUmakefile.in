@@ -32,12 +32,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@CONFIG_RACK_OS_XENOMAI_TRUE@am__append_1 = \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	can_port.h \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	serial_port.h
+@CONFIG_RACK_OS_LINUX_TRUE@am__append_1 = \
+@CONFIG_RACK_OS_LINUX_TRUE@	linux/rack_rtserial.h
 
 @CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@am__append_2 = \
-@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@	jpeg_data_dst_mem.h
+@CONFIG_RACK_LIBJPEG_SUPPORT_TRUE@	jpeg_tool.h
 
 @CONFIG_RACK_JAVA_TRUE@am__append_3 = \
 @CONFIG_RACK_JAVA_TRUE@	AngleTool.java \
@@ -54,8 +53,10 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	GDOS.java
 
 @CONFIG_RACK_OS_XENOMAI_TRUE@am__append_4 = \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	canport \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	serialport
+@CONFIG_RACK_OS_XENOMAI_TRUE@	xenomai
+
+@CONFIG_RACK_OS_LINUX_TRUE@am__append_5 = \
+@CONFIG_RACK_OS_LINUX_TRUE@	linux
 
 subdir = main
 DIST_COMMON = $(am__dist_java_JAVA_DIST) \
@@ -88,10 +89,10 @@ JAVAROOT = $(top_builddir)
 am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(mainincludedir)"
 am__maininclude_HEADERS_DIST = angle_tool.h argopts.h dxf_map.h \
 	camera_tool.h pilot_tool.h position_tool.h rack_byteorder.h \
-	rack_debug.h rack_mailbox.h rack_mutex.h rack_module.h \
-	rack_data_module.h rack_name.h rack_proxy.h rack_time.h \
-	rack_task.h rack_rtmac.h can_port.h serial_port.h \
-	jpeg_data_dst_mem.h
+	rack_bits.h rack_list_head.h rack_gdos.h rack_mailbox.h \
+	rack_mutex.h rack_module.h rack_data_module.h rack_name.h \
+	rack_proxy.h rack_time.h rack_task.h can_port.h serial_port.h \
+	linux/rack_rtserial.h jpeg_tool.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -104,8 +105,7 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = tims defines mailbox proxy module argopts dxfmap lib \
-	camera_tool position_tool canport serialport
+DIST_SUBDIRS = tims defines lib tools common xenomai linux
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -270,13 +270,14 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 mainincludedir = $(pkgincludedir)/main
 maininclude_HEADERS = angle_tool.h argopts.h dxf_map.h camera_tool.h \
-	pilot_tool.h position_tool.h rack_byteorder.h rack_debug.h \
-	rack_mailbox.h rack_mutex.h rack_module.h rack_data_module.h \
-	rack_name.h rack_proxy.h rack_time.h rack_task.h rack_rtmac.h \
+	pilot_tool.h position_tool.h rack_byteorder.h rack_bits.h \
+	rack_list_head.h rack_gdos.h rack_mailbox.h rack_mutex.h \
+	rack_module.h rack_data_module.h rack_name.h rack_proxy.h \
+	rack_time.h rack_task.h can_port.h serial_port.h \
 	$(am__append_1) $(am__append_2)
 dist_java_JAVA = $(am__append_3)
-SUBDIRS = tims defines mailbox proxy module argopts dxfmap lib \
-	camera_tool position_tool $(am__append_4)
+SUBDIRS = tims defines lib tools common $(am__append_4) \
+	$(am__append_5)
 all: all-recursive
 
 .SUFFIXES:

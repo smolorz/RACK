@@ -237,9 +237,6 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 defincludedir = $(pkgincludedir)/main/defines
 definclude_HEADERS = \
-	list_head.h \
-	rack_bitops.h \
-	\
 	image_rect.h \
 	ladar_point.h \
 	obj_recog_object.h \
