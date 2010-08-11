@@ -33,8 +33,20 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_OS_XENOMAI_TRUE@am__append_1 = \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/serialport/serial_port.cpp \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/canport/can_port.cpp
+@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/xenomai/can_port_xenomai.cpp \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c
+
+@CONFIG_RACK_OS_XENOMAI_FALSE@am__append_2 = \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	$(top_srcdir)/main/linux/rack_mutex_linux.cpp \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	$(top_srcdir)/main/linux/rack_task_linux.cpp \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	$(top_srcdir)/main/linux/rack_time_linux.cpp \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	$(top_srcdir)/main/linux/serial_port_linux.cpp \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	$(top_srcdir)/main/linux/can_port_linux.cpp \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	$(top_srcdir)/main/tims/linux/tims_api_linux.c
 
 subdir = main/lib
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
@@ -70,19 +82,40 @@ am__librack_la_SOURCES_DIST = version_string.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
 	$(top_srcdir)/tools/datalog_proxy.cpp \
 	$(top_srcdir)/tools/datalog/datalog_rec_class.cpp \
-	$(top_srcdir)/main/argopts/argopts.cpp \
-	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
-	$(top_srcdir)/main/position_tool/position_tool.cpp \
-	$(top_srcdir)/main/camera_tool/camera_tool.cpp \
-	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
-	$(top_srcdir)/main/module/rack_module.cpp \
-	$(top_srcdir)/main/module/rack_data_module.cpp \
-	$(top_srcdir)/main/proxy/rack_proxy.cpp \
-	$(top_srcdir)/main/serialport/serial_port.cpp \
-	$(top_srcdir)/main/canport/can_port.cpp
+	$(top_srcdir)/main/tools/argopts.cpp \
+	$(top_srcdir)/main/tools/dxf_map.cpp \
+	$(top_srcdir)/main/tools/position_tool.cpp \
+	$(top_srcdir)/main/tools/camera_tool.cpp \
+	$(top_srcdir)/main/common/rack_mailbox.cpp \
+	$(top_srcdir)/main/common/rack_module.cpp \
+	$(top_srcdir)/main/common/rack_data_module.cpp \
+	$(top_srcdir)/main/common/rack_proxy.cpp \
+	$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp \
+	$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp \
+	$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp \
+	$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp \
+	$(top_srcdir)/main/xenomai/can_port_xenomai.cpp \
+	$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c \
+	$(top_srcdir)/main/linux/rack_mutex_linux.cpp \
+	$(top_srcdir)/main/linux/rack_task_linux.cpp \
+	$(top_srcdir)/main/linux/rack_time_linux.cpp \
+	$(top_srcdir)/main/linux/serial_port_linux.cpp \
+	$(top_srcdir)/main/linux/can_port_linux.cpp \
+	$(top_srcdir)/main/tims/linux/tims_api_linux.c
 @CONFIG_RACK_OS_XENOMAI_TRUE@am__objects_1 =  \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-serial_port.lo \
-@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-can_port.lo
+@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-rack_mutex_xenomai.lo \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-rack_task_xenomai.lo \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-rack_time_xenomai.lo \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-serial_port_xenomai.lo \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-can_port_xenomai.lo \
+@CONFIG_RACK_OS_XENOMAI_TRUE@	librack_la-tims_api_xenomai.lo
+@CONFIG_RACK_OS_XENOMAI_FALSE@am__objects_2 =  \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	librack_la-rack_mutex_linux.lo \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	librack_la-rack_task_linux.lo \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	librack_la-rack_time_linux.lo \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	librack_la-serial_port_linux.lo \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	librack_la-can_port_linux.lo \
+@CONFIG_RACK_OS_XENOMAI_FALSE@	librack_la-tims_api_linux.lo
 am_librack_la_OBJECTS = librack_la-version_string.lo \
 	librack_la-camera_proxy.lo librack_la-chassis_proxy.lo \
 	librack_la-clock_proxy.lo librack_la-gps_proxy.lo \
@@ -94,7 +127,7 @@ am_librack_la_OBJECTS = librack_la-version_string.lo \
 	librack_la-dxf_map.lo librack_la-position_tool.lo \
 	librack_la-camera_tool.lo librack_la-rack_mailbox.lo \
 	librack_la-rack_module.lo librack_la-rack_data_module.lo \
-	librack_la-rack_proxy.lo $(am__objects_1)
+	librack_la-rack_proxy.lo $(am__objects_1) $(am__objects_2)
 librack_la_OBJECTS = $(am_librack_la_OBJECTS)
 librack_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -102,6 +135,15 @@ librack_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/config@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -295,20 +337,21 @@ librack_la_SOURCES = version_string.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
 	$(top_srcdir)/tools/datalog_proxy.cpp \
 	$(top_srcdir)/tools/datalog/datalog_rec_class.cpp \
-	$(top_srcdir)/main/argopts/argopts.cpp \
-	$(top_srcdir)/main/dxfmap/dxf_map.cpp \
-	$(top_srcdir)/main/position_tool/position_tool.cpp \
-	$(top_srcdir)/main/camera_tool/camera_tool.cpp \
-	$(top_srcdir)/main/mailbox/rack_mailbox.cpp \
-	$(top_srcdir)/main/module/rack_module.cpp \
-	$(top_srcdir)/main/module/rack_data_module.cpp \
-	$(top_srcdir)/main/proxy/rack_proxy.cpp $(am__append_1)
+	$(top_srcdir)/main/tools/argopts.cpp \
+	$(top_srcdir)/main/tools/dxf_map.cpp \
+	$(top_srcdir)/main/tools/position_tool.cpp \
+	$(top_srcdir)/main/tools/camera_tool.cpp \
+	$(top_srcdir)/main/common/rack_mailbox.cpp \
+	$(top_srcdir)/main/common/rack_module.cpp \
+	$(top_srcdir)/main/common/rack_data_module.cpp \
+	$(top_srcdir)/main/common/rack_proxy.cpp $(am__append_1) \
+	$(am__append_2)
 librack_la_CPPFLAGS = 
 librack_la_LDFLAGS = -version-info 0:0:0
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .lo .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 $(srcdir)/GNUmakefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/GNUmakefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -377,7 +420,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-argopts.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-camera_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-camera_tool.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-can_port.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-can_port_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-can_port_xenomai.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-chassis_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-clock_proxy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-datalog_proxy.Plo@am__quote@
@@ -394,10 +438,54 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_data_module.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_mailbox.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_module.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_mutex_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_mutex_xenomai.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_task_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_task_xenomai.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_time_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-rack_time_xenomai.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-scan2d_proxy.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-serial_port.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-serial_port_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-serial_port_xenomai.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-tims_api_linux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-tims_api_xenomai.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librack_la-version_string.Plo@am__quote@
+
+.c.o:
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+
+.c.obj:
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+
+.c.lo:
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+librack_la-tims_api_xenomai.lo: $(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT librack_la-tims_api_xenomai.lo -MD -MP -MF $(DEPDIR)/librack_la-tims_api_xenomai.Tpo -c -o librack_la-tims_api_xenomai.lo `test -f '$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c' || echo '$(srcdir)/'`$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librack_la-tims_api_xenomai.Tpo $(DEPDIR)/librack_la-tims_api_xenomai.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c' object='librack_la-tims_api_xenomai.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o librack_la-tims_api_xenomai.lo `test -f '$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c' || echo '$(srcdir)/'`$(top_srcdir)/main/tims/xenomai/tims_api_xenomai.c
+
+librack_la-tims_api_linux.lo: $(top_srcdir)/main/tims/linux/tims_api_linux.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT librack_la-tims_api_linux.lo -MD -MP -MF $(DEPDIR)/librack_la-tims_api_linux.Tpo -c -o librack_la-tims_api_linux.lo `test -f '$(top_srcdir)/main/tims/linux/tims_api_linux.c' || echo '$(srcdir)/'`$(top_srcdir)/main/tims/linux/tims_api_linux.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librack_la-tims_api_linux.Tpo $(DEPDIR)/librack_la-tims_api_linux.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/main/tims/linux/tims_api_linux.c' object='librack_la-tims_api_linux.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o librack_la-tims_api_linux.lo `test -f '$(top_srcdir)/main/tims/linux/tims_api_linux.c' || echo '$(srcdir)/'`$(top_srcdir)/main/tims/linux/tims_api_linux.c
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -518,75 +606,131 @@ librack_la-datalog_rec_class.lo: $(top_srcdir)/tools/datalog/datalog_rec_class.c
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-datalog_rec_class.lo `test -f '$(top_srcdir)/tools/datalog/datalog_rec_class.cpp' || echo '$(srcdir)/'`$(top_srcdir)/tools/datalog/datalog_rec_class.cpp
 
-librack_la-argopts.lo: $(top_srcdir)/main/argopts/argopts.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-argopts.lo -MD -MP -MF $(DEPDIR)/librack_la-argopts.Tpo -c -o librack_la-argopts.lo `test -f '$(top_srcdir)/main/argopts/argopts.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/argopts/argopts.cpp
+librack_la-argopts.lo: $(top_srcdir)/main/tools/argopts.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-argopts.lo -MD -MP -MF $(DEPDIR)/librack_la-argopts.Tpo -c -o librack_la-argopts.lo `test -f '$(top_srcdir)/main/tools/argopts.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/argopts.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-argopts.Tpo $(DEPDIR)/librack_la-argopts.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/argopts/argopts.cpp' object='librack_la-argopts.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/tools/argopts.cpp' object='librack_la-argopts.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-argopts.lo `test -f '$(top_srcdir)/main/argopts/argopts.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/argopts/argopts.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-argopts.lo `test -f '$(top_srcdir)/main/tools/argopts.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/argopts.cpp
 
-librack_la-dxf_map.lo: $(top_srcdir)/main/dxfmap/dxf_map.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-dxf_map.lo -MD -MP -MF $(DEPDIR)/librack_la-dxf_map.Tpo -c -o librack_la-dxf_map.lo `test -f '$(top_srcdir)/main/dxfmap/dxf_map.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/dxfmap/dxf_map.cpp
+librack_la-dxf_map.lo: $(top_srcdir)/main/tools/dxf_map.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-dxf_map.lo -MD -MP -MF $(DEPDIR)/librack_la-dxf_map.Tpo -c -o librack_la-dxf_map.lo `test -f '$(top_srcdir)/main/tools/dxf_map.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/dxf_map.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-dxf_map.Tpo $(DEPDIR)/librack_la-dxf_map.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/dxfmap/dxf_map.cpp' object='librack_la-dxf_map.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/tools/dxf_map.cpp' object='librack_la-dxf_map.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-dxf_map.lo `test -f '$(top_srcdir)/main/dxfmap/dxf_map.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/dxfmap/dxf_map.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-dxf_map.lo `test -f '$(top_srcdir)/main/tools/dxf_map.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/dxf_map.cpp
 
-librack_la-position_tool.lo: $(top_srcdir)/main/position_tool/position_tool.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-position_tool.lo -MD -MP -MF $(DEPDIR)/librack_la-position_tool.Tpo -c -o librack_la-position_tool.lo `test -f '$(top_srcdir)/main/position_tool/position_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/position_tool/position_tool.cpp
+librack_la-position_tool.lo: $(top_srcdir)/main/tools/position_tool.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-position_tool.lo -MD -MP -MF $(DEPDIR)/librack_la-position_tool.Tpo -c -o librack_la-position_tool.lo `test -f '$(top_srcdir)/main/tools/position_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/position_tool.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-position_tool.Tpo $(DEPDIR)/librack_la-position_tool.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/position_tool/position_tool.cpp' object='librack_la-position_tool.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/tools/position_tool.cpp' object='librack_la-position_tool.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-position_tool.lo `test -f '$(top_srcdir)/main/position_tool/position_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/position_tool/position_tool.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-position_tool.lo `test -f '$(top_srcdir)/main/tools/position_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/position_tool.cpp
 
-librack_la-camera_tool.lo: $(top_srcdir)/main/camera_tool/camera_tool.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-camera_tool.lo -MD -MP -MF $(DEPDIR)/librack_la-camera_tool.Tpo -c -o librack_la-camera_tool.lo `test -f '$(top_srcdir)/main/camera_tool/camera_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/camera_tool/camera_tool.cpp
+librack_la-camera_tool.lo: $(top_srcdir)/main/tools/camera_tool.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-camera_tool.lo -MD -MP -MF $(DEPDIR)/librack_la-camera_tool.Tpo -c -o librack_la-camera_tool.lo `test -f '$(top_srcdir)/main/tools/camera_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/camera_tool.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-camera_tool.Tpo $(DEPDIR)/librack_la-camera_tool.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/camera_tool/camera_tool.cpp' object='librack_la-camera_tool.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/tools/camera_tool.cpp' object='librack_la-camera_tool.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-camera_tool.lo `test -f '$(top_srcdir)/main/camera_tool/camera_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/camera_tool/camera_tool.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-camera_tool.lo `test -f '$(top_srcdir)/main/tools/camera_tool.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/tools/camera_tool.cpp
 
-librack_la-rack_mailbox.lo: $(top_srcdir)/main/mailbox/rack_mailbox.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_mailbox.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_mailbox.Tpo -c -o librack_la-rack_mailbox.lo `test -f '$(top_srcdir)/main/mailbox/rack_mailbox.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/mailbox/rack_mailbox.cpp
+librack_la-rack_mailbox.lo: $(top_srcdir)/main/common/rack_mailbox.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_mailbox.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_mailbox.Tpo -c -o librack_la-rack_mailbox.lo `test -f '$(top_srcdir)/main/common/rack_mailbox.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_mailbox.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_mailbox.Tpo $(DEPDIR)/librack_la-rack_mailbox.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/mailbox/rack_mailbox.cpp' object='librack_la-rack_mailbox.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/common/rack_mailbox.cpp' object='librack_la-rack_mailbox.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_mailbox.lo `test -f '$(top_srcdir)/main/mailbox/rack_mailbox.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/mailbox/rack_mailbox.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_mailbox.lo `test -f '$(top_srcdir)/main/common/rack_mailbox.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_mailbox.cpp
 
-librack_la-rack_module.lo: $(top_srcdir)/main/module/rack_module.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_module.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_module.Tpo -c -o librack_la-rack_module.lo `test -f '$(top_srcdir)/main/module/rack_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/module/rack_module.cpp
+librack_la-rack_module.lo: $(top_srcdir)/main/common/rack_module.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_module.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_module.Tpo -c -o librack_la-rack_module.lo `test -f '$(top_srcdir)/main/common/rack_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_module.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_module.Tpo $(DEPDIR)/librack_la-rack_module.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/module/rack_module.cpp' object='librack_la-rack_module.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/common/rack_module.cpp' object='librack_la-rack_module.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_module.lo `test -f '$(top_srcdir)/main/module/rack_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/module/rack_module.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_module.lo `test -f '$(top_srcdir)/main/common/rack_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_module.cpp
 
-librack_la-rack_data_module.lo: $(top_srcdir)/main/module/rack_data_module.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_data_module.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_data_module.Tpo -c -o librack_la-rack_data_module.lo `test -f '$(top_srcdir)/main/module/rack_data_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/module/rack_data_module.cpp
+librack_la-rack_data_module.lo: $(top_srcdir)/main/common/rack_data_module.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_data_module.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_data_module.Tpo -c -o librack_la-rack_data_module.lo `test -f '$(top_srcdir)/main/common/rack_data_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_data_module.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_data_module.Tpo $(DEPDIR)/librack_la-rack_data_module.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/module/rack_data_module.cpp' object='librack_la-rack_data_module.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/common/rack_data_module.cpp' object='librack_la-rack_data_module.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_data_module.lo `test -f '$(top_srcdir)/main/module/rack_data_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/module/rack_data_module.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_data_module.lo `test -f '$(top_srcdir)/main/common/rack_data_module.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_data_module.cpp
 
-librack_la-rack_proxy.lo: $(top_srcdir)/main/proxy/rack_proxy.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_proxy.Tpo -c -o librack_la-rack_proxy.lo `test -f '$(top_srcdir)/main/proxy/rack_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/proxy/rack_proxy.cpp
+librack_la-rack_proxy.lo: $(top_srcdir)/main/common/rack_proxy.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_proxy.Tpo -c -o librack_la-rack_proxy.lo `test -f '$(top_srcdir)/main/common/rack_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_proxy.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_proxy.Tpo $(DEPDIR)/librack_la-rack_proxy.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/proxy/rack_proxy.cpp' object='librack_la-rack_proxy.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/common/rack_proxy.cpp' object='librack_la-rack_proxy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_proxy.lo `test -f '$(top_srcdir)/main/proxy/rack_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/proxy/rack_proxy.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_proxy.lo `test -f '$(top_srcdir)/main/common/rack_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/common/rack_proxy.cpp
 
-librack_la-serial_port.lo: $(top_srcdir)/main/serialport/serial_port.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-serial_port.lo -MD -MP -MF $(DEPDIR)/librack_la-serial_port.Tpo -c -o librack_la-serial_port.lo `test -f '$(top_srcdir)/main/serialport/serial_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/serialport/serial_port.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-serial_port.Tpo $(DEPDIR)/librack_la-serial_port.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/serialport/serial_port.cpp' object='librack_la-serial_port.lo' libtool=yes @AMDEPBACKSLASH@
+librack_la-rack_mutex_xenomai.lo: $(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_mutex_xenomai.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_mutex_xenomai.Tpo -c -o librack_la-rack_mutex_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_mutex_xenomai.Tpo $(DEPDIR)/librack_la-rack_mutex_xenomai.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp' object='librack_la-rack_mutex_xenomai.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-serial_port.lo `test -f '$(top_srcdir)/main/serialport/serial_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/serialport/serial_port.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_mutex_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/rack_mutex_xenomai.cpp
 
-librack_la-can_port.lo: $(top_srcdir)/main/canport/can_port.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-can_port.lo -MD -MP -MF $(DEPDIR)/librack_la-can_port.Tpo -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-can_port.Tpo $(DEPDIR)/librack_la-can_port.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/canport/can_port.cpp' object='librack_la-can_port.lo' libtool=yes @AMDEPBACKSLASH@
+librack_la-rack_task_xenomai.lo: $(top_srcdir)/main/xenomai/rack_task_xenomai.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_task_xenomai.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_task_xenomai.Tpo -c -o librack_la-rack_task_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_task_xenomai.Tpo $(DEPDIR)/librack_la-rack_task_xenomai.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp' object='librack_la-rack_task_xenomai.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-can_port.lo `test -f '$(top_srcdir)/main/canport/can_port.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/canport/can_port.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_task_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/rack_task_xenomai.cpp
+
+librack_la-rack_time_xenomai.lo: $(top_srcdir)/main/xenomai/rack_time_xenomai.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_time_xenomai.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_time_xenomai.Tpo -c -o librack_la-rack_time_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_time_xenomai.Tpo $(DEPDIR)/librack_la-rack_time_xenomai.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp' object='librack_la-rack_time_xenomai.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_time_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/rack_time_xenomai.cpp
+
+librack_la-serial_port_xenomai.lo: $(top_srcdir)/main/xenomai/serial_port_xenomai.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-serial_port_xenomai.lo -MD -MP -MF $(DEPDIR)/librack_la-serial_port_xenomai.Tpo -c -o librack_la-serial_port_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-serial_port_xenomai.Tpo $(DEPDIR)/librack_la-serial_port_xenomai.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp' object='librack_la-serial_port_xenomai.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-serial_port_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/serial_port_xenomai.cpp
+
+librack_la-can_port_xenomai.lo: $(top_srcdir)/main/xenomai/can_port_xenomai.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-can_port_xenomai.lo -MD -MP -MF $(DEPDIR)/librack_la-can_port_xenomai.Tpo -c -o librack_la-can_port_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/can_port_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/can_port_xenomai.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-can_port_xenomai.Tpo $(DEPDIR)/librack_la-can_port_xenomai.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/xenomai/can_port_xenomai.cpp' object='librack_la-can_port_xenomai.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-can_port_xenomai.lo `test -f '$(top_srcdir)/main/xenomai/can_port_xenomai.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/xenomai/can_port_xenomai.cpp
+
+librack_la-rack_mutex_linux.lo: $(top_srcdir)/main/linux/rack_mutex_linux.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_mutex_linux.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_mutex_linux.Tpo -c -o librack_la-rack_mutex_linux.lo `test -f '$(top_srcdir)/main/linux/rack_mutex_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/rack_mutex_linux.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_mutex_linux.Tpo $(DEPDIR)/librack_la-rack_mutex_linux.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/linux/rack_mutex_linux.cpp' object='librack_la-rack_mutex_linux.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_mutex_linux.lo `test -f '$(top_srcdir)/main/linux/rack_mutex_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/rack_mutex_linux.cpp
+
+librack_la-rack_task_linux.lo: $(top_srcdir)/main/linux/rack_task_linux.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_task_linux.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_task_linux.Tpo -c -o librack_la-rack_task_linux.lo `test -f '$(top_srcdir)/main/linux/rack_task_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/rack_task_linux.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_task_linux.Tpo $(DEPDIR)/librack_la-rack_task_linux.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/linux/rack_task_linux.cpp' object='librack_la-rack_task_linux.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_task_linux.lo `test -f '$(top_srcdir)/main/linux/rack_task_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/rack_task_linux.cpp
+
+librack_la-rack_time_linux.lo: $(top_srcdir)/main/linux/rack_time_linux.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-rack_time_linux.lo -MD -MP -MF $(DEPDIR)/librack_la-rack_time_linux.Tpo -c -o librack_la-rack_time_linux.lo `test -f '$(top_srcdir)/main/linux/rack_time_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/rack_time_linux.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-rack_time_linux.Tpo $(DEPDIR)/librack_la-rack_time_linux.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/linux/rack_time_linux.cpp' object='librack_la-rack_time_linux.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-rack_time_linux.lo `test -f '$(top_srcdir)/main/linux/rack_time_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/rack_time_linux.cpp
+
+librack_la-serial_port_linux.lo: $(top_srcdir)/main/linux/serial_port_linux.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-serial_port_linux.lo -MD -MP -MF $(DEPDIR)/librack_la-serial_port_linux.Tpo -c -o librack_la-serial_port_linux.lo `test -f '$(top_srcdir)/main/linux/serial_port_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/serial_port_linux.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-serial_port_linux.Tpo $(DEPDIR)/librack_la-serial_port_linux.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/linux/serial_port_linux.cpp' object='librack_la-serial_port_linux.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-serial_port_linux.lo `test -f '$(top_srcdir)/main/linux/serial_port_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/serial_port_linux.cpp
+
+librack_la-can_port_linux.lo: $(top_srcdir)/main/linux/can_port_linux.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-can_port_linux.lo -MD -MP -MF $(DEPDIR)/librack_la-can_port_linux.Tpo -c -o librack_la-can_port_linux.lo `test -f '$(top_srcdir)/main/linux/can_port_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/can_port_linux.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-can_port_linux.Tpo $(DEPDIR)/librack_la-can_port_linux.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/main/linux/can_port_linux.cpp' object='librack_la-can_port_linux.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-can_port_linux.lo `test -f '$(top_srcdir)/main/linux/can_port_linux.cpp' || echo '$(srcdir)/'`$(top_srcdir)/main/linux/can_port_linux.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -23958,14 +23958,14 @@ RACK_KMOD_CFLAGS="-D__IN_RACK__ $RACK_KMOD_CFLAGS"
 
 
 for DIR in \
-    main/tims/driver \
+    main/tims/xenomai_kmod \
     ; do
       ac_config_links="$ac_config_links ${DIR}/Makefile:${DIR}/Makefile.kbuild"
 
 done
 
 
-ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/argopts/GNUmakefile main/defines/GNUmakefile main/dxfmap/GNUmakefile main/lib/GNUmakefile main/mailbox/GNUmakefile main/module/GNUmakefile main/proxy/GNUmakefile main/position_tool/GNUmakefile main/camera_tool/GNUmakefile main/canport/GNUmakefile main/serialport/GNUmakefile main/tims/GNUmakefile main/tims/driver/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/clock/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
+ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/defines/GNUmakefile main/lib/GNUmakefile main/tools/GNUmakefile main/common/GNUmakefile main/xenomai/GNUmakefile main/linux/GNUmakefile main/tims/GNUmakefile main/tims/xenomai/GNUmakefile main/tims/xenomai_kmod/GNUmakefile main/tims/linux/GNUmakefile main/tims/router/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/clock/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
 
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
@@ -24916,19 +24916,16 @@ do
     "config/kconfig/GNUmakefile") CONFIG_FILES="$CONFIG_FILES config/kconfig/GNUmakefile" ;;
     "config/kconfig/lxdialog/GNUmakefile") CONFIG_FILES="$CONFIG_FILES config/kconfig/lxdialog/GNUmakefile" ;;
     "main/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/GNUmakefile" ;;
-    "main/argopts/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/argopts/GNUmakefile" ;;
     "main/defines/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/defines/GNUmakefile" ;;
-    "main/dxfmap/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/dxfmap/GNUmakefile" ;;
     "main/lib/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/lib/GNUmakefile" ;;
-    "main/mailbox/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/mailbox/GNUmakefile" ;;
-    "main/module/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/module/GNUmakefile" ;;
-    "main/proxy/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/proxy/GNUmakefile" ;;
-    "main/position_tool/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/position_tool/GNUmakefile" ;;
-    "main/camera_tool/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/camera_tool/GNUmakefile" ;;
-    "main/canport/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/canport/GNUmakefile" ;;
-    "main/serialport/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/serialport/GNUmakefile" ;;
+    "main/tools/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tools/GNUmakefile" ;;
+    "main/common/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/common/GNUmakefile" ;;
+    "main/xenomai/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/xenomai/GNUmakefile" ;;
+    "main/linux/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/linux/GNUmakefile" ;;
     "main/tims/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tims/GNUmakefile" ;;
-    "main/tims/driver/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tims/driver/GNUmakefile" ;;
+    "main/tims/xenomai/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tims/xenomai/GNUmakefile" ;;
+    "main/tims/xenomai_kmod/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tims/xenomai_kmod/GNUmakefile" ;;
+    "main/tims/linux/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tims/linux/GNUmakefile" ;;
     "main/tims/router/GNUmakefile") CONFIG_FILES="$CONFIG_FILES main/tims/router/GNUmakefile" ;;
     "drivers/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/GNUmakefile" ;;
     "drivers/camera/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/camera/GNUmakefile" ;;

@@ -32,7 +32,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = tims_client$(EXEEXT) tims_router_tcp$(EXEEXT)
+bin_PROGRAMS = tims_router_tcp$(EXEEXT)
 subdir = main/tims/router
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -46,9 +46,6 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_tims_client_OBJECTS = tims_client.$(OBJEXT)
-tims_client_OBJECTS = $(am_tims_client_OBJECTS)
-tims_client_DEPENDENCIES =
 am_tims_router_tcp_OBJECTS = tims_router_tcp.$(OBJEXT)
 tims_router_tcp_OBJECTS = $(am_tims_router_tcp_OBJECTS)
 tims_router_tcp_DEPENDENCIES =
@@ -64,8 +61,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(tims_client_SOURCES) $(tims_router_tcp_SOURCES)
-DIST_SOURCES = $(tims_client_SOURCES) $(tims_router_tcp_SOURCES)
+SOURCES = $(tims_router_tcp_SOURCES)
+DIST_SOURCES = $(tims_router_tcp_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -230,16 +227,6 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-
-### tims_client ########################################
-tims_client_SOURCES = \
-	tims_client.c
-
-tims_client_LDADD = \
-	-lpthread
-
-
-### tims_router_tcp ####################################
 tims_router_tcp_SOURCES = \
 	tims_router_tcp.c
 
@@ -307,9 +294,6 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-tims_client$(EXEEXT): $(tims_client_OBJECTS) $(tims_client_DEPENDENCIES) 
-	@rm -f tims_client$(EXEEXT)
-	$(LINK) $(tims_client_OBJECTS) $(tims_client_LDADD) $(LIBS)
 tims_router_tcp$(EXEEXT): $(tims_router_tcp_OBJECTS) $(tims_router_tcp_DEPENDENCIES) 
 	@rm -f tims_router_tcp$(EXEEXT)
 	$(LINK) $(tims_router_tcp_OBJECTS) $(tims_router_tcp_LDADD) $(LIBS)
@@ -320,7 +304,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tims_router_tcp.Po@am__quote@
 
 .c.o:

@@ -275,6 +275,7 @@ DISTCLEANFILES = \
 	@PROJNAME@_config.h \
 	.cfok \
 	.cfchanged \
+	.deps \
 	symbols
 
 all: all-recursive

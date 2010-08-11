@@ -160,7 +160,8 @@ int  OdometryChassis::moduleCommand(RackMessage *msgInfo)
 }
 
 // getData with interpolation
-int  RackDataModule::sendDataReply(rack_time_t time, RackMessage *msgInfo)
+// overwrites RackDataModle::sendDataReply(rack_time_t time, RackMessage *msgInfo)
+int  OdometryChassis::sendDataReply(rack_time_t time, RackMessage *msgInfo)
 {
     int i, ret;
     odometry_data *odometryA, *odometryB, odometry;

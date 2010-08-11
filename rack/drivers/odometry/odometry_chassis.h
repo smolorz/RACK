@@ -55,6 +55,8 @@ class OdometryChassis : public RackDataModule {
         void     moduleOff(void);
         int      moduleCommand(RackMessage *msgInfo);
 
+        int  sendDataReply(rack_time_t time, RackMessage *msgInfo);
+
         // -> non realtime context
         void     moduleCleanup(void);
 
