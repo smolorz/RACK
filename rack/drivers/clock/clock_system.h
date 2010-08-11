@@ -23,10 +23,13 @@
 // define module class
 #define MODULE_CLASS_ID                     CLOCK
 
-//######################################################################
-//# class ClockSystem
-//######################################################################
 
+
+/**
+ * System Clock
+ *
+ * @ingroup modules_clock
+ */
 class ClockSystem : public RackDataModule {
     private:
         // own vars

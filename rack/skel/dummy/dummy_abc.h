@@ -27,10 +27,13 @@ typedef struct {
     int32_t     value[DUMMY_MAX_VALUE_NUM];
 } __attribute__((packed)) dummy_data_msg;
 
-//######################################################################
-//# class NewRackDataModule
-//######################################################################
 
+
+/**
+ * Dummy ABC
+ *
+ * @ingroup modules_dummy
+ */
 class DummyAbc : public RackDataModule {
   private:
 

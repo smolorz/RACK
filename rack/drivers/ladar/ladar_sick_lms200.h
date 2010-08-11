@@ -104,10 +104,13 @@ static char ladar_cmd_config[] = {0x02,                 // STX
 static char ladar_cmd_hardreset[] = {0x02,0x00,0x01,0x00,0x10,0x34,0x12};
 */
 
-//######################################################################
-//# class LadarSick
-//######################################################################
 
+
+/**
+ * Ladar Sick LMS200
+ *
+ * @ingroup modules_ladar
+ */
 class LadarSickLms200 : public RackDataModule {
     private:
         SerialPort  serialPort;
@@ -150,4 +153,4 @@ class LadarSickLms200 : public RackDataModule {
         int  moduleInit(void);
 };
 
-#endif
+#endif // __LADAR_SICK_H__

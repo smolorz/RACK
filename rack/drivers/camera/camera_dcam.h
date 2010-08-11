@@ -43,10 +43,13 @@ typedef struct {
 #define MAX_RESETS  10
 #define FW_ERROR   -10
 
-//######################################################################
-//# class ChassisPioneerModule
-//######################################################################
 
+
+/**
+ * Sensor driver for FireWire (IEEE1394) cameras with DCAM standard.
+ *
+ * @ingroup modules_camera
+ */
 class CameraDcam : public RackDataModule {
   private:
 

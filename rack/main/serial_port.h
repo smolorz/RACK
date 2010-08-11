@@ -29,21 +29,14 @@
 
 #endif
 
-/*!
- * @ingroup driverapi
- * @defgroup rtserial Serial Port API
- *
- * This is the Serial Port interface of RACK provided to application programs
- * in userspace.
- * @{
- */
-
 #define SERPORT_MCR_RTS   RTSER_MCR_RTS
 
-//######################################################################
-//# class SerialPort
-//######################################################################
-
+/**
+ * This is the Serial Port interface of RACK provided to application programs
+ * in userspace.
+ *
+ * @ingroup main_device_driver
+ */
 class SerialPort
 {
     private:
@@ -84,7 +77,5 @@ class SerialPort
 
         int clean(void);
 };
-
-/*@}*/
 
 #endif // __SERIAL_PORT_H__

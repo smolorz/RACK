@@ -27,10 +27,13 @@
 
 
 
-//######################################################################
-//# class ChassisPioneerModule
-//######################################################################
-
+/**
+ * Compression of raw camera images.
+ *
+ * Uses libjpeg.
+ *
+ * @ingroup modules_camera
+ */
 class CameraJpeg : public RackDataModule {
   private:
 

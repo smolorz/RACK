@@ -42,9 +42,13 @@ typedef struct {
     datalog_log_info     logInfo[DATALOG_LOGNUM_MAX];
 } __attribute__((packed)) datalog_data_msg;
 
-//######################################################################
-//# class DatalogRec
-//######################################################################
+
+
+/**
+ * Datalog Recording
+ *
+ * @ingroup modules_datalog
+ */
 class DatalogRec : public RackDataModule {
     private:
         void*       smallContDataPtr;

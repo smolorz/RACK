@@ -16,31 +16,28 @@
 #ifndef __SCAN_POINT_H__
 #define __SCAN_POINT_H__
 
-#define SCAN_POINT_TYPE_INVALID            0x0010
-#define SCAN_POINT_TYPE_MAX_RANGE          0x0020
-#define SCAN_POINT_TYPE_REDUCE             0x0040
-#define SCAN_POINT_TYPE_REFLECTOR          0x0080
+#define SCAN_POINT_TYPE_INVALID            0x0010   /**< @ingroup main_defines */
+#define SCAN_POINT_TYPE_MAX_RANGE          0x0020   /**< @ingroup main_defines */
+#define SCAN_POINT_TYPE_REDUCE             0x0040   /**< @ingroup main_defines */
+#define SCAN_POINT_TYPE_REFLECTOR          0x0080   /**< @ingroup main_defines */
 
-#define SCAN_POINT_TYPE_HOR_EDGE           0x0008  // 3d scan
-#define SCAN_POINT_TYPE_VER_EDGE           0x0004  // 3d scan
-#define SCAN_POINT_TYPE_EDGE               0x0004  // 2d scan
+#define SCAN_POINT_TYPE_HOR_EDGE           0x0008   /**< 3d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_VER_EDGE           0x0004   /**< 3d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_EDGE               0x0004   /**< 2d scan @ingroup main_defines */
 
-#define SCAN_POINT_TYPE_MASK               0x0003
+#define SCAN_POINT_TYPE_MASK               0x0003   /**< @ingroup main_defines */
 
-#define SCAN_POINT_TYPE_UNKNOWN            0x0000
-#define SCAN_POINT_TYPE_OBJECT             0x0001  // 3d scan
-#define SCAN_POINT_TYPE_GROUND             0x0002  // 3d scan
-#define SCAN_POINT_TYPE_CEILING            0x0003  // 3d scan
-#define SCAN_POINT_TYPE_LANDMARK           0x0001  // 2d scan
-#define SCAN_POINT_TYPE_OBSTACLE           0x0002  // 2d scan
-#define SCAN_POINT_TYPE_DYN_OBSTACLE       0x0003  // 2d scan
-
-//######################################################################
-//# ScanPoint (static size - no message )
-//######################################################################
+#define SCAN_POINT_TYPE_UNKNOWN            0x0000   /**< @ingroup main_defines */
+#define SCAN_POINT_TYPE_OBJECT             0x0001   /**< 3d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_GROUND             0x0002   /**< 3d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_CEILING            0x0003   /**< 3d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_LANDMARK           0x0001   /**< 2d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_OBSTACLE           0x0002   /**< 2d scan @ingroup main_defines */
+#define SCAN_POINT_TYPE_DYN_OBSTACLE       0x0003   /**< 2d scan @ingroup main_defines */
 
 /**
  * scan point structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t x;                              /**< [mm] x-coordinate */

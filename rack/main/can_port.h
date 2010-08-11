@@ -36,19 +36,12 @@ typedef struct can_filter can_filter_t;
 
 #endif // !__XENO__ && !__KERNEL__
 
-/*!
- * @ingroup driverapi
- * @defgroup rtcan CAN Port API
- *
+/**
  * This is the CAN Port interface of RACK provided to application programs
  * in userspace.
- * @{
+ *
+ * @ingroup main_device_driver
  */
-
-//######################################################################
-//# class CanPort
-//######################################################################
-
 class CanPort
 {
     private:
@@ -199,7 +192,5 @@ class CanPort
          */
         int recv(can_frame_t *recv_frame, rack_time_t *timestamp);
 };
-
-/*@}*/
 
 #endif // __CAN_PORT_H__

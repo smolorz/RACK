@@ -18,12 +18,9 @@
 
 #include <main/angle_tool.h>
 
-//######################################################################
-//# Position2D (static size - no message )
-//######################################################################
-
 /**
  * position 2d structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t x;                              /**< [mm] x-coordinate */
@@ -50,6 +47,9 @@ class Position2D
         }
 };
 
+/**
+ * @ingroup main_defines
+ */
 static inline int position_2d_distance(position_2d position, position_2d origin)
 {
     double x,y;
@@ -60,6 +60,9 @@ static inline int position_2d_distance(position_2d position, position_2d origin)
     return (int)sqrt(x*x + y*y);
 }
 
+/**
+ * @ingroup main_defines
+ */
 static inline float position_2d_angle(position_2d position, position_2d origin)
 {
     return normaliseAngleSym0(position.rho - origin.rho);

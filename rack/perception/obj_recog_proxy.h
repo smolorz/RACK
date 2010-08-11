@@ -16,15 +16,6 @@
 #ifndef __OBJ_RECOG_PROXY_H__
 #define __OBJ_RECOG_PROXY_H__
 
-/*!
- * @ingroup perception
- * @defgroup objrecog Object Recognition
- *
- * Perception components that extract objects and object positions from sensor input.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/defines/obj_recog_object.h>
 #include <main/defines/position3d.h>
@@ -126,10 +117,11 @@ class ObjRecogData
         }
 };
 
-//######################################################################
-//# ObjRecog Proxy Functions
-//######################################################################
-
+/**
+ * Perception components that extract objects and object positions from sensor input.
+ *
+ * @ingroup proxies_perception
+ */
 class ObjRecogProxy : public RackDataProxy {
 
     public:
@@ -175,7 +167,5 @@ class ObjRecogProxy : public RackDataProxy {
         int stopRecognition(obj_recog_data *recv_data, ssize_t recv_datalen,
                     uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif

@@ -16,12 +16,9 @@
 #ifndef __IMAGE_RECT_H__
 #define __IMAGE_RECT_H__
 
-//######################################################################
-//# Image Rect (static size - no message)
-//######################################################################
-
 /**
  * image rect structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t x;                              /**< [px] x-coordinate */
@@ -50,4 +47,5 @@ class ImageRect
         }
 
 };
+
 #endif /*__IMAGE_RECT_H__*/

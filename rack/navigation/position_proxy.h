@@ -16,15 +16,6 @@
 #ifndef __POSITION_PROXY_H__
 #define __POSITION_PROXY_H__
 
-/*!
- * @ingroup navigation
- * @defgroup position Position
- *
- * The global position of the mobile robot.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <navigation/position_proxy.h>
 #include <main/defines/position3d.h>
@@ -268,10 +259,11 @@ class PositionUtmData
         }
 };
 
-//######################################################################
-//# Position Proxy Functions
-//######################################################################
-
+/**
+ * The global position of the mobile robot.
+ *
+ * @ingroup proxies_navigation
+ */
 class PositionProxy : public RackDataProxy {
 
     public:
@@ -289,7 +281,7 @@ class PositionProxy : public RackDataProxy {
         // overwriting getData (includes parsing and type conversion)
         //
 
-       int getData(position_data *recv_data, ssize_t recv_datalen,
+        int getData(position_data *recv_data, ssize_t recv_datalen,
                     rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
         int getData(position_data *recv_data, ssize_t recv_datalen,
@@ -355,7 +347,5 @@ class PositionProxy : public RackDataProxy {
             return posToUtm(posData, utmData, dataTimeout);
         }
 };
-
-/*@}*/
 
 #endif // __POSITION_PROXY_H__

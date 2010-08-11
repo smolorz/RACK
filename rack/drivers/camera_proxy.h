@@ -17,15 +17,6 @@
 #ifndef __CAMERA_PROXY_H__
 #define __CAMERA_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup camera Camera
- *
- * Hardware abstraction for optical cameras.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -325,10 +316,11 @@ class CameraFormatData
 
 };
 
-//######################################################################
-//# Camera Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for optical cameras.
+ *
+ * @ingroup proxies_drivers
+ */
 class CameraProxy : public RackDataProxy {
 
   public:
@@ -372,7 +364,5 @@ class CameraProxy : public RackDataProxy {
                  uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif // __CAMERA_PROXY_H__

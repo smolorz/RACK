@@ -28,10 +28,12 @@
 #define MAX_PROFILE_SIZE 2048
 
 
-//######################################################################
-//# class NewRackDataModule
-//######################################################################
 
+/**
+ * Ladar IBEO
+ *
+ * @ingroup modules_ladar
+ */
 class LadarIbeo : public RackDataModule {
     private:
 
@@ -81,4 +83,4 @@ class LadarIbeo : public RackDataModule {
 
 };
 
-#endif // __NEW_DATA_MODULE_H__
+#endif // __LADAR_IBEO_H__

@@ -49,10 +49,12 @@ typedef struct
 } camera_v4l_config;
 
 
-//######################################################################
-//# class ChassisPioneerModule
-//######################################################################
 
+/**
+ * Video for Linux
+ *
+ * @ingroup modules_camera
+ */
 class CameraV4L : public RackDataModule {
   private:
 

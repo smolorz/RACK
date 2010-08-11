@@ -26,15 +26,16 @@
 //  TIMS message types
 //
 
-#define TIMS_MSG_OK                             0
-#define TIMS_MSG_ERROR                         -1
-#define TIMS_MSG_TIMEOUT                       -2
-#define TIMS_MSG_NOT_AVAILABLE                 -3
+#define TIMS_MSG_OK                             0       /**< @ingroup main_tims */
+#define TIMS_MSG_ERROR                         -1       /**< @ingroup main_tims */
+#define TIMS_MSG_TIMEOUT                       -2       /**< @ingroup main_tims */
+#define TIMS_MSG_NOT_AVAILABLE                 -3       /**< @ingroup main_tims */
 
-//
-// TIMS message head
-//
-
+/**
+ * TIMS message head
+ *
+ * @ingroup main_tims
+ */
 typedef struct
 {
     uint8_t     flags;     // 1 Byte: flags
@@ -52,14 +53,14 @@ typedef struct
 // TIMS defines
 //
 
-#define TIMS_HEADLEN        sizeof(tims_msg_head)
+#define TIMS_HEADLEN        sizeof(tims_msg_head)       /**< @ingroup main_tims */
 
 /* TiMS flags (first byte of the head) */
-#define TIMS_HEAD_BYTEORDER_LE  0x01
-#define TIMS_BODY_BYTEORDER_LE  0x02
+#define TIMS_HEAD_BYTEORDER_LE  0x01                    /**< @ingroup main_tims */
+#define TIMS_BODY_BYTEORDER_LE  0x02                    /**< @ingroup main_tims */
 
-#define TIMS_INFINITE               (0)
-#define TIMS_NONBLOCK               ((int64_t)-1)
+#define TIMS_INFINITE               (0)                 /**< @ingroup main_tims */
+#define TIMS_NONBLOCK               ((int64_t)-1)       /**< @ingroup main_tims */
 
 //
 // common static inline functions
@@ -69,6 +70,10 @@ typedef struct
 extern "C" {
 #endif
 
+/**
+ *
+ * @ingroup main_tims
+ */
 static inline void tims_set_head_byteorder(tims_msg_head* p)
 {
   #if defined __BIG_ENDIAN_BITFIELD
@@ -80,6 +85,10 @@ static inline void tims_set_head_byteorder(tims_msg_head* p)
   #endif
 }
 
+/**
+ *
+ * @ingroup main_tims
+ */
 static inline void tims_set_body_byteorder(tims_msg_head* p)
 {
     #if defined __BIG_ENDIAN_BITFIELD
@@ -91,12 +100,20 @@ static inline void tims_set_body_byteorder(tims_msg_head* p)
     #endif
 }
 
+/**
+ *
+ * @ingroup main_tims
+ */
 static inline void tims_set_byteorder(tims_msg_head* p)
 {
     tims_set_head_byteorder(p);
     tims_set_body_byteorder(p);
 }
 
+/**
+ *
+ * @ingroup main_tims
+ */
 static inline void tims_parse_head_byteorder(tims_msg_head* p)
 {
     if (p->flags & TIMS_HEAD_BYTEORDER_LE)  /* head is little endian */
@@ -114,6 +131,10 @@ static inline void tims_parse_head_byteorder(tims_msg_head* p)
     tims_set_head_byteorder(p);
 }
 
+/**
+ *
+ * @ingroup main_tims
+ */
 static inline void tims_fill_head(tims_msg_head *p_head, int8_t type,
                                   uint32_t dest, uint32_t src,
                                   uint8_t priority, uint8_t seq_nr, uint8_t flags,

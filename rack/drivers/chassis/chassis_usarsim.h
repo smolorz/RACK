@@ -43,10 +43,13 @@ typedef struct
     ladar_point         point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
 
-//######################################################################
-//# class ChassisUsarsimModule
-//######################################################################
-
+/**
+ * Robotic platform simulator, based on the USARSim project.
+ *
+ * Using the Unreal Tournament game engine.
+ *
+ * @ingroup modules_chassis
+ */
 class ChassisUsarsim : public RackDataModule
 {
   protected:

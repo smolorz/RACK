@@ -20,12 +20,9 @@
 #include <main/defines/position2d.h>
 #include <main/defines/waypoint2d.h>
 
-//######################################################################
-//# PolarSpline (static size - no message)
-//######################################################################
-
 /**
  * polar spline structure
+ * @ingroup main_defines
  */
 typedef struct
 {
@@ -48,6 +45,10 @@ typedef struct
     int32_t     lbo;                        /**< [mm] lateral boundary offset */
 } __attribute__((packed)) polar_spline;
 
+/**
+ *
+ * @ingroup main_defines
+ */
 class PolarSpline
 {
    public:
@@ -87,9 +88,9 @@ class PolarSpline
             data->lbo    = __be32_to_cpu(data->lbo);
         }
 
-        /**********************************************************************
-         * Converts the global "position" into relative "spline" coordinates. *
-         **********************************************************************/
+        /**
+         * Converts the global "position" into relative "spline" coordinates.
+         */
         static void position2spline(position_2d *position, polar_spline *spline,
                                     position_2d *result)
         {
@@ -166,10 +167,10 @@ class PolarSpline
         }
 
 
-        /**********************************************************************
-         * Converts the relative spline coordinates "splinePos" into a global *
-         * "position"                                                         *
-         **********************************************************************/
+        /**
+         * Converts the relative spline coordinates "splinePos" into a global
+         * "position"
+         */
         static void spline2position(position_2d *splinePos,
                                     polar_spline *spline, position_2d *result)
         {

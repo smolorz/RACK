@@ -22,10 +22,13 @@
 // define module class
 #define MODULE_CLASS_ID                 ODOMETRY
 
-//######################################################################
-//# class OdometryChassis
-//######################################################################
 
+
+/**
+ * Odometry Chassis
+ *
+ * @ingroup modules_odometry
+ */
 class OdometryChassis : public RackDataModule {
     private:
         float               oldPositionX;

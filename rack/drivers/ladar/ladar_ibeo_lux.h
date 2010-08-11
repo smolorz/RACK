@@ -202,9 +202,13 @@ static inline void parseLadarIbeoLuxHeader(ladar_ibeo_lux_header *data)
     parseLadarIbeoLuxNtp64(&data->ntpTime);
 }
 
-//######################################################################
-//# class LadarIbeoLux
-//######################################################################
+
+
+/**
+ * Ladar IBEO LUX
+ *
+ * @ingroup modules_ladar
+ */
 class LadarIbeoLux : public RackDataModule {
     private:
         char                        *ladarIp;

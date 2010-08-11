@@ -29,10 +29,13 @@ typedef struct {
 
 #define MODULE_CLASS_ID             SCAN2D
 
-//######################################################################
-//# class Scan2d
-//######################################################################
 
+
+/**
+ * Scan2d Ladar
+ *
+ * @ingroup modules_scan2d
+ */
 class Scan2d : public RackDataModule {
     private:
 

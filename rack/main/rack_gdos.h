@@ -49,10 +49,30 @@
             }                                                         \
             while(0)
 
+/**
+ *
+ * @ingroup main_common
+ */
 #define GDOS_PRINT(fmt, ...)       rack_print(GDOS_MSG_PRINT, fmt, ##__VA_ARGS__)
+/**
+ *
+ * @ingroup main_common
+ */
 #define GDOS_ERROR(fmt, ...)       rack_print(GDOS_MSG_ERROR, fmt, ##__VA_ARGS__)
+/**
+ *
+ * @ingroup main_common
+ */
 #define GDOS_WARNING(fmt, ...)     rack_print(GDOS_MSG_WARNING, fmt, ##__VA_ARGS__)
+/**
+ *
+ * @ingroup main_common
+ */
 #define GDOS_DBG_INFO(fmt, ...)    rack_print(GDOS_MSG_DBG_INFO, fmt, ##__VA_ARGS__)
+/**
+ *
+ * @ingroup main_common
+ */
 #define GDOS_DBG_DETAIL(fmt, ...)  rack_print(GDOS_MSG_DBG_DETAIL, fmt, ##__VA_ARGS__)
 
 
@@ -82,6 +102,10 @@ static inline int in_rt_context(void)
 
 
 
+/**
+ *
+ * @ingroup main_common
+ */
 class RackGdos
 {
     private:

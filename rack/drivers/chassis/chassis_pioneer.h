@@ -39,10 +39,13 @@ typedef struct
     ladar_point         point[CHASSIS_PIONEER_SONAR_NUM_MAX];
 } __attribute__((packed)) ladar_data_msg;
 
-//######################################################################
-//# class ChassisPioneerModule
-//######################################################################
 
+
+/**
+ * Hardware driver for experimental robotic platform ActiveMedia Pioneer2.
+ *
+ * @ingroup modules_chassis
+ */
 class ChassisPioneer : public RackDataModule {
   private:
 

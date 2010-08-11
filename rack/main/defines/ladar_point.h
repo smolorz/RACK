@@ -16,20 +16,17 @@
 #ifndef __LADAR_POINT_H__
 #define __LADAR_POINT_H__
 
-#define LADAR_POINT_TYPE_UNKNOWN            0x0000
-#define LADAR_POINT_TYPE_TRANSPARENT        0x0001
-#define LADAR_POINT_TYPE_RAIN               0x0002
-#define LADAR_POINT_TYPE_DIRT               0x0003
+#define LADAR_POINT_TYPE_UNKNOWN            0x0000  /**< @ingroup main_defines */
+#define LADAR_POINT_TYPE_TRANSPARENT        0x0001  /**< @ingroup main_defines */
+#define LADAR_POINT_TYPE_RAIN               0x0002  /**< @ingroup main_defines */
+#define LADAR_POINT_TYPE_DIRT               0x0003  /**< @ingroup main_defines */
 
-#define LADAR_POINT_TYPE_INVALID            0x0010
-#define LADAR_POINT_TYPE_REFLECTOR          0x0080
-
-//######################################################################
-//# LadarPoint (static size - no message )
-//######################################################################
+#define LADAR_POINT_TYPE_INVALID            0x0010  /**< @ingroup main_defines */
+#define LADAR_POINT_TYPE_REFLECTOR          0x0080  /**< @ingroup main_defines */
 
 /**
  * ladar point structure
+ * @ingroup main_defines
  */
 typedef struct {
     float       angle;                      /**< [rad] angle of the ladar point in sensor
@@ -59,7 +56,5 @@ class LadarPoint {
             data->intensity = __be32_to_cpu(data->intensity);
         }
 };
-
-/*@}*/
 
 #endif // __LADAR_POINT_H__

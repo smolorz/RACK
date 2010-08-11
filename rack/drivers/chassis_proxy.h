@@ -17,15 +17,6 @@
 #ifndef __CHASSIS_PROXY_H__
 #define __CHASSIS_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup chassis Chassis
- *
- * Hardware abstraction for mobile robot chassis.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 #define CHASSIS_INVAL_PILOT            0xFFFFFF00   /**< preset define for an invalid pilot */
@@ -262,10 +253,11 @@ class ChassisSetActivePilotData : public RackMessage
 
 };
 
-//######################################################################
-//# Chassis Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for mobile robot chassis.
+ *
+ * @ingroup proxies_drivers
+ */
 class ChassisProxy : public RackDataProxy {
 
   public:
@@ -364,7 +356,5 @@ class ChassisProxy : public RackDataProxy {
     int setActivePilot(uint32_t pilotMbxAdr, uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif // __CHASSIS_PROXY_H__

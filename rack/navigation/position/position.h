@@ -28,10 +28,12 @@
 #define POSITION_REFERENCE_GK           1
 #define POSITION_REFERENCE_UTM          2
 
-//######################################################################
-//# class Position
-//######################################################################
 
+
+/**
+ *
+ * @ingroup modules_position
+ */
 class Position : public RackDataModule {
     private:
         int                 odometrySys;

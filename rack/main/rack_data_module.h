@@ -17,11 +17,6 @@
 #ifndef __RACK_DATA_MODULE_H__
 #define __RACK_DATA_MODULE_H__
 
-/*!
- * \ingroup module
- *
- * @{*/
-
 #include <main/rack_module.h>
 
 #include <math.h>
@@ -71,10 +66,10 @@ class ListenerEntry {
         { };
 };
 
-//######################################################################
-//# class RackDataModule
-//######################################################################
-
+/**
+ *
+ * @ingroup main_common
+ */
 class RackDataModule : public RackModule
 {
     private:
@@ -144,7 +139,5 @@ class RackDataModule : public RackModule
     int   moduleLoop(void) { return 0; };
     int   moduleCommand(RackMessage *msgInfo);
 };
-
-/*@}*/
 
 #endif // __RACK_DATA_MODULE_H_

@@ -40,10 +40,13 @@ typedef struct {
      polar_spline      spline[1];
 } __attribute__((packed)) pilot_data_msg;
 
-//######################################################################
-//# class PilotJoystick
-//######################################################################
 
+
+/**
+ * Pilot Joystick
+ *
+ * @ingroup modules_pilot
+ */
 class PilotJoystick : public RackDataModule {
       private:
 

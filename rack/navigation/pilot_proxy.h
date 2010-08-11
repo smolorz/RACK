@@ -16,16 +16,6 @@
 #ifndef __PILOT_PROXY_H__
 #define __PILOT_PROXY_H__
 
-/*!
- * @ingroup navigation
- * @defgroup pilot Pilot
- *
- * Mobile robot motion controller.
- *
- * @{
- */
-
-
 #include <main/rack_proxy.h>
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
@@ -274,10 +264,11 @@ class PilotRevertData
 };
 
 
-//######################################################################
-//# Pilot Proxy
-//######################################################################
-
+/**
+ * Mobile robot motion controller.
+ *
+ * @ingroup proxies_navigation
+ */
 class PilotProxy : public RackDataProxy
 {
 
@@ -334,7 +325,5 @@ class PilotProxy : public RackDataProxy
     int revert(pilot_revert_data *recv_data, ssize_t recv_datalen,
                        uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif // __PILOT_PROXY_H__

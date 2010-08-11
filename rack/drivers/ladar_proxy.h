@@ -16,15 +16,6 @@
 #ifndef __LADAR_PROXY_H__
 #define __LADAR_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup ladar Ladar
- *
- * Hardware abstraction for laser range sensors.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/defines/ladar_point.h>
 
@@ -118,10 +109,11 @@ class LadarData
 
 };
 
-//######################################################################
-//# Ladar Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for laser range sensors.
+ *
+ * @ingroup proxies_drivers
+ */
 class LadarProxy : public RackDataProxy {
   public:
 
@@ -153,7 +145,5 @@ class LadarProxy : public RackDataProxy {
                 uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif
