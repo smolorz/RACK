@@ -44,9 +44,6 @@ typedef struct
 } __attribute__((packed)) ladar_data_msg;
 
 /**
- * Robotic platform simulator, based on the USARSim project.
- *
- * Using the Unreal Tournament game engine.
  *
  * @ingroup modules_chassis
  */

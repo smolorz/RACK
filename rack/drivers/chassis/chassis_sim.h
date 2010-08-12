@@ -23,9 +23,6 @@
 #define MODULE_CLASS_ID     CHASSIS
 
 /**
- * Simple robotic platform simulation.
- *
- * 2d simulation, no interaction with the world.
  *
  * @ingroup modules_chassis
  */
