@@ -4,6 +4,7 @@ SUBDIRS = \
 	config \
 	doc \
 	main \
+	control \
 	drivers \
 	navigation \
 	perception \

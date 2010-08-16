@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -36,9 +36,20 @@ public class RackName
     public static final int JOYSTICK            = 0x17;
     public static final int PILOT               = 0x18;
     public static final int SCAN2D              = 0x19;
-    public static final int DATALOG             = 0x20;    
-    public static final int OBJ_RECOG           = 0x21;    
-    public static final int CLOCK               = 0x22;
+    public static final int DATALOG             = 0x1A;
+    public static final int OBJ_RECOG           = 0x1B;
+    public static final int CLOCK               = 0x1C;
+    public static final int VEHICLE             = 0x1D;
+    public static final int GYRO                = 0x1E;
+    public static final int IO                  = 0x1F;
+    public static final int SERVO_DRIVE         = 0x20;
+    public static final int SCAN3D              = 0x21;
+    public static final int PLANNER             = 0x22;
+    public static final int FEATURE_MAP         = 0x23;
+    public static final int GRID_MAP            = 0x24;
+    public static final int PATH                = 0x25;
+    public static final int MCL                 = 0x26;
+    public static final int PTZ_DRIVE	  	    = 0x27;
 
     public static final int OFFSET              = 0x80;
 
@@ -68,8 +79,19 @@ public class RackName
         classStringTable.put(new Integer(PILOT), "Pilot");
         classStringTable.put(new Integer(SCAN2D), "Scan2d");
         classStringTable.put(new Integer(DATALOG), "Datalog");
-        classStringTable.put(new Integer(OBJ_RECOG), "ObjRecog");        
+        classStringTable.put(new Integer(OBJ_RECOG), "ObjRecog");
         classStringTable.put(new Integer(CLOCK), "Clock");
+        classStringTable.put(new Integer(VEHICLE), "Vehicle");
+        classStringTable.put(new Integer(GYRO), "Gyro");
+        classStringTable.put(new Integer(IO), "Io");
+        classStringTable.put(new Integer(SERVO_DRIVE), "ServoDrive");
+        classStringTable.put(new Integer(SCAN3D), "Scan3d");
+        classStringTable.put(new Integer(PLANNER), "Planner");
+        classStringTable.put(new Integer(FEATURE_MAP), "FeatureMap");
+        classStringTable.put(new Integer(GRID_MAP), "GridMap");
+        classStringTable.put(new Integer(PATH), "Path");
+        classStringTable.put(new Integer(MCL), "Mcl");
+        classStringTable.put(new Integer(PTZ_DRIVE), "PtzDrive");
     }
 
     public static String classString(int rackName)
@@ -80,14 +102,14 @@ public class RackName
         }
 
         int classId = RackName.classId(rackName);
-        
+
         String classString = (String)classStringTable.get(new Integer(classId));
-        
+
         if(classString == null)
         {
             classString = "unknown[" + Integer.toHexString(classId) + "]";
         }
-        
+
         return classString;
     }
 
@@ -95,7 +117,7 @@ public class RackName
     {
         int systemId   = RackName.systemId(rackName);
     	int instanceId = RackName.instanceId(rackName);
-        
+
         return classString(rackName) + "(" + systemId + "/" + instanceId + ")";
     }
 

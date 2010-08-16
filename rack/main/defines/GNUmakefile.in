@@ -35,12 +35,14 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_TRUE@	ImageRect.java \
 @CONFIG_RACK_JAVA_TRUE@	LadarPoint.java \
+@CONFIG_RACK_JAVA_TRUE@	ObjRecogObject.java \
 @CONFIG_RACK_JAVA_TRUE@	Point2d.java \
 @CONFIG_RACK_JAVA_TRUE@	Point3d.java \
 @CONFIG_RACK_JAVA_TRUE@	PolarSpline.java \
 @CONFIG_RACK_JAVA_TRUE@	Position2d.java \
 @CONFIG_RACK_JAVA_TRUE@	Position3d.java \
 @CONFIG_RACK_JAVA_TRUE@	ScanPoint.java \
+@CONFIG_RACK_JAVA_TRUE@	Scan3dRangeImagePoint.java \
 @CONFIG_RACK_JAVA_TRUE@	Waypoint2d.java
 
 subdir = main/defines
@@ -56,9 +58,10 @@ CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
-am__dist_java_JAVA_DIST = ImageRect.java LadarPoint.java Point2d.java \
-	Point3d.java PolarSpline.java Position2d.java Position3d.java \
-	ScanPoint.java Waypoint2d.java
+am__dist_java_JAVA_DIST = ImageRect.java LadarPoint.java \
+	ObjRecogObject.java Point2d.java Point3d.java PolarSpline.java \
+	Position2d.java Position3d.java ScanPoint.java \
+	Scan3dRangeImagePoint.java Waypoint2d.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -246,6 +249,7 @@ definclude_HEADERS = \
 	position2d.h \
 	position3d.h \
 	scan_point.h \
+	scan3d_range_img_point.h \
 	waypoint2d.h
 
 dist_java_JAVA = $(am__append_1)

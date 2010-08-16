@@ -5,7 +5,10 @@ if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
         ObjRecogGui.java \
-        Scan2dGui.java
+        Scan2dGui.java \
+        Scan3dComponent.java \
+        Scan3dGui.java
+
 
 endif
 

@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -23,6 +23,9 @@
 //
 
 arg_table_t argTab[] = {
+
+    { ARGOPT_OPT, "binaryIo", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable the binary storage of io-data, default 0", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };

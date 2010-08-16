@@ -207,7 +207,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 LDADD = @RACK_LIBS@
 EXTRA_DIST = \
-	position_tool.cpp
+	compress_tool.cpp \
+	position_tool.cpp \
+	scan3d_compress_tool.cpp
 
 all: all-am
 

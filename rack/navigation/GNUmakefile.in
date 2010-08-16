@@ -33,6 +33,25 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
+@CONFIG_RACK_JAVA_TRUE@	FeatureMapDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	FeatureMapDataPoint.java \
+@CONFIG_RACK_JAVA_TRUE@	FeatureMapFeatureMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	FeatureMapFilenameMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	FeatureMapProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        GridMapProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        GridMapDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        MclProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        MclDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        MclFilenameMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        MclDataPoint.java \
+@CONFIG_RACK_JAVA_TRUE@        OdometryProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        OdometryDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PathProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        PathDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PathDestMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PathMakeMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PathRddfMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PathLayerMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	PilotProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	PilotDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	PilotDestMsg.java \
@@ -64,9 +83,16 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
-am__dist_java_JAVA_DIST = PilotProxy.java PilotDataMsg.java \
-	PilotDestMsg.java PilotHoldMsg.java PositionDataMsg.java \
-	PositionProxy.java PositionGkDataMsg.java \
+am__dist_java_JAVA_DIST = FeatureMapDataMsg.java \
+	FeatureMapDataPoint.java FeatureMapFeatureMsg.java \
+	FeatureMapFilenameMsg.java FeatureMapProxy.java \
+	GridMapProxy.java GridMapDataMsg.java MclProxy.java \
+	MclDataMsg.java MclFilenameMsg.java MclDataPoint.java \
+	OdometryProxy.java OdometryDataMsg.java PathProxy.java \
+	PathDataMsg.java PathDestMsg.java PathMakeMsg.java \
+	PathRddfMsg.java PathLayerMsg.java PilotProxy.java \
+	PilotDataMsg.java PilotDestMsg.java PilotHoldMsg.java \
+	PositionDataMsg.java PositionProxy.java PositionGkDataMsg.java \
 	PositionUtmDataMsg.java PositionWgs84DataMsg.java \
 	PositionTool.java
 JAVAC = javac
@@ -250,17 +276,28 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 navincludedir = $(pkgincludedir)/navigation
 navinclude_HEADERS = \
+	feature_map_proxy.h \
+	grid_map_proxy.h \
+	mcl_proxy.h \
+	odometry_proxy.h \
+	path_proxy.h \
 	pilot_proxy.h \
 	position_proxy.h
 
 SUBDIRS = \
 	pilot \
-	position
+	position \
+	odometry
 
 dist_java_JAVA = $(am__append_1)
 EXTRA_DIST = \
 	Kconfig \
 	\
+	feature_map_proxy.cpp \
+	grid_map_proxy.cpp \
+	mcl_proxy.cpp \
+	odometry_proxy.cpp \
+	path_proxy.cpp \
 	pilot_proxy.cpp \
 	position_proxy.cpp
 

@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2007 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -13,7 +13,7 @@
  *      Marko Reimer <reimer@rts.uni-hannover.de>
  *
  */
-package rack.perception;
+package rack.main.defines;
 
 import java.io.*;
 
@@ -38,16 +38,16 @@ public class ObjRecogObject
     public Point3d    dim = new Point3d();
     public float      prob = 0.0f;
     public ImageRect  imageArea = new ImageRect();
- 
+
     public static int getDataLen()
     {
         return (4 + 4 + 4 + 4 * Position3d.getDataLen() + ImageRect.getDataLen() + Point3d.getDataLen());
     }
-    
+
     public ObjRecogObject()
     {
     }
-    
+
     /**
      * @param dataIn
      */

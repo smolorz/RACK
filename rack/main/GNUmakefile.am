@@ -3,8 +3,10 @@ mainincludedir = $(pkgincludedir)/main
 maininclude_HEADERS = \
 	angle_tool.h \
 	argopts.h \
-	dxf_map.h \
 	camera_tool.h \
+	compress_tool.h \
+	can_port.h \
+	dxf_map.h \
 	pilot_tool.h \
 	position_tool.h \
 	rack_byteorder.h \
@@ -19,8 +21,8 @@ maininclude_HEADERS = \
 	rack_proxy.h \
 	rack_time.h \
 	rack_task.h \
-	can_port.h \
-	serial_port.h
+	serial_port.h \
+	scan3d_compress_tool.h
 
 if CONFIG_RACK_OS_LINUX
 
@@ -42,17 +44,19 @@ if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
 	AngleTool.java \
-	RackName.java \
-	RackProxy.java \
-	RackDataProxy.java \
+	ContDataMsg.java \
+	CompressTool.java \
+	GDOSDataMsg.java \
+	GDOS.java \
 	GetDataMsg.java \
 	GetContDataMsg.java \
-	StopContDataMsg.java \
-	ContDataMsg.java \
 	RackParam.java \
 	RackParamMsg.java \
-	GDOSDataMsg.java \
-	GDOS.java
+	RackProxy.java \
+	RackDataProxy.java \
+	RackName.java \
+	Scan3dCompressTool.java \
+	StopContDataMsg.java
 
 endif
 

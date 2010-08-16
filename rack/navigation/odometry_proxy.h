@@ -78,7 +78,7 @@ class OdometryData
  * Hardware abstraction for incremental positioning sensors.
  * e.g. encoders, gyros, ...
  *
- * @ingroup proxies_drivers
+ * @ingroup proxies_navigation
  */
 class OdometryProxy : public RackDataProxy {
 

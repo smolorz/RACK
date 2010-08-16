@@ -3,7 +3,8 @@ percincludedir = $(pkgincludedir)/perception
 
 percinclude_HEADERS = \
 	obj_recog_proxy.h \
-	scan2d_proxy.h
+	scan2d_proxy.h \
+	scan3d_proxy.h
 
 SUBDIRS = \
 	scan2d \
@@ -16,9 +17,11 @@ if CONFIG_RACK_JAVA
 dist_java_JAVA += \
 	ObjRecogProxy.java \
 	ObjRecogDataMsg.java \
-	ObjRecogObject.java \
 	Scan2dProxy.java \
-	Scan2dDataMsg.java
+	Scan2dDataMsg.java \
+        Scan3dProxy.java \
+        Scan3dDataMsg.java \
+        Scan3dRangeImageMsg.java
 
 endif
 
@@ -28,4 +31,5 @@ EXTRA_DIST = \
 	Kconfig \
 	\
 	obj_recog_proxy.cpp \
-	scan2d_proxy.cpp
+	scan2d_proxy.cpp \
+	scan3d_proxy.cpp

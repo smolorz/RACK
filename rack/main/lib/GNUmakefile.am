@@ -9,17 +9,29 @@ lib_LTLIBRARIES = \
 librack_la_SOURCES = \
 	version_string.cpp \
 	\
+	$(top_srcdir)/control/planner_proxy.cpp \
+	\
 	$(top_srcdir)/drivers/camera_proxy.cpp \
 	$(top_srcdir)/drivers/chassis_proxy.cpp \
 	$(top_srcdir)/drivers/clock_proxy.cpp \
 	$(top_srcdir)/drivers/gps_proxy.cpp \
+	$(top_srcdir)/drivers/gyro_proxy.cpp \
+	$(top_srcdir)/drivers/io_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
-	$(top_srcdir)/drivers/odometry_proxy.cpp \
+	$(top_srcdir)/drivers/ptz_drive_proxy.cpp \
+	$(top_srcdir)/drivers/servo_drive_proxy.cpp \
+	$(top_srcdir)/drivers/vehicle_proxy.cpp \
 	\
 	$(top_srcdir)/perception/obj_recog_proxy.cpp \
 	$(top_srcdir)/perception/scan2d_proxy.cpp \
+	$(top_srcdir)/perception/scan3d_proxy.cpp \
 	\
+	$(top_srcdir)/navigation/feature_map_proxy.cpp \
+	$(top_srcdir)/navigation/grid_map_proxy.cpp \
+	$(top_srcdir)/navigation/mcl_proxy.cpp \
+	$(top_srcdir)/navigation/odometry_proxy.cpp \
+	$(top_srcdir)/navigation/path_proxy.cpp \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
 	\
@@ -30,6 +42,8 @@ librack_la_SOURCES = \
 	$(top_srcdir)/main/tools/dxf_map.cpp \
 	$(top_srcdir)/main/tools/position_tool.cpp \
 	$(top_srcdir)/main/tools/camera_tool.cpp \
+    	$(top_srcdir)/main/tools/compress_tool.cpp \
+   	$(top_srcdir)/main/tools/scan3d_compress_tool.cpp \
 	\
 	$(top_srcdir)/main/common/rack_mailbox.cpp \
 	$(top_srcdir)/main/common/rack_module.cpp \

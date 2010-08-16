@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -33,9 +33,20 @@
 #define JOYSTICK                0x17
 #define PILOT                   0x18
 #define SCAN2D                  0x19
-#define DATALOG                 0x20
-#define OBJ_RECOG               0x21
-#define CLOCK                   0x22
+#define DATALOG                 0x1A
+#define OBJ_RECOG               0x1B
+#define CLOCK                   0x1C
+#define VEHICLE                 0x1D
+#define GYRO                    0x1E
+#define IO                      0x1F
+#define SERVO_DRIVE             0x20
+#define SCAN3D                  0x21
+#define PLANNER                 0x22
+#define FEATURE_MAP             0x23
+#define GRID_MAP                0x24
+#define PATH                    0x25
+#define MCL                     0x26
+#define PTZ_DRIVE               0x27
 
 #define RACK_NAME_OFFSET        0x80
 

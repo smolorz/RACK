@@ -1,0 +1,12 @@
+
+if CONFIG_RACK_JAVA_GUI
+
+dist_java_JAVA = \
+	PlannerGui.java \
+	PlannerTable.java
+
+install-dist_javaJAVA: classdist_java.stamp
+
+endif
+
+EXTRA_DIST =

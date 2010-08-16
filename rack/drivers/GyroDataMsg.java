@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Oliver Wulf  <oliver.wulf@gmx.de>
+ *      Joerg Langenberg  <joerg.langenberg@gmx.net>
  *
  */
 package rack.drivers;
@@ -19,32 +19,40 @@ import java.io.*;
 
 import rack.main.RackProxy;
 import rack.main.tims.*;
-import rack.main.defines.Position3d;
 
-public class OdometryDataMsg extends TimsMsg
+public class GyroDataMsg extends TimsMsg
 {
-    public int recordingTime = 0;
-    public Position3d position = new Position3d();
+    public int       recordingTime = 0;
+    public float     roll          = 0;
+    public float     pitch         = 0;
+    public float     yaw           = 0;
+    public float     aX            = 0;
+    public float     aY            = 0;
+    public float     aZ            = 0;
+    public float     wRoll         = 0;
+    public float     wPitch        = 0;
+    public float     wYaw          = 0;
+
 
     public int getDataLen()
     {
-        return (4 + Position3d.getDataLen());
+        return 40;
+
     }
 
-    public OdometryDataMsg()
+    public GyroDataMsg()
     {
         msglen = HEAD_LEN + getDataLen();
     }
 
-    public OdometryDataMsg(TimsRawMsg p) throws TimsException
+    public GyroDataMsg(TimsRawMsg p) throws TimsException
     {
         readTimsRawMsg(p);
     }
 
     public boolean checkTimsMsgHead()
     {
-        if ((type == RackProxy.MSG_DATA)
-                && (msglen == HEAD_LEN + getDataLen()))
+        if (type == RackProxy.MSG_DATA)
         {
             return (true);
         }
@@ -56,8 +64,8 @@ public class OdometryDataMsg extends TimsMsg
 
     public void readTimsMsgBody(InputStream in) throws IOException
     {
-
         EndianDataInputStream dataIn;
+
         if (bodyByteorder == BIG_ENDIAN)
         {
             dataIn = new BigEndianDataInputStream(in);
@@ -68,7 +76,15 @@ public class OdometryDataMsg extends TimsMsg
         }
 
         recordingTime = dataIn.readInt();
-        position.readData(dataIn);
+        roll          = dataIn.readFloat();
+        pitch         = dataIn.readFloat();
+        yaw           = dataIn.readFloat();
+        aX            = dataIn.readFloat();
+        aY            = dataIn.readFloat();
+        aZ            = dataIn.readFloat();
+        wRoll         = dataIn.readFloat();
+        wPitch        = dataIn.readFloat();
+        wYaw          = dataIn.readFloat();
 
         bodyByteorder = BIG_ENDIAN;
     }
@@ -78,7 +94,14 @@ public class OdometryDataMsg extends TimsMsg
         DataOutputStream dataOut = new DataOutputStream(out);
 
         dataOut.writeInt(recordingTime);
-        position.writeData(dataOut);
+        dataOut.writeFloat(roll);
+        dataOut.writeFloat(pitch);
+        dataOut.writeFloat(yaw);
+        dataOut.writeFloat(aX);
+        dataOut.writeFloat(aY);
+        dataOut.writeFloat(aZ);
+        dataOut.writeFloat(wRoll);
+        dataOut.writeFloat(wPitch);
+        dataOut.writeFloat(wYaw);
     }
-
 }

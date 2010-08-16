@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2007 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -19,12 +19,13 @@ import java.io.*;
 
 import rack.main.RackProxy;
 import rack.main.defines.Position3d;
+import rack.main.defines.ObjRecogObject;
 import rack.main.tims.*;
 
 public class ObjRecogDataMsg extends TimsMsg {
 
     public int                       recordingTime = 0; // 4 Bytes
-    public Position3d 				 refPos 	   = new Position3d(); 
+    public Position3d 				 refPos 	   = new Position3d();
     public Position3d                varRefPos     = new Position3d();
     public int                       objectNum     = 0; // 4 Bytes
     public ObjRecogObject[]          object;
@@ -37,20 +38,20 @@ public class ObjRecogDataMsg extends TimsMsg {
     {
         msglen = HEAD_LEN + getDataLen();
     }
-    
-    public ObjRecogDataMsg(TimsRawMsg p) throws TimsException 
+
+    public ObjRecogDataMsg(TimsRawMsg p) throws TimsException
     {
         readTimsRawMsg(p);
     }
-    
 
-    public boolean checkTimsMsgHead() 
+
+    public boolean checkTimsMsgHead()
     {
-        if (type == RackProxy.MSG_DATA) 
+        if (type == RackProxy.MSG_DATA)
         {
             return true;
-        } 
-        else 
+        }
+        else
         {
             return false;
         }
@@ -58,11 +59,11 @@ public class ObjRecogDataMsg extends TimsMsg {
 
     public void readTimsMsgBody(InputStream in) throws IOException {
         EndianDataInputStream dataIn;
-        if (bodyByteorder == BIG_ENDIAN) 
+        if (bodyByteorder == BIG_ENDIAN)
         {
             dataIn = new BigEndianDataInputStream(in);
-        } 
-        else 
+        }
+        else
         {
             dataIn = new LittleEndianDataInputStream(in);
         }
@@ -71,7 +72,7 @@ public class ObjRecogDataMsg extends TimsMsg {
         refPos.readData(dataIn);
         varRefPos.readData(dataIn);
         objectNum = dataIn.readInt();
-        
+
         object = new ObjRecogObject[objectNum];
 
         for (int i = 0; i < objectNum; i++) {
@@ -81,7 +82,7 @@ public class ObjRecogDataMsg extends TimsMsg {
         bodyByteorder = BIG_ENDIAN;
     }
 
-    public void writeTimsMsgBody(OutputStream out) throws IOException 
+    public void writeTimsMsgBody(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
         dataOut.writeInt(recordingTime);
@@ -89,7 +90,7 @@ public class ObjRecogDataMsg extends TimsMsg {
         varRefPos.writeData(dataOut);
         dataOut.writeInt(objectNum);
 
-        for (int i = 0; i < objectNum; i++) 
+        for (int i = 0; i < objectNum; i++)
         {
             object[i].writeDataOut(dataOut);
         }

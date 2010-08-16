@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -10,24 +10,27 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
- *      Oliver Wulf <wulf@rts.uni-hannover.de>
+ *      Oliver Wulf  <oliver.wulf@gmx.de>
  *
  */
- #include <drivers/odometry_proxy.h>
+#include <navigation/mcl_proxy.h>
 
+//
+// proxy functions
+//
 
-int OdometryProxy::getData(odometry_data *recv_data, ssize_t recv_datalen,
-                           rack_time_t timeStamp, uint64_t reply_timeout_ns)
+int MCLProxy::getData(mcl_data *recv_data, ssize_t recv_datalen,
+                      rack_time_t timeStamp, uint64_t reply_timeout_ns)
 {
     RackMessage msgInfo;
-    
-    int ret = RackDataProxy::getData((void *)recv_data, recv_datalen, timeStamp,
-                                     reply_timeout_ns, &msgInfo);
+
+    int ret = RackDataProxy::getData((void *)recv_data, recv_datalen,
+                                     timeStamp, reply_timeout_ns, &msgInfo);
     if (ret)
     {
         return ret;
     }
 
-    recv_data = OdometryData::parse(&msgInfo);
+    recv_data = MCLData::parse(&msgInfo);
     return 0;
 }
