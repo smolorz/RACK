@@ -176,7 +176,6 @@ build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
-@CONFIG_RACK_DOC_DOX_TRUE@docdir = $(datadir)/doc/$(PACKAGE)-$(VERSION)
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
@@ -207,13 +206,11 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-HTML_DOCS = api
+HTML_DOCS = html
 EXTRA_DIST = \
 	Doxyfile.in
 
 @CONFIG_RACK_DOC_DOX_TRUE@HTML_DOCSDIR = ./
-@CONFIG_RACK_DOC_DOX_TRUE@doc_top_distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)
-@CONFIG_RACK_DOC_DOX_TRUE@GEN_DOC_DIST_ROOT = $(doc_top_distdir)/doc/generated
 @CONFIG_RACK_DOC_DOX_TRUE@DISTCLEANFILES = \
 @CONFIG_RACK_DOC_DOX_TRUE@	rack_doc.tag
 
@@ -292,8 +289,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-@CONFIG_RACK_DOC_DOX_FALSE@all-local:
-all-am: GNUmakefile all-local
+all-am: GNUmakefile
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -379,25 +375,20 @@ uninstall-am: uninstall-local
 
 .MAKE: install-am install-strip
 
-.PHONY: all all-am all-local check check-am clean clean-generic \
-	clean-libtool distclean distclean-generic distclean-libtool \
-	distclean-local distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am \
-	install-data-local install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-local
+.PHONY: all all-am check check-am clean clean-generic clean-libtool \
+	distclean distclean-generic distclean-libtool distclean-local \
+	distdir dvi dvi-am html html-am info info-am install \
+	install-am install-data install-data-am install-data-local \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am uninstall uninstall-am uninstall-local
 
 
-@CONFIG_RACK_DOC_DOX_TRUE@all-local: api
-
-@CONFIG_RACK_DOC_DOX_TRUE@api: doxygen-api
-
-@CONFIG_RACK_DOC_DOX_TRUE@doxygen-api: Doxyfile
+@CONFIG_RACK_DOC_DOX_TRUE@doxygen-html: Doxyfile
 @CONFIG_RACK_DOC_DOX_TRUE@	$(DOXYGEN) $(DOXYDOC_OPTS)
 
 @CONFIG_RACK_DOC_DOX_TRUE@distclean-local:
@@ -414,7 +405,7 @@ uninstall-am: uninstall-local
 @CONFIG_RACK_DOC_DOX_TRUE@install-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
 @CONFIG_RACK_DOC_DOX_TRUE@	docs="$^"; abs_builddir=$$PWD; \
 @CONFIG_RACK_DOC_DOX_TRUE@	for dir in $$docs; do \
-@CONFIG_RACK_DOC_DOX_TRUE@	    dest=$(DESTDIR)$(docdir)/html/`basename $$dir`; \
+@CONFIG_RACK_DOC_DOX_TRUE@	    dest=$(DESTDIR)$(docdir)/`basename $$dir`; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    $(mkinstalldirs) $$dest; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    abs_dest=`cd $$dest && pwd` ; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    cd $$dir || exit 1; \
@@ -425,37 +416,23 @@ uninstall-am: uninstall-local
 @CONFIG_RACK_DOC_DOX_TRUE@	        esac; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    done; cd $$abs_builddir; \
 @CONFIG_RACK_DOC_DOX_TRUE@	done
-@CONFIG_RACK_DOC_DOX_TRUE@	$(INSTALL_DATA) rack_doc.tag $(DESTDIR)$(docdir)/html/rack_doc.tag
+@CONFIG_RACK_DOC_DOX_TRUE@	$(INSTALL_DATA) rack_doc.tag $(DESTDIR)$(docdir)/rack_doc.tag
 
-@CONFIG_RACK_DOC_DOX_TRUE@install-docs-local: install-htmldocs
-
-# dist-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
-# 	docs="$^"; abs_builddir=$$PWD; \
-# 	for dir in $$docs; do \
-# 	    dest=$(GEN_DOC_DIST_ROOT)/html/`basename $$dir`; \
-# 	    $(mkinstalldirs) $$dest && abs_dest=`cd $$dest && pwd` && \
-# 	    cd $$dir || exit 1; \
-# 	    for f in * ; do \
-# 		case $$f in \
-# 		    *~|CVS|.svn|[mM]akefile*|GNUmakefile*);; \
-# 		    *) $(INSTALL_DATA) $$f $$abs_dest/$$f;; \
-# 	        esac; \
-# 	    done; cd $$abs_builddir; \
-# 	done
+@CONFIG_RACK_DOC_DOX_TRUE@install-docs-local: doxygen-html install-htmldocs
 
 @CONFIG_RACK_DOC_DOX_TRUE@dist-docs-hook: all-local dist-htmldocs
 
 # To make distcheck happy.
 @CONFIG_RACK_DOC_DOX_TRUE@uninstall-docs:
 @CONFIG_RACK_DOC_DOX_TRUE@	if test -n "$(HTML_DOCS)"; then \
-@CONFIG_RACK_DOC_DOX_TRUE@	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)"; \
+@CONFIG_RACK_DOC_DOX_TRUE@	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/%)"; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    for t in $$targets; do \
 @CONFIG_RACK_DOC_DOX_TRUE@		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
 @CONFIG_RACK_DOC_DOX_TRUE@		else $(RM) $$t; fi; \
 @CONFIG_RACK_DOC_DOX_TRUE@	    done; \
 @CONFIG_RACK_DOC_DOX_TRUE@	fi
 
-@CONFIG_RACK_DOC_DOX_TRUE@.PHONY: doxygen-api
+@CONFIG_RACK_DOC_DOX_TRUE@.PHONY: doxygen-html
 
 @CONFIG_RACK_DOC_DOX_TRUE@.DELETE_ON_ERROR:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
