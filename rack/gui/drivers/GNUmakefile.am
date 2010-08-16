@@ -11,10 +11,17 @@ dist_java_JAVA += \
 	ChassisGui.java \
 	ClockGui.java \
 	GpsGui.java \
+        GyroGui.java \
+        GyroComponent.java \
+        IoGui.java \
 	JoystickGui.java \
 	JoystickSoftware.java \
 	LadarGui.java \
-	OdometryGui.java
+	OdometryGui.java \
+        PtzDriveGui.java \
+        ServoDriveGui.java \
+        VehicleGui.java
+
 
 endif
 

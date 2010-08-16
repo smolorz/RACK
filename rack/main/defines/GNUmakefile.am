@@ -11,6 +11,7 @@ definclude_HEADERS = \
 	position2d.h \
 	position3d.h \
 	scan_point.h \
+	scan3d_range_img_point.h \
 	waypoint2d.h
 
 dist_java_JAVA =
@@ -20,12 +21,14 @@ if CONFIG_RACK_JAVA
 dist_java_JAVA += \
 	ImageRect.java \
 	LadarPoint.java \
+	ObjRecogObject.java \
 	Point2d.java \
 	Point3d.java \
 	PolarSpline.java \
 	Position2d.java \
 	Position3d.java \
 	ScanPoint.java \
+	Scan3dRangeImagePoint.java \
 	Waypoint2d.java
 
 endif

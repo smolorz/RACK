@@ -44,12 +44,27 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	ClockDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	GpsProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	GpsDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	GyroProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	GyroDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	IoProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	IoDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	JoystickProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	JoystickDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	LadarProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	LadarDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	OdometryProxy.java \
-@CONFIG_RACK_JAVA_TRUE@	OdometryDataMsg.java
+@CONFIG_RACK_JAVA_TRUE@	OdometryDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PtzDriveProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        PtzDriveDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PtzDriveMovePosMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        PtzDriveMoveVelMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	ServoDriveProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	ServoDriveDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	ServoDriveMovePosMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	ServoDriveMoveVelMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	VehicleProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	VehicleDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	VehicleSetValueMsg.java
 
 subdir = drivers
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(drvinclude_HEADERS) \
@@ -75,9 +90,14 @@ am__dist_java_JAVA_DIST = CameraProxy.java CameraDataMsg.java \
 	CameraFormatMsg.java ChassisProxy.java ChassisParamMsg.java \
 	ChassisDataMsg.java ChassisSetActivePilotMsg.java \
 	ClockProxy.java ClockDataMsg.java GpsProxy.java \
-	GpsDataMsg.java JoystickProxy.java JoystickDataMsg.java \
+	GpsDataMsg.java GyroProxy.java GyroDataMsg.java IoProxy.java \
+	IoDataMsg.java JoystickProxy.java JoystickDataMsg.java \
 	LadarProxy.java LadarDataMsg.java OdometryProxy.java \
-	OdometryDataMsg.java
+	OdometryDataMsg.java PtzDriveProxy.java PtzDriveDataMsg.java \
+	PtzDriveMovePosMsg.java PtzDriveMoveVelMsg.java \
+	ServoDriveProxy.java ServoDriveDataMsg.java \
+	ServoDriveMovePosMsg.java ServoDriveMoveVelMsg.java \
+	VehicleProxy.java VehicleDataMsg.java VehicleSetValueMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -272,9 +292,14 @@ drvinclude_HEADERS = \
 	chassis_proxy.h \
 	clock_proxy.h \
 	gps_proxy.h \
+	gyro_proxy.h \
+	io_proxy.h \
 	joystick_proxy.h \
 	ladar_proxy.h \
-	odometry_proxy.h
+	odometry_proxy.h \
+	ptz_drive_proxy.h \
+	servo_drive_proxy.h \
+	vehicle_proxy.h
 
 dist_java_JAVA = $(am__append_1)
 EXTRA_DIST = \
@@ -284,9 +309,14 @@ EXTRA_DIST = \
 	chassis_proxy.cpp \
 	clock_proxy.cpp \
 	gps_proxy.cpp \
+	gyro_proxy.cpp \
+	io_proxy.cpp \
 	joystick_proxy.cpp \
 	ladar_proxy.cpp \
-	odometry_proxy.cpp
+	odometry_proxy.cpp \
+	ptz_drive_proxy.cpp \
+	servo_drive_proxy.cpp \
+	vehicle_proxy.cpp
 
 all: all-recursive
 

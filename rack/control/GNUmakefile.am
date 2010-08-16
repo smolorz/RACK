@@ -1,0 +1,26 @@
+
+ctrlincludedir = $(pkgincludedir)/control
+
+ctrlinclude_HEADERS = \
+	planner_proxy.h 
+
+SUBDIRS = \
+	.
+
+dist_java_JAVA =
+
+if CONFIG_RACK_JAVA
+
+dist_java_JAVA += \
+	PlannerCommandMsg.java \
+	PlannerDataMsg.java \
+	PlannerProxy.java \
+	PlannerString.java 
+
+install-dist_javaJAVA: classdist_java.stamp
+
+endif
+
+EXTRA_DIST = \
+	Kconfig \
+	planner_proxy.cpp

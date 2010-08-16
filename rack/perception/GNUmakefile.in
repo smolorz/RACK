@@ -35,9 +35,11 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@am__append_1 = \
 @CONFIG_RACK_JAVA_TRUE@	ObjRecogProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	ObjRecogDataMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	ObjRecogObject.java \
 @CONFIG_RACK_JAVA_TRUE@	Scan2dProxy.java \
-@CONFIG_RACK_JAVA_TRUE@	Scan2dDataMsg.java
+@CONFIG_RACK_JAVA_TRUE@	Scan2dDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        Scan3dProxy.java \
+@CONFIG_RACK_JAVA_TRUE@        Scan3dDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@        Scan3dRangeImageMsg.java
 
 subdir = perception
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(percinclude_HEADERS) \
@@ -60,7 +62,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
 am__dist_java_JAVA_DIST = ObjRecogProxy.java ObjRecogDataMsg.java \
-	ObjRecogObject.java Scan2dProxy.java Scan2dDataMsg.java
+	Scan2dProxy.java Scan2dDataMsg.java Scan3dProxy.java \
+	Scan3dDataMsg.java Scan3dRangeImageMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -243,7 +246,8 @@ top_srcdir = @top_srcdir@
 percincludedir = $(pkgincludedir)/perception
 percinclude_HEADERS = \
 	obj_recog_proxy.h \
-	scan2d_proxy.h
+	scan2d_proxy.h \
+	scan3d_proxy.h
 
 SUBDIRS = \
 	scan2d \
@@ -254,7 +258,8 @@ EXTRA_DIST = \
 	Kconfig \
 	\
 	obj_recog_proxy.cpp \
-	scan2d_proxy.cpp
+	scan2d_proxy.cpp \
+	scan3d_proxy.cpp
 
 all: all-recursive
 

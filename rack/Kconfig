@@ -135,6 +135,7 @@ endmenu
 
 endmenu
 
+source "control/Kconfig"
 source "drivers/Kconfig"
 source "navigation/Kconfig"
 source "perception/Kconfig"

@@ -39,10 +39,16 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@	ChassisGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	ClockGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GpsGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        GyroGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        GyroComponent.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        IoGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	JoystickGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	JoystickSoftware.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	LadarGui.java \
-@CONFIG_RACK_JAVA_GUI_TRUE@	OdometryGui.java
+@CONFIG_RACK_JAVA_GUI_TRUE@	OdometryGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        PtzDriveGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        ServoDriveGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        VehicleGui.java
 
 subdir = gui/drivers
 DIST_COMMON = $(am__dist_java_JAVA_DIST) $(srcdir)/GNUmakefile.am \
@@ -59,8 +65,10 @@ SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = CameraComponent.java CameraColorConvert.java \
 	CameraMisColorConvert.java CameraGui.java ChassisGui.java \
-	ClockGui.java GpsGui.java JoystickGui.java \
-	JoystickSoftware.java LadarGui.java OdometryGui.java
+	ClockGui.java GpsGui.java GyroGui.java GyroComponent.java \
+	IoGui.java JoystickGui.java JoystickSoftware.java \
+	LadarGui.java OdometryGui.java PtzDriveGui.java \
+	ServoDriveGui.java VehicleGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

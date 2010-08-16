@@ -2,6 +2,7 @@
 SUBDIRS = \
 	. \
 	main \
+	control \
 	drivers \
 	navigation \
 	perception \

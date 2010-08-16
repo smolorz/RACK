@@ -33,8 +33,8 @@ import rack.gui.main.*;
 import rack.main.*;
 import rack.main.defines.Position3d;
 import rack.main.defines.Point2d;
+import rack.main.defines.ObjRecogObject;
 import rack.perception.ObjRecogDataMsg;
-import rack.perception.ObjRecogObject;
 import rack.perception.ObjRecogProxy;
 
 public class ObjRecogGui extends RackModuleGui implements MapViewInterface
@@ -132,53 +132,53 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
     protected JSpinner	      objIndexSpinner    = new JSpinner();
 
     protected String          setEstimateCommand;
-    
+
     protected boolean         mapViewIsShowing;
-    protected MapViewGui      mapViewGui; 
-    
+    protected MapViewGui      mapViewGui;
+
     // for sound output
 	private Synthesizer	    synth;
 	private MidiChannel     midiChannels[];
 	private int             currentNote  = 97;
- 
+
     public ObjRecogGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
-        
+
         objRecog = (ObjRecogProxy) proxy;
 
         JPanel northPanel = new JPanel(new BorderLayout(2,2));
         JPanel buttonPanel = new JPanel(new GridLayout(0,2,4,2));
         JPanel labelPanel = new JPanel(new GridLayout(0,2,8,0));
         JPanel southPanel = new JPanel(new GridLayout(0,2,4,0));
-        
+
         objIndexSpinner.setModel(new SpinnerNumberModel(0, 0, 100, 1));
         objIndexSpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 //				runData();
 			}
 		});
-		
+
         estimateButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 String s = (String) JOptionPane.showInputDialog(null, "Estimated object position is:\n" + "x, y, rho, objectId",
-                        "Estimated object position", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0,1");      
+                        "Estimated object position", JOptionPane.PLAIN_MESSAGE, null, null, "0,0,0.0,1");
                 if ((s != null) && (s.length() > 0))
                 {
                     StringTokenizer st = new StringTokenizer(s, ",");
                     if (st.countTokens() == 4)
-                    {                      
+                    {
                         ObjRecogDataMsg objEstimateData = new ObjRecogDataMsg();
-                        
-                        objEstimateData.object = new ObjRecogObject[1];   
-                        objEstimateData.objectNum = 1;  
-                        objEstimateData.object[0] = new ObjRecogObject();  
+
+                        objEstimateData.object = new ObjRecogObject[1];
+                        objEstimateData.objectNum = 1;
+                        objEstimateData.object[0] = new ObjRecogObject();
                         objEstimateData.object[0].pos.x = Integer.parseInt(st.nextToken());
                         objEstimateData.object[0].pos.y = Integer.parseInt(st.nextToken());
                         objEstimateData.object[0].pos.rho = (float) Math.toRadians(Float.parseFloat(st.nextToken()));
                         objEstimateData.object[0].objectId = Integer.parseInt(st.nextToken());
-                        
+
                         objRecog.setEstimate(objEstimateData, 0);
                     }
                 }
@@ -275,16 +275,16 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
         labelPanel.add(psiVarRefLabel);
         labelPanel.add(rhoVarRefNameLabel);
         labelPanel.add(rhoVarRefLabel);
-        
+
         southPanel.add(estimateButton,BorderLayout.WEST);
         southPanel.add(objIndexSpinner,BorderLayout.EAST);
-        
+
         rootPanel.add(northPanel, BorderLayout.NORTH);
         rootPanel.add(labelPanel, BorderLayout.CENTER);
         rootPanel.add(southPanel, BorderLayout.SOUTH);
-        
+
         setEnabled(false);
-        
+
         if (guiElement.hasParameter("sound"))
         {
 		    try
@@ -297,7 +297,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
 		    catch (MidiUnavailableException e)
 		    {
 			    e.printStackTrace();
-		    }		
+		    }
         }
         else
         {
@@ -394,7 +394,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
         psiVarRefLabel.setEnabled(enabled);
         rhoVarRefLabel.setEnabled(enabled);
     }
-    
+
     protected void runStart()
     {
         mapViewGui = MapViewGui.findMapViewGui(ge);
@@ -414,16 +414,16 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
             mapViewGui.removeMapViewActions(this);
         }
     }
-    
+
     protected boolean needsRunData()
     {
         return (super.needsRunData() || mapViewIsShowing);
     }
-    
+
     protected void runData()
     {
         ObjRecogDataMsg data;
-        int objIndex; 
+        int objIndex;
 
         data = objRecog.getData();
 
@@ -526,7 +526,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
             }
 
             setEnabled(true);
-            
+
             if ((synth != null) && (data.objectNum > 0))
             {
         	    midiChannels[0].noteOn(currentNote, 115);
@@ -542,55 +542,55 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
                 midiChannels[0].noteOff(currentNote, 115);
             }
         }
-        mapViewIsShowing = false;                
+        mapViewIsShowing = false;
     }
 
     public void mapViewActionPerformed(MapViewActionEvent event)
     {
         String command = event.getActionCommand();
-        
+
         if(command.equals(setEstimateCommand))
         {
         	if (event.getEventId() == MapViewActionEvent.MOUSE_CLICKED_EVENT)
-	        { 
+	        {
 	            System.out.println("ObjRecog set estimate " + event.getRobotCursorPos() + " (ref " + event.getRobotPosition() + ")");
-	            
+
 	            ObjRecogDataMsg objEstimateData = new ObjRecogDataMsg();
 	            objEstimateData.refPos = new Position3d(event.getRobotPosition());
 	            Position3d estimate = new Position3d(event.getRobotCursorPos());
-	            
-	            objEstimateData.object = new ObjRecogObject[1];   
+
+	            objEstimateData.object = new ObjRecogObject[1];
 	            objEstimateData.objectNum = 1;
 	            objEstimateData.object[0] = new ObjRecogObject();
 	            objEstimateData.object[0].pos = estimate;
-	          
+
 	            objRecog.setEstimate(objEstimateData, 0);
 	        }
         }
     }
-    
-    public synchronized void paintMapView(MapViewGraphics mvg) 
+
+    public synchronized void paintMapView(MapViewGraphics mvg)
     {
         int xEnd, yEnd;
     	Point2d cornerPoints[] = new Point2d[4];//lo, ro, lu, ru
-    	double  rot_matrix[][] = {{0,0},{0,0}}; 
+    	double  rot_matrix[][] = {{0,0},{0,0}};
     	Point2d tempCornerPoint = new Point2d();
-    	
+
     	cornerPoints[0] = new Point2d();
     	cornerPoints[1] = new Point2d();
     	cornerPoints[2] = new Point2d();
     	cornerPoints[3] = new Point2d();
-    	
+
         mapViewIsShowing = true;
 
         if (objRecogData == null)
             return;
-        
+
         Graphics2D g = mvg.getRobotGraphics(objRecogData.recordingTime, ge.getSystem());
         g.setStroke(new BasicStroke(100));
-        
+
         // object painting
-        for (int i = 0; i < objRecogData.objectNum; i++) 
+        for (int i = 0; i < objRecogData.objectNum; i++)
         {
             // select color
             switch (objRecogData.object[i].objectId % 6)
@@ -605,7 +605,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
                     g.setColor(Color.ORANGE);
                     break;
                 case 3:
-                    g.setColor(Color.MAGENTA);                    
+                    g.setColor(Color.MAGENTA);
                     break;
                 case 4:
                     g.setColor(Color.CYAN);
@@ -614,7 +614,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
                     g.setColor(Color.PINK);
                     break;
             }
-            
+
             if ((objRecogData.object[i].dim.x != 0) || (objRecogData.object[i].dim.y != 0))
             {
                 xEnd = (int)(objRecogData.object[i].dim.x / 2 * Math.cos(objRecogData.object[i].pos.rho)) + objRecogData.object[i].pos.x;
@@ -629,7 +629,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
             	cornerPoints[2].y = -objRecogData.object[i].dim.y / 2;
             	cornerPoints[3].x =  objRecogData.object[i].dim.x / 2;
             	cornerPoints[3].y = -objRecogData.object[i].dim.y / 2;
-                
+
             	//rotate unit vectors to orentation of box
             	rot_matrix[0][0] =  Math.cos(objRecogData.object[i].pos.rho);
             	rot_matrix[0][1] = -Math.sin(objRecogData.object[i].pos.rho);
@@ -654,29 +654,29 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
             	cornerPoints[3].y = (int)( rot_matrix[1][0] * tempCornerPoint.x + rot_matrix[1][1] * tempCornerPoint.y) ;
 
                 //print corner points of box
-                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[0].x, 
-                		   objRecogData.object[i].pos.y + cornerPoints[0].y, 
-                		   objRecogData.object[i].pos.x + cornerPoints[1].x, 
+                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[0].x,
+                		   objRecogData.object[i].pos.y + cornerPoints[0].y,
+                		   objRecogData.object[i].pos.x + cornerPoints[1].x,
                 		   objRecogData.object[i].pos.y + cornerPoints[1].y);
-                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[0].x, 
+                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[0].x,
                     		objRecogData.object[i].pos.y + cornerPoints[0].y,
-                    		objRecogData.object[i].pos.x + cornerPoints[2].x, 
+                    		objRecogData.object[i].pos.x + cornerPoints[2].x,
                 	    	objRecogData.object[i].pos.y + cornerPoints[2].y);
-                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[3].x, 
+                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[3].x,
                 			objRecogData.object[i].pos.y + cornerPoints[3].y,
-                			objRecogData.object[i].pos.x + cornerPoints[1].x, 
+                			objRecogData.object[i].pos.x + cornerPoints[1].x,
                 			objRecogData.object[i].pos.y + cornerPoints[1].y);
-                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[3].x, 
-                			objRecogData.object[i].pos.y + cornerPoints[3].y, 
-                			objRecogData.object[i].pos.x + cornerPoints[2].x, 
+                g.drawLine(objRecogData.object[i].pos.x + cornerPoints[3].x,
+                			objRecogData.object[i].pos.y + cornerPoints[3].y,
+                			objRecogData.object[i].pos.x + cornerPoints[2].x,
                 			objRecogData.object[i].pos.y + cornerPoints[2].y);
-            } else 
+            } else
             {
-            	
+
                 g.drawArc(objRecogData.object[i].pos.x - 100,
                         objRecogData.object[i].pos.y - 100,
                         200, 200, 0, 360);
-  
+
                 xEnd = (int)(1000 * Math.cos(objRecogData.object[i].pos.rho)) +  objRecogData.object[i].pos.x;
                 yEnd = (int)(1000 * Math.sin(objRecogData.object[i].pos.rho)) + objRecogData.object[i].pos.y;
                 g.drawLine(objRecogData.object[i].pos.x, objRecogData.object[i].pos.y, xEnd, yEnd);

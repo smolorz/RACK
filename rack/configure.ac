@@ -1723,6 +1723,8 @@ AC_CONFIG_FILES([GNUmakefile \
     main/tims/linux/GNUmakefile \
     main/tims/router/GNUmakefile \
     \
+    control/GNUmakefile \
+    \
     drivers/GNUmakefile \
     drivers/camera/GNUmakefile \
     drivers/chassis/GNUmakefile \
@@ -1744,6 +1746,7 @@ AC_CONFIG_FILES([GNUmakefile \
     \
     gui/GNUmakefile \
     gui/main/GNUmakefile \
+    gui/control/GNUmakefile \
     gui/drivers/GNUmakefile \
     gui/navigation/GNUmakefile \
     gui/perception/GNUmakefile \

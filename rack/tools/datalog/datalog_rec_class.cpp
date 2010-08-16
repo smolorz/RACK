@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -46,6 +46,8 @@ int  DatalogRec::moduleOn(void)
     rack_time_t realPeriodTime;
     rack_time_t datalogPeriodTime = RACK_TIME_MAX;
 
+    // get dynamic module parameter
+    enableBinaryIo  = getInt32Param("binaryIo");
 
     GDOS_DBG_INFO("Turn on...\n");
 
@@ -342,6 +344,21 @@ int DatalogRec::initLogFile()
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
+                case GYRO:
+                    ret = fprintf(fileptr[i], "%% Gyro(%i/%i)\n"
+                                  "%% recordingTime roll pitch yaw"
+                                  " aX aY aZ wRoll wPitch wYaw\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
+                case IO:
+                    ret = fprintf(fileptr[i], "%% Io(%i/%i)\n"
+                                  "%% recordingTime valueNum value[0] \n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
                 case LADAR:
                     ret = fprintf(fileptr[i], "%% Ladar(%i/%i)\n"
                                   "%% recordingTime duration maxRange"
@@ -356,6 +373,58 @@ int DatalogRec::initLogFile()
                     ret = fprintf(fileptr[i], "%% Odometry(%i/%i)\n"
                                   "%% recordingTime pos.x pos.y pos.z"
                                   " pos.phi pos.psi pos.rho\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
+                case SERVO_DRIVE:
+                    ret = fprintf(fileptr[i], "%% Servodrive(%i/%i)\n"
+                                  "%% recordingTime position\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
+                case VEHICLE:
+                    ret = fprintf(fileptr[i], "%% Vehicle(%i/%i)\n"
+                                  "%% recordingTime speed omega throttle brake clutch"
+                                  " steering gear parkBrake vehicleProtect activeController\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
+                case GRID_MAP:
+                    ret = fprintf(fileptr[i], "%% Gridmap(%i/%i)\n"
+                                  "%% recordingTime offsetX offsetY"
+                                  " scale gridNumX gridNumY gridMapFileNum\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
+                case MCL:
+                    ret = fprintf(fileptr[i], "%% Mcl(%i/%i)\n"
+                                  "%% recordingTime pos.x pos.y pos.z"
+                                  " pos.phi pos.psi pos.rho pointNum"
+                                  " point[0].x point[0].y point[0].z point[0].type\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
+                case PATH:
+                    ret = fprintf(fileptr[i], "%% Path(%i/%i)\n"
+                                  "%% recordingTime splineNum"
+                                  " spline[0].basepoint.x spline[0].basepoint.y"
+                                  " spline[0].basepoint.speed spline[0].basepoint.maxRadius"
+                                  " spline[0].basepoint.type spline[0].basepoint.request"
+                                  " spline[0].basepoint.lbo spline[0].basepoint.id"
+                                  " spline[0].basepoint.wayId"
+                                  " spline[0].startPos.x spline[0].startPos.y"
+                                  " spline[0].startPos.rho spline[0].endPos.x"
+                                  " spline[0].endPos.y spline[0].endPos.rho"
+                                  " spline[0].centerPos.x spline[0].centerPos.y"
+                                  " spline[0].centerPos.rho spline[0].length"
+                                  " spline[0].radius spline[0].vMax spline[0].vStart"
+                                  " spline[0].vEnd spline[0].accMax spline[0].decMax"
+                                  " spline[0].type spline[0].request spline[0].lbo\n",
                                   RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
@@ -416,6 +485,17 @@ int DatalogRec::initLogFile()
                                   RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
+
+                case SCAN3D:
+                    ret = fprintf(fileptr[i], "%% Scan3d(%i/%i)\n"
+                                  "%% recordingTime duration maxRange"
+                                  " scanNum scanPointNum scanMode scanHardware"
+                                  " sectorNum sectorIndex"
+                                  " refPos.x refPos.y refPos.z refPos.phi refPos.psi refPos.rho"
+                                  " pointNum scan3dFileNum\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
             }
         }
     }
@@ -425,25 +505,32 @@ int DatalogRec::initLogFile()
 
 int DatalogRec::logData(RackMessage *msgInfo)
 {
-    int             i, j, ret;
-    int             bytes;
-    int             bytesMax;
-    char*           extFilenamePtr;
-    char            extFilenameBuf[100];
-    char            fileNumBuf[20];
-    FILE*           extFileptr;
+    int              i, j, ret;
+    int              bytes;
+    int              bytesMax;
+    char*            extFilenamePtr;
+    char             extFilenameBuf[100];
+    char             fileNumBuf[20];
+    FILE*            extFileptr;
 
-    camera_data     *cameraData;
-    chassis_data    *chassisData;
-    clock_data      *clockData;
-    gps_data        *gpsData;
-    ladar_data      *ladarData;
-    odometry_data   *odometryData;
-    pilot_data      *pilotData;
-    position_data   *positionData;
-    obj_recog_data  *objRecogData;
-    scan2d_data     *scan2dData;
-
+    camera_data      *cameraData;
+    chassis_data     *chassisData;
+    clock_data       *clockData;
+    gps_data         *gpsData;
+    gyro_data        *gyroData;
+    io_data          *ioData;
+    ladar_data       *ladarData;
+    odometry_data    *odometryData;
+    servo_drive_data *servoData;
+    vehicle_data     *vehicleData;
+    grid_map_data    *gridMapData;
+    mcl_data         *mclData;
+    path_data        *pathData;
+    pilot_data       *pilotData;
+    position_data    *positionData;
+    obj_recog_data   *objRecogData;
+    scan2d_data      *scan2dData;
+    scan3d_data      *scan3dData;
 
     for (i = 0; i < datalogInfoMsg.data.logNum; i++)
     {
@@ -562,6 +649,68 @@ int DatalogRec::logData(RackMessage *msgInfo)
                     datalogInfoMsg.logInfo[i].setsLogged  += 1;
                     break;
 
+                case GYRO:
+                    gyroData = GyroData::parse(msgInfo);
+                    bytes = fprintf(fileptr[i], "%u %f %f %f %f %f %f %f %f %f\n",
+                        (unsigned int)gyroData->recordingTime,
+                        gyroData->roll,
+                        gyroData->pitch,
+                        gyroData->yaw,
+                        gyroData->aX,
+                        gyroData->aY,
+                        gyroData->aZ,
+                        gyroData->wRoll,
+                        gyroData->wPitch,
+                        gyroData->wYaw);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case IO:
+                    ioData = IoData::parse(msgInfo);
+
+                    // ascii output
+                    bytes = fprintf(fileptr[i], "%u %d\n",
+                        (unsigned int)ioData->recordingTime,
+                        ioData->valueNum);
+
+                    for (j = 0; j < ioData->valueNum; j++)
+                    {
+                        bytes += fprintf(fileptr[i], " %i",
+                                 ioData->value[j]);
+                    }
+
+                    // binary output
+                    if (enableBinaryIo)
+                    {
+                        bytes = fprintf(fileptr[i], "%u %d %i\n",
+                        (unsigned int)ioData->recordingTime,
+                            ioData->valueNum,
+                            datalogInfoMsg.logInfo[i].setsLogged + 1);
+
+                        strcpy(extFilenameBuf, (char *)datalogInfoMsg.data.logPathName);
+                        strcat(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                        extFilenamePtr = strtok((char *)extFilenameBuf, ".");
+                        sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
+                        strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
+                        strcat(extFilenameBuf, ".raw");
+
+                        if ((extFileptr = fopen(extFilenameBuf , "w")) == NULL)
+                        {
+                            GDOS_ERROR("Can't open file for Mbx %n...\n",
+                                datalogInfoMsg.logInfo[i].moduleMbx);
+                            return -EIO;
+                        }
+
+                        bytes += fwrite(ioData, 1, sizeof(io_data) + ioData->valueNum, extFileptr);
+                        fclose(extFileptr);
+                    }
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
                 case LADAR:
                     ladarData = LadarData::parse(msgInfo);
                     bytes = fprintf(fileptr[i], "%u %i %i %f %f %i",
@@ -597,6 +746,146 @@ int DatalogRec::logData(RackMessage *msgInfo)
                         odometryData->pos.phi,
                         odometryData->pos.psi,
                         odometryData->pos.rho);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case SERVO_DRIVE:
+                    servoData = ServoDriveData::parse(msgInfo);
+                    bytes = fprintf(fileptr[i], "%u %f\n",
+                        (unsigned int)servoData->recordingTime,
+                        servoData->position);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case VEHICLE:
+                    vehicleData = VehicleData::parse(msgInfo);
+                    bytes = fprintf(fileptr[i], "%u %i %f %f %f %f %f %i %i %i %i %u\n",
+                        (unsigned int)vehicleData->recordingTime,
+                        vehicleData->speed,
+                        vehicleData->omega,
+                        vehicleData->throttle,
+                        vehicleData->brake,
+                        vehicleData->clutch,
+                        vehicleData->steering,
+                        vehicleData->gear,
+                        vehicleData->engine,
+                        vehicleData->parkBrake,
+                        vehicleData->vehicleProtect,
+                        vehicleData->activeController);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case GRID_MAP:
+                    gridMapData = GridMapData::parse(msgInfo);
+
+                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.data.logPathName);
+                    strcat(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                    extFilenamePtr = strtok((char *)extFilenameBuf, ".");
+                    sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
+                    strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
+                    strcat(extFilenameBuf, ".raw");
+
+                    bytes = fprintf(fileptr[i], "%u %i %i %i %i %i %i\n",
+                        (unsigned int)gridMapData->recordingTime,
+                        gridMapData->offsetX,
+                        gridMapData->offsetY,
+                        gridMapData->scale,
+                        gridMapData->gridNumX,
+                        gridMapData->gridNumY,
+                        datalogInfoMsg.logInfo[i].setsLogged + 1);
+
+                    if ((extFileptr = fopen(extFilenameBuf , "w")) == NULL)
+                    {
+                        GDOS_ERROR("Can't open file for Mbx %n...\n",
+                                   datalogInfoMsg.logInfo[i].moduleMbx);
+                        return -EIO;
+                    }
+
+                    bytesMax = gridMapData->gridNumX * gridMapData->gridNumY;
+                    bytes += fwrite(&gridMapData->occupancy[0],
+                                    sizeof(gridMapData->occupancy[0]), bytesMax, extFileptr);
+
+                    fclose(extFileptr);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case MCL:
+                    mclData = MCLData::parse(msgInfo);
+
+                    bytes = fprintf(fileptr[i], "%u %i %i %i %f %f %f %i",
+                        (unsigned int)mclData->recordingTime,
+                        mclData->pos.x,
+                        mclData->pos.y,
+                        mclData->pos.z,
+                        mclData->pos.phi,
+                        mclData->pos.psi,
+                        mclData->pos.rho,
+                        mclData->pointNum);
+
+                    for (j = 0; j < mclData->pointNum; j++)
+                    {
+                        bytes += fprintf(fileptr[i], " %i %i %i %i",
+                            mclData->point[j].x,
+                            mclData->point[j].y,
+                            mclData->point[j].z,
+                            mclData->point[j].type);
+                    }
+
+                    bytes += fprintf(fileptr[i], "\n");
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case PATH:
+                    pathData = PathData::parse(msgInfo);
+                    bytes = fprintf(fileptr[i], "%u %i",
+                        (unsigned int)pathData->recordingTime,
+                        pathData->splineNum);
+
+                    for (j = 0; j < pathData->splineNum; j++)
+                    {
+                        bytes += fprintf(fileptr[i], " %i %i %i %i %i %i %i %i %i %i %i %f %i %i %f"
+                                                     " %i %i %f %i %i %i %i %i %i %i %i %i %i",
+                            pathData->spline[j].basepoint.x,
+                            pathData->spline[j].basepoint.y,
+                            pathData->spline[j].basepoint.speed,
+                            pathData->spline[j].basepoint.maxRadius,
+                            pathData->spline[j].basepoint.type,
+                            pathData->spline[j].basepoint.request,
+                            pathData->spline[j].basepoint.lbo,
+                            pathData->spline[j].basepoint.id,
+                            pathData->spline[j].basepoint.wayId,
+                            pathData->spline[j].startPos.x,
+                            pathData->spline[j].startPos.y,
+                            pathData->spline[j].startPos.rho,
+                            pathData->spline[j].endPos.x,
+                            pathData->spline[j].endPos.y,
+                            pathData->spline[j].endPos.rho,
+                            pathData->spline[j].centerPos.x,
+                            pathData->spline[j].centerPos.y,
+                            pathData->spline[j].centerPos.rho,
+                            pathData->spline[j].length,
+                            pathData->spline[j].radius,
+                            pathData->spline[j].vMax,
+                            pathData->spline[j].vStart,
+                            pathData->spline[j].vEnd,
+                            pathData->spline[j].accMax,
+                            pathData->spline[j].decMax,
+                            pathData->spline[j].type,
+                            pathData->spline[j].request,
+                            pathData->spline[j].lbo);
+                    }
+
+                    bytes += fprintf(fileptr[i], "\n");
 
                     datalogInfoMsg.logInfo[i].bytesLogged += bytes;
                     datalogInfoMsg.logInfo[i].setsLogged  += 1;
@@ -796,6 +1085,75 @@ int DatalogRec::logData(RackMessage *msgInfo)
                     }
 
                     fclose(extFileptr);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+                case SCAN3D:
+                    scan3dData = Scan3dData::parse(msgInfo);
+
+                    strcpy(extFilenameBuf, (char *)datalogInfoMsg.data.logPathName);
+                    strcat(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
+                    extFilenamePtr = strtok((char *)extFilenameBuf, ".");
+                    sprintf(fileNumBuf, "_%i", datalogInfoMsg.logInfo[i].setsLogged + 1);
+                    strncat(extFilenameBuf, fileNumBuf, strlen(fileNumBuf));
+
+                    bytes = fprintf(fileptr[i], "%u %u %i %i %i %i %i %i %i %i %i %i %f %f %f %i %i\n",
+                        (unsigned int)scan3dData->recordingTime,
+                        (unsigned int)scan3dData->duration,
+                        scan3dData->maxRange,
+                        scan3dData->scanNum,
+                        scan3dData->scanPointNum,
+                        scan3dData->scanMode,
+                        scan3dData->scanHardware,
+                        scan3dData->sectorNum,
+                        scan3dData->sectorIndex,
+                        scan3dData->refPos.x,
+                        scan3dData->refPos.y,
+                        scan3dData->refPos.z,
+                        scan3dData->refPos.phi,
+                        scan3dData->refPos.psi,
+                        scan3dData->refPos.rho,
+                        scan3dData->pointNum,
+                        datalogInfoMsg.logInfo[i].setsLogged + 1);
+
+                    // ascii output
+                    strcat(extFilenameBuf, ".3d");
+                    if ((extFileptr = fopen(extFilenameBuf , "w")) == NULL)
+                    {
+                        GDOS_ERROR("Can't open file for Mbx %n...\n",
+                                   datalogInfoMsg.logInfo[i].moduleMbx);
+                        return -EIO;
+                    }
+
+                    for (j = 0; j < scan3dData->pointNum; j++)
+                    {
+                        bytes += fprintf(extFileptr, "%i %i %i %i %i %i\n",
+                            scan3dData->point[j].x,
+                            scan3dData->point[j].y,
+                            scan3dData->point[j].z,
+                            scan3dData->point[j].type,
+                            scan3dData->point[j].segment,
+                            scan3dData->point[j].intensity);
+                    }
+                    fclose(extFileptr);
+
+                    // binary output
+                    if (enableBinaryIo)
+                    {
+                        strcat(extFilenameBuf, ".raw");
+                        if ((extFileptr = fopen(extFilenameBuf , "w")) == NULL)
+                        {
+                            GDOS_ERROR("Can't open file for Mbx %n...\n",
+                                       datalogInfoMsg.logInfo[i].moduleMbx);
+                            return -EIO;
+                        }
+
+                        bytes += fwrite(scan3dData, 1, sizeof(scan3d_data) +
+                                        sizeof(scan_point)*scan3dData->pointNum, extFileptr);
+                        fclose(extFileptr);
+                    }
 
                     datalogInfoMsg.logInfo[i].bytesLogged += bytes;
                     datalogInfoMsg.logInfo[i].setsLogged  += 1;
@@ -1150,6 +1508,26 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].maxDataLen = sizeof(gps_data);
     num++;
 
+    data->logInfo[num].moduleMbx = RackName::create(GYRO, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "gyro_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(gyro_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(GYRO, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "gyro_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(gyro_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(IO, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "io_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(io_data) + IO_BYTE_NUM_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(IO, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "io_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(io_data) + IO_BYTE_NUM_MAX;
+    num++;
+
     data->logInfo[num].moduleMbx = RackName::create(systemId, LADAR, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "ladar_0.dat");
     data->logInfo[num].maxDataLen = sizeof(ladar_data) +
@@ -1174,6 +1552,36 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
                                     sizeof(int32_t) * LADAR_DATA_MAX_POINT_NUM;
     num++;
 
+    data->logInfo[num].moduleMbx = RackName::create(SERVO_DRIVE, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "servodrive_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(servo_drive_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SERVO_DRIVE, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "servodrive_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(servo_drive_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SERVO_DRIVE, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "servodrive_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(servo_drive_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SERVO_DRIVE, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "servodrive_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(servo_drive_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SERVO_DRIVE, 4);
+    snprintf((char *)data->logInfo[num].filename, 40, "servodrive_4.dat");
+    data->logInfo[num].maxDataLen = sizeof(servo_drive_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(VEHICLE, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "vehicle_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(vehicle_data);
+    num++;
+
     data->logInfo[num].moduleMbx = RackName::create(systemId, ODOMETRY, 0);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_0.dat");
     data->logInfo[num].maxDataLen = sizeof(odometry_data);
@@ -1187,6 +1595,58 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].moduleMbx = RackName::create(systemId, ODOMETRY, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "odometry_2.dat");
     data->logInfo[num].maxDataLen = sizeof(odometry_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(GRID_MAP, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "gridmap_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(grid_map_data) + GRID_MAP_NUM_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(GRID_MAP, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "gridmap_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(grid_map_data) + GRID_MAP_NUM_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(MCL, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "mcl_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(mcl_data) +
+                                    sizeof(mcl_data_point) * MCL_DATA_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(MCL, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "mcl_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(mcl_data) +
+                                    sizeof(mcl_data_point) * MCL_DATA_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(MCL, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "mcl_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(mcl_data) +
+                                    sizeof(mcl_data_point) * MCL_DATA_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(MCL, 3);
+    snprintf((char *)data->logInfo[num].filename, 40, "mcl_3.dat");
+    data->logInfo[num].maxDataLen = sizeof(mcl_data) +
+                                    sizeof(mcl_data_point) * MCL_DATA_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(MCL, 4);
+    snprintf((char *)data->logInfo[num].filename, 40, "mcl_4.dat");
+    data->logInfo[num].maxDataLen = sizeof(mcl_data) +
+                                    sizeof(mcl_data_point) * MCL_DATA_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(PATH, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "path_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(path_data) +
+                                    sizeof(polar_spline) * PATH_SPLINE_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(PATH, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "path_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(path_data) +
+                                    sizeof(polar_spline) * PATH_SPLINE_MAX;
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(systemId, PILOT, 0);
@@ -1310,6 +1770,38 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     snprintf((char *)data->logInfo[num].filename, 40, "scan2d_8.dat");
     data->logInfo[num].maxDataLen = sizeof(scan2d_data) +
                                     sizeof(scan_point) * SCAN2D_POINT_MAX ;
+    num++;
+
+   data->logInfo[num].moduleMbx = RackName::create(SCAN3D, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan3d_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan3d_data) +
+                                    sizeof(scan_point) * SCAN3D_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN3D, 1);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan3d_1.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan3d_data) +
+                                    sizeof(scan_point) * SCAN3D_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN3D, 2);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan3d_2.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan3d_data) +
+                                    sizeof(scan_point) * SCAN3D_POINT_MAX;
+    num++;
+
+    /* ... */
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN3D, 15);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan3d_15.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan3d_data) +
+                                    sizeof(scan_point) * SCAN3D_POINT_MAX;
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(SCAN3D, 16);
+    snprintf((char *)data->logInfo[num].filename, 40, "scan3d_16.dat");
+    data->logInfo[num].maxDataLen = sizeof(scan3d_data) +
+                                    sizeof(scan_point) * SCAN3D_POINT_MAX;
     num++;
 
     data->logNum = num;

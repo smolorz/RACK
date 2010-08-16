@@ -15,9 +15,14 @@ drvinclude_HEADERS = \
 	chassis_proxy.h \
 	clock_proxy.h \
 	gps_proxy.h \
+	gyro_proxy.h \
+	io_proxy.h \
 	joystick_proxy.h \
 	ladar_proxy.h \
-	odometry_proxy.h
+	odometry_proxy.h \
+	ptz_drive_proxy.h \
+	servo_drive_proxy.h \
+	vehicle_proxy.h
 
 dist_java_JAVA =
 
@@ -35,12 +40,27 @@ dist_java_JAVA += \
 	ClockDataMsg.java \
 	GpsProxy.java \
 	GpsDataMsg.java \
+	GyroProxy.java \
+	GyroDataMsg.java \
+	IoProxy.java \
+	IoDataMsg.java \
 	JoystickProxy.java \
 	JoystickDataMsg.java \
 	LadarProxy.java \
 	LadarDataMsg.java \
 	OdometryProxy.java \
-	OdometryDataMsg.java
+	OdometryDataMsg.java \
+        PtzDriveProxy.java \
+        PtzDriveDataMsg.java \
+        PtzDriveMovePosMsg.java \
+        PtzDriveMoveVelMsg.java \
+	ServoDriveProxy.java \
+	ServoDriveDataMsg.java \
+	ServoDriveMovePosMsg.java \
+	ServoDriveMoveVelMsg.java \
+	VehicleProxy.java \
+	VehicleDataMsg.java \
+	VehicleSetValueMsg.java
 
 endif
 
@@ -53,6 +73,11 @@ EXTRA_DIST = \
 	chassis_proxy.cpp \
 	clock_proxy.cpp \
 	gps_proxy.cpp \
+	gyro_proxy.cpp \
+	io_proxy.cpp \
 	joystick_proxy.cpp \
 	ladar_proxy.cpp \
-	odometry_proxy.cpp
+	odometry_proxy.cpp \
+	ptz_drive_proxy.cpp \
+	servo_drive_proxy.cpp \
+	vehicle_proxy.cpp

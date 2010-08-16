@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2010 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -24,12 +24,21 @@
 #include <drivers/chassis_proxy.h>
 #include <drivers/clock_proxy.h>
 #include <drivers/gps_proxy.h>
+#include <drivers/gyro_proxy.h>
+#include <drivers/io_proxy.h>
 #include <drivers/ladar_proxy.h>
 #include <drivers/odometry_proxy.h>
+#include <drivers/servo_drive_proxy.h>
+#include <drivers/vehicle_proxy.h>
+#include <navigation/grid_map_proxy.h>
+#include <navigation/mcl_proxy.h>
+#include <navigation/path_proxy.h>
 #include <navigation/pilot_proxy.h>
 #include <navigation/position_proxy.h>
 #include <perception/obj_recog_proxy.h>
 #include <perception/scan2d_proxy.h>
+#include <perception/scan3d_proxy.h>
+
 
 
 #define MODULE_CLASS_ID             DATALOG
@@ -47,6 +56,8 @@ typedef struct {
 //######################################################################
 class DatalogRec : public RackDataModule {
     private:
+        int         enableBinaryIo;
+
         void*       smallContDataPtr;
         void*       largeContDataPtr;
 

@@ -4,6 +4,11 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA_GUI
 
 dist_java_JAVA += \
+	FeatureMapGui.java \
+	GridMapComponent.java \
+	GridMapGui.java \
+	MclGui.java \
+	PathGui.java \
 	PilotGui.java \
 	PositionGui.java \
 	PositionNavi.java

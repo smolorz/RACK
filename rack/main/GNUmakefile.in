@@ -40,17 +40,19 @@ host_triplet = @host@
 
 @CONFIG_RACK_JAVA_TRUE@am__append_3 = \
 @CONFIG_RACK_JAVA_TRUE@	AngleTool.java \
-@CONFIG_RACK_JAVA_TRUE@	RackName.java \
-@CONFIG_RACK_JAVA_TRUE@	RackProxy.java \
-@CONFIG_RACK_JAVA_TRUE@	RackDataProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	ContDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	CompressTool.java \
+@CONFIG_RACK_JAVA_TRUE@	GDOSDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	GDOS.java \
 @CONFIG_RACK_JAVA_TRUE@	GetDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	GetContDataMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	StopContDataMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	ContDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	RackParam.java \
 @CONFIG_RACK_JAVA_TRUE@	RackParamMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	GDOSDataMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	GDOS.java
+@CONFIG_RACK_JAVA_TRUE@	RackProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	RackDataProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	RackName.java \
+@CONFIG_RACK_JAVA_TRUE@	Scan3dCompressTool.java \
+@CONFIG_RACK_JAVA_TRUE@	StopContDataMsg.java
 
 @CONFIG_RACK_OS_XENOMAI_TRUE@am__append_4 = \
 @CONFIG_RACK_OS_XENOMAI_TRUE@	xenomai
@@ -79,19 +81,21 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
-am__dist_java_JAVA_DIST = AngleTool.java RackName.java RackProxy.java \
-	RackDataProxy.java GetDataMsg.java GetContDataMsg.java \
-	StopContDataMsg.java ContDataMsg.java RackParam.java \
-	RackParamMsg.java GDOSDataMsg.java GDOS.java
+am__dist_java_JAVA_DIST = AngleTool.java ContDataMsg.java \
+	CompressTool.java GDOSDataMsg.java GDOS.java GetDataMsg.java \
+	GetContDataMsg.java RackParam.java RackParamMsg.java \
+	RackProxy.java RackDataProxy.java RackName.java \
+	Scan3dCompressTool.java StopContDataMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
 am__installdirs = "$(DESTDIR)$(javadir)" "$(DESTDIR)$(mainincludedir)"
-am__maininclude_HEADERS_DIST = angle_tool.h argopts.h dxf_map.h \
-	camera_tool.h pilot_tool.h position_tool.h rack_byteorder.h \
-	rack_bits.h rack_list_head.h rack_gdos.h rack_mailbox.h \
-	rack_mutex.h rack_module.h rack_data_module.h rack_name.h \
-	rack_proxy.h rack_time.h rack_task.h can_port.h serial_port.h \
+am__maininclude_HEADERS_DIST = angle_tool.h argopts.h camera_tool.h \
+	compress_tool.h can_port.h dxf_map.h pilot_tool.h \
+	position_tool.h rack_byteorder.h rack_bits.h rack_list_head.h \
+	rack_gdos.h rack_mailbox.h rack_mutex.h rack_module.h \
+	rack_data_module.h rack_name.h rack_proxy.h rack_time.h \
+	rack_task.h serial_port.h scan3d_compress_tool.h \
 	linux/rack_rtserial.h jpeg_tool.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -269,11 +273,12 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 mainincludedir = $(pkgincludedir)/main
-maininclude_HEADERS = angle_tool.h argopts.h dxf_map.h camera_tool.h \
-	pilot_tool.h position_tool.h rack_byteorder.h rack_bits.h \
-	rack_list_head.h rack_gdos.h rack_mailbox.h rack_mutex.h \
-	rack_module.h rack_data_module.h rack_name.h rack_proxy.h \
-	rack_time.h rack_task.h can_port.h serial_port.h \
+maininclude_HEADERS = angle_tool.h argopts.h camera_tool.h \
+	compress_tool.h can_port.h dxf_map.h pilot_tool.h \
+	position_tool.h rack_byteorder.h rack_bits.h rack_list_head.h \
+	rack_gdos.h rack_mailbox.h rack_mutex.h rack_module.h \
+	rack_data_module.h rack_name.h rack_proxy.h rack_time.h \
+	rack_task.h serial_port.h scan3d_compress_tool.h \
 	$(am__append_1) $(am__append_2)
 dist_java_JAVA = $(am__append_3)
 SUBDIRS = tims defines lib tools common $(am__append_4) \
