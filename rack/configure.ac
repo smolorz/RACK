@@ -799,7 +799,7 @@ if test "$CONFIG_RACK_LADAR_SICK_LMS100" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
-dnl  drivers - OdometryChassis
+dnl  navigation - OdometryChassis
 dnl -----------------------------------------------------------------
 
 AC_MSG_CHECKING([build OdometryChassis])
@@ -1731,9 +1731,9 @@ AC_CONFIG_FILES([GNUmakefile \
     drivers/clock/GNUmakefile \
     drivers/gps/GNUmakefile \
     drivers/ladar/GNUmakefile \
-    drivers/odometry/GNUmakefile \
     \
     navigation/GNUmakefile \
+    navigation/odometry/GNUmakefile \
     navigation/pilot/GNUmakefile \
     navigation/position/GNUmakefile \
     \

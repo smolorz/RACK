@@ -20,7 +20,7 @@
 #include <drivers/chassis_proxy.h>
 #include <main/defines/position3d.h>
 #include <drivers/ladar_proxy.h>
-#include <drivers/odometry_proxy.h>
+#include <navigation/odometry_proxy.h>
 #include <navigation/position_proxy.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -104,7 +104,7 @@ class ChassisUsarsim : public RackDataModule
     OdometryProxy   *odometryRelay;
     PositionProxy   *positionGndTruthRelay;
     PositionProxy   *positionUpdate;
-    
+
   protected:
     // -> realtime context
     int  moduleOn(void);

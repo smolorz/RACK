@@ -78,7 +78,6 @@ am__librack_la_SOURCES_DIST = version_string.cpp \
 	$(top_srcdir)/drivers/io_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
-	$(top_srcdir)/drivers/odometry_proxy.cpp \
 	$(top_srcdir)/drivers/ptz_drive_proxy.cpp \
 	$(top_srcdir)/drivers/servo_drive_proxy.cpp \
 	$(top_srcdir)/drivers/vehicle_proxy.cpp \
@@ -88,6 +87,7 @@ am__librack_la_SOURCES_DIST = version_string.cpp \
 	$(top_srcdir)/navigation/feature_map_proxy.cpp \
 	$(top_srcdir)/navigation/grid_map_proxy.cpp \
 	$(top_srcdir)/navigation/mcl_proxy.cpp \
+	$(top_srcdir)/navigation/odometry_proxy.cpp \
 	$(top_srcdir)/navigation/path_proxy.cpp \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
@@ -134,12 +134,12 @@ am_librack_la_OBJECTS = librack_la-version_string.lo \
 	librack_la-chassis_proxy.lo librack_la-clock_proxy.lo \
 	librack_la-gps_proxy.lo librack_la-gyro_proxy.lo \
 	librack_la-io_proxy.lo librack_la-joystick_proxy.lo \
-	librack_la-ladar_proxy.lo librack_la-odometry_proxy.lo \
-	librack_la-ptz_drive_proxy.lo librack_la-servo_drive_proxy.lo \
-	librack_la-vehicle_proxy.lo librack_la-obj_recog_proxy.lo \
-	librack_la-scan2d_proxy.lo librack_la-scan3d_proxy.lo \
-	librack_la-feature_map_proxy.lo librack_la-grid_map_proxy.lo \
-	librack_la-mcl_proxy.lo librack_la-path_proxy.lo \
+	librack_la-ladar_proxy.lo librack_la-ptz_drive_proxy.lo \
+	librack_la-servo_drive_proxy.lo librack_la-vehicle_proxy.lo \
+	librack_la-obj_recog_proxy.lo librack_la-scan2d_proxy.lo \
+	librack_la-scan3d_proxy.lo librack_la-feature_map_proxy.lo \
+	librack_la-grid_map_proxy.lo librack_la-mcl_proxy.lo \
+	librack_la-odometry_proxy.lo librack_la-path_proxy.lo \
 	librack_la-pilot_proxy.lo librack_la-position_proxy.lo \
 	librack_la-datalog_proxy.lo librack_la-datalog_rec_class.lo \
 	librack_la-argopts.lo librack_la-dxf_map.lo \
@@ -353,7 +353,6 @@ librack_la_SOURCES = version_string.cpp \
 	$(top_srcdir)/drivers/io_proxy.cpp \
 	$(top_srcdir)/drivers/joystick_proxy.cpp \
 	$(top_srcdir)/drivers/ladar_proxy.cpp \
-	$(top_srcdir)/drivers/odometry_proxy.cpp \
 	$(top_srcdir)/drivers/ptz_drive_proxy.cpp \
 	$(top_srcdir)/drivers/servo_drive_proxy.cpp \
 	$(top_srcdir)/drivers/vehicle_proxy.cpp \
@@ -363,6 +362,7 @@ librack_la_SOURCES = version_string.cpp \
 	$(top_srcdir)/navigation/feature_map_proxy.cpp \
 	$(top_srcdir)/navigation/grid_map_proxy.cpp \
 	$(top_srcdir)/navigation/mcl_proxy.cpp \
+	$(top_srcdir)/navigation/odometry_proxy.cpp \
 	$(top_srcdir)/navigation/path_proxy.cpp \
 	$(top_srcdir)/navigation/pilot_proxy.cpp \
 	$(top_srcdir)/navigation/position_proxy.cpp \
@@ -624,13 +624,6 @@ librack_la-ladar_proxy.lo: $(top_srcdir)/drivers/ladar_proxy.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-ladar_proxy.lo `test -f '$(top_srcdir)/drivers/ladar_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/ladar_proxy.cpp
 
-librack_la-odometry_proxy.lo: $(top_srcdir)/drivers/odometry_proxy.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-odometry_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-odometry_proxy.Tpo -c -o librack_la-odometry_proxy.lo `test -f '$(top_srcdir)/drivers/odometry_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/odometry_proxy.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-odometry_proxy.Tpo $(DEPDIR)/librack_la-odometry_proxy.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/drivers/odometry_proxy.cpp' object='librack_la-odometry_proxy.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-odometry_proxy.lo `test -f '$(top_srcdir)/drivers/odometry_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/odometry_proxy.cpp
-
 librack_la-ptz_drive_proxy.lo: $(top_srcdir)/drivers/ptz_drive_proxy.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-ptz_drive_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-ptz_drive_proxy.Tpo -c -o librack_la-ptz_drive_proxy.lo `test -f '$(top_srcdir)/drivers/ptz_drive_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/drivers/ptz_drive_proxy.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-ptz_drive_proxy.Tpo $(DEPDIR)/librack_la-ptz_drive_proxy.Plo
@@ -693,6 +686,13 @@ librack_la-mcl_proxy.lo: $(top_srcdir)/navigation/mcl_proxy.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/navigation/mcl_proxy.cpp' object='librack_la-mcl_proxy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-mcl_proxy.lo `test -f '$(top_srcdir)/navigation/mcl_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/navigation/mcl_proxy.cpp
+
+librack_la-odometry_proxy.lo: $(top_srcdir)/navigation/odometry_proxy.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-odometry_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-odometry_proxy.Tpo -c -o librack_la-odometry_proxy.lo `test -f '$(top_srcdir)/navigation/odometry_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/navigation/odometry_proxy.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/librack_la-odometry_proxy.Tpo $(DEPDIR)/librack_la-odometry_proxy.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$(top_srcdir)/navigation/odometry_proxy.cpp' object='librack_la-odometry_proxy.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o librack_la-odometry_proxy.lo `test -f '$(top_srcdir)/navigation/odometry_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/navigation/odometry_proxy.cpp
 
 librack_la-path_proxy.lo: $(top_srcdir)/navigation/path_proxy.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librack_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT librack_la-path_proxy.lo -MD -MP -MF $(DEPDIR)/librack_la-path_proxy.Tpo -c -o librack_la-path_proxy.lo `test -f '$(top_srcdir)/navigation/path_proxy.cpp' || echo '$(srcdir)/'`$(top_srcdir)/navigation/path_proxy.cpp

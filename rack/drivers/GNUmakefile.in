@@ -52,8 +52,6 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	JoystickDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	LadarProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	LadarDataMsg.java \
-@CONFIG_RACK_JAVA_TRUE@	OdometryProxy.java \
-@CONFIG_RACK_JAVA_TRUE@	OdometryDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@        PtzDriveProxy.java \
 @CONFIG_RACK_JAVA_TRUE@        PtzDriveDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@        PtzDriveMovePosMsg.java \
@@ -92,12 +90,12 @@ am__dist_java_JAVA_DIST = CameraProxy.java CameraDataMsg.java \
 	ClockProxy.java ClockDataMsg.java GpsProxy.java \
 	GpsDataMsg.java GyroProxy.java GyroDataMsg.java IoProxy.java \
 	IoDataMsg.java JoystickProxy.java JoystickDataMsg.java \
-	LadarProxy.java LadarDataMsg.java OdometryProxy.java \
-	OdometryDataMsg.java PtzDriveProxy.java PtzDriveDataMsg.java \
-	PtzDriveMovePosMsg.java PtzDriveMoveVelMsg.java \
-	ServoDriveProxy.java ServoDriveDataMsg.java \
-	ServoDriveMovePosMsg.java ServoDriveMoveVelMsg.java \
-	VehicleProxy.java VehicleDataMsg.java VehicleSetValueMsg.java
+	LadarProxy.java LadarDataMsg.java PtzDriveProxy.java \
+	PtzDriveDataMsg.java PtzDriveMovePosMsg.java \
+	PtzDriveMoveVelMsg.java ServoDriveProxy.java \
+	ServoDriveDataMsg.java ServoDriveMovePosMsg.java \
+	ServoDriveMoveVelMsg.java VehicleProxy.java \
+	VehicleDataMsg.java VehicleSetValueMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -284,8 +282,7 @@ SUBDIRS = \
 	chassis \
 	clock \
 	gps \
-	ladar \
-	odometry
+	ladar
 
 drvinclude_HEADERS = \
 	camera_proxy.h \
@@ -296,7 +293,6 @@ drvinclude_HEADERS = \
 	io_proxy.h \
 	joystick_proxy.h \
 	ladar_proxy.h \
-	odometry_proxy.h \
 	ptz_drive_proxy.h \
 	servo_drive_proxy.h \
 	vehicle_proxy.h
@@ -313,7 +309,6 @@ EXTRA_DIST = \
 	io_proxy.cpp \
 	joystick_proxy.cpp \
 	ladar_proxy.cpp \
-	odometry_proxy.cpp \
 	ptz_drive_proxy.cpp \
 	servo_drive_proxy.cpp \
 	vehicle_proxy.cpp

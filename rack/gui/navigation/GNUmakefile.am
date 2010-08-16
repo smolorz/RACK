@@ -8,6 +8,7 @@ dist_java_JAVA += \
 	GridMapComponent.java \
 	GridMapGui.java \
 	MclGui.java \
+        OdometryGui.java \
 	PathGui.java \
 	PilotGui.java \
 	PositionGui.java \

@@ -19,7 +19,7 @@
 #include <main/rack_data_module.h>
 #include <main/position_tool.h>
 #include <navigation/position_proxy.h>
-#include <drivers/odometry_proxy.h>
+#include <navigation/odometry_proxy.h>
 
 // define module class
 #define MODULE_CLASS_ID                 POSITION

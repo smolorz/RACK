@@ -36,6 +36,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@	GridMapComponent.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GridMapGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	MclGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@        OdometryGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	PathGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	PilotGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	PositionGui.java \
@@ -55,8 +56,8 @@ CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = FeatureMapGui.java GridMapComponent.java \
-	GridMapGui.java MclGui.java PathGui.java PilotGui.java \
-	PositionGui.java PositionNavi.java
+	GridMapGui.java MclGui.java OdometryGui.java PathGui.java \
+	PilotGui.java PositionGui.java PositionNavi.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)

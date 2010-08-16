@@ -20,8 +20,4 @@ menu "Ladar"
 source "drivers/ladar/Kconfig"
 endmenu
 
-menu "Odometry"
-source "drivers/odometry/Kconfig"
-endmenu
-
 endmenu

@@ -27,11 +27,11 @@
 #include <drivers/gyro_proxy.h>
 #include <drivers/io_proxy.h>
 #include <drivers/ladar_proxy.h>
-#include <drivers/odometry_proxy.h>
 #include <drivers/servo_drive_proxy.h>
 #include <drivers/vehicle_proxy.h>
 #include <navigation/grid_map_proxy.h>
 #include <navigation/mcl_proxy.h>
+#include <navigation/odometry_proxy.h>
 #include <navigation/path_proxy.h>
 #include <navigation/pilot_proxy.h>
 #include <navigation/position_proxy.h>

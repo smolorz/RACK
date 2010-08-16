@@ -23965,7 +23965,7 @@ for DIR in \
 done
 
 
-ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/defines/GNUmakefile main/lib/GNUmakefile main/tools/GNUmakefile main/common/GNUmakefile main/xenomai/GNUmakefile main/linux/GNUmakefile main/tims/GNUmakefile main/tims/xenomai/GNUmakefile main/tims/xenomai_kmod/GNUmakefile main/tims/linux/GNUmakefile main/tims/router/GNUmakefile control/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/clock/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile drivers/odometry/GNUmakefile navigation/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/control/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
+ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/defines/GNUmakefile main/lib/GNUmakefile main/tools/GNUmakefile main/common/GNUmakefile main/xenomai/GNUmakefile main/linux/GNUmakefile main/tims/GNUmakefile main/tims/xenomai/GNUmakefile main/tims/xenomai_kmod/GNUmakefile main/tims/linux/GNUmakefile main/tims/router/GNUmakefile control/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/clock/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile navigation/GNUmakefile navigation/odometry/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/control/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
 
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
@@ -24934,8 +24934,8 @@ do
     "drivers/clock/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/clock/GNUmakefile" ;;
     "drivers/gps/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/gps/GNUmakefile" ;;
     "drivers/ladar/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/ladar/GNUmakefile" ;;
-    "drivers/odometry/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/odometry/GNUmakefile" ;;
     "navigation/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/GNUmakefile" ;;
+    "navigation/odometry/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/odometry/GNUmakefile" ;;
     "navigation/pilot/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/pilot/GNUmakefile" ;;
     "navigation/position/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/position/GNUmakefile" ;;
     "perception/GNUmakefile") CONFIG_FILES="$CONFIG_FILES perception/GNUmakefile" ;;

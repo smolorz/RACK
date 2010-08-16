@@ -13,7 +13,7 @@
  *      Oliver Wulf  <oliver.wulf@gmx.de>
  *
  */
-package rack.drivers;
+package rack.navigation;
 
 import java.io.*;
 

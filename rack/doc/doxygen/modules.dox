@@ -137,11 +137,6 @@
 		 *
 		 */
 		
-		/**
-		 * @defgroup modules_odometry Odometry
-		 *
-		 */
-		
 	/* @} modules_drivers */
 	
 	/**
@@ -152,6 +147,11 @@
 	 * @{
 	 */
 	
+		/**
+		 * @defgroup modules_odometry Odometry
+		 *
+		 */
+		
 		/**
 		 * @defgroup modules_pilot Pilot
 		 *

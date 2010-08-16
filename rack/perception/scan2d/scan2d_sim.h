@@ -19,7 +19,7 @@
 #include <main/rack_data_module.h>
 #include <main/dxf_map.h>
 #include <perception/scan2d_proxy.h>
-#include <drivers/odometry_proxy.h>
+#include <navigation/odometry_proxy.h>
 
 #define MODULE_CLASS_ID             SCAN2D
 

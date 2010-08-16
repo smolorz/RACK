@@ -34,7 +34,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1)
 @CONFIG_RACK_ODOMETRY_CHASSIS_TRUE@am__append_1 = OdometryChassis
-subdir = drivers/odometry
+subdir = navigation/odometry
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/version \
@@ -261,9 +261,9 @@ $(srcdir)/GNUmakefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/GNUmakefile.am  $(am_
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  drivers/odometry/GNUmakefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  navigation/odometry/GNUmakefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  drivers/odometry/GNUmakefile
+	  $(AUTOMAKE) --foreign  navigation/odometry/GNUmakefile
 .PRECIOUS: GNUmakefile
 GNUmakefile: $(srcdir)/GNUmakefile.in $(top_builddir)/config.status
 	@case '$?' in \

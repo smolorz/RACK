@@ -1,5 +1,9 @@
 menu "Navigation"
 
+menu "Odometry"
+source "navigation/odometry/Kconfig"
+endmenu
+
 menu "Pilot"
 source "navigation/pilot/Kconfig"
 endmenu

@@ -5,13 +5,15 @@ navinclude_HEADERS = \
 	feature_map_proxy.h \
 	grid_map_proxy.h \
 	mcl_proxy.h \
+	odometry_proxy.h \
 	path_proxy.h \
 	pilot_proxy.h \
 	position_proxy.h
 
 SUBDIRS = \
 	pilot \
-	position
+	position \
+	odometry
 
 dist_java_JAVA =
 
@@ -29,6 +31,8 @@ dist_java_JAVA += \
         MclDataMsg.java \
         MclFilenameMsg.java \
         MclDataPoint.java \
+        OdometryProxy.java \
+        OdometryDataMsg.java \
         PathProxy.java \
         PathDataMsg.java \
         PathDestMsg.java \
@@ -55,6 +59,7 @@ EXTRA_DIST = \
 	feature_map_proxy.cpp \
 	grid_map_proxy.cpp \
 	mcl_proxy.cpp \
+	odometry_proxy.cpp \
 	path_proxy.cpp \
 	pilot_proxy.cpp \
 	position_proxy.cpp

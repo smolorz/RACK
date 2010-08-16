@@ -13,7 +13,7 @@
  *      Oliver Wulf  <oliver.wulf@gmx.de>
  *
  */
-package rack.gui.drivers;
+package rack.gui.navigation;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,8 +21,8 @@ import javax.swing.*;
 
 import rack.gui.GuiElementDescriptor;
 import rack.gui.main.RackModuleGui;
-import rack.drivers.OdometryDataMsg;
-import rack.drivers.OdometryProxy;
+import rack.navigation.OdometryDataMsg;
+import rack.navigation.OdometryProxy;
 
 public class OdometryGui extends RackModuleGui
 {
@@ -83,7 +83,7 @@ public class OdometryGui extends RackModuleGui
         rootPanel.add(northPanel, BorderLayout.NORTH);
         rootPanel.add(labelPanel, BorderLayout.CENTER);
         rootPanel.add(resetButton, BorderLayout.SOUTH);
-        
+
         setEnabled(false);
     }
 
@@ -105,7 +105,7 @@ public class OdometryGui extends RackModuleGui
         psiLabel.setEnabled(enabled);
         rhoLabel.setEnabled(enabled);
     }
-    
+
     protected void runData()
     {
         OdometryDataMsg data;

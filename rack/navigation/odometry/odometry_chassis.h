@@ -17,7 +17,7 @@
 #define __ODOMETRY_CHASSIS_H__
 
 #include <main/rack_data_module.h>
-#include <drivers/odometry_proxy.h>
+#include <navigation/odometry_proxy.h>
 
 // define module class
 #define MODULE_CLASS_ID                 ODOMETRY

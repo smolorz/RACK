@@ -13,7 +13,7 @@
  *      Oliver Wulf  <oliver.wulf@gmx.de>
  *
  */
-package rack.drivers;
+package rack.navigation;
 
 import rack.main.*;
 import rack.main.tims.*;
@@ -27,7 +27,7 @@ public class OdometryProxy extends RackDataProxy
   {
     super(RackName.create(system, RackName.ODOMETRY, instance, 0), replyMbx, 500);
   }
-  
+
   public synchronized OdometryDataMsg getData(int recordingTime)
   {
     try {
