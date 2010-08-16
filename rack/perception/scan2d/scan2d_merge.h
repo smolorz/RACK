@@ -32,10 +32,13 @@ typedef struct {
     scan_point      point[SCAN2D_POINT_MAX];
 } __attribute__((packed)) scan2d_data_msg;
 
-//######################################################################
-//# class Scan2dMerge
-//######################################################################
 
+
+/**
+ * Scan2d Merge
+ *
+ * @ingroup modules_scan2d
+ */
 class Scan2dMerge : public RackDataModule {
     private:
         int                 odometrySys;

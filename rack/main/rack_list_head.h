@@ -16,9 +16,6 @@
 #ifndef __RACK_LIST_HEAD_H__
 #define __RACK_LIST_HEAD_H__
 
-//######################################################################
-//# class ListHead
-//######################################################################
 #define LIST_POISON1  ((void *) 0x00100100)
 #define LIST_POISON2  ((void *) 0x00200200)
 

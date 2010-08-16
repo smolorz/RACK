@@ -49,10 +49,12 @@ typedef struct {
 } __attribute__((packed)) pilot_data_msg;
 
 
-//######################################################################
-//# class PilotWallFollowing
-//######################################################################
 
+/**
+ * Pilot Wall-Following
+ *
+ * @ingroup modules_pilot
+ */
 class PilotWallFollowing : public RackDataModule {
       private:
 

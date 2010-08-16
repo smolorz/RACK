@@ -16,16 +16,6 @@
 #ifndef __ODOMETRY_PROXY_H__
 #define __ODOMETRY_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup odometry Odometry
- *
- * Hardware abstraction for incremental positioning sensors.
- * e.g. encoders, gyros, ...
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <drivers/chassis_proxy.h>
 #include <main/defines/position3d.h>
@@ -84,10 +74,12 @@ class OdometryData
         }
 };
 
-//######################################################################
-//# Odometry Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for incremental positioning sensors.
+ * e.g. encoders, gyros, ...
+ *
+ * @ingroup proxies_drivers
+ */
 class OdometryProxy : public RackDataProxy {
 
       public:
@@ -125,7 +117,5 @@ class OdometryProxy : public RackDataProxy {
     }
 
 };
-
-/*@}*/
 
 #endif // __ODOMETRY_PROXY_H__

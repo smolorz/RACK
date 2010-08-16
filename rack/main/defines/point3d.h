@@ -16,12 +16,9 @@
 #ifndef __POINT3D_H__
 #define __POINT3D_H__
 
-//######################################################################
-//# Point3D (static size - no message)
-//######################################################################
-
 /**
  * point 3d structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t x;                              /**< [mm] x-coordinate */

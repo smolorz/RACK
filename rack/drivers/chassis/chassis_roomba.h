@@ -86,9 +86,13 @@ typedef struct {
     scan_point    point[SCAN2D_POINT_MAX];
 } __attribute__((packed)) scan2d_data_msg;
 
-//######################################################################
-//# class ChassisRoombaModule
-//######################################################################
+
+
+/**
+ * Hardware driver for vacuum cleaning robot iRobot Roomba.
+ *
+ * @ingroup modules_chassis
+ */
 class ChassisRoomba : public RackDataModule {
   private:
     // your values

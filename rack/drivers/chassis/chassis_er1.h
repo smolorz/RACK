@@ -239,10 +239,12 @@ typedef struct chassis_er1_rcm_struct {
 } chassis_er1_rcm;
 
 
-//######################################################################
-//# class ChassisEr1Module
-//######################################################################
 
+/**
+ * Hardware driver for experimental robotic platform Evolution Robotics ER1.
+ *
+ * @ingroup modules_chassis
+ */
 class ChassisEr1 : public RackDataModule {
   private:
 

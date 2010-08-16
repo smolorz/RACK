@@ -23,9 +23,10 @@
 #define MOVING    0
 #define HOLD      1
 
-/*****************************************************************************
- * Converts radius to curviness                                              *
- *****************************************************************************/
+/**
+ * Converts radius to curviness
+ * @ingroup main_tools
+ */
 static inline float radius2Curve(int radius)
 {
     if(radius == 0)
@@ -38,9 +39,10 @@ static inline float radius2Curve(int radius)
     }
 }
 
-/*****************************************************************************
- * Converts curviness to radius                                              *
- *****************************************************************************/
+/**
+ * Converts curviness to radius
+ * @ingroup main_tools
+ */
 static inline int curve2Radius(float curve)
 {
     float radiusF;
@@ -64,16 +66,17 @@ static inline int curve2Radius(float curve)
     }
 }
 
-/*****************************************************************************
- * This function is an assistant for the speed reduction of the robot. The   *
- * parameters "speed" and "radius" are the current speed and radius value of *
- * the robot. The flag "moveStatus" indicates if the robot is currently      *
- * holding or moving. This value is necessary for the hysteresis             *
- * functionality of this assistant (0 if no functionality is desired).       *
- * This assistant calculates for each point in the scan2D "scan"             *
- * the max. driveable speed without collision. If this speed value is less   *
- * then the current speed the current speed is reduced.                      *
- *****************************************************************************/
+/**
+ * This function is an assistant for the speed reduction of the robot. The
+ * parameters "speed" and "radius" are the current speed and radius value of
+ * the robot. The flag "moveStatus" indicates if the robot is currently
+ * holding or moving. This value is necessary for the hysteresis
+ * functionality of this assistant (0 if no functionality is desired).
+ * This assistant calculates for each point in the scan2D "scan"
+ * the max. driveable speed without collision. If this speed value is less
+ * then the current speed the current speed is reduced.
+ * @ingroup main_tools
+ */
 static inline int safeSpeed(int speed, int radius, int *moveStatus,
                             scan2d_data *scan,
                             chassis_param_data *param)
@@ -249,6 +252,10 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
     return speed * sign;
 }
 
+/**
+ *
+ * @ingroup main_tools
+ */
 static inline void transformScan2d2Radius(scan2d_data *scan, int radius)
 {
     int     i;

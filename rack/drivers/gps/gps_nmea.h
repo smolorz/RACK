@@ -55,10 +55,13 @@ typedef struct
     int                 valid;
 } gps_pps;
 
-//######################################################################
-//# class GpsNmea
-//######################################################################
 
+
+/**
+ * GPS receiver with serial communication using the NMEA 0183 protocol.
+ *
+ * @ingroup modules_gps
+ */
 class GpsNmea : public RackDataModule {
     private:
         int             positionSys;

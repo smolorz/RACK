@@ -16,15 +16,6 @@
 #ifndef __JOYSTICK_PROXY_H__
 #define __JOYSTICK_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup joystick Joystick
- *
- * Hardware abstraction for joysticks.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
@@ -79,10 +70,11 @@ class JoystickData
         }
 };
 
-//######################################################################
-//# Chassis Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for joysticks.
+ *
+ * @ingroup proxies_drivers
+ */
 class JoystickProxy : public RackDataProxy
 {
 
@@ -111,7 +103,5 @@ class JoystickProxy : public RackDataProxy
         int getData(joystick_data *recv_data, ssize_t recv_datalen,
                     rack_time_t timeStamp, uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif //_JOYSTICK_PROXY_H_

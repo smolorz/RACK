@@ -16,12 +16,9 @@
 #ifndef __POSITION3D_H__
 #define __POSITION3D_H__
 
-//######################################################################
-//#  Position3D (static size - no message)
-//######################################################################
-
 /**
  * position 3d structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t     x;                          /**< [mm] x-coordinate */

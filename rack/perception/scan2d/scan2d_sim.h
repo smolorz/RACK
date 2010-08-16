@@ -23,10 +23,13 @@
 
 #define MODULE_CLASS_ID             SCAN2D
 
-//######################################################################
-//# class Scan2DSim
-//######################################################################
 
+
+/**
+ * Scan2d Sim
+ *
+ * @ingroup modules_scan2d
+ */
 class Scan2dSim : public RackDataModule {
     private:
         int          odometrySys;

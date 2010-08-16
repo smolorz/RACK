@@ -16,16 +16,6 @@
 #ifndef __GPS_PROXY_H__
 #define __GPS_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup gps GPS
- *
- * Hardware abstraction for GPS receivers.
- * GPS = Global Positioning System
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
@@ -96,10 +86,12 @@ class GpsData
         }
 };
 
-//######################################################################
-//# Gps Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for GPS receivers.
+ * GPS = Global Positioning System
+ *
+ * @ingroup proxies_drivers
+ */
 class GpsProxy : public RackDataProxy {
 
   public:
@@ -126,7 +118,5 @@ class GpsProxy : public RackDataProxy {
                 uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif // __GPS_PROXY_H__

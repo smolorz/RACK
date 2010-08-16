@@ -20,12 +20,9 @@
 #include <main/defines/point3d.h>
 #include <main/defines/image_rect.h>
 
-//######################################################################
-//# object recognition object (static size)
-//######################################################################
-
 /**
  * object recognition object structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t     objectId;                   /**< id of the object */

@@ -10,7 +10,7 @@
  * version 2.1 of the License, or (at your option) any later version.
  *
  * Authors
-  *      Oliver Wulf <wulf@rts.uni-hannover.de>
+ *      Oliver Wulf <wulf@rts.uni-hannover.de>
  *
  */
 #ifndef __CHASSIS_SIM_H__
@@ -22,10 +22,13 @@
 // define module class
 #define MODULE_CLASS_ID     CHASSIS
 
-//######################################################################
-//# class ChassisSimModule
-//######################################################################
-
+/**
+ * Simple robotic platform simulation.
+ *
+ * 2d simulation, no interaction with the world.
+ *
+ * @ingroup modules_chassis
+ */
 class ChassisSim : public RackDataModule
 {
   protected:

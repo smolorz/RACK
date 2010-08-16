@@ -317,10 +317,10 @@ class RackParamMsg
         }
 };
 
-//######################################################################
-//# class RackProxy
-//######################################################################
-
+/**
+ *
+ * @ingroup main_common
+ */
 class RackProxy {
 
   protected:
@@ -511,6 +511,5 @@ class RackDataProxy : public RackProxy {
     int stopContData(RackMailbox *dataMbx, uint64_t reply_timeout_ns);
 
 };
-
 
 #endif //_RACK_PROXY_H_

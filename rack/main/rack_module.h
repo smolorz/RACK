@@ -71,12 +71,13 @@ extern arg_table_t module_argTab[];
 // some additional functions
 //
 
-/*!
- * \ingroup rackservices
- * \defgroup module Rack Module
- *
- * RackModule services.
- *
+// module mailbox create flags
+#define MBX_IN_KERNELSPACE              0x0001
+#define MBX_IN_USERSPACE                0x0002
+#define MBX_SLOT                        0x0004
+#define MBX_FIFO                        0x0008
+
+/**
  * The class RackModule is the higest class of RACK components. All
  * public or protected Module functions can be used by any component which
  * inherits data structures or functions of this class.
@@ -84,18 +85,8 @@ extern arg_table_t module_argTab[];
  * The public or protected data structures and functions are described in this
  * section.
  *
- * @{*/
-
-// module mailbox create flags
-#define MBX_IN_KERNELSPACE              0x0001
-#define MBX_IN_USERSPACE                0x0002
-#define MBX_SLOT                        0x0004
-#define MBX_FIFO                        0x0008
-
-//######################################################################
-//# class RackModule
-//######################################################################
-
+ * @ingroup main_common
+ */
 class RackModule {
 
 //
@@ -315,8 +306,6 @@ class RackModule {
         void run(void);
 
 }; // class RackModule
-
-/*@}*/
 
 //
 // signal handler functions

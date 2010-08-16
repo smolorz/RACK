@@ -32,9 +32,13 @@ typedef struct
     obj_recog_object    object[OBJ_RECOG_OBJECT_MAX];
 } __attribute__((packed)) obj_recog_data_msg;
 
-//######################################################################
-//# class ObjRecogRelayLadar
-//######################################################################
+
+
+/**
+ * Object Recognition Relay Ladar
+ *
+ * @ingroup modules_obj_recog
+ */
 class ObjRecogRelayLadar : public RackDataModule
 {
     private:

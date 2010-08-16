@@ -21,23 +21,28 @@
 #ifndef __RACK_TIME_H__
 #define __RACK_TIME_H__
 
- /*!
- * @ingroup rackos
- * @defgroup time Rack Time
- * @{
- */
-
 #include <inttypes.h>
 
-/** Maximum RACK time value */
+/**
+ * Maximum RACK time value
+ * @ingroup rack_os_abstraction
+ */
 #define RACK_TIME_MAX           0x7fffffff
 
-/** RACK time factor (1 ms) */
+/**
+ * RACK time factor (1 ms)
+ * @ingroup rack_os_abstraction
+ */
 #define RACK_TIME_FACTOR          1000000llu
 
-/** RACK time (32 Bit) */
+/** RACK time (32 Bit)
+ * @ingroup rack_os_abstraction
+ */
 typedef uint32_t rack_time_t;
 
+/**
+ * @ingroup main_os_abstraction
+ */
 class RackTime
 {
 #if defined (__XENO__)
@@ -172,7 +177,5 @@ public:
     int64_t getOffset(void);
 
 };
-
-/** @} */
 
 #endif // __RACK_TIME_H__

@@ -44,11 +44,10 @@ typedef struct {
 typedef jpeg_data_dst_mgr * jpeg_data_dst_ptr;
 
 
-/*
+/**
  * Initialize destination --- called by jpeg_start_compress
  * before any data is actually written.
  */
-
 inline METHODDEF(void) init_destination (j_compress_ptr cinfo)
 {
     jpeg_data_dst_ptr dest = (jpeg_data_dst_ptr) cinfo->dest;
@@ -62,7 +61,8 @@ inline METHODDEF(void) init_destination (j_compress_ptr cinfo)
     dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
     dest->outstreamOffset = 0;
 }
-/*
+
+/**
  * Empty the output buffer --- called whenever buffer fills up.
  *
  * In typical applications, this should write the entire output buffer
@@ -84,7 +84,6 @@ inline METHODDEF(void) init_destination (j_compress_ptr cinfo)
  * Data beyond this point will be regenerated after resumption, so do not
  * write it out when emptying the buffer externally.
  */
-
 inline METHODDEF(boolean) empty_output_buffer (j_compress_ptr cinfo)
 {
     jpeg_data_dst_ptr dest = (jpeg_data_dst_ptr) cinfo->dest;
@@ -102,7 +101,7 @@ inline METHODDEF(boolean) empty_output_buffer (j_compress_ptr cinfo)
     return TRUE;
 }
 
-/*
+/**
  * Terminate destination --- called by jpeg_finish_compress
  * after all data has been written.  Usually needs to flush buffer.
  *
@@ -110,7 +109,6 @@ inline METHODDEF(boolean) empty_output_buffer (j_compress_ptr cinfo)
  * application must deal with any cleanup that should happen even
  * for error exit.
  */
-
 inline METHODDEF(void) term_destination (j_compress_ptr cinfo)
 {
     jpeg_data_dst_ptr dest = (jpeg_data_dst_ptr) cinfo->dest;
@@ -131,12 +129,11 @@ inline METHODDEF(void) term_destination (j_compress_ptr cinfo)
 //    ERREXIT(cinfo, JERR_FILE_WRITE);
 }
 
-/*
+/**
  * Prepare for output to a stdio stream.
  * The caller must have already opened the stream, and is responsible
  * for closing it after finishing compression.
  */
-
 inline GLOBAL(void) jpeg_stdmem_dest (j_compress_ptr cinfo, char * outstream)
 {
     jpeg_data_dst_ptr dest;

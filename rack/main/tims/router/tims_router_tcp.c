@@ -25,6 +25,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
 #include <errno.h>
 #include <semaphore.h>
 
@@ -578,6 +579,10 @@ void tcpConnection_task_proc(void *arg)
 
     tims_dbg("con[%02d]: %s: starting TCP/IP connection task\n",
              idx, inet_ntoa(con->addr.sin_addr));
+
+    // minimize transmission latency
+    int flags = 1;
+    setsockopt(con->socket, IPPROTO_TCP, TCP_NODELAY, (char*)&flags, sizeof(flags));
 
     tcpMsg = malloc(maxMsgSize);
     if (!tcpMsg)

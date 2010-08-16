@@ -26,10 +26,12 @@
 #define MODULE_CLASS_ID         LADAR
 
 
-//######################################################################
-//# class LadarSick
-//######################################################################
 
+/**
+ * Ladar Sick S
+ *
+ * @ingroup modules_ladar
+ */
 class LadarSickS : public RackDataModule {
     private:
 
@@ -60,4 +62,5 @@ class LadarSickS : public RackDataModule {
         // -> non realtime context
         int  moduleInit(void);
 };
-#endif
+
+#endif // __LADAR_SICK_S_H__

@@ -29,10 +29,13 @@ typedef struct
     char               data[1024];
 } clock_serial_data;
 
-//######################################################################
-//# class ClockDcf77EmcPro
-//######################################################################
 
+
+/**
+ * Clock DCF77 EMC pro
+ *
+ * @ingroup modules_clock
+ */
 class ClockDcf77EmcPro : public RackDataModule {
     private:
         // own vars

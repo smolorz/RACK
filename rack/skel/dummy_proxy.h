@@ -16,15 +16,6 @@
 #ifndef __DUMMY_PROXY_H__
 #define __DUMMY_PROXY_H__
 
-/*!
- * @ingroup skel
- * @defgroup dummy Dummy
- *
- * Example for a new module class.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -143,10 +134,11 @@ class DummyParam
         }
 };
 
-//######################################################################
-//# NewRackDataModule Proxy Functions
-//######################################################################
-
+/**
+ * Example for a new module class.
+ *
+ * @ingroup proxies_skel
+ */
 class DummyProxy : public RackDataProxy {
 
   public:
@@ -229,7 +221,5 @@ class DummyProxy : public RackDataProxy {
                       uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif //__DUMMY_PROXY_H__

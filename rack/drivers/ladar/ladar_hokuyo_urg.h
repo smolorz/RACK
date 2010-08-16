@@ -50,10 +50,13 @@ static char sCommand19200[]  = {'S','0','1','9','2','0','0','5','5','5','5','5',
 static char sCommand115200[] = {'S','1','1','5','2','0','0','5','5','5','5','5','5','5',10};
 static unsigned char serialBuffer[2048];
 
-//######################################################################
-//# class NewRackDataModule
-//######################################################################
 
+
+/**
+ * Ladar Hokuyo URG
+ *
+ * @ingroup modules_ladar
+ */
 class LadarHokuyoUrg : public RackDataModule {
   private:
     SerialPort  serialPort;

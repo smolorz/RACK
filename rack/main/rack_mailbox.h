@@ -17,23 +17,16 @@
 #ifndef __RACK_MAILBOX_H__
 #define __RACK_MAILBOX_H__
 
-/*!
- * @ingroup rackservices
- * @defgroup mailbox Rack Mailbox
- *
- * This is the mailbox interface of RACK provided to application programs
- * in userspace.
- *
- *@{*/
-
 #include <main/tims/tims.h>
 #include <main/tims/tims_api.h>
 #include <main/rack_mutex.h>
 
-//######################################################################
-//# message_info
-//######################################################################
-
+/**
+ * This is the mailbox interface of RACK provided to application programs
+ * in userspace.
+ *
+ * @ingroup main_common
+ */
 class RackMessage
 {
 protected:
@@ -171,6 +164,10 @@ public:
     }
 };
 
+/**
+ *
+ * @ingroup main_common
+ */
 class RackDataMessage : public RackMessage
 {
 public:
@@ -181,10 +178,10 @@ public:
     {}
 };
 
-//######################################################################
-//# RackMailbox
-//######################################################################
-
+/**
+ *
+ * @ingroup main_common
+ */
 class RackMailbox
 {
     private:
@@ -264,7 +261,5 @@ class RackMailbox
 
         int     recvDataMsgIf(void *p_data, uint32_t maxDatalen, RackMessage *msgInfo);
 };
-
-/*@}*/
 
 #endif // __RACK_MAILBOX_H__

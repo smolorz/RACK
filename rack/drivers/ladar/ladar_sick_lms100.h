@@ -85,10 +85,13 @@ typedef struct
     int                  dataPoints[1082];
 }__attribute__((packed)) ladar_lms100_header;
 
-//######################################################################
-//# class NewRackDataModule
-//######################################################################
 
+
+/**
+ * Ladar Sick LMS100
+ *
+ * @ingroup modules_ladar
+ */
 class LadarSickLms100 : public RackDataModule {
     private:
 
@@ -124,4 +127,3 @@ class LadarSickLms100 : public RackDataModule {
 };
 
 #endif // __LADAR_SICK_LMS100_H__
-

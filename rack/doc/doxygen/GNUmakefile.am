@@ -1,4 +1,4 @@
-HTML_DOCS=api
+HTML_DOCS=html
 
 EXTRA_DIST = \
 	Doxyfile.in
@@ -7,11 +7,7 @@ if CONFIG_RACK_DOC_DOX
 
 HTML_DOCSDIR = ./
 
-all-local: api
-
-api: doxygen-api
-
-doxygen-api: Doxyfile
+doxygen-html: Doxyfile
 	$(DOXYGEN) $(DOXYDOC_OPTS)
 
 distclean-local:
@@ -25,16 +21,10 @@ install-data-local: install-docs-local
 
 uninstall-local: uninstall-docs
 
-docdir = $(datadir)/doc/$(PACKAGE)-$(VERSION)
-
-doc_top_distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)
-
-GEN_DOC_DIST_ROOT = $(doc_top_distdir)/doc/generated
-
 install-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
 	docs="$^"; abs_builddir=$$PWD; \
 	for dir in $$docs; do \
-	    dest=$(DESTDIR)$(docdir)/html/`basename $$dir`; \
+	    dest=$(DESTDIR)$(docdir)/`basename $$dir`; \
 	    $(mkinstalldirs) $$dest; \
 	    abs_dest=`cd $$dest && pwd` ; \
 	    cd $$dir || exit 1; \
@@ -45,37 +35,23 @@ install-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
 	        esac; \
 	    done; cd $$abs_builddir; \
 	done
-	$(INSTALL_DATA) rack_doc.tag $(DESTDIR)$(docdir)/html/rack_doc.tag
+	$(INSTALL_DATA) rack_doc.tag $(DESTDIR)$(docdir)/rack_doc.tag
 
-install-docs-local: install-htmldocs
-
-# dist-htmldocs: $(HTML_DOCS:%=$(HTML_DOCSDIR)%)
-# 	docs="$^"; abs_builddir=$$PWD; \
-# 	for dir in $$docs; do \
-# 	    dest=$(GEN_DOC_DIST_ROOT)/html/`basename $$dir`; \
-# 	    $(mkinstalldirs) $$dest && abs_dest=`cd $$dest && pwd` && \
-# 	    cd $$dir || exit 1; \
-# 	    for f in * ; do \
-# 		case $$f in \
-# 		    *~|CVS|.svn|[mM]akefile*|GNUmakefile*);; \
-# 		    *) $(INSTALL_DATA) $$f $$abs_dest/$$f;; \
-# 	        esac; \
-# 	    done; cd $$abs_builddir; \
-# 	done
+install-docs-local: doxygen-html install-htmldocs
 
 dist-docs-hook: all-local dist-htmldocs
 
 # To make distcheck happy.
 uninstall-docs:
 	if test -n "$(HTML_DOCS)"; then \
-	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/html/%)"; \
+	    targets="$(HTML_DOCS:%=$(DESTDIR)$(docdir)/%)"; \
 	    for t in $$targets; do \
 		if test -d $$t; then $(RM) $$t/*; $(RM) -r $$t; \
 		else $(RM) $$t; fi; \
 	    done; \
 	fi
 
-.PHONY: doxygen-api
+.PHONY: doxygen-html
 
 .DELETE_ON_ERROR:
 

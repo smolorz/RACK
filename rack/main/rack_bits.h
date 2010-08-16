@@ -16,16 +16,10 @@
 #ifndef __RACK_BITSOPS_H__
 #define __RACK_BITSOPS_H__
 
- /*!
- * @ingroup rackos
- * @defgroup bitops Bit Operations
- * @{
+/**
+ *
+ * @ingroup main_common
  */
-
-//######################################################################
-//# class RackBits
-//######################################################################
-
 class RackBits
 {
     private:
@@ -33,81 +27,81 @@ class RackBits
 
     public:
 
-/**
- * @brief Set a bit
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Set a bit
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         void setBit(int bit)
         {
             bits |= (1 << bit);
         }
 
-/**
- * @brief Clear a bit
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Clear a bit
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         void clearBit(int bit)
         {
             bits &= ~(1 << bit);
         }
 
-/**
- * @brief Clear all bits
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Clear all bits
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         void clearAllBits(void)
         {
             bits = 0;
         }
 
-/**
- * @brief Test a bit
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Test a bit
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         int testBit(int bit)
         {
             return bits & (1 << bit);
         }
 
-/**
- * @brief Clear a bit and return its old value
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Clear a bit and return its old value
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         int testAndClearBit(int bit)
         {
             int oldBit = testBit(bit);
@@ -116,17 +110,17 @@ class RackBits
             return oldBit;
         }
 
-/**
- * @brief Set a bit and return its old value
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Set a bit and return its old value
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         int testAndSetBit(int bit)
         {
             int oldBit = testBit(bit);
@@ -135,23 +129,21 @@ class RackBits
             return oldBit;
         }
 
-/**
- * @brief Get all bits
- *
- * Environments:
- *
- * This service can be called from:
- *
- * - User-space task (non-RT, RT)
- *
- * Rescheduling: never.
- */
+        /**
+         * @brief Get all bits
+         *
+         * Environments:
+         *
+         * This service can be called from:
+         *
+         * - User-space task (non-RT, RT)
+         *
+         * Rescheduling: never.
+         */
         uint32_t getBits()
         {
             return bits;
         }
 };
-
-/*@}*/
 
 #endif // __RACK_BITSOPS_H__

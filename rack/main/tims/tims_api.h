@@ -45,36 +45,80 @@
 extern "C" {
 #endif
 
+/**
+ *
+ * @ingroup main_tims
+ */
 int tims_socket(void);
 
+/**
+ *
+ * @ingroup main_tims
+ */
 int tims_close(int fd);
 
+/**
+ *
+ * @ingroup main_tims
+ */
 int tims_bind(int fd, uint32_t address);
 
+/**
+ *
+ * @ingroup main_tims
+ */
 int tims_set_timeout(int fd, int64_t timeout_ns);
 
+/**
+ *
+ * @ingroup main_tims
+ */
 ssize_t tims_sendmsg(int fd, tims_msg_head *p_head, struct iovec *vec,
                      unsigned char veclen, int timsflags);
 
+/**
+ *
+ * @ingroup main_tims
+ */
 int tims_recvmsg_timed(int fd, tims_msg_head *p_head, void *p_data,
                        ssize_t maxdatalen, int64_t timeout_ns, int timsflags);
 
-// creates a mailbox
+/**
+ * creates a mailbox
+ *
+ * @ingroup main_tims
+ */
 int tims_mbx_create(uint32_t address, int messageSlots, ssize_t messageSize,
                     void *buffer, ssize_t buffer_size);
 
-// deletes a mailbox
+/**
+ * deletes a mailbox
+ *
+ * @ingroup main_tims
+ */
 int tims_mbx_remove(int fd);
 
-// delete all messages
+/**
+ * delete all messages
+ *
+ * @ingroup main_tims
+ */
 int tims_mbx_clean(int fd, int addr);
 
-// waiting a specific time for a new message
-// -> returns a pointer to a tims_msg_head if successful
-// -> locks the message
+/**
+ * waiting a specific time for a new message
+ * -> returns a pointer to a tims_msg_head if successful
+ * -> locks the message
+ *
+ * @ingroup main_tims
+ */
 int tims_peek_timed(int fd, tims_msg_head **pp_head, int64_t timeout_ns);
 
-// unlock the message, whitch is locked before
+/**
+ * unlock the message, whitch is locked before
+ *
+ * @ingroup main_tims
+ */
 int tims_peek_end(int fd);
 
 #ifdef __cplusplus

@@ -16,15 +16,6 @@
 #ifndef __CLOCK_PROXY_H__
 #define __CLOCK_PROXY_H__
 
-/*!
- * @ingroup drivers
- * @defgroup clock Clock
- *
- * Hardware abstraction for real-time clock sensors.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 #define CLOCK_SYNC_MODE_NONE   0            /**< no clock synchronisation */
@@ -105,10 +96,11 @@ class ClockData
 
 };
 
-//######################################################################
-//# Clock Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for real-time clock sensors.
+ *
+ * @ingroup proxies_drivers
+ */
 class ClockProxy : public RackDataProxy {
 
   public:
@@ -135,7 +127,5 @@ class ClockProxy : public RackDataProxy {
                 uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif // __CLOCK_PROXY_H__

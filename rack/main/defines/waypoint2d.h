@@ -16,12 +16,9 @@
 #ifndef __WAYPOINT2D_H__
 #define __WAYPOINT2D_H__
 
-//######################################################################
-//# Waypoint2d (static size - no message )
-//######################################################################
-
 /**
  * waypoint 2d structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t x;                              /**< [mm] x-coordinate */

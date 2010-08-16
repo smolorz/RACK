@@ -17,15 +17,6 @@
 #ifndef __DATALOG_PROXY_H__
 #define __DATALOG_PROXY_H__
 
-/*!
- * @ingroup tools
- * @defgroup datalog Datalog
- *
- * Data strcture for datalog
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/rack_name.h>
 
@@ -156,10 +147,11 @@ class DatalogData
         }
 };
 
-//######################################################################
-//# Datalog Proxy Functions
-//######################################################################
-
+/**
+ * Data strcture for datalog
+ *
+ * @ingroup proxies_tools
+ */
 class DatalogProxy : public RackDataProxy {
 
     public:
@@ -218,7 +210,5 @@ class DatalogProxy : public RackDataProxy {
     int getLogStatus(datalog_data *recv_data, ssize_t recv_datalen,
                      uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif // __DATALOG_PROXY_H__

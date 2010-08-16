@@ -19,12 +19,9 @@
 #include <main/defines/position2d.h>
 #include <main/angle_tool.h>
 
-//######################################################################
-//# Point2D (static size - no message)
-//######################################################################
-
 /**
  * point 2d structure
+ * @ingroup main_defines
  */
 typedef struct {
     int32_t x;                              /**< [mm] x-coordinate */

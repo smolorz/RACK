@@ -55,6 +55,9 @@
 #define RACK_NAME_CLASS_ID_RANGE          8
 #define RACK_NAME_SYSTEM_ID_RANGE         8
 
+/**
+ * @ingroup main_common
+ */
 class RackName {
     public:
 

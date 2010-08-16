@@ -18,9 +18,10 @@
 
 #include <math.h>
 
-/*****************************************************************************
-* Normalises the angle between: 0 <= angle <= 2*pi                           *
-******************************************************************************/
+/**
+ * Normalises the angle between: 0 <= angle <= 2*pi
+ * @ingroup main_tools
+ */
 static inline float normaliseAngle(float angle)
 {
   if (angle < 0.0)
@@ -36,9 +37,10 @@ static inline float normaliseAngle(float angle)
   return angle;
 }
 
-/*****************************************************************************
-* Normalises the angle between: -pi < angle <= pi                            *
-******************************************************************************/
+/**
+ * Normalises the angle between: -pi < angle <= pi
+ * @ingroup main_tools
+ */
 static inline float normaliseAngleSym0(float angle)
 {
     if (angle <= -M_PI)
@@ -54,9 +56,10 @@ static inline float normaliseAngleSym0(float angle)
   return angle;
 }
 
-/*****************************************************************************
-* Calculates the difference between angle "angleB" and "angle_A"             *
-******************************************************************************/
+/**
+ * Calculates the difference between angle "angleB" and "angle_A"
+ * @ingroup main_tools
+ */
 static inline float deltaAngle(float angleA, float angleB)
 {
     return normaliseAngleSym0(angleB - angleA);
