@@ -5,6 +5,10 @@ if CONFIG_RACK_SCAN2D
 bin_PROGRAMS += Scan2d
 endif
 
+if CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG
+bin_PROGRAMS += Scan2dDynObjRecog
+endif
+
 if CONFIG_RACK_SCAN2D_MERGE
 bin_PROGRAMS += Scan2dMerge
 endif
@@ -24,6 +28,10 @@ LDADD    = @RACK_LIBS@
 Scan2d_SOURCES = \
 	scan2d.h \
 	scan2d.cpp
+
+Scan2dDynObjRecog_SOURCES = \
+	scan2d_dyn_obj_recog.h \
+	scan2d_dyn_obj_recog.cpp
 
 Scan2dMerge_SOURCES = \
 	scan2d_merge.h \

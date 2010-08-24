@@ -96,6 +96,9 @@
 /* building Scan2d */
 #undef CONFIG_RACK_SCAN2D
 
+/* building Scan2dDynObjRecog */
+#undef CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG
+
 /* building Scan2dLab */
 #undef CONFIG_RACK_SCAN2D_LAB
 

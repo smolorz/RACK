@@ -33,11 +33,12 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4)
+	$(am__EXEEXT_4) $(am__EXEEXT_5)
 @CONFIG_RACK_SCAN2D_TRUE@am__append_1 = Scan2d
-@CONFIG_RACK_SCAN2D_MERGE_TRUE@am__append_2 = Scan2dMerge
-@CONFIG_RACK_SCAN2D_SIM_TRUE@am__append_3 = Scan2dSim
-@CONFIG_RACK_SCAN2D_LAB_TRUE@am__append_4 = Scan2dLab
+@CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG_TRUE@am__append_2 = Scan2dDynObjRecog
+@CONFIG_RACK_SCAN2D_MERGE_TRUE@am__append_3 = Scan2dMerge
+@CONFIG_RACK_SCAN2D_SIM_TRUE@am__append_4 = Scan2dSim
+@CONFIG_RACK_SCAN2D_LAB_TRUE@am__append_5 = Scan2dLab
 subdir = perception/scan2d
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -49,9 +50,10 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
 @CONFIG_RACK_SCAN2D_TRUE@am__EXEEXT_1 = Scan2d$(EXEEXT)
-@CONFIG_RACK_SCAN2D_MERGE_TRUE@am__EXEEXT_2 = Scan2dMerge$(EXEEXT)
-@CONFIG_RACK_SCAN2D_SIM_TRUE@am__EXEEXT_3 = Scan2dSim$(EXEEXT)
-@CONFIG_RACK_SCAN2D_LAB_TRUE@am__EXEEXT_4 = Scan2dLab$(EXEEXT)
+@CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG_TRUE@am__EXEEXT_2 = Scan2dDynObjRecog$(EXEEXT)
+@CONFIG_RACK_SCAN2D_MERGE_TRUE@am__EXEEXT_3 = Scan2dMerge$(EXEEXT)
+@CONFIG_RACK_SCAN2D_SIM_TRUE@am__EXEEXT_4 = Scan2dSim$(EXEEXT)
+@CONFIG_RACK_SCAN2D_LAB_TRUE@am__EXEEXT_5 = Scan2dLab$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -59,6 +61,10 @@ am_Scan2d_OBJECTS = scan2d.$(OBJEXT)
 Scan2d_OBJECTS = $(am_Scan2d_OBJECTS)
 Scan2d_LDADD = $(LDADD)
 Scan2d_DEPENDENCIES =
+am_Scan2dDynObjRecog_OBJECTS = scan2d_dyn_obj_recog.$(OBJEXT)
+Scan2dDynObjRecog_OBJECTS = $(am_Scan2dDynObjRecog_OBJECTS)
+Scan2dDynObjRecog_LDADD = $(LDADD)
+Scan2dDynObjRecog_DEPENDENCIES =
 am_Scan2dLab_OBJECTS = scan2d_lab.$(OBJEXT)
 Scan2dLab_OBJECTS = $(am_Scan2dLab_OBJECTS)
 Scan2dLab_LDADD = $(LDADD)
@@ -92,10 +98,12 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(Scan2d_SOURCES) $(Scan2dLab_SOURCES) \
-	$(Scan2dMerge_SOURCES) $(Scan2dSim_SOURCES)
-DIST_SOURCES = $(Scan2d_SOURCES) $(Scan2dLab_SOURCES) \
-	$(Scan2dMerge_SOURCES) $(Scan2dSim_SOURCES)
+SOURCES = $(Scan2d_SOURCES) $(Scan2dDynObjRecog_SOURCES) \
+	$(Scan2dLab_SOURCES) $(Scan2dMerge_SOURCES) \
+	$(Scan2dSim_SOURCES)
+DIST_SOURCES = $(Scan2d_SOURCES) $(Scan2dDynObjRecog_SOURCES) \
+	$(Scan2dLab_SOURCES) $(Scan2dMerge_SOURCES) \
+	$(Scan2dSim_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -265,6 +273,10 @@ Scan2d_SOURCES = \
 	scan2d.h \
 	scan2d.cpp
 
+Scan2dDynObjRecog_SOURCES = \
+	scan2d_dyn_obj_recog.h \
+	scan2d_dyn_obj_recog.cpp
+
 Scan2dMerge_SOURCES = \
 	scan2d_merge.h \
 	scan2d_merge.cpp
@@ -344,6 +356,9 @@ clean-binPROGRAMS:
 Scan2d$(EXEEXT): $(Scan2d_OBJECTS) $(Scan2d_DEPENDENCIES) 
 	@rm -f Scan2d$(EXEEXT)
 	$(CXXLINK) $(Scan2d_OBJECTS) $(Scan2d_LDADD) $(LIBS)
+Scan2dDynObjRecog$(EXEEXT): $(Scan2dDynObjRecog_OBJECTS) $(Scan2dDynObjRecog_DEPENDENCIES) 
+	@rm -f Scan2dDynObjRecog$(EXEEXT)
+	$(CXXLINK) $(Scan2dDynObjRecog_OBJECTS) $(Scan2dDynObjRecog_LDADD) $(LIBS)
 Scan2dLab$(EXEEXT): $(Scan2dLab_OBJECTS) $(Scan2dLab_DEPENDENCIES) 
 	@rm -f Scan2dLab$(EXEEXT)
 	$(CXXLINK) $(Scan2dLab_OBJECTS) $(Scan2dLab_LDADD) $(LIBS)
@@ -361,6 +376,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan2d.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan2d_dyn_obj_recog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan2d_lab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan2d_merge.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan2d_sim.Po@am__quote@
