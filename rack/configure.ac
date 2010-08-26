@@ -902,6 +902,23 @@ if test "$CONFIG_RACK_SCAN2D" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  perception - Scan2dDynObjRecog
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build Scan2dDynObjRecog])
+AC_ARG_ENABLE(scan2d-dyn-obj-recog,
+    AS_HELP_STRING([--enable-scan2d-dyn-obj-recog], [building Scan2dDynObjRecog]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG=y ;;
+        *) CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG:-n}])
+AM_CONDITIONAL(CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG,[test "$CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG" = "y"])
+if test "$CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG" = "y"; then
+    AC_DEFINE(CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG,1,[building Scan2dDynObjRecog])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  perception - Scan2dMerge
 dnl -----------------------------------------------------------------
 

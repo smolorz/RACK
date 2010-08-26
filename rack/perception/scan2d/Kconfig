@@ -3,6 +3,10 @@ config RACK_SCAN2D
     bool "Scan2d"
     default y
 
+config RACK_SCAN2D_DYN_OBJ_RECOG
+    bool "Scan2d - DynObjRecog"
+    default y
+
 config RACK_SCAN2D_MERGE
     bool "Scan2d - Merge"
     default y
