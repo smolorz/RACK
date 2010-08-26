@@ -52,7 +52,9 @@
 
 
 #include <main/scan3d_compress_tool.h>
+
 #include <math.h>
+#include <string.h>
 
 
 Scan3dCompressTool::Scan3dCompressTool() {
