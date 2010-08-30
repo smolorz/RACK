@@ -91,7 +91,7 @@ int  ObjRecogRelayLadar::moduleLoop(void)
     obj_recog_data  *p_data   = (obj_recog_data *)getDataBufferWorkSpace();
 
 
-    ret = dataMbx.recvDataMsgTimed(this->dataTimeOut, p_data,
+    ret = dataMbx.recvDataMsgTimed(rackTime.toNano(this->dataTimeOut), p_data,
                                    dataBufferMaxDataSize, &msgInfo);
     if (ret)
     {
