@@ -42,6 +42,8 @@
 
 #include <main/compress_tool.h>
 
+#include <string.h>
+
 CompressTool::CompressTool()  {
     gdos = NULL;
 }
