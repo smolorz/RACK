@@ -1,6 +1,10 @@
 
 bin_PROGRAMS =
 
+if CONFIG_RACK_OBJ_RECOG_IBEO_LUX
+bin_PROGRAMS += ObjRecogIbeoLux
+endif
+
 if CONFIG_RACK_OBJ_RECOG_RELAY_LADAR
 bin_PROGRAMS += ObjRecogRelayLadar
 endif
@@ -8,6 +12,10 @@ endif
 CPPFLAGS = @RACK_CPPFLAGS@
 LDFLAGS  = @RACK_LDFLAGS@
 LDADD    = @RACK_LIBS@
+
+ObjRecogIbeoLux_SOURCES = \
+	obj_recog_ibeo_lux.h \
+	obj_recog_ibeo_lux.cpp
 
 ObjRecogRelayLadar_SOURCES = \
 	obj_recog_relay_ladar.h \

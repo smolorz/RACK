@@ -32,8 +32,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = $(am__EXEEXT_1)
-@CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE@am__append_1 = ObjRecogRelayLadar
+bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
+@CONFIG_RACK_OBJ_RECOG_IBEO_LUX_TRUE@am__append_1 = ObjRecogIbeoLux
+@CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE@am__append_2 = ObjRecogRelayLadar
 subdir = perception/obj_recog
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -44,10 +45,16 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/rack_config_pre.h
 CONFIG_CLEAN_FILES =
-@CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE@am__EXEEXT_1 = ObjRecogRelayLadar$(EXEEXT)
+@CONFIG_RACK_OBJ_RECOG_IBEO_LUX_TRUE@am__EXEEXT_1 =  \
+@CONFIG_RACK_OBJ_RECOG_IBEO_LUX_TRUE@	ObjRecogIbeoLux$(EXEEXT)
+@CONFIG_RACK_OBJ_RECOG_RELAY_LADAR_TRUE@am__EXEEXT_2 = ObjRecogRelayLadar$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+am_ObjRecogIbeoLux_OBJECTS = obj_recog_ibeo_lux.$(OBJEXT)
+ObjRecogIbeoLux_OBJECTS = $(am_ObjRecogIbeoLux_OBJECTS)
+ObjRecogIbeoLux_LDADD = $(LDADD)
+ObjRecogIbeoLux_DEPENDENCIES =
 am_ObjRecogRelayLadar_OBJECTS = obj_recog_relay_ladar.$(OBJEXT)
 ObjRecogRelayLadar_OBJECTS = $(am_ObjRecogRelayLadar_OBJECTS)
 ObjRecogRelayLadar_LDADD = $(LDADD)
@@ -73,8 +80,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(ObjRecogRelayLadar_SOURCES)
-DIST_SOURCES = $(ObjRecogRelayLadar_SOURCES)
+SOURCES = $(ObjRecogIbeoLux_SOURCES) $(ObjRecogRelayLadar_SOURCES)
+DIST_SOURCES = $(ObjRecogIbeoLux_SOURCES) \
+	$(ObjRecogRelayLadar_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -240,6 +248,10 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 LDADD = @RACK_LIBS@
+ObjRecogIbeoLux_SOURCES = \
+	obj_recog_ibeo_lux.h \
+	obj_recog_ibeo_lux.cpp
+
 ObjRecogRelayLadar_SOURCES = \
 	obj_recog_relay_ladar.h \
 	obj_recog_relay_ladar.cpp
@@ -308,6 +320,9 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+ObjRecogIbeoLux$(EXEEXT): $(ObjRecogIbeoLux_OBJECTS) $(ObjRecogIbeoLux_DEPENDENCIES) 
+	@rm -f ObjRecogIbeoLux$(EXEEXT)
+	$(CXXLINK) $(ObjRecogIbeoLux_OBJECTS) $(ObjRecogIbeoLux_LDADD) $(LIBS)
 ObjRecogRelayLadar$(EXEEXT): $(ObjRecogRelayLadar_OBJECTS) $(ObjRecogRelayLadar_DEPENDENCIES) 
 	@rm -f ObjRecogRelayLadar$(EXEEXT)
 	$(CXXLINK) $(ObjRecogRelayLadar_OBJECTS) $(ObjRecogRelayLadar_LDADD) $(LIBS)
@@ -318,6 +333,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/obj_recog_ibeo_lux.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/obj_recog_relay_ladar.Po@am__quote@
 
 .cpp.o:

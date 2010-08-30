@@ -970,6 +970,23 @@ if test "$CONFIG_RACK_SCAN2D_LAB" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  perception - ObjRecogIbeoLux
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build ObjRecogIbeoLux])
+AC_ARG_ENABLE(obj-recog-ibeo-lux,
+    AS_HELP_STRING([--enable-obj-recog-ibeo-lux], [building ObjRecogIbeoLux]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_OBJ_RECOG_IBEO_LUX=y ;;
+        *) CONFIG_RACK_OBJ_RECOG_IBEO_LUX=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_OBJ_RECOG_IBEO_LUX:-n}])
+AM_CONDITIONAL(CONFIG_RACK_OBJ_RECOG_IBEO_LUX,[test "$CONFIG_RACK_OBJ_RECOG_IBEO_LUX" = "y"])
+if test "$CONFIG_RACK_OBJ_RECOG_IBEO_LUX" = "y"; then
+    AC_DEFINE(CONFIG_RACK_OBJ_RECOG_IBEO_LUX,1,[building ObjRecogIbeoLux])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  perception - ObjRecogRelayLadar
 dnl -----------------------------------------------------------------
 
