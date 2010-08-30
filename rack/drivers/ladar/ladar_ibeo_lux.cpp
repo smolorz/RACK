@@ -46,6 +46,9 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "distanceFilter", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Filter to select the shortest distance for each angle measurement, 1=on, 0=0ff, default off", { 0 } },
 
+    { ARGOPT_OPT, "velocityMode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Output mode of the object velocity. 0 = relative, 1 = absolute, default = 0", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -69,6 +72,7 @@ int LadarIbeoLux::moduleOn(void)
     ladarIp           = getStringParam("ladarIp");
     ladarPort         = getInt32Param("ladarPort");
     distanceFilter    = getInt32Param("distanceFilter");
+    velocityMode      = getInt32Param("velocityMode");
 
     // object recognition bounding-box
     if (objRecogBoundInst >= 0)
@@ -180,6 +184,18 @@ int LadarIbeoLux::moduleOn(void)
 void LadarIbeoLux::moduleOff(void)
 {
     RackDataModule::moduleOff(); // has to be first command in moduleOff()
+
+    // turn off objRecogBound relay
+    if (objRecogBoundInst >= 0)
+    {
+        objRecogBound->off();
+    }
+
+    // turn off objRecogContour relay
+    if (objRecogContourInst >= 0)
+    {
+        objRecogContour->off();
+    }
 
     // close tcp socket
     RackTask::disableRealtimeMode();
@@ -444,8 +460,36 @@ int  LadarIbeoLux::moduleLoop(void)
                     objRecogBoundData.object[i].varPos.phi = 0.f;
                     objRecogBoundData.object[i].varPos.psi = 0.f;
                     objRecogBoundData.object[i].varPos.rho = 0.f;
-                    objRecogBoundData.object[i].vel.x    =  ladarObj->velRel.x * 10;
-                    objRecogBoundData.object[i].vel.y    = -ladarObj->velRel.y * 10;
+
+                    // velocity output with absolute velocities
+                    if (velocityMode == 1)
+                    {
+                        if ((ladarObj->velAbs.x & 0xffff) != 0x8000)
+                        {
+                            objRecogBoundData.object[i].vel.x =  ladarObj->velAbs.x * 10;
+                        }
+                        else
+                        {
+                            objRecogBoundData.object[i].vel.x = 0;
+                        }
+
+                        if ((ladarObj->velAbs.y & 0xffff) != 0x8000)
+                        {
+                            objRecogBoundData.object[i].vel.y    = -ladarObj->velAbs.y * 10;
+                        }
+                        else
+                        {
+                            objRecogBoundData.object[i].vel.y = 0;
+                        }
+                    }
+
+                    // velocity output with relative velocities
+                    else
+                    {
+                        objRecogBoundData.object[i].vel.x =  ladarObj->velRel.x * 10;
+                        objRecogBoundData.object[i].vel.y =  ladarObj->velRel.y * 10;
+                    }
+
                     objRecogBoundData.object[i].vel.z    =  0;
                     objRecogBoundData.object[i].vel.phi  =  0.0f;
                     objRecogBoundData.object[i].vel.psi  =  0.0f;
@@ -836,7 +880,7 @@ LadarIbeoLux::LadarIbeoLux()
     objRecogBoundMbxAdr = RackName::create(objRecogBoundSys, OBJ_RECOG, objRecogBoundInst);
 
     dataBufferMaxDataSize   = sizeof(ladar_data_msg);
-    dataBufferPeriodTime    = 100; // 100 ms (10 per sec)
+    dataBufferPeriodTime    = 80; // 80 ms (12.5 per sec)
 }
 
 int  main(int argc, char *argv[])

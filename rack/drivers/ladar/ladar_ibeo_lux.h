@@ -218,6 +218,7 @@ class LadarIbeoLux : public RackDataModule {
         int                         objRecogContourSys;
         int                         objRecogContourInst;
         int                         distanceFilter;
+        int                         velocityMode;
 
         int                         tcpSocket;
         struct sockaddr_in          tcpAddr;
