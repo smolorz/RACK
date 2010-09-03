@@ -16,15 +16,6 @@
 #ifndef __MCL_PROXY_H__
 #define __MCL_PROXY_H__
 
-/*!
- * @ingroup rtsnavigation
- * @defgroup mcl MCL
- *
- * Navigation components that do Monte Carlo Localization.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
@@ -46,12 +37,17 @@
 //# MCLDataPoint
 //######################################################################
 
+/**
+ * mcl data point structure
+ */
 typedef struct {
-    int32_t         x;
-    int32_t         y;
-    int32_t         z;
-    int32_t         type;
-    int32_t         layer;
+    int32_t         x;                      /**< [mm] x-coordinate */
+    int32_t         y;                      /**< [mm] y-coordinate */
+    int32_t         z;                      /**< [mm] z-coordinate, in case of 2d scanse the
+                                                      z-coordinate is used to store range
+                                                      information */
+    int32_t         type;                   /**< type of data */
+    int32_t         layer;                  /**< number of layer */
 } __attribute__((packed)) mcl_data_point;
 
 class MCLDataPoint
@@ -93,11 +89,14 @@ ACCESS: msg.data.point[...] OR msg.point[...];
 
 */
 
+/**
+ * mcl data structure
+ */
 typedef struct {
-    rack_time_t     recordingTime; // has to be first element
-    position_3d     pos;
-    int32_t         pointNum;
-    mcl_data_point  point[0];
+    rack_time_t     recordingTime;          /**< [ms] global timestamp (has to be first element)*/
+    position_3d     pos;                    /**< global position and orientation */
+    int32_t         pointNum;               /**< number of following mcl data point */
+    mcl_data_point  point[0];               /**< list of mcl data points */
 } __attribute__((packed)) mcl_data;
 
 class MCLData
@@ -185,10 +184,11 @@ class MCLFilename
         }
 };
 
-//######################################################################
-//# MCL Proxy Functions
-//######################################################################
-
+/**
+ * Navigation components that do Monte Carlo Localization.
+ *
+ * @ingroup proxies_navigation
+ */
 class MCLProxy : public RackDataProxy {
 
   public:
@@ -223,7 +223,5 @@ class MCLProxy : public RackDataProxy {
                 rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif // __MCL_PROXY_H__

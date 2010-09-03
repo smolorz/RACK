@@ -16,15 +16,6 @@
 #ifndef __SERVO_DRIVE_PROXY_H__
 #define __SERVO_DRIVE_PROXY_H__
 
-/*!
- * @ingroup rtsdrivers
- * @defgroup servodrive ServoDrive
- *
- * Hardware abstraction for servo drives and motors.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 #define SERVO_DRIVE_MAX 8
@@ -44,9 +35,12 @@
 //# ServoDrive Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * servo drive data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    float       position;
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    float       position;                   /**< [rad|mm] position of the servo drive */
 } __attribute__((packed)) servo_drive_data;
 
 class ServoDriveData
@@ -88,10 +82,15 @@ class ServoDriveData
 //# ServoDrive Move Pos Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * servo drive move velocity data structure
+ */
 typedef struct {
-    float       position;
-    float       vel;
-    float       acc;
+    float       position;                   /**< [rad|mm]   set position for moving */
+    float       vel;                        /**< [rad/s|mm/s] maximum velocity on moving to
+                                                              set position */
+    float       acc;                        /**< [rad/s2|mm/s^2] maximum acceleration on moving to
+                                                                 set position */
     int32_t     replyPositionReached;
 } __attribute__((packed)) servo_drive_move_pos_data;
 
@@ -141,8 +140,11 @@ class ServoDriveMovePosData
 //# ServoDrive Move Vel Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * servo drive move velocity data structure
+ */
 typedef struct {
-    float       vel;
+    float       vel;                        /**< [rad/s|mm/s] set velocity for moving */
 } __attribute__((packed)) servo_drive_move_vel_data;
 
 class ServoDriveMoveVelData
@@ -179,10 +181,11 @@ class ServoDriveMoveVelData
         }
 };
 
-//######################################################################
-//# Ladar Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for servo drives and motors.
+ *
+ * @ingroup proxies_drivers
+ */
 class ServoDriveProxy : public RackDataProxy {
 
     public:
@@ -238,7 +241,5 @@ class ServoDriveProxy : public RackDataProxy {
         int moveVel(float vel, uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif

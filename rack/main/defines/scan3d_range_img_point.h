@@ -16,13 +16,13 @@
 #ifndef __SCAN3D_RANGE_IMG_POINT_H__
 #define __SCAN3D_RANGE_IMG_POINT_H__
 
-//######################################################################
-//# scan3d range image point (static size)
-//######################################################################
-
+/**
+ * scan3d range image point structure
+ * @ingroup main_defines
+ */
 typedef struct {
-    int16_t     range;
-    int16_t     type;
+    int16_t     range;                      /**< [mm] range of the scan point*/
+    int16_t     type;                       /**< bitmask defining the type of the scan point */
 } __attribute__((packed)) scan3d_range_img_point;
 
 class Scan3dRangeImgPoint {

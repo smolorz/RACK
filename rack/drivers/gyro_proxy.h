@@ -16,32 +16,32 @@
 #ifndef __GYRO_PROXY_H__
 #define __GYRO_PROXY_H__
 
-/*!
- * @ingroup rtsdrivers
- * @defgroup gyro Gyro
- *
- * Hardware abstraction for gyroscopes and Inertial Measurements Units IMUs.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 //######################################################################
 //# Gyro Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * gyro data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    float       roll;
-    float       pitch;
-    float       yaw;
-    float       aX;
-    float       aY;
-    float       aZ;
-    float       wRoll;
-    float       wPitch;
-    float       wYaw;
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    float       roll;                       /**< [rad] rotation about the x-axis,
+                                                       clockwise positive */
+    float       pitch;                      /**< [rad] rotation about the y-axis,
+                                                       clockwise positive */
+    float       yaw;                        /**< [rad] rotation about the z-axis,
+                                                       clockwise positive */
+    float       aX;                         /**< [mm/s^2] acceleration in x-axis */
+    float       aY;                         /**< [mm/s^2] acceleration in y-axis */
+    float       aZ;                         /**< [mm/s^2] acceleration in z-axis */
+    float       wRoll;                      /**< [rad/s] angular velocity around the x-axis,
+                                                         clockwise positive */
+    float       wPitch;                     /**< [rad/s] angular velocity around the y-axis,
+                                                         clockwise positive */
+    float       wYaw;                       /**< [rad/s] angular velocity around the z-axis,
+                                                         clockwise positive */
 } __attribute__((packed)) gyro_data;
 
 class GyroData
@@ -96,10 +96,11 @@ class GyroData
 
 };
 
-//######################################################################
-//# Gyro Proxy Functions
-//######################################################################
-
+ /**
+ * Hardware abstraction for gyroscopes and Inertial Measurements Units IMUs.
+ *
+ * @ingroup proxies_drivers
+ */
 class GyroProxy : public RackDataProxy {
 
   public:
@@ -126,7 +127,5 @@ class GyroProxy : public RackDataProxy {
                 uint64_t reply_timeout_ns);
 
 };
-
-/*@}*/
 
 #endif // __GYRO_PROXY_H__

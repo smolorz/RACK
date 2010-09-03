@@ -16,15 +16,6 @@
 #ifndef __PATH_PROXY_H__
 #define __PATH_PROXY_H__
 
-/*!
- * @ingroup rtsnavigation
- * @defgroup path Path
- *
- * Navigation components that do path planning.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 #include <main/defines/polar_spline.h>
 #include <main/defines/position2d.h>
@@ -47,7 +38,7 @@
 //######################################################################
 //# Path data defines
 //######################################################################
-#define PATH_SPLINE_MAX            5000
+#define PATH_SPLINE_MAX 5000                /**< maximum number of path splines */
 
 //######################################################################
 //# PathData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -66,10 +57,13 @@ ACCESS: msg.data.spline[...] OR msg.spline[...];
 
 */
 
+/**
+ * path data structure
+ */
 typedef struct {
-    rack_time_t     recordingTime; // has to be first element
-    int32_t         splineNum;
-    polar_spline    spline[0];
+    rack_time_t     recordingTime;          /**< [ms] global timestamp (has to be first element)*/
+    int32_t         splineNum;              /**< number of following path splines */
+    polar_spline    spline[0];              /**< list of path splines */
 } __attribute__((packed)) path_data;
 
 class PathData
@@ -134,9 +128,12 @@ path_rddf_data_msg msg;
 ACCESS: msg.data.basePoint[...] OR msg.basePoint[...];
 */
 
+/**
+ * path rddf data structure
+ */
 typedef struct {
-    int32_t       waypointNum;
-    waypoint_2d   waypoint[0];
+    int32_t       waypointNum;              /**< number of following waypoints */
+    waypoint_2d   waypoint[0];              /**< waypoint list */
 } __attribute__((packed)) path_rddf_data;
 
 class PathRddfData
@@ -186,11 +183,18 @@ class PathRddfData
 //######################################################################
 //# Path Make Data (static size - MESSAGE)
 //######################################################################
+
+/**
+ * path make data structure
+ */
 typedef struct {
-  int32_t       vMax;
-  int32_t       accMax;
-  int32_t       decMax;
-  float         omegaMax;
+  int32_t       vMax;                       /**< [mm/s] maximum velocity on the path */
+  int32_t       accMax;                     /**< [mm/s^2] maximum acceleration in main driving
+                                                          direction on the path */
+  int32_t       decMax;                     /**< [mm/s^2] maximum deceleration in main driving
+                                                          direction on the path */
+  float         omegaMax;                   /**< [rad/s] absolute value of maximum angular
+                                                         velocity on the path */
 } __attribute__((packed)) path_make_data;
 
 class PathMakeData
@@ -236,11 +240,17 @@ class PathMakeData
 //# Path Replan Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * path replan data structure
+ */
 typedef struct {
-  int32_t       currSpline;
-  position_2d   splinePos;
-  int32_t       distToObstacle;
-  int32_t       pathLength;
+  int32_t       currSpline;                 /**< id of the spline where the replanning
+                                                 should start from */
+  position_2d   splinePos;                  /**< robot position and orientation relative to the
+                                                 startPos of the spline */
+  int32_t       distToObstacle;             /**< [mm] distance to the obstacle which caused
+                                                      path replanning */
+  int32_t       pathLength;                 /**< [mm] remaining length of the path */
 } __attribute__((packed)) path_replan_data;
 
 class PathReplanData
@@ -286,11 +296,14 @@ class PathReplanData
 //# Path Destination Data (static size  - MESSAGE)
 //######################################################################
 
+/**
+ * path dest data structure
+ */
 typedef struct
 {
-    position_2d pos;
-    int32_t     speed;
-    int32_t     layer;
+    position_2d pos;                        /**< global position and orientation */
+    int32_t     speed;                      /**< [mm/s] set velocity for approaching destination */
+    int32_t     layer;                      /**< layer id*/
 } __attribute__((packed)) path_dest_data;
 
 class PathDestData
@@ -335,9 +348,12 @@ class PathDestData
 //# Path Layer Data (static size  - MESSAGE)
 //######################################################################
 
+/**
+ * path layer data structure
+ */
 typedef struct
 {
-    int32_t     layer;
+    int32_t     layer;                      //*< layer id */
 } __attribute__((packed)) path_layer_data;
 
 class PathLayerData
@@ -374,10 +390,11 @@ class PathLayerData
 
 };
 
-//######################################################################
-//# Path Proxy Functions
-//######################################################################
-
+/**
+ * Navigation components that do path planning.
+ *
+ * @ingroup proxies_navigation
+ */
 class PathProxy : public RackDataProxy {
 
   public:
@@ -478,7 +495,5 @@ class PathProxy : public RackDataProxy {
     int setLayer(path_layer_data *recv_data, ssize_t recv_datalen,
                  uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif // __PATH_PROXY_H__

@@ -31,7 +31,7 @@ typedef struct {
     int32_t lbo;                            /**< [mm] lateral boundary offset */
     int32_t id;                             /**< waypoint id */
     int32_t wayId;                          /**< way id */
-    int32_t layer;                          /**<  layer */
+    int32_t layer;                          /**< layer */
     int32_t actionStart;                    /**< start action */
     int32_t actionEnd;                      /**< end action */
 } __attribute__((packed))waypoint_2d;

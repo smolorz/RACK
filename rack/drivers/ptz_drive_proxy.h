@@ -16,15 +16,6 @@
 #ifndef __PTZ_DRIVE_PROXY_H__
 #define __PTZ_DRIVE_PROXY_H__
 
-/*!
- * @ingroup rtsdrivers
- * @defgroup ptzdrive PtzDrive
- *
- * Hardware abstraction for ptz drives.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -40,11 +31,15 @@
 //######################################################################
 //# PtzDrive Data (static size - MESSAGE)
 //######################################################################
+
+/**
+ * pan-tilt-zoom drive data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    float       posPan;
-    float       posTilt;
-    float       posZoom;
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    float       posPan;                     /**< [rad] pan position */
+    float       posTilt;                    /**< [rad] tilt position */
+    float       posZoom;                    /**< [pct] zoom position */
 } __attribute__((packed)) ptz_drive_data;
 
 class PtzDriveData
@@ -90,16 +85,26 @@ class PtzDriveData
 //######################################################################
 //# PtzDrive Move Pos Data (static size - MESSAGE)
 //######################################################################
+
+/**
+ * pan-tilt-zoom drive move velocity data structure
+ */
 typedef struct {
-    float       posPan;
-    float       posTilt;
-    float       posZoom;
-    float       velPan;
-    float       velTilt;
-    float       velZoom;
-    float       accPan;
-    float       accTilt;
-    float       accZoom;
+    float       posPan;                     /**< [rad]   pan set position for moving */
+    float       posTilt;                    /**< [rad]   tilt set position for moving */
+    float       posZoom;                    /**< [pct]   zoom set position for moving */
+    float       velPan;                     /**< [rad/s] maximum velocity on moving to
+                                                         pan set position */
+    float       velTilt;                    /**< [rad/s] maximum velocity on moving to
+                                                         tilt set position */
+    float       velZoom;                    /**< [pct/s] maximum velcity on moving to
+                                                         zoom set position */
+    float       accPan;                     /**< [rad/s^2] maximum acceleration on moving to
+                                                           pan set position */
+    float       accTilt;                    /**< [rad/s^2] maximum acceleration on moving to
+                                                           tilt set position */
+    float       accZoom;                    /**< [pct/s^2] maximum acceleration on moving to
+                                                           zoom set position */
     int32_t     replyPosReached;
 } __attribute__((packed)) ptz_drive_move_pos_data;
 
@@ -157,10 +162,14 @@ class PtzDriveMovePosData
 //######################################################################
 //# PtzDrive Move Vel Data (static size - MESSAGE)
 //######################################################################
+
+/**
+ * pan-tilt-zoom drive move velocity data structure
+ */
 typedef struct {
-    float       velPan;
-    float       velTilt;
-    float       velZoom;
+    float       velPan;                     /**< [rad/s] set velocity for pan moving */
+    float       velTilt;                    /**< [rad/s] set velocity for tilt moving */
+    float       velZoom;                    /**< [pct/s] set velocity for zoom moving */
 } __attribute__((packed)) ptz_drive_move_vel_data;
 
 class PtzDriveMoveVelData
@@ -171,7 +180,7 @@ class PtzDriveMoveVelData
             data->velPan    = __le32_float_to_cpu(data->velPan);
             data->velTilt   = __le32_float_to_cpu(data->velTilt);
             data->velZoom   = __le32_float_to_cpu(data->velZoom);
-        }
+       }
 
         static void be_to_cpu(ptz_drive_move_vel_data *data)
         {
@@ -201,9 +210,11 @@ class PtzDriveMoveVelData
         }
 };
 
-//######################################################################
-//# PtzDrive Proxy Functions
-//######################################################################
+/**
+ * Hardware abstraction for pan-tilt-zoom (ptz) drives.
+ *
+ * @ingroup proxies_drivers
+ */
 class PtzDriveProxy : public RackDataProxy {
 
     public:
