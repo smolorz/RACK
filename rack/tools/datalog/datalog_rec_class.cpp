@@ -353,10 +353,20 @@ int DatalogRec::initLogFile()
                     break;
 
                 case IO:
-                    ret = fprintf(fileptr[i], "%% Io(%i/%i)\n"
-                                  "%% recordingTime valueNum value[0] \n",
-                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
-                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    if (enableBinaryIo)
+                    {
+                        ret = fprintf(fileptr[i], "%% Io(%i/%i)\n"
+                                      "%% recordingTime valueNum ioFileNum\n",
+                                      RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                      RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    }
+                    else
+                    {
+                        ret = fprintf(fileptr[i], "%% Io(%i/%i)\n"
+                                      "%% recordingTime valueNum value[0] \n",
+                                      RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                      RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    }
                     break;
 
                 case LADAR:
@@ -670,24 +680,13 @@ int DatalogRec::logData(RackMessage *msgInfo)
                 case IO:
                     ioData = IoData::parse(msgInfo);
 
-                    // ascii output
-                    bytes = fprintf(fileptr[i], "%u %d\n",
-                        (unsigned int)ioData->recordingTime,
-                        ioData->valueNum);
-
-                    for (j = 0; j < ioData->valueNum; j++)
-                    {
-                        bytes += fprintf(fileptr[i], " %i",
-                                 ioData->value[j]);
-                    }
-
                     // binary output
                     if (enableBinaryIo)
                     {
                         bytes = fprintf(fileptr[i], "%u %d %i\n",
-                        (unsigned int)ioData->recordingTime,
-                            ioData->valueNum,
-                            datalogInfoMsg.logInfo[i].setsLogged + 1);
+                                        (unsigned int)ioData->recordingTime,
+                                        ioData->valueNum,
+                                        datalogInfoMsg.logInfo[i].setsLogged + 1);
 
                         strcpy(extFilenameBuf, (char *)datalogInfoMsg.data.logPathName);
                         strcat(extFilenameBuf, (char *)datalogInfoMsg.logInfo[i].filename);
@@ -705,6 +704,21 @@ int DatalogRec::logData(RackMessage *msgInfo)
 
                         bytes += fwrite(ioData, 1, sizeof(io_data) + ioData->valueNum, extFileptr);
                         fclose(extFileptr);
+                    }
+                    else
+                    {
+                        // ascii output
+                        bytes = fprintf(fileptr[i], "%u %d",
+                            (unsigned int)ioData->recordingTime,
+                            ioData->valueNum);
+
+                        for (j = 0; j < ioData->valueNum; j++)
+                        {
+                            bytes += fprintf(fileptr[i], " %i",
+                                     ioData->value[j]);
+                        }
+
+                        bytes += fprintf(fileptr[i], "\n");
                     }
 
                     datalogInfoMsg.logInfo[i].bytesLogged += bytes;
