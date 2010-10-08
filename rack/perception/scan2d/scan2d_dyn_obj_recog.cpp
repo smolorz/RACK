@@ -135,7 +135,7 @@ int  Scan2dDynObjRecog::moduleLoop(void)
     memcpy(scan2dOut, scan2dIn, sizeof(scan2d_data) + scan2dIn->pointNum * sizeof(scan_point));
     dataMbx.peekEnd();
 
-    ret = objRecog->getData(&objRecogMsg.data, sizeof(obj_recog_data_msg), scan2dIn->recordingTime);
+    ret = objRecog->getData(&objRecogMsg.data, sizeof(obj_recog_data_msg), scan2dOut->recordingTime);
     if (ret)
     {
         GDOS_ERROR("Can't get data from ObjRecog(%d/%d), code = %d\n", objRecogSys, objRecogInst, ret);
