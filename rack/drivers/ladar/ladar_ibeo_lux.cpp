@@ -397,11 +397,10 @@ int  LadarIbeoLux::moduleLoop(void)
             ladarSendTime = (double)ladarHeader.ntpTime.seconds +
                                     fracFactor * (double)ladarHeader.ntpTime.secondsFrac;
 
-
             // bounding-box data
             // recalculate recordingtime to the beginning of the scan
-            objRecogBoundData.data.recordingTime = recordingTime -
-                                                   (int)rint((ladarSendTime - scanStartTime) * 1000);
+            objRecogBoundData.data.recordingTime = recordingTime;/* -
+                                                   (int)rint((ladarSendTime - scanStartTime) * 1000);*/
             objRecogBoundData.data.refPos.x      = 0;
             objRecogBoundData.data.refPos.y      = 0;
             objRecogBoundData.data.refPos.z      = 0;
@@ -418,8 +417,8 @@ int  LadarIbeoLux::moduleLoop(void)
 
             // contour data
             // recalculate recordingtime to the beginning of the scan
-            objRecogContourData.data.recordingTime = recordingTime -
-                                                     (int)rint((ladarSendTime - scanStartTime) * 1000);
+            objRecogContourData.data.recordingTime = recordingTime;/* -
+                                                     (int)rint((ladarSendTime - scanStartTime) * 1000);*/
             objRecogContourData.data.refPos.x      = 0;
             objRecogContourData.data.refPos.y      = 0;
             objRecogContourData.data.refPos.z      = 0;
