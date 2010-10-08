@@ -16,15 +16,6 @@
 #ifndef __VEHICLE_PROXY_H__
 #define __VEHICLE_PROXY_H__
 
-/*!
- * @ingroup rtsdrivers
- * @defgroup vehicle Vehicle
- *
- * Hardware abstraction for a nonholonomic vehicle controller.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -32,25 +23,35 @@
 //######################################################################
 #define MSG_VEHICLE_SET_VALUE          (RACK_PROXY_MSG_POS_OFFSET + 1)
 
-#define VEHICLE_GEAR_INVALID            -255
+#define VEHICLE_GEAR_INVALID            -255   /**< preset define for an invalid gear */
 
 //######################################################################
 //# Vehicle Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * vehicle data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;        // has to be first element
-    int32_t     speed;                // mm/s
-    float       omega;                // rad/s
-    float       throttle;             // 0 ... 100 percent
-    float       brake;                // 0 ... 100 percent
-    float       clutch;               // 0 ... 100 percent
-    float       steering;             // -100 ... 100 percent
-    int32_t     gear;                 // <0 = reverse, 0 = neutral, >0 = forward
-    int32_t     engine;               // state of the engine, 1 = running, 0 = off
-    int32_t     parkBrake;            // state of the parking brake, 1 = activated, 0 = off
-    int32_t     vehicleProtect;       // state of the vehicle protection, 1 = on, 0 = off
-    uint32_t    activeController;     // id of the actual controller
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    int32_t     speed;                      /**< [mm/s] longitudinal velocity,
+                                                        main driving direction positive*/
+    float       omega;                      /**< [rad/s] angular velocity, positive clockwise */
+    float       throttle;                   /**< [pct] throttle value,
+                                                       0 <= throttle <= 100 pct */
+    float       brake;                      /**< [pct] brake value,
+                                                       0 <= brake <= 100 pct */
+    float       clutch;                     /**< [pct] clutch value,
+                                                       0 <= clutch <= 100 pct */
+    float       steering;                   /**< [pct] steering value,
+                                                       -100 <= steering <= 100 pct */
+    int32_t     gear;                       /**< gear,
+                                                 <0 = reverse, 0 = neutral, >0 = forward */
+    int32_t     engine;                     /**< state of the engine, 1 = running, 0 = off */
+    int32_t     parkBrake;                  /**< state of the parking brake,
+                                                 1 = activated, 0 = off */
+    int32_t     vehicleProtect;             /**< state of the vehicle protection, 1 = on, 0 = off */
+    uint32_t    activeController;           /**< id of the actual controller */
 } __attribute__((packed)) vehicle_data;
 
 class VehicleData
@@ -113,16 +114,20 @@ class VehicleData
 //# Vehicle Set Value Data (static size - MESSAGE)
 //######################################################################
 
+/**
+ * vehicle set value data structure
+ */
 typedef struct {
-    float       throttle;             // 0 ... 100 percent
-    float       brake;                // 0 ... 100 percent
-    float       clutch;               // 0 ... 100 percent
-    float       steering;             // -100 ... 100 percent
-    int32_t     gear;                 // <0 = reverse, 0 = neutral, >0 = forward
-    int32_t     engine;               // state of the engine, 1 = running, 0 = off
-    int32_t     parkBrake;            // state of the parking brake, 1 = activated, 0 = off
-    int32_t     vehicleProtect;       // state of the vehicle protection, 1 = on, 0 = off
-    uint32_t    activeController;     // id of the actual controller
+    float       throttle;                   /** [pct] throttle, 0 <= throttle <= 100 pct */
+    float       brake;                      /** [pct] brake, 0 <= brake <= 100 pct */
+    float       clutch;                     /** [pct] clutch, 0 <= clutch <= 100 pct */
+    float       steering;                   /** [pct] steering, -100 <= steering <= 100 pct */
+    int32_t     gear;                       /** [pct] <0 = reverse, 0 = neutral, >0 = forward */
+    int32_t     engine;                     /** state of the engine, 1 = running, 0 = off */
+    int32_t     parkBrake;                  /** state of the parking brake,
+                                                1 = activated, 0 = off */
+    int32_t     vehicleProtect;             /** state of the vehicle protection, 1 = on, 0 = off */
+    uint32_t    activeController;           /** id of the actual controller */
 } __attribute__((packed)) vehicle_set_value_data;
 
 class VehicleSetValueData
@@ -175,10 +180,11 @@ class VehicleSetValueData
 };
 
 
-//######################################################################
-//# Vehicle Proxy Functions
-//######################################################################
-
+/**
+ * Hardware abstraction for a nonholonomic vehicle controller.
+ *
+ * @ingroup proxies_drivers
+ */
 class VehicleProxy : public RackDataProxy {
 
  public:
@@ -213,7 +219,5 @@ class VehicleProxy : public RackDataProxy {
     int setValue(vehicle_set_value_data *recv_data, ssize_t recv_datalen,
                 uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif // __VEHICLE_PROXY_H__

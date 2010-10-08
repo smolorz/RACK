@@ -16,15 +16,6 @@
 #ifndef __IO_PROXY_H__
 #define __IO_PROXY_H__
 
-/*!
- * @ingroup rtsdrivers
- * @defgroup io Io
- *
- * Hardware abstraction for simple I/O - units.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 //######################################################################
@@ -35,7 +26,7 @@
 //######################################################################
 //# Io data defines
 //######################################################################
-#define IO_BYTE_NUM_MAX                32 * 4
+#define IO_BYTE_NUM_MAX 32 * 4              /**< maximum number of byte values */
 
 //######################################################################
 //# IoData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -54,10 +45,13 @@ ACCESS: msg.data.value[...] OR msg.value[...];
 
 */
 
+/**
+ * io data structure
+ */
 typedef struct {
-    rack_time_t     recordingTime; // has to be first element
-    int32_t         valueNum;
-    uint8_t         value[0];
+    rack_time_t     recordingTime;          /**< [ms] global timestamp (has to be first element)*/
+    int32_t         valueNum;               /**< number of following byte values */
+    uint8_t         value[0];               /**< list of byte values */
 } __attribute__((packed)) io_data;
 
 class IoData
@@ -95,9 +89,11 @@ class IoData
         }
 };
 
-//######################################################################
-//# Io Proxy Functions
-//######################################################################
+/**
+ * Hardware abstraction for simple I/O - units.
+ *
+ * @ingroup proxies_drivers
+ */
 class IoProxy : public RackDataProxy
 {
 
@@ -130,7 +126,5 @@ class IoProxy : public RackDataProxy
     int setData(io_data *recv_data, ssize_t recv_datalen,
                 uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif // __IO_PROXY_H__

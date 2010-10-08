@@ -16,16 +16,6 @@
 #ifndef __SCAN3D_PROXY_H__
 #define __SCAN3D_PROXY_H__
 
-/*!
- * @ingroup rtsperception
- * @defgroup scan3d Scan3D
- *
- * Common data structure for 3D range scans.
- * 3D scans are given in the robot coordinate frame.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
 #include <main/defines/scan_point.h>
@@ -92,20 +82,28 @@ ACCESS: msg.data.point[...] OR msg.point[...]; !!!
 
 */
 
+/**
+ * scan3d data structure
+ */
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    rack_time_t duration;       // duration of the whole 3d scan
-    int32_t     maxRange;       //
-    int32_t     scanNum;        // number of 2d raw scans
-    int32_t     scanPointNum;   // number of points per 2d raw scan
-    int32_t     scanMode;       // e.g. rolling scan, pitching scan, ...
-    int32_t     scanHardware;   // powercube_sick_lms...
-    int32_t     sectorNum;      // streaming parameters
-    int32_t     sectorIndex;    //
-    position_3d refPos;         // position of the reference cooridnate system
-    int32_t     pointNum;       // number of points in the whole 3d scan
-    int32_t     compressed;     // 0: no compression, >0: length of compressed data byte stream
-    scan_point  point[0];       // list of scan points that are unequal zero
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    rack_time_t duration;                   /**< [ms] duration of the ladar scan */
+    int32_t     maxRange;                   /**< [mm] maximum range of the sensor */
+    int32_t     scanNum;                    /**< number of 2d raw scans */
+    int32_t     scanPointNum;               /**< number of points per 2d raw scan */
+    int32_t     scanMode;                   /**< scanning mode,
+                                                 e.g. rolling scan, pitching scan, etc. */
+    int32_t     scanHardware;               /**< hardware used for scan aquisiton,
+                                                 e.g. powercube_sick_lms... */
+    int32_t     sectorNum;                  /**< number of sectors of the 3d data */
+    int32_t     sectorIndex;                /**< current sector index included in the data */
+    position_3d refPos;                     /**< global position of the reference coordinate
+                                                 system */
+    int32_t     pointNum;                   /**< number of following scan3d points */
+    int32_t     compressed;                 /**< compression flag,
+                                                 0: no compression,
+                                                 >0: length of compressed data byte stream */
+    scan_point  point[0];                   /**< list of scan3d points */
 } __attribute__((packed)) scan3d_data;
 
 class Scan3dData
@@ -214,13 +212,18 @@ ACCESS: msg.data.point[...] OR msg.point[...]; !!!
 
 */
 
+/**
+ * scan3d range image data structure
+ */
 typedef struct {
-    rack_time_t             recordingTime; // has to be first element
-    int32_t                 scanMode;
-    int32_t                 maxRange;
-    int16_t                 scanNum;
-    int16_t                 scanPointNum;
-    scan3d_range_img_point  point[0];
+    rack_time_t             recordingTime;  /**< [ms] global timestamp (has to be first element)*/
+    int32_t                 scanMode;       /**< scanning mode,
+                                                 e.g. rolling scan, pitching scan, etc. */
+    int32_t                 maxRange;       /**< [mm] maximum range of the sensor */
+    int16_t                 scanNum;        /**< scanning mode,
+                                                 e.g. rolling scan, pitching scan, etc. */
+    int16_t                 scanPointNum;   /**< number of following scan3d range image points */
+    scan3d_range_img_point  point[0];       /**< list of scan3d range image points */
 } __attribute__((packed)) scan3d_range_img_data;
 
 class Scan3dRangeImgData
@@ -276,10 +279,12 @@ class Scan3dRangeImgData
         }
 };
 
-//######################################################################
-//# Scan3d Proxy Functions
-//######################################################################
-
+/**
+ * Common data structure for 3D range scans.
+ * 3D scans are given in the robot coordinate frame.
+ *
+ * @ingroup proxies_perception
+ */
 class Scan3dProxy : public RackDataProxy {
 
     public:
@@ -333,7 +338,5 @@ class Scan3dProxy : public RackDataProxy {
         }
 
 };
-
-/*@}*/
 
 #endif

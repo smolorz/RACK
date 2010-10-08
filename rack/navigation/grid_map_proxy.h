@@ -17,18 +17,9 @@
 #ifndef __GRID_MAP_PROXY_H__
 #define __GRID_MAP_PROXY_H__
 
-/*!
- * @ingroup rtsnavigation
- * @defgroup gripmap GridMap
- *
- * Navigation components that build occupancy grid maps.
- *
- * @{
- */
-
 #include <main/rack_proxy.h>
 
-#define GRID_MAP_NUM_MAX                500 * 500
+#define GRID_MAP_NUM_MAX 500 * 500          /**< maximum number of grid cells */
 
 
 //######################################################################
@@ -36,13 +27,14 @@
 //######################################################################
 
 typedef struct {
-    rack_time_t recordingTime;  // has to be first element
-    int32_t     offsetX;        // x position of grid cell[0,0] in mm
-    int32_t     offsetY;        // y position of grid cell[0,0] in mm
-    int32_t     scale;          // mm / grid cell
-    int32_t     gridNumX;       // number of grid cells x
-    int32_t     gridNumY;       // number of grid cells y
-    uint8_t     occupancy[0];   // obstacle propability 0 - free, 255 - occupied
+    rack_time_t recordingTime;              /**< [ms] global timestamp (has to be first element)*/
+    int32_t     offsetX;                    /**< [mm] x-position of grid cell[0,0] */
+    int32_t     offsetY;                    /**< [mm] y-position of grid cell[0,0] */
+    int32_t     scale;                      /**< [mm/cell] scale of the map */
+    int32_t     gridNumX;                   /**< number of following cells in x-direction */
+    int32_t     gridNumY;                   /**< number of following cells in y-direction */
+    uint8_t     occupancy[0];               /**< list of grid cells,
+                                                 obstacle propability 0 - free, 255 - occupied */
 } __attribute__((packed)) grid_map_data;
 
 class GridMapData
@@ -89,10 +81,11 @@ class GridMapData
 };
 
 
-//######################################################################
-//# GridMap Proxy Functions
-//######################################################################
-
+/**
+ * Navigation components that build occupancy grid maps.
+ *
+ * @ingroup proxies_navigation
+ */
 class GridMapProxy : public RackDataProxy {
 
   public:
@@ -124,7 +117,5 @@ class GridMapProxy : public RackDataProxy {
     int getData(grid_map_data *recv_data, ssize_t recv_datalen,
                 rack_time_t timeStamp, uint64_t reply_timeout_ns);
 };
-
-/*@}*/
 
 #endif // __GRID_MAP_PROXY_H__

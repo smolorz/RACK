@@ -34,7 +34,7 @@
 
 //#define MSG_FEATURE_MAP_ADD_LINE_OK            (RACK_PROXY_MSG_NEG_OFFSET - 10)
 
-#define FEATURE_MAP_FEATURE_MAX 200
+#define FEATURE_MAP_FEATURE_MAX 200         /**< maximum number of map features */
 #define FEATURE_MAP_LAYER_MAX   20
 
 #define FEATURE_MAP_TYPE_LINE_FEATURE   10
@@ -43,17 +43,24 @@
 //# FEATURE MAP DataPoint
 //######################################################################
 
+/**
+ * feature map data point data structure
+ */
 typedef struct {
-    double x;
-    double y;
-    double x2;
-    double y2;
-    double l;
-    double rho;
-    double sin;
-    double cos;
-    int32_t layer;
-    int32_t type;
+    double x;                               /**< [mm] global x-coordinate of the start point
+                                                      of the line feature */
+    double y;                               /**< [mm] global y-coordinate of the start point
+                                                      of the line feature */
+    double x2;                              /**< [mm] global x-coordinate of the end point
+                                                      of the line feature */
+    double y2;                              /**< [mm] global y-coordinate of the end point
+                                                      of the line feature */
+    double l;                               /**< [mm] length of the line feature */
+    double rho;                             /**< [rad] global orientation of the line feature */
+    double sin;                             /**< sin(rho) */
+    double cos;                             /**< cos(rho) */
+    int32_t layer;                          /**< layer id */
+    int32_t type;                           /**< point type */
 } __attribute__((packed)) feature_map_data_point;
 
 class FeatureMapDataPoint
@@ -89,9 +96,12 @@ class FeatureMapDataPoint
 };
 
 
+/**
+ * feature map feature data structure
+ */
 typedef struct{
-    rack_time_t             recordingTime;  // has to be first element
-    feature_map_data_point   mapFeature;
+    rack_time_t             recordingTime;  /**< [ms] global timestamp (has to be first element)*/
+    feature_map_data_point   mapFeature;    /**< line feature */
     int32_t                  featureNumTemp;
 } __attribute__((packed)) feature_map_feature;
 
@@ -148,12 +158,14 @@ feature_map_data_msg msg;
 
 //ACCESS: msg.data.point[...] OR msg.point[...];*/
 
-
+/**
+ * feature map data structure
+ */
 typedef struct {
-    rack_time_t     recordingTime; // have to be first element
-    position_3d     pos;
-    int32_t         featureNum;
-    feature_map_data_point  feature[0];
+    rack_time_t     recordingTime;          /**< [ms] global timestamp (has to be first element)*/
+    position_3d     pos;                    /**< global position and orientation of the robot */
+    int32_t         featureNum;             /**< number of following map features */
+    feature_map_data_point  feature[0];     /**< list of map features */
 } __attribute__((packed)) feature_map_data;
 
 
@@ -205,9 +217,12 @@ class FeatureMapData
 };
 
 
+/**
+ * feature map filename data structure
+ */
 typedef struct {
-    int32_t     filenameLen;
-    char        filename[128];
+    int32_t     filenameLen;                /**< lenght of file name */
+    char        filename[128];              /**< file name */
 } __attribute__((packed)) feature_map_filename;
 
 class FeatureMapFilename
@@ -246,9 +261,13 @@ class FeatureMapFilename
 //######################################################################
 //# FeatureMap Layer Data (static size  - MESSAGE)
 //######################################################################
+
+/**
+ * feature map layer data structure
+ */
 typedef struct {
-    int32_t     layerNum;
-    int32_t     layer[0];
+    int32_t     layerNum;                   /**< number of following layer */
+    int32_t     layer[0];                   /**< list of layer */
 } __attribute__((packed)) feature_map_layer_data;
 
 class FeatureMapLayerData
@@ -301,6 +320,11 @@ class FeatureMapLayerData
 //# FeatureMap Proxy Functions
 //######################################################################
 
+/**
+ * Navigation components that build feature maps.
+ *
+ * @ingroup proxies_navigation
+ */
 class FeatureMapProxy : public RackDataProxy {
 
   public:
@@ -386,8 +410,5 @@ class FeatureMapProxy : public RackDataProxy {
     int setLayer(feature_map_layer_data *recv_data, ssize_t recv_datalen,
                  uint64_t reply_timeout_ns);
 };
-
-/*@}*/
-
 
 #endif // __FEATURE_MAP_PROXY_H__

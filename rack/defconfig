@@ -1,9 +1,9 @@
 #
 # Automatically generated make config: don't edit
-# RACK version: 0.5.0
-# Sun Jul 18 13:49:28 2010
+# RACK version: 0.6.0
+# Sun Sep 12 20:05:58 2010
 #
-CONFIG_RACK_VERSION="0.5.0"
+CONFIG_RACK_VERSION="0.6.0"
 
 #
 # Build options
@@ -24,6 +24,10 @@ CONFIG_RACK_JAVA_GUI=y
 # CONFIG_RACK_LIBPNG_SUPPORT is not set
 # CONFIG_RACK_OPENCV_SUPPORT is not set
 # CONFIG_RACK_GSL_SUPPORT is not set
+
+#
+# Control
+#
 
 #
 # Drivers
@@ -68,13 +72,13 @@ CONFIG_RACK_LADAR_SICK_S=y
 CONFIG_RACK_LADAR_SICK_LMS100=y
 
 #
+# Navigation
+#
+
+#
 # Odometry
 #
 CONFIG_RACK_ODOMETRY_CHASSIS=y
-
-#
-# Navigation
-#
 
 #
 # Pilot
@@ -96,6 +100,7 @@ CONFIG_RACK_POSITION=y
 # Scan2d
 #
 CONFIG_RACK_SCAN2D=y
+CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG=y
 CONFIG_RACK_SCAN2D_MERGE=y
 CONFIG_RACK_SCAN2D_SIM=y
 CONFIG_RACK_SCAN2D_LAB=y
@@ -103,6 +108,7 @@ CONFIG_RACK_SCAN2D_LAB=y
 #
 # ObjRecog
 #
+CONFIG_RACK_OBJ_RECOG_IBEO_LUX=y
 CONFIG_RACK_OBJ_RECOG_RELAY_LADAR=y
 
 #
