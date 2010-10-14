@@ -46,6 +46,7 @@ class Position : public RackDataModule {
         double              offsetNorthing;
         double              offsetEasting;
         int                 utmZone;
+        position_utm_band   utmBand;
         int                 positionReference;
         int                 autoOffset;
         double              odometryStdDevX;

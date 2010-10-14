@@ -52,6 +52,9 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "utmZone", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Number of UTM zone, default 32", { 32 } },
 
+    { ARGOPT_OPT, "utmBand", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Number of UTM band, default 18 = U", { 18 } },
+
     { ARGOPT_OPT, "positionReference", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Position reference frame, 0 = wgs84, 1 = Gauss Krueger, 2 = Utm, default 0", { 0 } },
 
@@ -95,6 +98,7 @@ int  Position::moduleOn(void)
     offsetNorthing    = (double)getInt32Param("offsetNorthing");
     offsetEasting     = (double)getInt32Param("offsetEasting");
     utmZone           = getInt32Param("utmZone");
+//    utmBand           = getInt32Param("utmBand");
     positionReference = getInt32Param("positionReference");
     autoOffset        = getInt32Param("autoOffset");
     odometryStdDevX   = getInt32Param("odometryStdDevX");
@@ -104,7 +108,7 @@ int  Position::moduleOn(void)
     ret = odometry->on();
     if (ret)
     {
-        GDOS_ERROR("Can't switch on Odometry(%i/%i), code = %d\n", 
+        GDOS_ERROR("Can't switch on Odometry(%i/%i), code = %d\n",
                    odometrySys, odometryInst, ret);
         return ret;
     }
@@ -113,7 +117,7 @@ int  Position::moduleOn(void)
     ret = odometry->getData(&odometryData, sizeof(odometry_data), 0);
     if (ret)
     {
-        GDOS_ERROR("Can't get data from Odometry(%i/%i), code = %d\n", 
+        GDOS_ERROR("Can't get data from Odometry(%i/%i), code = %d\n",
                    odometrySys, odometryInst, ret);
         return ret;
     }
@@ -176,7 +180,7 @@ int  Position::moduleLoop(void)
                                       sizeof(odometryData), &msgInfo);
     if (ret)
     {
-        GDOS_ERROR("Can't read Odometry(%i/%i) data, code = %d\n", 
+        GDOS_ERROR("Can't read Odometry(%i/%i) data, code = %d\n",
                    odometrySys, odometryInst, ret);
         return ret;
     }
@@ -513,6 +517,8 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
                offset         = 1;
                offsetNorthing = rint(posGk.northing / (100.0 * 1000.0)) * 100.0;
                offsetEasting  = rint(posGk.easting / (100.0 * 1000.0)) * 100.0;
+               setInt32Param("offsetNorthing", offsetNorthing);
+               setInt32Param("offsetEasting", offsetEasting);
                GDOS_PRINT("Set new GK position offset to north %fm, east %fm\n",
                           offsetNorthing, offsetEasting);
             }
@@ -541,8 +547,14 @@ void    Position::wgs84ToPos(position_wgs84_data *posWgs84Data, position_data *p
                offset         = 1;
                offsetNorthing = rint(posUtm.northing / (100.0 * 1000.0)) * 100.0;
                offsetEasting  = rint(posUtm.easting / (100.0 * 1000.0)) * 100.0;
-               GDOS_PRINT("Set new UTM position offset to north %fm, east %fm\n",
-                          offsetNorthing, offsetEasting);
+               utmZone        = posUtm.zone;
+               utmBand        = posUtm.band;
+               setInt32Param("offsetNorthing", offsetNorthing);
+               setInt32Param("offsetEasting", offsetEasting);
+               setInt32Param("utmZone", utmZone);
+               setInt32Param("utmBand", utmBand);
+               GDOS_PRINT("Set new UTM position offset to north %fm, east %fm, zone %d, band %d\n",
+                          offsetNorthing, offsetEasting, utmZone, utmBand);
             }
 
             posData->pos.x   =  (int)rint(posUtm.northing - offsetNorthing * 1000.0);

@@ -35,6 +35,7 @@ PositionTool::~PositionTool()
 void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *posUtm)
 {
     int    latDeg, lonDeg;
+    int    utmBand;
     double lat, lon;
     double dlam, dlam2, dlam3, dlam4;
     double dlam5, dlam6, dlam7, dlam8;
@@ -83,7 +84,7 @@ void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *
         posUtm->zone = 1;
     }
 
-    // utm zone special cases 
+    // utm zone special cases
     if ((latDeg > 55) && (latDeg < 64) && (lonDeg > -1) && (lonDeg < 3))
     {
         posUtm->zone = 31;
@@ -128,6 +129,101 @@ void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *
         falseNorthing = 10000000;
     }
 
+    // utm band calculation
+
+    // south pole
+    if (latDeg < -80)
+    {
+        if ((lonDeg >= -90) && (lonDeg < 0))
+        {
+            posUtm->band = A;
+        }
+        else
+        {
+            posUtm->band = B;
+        }
+    }
+    // north pole
+    else if (latDeg >= 84)
+    {
+        if ((lonDeg >= -90) && (lonDeg < 0))
+        {
+            posUtm->band = Y;
+        }
+        else
+        {
+            posUtm->band = Z;
+        }
+    }
+    // rest
+    else
+    {
+        utmBand = ((latDeg + 80) / 8) + 2;
+
+        switch (utmBand)
+        {
+            case 2:
+                posUtm->band = C;
+                break;
+            case 3:
+                posUtm->band = D;
+                break;
+            case 4:
+                posUtm->band = E;
+                break;
+            case 5:
+                posUtm->band = F;
+                break;
+            case 6:
+                posUtm->band = G;
+                break;
+            case 7:
+                posUtm->band = H;
+                break;
+            case 8:
+                posUtm->band = J;
+                break;
+            case 9:
+                posUtm->band = K;
+                break;
+            case 10:
+                posUtm->band = L;
+                break;
+            case 11:
+                posUtm->band = M;
+                break;
+           case 12:
+                posUtm->band = N;
+                break;
+            case 13:
+                posUtm->band = P;
+                break;
+            case 14:
+                posUtm->band = Q;
+                break;
+            case 15:
+                posUtm->band = R;
+                break;
+            case 16:
+                posUtm->band = S;
+                break;
+            case 17:
+                posUtm->band = T;
+                break;
+            case 18:
+                posUtm->band = U;
+                break;
+            case 19:
+                posUtm->band = V;
+                break;
+            case 20:
+                posUtm->band = W;
+                break;
+            case 21:
+                posUtm->band = X;
+                break;
+        }
+    }
 
     //
     // convert geodetic position to transverse mercator
@@ -137,7 +233,7 @@ void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *
     tranMercEs  = 2.0 * utmF - utmF * utmF;
     tranMercEbs = (1.0 / (1.0 - tranMercEs)) - 1.0;
     tranMercB   = utmA * (1.0 - utmF);
- 
+
     // true meridianal constants
     tn = (utmA - tranMercB) / (utmA + tranMercB);
     tn2 = tn * tn;
@@ -147,7 +243,7 @@ void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *
 
     tranMercAp = utmA * (1.0 - tn + 5.0 * (tn2 - tn3) / 4.0 +
                  81.0 * (tn4 - tn5) / 64.0 );
-    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) / 
+    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) /
                  8.0 + 55.0 * tn5 / 64.0 ) / 2.0;
     tranMercCp = 15.0 * utmA  * (tn2 - tn3 + 3.0 * (tn4 - tn5 ) / 4.0) / 16.0;
     tranMercDp = 35.0 * utmA  * (tn3 - tn4 + 11.0 * tn5 / 16.0) / 48.0;
@@ -205,10 +301,10 @@ void PositionTool::wgs84ToUtm(position_wgs84_data *posWgs84, position_utm_data *
     // northing
     t1 = (tmd - tmdo) * utmScale;
     t2 = sn * s * c * utmScale / 2.0;
-    t3 = sn * s * c3 * utmScale * (5.0 - tan2 + 9.0 * eta + 4.0 * eta2) / 24.0; 
-    t4 = sn * s * c5 * utmScale * (61.0 - 58.0 * tan2 + tan4 + 270.0 * eta - 
-                                   330.0 * tan2 * eta + 445.0 * eta2 + 324.0 * eta3 - 
-                                   680.0 * tan2 * eta2 + 88.0 * eta4 - 600.0 * tan2 * eta3 - 
+    t3 = sn * s * c3 * utmScale * (5.0 - tan2 + 9.0 * eta + 4.0 * eta2) / 24.0;
+    t4 = sn * s * c5 * utmScale * (61.0 - 58.0 * tan2 + tan4 + 270.0 * eta -
+                                   330.0 * tan2 * eta + 445.0 * eta2 + 324.0 * eta3 -
+                                   680.0 * tan2 * eta2 + 88.0 * eta4 - 600.0 * tan2 * eta3 -
                                    192.0 * tan2 * eta4) / 720.0;
     t5 = sn * s * c7 * utmScale * (1385.0 - 3111.0 * tan2 + 543.0 * tan4 - tan6) / 40320.0;
 
@@ -287,7 +383,7 @@ void PositionTool::utmToWgs84(position_utm_data *posUtm, position_wgs84_data *po
     tranMercEs  = 2.0 * utmF - utmF * utmF;
     tranMercEbs = (1.0 / (1.0 - tranMercEs)) - 1.0;
     tranMercB   = utmA * (1.0 - utmF);
- 
+
     // true meridianal constants
     tn = (utmA - tranMercB) / (utmA + tranMercB);
     tn2 = tn * tn;
@@ -297,17 +393,17 @@ void PositionTool::utmToWgs84(position_utm_data *posUtm, position_wgs84_data *po
 
     tranMercAp = utmA * (1.0 - tn + 5.0 * (tn2 - tn3) / 4.0 +
                  81.0 * (tn4 - tn5) / 64.0 );
-    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) / 
+    tranMercBp = 3.0 * utmA * (tn - tn2 + 7.0 * (tn3 - tn4) /
                  8.0 + 55.0 * tn5 / 64.0 ) / 2.0;
     tranMercCp = 15.0 * utmA  * (tn2 - tn3 + 3.0 * (tn4 - tn5 ) / 4.0) / 16.0;
     tranMercDp = 35.0 * utmA  * (tn3 - tn4 + 11.0 * tn5 / 16.0) / 48.0;
     tranMercEp = 315.0 * utmA * (tn4 - tn5) / 512.0;
 
-    // true meridional distances for latitude of origin 
+    // true meridional distances for latitude of origin
     tmdo = 0.0;
 
     // origin
-    tmd = tmdo +  (northing - falseNorthing) / utmScale; 
+    tmd = tmdo +  (northing - falseNorthing) / utmScale;
 
     // first estimate
     sr    = utmA * (1.0 - tranMercEs);
@@ -315,8 +411,8 @@ void PositionTool::utmToWgs84(position_utm_data *posUtm, position_wgs84_data *po
 
     for (i = 0; i < 5 ; i++)
     {
-        t10   = tranMercAp * ftphi - 
-                tranMercBp * sin(2.0 * ftphi) + tranMercCp * sin(4.0 * ftphi) - 
+        t10   = tranMercAp * ftphi -
+                tranMercBp * sin(2.0 * ftphi) + tranMercCp * sin(4.0 * ftphi) -
                 tranMercDp * sin(6.0 * ftphi) - tranMercEp * sin(8.0 * ftphi);
         s     = sin(ftphi);
         a     = sqrt(1.0 - tranMercEs * s * s);
@@ -371,11 +467,11 @@ void PositionTool::utmToWgs84(position_utm_data *posUtm, position_wgs84_data *po
     t11 = t * (5.0  + 3.0 * tan2 + eta - 4.0 * eta2 -
                9.0 * tan2 * eta) / (24.0 * sr * sn3 * utmScale4);
     t12 = t * (61.0 + 90.0 * tan2 + 46.0 * eta + 45.0 * tan4 -
-               252.0 * tan2 * eta  - 3.0 * eta2 + 100.0 * eta3 - 
-               66.0 * tan2 * eta2 - 90.0 * tan4 * eta + 
-               88.0 * eta4 + 225.0 * tan4 * eta2 + 84.0 * tan2 * eta3 - 
+               252.0 * tan2 * eta  - 3.0 * eta2 + 100.0 * eta3 -
+               66.0 * tan2 * eta2 - 90.0 * tan4 * eta +
+               88.0 * eta4 + 225.0 * tan4 * eta2 + 84.0 * tan2 * eta3 -
                192.0 * tan2 * eta4) / ( 720.0 * sr * sn5 * utmScale6);
-    t13 = t * (1385.0 + 3633.0 * tan2 + 4095.0 * tan4 + 1575.0 * tan6) / 
+    t13 = t * (1385.0 + 3633.0 * tan2 + 4095.0 * tan4 + 1575.0 * tan6) /
               (40320.0 * sr * sn7 * utmScale8);
     posWgs84->latitude = ftphi - de2 * t10 + de4 * t11 - de6 * t12 + de8 * t13;
 
@@ -384,7 +480,7 @@ void PositionTool::utmToWgs84(position_utm_data *posUtm, position_wgs84_data *po
     t16 = (5.0 + 6.0 * eta + 28.0 * tan2 - 3.0 * eta2 +
            8.0 * tan2 * eta + 24.0 * tan4 - 4.0 * eta3 +
            4.0 * tan2 * eta2 + 24.0 * tan2 * eta3) / (120.0 * sn5 * c * utmScale5);
-    t17 = (61.0 +  662.0 * tan2 + 1320.0 * tan4 + 720.0 * tan6) / 
+    t17 = (61.0 +  662.0 * tan2 + 1320.0 * tan4 + 720.0 * tan6) /
           (5040.0 * sn7 * c * utmScale7);
 
     // difference in longitude
