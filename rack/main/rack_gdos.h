@@ -19,6 +19,7 @@
 
 #include <stdarg.h> // va_start ...
 #include <stdio.h>  // printf ...
+#include <string.h>
 
 #include <main/rack_mailbox.h>
 #include <main/rack_name.h>
