@@ -20098,7 +20098,7 @@ echo "$as_me: error: Kconfig-file $RACK_KCONFIG_FILE not found -- --with-kconfig
    { (exit 1); exit 1; }; }
 fi
 
-. $RACK_KCONFIG_FILE
+PATH=$PATH:. . $RACK_KCONFIG_FILE
 { echo "$as_me:$LINENO: result: $RACK_KCONFIG_FILE ($kconfig_type)" >&5
 echo "${ECHO_T}$RACK_KCONFIG_FILE ($kconfig_type)" >&6; }
 

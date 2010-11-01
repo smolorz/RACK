@@ -124,7 +124,7 @@ if test \! -f $RACK_KCONFIG_FILE; then
     AC_MSG_ERROR([Kconfig-file $RACK_KCONFIG_FILE not found -- --with-kconfig-file sets Kconfig file])
 fi
 
-. $RACK_KCONFIG_FILE
+PATH=$PATH:. . $RACK_KCONFIG_FILE
 AC_MSG_RESULT([$RACK_KCONFIG_FILE ($kconfig_type)])
 
 dnl ======================================================================
