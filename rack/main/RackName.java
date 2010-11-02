@@ -50,6 +50,7 @@ public class RackName
     public static final int PATH                = 0x25;
     public static final int MCL                 = 0x26;
     public static final int PTZ_DRIVE	  	    = 0x27;
+    public static final int COMPASS             = 0x28;
 
     public static final int OFFSET              = 0x80;
 
@@ -92,6 +93,7 @@ public class RackName
         classStringTable.put(new Integer(PATH), "Path");
         classStringTable.put(new Integer(MCL), "Mcl");
         classStringTable.put(new Integer(PTZ_DRIVE), "PtzDrive");
+        classStringTable.put(new Integer(COMPASS), "Compass");
     }
 
     public static String classString(int rackName)
@@ -129,7 +131,7 @@ public class RackName
     public static int create(int sysID, int classID, int instID, int locID) {
       return (int)
         (((sysID)   << (LOCAL_ID_RANGE + INSTANCE_ID_RANGE + CLASS_ID_RANGE)) |
-         ((classID) << (LOCAL_ID_RANGE + INSTANCE_ID_RANGE)) |
+        ((classID) << (LOCAL_ID_RANGE + INSTANCE_ID_RANGE)) |
          ((instID)  << (LOCAL_ID_RANGE)) |
          (locID));
     }

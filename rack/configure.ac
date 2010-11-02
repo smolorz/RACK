@@ -680,6 +680,23 @@ if test "$CONFIG_RACK_CLOCK_SYSTEM" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - CompassCmps03
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build CompassCmps03])
+AC_ARG_ENABLE(compass-cmps03,
+    AS_HELP_STRING([--enable-compass-cmps03], [building CompassCmps03]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_COMPASS_CMPOS03=y ;;
+        *) CONFIG_RACK_COMPASS_CMPS03=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_COMPASS_CMPS03:-n}])
+AM_CONDITIONAL(CONFIG_RACK_COMPASS_CMPS03,[test "$CONFIG_RACK_COMPASS_CMPS03" = "y"])
+if test "$CONFIG_RACK_COMPASS_CMPS03" = "y"; then
+    AC_DEFINE(CONFIG_RACK_COMPASS_CMPS03,1,[building CompassCmps03])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - GpsNmea
 dnl -----------------------------------------------------------------
 
@@ -1763,6 +1780,7 @@ AC_CONFIG_FILES([GNUmakefile \
     drivers/camera/GNUmakefile \
     drivers/chassis/GNUmakefile \
     drivers/clock/GNUmakefile \
+    drivers/compass/GNUmakefile \
     drivers/gps/GNUmakefile \
     drivers/ladar/GNUmakefile \
     \

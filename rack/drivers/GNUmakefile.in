@@ -42,6 +42,8 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_TRUE@	ChassisSetActivePilotMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	ClockProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	ClockDataMsg.java \
+@CONFIG_RACK_JAVA_TRUE@	CompassProxy.java \
+@CONFIG_RACK_JAVA_TRUE@	CompassDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	GpsProxy.java \
 @CONFIG_RACK_JAVA_TRUE@	GpsDataMsg.java \
 @CONFIG_RACK_JAVA_TRUE@	GyroProxy.java \
@@ -87,15 +89,15 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 am__dist_java_JAVA_DIST = CameraProxy.java CameraDataMsg.java \
 	CameraFormatMsg.java ChassisProxy.java ChassisParamMsg.java \
 	ChassisDataMsg.java ChassisSetActivePilotMsg.java \
-	ClockProxy.java ClockDataMsg.java GpsProxy.java \
-	GpsDataMsg.java GyroProxy.java GyroDataMsg.java IoProxy.java \
-	IoDataMsg.java JoystickProxy.java JoystickDataMsg.java \
-	LadarProxy.java LadarDataMsg.java PtzDriveProxy.java \
-	PtzDriveDataMsg.java PtzDriveMovePosMsg.java \
-	PtzDriveMoveVelMsg.java ServoDriveProxy.java \
-	ServoDriveDataMsg.java ServoDriveMovePosMsg.java \
-	ServoDriveMoveVelMsg.java VehicleProxy.java \
-	VehicleDataMsg.java VehicleSetValueMsg.java
+	ClockProxy.java ClockDataMsg.java CompassProxy.java \
+	CompassDataMsg.java GpsProxy.java GpsDataMsg.java \
+	GyroProxy.java GyroDataMsg.java IoProxy.java IoDataMsg.java \
+	JoystickProxy.java JoystickDataMsg.java LadarProxy.java \
+	LadarDataMsg.java PtzDriveProxy.java PtzDriveDataMsg.java \
+	PtzDriveMovePosMsg.java PtzDriveMoveVelMsg.java \
+	ServoDriveProxy.java ServoDriveDataMsg.java \
+	ServoDriveMovePosMsg.java ServoDriveMoveVelMsg.java \
+	VehicleProxy.java VehicleDataMsg.java VehicleSetValueMsg.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
@@ -281,6 +283,7 @@ SUBDIRS = \
 	camera \
 	chassis \
 	clock \
+	compass \
 	gps \
 	ladar
 
@@ -288,6 +291,7 @@ drvinclude_HEADERS = \
 	camera_proxy.h \
 	chassis_proxy.h \
 	clock_proxy.h \
+	compass_proxy.h \
 	gps_proxy.h \
 	gyro_proxy.h \
 	io_proxy.h \
@@ -304,6 +308,7 @@ EXTRA_DIST = \
 	camera_proxy.cpp \
 	chassis_proxy.cpp \
 	clock_proxy.cpp \
+	compass_proxy.cpp \
 	gps_proxy.cpp \
 	gyro_proxy.cpp \
 	io_proxy.cpp \

@@ -13,9 +13,8 @@
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
  *
  */
-#include <iostream>
 
-#include "clock_dcf77_mbg_c51.h"
+#include "compass_cmps03.h"
 
 //
 // data structures
@@ -23,25 +22,22 @@
 
 arg_table_t argTab[] = {
 
-    { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Serial device number", { -1 } },
+    { ARGOPT_OPT, "clockSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system of the clock input module", { 0 } },
 
-    { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Baudrate of serial device, default 9600", { 9600 } },
+    { ARGOPT_OPT, "clockInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance of the clock input module", { -1 } },
 
-    { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Period time of the timing signal (in ms), default 1000", { 1000 } },
+    { ARGOPT_OPT, "systemClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Enable update of the system clock with clock input, 0=off, 1=on, default 1", { 1 } },
 
-    { ARGOPT_OPT, "realtimeClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Enable update of the realtime clock clock, 0=off, 1=on, default 1", { 1 } },
-
-    { ARGOPT_OPT, "realtimeClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Time interval for updating the realtime clock in ms, default 60000 ", { 60000 } },
+    { ARGOPT_OPT, "systemClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Time interval for updating the system clock in ms, default 60000 ", { 60000 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
-struct rtser_config clock_serial_config = {
+struct rtser_config serial_config = {
     config_mask       : 0xFFFF,
     baud_rate         : 0,
     parity            : RTSER_NO_PARITY,
@@ -66,40 +62,35 @@ struct rtser_config clock_serial_config = {
  *
  *   own realtime user functions
  ******************************************************************************/
-int ClockDcf77MbgC51::moduleOn(void)
+int CompassCmps03::moduleOn(void)
 {
     // get dynamic module parameter
     dataBufferPeriodTime    = getInt32Param("periodTime");
-    realtimeClockUpdate     = getInt32Param("realtimeClockUpdate");
-    realtimeClockUpdateTime = getInt32Param("realtimeClockUpdateTime");
 
     serialPort.clean();
 
     // set rx timeout 2 * periodTime
     serialPort.setRecvTimeout(rackTime.toNano(2 * dataBufferPeriodTime));
 
-    // init variables
-    lastUpdateTime = rackTime.get() - realtimeClockUpdateTime;
-
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
 
 // realtime context
-void ClockDcf77MbgC51::moduleOff(void)
+void CompassCmps03::moduleOff(void)
 {
     RackDataModule::moduleOff();       // has to be first command in moduleOff();
 }
 
 // realtime context
-int ClockDcf77MbgC51::moduleLoop(void)
+int CompassCmps03::moduleLoop(void)
 {
     int                 ret;
-    clock_data*         p_data;
+    compass_data*       p_data;
 
     // get datapointer from rackdatabuffer
-    p_data = (clock_data *)getDataBufferWorkSpace();
+    p_data = (compass_data *)getDataBufferWorkSpace();
 
-    // read next serial message
+   // read next serial message
     ret = readSerialMessage(&serialData);
     if (ret)
     {
@@ -114,38 +105,21 @@ int ClockDcf77MbgC51::moduleLoop(void)
         GDOS_ERROR("Can't decode serial message, code %d\n", ret);
     }
 
-/*    RackTask::disableRealtimeMode();
-    printf("clock data: %s\n", serialData.data);
-    RackTask::enableRealtimeMode();*/
-
     p_data->recordingTime = serialData.recordingTime;
 
-    // update realtime clock
-    if ((realtimeClockUpdate == 1) && (p_data->syncMode == CLOCK_SYNC_MODE_REMOTE))
-    {
-        // each realtimeClockUpdateTime
-        if (((int)p_data->recordingTime - (int)lastUpdateTime) > realtimeClockUpdateTime)
-        {
-            rackTime.set(p_data->utcTime, p_data->recordingTime);
-
-            GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
-                          p_data->recordingTime, p_data->utcTime);
-            lastUpdateTime = rackTime.get();
-        }
-    }
-
-    GDOS_DBG_DETAIL("recordingtime %i, utcTime %d\n", p_data->recordingTime, p_data->utcTime);
-    putDataBufferWorkSpace(sizeof(clock_data));
+    GDOS_DBG_DETAIL("recordingtime %i, orientation %a, varOrientation %a\n", p_data->recordingTime,
+                    p_data->orientation, p_data->varOrientation);
+    putDataBufferWorkSpace(sizeof(compass_data));
     return 0;
 }
 
-int ClockDcf77MbgC51::moduleCommand(RackMessage *msgInfo)
+int CompassCmps03::moduleCommand(RackMessage *msgInfo)
 {
     // not for me -> ask RackDataModule
     return RackDataModule::moduleCommand(msgInfo);
 }
 
-int ClockDcf77MbgC51::readSerialMessage(clock_serial_data *serialData)
+int CompassCmps03::readSerialMessage(compass_serial_data *serialData)
 {
     int             i, ret;
     int             msgSize;
@@ -220,12 +194,12 @@ int ClockDcf77MbgC51::readSerialMessage(clock_serial_data *serialData)
     return 0;
 }
 
-int ClockDcf77MbgC51::analyseSerialMessage(clock_serial_data *serialData, clock_data *data)
+int CompassCmps03::analyseSerialMessage(compass_serial_data *serialData, compass_data *data)
 {
     char    subStr[8];
     char    *endPtr;
     int     month, year;
-
+/*
     // hour
     strncpy (subStr, &serialData->data[18], 2);
     subStr[2]='\0';
@@ -319,7 +293,7 @@ int ClockDcf77MbgC51::analyseSerialMessage(clock_serial_data *serialData, clock_
     else
     {
         data->syncMode = CLOCK_SYNC_MODE_NONE;
-    }
+    }*/
 
     return 0;
 }
@@ -340,9 +314,8 @@ int ClockDcf77MbgC51::analyseSerialMessage(clock_serial_data *serialData, clock_
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_SERIALPORT_OPEN            1
 #define INIT_BIT_MBX_WORK                   2
-#define INIT_BIT_PROXY_POSITION             3
 
-int ClockDcf77MbgC51::moduleInit(void)
+int CompassCmps03::moduleInit(void)
 {
     int ret;
 
@@ -354,7 +327,7 @@ int ClockDcf77MbgC51::moduleInit(void)
     }
     initBits.setBit(INIT_BIT_DATA_MODULE);
 
-    ret = serialPort.open(serialDev, &clock_serial_config, this);
+    ret = serialPort.open(serialDev, &serial_config, this);
     if (ret)
     {
         GDOS_ERROR("Can't open serialDev %i, code=%d\n", serialDev, ret);
@@ -383,7 +356,7 @@ init_error:
     return ret;
 }
 
-void ClockDcf77MbgC51::moduleCleanup(void)
+void CompassCmps03::moduleCleanup(void)
 {
     // call RackDataModule cleanup function
     if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
@@ -403,7 +376,7 @@ void ClockDcf77MbgC51::moduleCleanup(void)
     }
 }
 
-ClockDcf77MbgC51::ClockDcf77MbgC51()
+CompassCmps03::CompassCmps03()
         : RackDataModule( MODULE_CLASS_ID,
                       5000000000llu,    // 5s datatask error sleep time
                       16,               // command mailbox slots
@@ -413,9 +386,9 @@ ClockDcf77MbgC51::ClockDcf77MbgC51()
                       10)               // data buffer listener
 {
     // get static module parameter
-    serialDev                      = getIntArg("serialDev", argTab);
-    clock_serial_config.baud_rate  = getIntArg("baudrate", argTab);
-    dataBufferMaxDataSize = sizeof(clock_data);
+    serialDev                = getIntArg("serialDev", argTab);
+    serial_config.baud_rate  = getIntArg("baudrate", argTab);
+    dataBufferMaxDataSize    = sizeof(compass_data);
 }
 
 int main(int argc, char *argv[])
@@ -423,21 +396,20 @@ int main(int argc, char *argv[])
     int ret;
 
     // get args
-    ret = RackModule::getArgs(argc, argv, argTab, "ClockDcf77MbgC51");
+    ret = RackModule::getArgs(argc, argv, argTab, "CompassCmps03");
     if (ret)
     {
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
 
-    // create new ClockDcf77MbgC51
+    // create new CompassCmps03
+    CompassCmps03 *pInst;
 
-    ClockDcf77MbgC51 *pInst;
-
-    pInst = new ClockDcf77MbgC51();
+    pInst = new CompassCmps03();
     if (!pInst)
     {
-        printf("Can't create new ClockDcf77MbgC51 -> EXIT\n");
+        printf("Can't create new CompassCmps03 -> EXIT\n");
         return -ENOMEM;
     }
 

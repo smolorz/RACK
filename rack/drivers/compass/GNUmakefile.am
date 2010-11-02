@@ -1,0 +1,17 @@
+
+bin_PROGRAMS =
+
+if CONFIG_RACK_COMPASS_CMPS03
+bin_PROGRAMS += CompassCmps03
+endif
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+CompassCmps03_SOURCES = \
+	compass_cmps03.h \
+	compass_cmps03.cpp
+
+EXTRA_DIST = \
+	Kconfig

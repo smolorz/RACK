@@ -6,6 +6,7 @@ SUBDIRS = \
 	camera \
 	chassis \
 	clock \
+	compass \
 	gps \
 	ladar
 
@@ -13,6 +14,7 @@ drvinclude_HEADERS = \
 	camera_proxy.h \
 	chassis_proxy.h \
 	clock_proxy.h \
+	compass_proxy.h \
 	gps_proxy.h \
 	gyro_proxy.h \
 	io_proxy.h \
@@ -36,6 +38,8 @@ dist_java_JAVA += \
 	ChassisSetActivePilotMsg.java \
 	ClockProxy.java \
 	ClockDataMsg.java \
+	CompassProxy.java \
+	CompassDataMsg.java \
 	GpsProxy.java \
 	GpsDataMsg.java \
 	GyroProxy.java \
@@ -68,6 +72,7 @@ EXTRA_DIST = \
 	camera_proxy.cpp \
 	chassis_proxy.cpp \
 	clock_proxy.cpp \
+	compass_proxy.cpp \
 	gps_proxy.cpp \
 	gyro_proxy.cpp \
 	io_proxy.cpp \

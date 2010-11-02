@@ -1,0 +1,4 @@
+
+config RACK_COMPASS_CMPS03
+    bool "Compass - Cmps03"
+    default y

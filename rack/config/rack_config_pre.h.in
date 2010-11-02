@@ -39,6 +39,9 @@
 /* building ClockSystem */
 #undef CONFIG_RACK_CLOCK_SYSTEM
 
+/* building CompassCmps03 */
+#undef CONFIG_RACK_COMPASS_CMPS03
+
 /* Compiler */
 #undef CONFIG_RACK_COMPILER
 

@@ -47,6 +47,7 @@
 #define PATH                    0x25
 #define MCL                     0x26
 #define PTZ_DRIVE               0x27
+#define COMPASS                 0x28
 
 #define RACK_NAME_OFFSET        0x80
 

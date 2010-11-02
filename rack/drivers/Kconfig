@@ -12,6 +12,10 @@ menu "Clock"
 source "drivers/clock/Kconfig"
 endmenu
 
+menu "Compass"
+source "drivers/compass/Kconfig"
+endmenu
+
 menu "Gps"
 source "drivers/gps/Kconfig"
 endmenu
