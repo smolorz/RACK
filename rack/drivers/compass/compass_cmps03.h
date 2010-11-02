@@ -31,7 +31,7 @@ typedef struct
 
 
 /**
- * System Compass
+ * Compass Cmps03
  *
  * @ingroup modules_compass
  */

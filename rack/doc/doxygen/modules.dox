@@ -121,6 +121,11 @@
 		 * @defgroup modules_clock Clock
 		 *
 		 */
+
+		/**
+		 * @defgroup modules_compass Compass
+		 *
+		 */
 		
 		/**
 		 * @defgroup modules_gps Gps

@@ -38,6 +38,7 @@ host_triplet = @host@
 @CONFIG_RACK_JAVA_GUI_TRUE@	CameraGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	ChassisGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	ClockGui.java \
+@CONFIG_RACK_JAVA_GUI_TRUE@	CompassGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@	GpsGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@        GyroGui.java \
 @CONFIG_RACK_JAVA_GUI_TRUE@        GyroComponent.java \
@@ -64,10 +65,10 @@ SOURCES =
 DIST_SOURCES =
 am__dist_java_JAVA_DIST = CameraComponent.java CameraColorConvert.java \
 	CameraMisColorConvert.java CameraGui.java ChassisGui.java \
-	ClockGui.java GpsGui.java GyroGui.java GyroComponent.java \
-	IoGui.java JoystickGui.java JoystickSoftware.java \
-	LadarGui.java PtzDriveGui.java ServoDriveGui.java \
-	VehicleGui.java
+	ClockGui.java CompassGui.java GpsGui.java GyroGui.java \
+	GyroComponent.java IoGui.java JoystickGui.java \
+	JoystickSoftware.java LadarGui.java PtzDriveGui.java \
+	ServoDriveGui.java VehicleGui.java
 JAVAC = javac
 CLASSPATH_ENV = CLASSPATH=$(JAVAROOT):$(srcdir)/$(JAVAROOT):$$CLASSPATH
 JAVAROOT = $(top_builddir)
