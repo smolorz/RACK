@@ -26,8 +26,11 @@
 // define module class
 #define MODULE_CLASS_ID     LADAR
 
+#define START_MEAS                          "\02sRN LMDscandata\03"
+#define LADAR_MAX_RANGE                      20000
+
 typedef struct
-{    
+{
     ladar_data          data;
     ladar_point         point[LADAR_DATA_MAX_POINT_NUM];
 } __attribute__((packed)) ladar_data_msg;
@@ -83,15 +86,13 @@ typedef struct
     char                 numdata[3];
     char                 white24;
     int                  dataPoints[1082];
+    int                  dataRemission[1082];
 }__attribute__((packed)) ladar_lms100_header;
 
+//######################################################################
+//# class NewRackDataModule
+//######################################################################
 
-
-/**
- * Ladar Sick LMS100
- *
- * @ingroup modules_ladar
- */
 class LadarSickLms100 : public RackDataModule {
     private:
 
@@ -100,7 +101,8 @@ class LadarSickLms100 : public RackDataModule {
         ladar_lms100_header  ladarHeader;
         char                 *lmsIp;
         int                  lmsPort;
-        
+        int                  reflectorRemission;
+
     protected:
 
         // -> realtime context
@@ -111,9 +113,10 @@ class LadarSickLms100 : public RackDataModule {
 
         // -> non realtime context
         void moduleCleanup(void);
-        int ExtractHeader(char *, int );
-        int hextodec (char tmpbuff[], int n);
-        int Recvfail (int , int );
+
+        int extractHeader(char *, int );
+        int hextodec(char tmpbuff[], int n);
+        int recvfail(int , int );
 
     public:
 
@@ -127,3 +130,4 @@ class LadarSickLms100 : public RackDataModule {
 };
 
 #endif // __LADAR_SICK_LMS100_H__
+
