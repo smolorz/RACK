@@ -16,23 +16,35 @@
 
 #include "compass_cmps03.h"
 
+#define CALIBRATE_STATE_IDLE        0
+#define CALIBRATE_STATE_1_PREALIGN  1
+#define CALIBRATE_STATE_1_ALIGN     2
+#define CALIBRATE_STATE_1           3
+#define CALIBRATE_STATE_1_OK        4
+
 //
 // data structures
 //
 
 arg_table_t argTab[] = {
 
-    { ARGOPT_OPT, "clockSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The system of the clock input module", { 0 } },
+   { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Serial device number", { -1 } },
 
-    { ARGOPT_OPT, "clockInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "The instance of the clock input module", { -1 } },
+    { ARGOPT_OPT, "baudrate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Baudrate of serial device, default 57600", { 57600 } },
 
-    { ARGOPT_OPT, "systemClockUpdate", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Enable update of the system clock with clock input, 0=off, 1=on, default 1", { 1 } },
+    { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "PeriodTime of the Compass module (in ms), default 200", { 200 } },
 
-    { ARGOPT_OPT, "systemClockUpdateTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Time interval for updating the system clock in ms, default 60000 ", { 60000 } },
+    { ARGOPT_OPT, "calibration", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Starts the calibration of the Compass module, default 0", { 0 } },
+
+    { ARGOPT_OPT, "compassAligned", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Compass module is aligned to one ordinal direction, default 0", { 0 } },
+
+    { ARGOPT_OPT, "compassOffset", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Sets the compass offset in degree, default 0.0", { 0 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -66,11 +78,20 @@ int CompassCmps03::moduleOn(void)
 {
     // get dynamic module parameter
     dataBufferPeriodTime    = getInt32Param("periodTime");
+    compassOffset           = getInt32Param("compassOffset");
 
     serialPort.clean();
 
     // set rx timeout 2 * periodTime
     serialPort.setRecvTimeout(rackTime.toNano(2 * dataBufferPeriodTime));
+
+    // init
+    calibrationFlag    = 0;
+    compassAlignedFlag = 0;
+    calibrationOK      = 0;
+    state              = 0;
+    compassOffset      = 0.0;
+    ordinalCount       = 1;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -90,12 +111,14 @@ int CompassCmps03::moduleLoop(void)
     // get datapointer from rackdatabuffer
     p_data = (compass_data *)getDataBufferWorkSpace();
 
-   // read next serial message
+    calibrateCompass();
+
+    // read next serial message
     ret = readSerialMessage(&serialData);
     if (ret)
     {
         GDOS_ERROR("Can't read serial message from serial device %i, code %i\n", serialDev, ret);
-        return ret;
+        //return ret;
     }
 
     // decode message
@@ -107,16 +130,37 @@ int CompassCmps03::moduleLoop(void)
 
     p_data->recordingTime = serialData.recordingTime;
 
+    if (state != 0)
+    {
+        p_data->orientation    = 0.0f;
+        p_data->varOrientation = 0.0f;
+    }
+
     GDOS_DBG_DETAIL("recordingtime %i, orientation %a, varOrientation %a\n", p_data->recordingTime,
-                    p_data->orientation, p_data->varOrientation);
+    p_data->orientation, p_data->varOrientation);
     putDataBufferWorkSpace(sizeof(compass_data));
     return 0;
 }
 
 int CompassCmps03::moduleCommand(RackMessage *msgInfo)
 {
-    // not for me -> ask RackDataModule
-    return RackDataModule::moduleCommand(msgInfo);
+    int ret;
+
+    switch (msgInfo->getType())
+    {
+        case MSG_SET_PARAM:
+            ret = RackDataModule::moduleCommand(msgInfo);
+
+            GDOS_DBG_INFO("Module parameter changed\n");
+            calibrationFlag    = getInt32Param("calibration");
+            compassAlignedFlag = getInt32Param("compassAligned");
+            return ret;
+            break;
+
+        // not for me -> ask RackDataModule
+        default:
+            return RackDataModule::moduleCommand(msgInfo);
+    }
 }
 
 int CompassCmps03::readSerialMessage(compass_serial_data *serialData)
@@ -126,6 +170,7 @@ int CompassCmps03::readSerialMessage(compass_serial_data *serialData)
     unsigned char   currChar;
     rack_time_t     recordingTime;
 
+
     // init local variables
     recordingTime   = 0;
     currChar        = 0;
@@ -133,7 +178,7 @@ int CompassCmps03::readSerialMessage(compass_serial_data *serialData)
     msgSize         = sizeof(serialData->data);
 
     // synchronize to message head, timeout after 200 attempts
-    while ((i < 200) && (currChar != 0x02))
+    while ((i < 200) && (currChar != 36))
     {
         // read next character
         ret = serialPort.recv(&currChar, 1, &recordingTime);
@@ -156,14 +201,14 @@ int CompassCmps03::readSerialMessage(compass_serial_data *serialData)
     // store first character
     else
     {
-        serialData->data[0]       = currChar;
+        serialData->data[0] = currChar;
         i = 1;
     }
 
 
     // read serial message until currChar == "0x03",
     // timout if msgSize is reached
-    while ((i < msgSize) && (currChar != 0x03))
+    while ((i < msgSize) && (currChar != 10))
     {
         // read next character
         ret = serialPort.recv(&currChar, 1, &recordingTime);
@@ -179,8 +224,8 @@ int CompassCmps03::readSerialMessage(compass_serial_data *serialData)
         i++;
     }
 
-    // if last read character != "0x03" an error occured
-    if (currChar != 0x03)
+    // if last read character != "0x0a" an error occured
+    if (currChar != 10)
     {
         GDOS_ERROR("Can't read end of serial message\n");
         return -EINVAL;
@@ -198,102 +243,106 @@ int CompassCmps03::analyseSerialMessage(compass_serial_data *serialData, compass
 {
     char    subStr[8];
     char    *endPtr;
-    int     month, year;
-/*
-    // hour
-    strncpy (subStr, &serialData->data[18], 2);
-    subStr[2]='\0';
-    data->hour = strtol(subStr, &endPtr, 10);
-    if (*endPtr != 0)
-    {
-        GDOS_ERROR("Cannot read hours from serial data");
-        return -EIO;
-    }
+    float   degree;
 
-    // minute
-    strncpy (subStr, &serialData->data[21], 2);
-    subStr[2]='\0';
-    data->minute = strtol(subStr, &endPtr, 10);
-    if (*endPtr != 0)
-    {
-        GDOS_ERROR("Cannot read minutes from serial data");
-        return -EIO;
-    }
+    calibrationOK = 0;
 
-    // second
-    strncpy (subStr, &serialData->data[24], 2);
-    subStr[2]='\0';
-    data->second = strtol(subStr, &endPtr, 10);
-    if (*endPtr != 0)
-    {
-        GDOS_ERROR("Cannot read seconds from serial data");
-        return -EIO;
-    }
+    // degree
+    strncpy (subStr, &serialData->data[1], 4);
+    subStr[4]='\0';
 
-    // day
-    strncpy (subStr, &serialData->data[3], 2);
-    subStr[2]='\0';
-    data->day = strtol(subStr, &endPtr, 10);
-    if (*endPtr != 0)
+    //calibrationOK
+    if(subStr[0] == 79 && subStr[1] == 75)
     {
-        GDOS_ERROR("Cannot read days from serial data");
-        return -EIO;
-    }
-
-    // month
-    strncpy (subStr, &serialData->data[6], 2);
-    subStr[2]='\0';
-    data->month = strtol(subStr, &endPtr, 10);
-    if (*endPtr != 0)
-    {
-        GDOS_ERROR("Cannot read months from serial data");
-        return -EIO;
-    }
-
-    // year
-    strncpy (subStr, &serialData->data[9], 2);
-    subStr[2]='\0';
-    data->year = strtol(subStr, &endPtr, 10) + 2000;
-    if (*endPtr != 0)
-    {
-        GDOS_ERROR("Cannot read years from serial data");
-        return -EIO;
-    }
-
-    // day of week
-    strncpy (subStr, &serialData->data[14], 1);
-    subStr[1]='\0';
-    data->dayOfWeek = strtol(subStr, &endPtr, 10);
-    if (*endPtr != 0)
-    {
-        GDOS_ERROR("Cannot read day of week from serial data");
-        return -EIO;
-    }
-
-    // utc time
-    month = data->month;
-    year  = data->year;
-
-    if (0 >= (int)(month -= 2))
-    {
-        month  += 12;              // puts feb last since it has leap day
-        year   -= 1;
-    }
-    data->utcTime = ((((long)(year/4 - year/100 + year/400 + 367*month/12 + data->day) +
-                              year*365 - 719499
-                                      )*24 + data->hour
-                                      )*60 + data->minute
-                                      )*60 + data->second;
-
-    // sync mode
-    if (serialData->data[28] == 0x20)
-    {
-        data->syncMode = CLOCK_SYNC_MODE_REMOTE;
+        calibrationOK = 1;
     }
     else
     {
-        data->syncMode = CLOCK_SYNC_MODE_NONE;
-    }*/
+        if(calibrationFlag != 1)
+        {
+            degree = (float)strtol(subStr, &endPtr, 10)/10.0;
+            data->orientation = normaliseAngle((M_PI / 180.0) * degree +
+                                               (float)compassOffset * (M_PI / 180.0));
+            if (*endPtr != 0)
+            {
+                GDOS_ERROR("Cannot read orientation from serial data");
+                return -EIO;
+            }
+        }
+    }
+    return 0;
+}
+
+int CompassCmps03::calibrateCompass()
+{
+    int ret;
+    unsigned char startByte = 0x7E; // 0x7E = '~'
+    unsigned char ackByte   = 0x23; // 0x23 = '#'
+
+    switch (state)
+    {
+        case CALIBRATE_STATE_IDLE:
+            if (calibrationFlag == 1)
+            {
+                GDOS_PRINT("Calibration requested\n");
+                ordinalCount = 1;
+                state = CALIBRATE_STATE_1_PREALIGN;
+            }
+            break;
+
+        case CALIBRATE_STATE_1_PREALIGN:
+            GDOS_PRINT("Orientate the compass towards the %i. ordinal direction and "
+                       "set the AlignedFlag\n",ordinalCount);
+            state = CALIBRATE_STATE_1_ALIGN;
+            break;
+
+        case CALIBRATE_STATE_1_ALIGN:
+            if (compassAlignedFlag == 1)
+            {
+                state = CALIBRATE_STATE_1;
+                // send Calibration StartByte
+                ret = serialPort.send(&startByte, 1);
+                if (ret)
+                {
+                    GDOS_ERROR("Can't send CalibrateStartByte to rtser%d\n", serialDev );
+                    return ret;
+                }
+            }
+            break;
+
+        case CALIBRATE_STATE_1:
+            if(calibrationOK == 1)
+            {
+                state = CALIBRATE_STATE_1_OK;
+            }
+            break;
+
+         case CALIBRATE_STATE_1_OK:
+            ret = serialPort.send(&ackByte, 1);
+            if (ret)
+            {
+                GDOS_ERROR("Can't send AckByte to rtser%d\n", serialDev );
+                return ret;
+            }
+            compassAlignedFlag = 0;
+            setInt32Param("compassAligned", compassAlignedFlag);
+            calibrationOK = 0;
+
+            if(ordinalCount >= 4)
+            {   calibrationFlag = 0;
+                state = CALIBRATE_STATE_IDLE;
+                setInt32Param("calibration", 0);
+                GDOS_PRINT("Calibration fully completed\n");
+            }
+            else
+            {
+                GDOS_PRINT("Calibration of the %i. ordinal direction successful\n",ordinalCount);
+                ordinalCount++;
+                state = CALIBRATE_STATE_1_PREALIGN;
+            }
+            break;
+
+    }
 
     return 0;
 }

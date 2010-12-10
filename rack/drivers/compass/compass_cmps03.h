@@ -19,6 +19,8 @@
 #include <main/rack_data_module.h>
 #include <drivers/compass_proxy.h>
 #include <main/serial_port.h>
+#include <main/angle_tool.h>
+
 
 // define module class
 #define MODULE_CLASS_ID                     COMPASS
@@ -31,7 +33,7 @@ typedef struct
 
 
 /**
- * Compass Cmps03
+ * System Compass
  *
  * @ingroup modules_compass
  */
@@ -41,6 +43,14 @@ class CompassCmps03 : public RackDataModule {
         int                 serialDev;
         int                 baudrate;
         int                 periodTime;
+        
+        int                 calibrationFlag;     
+        int                 calibrationOK;
+        int                 compassAlignedFlag;
+        int                 state; 
+        int                 ordinalCount;
+        int                 compassOffset;
+              
 
         SerialPort          serialPort;
         compass_serial_data serialData;
@@ -50,6 +60,7 @@ class CompassCmps03 : public RackDataModule {
 
         int readSerialMessage(compass_serial_data *serialData);
         int analyseSerialMessage(compass_serial_data *serialData, compass_data *data);
+        int calibrateCompass();
 
     protected:
         // -> realtime context
