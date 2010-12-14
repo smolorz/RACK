@@ -19,12 +19,11 @@
 
 #include "ladar_sick_lms100.h"
 
-#define START_MEAS                          "\02sRN LMDscandata\03"
-#define LADAR_MAX_RANGE                      20000
-
 //
 // data structures
 //
+
+LadarSickLms100 *pInst;
 
 arg_table_t argTab[] = {
 
@@ -33,6 +32,9 @@ arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "lmsPort", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Port address of the LMS 100, default '2112'", { 2112 } },
+
+    { ARGOPT_OPT, "reflectorRemission", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Minimum remission intensity for a reflector, default '1000'", {1000} },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -50,48 +52,46 @@ arg_table_t argTab[] = {
 
 int  LadarSickLms100::moduleOn(void)
 {
-     int ret;
+    int ret;
 
-     RackTask::disableRealtimeMode();
+    RackTask::disableRealtimeMode();
 
-     // read dynamic module parameter
-    lmsIp   = getStringParam("lmsIp");
-    lmsPort = getInt32Param("lmsPort");
+    // read dynamic module parameter
+    lmsIp              = getStringParam("lmsIp");
+    lmsPort            = getInt32Param("lmsPort");
+    reflectorRemission = getInt32Param("reflectorRemission");
 
-     //preparing tcp Socket
-     inet_pton(AF_INET, lmsIp, &(tcpAddr.sin_addr));
-     tcpAddr.sin_port = htons((unsigned short)lmsPort);
-     tcpAddr.sin_family = AF_INET;
-     bzero(&(tcpAddr.sin_zero), 8);
+    //preparing tcp Socket
+    inet_pton(AF_INET, lmsIp, &(tcpAddr.sin_addr));
+    tcpAddr.sin_port   = htons((unsigned short)lmsPort);
+    tcpAddr.sin_family = AF_INET;
+    bzero(&(tcpAddr.sin_zero), 8);
 
-     //openning tcp Socket
-     GDOS_DBG_INFO("open network socket...\n");
-     tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
-     if (tcpSocket == -1)
-     {
-             GDOS_ERROR("Can't create tcp Socket, (%d)\n",errno);
-             return -errno;
-     }
+    //openning tcp Socket
+    GDOS_DBG_INFO("open network socket...\n");
+    tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (tcpSocket == -1)
+    {
+        GDOS_ERROR("Can't create tcp Socket, (%d)\n",errno);
+        return -errno;
+    }
 
-     //connect to tcp Socket
-     GDOS_DBG_INFO("Connect to network socket\n");
-     ret = connect(tcpSocket, (struct sockaddr *)&tcpAddr, sizeof(tcpAddr));
-     if(ret)
-     {
-            GDOS_ERROR("Can't connect to tcp Socket, (%d)\n",errno);
-            return    errno;
-     }
-     GDOS_DBG_INFO("Turn on ladar\n");
-
-
-   RackTask::enableRealtimeMode();
+    //connect to tcp Socket
+    GDOS_DBG_INFO("Connect to network socket\n");
+    ret = connect(tcpSocket, (struct sockaddr *)&tcpAddr, sizeof(tcpAddr));
+    if(ret)
+    {
+       GDOS_ERROR("Can't connect to tcp Socket, (%d)\n",errno);
+       return errno;
+    }
+    GDOS_DBG_INFO("Turn on ladar\n");
+    RackTask::enableRealtimeMode();
 
     return RackDataModule::moduleOn();   // has to be last command in moduleOn();
 }
 
 void LadarSickLms100::moduleOff(void)
 {
-
     RackDataModule::moduleOff();         // has to be first command in moduleOff();
 
     // closing tcp Socket
@@ -99,17 +99,16 @@ void LadarSickLms100::moduleOff(void)
 
     if(tcpSocket !=-1)
     {
-                 close(tcpSocket);
-                 tcpSocket = -1;
+        close(tcpSocket);
+        tcpSocket = -1;
     }
     RackTask::enableRealtimeMode();
 }
 
 int  LadarSickLms100::moduleLoop(void)
 {
-    ladar_data    *p_Data              = NULL;
+    ladar_data    *pData = NULL;
     uint32_t      datalength;
-
     int           len;
     int           ret=0;
     int           n=0;
@@ -117,180 +116,215 @@ int  LadarSickLms100::moduleLoop(void)
     int           j=0;
     char          tmpbuff[10];
     char          buff[1460];
-
     rack_time_t   scanTime;
 
     // get datapointer from rackDataBuffer
-
-    p_Data = (ladar_data*)getDataBufferWorkSpace();
+    pData = (ladar_data*)getDataBufferWorkSpace();
 
     RackTask::disableRealtimeMode();
 
-         memset(buff, 'x', sizeof(buff));
-         memset(&(ladarHeader),0, sizeof(ladarHeader));
+    memset(buff, '\0', sizeof(buff));
+    memset(&(ladarHeader),0, sizeof(ladarHeader));
 
 
-         ret = send(tcpSocket,START_MEAS,strlen(START_MEAS),0);
+    ret = send(tcpSocket,START_MEAS,strlen(START_MEAS),0);
 
-         scanTime = rackTime.get();
-         if (ret < 0)
-         {
-                    GDOS_ERROR("Error receiving data, (%d)",errno);
-                    return -errno;
-         }
+    scanTime = rackTime.get();
+    if (ret < 0)
+    {
+        GDOS_ERROR("Error receiving data, (%d)",errno);
+        return -errno;
+    }
 
-         //EXTRACTING FIRST PART OF HEADER (ALWAYS CONSTANT AMOUNT OF BYTES)
-         ret=recv(tcpSocket,&ladarHeader, 32*sizeof(char),0);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-
-
-         //EXTRACTING THE NON CONSTANT COUNTERS
-
-         ret = ExtractHeader( ladarHeader.messagecounter, tcpSocket);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-
-         ladarHeader.white8 = ' ';
-
-         ret = ExtractHeader( ladarHeader.scancounter, tcpSocket);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-
-         ladarHeader.white9 = ' ';
-
-         ret = ExtractHeader( ladarHeader.powerupduration, tcpSocket);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-
-         ladarHeader.white10 = ' ';
-
-         ret = ExtractHeader( ladarHeader.transduration, tcpSocket);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-         ladarHeader.white11 = ' ';
+    //EXTRACTING FIRST PART OF HEADER (ALWAYS CONSTANT AMOUNT OF BYTES)
+    ret=recv(tcpSocket,&ladarHeader, 32*sizeof(char),0);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
 
 
-         //EXTRACTING THE REST OF THE CONSTANT PART OF HEADER
-         ret = recv(tcpSocket,&(ladarHeader.inputstatus), 10*sizeof(char),0);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-         ret = ExtractHeader( ladarHeader.scanfreq, tcpSocket);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-         ladarHeader.white16 = ' ';
+    //EXTRACTING THE NON CONSTANT COUNTERS
+    ret = extractHeader( ladarHeader.messagecounter, tcpSocket);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ladarHeader.white8 = ' ';
 
-         ret = recv(tcpSocket,&(ladarHeader.measfreq), 41*sizeof(char),0);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
+    ret = extractHeader( ladarHeader.scancounter, tcpSocket);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ladarHeader.white9 = ' ';
 
-         ret = ExtractHeader( ladarHeader.angstep, tcpSocket);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
-         ladarHeader.white23 = ' ';
+    ret = extractHeader( ladarHeader.powerupduration, tcpSocket);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ladarHeader.white10 = ' ';
 
-         ret = recv(tcpSocket,&(ladarHeader.numdata), 4*sizeof(char),0);
-         if (ret < 1)
-         {
-                 ret= Recvfail(ret,errno);
-                 return ret;
-         }
+    ret = extractHeader( ladarHeader.transduration, tcpSocket);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ladarHeader.white11 = ' ';
+
+    //EXTRACTING THE REST OF THE CONSTANT PART OF HEADER
+    ret = recv(tcpSocket,&(ladarHeader.inputstatus), 10*sizeof(char),0);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ret = extractHeader( ladarHeader.scanfreq, tcpSocket);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ladarHeader.white16 = ' ';
+
+    ret = recv(tcpSocket,&(ladarHeader.measfreq), 41*sizeof(char),0);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+
+    ret = extractHeader( ladarHeader.angstep, tcpSocket);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+    ladarHeader.white23 = ' ';
+
+    ret = recv(tcpSocket,&(ladarHeader.numdata), 4*sizeof(char),0);
+    if (ret < 1)
+    {
+        ret= recvfail(ret,errno);
+        return ret;
+    }
+
+    memcpy(tmpbuff, &(ladarHeader.numdata),3);
+    n=hextodec(tmpbuff,3);
+    //EXTRACTING DATA POINTS
 
 
-         memcpy(tmpbuff, &(ladarHeader.numdata),3);
-         n=hextodec(tmpbuff,3);
-         //EXTRACTING DATA POINTS
+    for (i=0; i < n; i++)
+    {
+        do
+        {
+            len= recv(tcpSocket,&(tmpbuff[j]),1*sizeof(char), 0);
+            if (ret < 1)
+            {
+                ret= recvfail(ret,errno);
+                return ret;
+            }
+            j++;
+        }
+        while (tmpbuff[j-1] != ' ');
+        j--;
+        ladarHeader.dataPoints[i]= hextodec(tmpbuff,j );
+        j=0;
+    }
 
+    ret = recv(tcpSocket, buff, sizeof(char), 0);
 
-         for (i=0; i < n; i++)
-         {
-             do
-             {
-                   len= recv(tcpSocket,&(tmpbuff[j]),1*sizeof(char), 0);
-                   if (ret < 1)
-                   {
-                           ret= Recvfail(ret,errno);
-                           return ret;
-                   }
-                   j++;
-             }while (tmpbuff[j-1] != ' ');
-             j--;
-             ladarHeader.dataPoints[i]= hextodec(tmpbuff,j );
-             j=0;
-         }
+    if (buff[0] == 'R')
+    {
+        //Extracting Remission header (no important data)
+        ret = recv(tcpSocket, buff, 43*sizeof(char), 0);
 
-         //FlUSHING REST OF DATA PACKAGE IN BUFER
-         ret = recv(tcpSocket, buff, sizeof(buff), 0);
+        //Extracting remission values for the points
 
-         if (n == 1082) j=3;
-         else j=4;
+        for (i=0; i < n; i++)
+        {
+            do
+            {
+                len= recv(tcpSocket,&(tmpbuff[j]),1*sizeof(char), 0);
+                if (ret < 1)
+                {
+                    ret= recvfail(ret,errno);
+                    return ret;
+                }
+                j++;
+            }
+            while (tmpbuff[j-1] != ' ');
+            j--;
+            ladarHeader.dataRemission[i]= hextodec(tmpbuff,j );
+            j=0;
+        }
+    }
+    //FlUSHING REST OF DATA PACKAGE IN BUFER
+    ret = recv(tcpSocket, buff, sizeof(buff), 0);
 
-
-          RackTask::enableRealtimeMode();
+    if (n == 1082)
+    {
+        j=3;
+    }
+    else
+    {
+        j=4;
+    }
+    RackTask::enableRealtimeMode();
 
      // create ladar data message
-           p_Data->recordingTime = scanTime;
-           p_Data->duration        = hextodec(ladarHeader.measfreq,3)*1000;
-           p_Data->maxRange        = LADAR_MAX_RANGE;
+     pData->recordingTime = scanTime;
+     pData->duration      = hextodec(ladarHeader.measfreq,3)*1000;
+     pData->maxRange      = LADAR_MAX_RANGE;
+     pData->startAngle    = M_PI * (hextodec(ladarHeader.startangle,8)-900000)/ 1800000;
+     pData->endAngle      = M_PI * hextodec(ladarHeader.angstep,j) * n / 1800000;
+     pData->pointNum      = n;
 
-           p_Data->startAngle        = M_PI * (hextodec(ladarHeader.startangle,8)-900000)/ 1800000;
-           p_Data->endAngle          = M_PI * hextodec(ladarHeader.angstep,j) * n / 1800000;
-           p_Data->pointNum        = n;
+     for (i = 0; i < n; i++)
+     {
+        pData->point[i].angle    = pData->startAngle + (i * M_PI * hextodec(ladarHeader.angstep,j)/ 1800000);
+        pData->point[i].distance = ladarHeader.dataPoints[n-i];
 
-           for (i = 0; i < n; i++)
-            {
-                p_Data->point[i].angle    = p_Data->startAngle + (i * M_PI * hextodec(ladarHeader.angstep,j)/ 1800000);
-                p_Data->point[i].distance = ladarHeader.dataPoints[n-i];
-                p_Data->point[i].type     = 0;
-            }
+        pData->point[i].type = 0;
 
+        if (ladarHeader.dataRemission[n-i] < reflectorRemission)
+        {
+            pData->point[i].type |= LADAR_POINT_TYPE_UNKNOWN;
+        }
+        else
+        {
+            pData->point[i].type |= LADAR_POINT_TYPE_REFLECTOR;
+        }
+        pData->point[i].intensity = ladarHeader.dataRemission[n-i];
+     }
+
+     GDOS_DBG_DETAIL("recordingTime %d, pointNum %d\n", pData->recordingTime, pData->pointNum);
 
     // write data buffer slot (and send it to all listeners)
-    datalength = sizeof(ladar_data) + sizeof(ladar_point) * p_Data->pointNum;
+    datalength = sizeof(ladar_data) + sizeof(ladar_point) * pData->pointNum;
     putDataBufferWorkSpace(datalength);
 
     return 0;
 }
 
 
-int LadarSickLms100::Recvfail (int ret, int error)
+int LadarSickLms100::recvfail (int ret, int error)
 {
-         if (ret==-1)
-         {
-                     GDOS_ERROR("Error receiving data, (%d)",errno);
-         }
-         else if (ret==0)
-         {
-                     GDOS_ERROR("Session closed");
-         }
-         return -1;
+    if (ret==-1)
+    {
+        GDOS_ERROR("Error receiving data, (%d)",errno);
+    }
+    else if (ret==0)
+    {
+        GDOS_ERROR("Session closed");
+    }
+    return -1;
 }
 
 
@@ -305,7 +339,7 @@ int  LadarSickLms100::moduleCommand(RackMessage *msgInfo)
     return 0;
 }
 
-int LadarSickLms100::ExtractHeader(char *header, int Socket )
+int LadarSickLms100::extractHeader(char *header, int Socket )
 {
 
     int i=0;
@@ -317,33 +351,34 @@ int LadarSickLms100::ExtractHeader(char *header, int Socket )
         a=recv(Socket,(void *) &j, sizeof(char),0);
         if (a < 0)
         {
-              a= Recvfail (a,errno);
-              return -1;
+            a = recvfail (a,errno);
+            return -1;
         }
         if ( j != ' ')
         {
-                 header[i]=j;
-                 i++;
+            header[i]=j;
+            i++;
         }
-    }while (j != ' ');
+    }
+    while (j != ' ');
     return i;
-
 }
+
 int LadarSickLms100::hextodec (char tmpbuff[], int n)
 {
     int i;
     uint32_t result=0;
+
     for(i=0;n>0;i++)
     {
-                     if((int)tmpbuff[i]<=57)
-                     {
-                               result += (((int)tmpbuff[i])-48)*pow(16,--n);
-
-                     }
-                     else
-                     {
-                               result += (((int)tmpbuff[i])-55)*pow(16,--n);
-                     }
+        if((int)tmpbuff[i]<=57)
+        {
+            result += (((int)tmpbuff[i])-48)*pow(16,--n);
+        }
+        else
+        {
+            result += (((int)tmpbuff[i])-55)*pow(16,--n);
+        }
     }
     return result;
 }
@@ -412,7 +447,7 @@ LadarSickLms100::LadarSickLms100()
                     10)               // data buffer listener
 {
     dataBufferMaxDataSize   = sizeof(ladar_data_msg);
-    dataBufferPeriodTime    = 100; // 100 ms (10 per sec)
+    dataBufferPeriodTime    = 20; // 20 ms (50 per sec)
 }
 
 int  main(int argc, char *argv[])
@@ -426,8 +461,6 @@ int  main(int argc, char *argv[])
         printf("Invalid arguments -> EXIT \n");
         return ret;
     }
-
-    LadarSickLms100 *pInst;
 
     // create new LadarSickLms100
     pInst = new LadarSickLms100();
