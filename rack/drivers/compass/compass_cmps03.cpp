@@ -90,7 +90,6 @@ int CompassCmps03::moduleOn(void)
     compassAlignedFlag = 0;
     calibrationOK      = 0;
     state              = 0;
-    compassOffset      = 0.0;
     ordinalCount       = 1;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
@@ -261,8 +260,8 @@ int CompassCmps03::analyseSerialMessage(compass_serial_data *serialData, compass
         if(calibrationFlag != 1)
         {
             degree = (float)strtol(subStr, &endPtr, 10)/10.0;
-            data->orientation = normaliseAngle((M_PI / 180.0) * degree +
-                                               (float)compassOffset * (M_PI / 180.0));
+            data->orientation = normaliseAngle(degree * M_PI / 180.0f +
+                                               (float)compassOffset * M_PI / 180.0f);
             if (*endPtr != 0)
             {
                 GDOS_ERROR("Cannot read orientation from serial data");
