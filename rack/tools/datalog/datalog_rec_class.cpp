@@ -334,6 +334,13 @@ int DatalogRec::initLogFile()
                                   RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
                     break;
 
+                case COMPASS:
+                    ret = fprintf(fileptr[i], "%% Compass(%i/%i)\n"
+                                  "%% recordingTime orientation varOrientation\n",
+                                  RackName::systemId(datalogInfoMsg.logInfo[i].moduleMbx),
+                                  RackName::instanceId(datalogInfoMsg.logInfo[i].moduleMbx));
+                    break;
+
                 case GPS:
                     ret = fprintf(fileptr[i], "%% Gps(%i/%i)\n"
                                   "%% recordingTime mode latitude longitude"
@@ -526,6 +533,7 @@ int DatalogRec::logData(RackMessage *msgInfo)
     camera_data      *cameraData;
     chassis_data     *chassisData;
     clock_data       *clockData;
+    compass_data     *compassData;
     gps_data         *gpsData;
     gyro_data        *gyroData;
     io_data          *ioData;
@@ -623,6 +631,17 @@ int DatalogRec::logData(RackMessage *msgInfo)
                         clockData->dayOfWeek,
                         clockData->syncMode,
                         clockData->varT);
+
+                    datalogInfoMsg.logInfo[i].bytesLogged += bytes;
+                    datalogInfoMsg.logInfo[i].setsLogged  += 1;
+                    break;
+
+              case COMPASS:
+                    compassData = CompassData::parse(msgInfo);
+                    bytes = fprintf(fileptr[i], "%u %f %f\n",
+                        (unsigned int)compassData->recordingTime,
+                        compassData->orientation,
+                        compassData->varOrientation);
 
                     datalogInfoMsg.logInfo[i].bytesLogged += bytes;
                     datalogInfoMsg.logInfo[i].setsLogged  += 1;
@@ -1500,6 +1519,11 @@ void DatalogRec::logInfoAllModules(datalog_data *data)
     data->logInfo[num].moduleMbx = RackName::create(systemId, CLOCK, 2);
     snprintf((char *)data->logInfo[num].filename, 40, "clock_2.dat");
     data->logInfo[num].maxDataLen = sizeof(clock_data);
+    num++;
+
+    data->logInfo[num].moduleMbx = RackName::create(systemId, COMPASS, 0);
+    snprintf((char *)data->logInfo[num].filename, 40, "compass_0.dat");
+    data->logInfo[num].maxDataLen = sizeof(compass_data);
     num++;
 
     data->logInfo[num].moduleMbx = RackName::create(systemId, GPS, 0);
