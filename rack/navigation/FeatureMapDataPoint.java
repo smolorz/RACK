@@ -38,7 +38,7 @@ public class FeatureMapDataPoint
 
     static public int getDataLen()
     {
-        return (56);
+        return (72);
     }
 
     public FeatureMapDataPoint(int x, int y, int x2, int y2, int l, int rho, int sin, int cos, int layer, int type)

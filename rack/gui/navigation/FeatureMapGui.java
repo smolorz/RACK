@@ -191,6 +191,10 @@ public class FeatureMapGui extends RackModuleGui implements MapViewInterface
  	    	   {
  	    		   featureMapFeature.dataPoint.x2 = event.getWorldCursorPos().x;
  	    		   featureMapFeature.dataPoint.y2 = event.getWorldCursorPos().y;
+ 	    		   featureMapFeature.dataPoint.l  = Math.sqrt((featureMapFeature.dataPoint.x2 - featureMapFeature.dataPoint.x) *
+ 	    				   								 	  (featureMapFeature.dataPoint.x2 - featureMapFeature.dataPoint.x) +
+ 	    				   								 	  (featureMapFeature.dataPoint.y2 - featureMapFeature.dataPoint.y) *
+ 	    				   								 	  (featureMapFeature.dataPoint.y2 - featureMapFeature.dataPoint.y));
  	    		   featureMapFeature.dataPoint.type = FeatureMapDataPoint.LINE_FEATURE;
  	    		   if (command.equals(addLineCommandLayer0))
  	    		   {
@@ -208,7 +212,6 @@ public class FeatureMapGui extends RackModuleGui implements MapViewInterface
  	    		   showTmpLine = false;
  	    		   featureMap.addLine(featureMapFeature);
  	    	   }
- 	    	   System.out.println(""+event.getWorldCursorPos().x + "" +event.getWorldCursorPos().y);
  	       }
         }
 
