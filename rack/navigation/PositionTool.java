@@ -23,16 +23,31 @@ public class PositionTool
     protected static final double utmA     = 6378137.0;             // Semi-major axis of ellipsoid in meters
     protected static final double utmF     = 1.0 / 298.257223563;   // flattening of ellipsoid
 
-//	protected static double offsetX = 5804519.0;					// offsets Uni Hannover, parkinglot hard-coded
-//	protected static double offsetY =  548406.0; 					// offsets Uni Hannover, parkinglot hard-coded
+	protected static double offsetX = 5804519.0;					// offsets Uni Hannover, parkinglot hard-coded
+	protected static double offsetY =  548406.0; 					// offsets Uni Hannover, parkinglot hard-coded
 
 //	protected static double offsetX = 5547651.0;					// offsets Hammelburg
 //	protected static double offsetY =  564686.0; 					// offsets Hammelburg
 	
-    protected static double offsetX = 5515889.0;					// offsets Wtd41 Trierd
-    protected static double offsetY = 332830.0;						// offsets Wtd41 Trier
+//    protected static double offsetX = 5515889.0;					// offsets Wtd41 Trierd
+//    protected static double offsetY = 332830.0;						// offsets Wtd41 Trier
 
+	public PositionTool()
+	{
+	}
 
+	public PositionTool(double x, double y)
+	{
+		offsetX = x;
+		offsetY = y;
+	
+	}
+	
+	public void setOffset(double x, double y)
+	{
+		offsetX = x;
+		offsetY = y;
+	}
 
 	public static PositionUtmDataMsg wgs84ToUtm(PositionWgs84DataMsg posWgs84)
 	{
