@@ -107,6 +107,7 @@ config RACK_LIBJPEGDIR
 
 config RACK_LIBPNG_SUPPORT
     bool "Enable libpng support"
+    select RACK_ZLIB_SUPPORT
 
 config RACK_LIBPNGDIR
     string "libpng install directory"
@@ -130,6 +131,14 @@ config RACK_GSLDIR
     string "gsl install directory"
     depends on RACK_GSL_SUPPORT
     default "/usr/src/LiRE/gsl"
+
+config RACK_ZLIB_SUPPORT
+    bool "Enable zlib support"
+
+config RACK_ZLIBDIR
+    string "zlib install directory"
+    depends on RACK_ZLIB_SUPPORT
+    default "/usr/src/LiRE/zlib"
 
 endmenu
 

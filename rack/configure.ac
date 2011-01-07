@@ -1348,9 +1348,9 @@ if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
         if test -d ${CONFIG_RACK_LIBPNGDIR}; then
             AC_MSG_RESULT([${CONFIG_RACK_LIBPNGDIR}])
 
-            LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include"
-            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib"
-            LIBPNG_LIBS="-lpng12"
+            LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include -I${CONFIG_RACK_ZLIBDIR}/include"
+            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib -L${CONFIG_RACK_ZLIBDIR}/lib -Wl,-rpath=${CONFIG_RACK_ZLIBDIR}/lib"
+            LIBPNG_LIBS="-lpng"
 
             CPPFLAGS="${LIBPNG_CPPFLAGS} ${CPPFLAGS}"
             LDFLAGS="${LIBPNG_LDFLAGS} ${LDFLAGS}"
@@ -1361,7 +1361,7 @@ if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
     fi
 
     AC_CHECK_HEADER(png.h,
-                    AC_CHECK_LIB(png12,
+                    AC_CHECK_LIB(png,
                                  png_write_end,,
                                  [AC_MSG_ERROR(cannot find function png_write_end)]
                                 ),

@@ -22564,9 +22564,9 @@ echo $ECHO_N "checking libpng directory... $ECHO_C" >&6; }
             { echo "$as_me:$LINENO: result: ${CONFIG_RACK_LIBPNGDIR}" >&5
 echo "${ECHO_T}${CONFIG_RACK_LIBPNGDIR}" >&6; }
 
-            LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include"
-            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib"
-            LIBPNG_LIBS="-lpng12"
+            LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include -I${CONFIG_RACK_ZLIBDIR}/include"
+            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib -L${CONFIG_RACK_ZLIBDIR}/lib -Wl,-rpath=${CONFIG_RACK_ZLIBDIR}/lib"
+            LIBPNG_LIBS="-lpng"
 
             CPPFLAGS="${LIBPNG_CPPFLAGS} ${CPPFLAGS}"
             LDFLAGS="${LIBPNG_LDFLAGS} ${LDFLAGS}"
@@ -22579,8 +22579,8 @@ echo "$as_me: error: cannot find ${CONFIG_RACK_LIBPNGDIR}" >&2;}
     fi
 
     if test "${ac_cv_header_libpng_png_h+set}" = set; then
-  { echo "$as_me:$LINENO: checking for libpng/png.h" >&5
-echo $ECHO_N "checking for libpng/png.h... $ECHO_C" >&6; }
+  { echo "$as_me:$LINENO: checking for png.h" >&5
+echo $ECHO_N "checking for png.h... $ECHO_C" >&6; }
 if test "${ac_cv_header_libpng_png_h+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 fi
@@ -22629,15 +22629,15 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 echo "${ECHO_T}$ac_header_compiler" >&6; }
 
 # Is the header present?
-{ echo "$as_me:$LINENO: checking libpng/png.h presence" >&5
-echo $ECHO_N "checking libpng/png.h presence... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: checking png.h presence" >&5
+echo $ECHO_N "checking png.h presence... $ECHO_C" >&6; }
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <libpng/png.h>
+#include <png.h>
 _ACEOF
 if { (ac_try="$ac_cpp conftest.$ac_ext"
 case "(($ac_try" in
@@ -22705,13 +22705,13 @@ echo "${ECHO_T}$ac_cv_header_libpng_png_h" >&6; }
 fi
 if test $ac_cv_header_libpng_png_h = yes; then
 
-{ echo "$as_me:$LINENO: checking for png_write_end in -lpng12" >&5
-echo $ECHO_N "checking for png_write_end in -lpng12... $ECHO_C" >&6; }
-if test "${ac_cv_lib_png12_png_write_end+set}" = set; then
+{ echo "$as_me:$LINENO: checking for png_write_end in -lpng" >&5
+echo $ECHO_N "checking for png_write_end in -lpng... $ECHO_C" >&6; }
+if test "${ac_cv_lib_png_png_write_end+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpng12  $LIBS"
+LIBS="-lpng  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -22752,26 +22752,26 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_png12_png_write_end=yes
+  ac_cv_lib_png_png_write_end=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_png12_png_write_end=no
+	ac_cv_lib_png_png_write_end=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_png12_png_write_end" >&5
-echo "${ECHO_T}$ac_cv_lib_png12_png_write_end" >&6; }
-if test $ac_cv_lib_png12_png_write_end = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_png_png_write_end" >&5
+echo "${ECHO_T}$ac_cv_lib_png_png_write_end" >&6; }
+if test $ac_cv_lib_png_png_write_end = yes; then
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBPNG12 1
 _ACEOF
 
-  LIBS="-lpng12 $LIBS"
+  LIBS="-lpng $LIBS"
 
 else
   { { echo "$as_me:$LINENO: error: cannot find function png_write_end" >&5
