@@ -53,17 +53,27 @@ reconfig:: config-script
 config.status: .rack_config
 	@test -r config.status && recf=yes || recf=no ; \
 	eval `grep ^CONFIG_RACK_INSTALLDIR $<`; \
+	eval `grep ^CONFIG_RACK_TARGET_TUPLE $<`; \
+	eval `grep ^CONFIG_RACK_TOOLCHAIN_PARENT_DIR $<`; \
+	eval `grep ^CONFIG_RACK_CROSS_COMPILE $<`; \
+	if test x$$CONFIG_RACK_CROSS_COMPILE = xy ; then \
+	   host_alias=$$CONFIG_RACK_TARGET_TUPLE ; \
+	   CROSS_COMPILE="$$CONFIG_RACK_TOOLCHAIN_PARENT_DIR/$$host_alias/bin/$$host_alias-" ; \
+	else \
+	   host_alias=$(host_alias) ; \
+	   CROSS_COMPILE=$(CROSS_COMPILE) ; \
+	fi ; \
 	$(srctree)/configure \
-	CROSS_COMPILE=$(CROSS_COMPILE) \
-	CC=$(CROSS_COMPILE)$(CC) \
-	CXX=$(CROSS_COMPILE)$(CXX) \
-	LD=$(CROSS_COMPILE)$(LD) \
-	AR=$(CROSS_COMPILE)$(AR) \
-	RANLIB=$(CROSS_COMPILE)ranlib \
-	STRIP=$(CROSS_COMPILE)strip \
-	NM=$(CROSS_COMPILE)nm \
+	CROSS_COMPILE=$$CROSS_COMPILE \
+	CC=$${CROSS_COMPILE}gcc \
+	CXX=$${CROSS_COMPILE}g++ \
+	LD=$${CROSS_COMPILE}ld \
+	AR=$${CROSS_COMPILE}ar \
+	RANLIB=$${CROSS_COMPILE}ranlib \
+	STRIP=$${CROSS_COMPILE}strip \
+	NM=$${CROSS_COMPILE}nm \
 	--build=$(build_alias) \
-	--host=$(host_alias) \
+	--host=$$host_alias \
 	--with-kconfig-file=$< \
 	--prefix=$$CONFIG_RACK_INSTALLDIR \
 	$$confopts ; \

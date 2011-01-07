@@ -133,6 +133,20 @@ config RACK_GSLDIR
 
 endmenu
 
+config RACK_CROSS_COMPILE
+    bool "Use own toolchain"
+    default n
+
+config RACK_TARGET_TUPLE
+    string "target tuple or alias"
+    default i586-nptl-linux-gnu
+    depends on RACK_CROSS_COMPILE
+
+config RACK_TOOLCHAIN_PARENT_DIR
+    string "Parent directory of the toolchain"
+    default /opt
+    depends on RACK_CROSS_COMPILE
+
 endmenu
 
 source "control/Kconfig"

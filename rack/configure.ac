@@ -1173,7 +1173,7 @@ if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
             AC_MSG_RESULT([${CONFIG_RACK_LIBRAW1394DIR}])
 
             LIBRAW1394_CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include"
-            LIBRAW1394_LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib"
+            LIBRAW1394_LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBRAW1394DIR}/lib"
             LIBRAW1394_LIBS="-lraw1394"
 
             CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
@@ -1231,7 +1231,7 @@ if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
             AC_MSG_RESULT([${CONFIG_RACK_LIBDC1394DIR}])
 
             LIBDC1394_CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include"
-            LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib"
+            LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBDC1394DIR}/lib"
             LIBDC1394_LIBS="-ldc1394_control"
 
             CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
@@ -1292,7 +1292,7 @@ if test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = x"y"; then
             AC_MSG_RESULT([${CONFIG_RACK_LIBJPEGDIR}])
 
             LIBJPEG_CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include"
-            LIBJPEG_LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib"
+            LIBJPEG_LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBJPEGDIR}/lib"
             LIBJPEG_LIBS="-ljpeg"
 
             CPPFLAGS="${LIBJPEG_CPPFLAGS} ${CPPFLAGS}"
@@ -1360,7 +1360,7 @@ if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
         fi
     fi
 
-    AC_CHECK_HEADER(libpng/png.h,
+    AC_CHECK_HEADER(png.h,
                     AC_CHECK_LIB(png12,
                                  png_write_end,,
                                  [AC_MSG_ERROR(cannot find function png_write_end)]

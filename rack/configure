@@ -21762,7 +21762,7 @@ echo $ECHO_N "checking libraw1394 directory... $ECHO_C" >&6; }
 echo "${ECHO_T}${CONFIG_RACK_LIBRAW1394DIR}" >&6; }
 
             LIBRAW1394_CPPFLAGS="-I${CONFIG_RACK_LIBRAW1394DIR}/include"
-            LIBRAW1394_LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib"
+            LIBRAW1394_LDFLAGS="-L${CONFIG_RACK_LIBRAW1394DIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBRAW1394DIR}/lib"
             LIBRAW1394_LIBS="-lraw1394"
 
             CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
@@ -22029,7 +22029,7 @@ echo $ECHO_N "checking libdc1394 directory... $ECHO_C" >&6; }
 echo "${ECHO_T}${CONFIG_RACK_LIBDC1394DIR}" >&6; }
 
             LIBDC1394_CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include"
-            LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib"
+            LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBDC1394DIR}/lib"
             LIBDC1394_LIBS="-ldc1394_control"
 
             CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
@@ -22299,7 +22299,7 @@ echo $ECHO_N "checking libjpeg directory... $ECHO_C" >&6; }
 echo "${ECHO_T}${CONFIG_RACK_LIBJPEGDIR}" >&6; }
 
             LIBJPEG_CPPFLAGS="-I${CONFIG_RACK_LIBJPEGDIR}/include"
-            LIBJPEG_LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib"
+            LIBJPEG_LDFLAGS="-L${CONFIG_RACK_LIBJPEGDIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBJPEGDIR}/lib"
             LIBJPEG_LIBS="-ljpeg"
 
             CPPFLAGS="${LIBJPEG_CPPFLAGS} ${CPPFLAGS}"
