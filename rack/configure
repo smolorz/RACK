@@ -22578,14 +22578,14 @@ echo "$as_me: error: cannot find ${CONFIG_RACK_LIBPNGDIR}" >&2;}
         fi
     fi
 
-    if test "${ac_cv_header_libpng_png_h+set}" = set; then
+    if test "${ac_cv_header_png_h+set}" = set; then
   { echo "$as_me:$LINENO: checking for png.h" >&5
 echo $ECHO_N "checking for png.h... $ECHO_C" >&6; }
-if test "${ac_cv_header_libpng_png_h+set}" = set; then
+if test "${ac_cv_header_png_h+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_header_libpng_png_h" >&5
-echo "${ECHO_T}$ac_cv_header_libpng_png_h" >&6; }
+{ echo "$as_me:$LINENO: result: $ac_cv_header_png_h" >&5
+echo "${ECHO_T}$ac_cv_header_png_h" >&6; }
 else
   # Is the header compilable?
 { echo "$as_me:$LINENO: checking png.h usability" >&5
@@ -22670,40 +22670,40 @@ echo "${ECHO_T}$ac_header_preproc" >&6; }
 # So?  What about this header?
 case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
   yes:no: )
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h: accepted by the compiler, rejected by the preprocessor!" >&5
-echo "$as_me: WARNING: libpng/png.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h: proceeding with the compiler's result" >&5
-echo "$as_me: WARNING: libpng/png.h: proceeding with the compiler's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: png.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: png.h: proceeding with the compiler's result" >&2;}
     ac_header_preproc=yes
     ;;
   no:yes:* )
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h: present but cannot be compiled" >&5
-echo "$as_me: WARNING: libpng/png.h: present but cannot be compiled" >&2;}
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h:     check for missing prerequisite headers?" >&5
-echo "$as_me: WARNING: libpng/png.h:     check for missing prerequisite headers?" >&2;}
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h: see the Autoconf documentation" >&5
-echo "$as_me: WARNING: libpng/png.h: see the Autoconf documentation" >&2;}
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h:     section \"Present But Cannot Be Compiled\"" >&5
-echo "$as_me: WARNING: libpng/png.h:     section \"Present But Cannot Be Compiled\"" >&2;}
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h: proceeding with the preprocessor's result" >&5
-echo "$as_me: WARNING: libpng/png.h: proceeding with the preprocessor's result" >&2;}
-    { echo "$as_me:$LINENO: WARNING: libpng/png.h: in the future, the compiler will take precedence" >&5
-echo "$as_me: WARNING: libpng/png.h: in the future, the compiler will take precedence" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: png.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: png.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: png.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: png.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: png.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: png.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: png.h: in the future, the compiler will take precedence" >&2;}
 
     ;;
 esac
-{ echo "$as_me:$LINENO: checking for libpng/png.h" >&5
-echo $ECHO_N "checking for libpng/png.h... $ECHO_C" >&6; }
-if test "${ac_cv_header_libpng_png_h+set}" = set; then
+{ echo "$as_me:$LINENO: checking for png.h" >&5
+echo $ECHO_N "checking for png.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_png_h+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  ac_cv_header_libpng_png_h=$ac_header_preproc
+  ac_cv_header_png_h=$ac_header_preproc
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_header_libpng_png_h" >&5
-echo "${ECHO_T}$ac_cv_header_libpng_png_h" >&6; }
+{ echo "$as_me:$LINENO: result: $ac_cv_header_png_h" >&5
+echo "${ECHO_T}$ac_cv_header_png_h" >&6; }
 
 fi
-if test $ac_cv_header_libpng_png_h = yes; then
+if test $ac_cv_header_png_h = yes; then
 
 { echo "$as_me:$LINENO: checking for png_write_end in -lpng" >&5
 echo $ECHO_N "checking for png_write_end in -lpng... $ECHO_C" >&6; }
@@ -22768,7 +22768,7 @@ fi
 echo "${ECHO_T}$ac_cv_lib_png_png_write_end" >&6; }
 if test $ac_cv_lib_png_png_write_end = yes; then
   cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBPNG12 1
+#define HAVE_LIBPNG 1
 _ACEOF
 
   LIBS="-lpng $LIBS"
