@@ -20224,6 +20224,9 @@ echo $ECHO_N "checking for Xenomai userspace installation... $ECHO_C" >&6; }
 XENO_USER_CONFIG="${CONFIG_RACK_XENOMAIDIR}/bin/xeno-config"
 if test -x "${XENO_USER_CONFIG}"; then
   XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`"
+  sed "s+\(^prefix=\)\(..*$\)+\1${XENO_USER_DIR}+" ${XENO_USER_CONFIG} > /tmp/${USER}.xeno_config
+  cp /tmp/${USER}.xeno_config ${XENO_USER_CONFIG}
+  rm /tmp/${USER}.xeno_config
   { echo "$as_me:$LINENO: result: ${XENO_USER_DIR}" >&5
 echo "${ECHO_T}${XENO_USER_DIR}" >&6; }
 else

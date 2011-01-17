@@ -232,6 +232,9 @@ AC_MSG_CHECKING([for Xenomai userspace installation])
 XENO_USER_CONFIG="${CONFIG_RACK_XENOMAIDIR}/bin/xeno-config"
 if test -x "${XENO_USER_CONFIG}"; then
   XENO_USER_DIR="`cd ${CONFIG_RACK_XENOMAIDIR} && pwd`"
+  sed "s+\(^prefix=\)\(..*$\)+\1${XENO_USER_DIR}+" ${XENO_USER_CONFIG} > /tmp/${USER}.xeno_config
+  cp /tmp/${USER}.xeno_config ${XENO_USER_CONFIG}
+  rm /tmp/${USER}.xeno_config
   AC_MSG_RESULT([${XENO_USER_DIR}])
 else
   AC_MSG_ERROR([no Xenomai found in ${CONFIG_RACK_XENOMAIDIR}])
