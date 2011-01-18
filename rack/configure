@@ -22845,11 +22845,11 @@ echo $ECHO_N "checking opencv directory... $ECHO_C" >&6; }
 echo "${ECHO_T}${CONFIG_RACK_OPENCVDIR}" >&6; }
 
             OPENCV_CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv"
-            OPENCV_LDFLAGS="-L${CONFIG_RACK_OPENCVDIR}/lib"
+            OPENCV_LDFLAGS="${LIBPNG_LDFLAGS} ${LIBJPEG_LDFLAGS} ${LIBRAW1394_LDFLAGS} ${LIBDC1394_LDFLAGS} -L${CONFIG_RACK_OPENCVDIR}/lib"
             OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
 
             CPPFLAGS="${OPENCV_CPPFLAGS} ${CPPFLAGS}"
-            LDFLAGS="${LIBPNG_LDFLAGS} ${LIBJPEG_LDFLAGS} ${LIBRAW1394_LDFLAGS} ${LIBDC1394_LDFLAGS} ${OPENCV_LDFLAGS} ${LDFLAGS}"
+            LDFLAGS="${OPENCV_LDFLAGS} ${LDFLAGS}"
             LIBS="$OPENCV_LIBS"
         else
             { { echo "$as_me:$LINENO: error: cannot find ${CONFIG_RACK_OPENCVDIR}" >&5
