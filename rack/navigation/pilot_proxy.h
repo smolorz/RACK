@@ -32,6 +32,8 @@
 #define MSG_PILOT_SET_DESTINATION           (RACK_PROXY_MSG_POS_OFFSET + 1)
 #define MSG_PILOT_HOLD_COMMAND              (RACK_PROXY_MSG_POS_OFFSET + 2)
 #define MSG_PILOT_REVERT_COMMAND            (RACK_PROXY_MSG_POS_OFFSET + 3)
+#define MSG_PILOT_GET_STATUS                (RACK_PROXY_MSG_POS_OFFSET + 4)
+#define MSG_PILOT_STATUS                    (RACK_PROXY_MSG_POS_OFFSET + 5)
 
 //######################################################################
 //# PilotData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -263,6 +265,65 @@ class PilotRevertData
         }
 };
 
+//######################################################################
+//# Pilot Get Status Data (static size  - MESSAGE)
+//######################################################################
+
+/** * pilot get status data structure */
+typedef struct{
+    rack_time_t     recordingTime;          /**< [ms]  global timestamp (has to be first element)*/
+    position_3d     pos;                    /**< position on the path */
+    position_3d     dest;                   /**< destination of the pilot */
+    int32_t         speed;                  /**< [mm/s] current speed set value */
+    float           curve;                  /**< [1/mm] current curve set value*/
+    int32_t         distanceToDest;         /**< [mm] distance to destination,
+                                                      -1 if no destination is set,
+                                                       0 if destination is reached */
+} __attribute__((packed)) pilot_status_data;
+
+class PilotStatusData
+{
+    public:
+        static void le_to_cpu(pilot_status_data *data)
+        {
+            data->recordingTime     = __le32_to_cpu(data->recordingTime);
+            Position3D::le_to_cpu(&data->pos);
+            Position3D::le_to_cpu(&data->dest);
+            data->speed             = __le32_to_cpu(data->speed);
+            data->curve             = __le32_float_to_cpu(data->curve);
+            data->distanceToDest    = __le32_to_cpu(data->distanceToDest);
+        }
+
+        static void be_to_cpu(pilot_status_data *data)
+        {
+            data->recordingTime     = __be32_to_cpu(data->recordingTime);
+            Position3D::be_to_cpu(&data->pos);
+            Position3D::be_to_cpu(&data->dest);
+            data->speed             = __be32_to_cpu(data->speed);
+            data->curve             = __be32_float_to_cpu(data->curve);
+            data->distanceToDest    = __be32_to_cpu(data->distanceToDest);
+        }
+
+        static pilot_status_data* parse(RackMessage *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            pilot_status_data *p_data = (pilot_status_data *)msgInfo->p_data;
+
+            if (msgInfo->isDataByteorderLe()) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            msgInfo->setDataByteorder();
+            return p_data;
+        }
+};
+
 
 /**
  * Mobile robot motion controller.
@@ -323,6 +384,15 @@ class PilotProxy : public RackDataProxy
     }
 
     int revert(pilot_revert_data *recv_data, ssize_t recv_datalen,
+                       uint64_t reply_timeout_ns);
+
+//get status command
+    int getPilotStatus(pilot_status_data *recv_data, ssize_t recv_datalen)
+    {
+        return getPilotStatus(recv_data, recv_datalen, dataTimeout);
+    }
+
+    int getPilotStatus(pilot_status_data *recv_data, ssize_t recv_datalen,
                        uint64_t reply_timeout_ns);
 };
 
