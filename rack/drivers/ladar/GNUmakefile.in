@@ -33,13 +33,15 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6)
+	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
+	$(am__EXEEXT_7)
 @CONFIG_RACK_LADAR_IBEO_TRUE@am__append_1 = LadarIbeo
 @CONFIG_RACK_LADAR_HOKUYO_URG_TRUE@am__append_2 = LadarHokuyoUrg
 @CONFIG_RACK_LADAR_IBEO_LUX_TRUE@am__append_3 = LadarIbeoLux
 @CONFIG_RACK_LADAR_SICK_LMS200_TRUE@am__append_4 = LadarSickLms200
 @CONFIG_RACK_LADAR_SICK_S_TRUE@am__append_5 = LadarSickS
 @CONFIG_RACK_LADAR_SICK_LMS100_TRUE@am__append_6 = LadarSickLms100
+@CONFIG_RACK_LADAR_SIM_TRUE@am__append_7 = LadarSim
 subdir = drivers/ladar
 DIST_COMMON = $(srcdir)/GNUmakefile.am $(srcdir)/GNUmakefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -59,6 +61,7 @@ CONFIG_CLEAN_FILES =
 @CONFIG_RACK_LADAR_SICK_S_TRUE@am__EXEEXT_5 = LadarSickS$(EXEEXT)
 @CONFIG_RACK_LADAR_SICK_LMS100_TRUE@am__EXEEXT_6 =  \
 @CONFIG_RACK_LADAR_SICK_LMS100_TRUE@	LadarSickLms100$(EXEEXT)
+@CONFIG_RACK_LADAR_SIM_TRUE@am__EXEEXT_7 = LadarSim$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
@@ -86,6 +89,10 @@ am_LadarSickS_OBJECTS = ladar_sick_s.$(OBJEXT)
 LadarSickS_OBJECTS = $(am_LadarSickS_OBJECTS)
 LadarSickS_LDADD = $(LDADD)
 LadarSickS_DEPENDENCIES =
+am_LadarSim_OBJECTS = ladar_sim.$(OBJEXT)
+LadarSim_OBJECTS = $(am_LadarSim_OBJECTS)
+LadarSim_LDADD = $(LDADD)
+LadarSim_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(top_builddir)/config@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/autoconf/depcomp
 am__depfiles_maybe = depfiles
@@ -109,10 +116,12 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
 	$(LadarIbeoLux_SOURCES) $(LadarSickLms100_SOURCES) \
-	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES)
+	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES) \
+	$(LadarSim_SOURCES)
 DIST_SOURCES = $(LadarHokuyoUrg_SOURCES) $(LadarIbeo_SOURCES) \
 	$(LadarIbeoLux_SOURCES) $(LadarSickLms100_SOURCES) \
-	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES)
+	$(LadarSickLms200_SOURCES) $(LadarSickS_SOURCES) \
+	$(LadarSim_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -302,6 +311,10 @@ LadarSickLms100_SOURCES = \
 	ladar_sick_lms100.h \
 	ladar_sick_lms100.cpp
 
+LadarSim_SOURCES = \
+	ladar_sim.h \
+	ladar_sim.cpp
+
 EXTRA_DIST = \
 	Kconfig
 
@@ -384,6 +397,9 @@ LadarSickLms200$(EXEEXT): $(LadarSickLms200_OBJECTS) $(LadarSickLms200_DEPENDENC
 LadarSickS$(EXEEXT): $(LadarSickS_OBJECTS) $(LadarSickS_DEPENDENCIES) 
 	@rm -f LadarSickS$(EXEEXT)
 	$(CXXLINK) $(LadarSickS_OBJECTS) $(LadarSickS_LDADD) $(LIBS)
+LadarSim$(EXEEXT): $(LadarSim_OBJECTS) $(LadarSim_DEPENDENCIES) 
+	@rm -f LadarSim$(EXEEXT)
+	$(CXXLINK) $(LadarSim_OBJECTS) $(LadarSim_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -397,6 +413,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_lms100.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_lms200.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sick_s.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ladar_sim.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

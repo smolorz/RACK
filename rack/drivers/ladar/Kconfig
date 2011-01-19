@@ -26,3 +26,7 @@ config RACK_LADAR_SICK_S
 config RACK_LADAR_SICK_LMS100
     bool "Ladar - SickLms100"
     default y
+
+config RACK_LADAR_SIM
+    bool "Ladar - Sim"
+    default y

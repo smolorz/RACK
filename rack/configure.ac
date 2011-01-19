@@ -819,6 +819,23 @@ if test "$CONFIG_RACK_LADAR_SICK_LMS100" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - LadarSim
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build LadarSim])
+AC_ARG_ENABLE(ladar-sm,
+    AS_HELP_STRING([--enable-ladar-sim], [building LadarSim]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_SIM=y ;;
+        *) CONFIG_RACK_LADAR_SIM=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_SIM:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_SIM,[test "$CONFIG_RACK_LADAR_SIM" = "y"])
+if test "$CONFIG_RACK_LADAR_SIM" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_SIM,1,[building LadarSim])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  navigation - OdometryChassis
 dnl -----------------------------------------------------------------
 
