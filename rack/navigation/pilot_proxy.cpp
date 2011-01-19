@@ -55,8 +55,17 @@ int PilotProxy::revert(pilot_revert_data *recv_data, ssize_t recv_datalen,
 int PilotProxy::getPilotStatus(pilot_status_data *recv_data, ssize_t recv_datalen,
                                uint64_t reply_timeout_ns)
 {
+    int ret;
     RackMessage msgInfo;
 
-    return proxyRecvDataCmd(MSG_PILOT_GET_STATUS, MSG_PILOT_STATUS, recv_data,
-                            sizeof(pilot_status_data), reply_timeout_ns, &msgInfo);
+    ret = proxyRecvDataCmd(MSG_PILOT_GET_STATUS, MSG_PILOT_STATUS, recv_data,
+                           sizeof(pilot_status_data), reply_timeout_ns, &msgInfo);
+
+    if (ret)
+    {
+        return ret;
+    }
+
+    recv_data = PilotStatusData::parse(&msgInfo);
+    return 0;
 }
