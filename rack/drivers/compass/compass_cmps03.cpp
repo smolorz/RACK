@@ -127,7 +127,8 @@ int CompassCmps03::moduleLoop(void)
         GDOS_ERROR("Can't decode serial message, code %d\n", ret);
     }
 
-    p_data->recordingTime = serialData.recordingTime;
+    p_data->recordingTime  = serialData.recordingTime;
+    p_data->varOrientation = 10.0f * M_PI / 180.0f;
 
     if (state != 0)
     {
@@ -430,7 +431,7 @@ CompassCmps03::CompassCmps03()
                       16,               // command mailbox slots
                       48,               // command mailbox data size per slot
                       MBX_IN_KERNELSPACE | MBX_SLOT, // command mailbox flags
-                      5,                // max buffer entries
+                      500,              // max buffer entries
                       10)               // data buffer listener
 {
     // get static module parameter
