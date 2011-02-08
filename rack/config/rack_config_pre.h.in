@@ -179,6 +179,9 @@
 /* Define to 1 if you have the `raw1394' library (-lraw1394). */
 #undef HAVE_LIBRAW1394
 
+/* Define to 1 if you have the `usb' library (-lusb). */
+#undef HAVE_LIBUSB
+
 /* Define to 1 if you have the <math.h> header file. */
 #undef HAVE_MATH_H
 
