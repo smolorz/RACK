@@ -65,6 +65,10 @@ GSL_CPPFLAGS="@GSL_CPPFLAGS@"
 GSL_LDFLAGS="@GSL_LDFLAGS@"
 GSL_LIBS="@GSL_LIBS@"
 
+LIBUSB_CPPFLAGS="@LIBUSB_CPPFLAGS@"
+LIBUSB_LDFLAGS="@LIBUSB_LDFLAGS@"
+LIBUSB_LIBS="@LIBUSB_LIBS@"
+
 unset prefix exec_prefix libdir datadir pkgdatadir pkgincludedir
 
 usage ()
