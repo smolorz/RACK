@@ -146,6 +146,7 @@ while test $# -gt 0; do
                 libpng)     echo $LIBPNG_CPPFLAGS     ;;
                 opencv)     echo $OPENCV_CPPFLAGS     ;;
                 gsl)        echo $GSL_CPPFLAGS        ;;
+                libusb)     echo $LIBUSB_CPPFLAGS     ;;
                 *)          echo ""                   ;;
             esac
             shift
@@ -159,6 +160,7 @@ while test $# -gt 0; do
                 libpng)     echo $LIBPNG_LDFLAGS     ;;
                 opencv)     echo $OPENCV_LDFLAGS     ;;
                 gsl)        echo $GSL_LDFLAGS        ;;
+                libusb)     echo $LIBUSB_LDFLAGS     ;;
                 *)          echo ""                  ;;
             esac
             shift
@@ -172,6 +174,7 @@ while test $# -gt 0; do
                 libpng)     echo $LIBPNG_LIBS     ;;
                 opencv)     echo $OPENCV_LIBS     ;;
                 gsl)        echo $GSL_LIBS        ;;
+                libusb)     echo $LIBUSB_LIBS     ;;
                 *)          echo ""               ;;
             esac
             shift
