@@ -1594,7 +1594,7 @@ if test x"${CONFIG_RACK_LIBUSB_SUPPORT}" = x"y"; then
 
             LIBUSB_CPPFLAGS="-I${CONFIG_RACK_LIBUSBDIR}/include/libusb-1.0"
             LIBUSB_LDFLAGS="-L${CONFIG_RACK_LIBUSBDIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBUSBDIR}/lib"
-            LIBUSB_LIBS="-lusb"
+            LIBUSB_LIBS="-lusb-1.0"
 
             CPPFLAGS="${LIBUSB_CPPFLAGS} ${CPPFLAGS}"
             LDFLAGS="${LIBUSB_LDFLAGS} ${LDFLAGS}"
@@ -1605,7 +1605,7 @@ if test x"${CONFIG_RACK_LIBUSB_SUPPORT}" = x"y"; then
     fi
 
     AC_CHECK_HEADER(libusb.h,
-                    AC_CHECK_LIB(usb,
+                    AC_CHECK_LIB(usb-1.0,
                                  libusb_get_device_list,,
                                  [AC_MSG_ERROR(cannot find function libusb_get_device_list)]
                                 ),

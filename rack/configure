@@ -23869,7 +23869,7 @@ echo "${ECHO_T}${CONFIG_RACK_LIBUSBDIR}" >&6; }
 
             LIBUSB_CPPFLAGS="-I${CONFIG_RACK_LIBUSBDIR}/include/libusb-1.0"
             LIBUSB_LDFLAGS="-L${CONFIG_RACK_LIBUSBDIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBUSBDIR}/lib"
-            LIBUSB_LIBS="-lusb"
+            LIBUSB_LIBS="-lusb-1.0"
 
             CPPFLAGS="${LIBUSB_CPPFLAGS} ${CPPFLAGS}"
             LDFLAGS="${LIBUSB_LDFLAGS} ${LDFLAGS}"
@@ -24008,13 +24008,13 @@ echo "${ECHO_T}$ac_cv_header_libusb_h" >&6; }
 fi
 if test $ac_cv_header_libusb_h = yes; then
 
-{ echo "$as_me:$LINENO: checking for libusb_get_device_list in -lusb" >&5
-echo $ECHO_N "checking for libusb_get_device_list in -lusb... $ECHO_C" >&6; }
-if test "${ac_cv_lib_usb_libusb_get_device_list+set}" = set; then
+{ echo "$as_me:$LINENO: checking for libusb_get_device_list in -lusb-1.0" >&5
+echo $ECHO_N "checking for libusb_get_device_list in -lusb-1.0... $ECHO_C" >&6; }
+if test "${ac_cv_lib_usb_1_0_libusb_get_device_list+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lusb  $LIBS"
+LIBS="-lusb-1.0  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -24055,26 +24055,26 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_usb_libusb_get_device_list=yes
+  ac_cv_lib_usb_1_0_libusb_get_device_list=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_lib_usb_libusb_get_device_list=no
+	ac_cv_lib_usb_1_0_libusb_get_device_list=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_usb_libusb_get_device_list" >&5
-echo "${ECHO_T}$ac_cv_lib_usb_libusb_get_device_list" >&6; }
-if test $ac_cv_lib_usb_libusb_get_device_list = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_usb_1_0_libusb_get_device_list" >&5
+echo "${ECHO_T}$ac_cv_lib_usb_1_0_libusb_get_device_list" >&6; }
+if test $ac_cv_lib_usb_1_0_libusb_get_device_list = yes; then
   cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBUSB 1
+#define HAVE_LIBUSB_1_0 1
 _ACEOF
 
-  LIBS="-lusb $LIBS"
+  LIBS="-lusb-1.0 $LIBS"
 
 else
   { { echo "$as_me:$LINENO: error: cannot find function libusb_get_device_list" >&5
