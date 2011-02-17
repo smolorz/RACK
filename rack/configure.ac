@@ -157,9 +157,12 @@ if test "${CONFIG_RACK_LINUXDIR}" \!= "" ; then
     dnl -----------------------------------------------------------------
 
     AC_MSG_CHECKING([for Linux version])
-    LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
-                    grep "# Linux kernel version:" | \
-                    ${AWK} -F ": " '{print $2}'`"
+    LINUX_RELEASE_FILE=${CONFIG_RACK_LINUXDIR}/include/generated/utsrelease.h
+    if test \! -f $LINUX_RELEASE_FILE; then
+        LINUX_RELEASE_FILE=${CONFIG_RACK_LINUXDIR}/include/linux/utsrelease.h
+    fi
+    LINUX_VERSION=`grep "#define UTS_RELEASE" $LINUX_RELEASE_FILE 2>/dev/null | sed -e 's/[^\"]*\"\([^\"]*\)\"/\1/'`
+
     AC_MSG_RESULT([${LINUX_VERSION}])
 
     dnl -----------------------------------------------------------------

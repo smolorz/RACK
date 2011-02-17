@@ -20147,9 +20147,12 @@ echo "${ECHO_T}${CONFIG_RACK_LINUXDIR}/.config" >&6; }
 
     { echo "$as_me:$LINENO: checking for Linux version" >&5
 echo $ECHO_N "checking for Linux version... $ECHO_C" >&6; }
-    LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
-                    grep "# Linux kernel version:" | \
-                    ${AWK} -F ": " '{print $2}'`"
+    LINUX_RELEASE_FILE=${CONFIG_RACK_LINUXDIR}/include/generated/utsrelease.h
+    if test \! -f $LINUX_RELEASE_FILE; then
+        LINUX_RELEASE_FILE=${CONFIG_RACK_LINUXDIR}/include/linux/utsrelease.h
+    fi
+    LINUX_VERSION=`grep "#define UTS_RELEASE" $LINUX_RELEASE_FILE 2>/dev/null | sed -e 's/[^\"]*\"\([^\"]*\)\"/\1/'`
+
     { echo "$as_me:$LINENO: result: ${LINUX_VERSION}" >&5
 echo "${ECHO_T}${LINUX_VERSION}" >&6; }
 
