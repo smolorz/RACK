@@ -22,14 +22,14 @@ import rack.main.tims.*;
 /**
  * UTM lateral band A...Z without I and O. Band >= N is northern hemisphere
  */
-enum PositionUtmBand
-{
-    A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, T, U, V, W, X, Y, Z
-}
-
 public class PositionUtmDataMsg extends TimsMsg
 {
-    public int              zone;           // utm zone
+	public enum PositionUtmBand
+	{
+	    A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, T, U, V, W, X, Y, Z
+	}
+
+	public int              zone;           // utm zone
     public double           northing;       // mm
     public double           easting;        // mm
     public PositionUtmBand  band;           // see PositionUtmBand
