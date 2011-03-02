@@ -1,0 +1,18 @@
+
+bin_PROGRAMS =
+
+if CONFIG_RACK_GYRO_XSENS
+bin_PROGRAMS +=	GyroXsens
+endif
+
+CPPFLAGS = @RACK_CPPFLAGS@
+LDFLAGS  = @RACK_LDFLAGS@
+LDADD    = @RACK_LIBS@
+
+
+GyroXsens_SOURCES = \
+	gyro_xsens.h \
+	gyro_xsens.cpp
+
+EXTRA_DIST = \
+	Kconfig

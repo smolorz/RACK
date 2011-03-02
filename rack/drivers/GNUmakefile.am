@@ -8,6 +8,7 @@ SUBDIRS = \
 	clock \
 	compass \
 	gps \
+	gyro \
 	ladar
 
 drvinclude_HEADERS = \

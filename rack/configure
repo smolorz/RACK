@@ -918,6 +918,8 @@ CONFIG_RACK_COMPASS_CMPS03_TRUE
 CONFIG_RACK_COMPASS_CMPS03_FALSE
 CONFIG_RACK_GPS_NMEA_TRUE
 CONFIG_RACK_GPS_NMEA_FALSE
+CONFIG_RACK_GYRO_XSENS_TRUE
+CONFIG_RACK_GYRO_XSENS_FALSE
 CONFIG_RACK_LADAR_HOKUYO_URG_TRUE
 CONFIG_RACK_LADAR_HOKUYO_URG_FALSE
 CONFIG_RACK_LADAR_IBEO_TRUE
@@ -1672,6 +1674,7 @@ Optional Features:
   --enable-clock-system   building ClockSystem
   --enable-compass-cmps03 building CompassCmps03
   --enable-gps-nmea       building GpsNmea
+  --enable-gyro-xsens     building GyroXsens
   --enable-ladar-hokuyo-urg
                           building LadarHokuyoUrg
   --enable-ladar-ibeo     building LadarIbeo
@@ -5123,7 +5126,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5126 "configure"' > conftest.$ac_ext
+  echo '#line 5129 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7388,11 +7391,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7391: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7394: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7395: \$? = $ac_status" >&5
+   echo "$as_me:7398: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7678,11 +7681,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7681: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7684: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7685: \$? = $ac_status" >&5
+   echo "$as_me:7688: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7782,11 +7785,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7785: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7788: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7789: \$? = $ac_status" >&5
+   echo "$as_me:7792: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10131,7 +10134,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10134 "configure"
+#line 10137 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10231,7 +10234,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10234 "configure"
+#line 10237 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12651,11 +12654,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12654: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12657: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12658: \$? = $ac_status" >&5
+   echo "$as_me:12661: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12755,11 +12758,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12758: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12761: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12762: \$? = $ac_status" >&5
+   echo "$as_me:12765: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14317,11 +14320,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14320: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14323: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14324: \$? = $ac_status" >&5
+   echo "$as_me:14327: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14421,11 +14424,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14424: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14427: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14428: \$? = $ac_status" >&5
+   echo "$as_me:14431: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16608,11 +16611,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16611: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16614: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16615: \$? = $ac_status" >&5
+   echo "$as_me:16618: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16898,11 +16901,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16901: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16904: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16905: \$? = $ac_status" >&5
+   echo "$as_me:16908: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17002,11 +17005,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17005: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17008: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17009: \$? = $ac_status" >&5
+   echo "$as_me:17012: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20964,6 +20967,35 @@ _ACEOF
 fi
 
 
+{ echo "$as_me:$LINENO: checking build GyroXsens" >&5
+echo $ECHO_N "checking build GyroXsens... $ECHO_C" >&6; }
+# Check whether --enable-gyro-xsens was given.
+if test "${enable_gyro_xsens+set}" = set; then
+  enableval=$enable_gyro_xsens; case "$enableval" in
+        y | yes) CONFIG_RACK_GYRO_XSENS=y ;;
+        *) CONFIG_RACK_GYRO_XSENS=n ;;
+    esac
+fi
+
+{ echo "$as_me:$LINENO: result: ${CONFIG_RACK_GYRO_XSENS:-n}" >&5
+echo "${ECHO_T}${CONFIG_RACK_GYRO_XSENS:-n}" >&6; }
+ if test "$CONFIG_RACK_GYRO_XSENS" = "y"; then
+  CONFIG_RACK_GYRO_XSENS_TRUE=
+  CONFIG_RACK_GYRO_XSENS_FALSE='#'
+else
+  CONFIG_RACK_GYRO_XSENS_TRUE='#'
+  CONFIG_RACK_GYRO_XSENS_FALSE=
+fi
+
+if test "$CONFIG_RACK_GYRO_XSENS" = "y"; then
+
+cat >>confdefs.h <<\_ACEOF
+#define CONFIG_RACK_GYRO_XSENS 1
+_ACEOF
+
+fi
+
+
 { echo "$as_me:$LINENO: checking build LadarHokuyoUrg" >&5
 echo $ECHO_N "checking build LadarHokuyoUrg... $ECHO_C" >&6; }
 # Check whether --enable-ladar-hokuyo-urg was given.
@@ -24400,7 +24432,7 @@ for DIR in \
 done
 
 
-ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/defines/GNUmakefile main/lib/GNUmakefile main/tools/GNUmakefile main/common/GNUmakefile main/xenomai/GNUmakefile main/linux/GNUmakefile main/tims/GNUmakefile main/tims/xenomai/GNUmakefile main/tims/xenomai_kmod/GNUmakefile main/tims/linux/GNUmakefile main/tims/router/GNUmakefile control/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/clock/GNUmakefile drivers/compass/GNUmakefile drivers/gps/GNUmakefile drivers/ladar/GNUmakefile navigation/GNUmakefile navigation/odometry/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/control/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
+ac_config_files="$ac_config_files GNUmakefile config/GNUmakefile config/kconfig/GNUmakefile config/kconfig/lxdialog/GNUmakefile main/GNUmakefile main/defines/GNUmakefile main/lib/GNUmakefile main/tools/GNUmakefile main/common/GNUmakefile main/xenomai/GNUmakefile main/linux/GNUmakefile main/tims/GNUmakefile main/tims/xenomai/GNUmakefile main/tims/xenomai_kmod/GNUmakefile main/tims/linux/GNUmakefile main/tims/router/GNUmakefile control/GNUmakefile drivers/GNUmakefile drivers/camera/GNUmakefile drivers/chassis/GNUmakefile drivers/clock/GNUmakefile drivers/compass/GNUmakefile drivers/gps/GNUmakefile drivers/gyro/GNUmakefile drivers/ladar/GNUmakefile navigation/GNUmakefile navigation/odometry/GNUmakefile navigation/pilot/GNUmakefile navigation/position/GNUmakefile perception/GNUmakefile perception/scan2d/GNUmakefile perception/obj_recog/GNUmakefile skel/GNUmakefile skel/dummy/GNUmakefile gui/GNUmakefile gui/main/GNUmakefile gui/control/GNUmakefile gui/drivers/GNUmakefile gui/navigation/GNUmakefile gui/perception/GNUmakefile gui/tools/GNUmakefile tools/GNUmakefile tools/datalog/GNUmakefile examples/GNUmakefile examples/load_rack_sim examples/load_rack_gui scripts/GNUmakefile scripts/rack-config"
 
 
 if test \! x$RACK_MAYBE_DOCDIR = x; then
@@ -24658,6 +24690,13 @@ if test -z "${CONFIG_RACK_GPS_NMEA_TRUE}" && test -z "${CONFIG_RACK_GPS_NMEA_FAL
   { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_GPS_NMEA\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"CONFIG_RACK_GPS_NMEA\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${CONFIG_RACK_GYRO_XSENS_TRUE}" && test -z "${CONFIG_RACK_GYRO_XSENS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"CONFIG_RACK_GYRO_XSENS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"CONFIG_RACK_GYRO_XSENS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -25404,6 +25443,7 @@ do
     "drivers/clock/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/clock/GNUmakefile" ;;
     "drivers/compass/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/compass/GNUmakefile" ;;
     "drivers/gps/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/gps/GNUmakefile" ;;
+    "drivers/gyro/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/gyro/GNUmakefile" ;;
     "drivers/ladar/GNUmakefile") CONFIG_FILES="$CONFIG_FILES drivers/ladar/GNUmakefile" ;;
     "navigation/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/GNUmakefile" ;;
     "navigation/odometry/GNUmakefile") CONFIG_FILES="$CONFIG_FILES navigation/odometry/GNUmakefile" ;;
@@ -25687,6 +25727,8 @@ CONFIG_RACK_COMPASS_CMPS03_TRUE!$CONFIG_RACK_COMPASS_CMPS03_TRUE$ac_delim
 CONFIG_RACK_COMPASS_CMPS03_FALSE!$CONFIG_RACK_COMPASS_CMPS03_FALSE$ac_delim
 CONFIG_RACK_GPS_NMEA_TRUE!$CONFIG_RACK_GPS_NMEA_TRUE$ac_delim
 CONFIG_RACK_GPS_NMEA_FALSE!$CONFIG_RACK_GPS_NMEA_FALSE$ac_delim
+CONFIG_RACK_GYRO_XSENS_TRUE!$CONFIG_RACK_GYRO_XSENS_TRUE$ac_delim
+CONFIG_RACK_GYRO_XSENS_FALSE!$CONFIG_RACK_GYRO_XSENS_FALSE$ac_delim
 CONFIG_RACK_LADAR_HOKUYO_URG_TRUE!$CONFIG_RACK_LADAR_HOKUYO_URG_TRUE$ac_delim
 CONFIG_RACK_LADAR_HOKUYO_URG_FALSE!$CONFIG_RACK_LADAR_HOKUYO_URG_FALSE$ac_delim
 CONFIG_RACK_LADAR_IBEO_TRUE!$CONFIG_RACK_LADAR_IBEO_TRUE$ac_delim
@@ -25729,8 +25771,6 @@ CONFIG_RACK_DUMMY_ABC_TRUE!$CONFIG_RACK_DUMMY_ABC_TRUE$ac_delim
 CONFIG_RACK_DUMMY_ABC_FALSE!$CONFIG_RACK_DUMMY_ABC_FALSE$ac_delim
 CONFIG_DATALOG_REC_TRUE!$CONFIG_DATALOG_REC_TRUE$ac_delim
 CONFIG_DATALOG_REC_FALSE!$CONFIG_DATALOG_REC_FALSE$ac_delim
-XENOMAI_CPPFLAGS!$XENOMAI_CPPFLAGS$ac_delim
-XENOMAI_LDFLAGS!$XENOMAI_LDFLAGS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -25772,6 +25812,8 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+XENOMAI_CPPFLAGS!$XENOMAI_CPPFLAGS$ac_delim
+XENOMAI_LDFLAGS!$XENOMAI_LDFLAGS$ac_delim
 XENOMAI_LIBS!$XENOMAI_LIBS$ac_delim
 CONFIG_RACK_OS_XENOMAI_TRUE!$CONFIG_RACK_OS_XENOMAI_TRUE$ac_delim
 CONFIG_RACK_OS_XENOMAI_FALSE!$CONFIG_RACK_OS_XENOMAI_FALSE$ac_delim
@@ -25848,7 +25890,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 74; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 76; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
