@@ -31,6 +31,22 @@ int Scan3dProxy::getData(scan3d_data *recv_data, ssize_t recv_datalen,
     return 0;
 }
 
+int Scan3dProxy::getNextData(scan3d_data *recv_data, ssize_t recv_datalen,
+                             uint64_t reply_timeout_ns)
+{
+    RackMessage msgInfo;
+
+    int ret = RackDataProxy::getNextData((void *)recv_data, recv_datalen,
+                                         reply_timeout_ns, &msgInfo);
+    if (ret)
+    {
+        return ret;
+    }
+
+    recv_data = Scan3dData::parse(&msgInfo);
+    return 0;
+}
+
 int Scan3dProxy::getRangeImage(scan3d_range_img_data *recv_data,
                                ssize_t recv_datalen, uint64_t reply_timeout_ns)
 {
