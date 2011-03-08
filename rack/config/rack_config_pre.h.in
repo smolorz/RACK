@@ -51,6 +51,9 @@
 /* building GpsNmea */
 #undef CONFIG_RACK_GPS_NMEA
 
+/* building GyroXsens */
+#undef CONFIG_RACK_GYRO_XSENS
+
 /* Host system alias */
 #undef CONFIG_RACK_HOST_STRING
 
@@ -178,6 +181,9 @@
 
 /* Define to 1 if you have the `raw1394' library (-lraw1394). */
 #undef HAVE_LIBRAW1394
+
+/* Define to 1 if you have the `usb-1.0' library (-lusb-1.0). */
+#undef HAVE_LIBUSB_1_0
 
 /* Define to 1 if you have the <math.h> header file. */
 #undef HAVE_MATH_H

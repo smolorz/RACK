@@ -157,9 +157,12 @@ if test "${CONFIG_RACK_LINUXDIR}" \!= "" ; then
     dnl -----------------------------------------------------------------
 
     AC_MSG_CHECKING([for Linux version])
-    LINUX_VERSION="` cat ${CONFIG_RACK_LINUXDIR}/.config | \
-                    grep "# Linux kernel version:" | \
-                    ${AWK} -F ": " '{print $2}'`"
+    LINUX_RELEASE_FILE=${CONFIG_RACK_LINUXDIR}/include/generated/utsrelease.h
+    if test \! -f $LINUX_RELEASE_FILE; then
+        LINUX_RELEASE_FILE=${CONFIG_RACK_LINUXDIR}/include/linux/utsrelease.h
+    fi
+    LINUX_VERSION=`grep "#define UTS_RELEASE" $LINUX_RELEASE_FILE 2>/dev/null | sed -e 's/[^\"]*\"\([^\"]*\)\"/\1/'`
+
     AC_MSG_RESULT([${LINUX_VERSION}])
 
     dnl -----------------------------------------------------------------
@@ -416,6 +419,25 @@ AC_ARG_WITH(gsl-dir,
       ;;
     esac
     CONFIG_RACK_GSLDIR="$withval"
+    ])
+
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(libusb-support,
+    AS_HELP_STRING([--enable-libusb-support], [enable libusb support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LIBUSB_SUPPORT=y ;;
+        *) CONFIG_RACK_LIBUSB_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(libusb-dir,
+    AS_HELP_STRING([--with-libusb=<libusb-dir>], [Install directory of libusb]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-libusb.])
+      ;;
+    esac
+    CONFIG_RACK_LIBUSBDIR="$withval"
     ])
 
 dnl ======================================================================
@@ -714,6 +736,23 @@ AC_MSG_RESULT([${CONFIG_RACK_GPS_NMEA:-n}])
 AM_CONDITIONAL(CONFIG_RACK_GPS_NMEA,[test "$CONFIG_RACK_GPS_NMEA" = "y"])
 if test "$CONFIG_RACK_GPS_NMEA" = "y"; then
     AC_DEFINE(CONFIG_RACK_GPS_NMEA,1,[building GpsNmea])
+fi
+
+dnl -----------------------------------------------------------------
+dnl  drivers - GyroXsens
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build GyroXsens])
+AC_ARG_ENABLE(gyro-xsens,
+    AS_HELP_STRING([--enable-gyro-xsens], [building GyroXsens]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_GYRO_XSENS=y ;;
+        *) CONFIG_RACK_GYRO_XSENS=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_GYRO_XSENS:-n}])
+AM_CONDITIONAL(CONFIG_RACK_GYRO_XSENS,[test "$CONFIG_RACK_GYRO_XSENS" = "y"])
+if test "$CONFIG_RACK_GYRO_XSENS" = "y"; then
+    AC_DEFINE(CONFIG_RACK_GYRO_XSENS,1,[building GyroXsens])
 fi
 
 dnl -----------------------------------------------------------------
@@ -1548,6 +1587,63 @@ AM_CONDITIONAL(CONFIG_GSL,
 AM_CONDITIONAL(CONFIG_RACK_GSL_SUPPORT,
                [test x"${CONFIG_RACK_GSL_SUPPORT}" = "xy"])
 
+dnl ----- libusb --------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
+
+AC_MSG_CHECKING([libusb support])
+AC_MSG_RESULT([${CONFIG_RACK_LIBUSB_SUPPORT}])
+
+LIBUSB_CPPFLAGS=""
+LIBUSB_LDFLAGS=""
+LIBUSB_LIBS=""
+
+if test x"${CONFIG_RACK_LIBUSB_SUPPORT}" = x"y"; then
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    if test x${CONFIG_RACK_LIBUSBDIR} != "x"; then
+        AC_MSG_CHECKING([libusb directory])
+        if test -d ${CONFIG_RACK_LIBUSBDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_LIBUSBDIR}])
+
+            LIBUSB_CPPFLAGS="-I${CONFIG_RACK_LIBUSBDIR}/include/libusb-1.0"
+            LIBUSB_LDFLAGS="-L${CONFIG_RACK_LIBUSBDIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBUSBDIR}/lib"
+            LIBUSB_LIBS="-lusb-1.0"
+
+            CPPFLAGS="${LIBUSB_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${LIBUSB_LDFLAGS} ${LDFLAGS}"
+            LIBS="$LIBUSB_LIBS"
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_LIBUSBDIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER(libusb.h,
+                    AC_CHECK_LIB(usb-1.0,
+                                 libusb_get_device_list,,
+                                 [AC_MSG_ERROR(cannot find function libusb_get_device_list)]
+                                ),
+                    [AC_MSG_ERROR(cannot find libusb header files)]
+                   )
+
+    RACK_SUPPORTS="libusb ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
+fi
+
+AC_SUBST(LIBUSB_CPPFLAGS)
+AC_SUBST(LIBUSB_LDFLAGS)
+AC_SUBST(LIBUSB_LIBS)
+AM_CONDITIONAL(CONFIG_RACK_LIBUSB_SUPPORT,
+               [test x"${CONFIG_RACK_LIBUSB_SUPPORT}" = "xy"])
+
 dnl ======================================================================
 dnl  set flags / libs
 dnl ======================================================================
@@ -1802,6 +1898,7 @@ AC_CONFIG_FILES([GNUmakefile \
     drivers/clock/GNUmakefile \
     drivers/compass/GNUmakefile \
     drivers/gps/GNUmakefile \
+    drivers/gyro/GNUmakefile \
     drivers/ladar/GNUmakefile \
     \
     navigation/GNUmakefile \

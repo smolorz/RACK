@@ -48,6 +48,16 @@ public class PositionTool
 		offsetX = x;
 		offsetY = y;
 	}
+	
+	public double getOffsetX()
+	{
+		return offsetX;
+	}
+	
+	public double getOffsetY()
+	{
+		return offsetY;
+	}
 
 	public static PositionUtmDataMsg wgs84ToUtm(PositionWgs84DataMsg posWgs84)
 	{
@@ -244,7 +254,7 @@ public class PositionTool
 	    posUtm.easting  = (easting - offsetY) * 1000.0;
 	    posUtm.altitude = posWgs84.altitude;
 	    posUtm.heading  = posWgs84.heading;
-	    
+
 	    return posUtm;
 	}
 	

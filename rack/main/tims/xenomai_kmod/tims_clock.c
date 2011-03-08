@@ -70,8 +70,9 @@ int tims_clock_ioctl(rtdm_user_info_t *user_info, unsigned int request,
     nanosecs_rel_t result = 0;
     tims_clock_setvalue *setval;
 
-    if (request == TIMS_RTIOC_SETTIME) {
-        if (!arg)
+    if (request == TIMS_RTIOC_SETTIME)
+    {
+        if (arg == 0)
             return -EINVAL;
 
         setval = (tims_clock_setvalue *)arg;

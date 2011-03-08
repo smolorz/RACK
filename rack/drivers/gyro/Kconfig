@@ -1,0 +1,4 @@
+
+config RACK_GYRO_XSENS
+    bool "Gyro - Xsens"
+    default y

@@ -140,6 +140,14 @@ config RACK_ZLIBDIR
     depends on RACK_ZLIB_SUPPORT
     default "/usr/src/LiRE/zlib"
 
+config RACK_LIBUSB_SUPPORT
+    bool "Enable libusb support"
+
+config RACK_LIBUSBDIR
+    string "libusb install directory"
+    depends on RACK_LIBUSB_SUPPORT
+    default "/usr/src/LiRE/libusb"
+
 endmenu
 
 config RACK_CROSS_COMPILE

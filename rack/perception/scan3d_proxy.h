@@ -312,6 +312,18 @@ class Scan3dProxy : public RackDataProxy {
                     rack_time_t timeStamp, uint64_t reply_timeout_ns);
 
 //
+// get next data
+//
+
+        int getNextData(scan3d_data *recv_data, ssize_t recv_datalen)
+        {
+            return getNextData(recv_data, recv_datalen, dataTimeout);
+        }
+
+        int getNextData(scan3d_data *recv_data, ssize_t recv_datalen,
+                        uint64_t reply_timeout_ns);
+
+//
 // get range image
 //
 

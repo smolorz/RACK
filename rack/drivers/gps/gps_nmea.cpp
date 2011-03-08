@@ -364,7 +364,7 @@ int GpsNmea::moduleLoop(void)
                     // correct gps recordingtime on valid pps
                     if ((gpsData.satelliteNum >= 4) && (pps.valid == 1))
                     {
-                        GDOS_DBG_INFO("PPS: recordingTimeOld %dn recordingTimeNew %d\n",
+                        GDOS_DBG_INFO("PPS: recordingTimeOld %d recordingTimeNew %d\n",
                                       gpsData.recordingTime, pps.recordingTime);
                         gpsData.recordingTime = pps.recordingTime;
                         timestamp             = pps.timestamp;
@@ -376,6 +376,11 @@ int GpsNmea::moduleLoop(void)
                             if (((int)gpsData.recordingTime - (int)lastClockUpdateTime) > realtimeClockUpdateTime)
                             {
                                 ret = rackTime.set(((uint64_t)gpsData.utcTime * 1000000000llu), timestamp);
+                                if (ret)
+                                {
+                                    GDOS_ERROR("Can't update realtime clock, code = %d\n", ret);
+                                    return ret;
+                                }
 
                                 GDOS_DBG_INFO("update realtime clock at recordingtime %dms to utc time %ds\n",
                                             gpsData.recordingTime, gpsData.utcTime);
