@@ -20,7 +20,7 @@
 #include <main/rack_data_module.h>
 #include <main/angle_tool.h>
 #include <main/serial_port.h>
-#include "main/linux/serial_port_linux.cpp"
+//#include "main/linux/serial_port_linux.cpp"
 #include <drivers/gyro_proxy.h>
 
 #define MODULE_CLASS_ID         GYRO
