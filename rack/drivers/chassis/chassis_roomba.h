@@ -20,6 +20,7 @@
 
 #include <main/serial_port.h>
 #include <drivers/chassis_proxy.h>
+#include <drivers/io_proxy.h>
 #include <perception/scan2d_proxy.h>
 
 // define module class
@@ -58,26 +59,26 @@
 
 typedef struct {
     rack_time_t recordingTime;
-    int         bumpAndWheeldrop;
-    int         wall;
-    int         cliffLeft;
-    int         cliffFrontLeft;
-    int         cliffFrontRight;
-    int         cliffRight;
-    int         virtualWall;
-    int         motorOvercurrents;
-    int         dirtDetectorLeft;
-    int         dirtDetectorRight;
-    int         remoteControl;
-    int         buttons;
-    int         distance;
-    int         angle;
-    int         chargingState;
-    int         batteryVoltage;
-    int         batteryCurrent;
-    int         batteryTemperature;
-    int         batteryCharge;
-    int         batteryCapacity;
+    int32_t     bumpAndWheeldrop;
+    int32_t     wall;
+    int32_t     cliffLeft;
+    int32_t     cliffFrontLeft;
+    int32_t     cliffFrontRight;
+    int32_t     cliffRight;
+    int32_t     virtualWall;
+    int32_t     motorOvercurrents;
+    int32_t     dirtDetectorLeft;
+    int32_t     dirtDetectorRight;
+    int32_t     remoteControl;
+    int32_t     buttons;
+    int32_t     distance;
+    int32_t     angle;
+    int32_t     chargingState;
+    int32_t     batteryVoltage;
+    int32_t     batteryCurrent;
+    int32_t     batteryTemperature;
+    int32_t     batteryCharge;
+    int32_t     batteryCapacity;
 } __attribute__((packed)) chassis_roomba_sensor_data;
 
 // scan_2d data message (use max message size)
@@ -86,6 +87,11 @@ typedef struct {
     scan_point    point[SCAN2D_POINT_MAX];
 } __attribute__((packed)) scan2d_data_msg;
 
+// io data message
+typedef struct {
+    io_data   data;
+    uint8_t   value[20 * 4];                // size of chassis_roomba_sensor_data (without recordingtime)
+} __attribute__((packed)) io_data_msg;
 
 
 /**
@@ -99,6 +105,8 @@ class ChassisRoomba : public RackDataModule {
     int                         serialDev;
     int                         scan2dSys;
     int                         scan2dInst;
+    int                         ioSys;
+    int                         ioInst;
     int                         motorMainBrush;
     int                         motorVacuum;
     int                         motorSideBrush;
@@ -110,6 +118,7 @@ class ChassisRoomba : public RackDataModule {
     rack_time_t                 recordingTimeOld;
     chassis_roomba_sensor_data  sensorData;
     scan2d_data_msg             scan2dDataMsg;
+    io_data_msg                 ioDataMsg;
     RackMutex                   hwMtx;
 
     // mailboxes
@@ -117,9 +126,11 @@ class ChassisRoomba : public RackDataModule {
 
     // proxies
     Scan2dProxy                 *scan2d;
+    IoProxy                     *io;
 
     uint32_t                    activePilot;
     uint32_t                    scan2dMbxAdr;
+    uint32_t                    ioMbxAdr;
     int                         speed;
     float                       omega;
 
