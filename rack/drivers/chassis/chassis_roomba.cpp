@@ -464,6 +464,8 @@ int ChassisRoomba::moduleLoop(void)
         }
     }
 
+    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
+
     return 0;
 }
 
@@ -783,8 +785,6 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     sensor->batteryTemperature = (int)serialBuffer[21];
     sensor->batteryCharge      = (int)((serialBuffer[22] << 8) | (serialBuffer[23] & 0xff));
     sensor->batteryCapacity    = (int)((serialBuffer[24] << 8) | (serialBuffer[25] & 0xff));
-
-    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
 
     return 0;
 }
