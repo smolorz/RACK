@@ -292,11 +292,6 @@ int  Position::moduleCommand(RackMessage *msgInfo)
         case MSG_POSITION_UPDATE:
             pUpdate = PositionData::parse(msgInfo);
 
-            if(pUpdate->recordingTime == 0)
-            {
-                pUpdate->recordingTime = rackTime.get();
-            }
-
             ret = odometry->getData(&odometryData,
                                     sizeof(odometry_data),
                                     pUpdate->recordingTime);
