@@ -48,7 +48,7 @@ arg_table_t argTab[] = {
       "Maximum speed in mm/s, default 300 mm/s", { 300 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Maximum angular velocity in deg/s, default 50 deg/s", { 50 } },
+      "Maximum angular velocity in deg/s, default 30 deg/s", { 30 } },
 
     { ARGOPT_OPT, "varDistance", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Distance variance in mm, default 1000 mm", { 1000 } },
@@ -57,7 +57,7 @@ arg_table_t argTab[] = {
       "Angular variance in deg, default 15 deg/s", { 15 } },
 
     { ARGOPT_OPT, "distanceMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "Minimum distance to maintain to obstacles, default 350 mm", { 350 } },
+      "Minimum distance to maintain to obstacles, default 300 mm", { 300 } },
 
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
@@ -75,7 +75,6 @@ arg_table_t argTab[] = {
  int  PilotLab::moduleOn(void)
 {
     int             ret;
-    int             chassisBound;
 
     // get dynamic module parameter
     speedMax     = getInt32Param("speedMax");
@@ -135,16 +134,18 @@ arg_table_t argTab[] = {
     {
         speedMax = chasParData.vxMax;
     }
-    GDOS_PRINT("speedMax %f m/s,\n", (float)speedMax / 1000.0f);
+    if (omegaMax > chasParData.omegaMax)
+    {
+        omegaMax = chasParData.omegaMax;
+    }
+    GDOS_PRINT("speedMax %f m/s, omegaMax %a deg/s\n", (float)speedMax / 1000.0f, omegaMax);
     GDOS_PRINT("Pilot is waiting for a new destination...\n");
 
     // init global variables
     pilotState      = PILOT_STATE_IDLE;
     speed           = 0;
     omega           = 0.0f;
-    chassisBound    = chasParData.boundaryRight + chasParData.safetyMargin;
-    comfortDistance = (int)(1.5f * (float)distanceMin + (float)chassisBound);
-    zMin            = distanceMin + chassisBound;
+    comfortDistance = 2 * distanceMin;
 
     return RackDataModule::moduleOn(); // has to be last command in moduleOn();
 }
@@ -203,11 +204,14 @@ int  PilotLab::moduleLoop(void)
 
         for (i = 0; i < scan2dMsg.data.pointNum; i++)
         {
-            if (scan2dMsg.data.point[i].z < scanPointMin.z)
+            if ((scan2dMsg.data.point[i].type & SCAN_POINT_TYPE_INVALID) == 0)
             {
-                scanPointMin.x = scan2dMsg.data.point[i].x;
-                scanPointMin.y = scan2dMsg.data.point[i].y;
-                scanPointMin.z = scan2dMsg.data.point[i].z;
+                if (scan2dMsg.data.point[i].z < scanPointMin.z)
+                {
+                    scanPointMin.x = scan2dMsg.data.point[i].x;
+                    scanPointMin.y = scan2dMsg.data.point[i].y;
+                    scanPointMin.z = scan2dMsg.data.point[i].z;
+                }
             }
         }
 
@@ -225,12 +229,9 @@ int  PilotLab::moduleLoop(void)
                 speed = 0;
                 // place your code here !!!!
 
-
                 break;
 
             // add new states here !!!!
-
-
         }
 
 
@@ -246,8 +247,7 @@ int  PilotLab::moduleLoop(void)
             radius = 0;
         }
         speed = safeSpeed(speed, radius, NULL, &scan2dMsg.data, &chasParData);
-
-
+        
         // move chassis with limited speed
         ret = chassis->move(speed, 0, omega);
         if (ret)
@@ -295,7 +295,6 @@ int  PilotLab::moduleLoop(void)
     return 0;
 }
 
-
 int  PilotLab::moduleCommand(RackMessage *msgInfo)
 {
     pilot_dest_data     *pDest;
@@ -335,8 +334,7 @@ int  PilotLab::moduleCommand(RackMessage *msgInfo)
 }
 
 
-float PilotLab::controlOmega(int speed, int dCurr, int dSet, float rhoCurr, float rhoSet,
-                             chassis_param_data *chassisParam)
+float PilotLab::controlOmega(int speed, int dCurr, int dSet, float rhoCurr, float rhoSet)
 {
     float   curve, a, b;
 
@@ -345,7 +343,7 @@ float PilotLab::controlOmega(int speed, int dCurr, int dSet, float rhoCurr, floa
     rhoSet  = normaliseAngleSym0(rhoSet);
 
     // lateral controller
-    a = chassisParam->pilotParameterA * (float)(dCurr - dSet);
+    a = chasParData.pilotParameterA * (float)(dCurr - dSet);
 
     if (a > 30.0 * M_PI/180.0)
     {
@@ -357,29 +355,29 @@ float PilotLab::controlOmega(int speed, int dCurr, int dSet, float rhoCurr, floa
     }
 
     // orientation controller
-    b = chassisParam->pilotParameterB * (a + (rhoSet - rhoCurr));
+    b = chasParData.pilotParameterB * (a + (rhoSet - rhoCurr));
 
     // limit angle value
-    if (b > chassisParam->omegaMax)
+    if (b > chasParData.omegaMax)
     {
-        b = chassisParam->omegaMax;
+        b = chasParData.omegaMax;
     }
-    if (b < -chassisParam->omegaMax)
+    if (b < -chasParData.omegaMax)
     {
-        b = -chassisParam->omegaMax;
+        b = -chasParData.omegaMax;
     }
 
     // calculate curve value
     curve = b / (float)abs(speed);
 
     // limit curve value
-    if (curve > 1.0f / (float)chassisParam->minTurningRadius)
+    if (curve > 1.0f / (float)chasParData.minTurningRadius)
     {
-        curve = 1.0f / (float)chassisParam->minTurningRadius;
+        curve = 1.0f / (float)chasParData.minTurningRadius;
    }
-    if (curve < -1.0f / (float)chassisParam->minTurningRadius)
+    if (curve < -1.0f / (float)chasParData.minTurningRadius)
     {
-        curve = -1.0f / (float)chassisParam->minTurningRadius;
+        curve = -1.0f / (float)chasParData.minTurningRadius;
     }
 
     return curve * (float)speed;
