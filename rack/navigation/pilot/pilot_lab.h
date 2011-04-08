@@ -79,7 +79,6 @@ class PilotLab : public RackDataModule {
 
         // variables
         int                 comfortDistance;
-        int                 zMin;
         int                 pilotState;
         int                 speed;
         float               omega;
@@ -90,9 +89,11 @@ class PilotLab : public RackDataModule {
         int      moduleLoop(void);
         void     moduleOff(void);
         int      moduleCommand(RackMessage *msgInfo);
+        
+        float getAngle(int x1, int y1, int x2, int y2);
+        int   getDistance(int x1, int y1, int x2, int y2);
 
-        float controlOmega(int speed, int dCurr, int dSet, float rhoCurr, float rhoSet,
-                           chassis_param_data *chassisParam);
+        float controlOmega(int speed, int dCurr, int dSet, float rhoCurr, float rhoSet);
 
         // -> non realtime context
         void     moduleCleanup(void);
