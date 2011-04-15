@@ -15,7 +15,7 @@ pkgincludedir=@includedir@/@PACKAGE@
 #
 RACK_VERSION="@PACKAGE_VERSION@"
 RACK_PREFIX="${staging}${prefix}"
-RACK_CPPFLAGS="-I${staging}${pkgincludedir} @XENOMAI_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
+RACK_CPPFLAGS="-I${staging}${pkgincludedir} @XENOMAI_CPPFLAGS@ @RACK_MSG_SIZE_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
 RACK_LDFLAGS="-L${staging}${libdir} @XENOMAI_LDFLAGS@ @RACK_GLOBAL_LDFLAGS@"
 RACK_LIBS="@RACK_LIBS@"
 RACK_CLASSPATH="${staging}${pkglibdir}/@PROJNAME@.jar"
