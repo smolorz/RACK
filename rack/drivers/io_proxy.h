@@ -26,7 +26,11 @@
 //######################################################################
 //# Io data defines
 //######################################################################
+#if defined (__MSG_VELODYNE__)
+#define IO_BYTE_NUM_MAX 840000              /**< maximum number of byte values */
+#else // __MSG_SCANDRIVE__
 #define IO_BYTE_NUM_MAX 32 * 4              /**< maximum number of byte values */
+#endif
 
 //######################################################################
 //# IoData (!!! VARIABLE SIZE !!! MESSAGE !!!)

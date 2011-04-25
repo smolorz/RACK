@@ -41,6 +41,12 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "maxRange", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "maximum laser range", { 10000 } },
 
+    { ARGOPT_OPT, "angleMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "minimum angle (default -180)", { -180 } },
+
+    { ARGOPT_OPT, "angleMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "maximum angle (default 180)", { 180 } },
+
     { ARGOPT_OPT, "angleRes", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "angle resolution, default 1 deg", { 1 } },
 
@@ -75,12 +81,14 @@ arg_table_t argTab[] = {
     int ret;
 
     // get dynamic module parameter
-    maxRange    = getInt32Param("maxRange");
-    angleRes    = getInt32Param("angleRes");
-    dxfMapFile  = getStringParam("mapFile");
+    maxRange       = getInt32Param("maxRange");
+    angleMin       = (double)getInt32Param("angleMin") * M_PI / 180.;
+    angleMax       = (double)getInt32Param("angleMax") * M_PI / 180.;
+    angleRes       = getInt32Param("angleRes");
+    dxfMapFile     = getStringParam("mapFile");
     mapScaleFactor = getInt32Param("mapScaleFactor");
-    mapOffsetX  = getInt32Param("mapOffsetX");
-    mapOffsetY  = getInt32Param("mapOffsetY");
+    mapOffsetX     = getInt32Param("mapOffsetX");
+    mapOffsetY     = getInt32Param("mapOffsetY");
 
     RackTask::disableRealtimeMode();
     ret = dxfMap.load(dxfMapFile, mapOffsetX, mapOffsetY, mapScaleFactor);
@@ -157,9 +165,9 @@ int  LadarSim::moduleLoop(void)
     dataLadar->recordingTime = dataOdometry->recordingTime;
     dataLadar->duration      = dataBufferPeriodTime;
     dataLadar->maxRange      = maxRange;
-    dataLadar->startAngle    = -M_PI;
-    dataLadar->endAngle      = M_PI;
-    dataLadar->pointNum      = (360 / angleRes) + 1;
+    dataLadar->startAngle    = angleMin;
+    dataLadar->endAngle      = angleMax;
+    dataLadar->pointNum      = ((angleMax - angleMin) * 180. / M_PI / angleRes) + 1;
 
     angle           = dataLadar->startAngle;
     angleResolution = (double)angleRes * M_PI / 180.0;

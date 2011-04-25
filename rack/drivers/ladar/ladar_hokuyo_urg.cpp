@@ -277,12 +277,12 @@ int  LadarHokuyoUrg::moduleInit(void)
 
     GDOS_DBG_INFO("serialDev %d has been opened \n", serialDev);
 
-    ret = serialPort.setRecvTimeout(2000000000ll);
+/*    ret = serialPort.setRecvTimeout(2000000000ll);
     if (ret)
     {
         GDOS_ERROR("Can't set serial receive timeout, code=%d\n", ret);
         goto init_error;
-    }
+    }*/
 
     initBits.setBit(INIT_BIT_SERIALPORT_OPEN);
     return 0;
