@@ -67,6 +67,7 @@ typedef struct {
 class DatalogRec : public RackDataModule {
     private:
         int         enableBinaryIo;
+        char       *logInfoFileName;
 
         void*       smallContDataPtr;
         void*       largeContDataPtr;
@@ -102,6 +103,9 @@ class DatalogRec : public RackDataModule {
                                    datalog_log_info *logInfoCurrent, RackMailbox *replyMbx,
                                    uint64_t reply_timeout_ns);
 
+        int  loadLogInfoFile(char *fileName, datalog_data *data);
+        int  parseLogInfo(FILE *file, datalog_data *data);
+
         // -> non realtime context
         void moduleCleanup(void);
 
@@ -110,6 +114,7 @@ class DatalogRec : public RackDataModule {
         datalog_data_msg   datalogInfoMsg;
 
         virtual void logInfoAllModules(datalog_data *data);
+        virtual void logInfoSetDataSize(datalog_data *data);
         virtual int  initLogFile();
         virtual int  logData(RackMessage *msgInfo);
 
