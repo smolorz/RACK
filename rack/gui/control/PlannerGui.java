@@ -157,21 +157,24 @@ public class PlannerGui extends RackModuleGui
         {
             if (data.messageNum > 0)
             {
-                if ((data.message[0].string.equals(oldMessage) == false) ||
-                    (data.state != oldState))
+                for (int i = 0; i < data.messageNum; i++)
                 {
-                    plannerTableModel.addPlannerMsg(data);
-    
-                    try
+                    if ((data.message[i].string.equals(oldMessage) == false) ||
+                        (data.state != oldState))
                     {
-    					Thread.sleep(100);
-    				}
-                    catch (InterruptedException e) {}
-    
-                    plannerScrollBar.setValue(plannerScrollBar.getMaximum());
-                    firstTimeout = true;
-                    oldMessage = data.message[0].string;
-                    oldState = data.state;
+                        plannerTableModel.addPlannerMsg(data);
+        
+                        try
+                        {
+        					Thread.sleep(100);
+        				}
+                        catch (InterruptedException e) {}
+        
+                        plannerScrollBar.setValue(plannerScrollBar.getMaximum());
+                        firstTimeout = true;
+                        oldMessage = data.message[i].string;
+                        oldState = data.state;
+                    }
                 }
                 setEnabled(true);
             }
