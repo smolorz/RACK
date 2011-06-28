@@ -415,8 +415,8 @@ int  Position::moduleCommand(RackMessage *msgInfo)
             {
                 posUtmData.zone     =  utmZone;
                 posUtmData.band     =  utmBand;
-                posUtmData.northing =  (double)pPosData->pos.x + offsetNorthing * 1000.0;
-                posUtmData.easting  =  (double)pPosData->pos.y + offsetEasting * 1000.0;
+                posUtmData.northing =  pPosData->pos.x + (int64_t)offsetNorthing * 1000;
+                posUtmData.easting  =  pPosData->pos.y + (int64_t)offsetEasting * 1000;
                 posUtmData.altitude = -pPosData->pos.z;
                 posUtmData.heading  =  pPosData->pos.rho;
             }
@@ -427,10 +427,10 @@ int  Position::moduleCommand(RackMessage *msgInfo)
             }
 
             GDOS_DBG_INFO("POS to UTM: Pos x %dmm, y %dmm, z %dmm, rho %adeg, "
-                          "UTM zone %d, band %d, north %fmm, east %fmm, alt %dmm, head %adeg\n",
-                          posData.pos.x, posData.pos.y, posData.pos.z, posData.pos.rho,
-                          posUtmData.zone, posUtmData.band, posUtmData.northing, posUtmData.easting,
-                          posUtmData.altitude, posUtmData.heading);
+                          "UTM zone %d, band %d, north %dm, east %dm, alt %dmm, head %adeg\n",
+                          pPosData->pos.x, pPosData->pos.y, pPosData->pos.z, pPosData->pos.rho,
+                          posUtmData.zone, posUtmData.band, (int)(posUtmData.northing / 1000), 
+                          (int)(posUtmData.easting / 1000), posUtmData.altitude, posUtmData.heading);
             cmdMbx.sendDataMsgReply(MSG_POSITION_UTM, msgInfo, 1, &posUtmData,
                                     sizeof(position_utm_data));
             break;
