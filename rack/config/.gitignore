@@ -1,4 +1,3 @@
-m4
 GNUmakefile.in
 autoconf
 rack_config_pre.h.in
