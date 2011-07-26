@@ -22,8 +22,6 @@
 #include <main/defines/scan3d_range_img_point.h>
 #include <main/defines/position3d.h>
 
-// uncomment to use velodyne buffer sizes for all modules
-//#define SCAN3D_USE_VELODYNE
 
 //######################################################################
 //# Scan3d message types
@@ -57,10 +55,13 @@
 //# Scan3d data defines
 //######################################################################
 
-#ifdef SCAN3D_USE_VELODYNE
+#if defined (__MSG_VELODYNE__) // !__MSG_KINECT__ && !__MSG_SCANDRIVE__
 #define SCAN3D_SCAN_MAX             4001
 #define SCAN3D_POINT_MAX            256000
-#else
+#elif defined (__MSG_KINECT__) // !__MSG_VELODYNE__ && !__MSG_SCANDRIVE__
+#define SCAN3D_SCAN_MAX             640
+#define SCAN3D_POINT_MAX            640 * 480
+#else // __MSG_SCANDRIVE__
 #define SCAN3D_SCAN_MAX             400
 #define SCAN3D_POINT_MAX            400 * 181
 #endif
@@ -310,6 +311,18 @@ class Scan3dProxy : public RackDataProxy {
 
         int getData(scan3d_data *recv_data, ssize_t recv_datalen,
                     rack_time_t timeStamp, uint64_t reply_timeout_ns);
+
+//
+// get next data
+//
+
+        int getNextData(scan3d_data *recv_data, ssize_t recv_datalen)
+        {
+            return getNextData(recv_data, recv_datalen, dataTimeout);
+        }
+
+        int getNextData(scan3d_data *recv_data, ssize_t recv_datalen,
+                        uint64_t reply_timeout_ns);
 
 //
 // get range image

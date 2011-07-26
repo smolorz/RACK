@@ -172,3 +172,23 @@ source "navigation/Kconfig"
 source "perception/Kconfig"
 source "skel/Kconfig"
 source "tools/Kconfig"
+
+menu "Advanced settings"
+
+choice
+    prompt "Message size and data format in proxies"
+    default RACK_PROXIES_MSG_SIZE_SCANDRIVE
+
+config RACK_PROXIES_MSG_SIZE_SCANDRIVE
+    bool "Use ScanDrive"
+
+config RACK_PROXIES_MSG_SIZE_VELODYNE
+    bool "Use Velodyne"
+
+config RACK_PROXIES_MSG_SIZE_KINECT
+    bool "Use Kinect"
+
+endchoice
+
+endmenu
+

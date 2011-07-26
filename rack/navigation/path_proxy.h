@@ -38,7 +38,7 @@
 //######################################################################
 //# Path data defines
 //######################################################################
-#define PATH_SPLINE_MAX 5000                /**< maximum number of path splines */
+#define PATH_SPLINE_MAX 6000                /**< maximum number of path splines */
 
 //######################################################################
 //# PathData (!!! VARIABLE SIZE !!! MESSAGE !!!)

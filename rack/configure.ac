@@ -739,6 +739,23 @@ if test "$CONFIG_RACK_GPS_NMEA" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - GyroXsens
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build GyroXsens])
+AC_ARG_ENABLE(gyro-xsens,
+    AS_HELP_STRING([--enable-gyro-xsens], [building GyroXsens]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_GYRO_XSENS=y ;;
+        *) CONFIG_RACK_GYRO_XSENS=n ;;
+    esac])
+AC_MSG_RESULT([${CONFIG_RACK_GYRO_XSENS:-n}])
+AM_CONDITIONAL(CONFIG_RACK_GYRO_XSENS,[test "$CONFIG_RACK_GYRO_XSENS" = "y"])
+if test "$CONFIG_RACK_GYRO_XSENS" = "y"; then
+    AC_DEFINE(CONFIG_RACK_GYRO_XSENS,1,[building GyroXsens])
+fi
+
+dnl -----------------------------------------------------------------
 dnl  drivers - LadarHokuyoUrg
 dnl -----------------------------------------------------------------
 
@@ -1651,6 +1668,21 @@ RACK_LIBS="-l${PROJNAME} ${LINUX_LIBS}"
 
 fi
 
+if test x"${CONFIG_RACK_PROXIES_MSG_SIZE_SCANDRIVE}" = x"y"; then
+RACK_MSG_SIZE_CPPFLAGS="-D__MSG_SCANDRIVE__"
+fi
+
+if test x"${CONFIG_RACK_PROXIES_MSG_SIZE_VELODYNE}" = x"y"; then
+RACK_MSG_SIZE_CPPFLAGS="-D__MSG_VELODYNE__"
+fi
+
+if test x"${CONFIG_RACK_PROXIES_MSG_SIZE_KINECT}" = x"y"; then
+RACK_MSG_SIZE_CPPFLAGS="-D__MSG_KINECT__"
+fi
+
+RACK_CPPFLAGS="${RACK_MSG_SIZE_CPPFLAGS} ${RACK_CPPFLAGS}"
+
+AC_SUBST(RACK_MSG_SIZE_CPPFLAGS)
 AC_SUBST(RACK_CPPFLAGS)
 AC_SUBST(RACK_LDFLAGS)
 AC_SUBST(RACK_LIBS)
@@ -1881,6 +1913,7 @@ AC_CONFIG_FILES([GNUmakefile \
     drivers/clock/GNUmakefile \
     drivers/compass/GNUmakefile \
     drivers/gps/GNUmakefile \
+    drivers/gyro/GNUmakefile \
     drivers/ladar/GNUmakefile \
     \
     navigation/GNUmakefile \

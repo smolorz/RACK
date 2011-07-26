@@ -46,6 +46,8 @@ class LadarSim : public RackDataModule {
         char         *dxfMapFile;
         int          angleRes;
         int          mapScaleFactor;
+        float        angleMin;
+        float        angleMax;
 
         // additional mailboxes
         RackMailbox workMbx;

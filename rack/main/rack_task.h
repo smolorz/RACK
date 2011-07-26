@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2011 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *      Oliver Wulf <oliver.wulf@web.de>
+ *      Sebastian Smolorz <sebastian.smolorz@gmx.de>
  *
  */
 #ifndef __RACK_TASK_H__
@@ -32,7 +33,6 @@
 #define RACK_TASK_FPU       T_FPU
 #define RACK_TASK_JOINABLE  T_JOINABLE
 #define RACK_TASK_CPU(c)    T_CPU(c)
-#define RACK_TASK_PRIMARY   T_PRIMARY
 #define RACK_TASK_WARNSW    T_WARNSW
 
 #else // !__XENO__
@@ -42,7 +42,6 @@
 #define RACK_TASK_FPU       1
 #define RACK_TASK_JOINABLE  2
 #define RACK_TASK_CPU(c)    3
-#define RACK_TASK_PRIMARY   4
 #define RACK_TASK_WARNSW    5
 
 #endif // __XENO__

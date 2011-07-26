@@ -98,7 +98,7 @@ int  Position::moduleOn(void)
     offsetNorthing    = (double)getInt32Param("offsetNorthing");
     offsetEasting     = (double)getInt32Param("offsetEasting");
     utmZone           = getInt32Param("utmZone");
-//    utmBand           = getInt32Param("utmBand");
+    utmBand           = (position_utm_band_e)getInt32Param("utmBand");
     positionReference = getInt32Param("positionReference");
     autoOffset        = getInt32Param("autoOffset");
     odometryStdDevX   = getInt32Param("odometryStdDevX");
@@ -292,11 +292,6 @@ int  Position::moduleCommand(RackMessage *msgInfo)
         case MSG_POSITION_UPDATE:
             pUpdate = PositionData::parse(msgInfo);
 
-            if(pUpdate->recordingTime == 0)
-            {
-                pUpdate->recordingTime = rackTime.get();
-            }
-
             ret = odometry->getData(&odometryData,
                                     sizeof(odometry_data),
                                     pUpdate->recordingTime);
@@ -404,9 +399,9 @@ int  Position::moduleCommand(RackMessage *msgInfo)
                 wgs84ToPos(&posWgs84Data, &posData);
             }
 
-            GDOS_DBG_INFO("UTM to POS: UTM zone %d, north %fmm, east %fmm, alt %dmm, head %adeg, "
+            GDOS_DBG_INFO("UTM to POS: UTM zone %d, band %d, north %fmm, east %fmm, alt %dmm, head %adeg, "
                           "Pos x %dmm, y %dmm, z %dmm, rho %adeg\n",
-                          pPosUtmData->zone, pPosUtmData->northing, pPosUtmData->easting,
+                          pPosUtmData->zone, pPosUtmData->band, pPosUtmData->northing, pPosUtmData->easting,
                           pPosUtmData->altitude, pPosUtmData->heading, posData.pos.x,
                           posData.pos.y, posData.pos.z, posData.pos.rho);
             cmdMbx.sendDataMsgReply(MSG_POSITION_POS, msgInfo, 1, &posData,
@@ -419,8 +414,9 @@ int  Position::moduleCommand(RackMessage *msgInfo)
             if (positionReference == 2)
             {
                 posUtmData.zone     =  utmZone;
-                posUtmData.northing =  (double)pPosData->pos.x + offsetNorthing * 1000.0;
-                posUtmData.easting  =  (double)pPosData->pos.y + offsetEasting * 1000.0;
+                posUtmData.band     =  utmBand;
+                posUtmData.northing =  pPosData->pos.x + (int64_t)offsetNorthing * 1000;
+                posUtmData.easting  =  pPosData->pos.y + (int64_t)offsetEasting * 1000;
                 posUtmData.altitude = -pPosData->pos.z;
                 posUtmData.heading  =  pPosData->pos.rho;
             }
@@ -431,10 +427,10 @@ int  Position::moduleCommand(RackMessage *msgInfo)
             }
 
             GDOS_DBG_INFO("POS to UTM: Pos x %dmm, y %dmm, z %dmm, rho %adeg, "
-                          "UTM zone %d, north %fmm, east %fmm, alt %dmm, head %adeg\n",
-                          posData.pos.x, posData.pos.y, posData.pos.z, posData.pos.rho,
-                          posUtmData.zone, posUtmData.northing, posUtmData.easting,
-                          posUtmData.altitude, posUtmData.heading);
+                          "UTM zone %d, band %d, north %dm, east %dm, alt %dmm, head %adeg\n",
+                          pPosData->pos.x, pPosData->pos.y, pPosData->pos.z, pPosData->pos.rho,
+                          posUtmData.zone, posUtmData.band, (int)(posUtmData.northing / 1000), 
+                          (int)(posUtmData.easting / 1000), posUtmData.altitude, posUtmData.heading);
             cmdMbx.sendDataMsgReply(MSG_POSITION_UTM, msgInfo, 1, &posUtmData,
                                     sizeof(position_utm_data));
             break;
@@ -613,15 +609,16 @@ void    Position::posToWgs84(position_data *posData, position_wgs84_data *posWgs
             // position reference is Utm
             case POSITION_REFERENCE_UTM:
                 posUtm.zone     =  utmZone;
+                posUtm.band     =  utmBand;
                 posUtm.northing =  (double)posData->pos.x + offsetNorthing * 1000.0;
                 posUtm.easting  =  (double)posData->pos.y + offsetEasting * 1000.0;
                 posUtm.altitude = -posData->pos.z;
                 posUtm.heading  =  posData->pos.rho;
                 positionTool->utmToWgs84(&posUtm, posWgs84Data);
 
-                GDOS_DBG_INFO("Utm zone %d, north %f, east %f, alt %d, head %a, "
+                GDOS_DBG_INFO("Utm zone %d, band %d, north %f, east %f, alt %d, head %a, "
                               "Wgs84 lat %a, lon %a, alt %d, head %a\n",
-                              posUtm. zone, posUtm.northing, posUtm.easting,
+                              posUtm.zone, posUtm.band, posUtm.northing, posUtm.easting,
                               posUtm.altitude, posUtm.heading,
                               posWgs84Data->latitude, posWgs84Data->longitude,
                               posWgs84Data->altitude, posWgs84Data->heading);

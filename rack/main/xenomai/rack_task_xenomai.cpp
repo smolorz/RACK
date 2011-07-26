@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2011 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -12,6 +12,7 @@
  * Authors
  *      Joerg Langenberg <joerg.langenberg@gmx.net>
  *      Oliver Wulf <oliver.wulf@web.de>
+ *      Sebastian Smolorz <sebastian.smolorz@gmx.de>
  *
  */
 
@@ -86,10 +87,10 @@ int RackTask::sleepUntil(int64_t date)
 
 int RackTask::enableRealtimeMode()
 {
-    return setMode(0, T_PRIMARY | T_WARNSW, NULL);
+    return setMode(0, T_WARNSW, NULL);
 }
 
 int RackTask::disableRealtimeMode()
 {
-    return setMode(T_PRIMARY | T_WARNSW, 0, NULL);
+    return setMode(T_WARNSW, 0, NULL);
 }

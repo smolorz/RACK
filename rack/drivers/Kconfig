@@ -20,6 +20,10 @@ menu "Gps"
 source "drivers/gps/Kconfig"
 endmenu
 
+menu "Gyro"
+source "drivers/gyro/Kconfig"
+endmenu
+
 menu "Ladar"
 source "drivers/ladar/Kconfig"
 endmenu

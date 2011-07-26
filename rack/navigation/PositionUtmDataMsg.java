@@ -29,16 +29,16 @@ public class PositionUtmDataMsg extends TimsMsg
 	    A, B, C, D, E, F, G, H, J, K, L, M, N, P, Q, R, S, T, U, V, W, X, Y, Z
 	}
 
-	public int              zone;           // utm zone
-    public double           northing;       // mm
-    public double           easting;        // mm
+    public long             northing;       // mm
+    public long             easting;        // mm
+    public int              zone;           // utm zone
     public PositionUtmBand  band;           // see PositionUtmBand
     public int              altitude;       // mm over mean sea level
     public float            heading;        // rad
-
+    
     public int getDataLen()
     {
-        return 28;
+        return 32;
     }
 
     public PositionUtmDataMsg()
@@ -74,9 +74,10 @@ public class PositionUtmDataMsg extends TimsMsg
             dataIn = new LittleEndianDataInputStream(in);
         }
 
+        northing    = dataIn.readLong();
+        easting     = dataIn.readLong();
         zone        = dataIn.readInt();
-        northing    = dataIn.readDouble();
-        easting     = dataIn.readDouble();
+        int b       = dataIn.readInt();
         altitude    = dataIn.readInt();
         heading     = dataIn.readFloat();
 
@@ -87,10 +88,11 @@ public class PositionUtmDataMsg extends TimsMsg
     {
         DataOutputStream dataOut = new DataOutputStream(out);
 
-        dataOut.writeInt(zone);
         dataOut.writeDouble(northing);
         dataOut.writeDouble(easting);
+        dataOut.writeInt(zone);
         dataOut.writeInt(altitude);
+        dataOut.writeInt(0);
         dataOut.writeFloat(heading);
     }
 
@@ -103,21 +105,15 @@ public class PositionUtmDataMsg extends TimsMsg
     {
         String token[] = utmString.split(" ");
 
-        if (token.length == 5)
+        if (token.length == 3)
         {
             String e = token[1].trim();
-            if(e.endsWith("m"))
-            {
-                e = e.substring(0, e.length() - 1);
-            }
-            easting = Double.parseDouble(e) * 1000.0;
+            e = e.substring(0, e.length() - 1);
+            easting = (long)(Double.parseDouble(e) * 1000.0);
 
-            String n = token[3].trim();
-            if(n.endsWith("m"))
-            {
-                n = n.substring(0, n.length() - 1);
-            }
-            northing = Double.parseDouble(n) * 1000.0;
+            String n = token[2].trim();
+            n = n.substring(0, n.length() - 1);
+            northing = (long)(Double.parseDouble(n) * 1000.0);
         }
         else
         {
@@ -127,8 +123,8 @@ public class PositionUtmDataMsg extends TimsMsg
 
     public String toString()
     {
-        double e = (double)((int)(easting / 10.0)) / 100.0;
-        double n = (double)((int)(northing / 10.0)) / 100.0;
-        return "32U " + e + "m E " + n + "m N ";
+        double e = (double)easting / 1000.0;
+        double n = (double)northing / 1000.0;
+        return zone+"U " + e + "m E " + n + "m N ";
     }
 }

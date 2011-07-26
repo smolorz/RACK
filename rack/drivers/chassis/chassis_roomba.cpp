@@ -32,6 +32,12 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "scan2dInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Instance for the bumper and wall sensor data relay, default -1", { -1 } },
 
+    { ARGOPT_OPT, "ioSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "System for the raw sensor data relay, default 0", { 0 } },
+
+    { ARGOPT_OPT, "ioInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Instance for the raw sensor data relay, default -1", { -1 } },
+
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "max vehicle velocity in x direction, default 500 m/s", { 500 } },
 
@@ -195,6 +201,7 @@ chassis_param_data param = {
     motorSideBrush          = getInt32Param("motorSideBrush");
     startDocking            = getInt32Param("startDocking");
 
+    // prepare scan2d relay
     if (scan2dInst >= 0)
     {
         // init scan2d values and send first dataMsg
@@ -214,6 +221,30 @@ chassis_param_data param = {
         if (ret)
         {
             GDOS_ERROR("Can't turn on Scan2d(%i/%i), code = %d\n", scan2dSys, scan2dInst, ret);
+            return ret;
+        }
+    }
+
+    // prepare io relay
+    if (ioInst >= 0)
+    {
+        // init io values and send first dataMsg
+        ioDataMsg.data.recordingTime = rackTime.get();
+        ioDataMsg.data.valueNum      = 0;
+
+        ret = workMbx.sendDataMsg(MSG_DATA, ioMbxAdr + 1, 1, 1,
+                                 &ioDataMsg, sizeof(io_data));
+        if (ret)
+        {
+            GDOS_WARNING("Error while sending first io data from %x to %x (bytes %d)\n",
+                         workMbx.getAdr(), ioMbxAdr, sizeof(io_data));
+        }
+
+        GDOS_DBG_DETAIL("Turn on Io(%d/%d)\n", ioSys, ioInst);
+        ret = io->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on Io(%i/%i), code = %d\n", ioSys, ioInst, ret);
             return ret;
         }
     }
@@ -283,6 +314,16 @@ void ChassisRoomba::moduleOff(void)
     sendMoveCommand(speed, omega);
     setCleaningMotor(0, 0, 0);
     playNote(15, 72, 200);
+
+    if (scan2dInst >= 0)
+    {
+        scan2d->off();
+    }
+
+    if (ioInst >= 0)
+    {
+        io->off();
+    }
 }
 
 // realtime context
@@ -327,40 +368,6 @@ int ChassisRoomba::moduleLoop(void)
     datalength = sizeof(chassis_data);
     putDataBufferWorkSpace(datalength);
 
-    // check motor commands
-    if ((getInt32Param("motorMainBrush") != motorMainBrush) ||
-        (getInt32Param("motorVacuum") != motorVacuum) ||
-        (getInt32Param("motorSideBrush") != motorSideBrush))
-    {
-        motorMainBrush          = getInt32Param("motorMainBrush");
-        motorVacuum             = getInt32Param("motorVacuum");
-        motorSideBrush          = getInt32Param("motorSideBrush");
-
-	 // set cleaning motor
-	 ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
-	 if (ret)
-	 {
-             return ret;
-         }
-    }
-
-    // check docking
-    if (getInt32Param("startDocking") != startDocking)
-    {
-        startDocking = getInt32Param("startDocking");
-
-        GDOS_PRINT("Start seeking for docking station...\n");
-
-        if (startDocking == 1)
-        {
-            ret = setMode(CHASSIS_ROOMBA_ROI_FORCE_DOCK);
-            if (ret)
-            {
-                return ret;
-            }
-        }
-    }
-
     // send scan2d data
     if (scan2dInst >= 0)
     {
@@ -373,6 +380,25 @@ int ChassisRoomba::moduleLoop(void)
         {
             GDOS_ERROR("Error while sending scan2d data from %x to %x (bytes %d)\n",
                        workMbx.getAdr(), scan2dMbxAdr, datalength);
+            return ret;
+        }
+    }
+
+    // send io data
+    if (ioInst >= 0)
+    {
+        ioDataMsg.data.recordingTime = sensorData.recordingTime;
+        ioDataMsg.data.valueNum = sizeof(sensorData) - sizeof(sensorData.recordingTime);
+        memcpy(&ioDataMsg.value[0], &sensorData.bumpAndWheeldrop, 
+               sizeof(sensorData) - sizeof(sensorData.recordingTime));
+        datalength =  sizeof(io_data) + ioDataMsg.data.valueNum;
+
+        ret = workMbx.sendDataMsg(MSG_DATA, ioMbxAdr + 1, 1, 1,
+                                 &ioDataMsg, datalength);
+        if (ret)
+        {
+            GDOS_ERROR("Error while sending io data from %x to %x (bytes %d)\n",
+                       workMbx.getAdr(), ioMbxAdr, datalength);
             return ret;
         }
     }
@@ -418,6 +444,27 @@ int ChassisRoomba::moduleLoop(void)
     {
         overcurrentCounter = 0;
     }
+
+    // charging station
+    if (startDocking == 1)
+    {
+        if ((sensorData.chargingState > 0) &&
+            (sensorData.chargingState <= 5))
+        {
+            // active external control
+            ret = setMode(CHASSIS_ROOMBA_ROI_CONTROL);
+            if (ret)
+            {
+                return ret;
+            }
+
+            startDocking = 0;
+            setInt32Param("startDocking", startDocking);
+            GDOS_PRINT("Successfully finished docking...\n");
+        }
+    }
+
+    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
 
     return 0;
 }
@@ -483,6 +530,42 @@ int ChassisRoomba::moduleCommand(RackMessage *msgInfo)
         GDOS_PRINT("%n Changed active pilot to %n", msgInfo->getSrc(), activePilot);
         cmdMbx.sendMsgReply(MSG_OK, msgInfo);
         break;
+
+    case MSG_SET_PARAM:
+        ret = RackDataModule::moduleCommand(msgInfo);
+
+        GDOS_DBG_INFO("Module parameter changed\n");
+        motorMainBrush  = getInt32Param("motorMainBrush");
+        motorVacuum     = getInt32Param("motorVacuum");
+        motorSideBrush  = getInt32Param("motorSideBrush");
+        startDocking    = getInt32Param("startDocking");
+
+        // set cleaning motor
+        ret = setCleaningMotor(motorMainBrush, motorVacuum, motorSideBrush);
+        if (ret)
+        {
+            return ret;
+        }
+
+        // check docking
+        if (startDocking == 1)
+        {
+            ret = setMode(CHASSIS_ROOMBA_ROI_CLEAN);
+            if (ret)
+            {
+                return ret;
+            }
+
+            RackTask::sleep(rackTime.toNano(500));
+
+            GDOS_PRINT("Searching for charging station...\n");
+            ret = setMode(CHASSIS_ROOMBA_ROI_FORCE_DOCK);
+            if (ret)
+            {
+                return ret;
+            }
+        }
+        return ret;
 
     default:
         // not for me -> ask RackDataModule
@@ -703,8 +786,6 @@ int ChassisRoomba::readSensorData(chassis_roomba_sensor_data *sensor)
     sensor->batteryCharge      = (int)((serialBuffer[22] << 8) | (serialBuffer[23] & 0xff));
     sensor->batteryCapacity    = (int)((serialBuffer[24] << 8) | (serialBuffer[25] & 0xff));
 
-    RackTask::sleep((dataBufferPeriodTime / 3) * 1000000llu);     // periodTime / 3
-
     return 0;
 }
 
@@ -714,6 +795,8 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
     scan2d->recordingTime = sensor->recordingTime;
     scan2d->duration      = dataBufferPeriodTime;
     scan2d->maxRange      = 0;
+    scan2d->sectorNum     = 1;
+    scan2d->sectorIndex   = 0;
     scan2d->refPos.x      = 0;
     scan2d->refPos.y      = 0;
     scan2d->refPos.z      = 0;
@@ -838,7 +921,8 @@ void ChassisRoomba::createScan2d(chassis_roomba_sensor_data *sensor, scan2d_data
 #define INIT_BIT_DATA_MODULE                1
 #define INIT_BIT_RTSERIAL_OPENED            2
 #define INIT_BIT_PROXY_SCAN2D               3
-#define INIT_BIT_MTX_CREATED                4
+#define INIT_BIT_PROXY_IO                   4
+#define INIT_BIT_MTX_CREATED                5
 
 int ChassisRoomba::moduleInit(void)
 {
@@ -882,6 +966,18 @@ int ChassisRoomba::moduleInit(void)
         initBits.setBit(INIT_BIT_PROXY_SCAN2D);
     }
 
+    // create io proxy
+    if (ioInst >= 0)
+    {
+        io = new IoProxy(&workMbx, ioSys, ioInst);
+        if (!io)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_IO);
+    }
+
     // create hardware mutex
     ret = hwMtx.create();
     if (ret)
@@ -909,6 +1005,15 @@ void ChassisRoomba::moduleCleanup(void)
     if (initBits.testAndClearBit(INIT_BIT_MTX_CREATED))
     {
         hwMtx.destroy();
+    }
+
+    // io proxy
+    if (ioInst >= 0)
+    {
+        if (initBits.testAndClearBit(INIT_BIT_PROXY_IO))
+        {
+            delete io;
+        }
     }
 
     // destroy scan2d proxy
@@ -945,6 +1050,8 @@ ChassisRoomba::ChassisRoomba()
     serialDev               = getIntArg("serialDev", argTab);
     scan2dSys               = getIntArg("scan2dSys", argTab);
     scan2dInst              = getIntArg("scan2dInst", argTab);
+    ioSys                   = getIntArg("ioSys", argTab);
+    ioInst                  = getIntArg("ioInst", argTab);
     param.vxMax             = getIntArg("vxMax", argTab);
     param.vxMin             = getIntArg("vxMin", argTab);
     param.accMax            = getIntArg("accMax", argTab);
@@ -967,8 +1074,9 @@ ChassisRoomba::ChassisRoomba()
     param.pilotVTransMax    = getIntArg("pilotVTransMax", argTab);
 
 
-    // scan2d mbx adress
-    scan2dMbxAdr = RackName::create(SCAN2D, scan2dInst);
+    // relay mbx adresses
+    scan2dMbxAdr = RackName::create(scan2dSys, SCAN2D, scan2dInst);
+    ioMbxAdr     = RackName::create(ioSys, IO, ioInst);
 
     dataBufferMaxDataSize   = sizeof(chassis_data);
     dataBufferPeriodTime    = 100; // 100 ms (10 per sec)

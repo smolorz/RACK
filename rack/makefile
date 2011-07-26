@@ -16,7 +16,7 @@ endif
 endif
 endif
 endif
-build_alias := $(shell $(srctree)/config/autoconf/config.guess)
+build_alias := $(shell $(srctree)/config/config.guess)
 host_alias := $(shell  $(srctree)/config/arch2host.sh $(ARCH) $(build_alias))
 override ARCH := $(shell echo $(host_alias)|cut -f1 -d-|sed -e s/^i.86/i386/ -e s/^powerpc/ppc/)
 endif
@@ -43,12 +43,21 @@ config: conf config-script
 
 oldconfig: oldconf config-script
 
-config-script: config.status
+config-script: autogen config.status
 
 reconfig::
 	@touch .rack_config
 
 reconfig:: config-script
+
+autogen:
+	@current_build_dir=`pwd` ; \
+	cd $(srctree) ; \
+	if test ! -r configure; then \
+	   echo "configure not found, running autogen.sh" ; \
+	   ./scripts/autogen.sh ; \
+	fi ; \
+	cd $$current_build_dir
 
 config.status: .rack_config
 	@test -r config.status && recf=yes || recf=no ; \

@@ -27,9 +27,11 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "binaryIo", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Enable the binary storage of io-data, default 0", { 0 } },
 
+    { ARGOPT_OPT, "logInfoFileName", ARGOPT_REQVAL, ARGOPT_VAL_STR,
+      "Filename of an additional file with logInfos of the modules to log", { ((int)"") } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
-
 
 int  main(int argc, char *argv[])
 {

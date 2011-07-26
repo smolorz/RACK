@@ -250,8 +250,8 @@ public class PositionTool
 
 	    easting  = falseEasting + dlam * t6 + dlam3 * t7 + dlam5 * t8 + dlam7 * t9;
 
-	    posUtm.northing = (northing - offsetX) * 1000.0;
-	    posUtm.easting  = (easting - offsetY) * 1000.0;
+	    posUtm.northing = (long)(northing - offsetX) * 1000;
+	    posUtm.easting  = (long)(easting - offsetY) * 1000;
 	    posUtm.altitude = posWgs84.altitude;
 	    posUtm.heading  = posWgs84.heading;
 

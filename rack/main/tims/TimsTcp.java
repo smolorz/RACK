@@ -407,4 +407,9 @@ public class TimsTcp extends Tims
         }
         return null;
     }
+
+    public boolean connectionAlive()
+    {
+        return (tcpIn != null) && (tcpOut != null);
+    }
 }
