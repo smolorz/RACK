@@ -600,11 +600,11 @@ public class MapViewComponent extends JComponent
             {
                 if(e.getWheelRotation() > 0)
                 {
-                    zoomIn(defaultZoomFactor);
+                    zoomOut(defaultZoomFactor);
                 }
                 else
                 {
-                    zoomOut(defaultZoomFactor);
+                    zoomIn(defaultZoomFactor);
                 }
             }
             //showCoords();
