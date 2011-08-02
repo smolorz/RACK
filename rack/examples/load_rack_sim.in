@@ -2,7 +2,7 @@
 
 #
 # RACK - Robotics Application Construction Kit
-# Copyright (C) 2005-2006 University of Hannover
+# Copyright (C) 2005-2011 Leibniz Universität Hannover
 #                         Institute for Systems Engineering - RTS
 #                         Professor Bernardo Wagner
 #
@@ -12,9 +12,9 @@
 # version 2.1 of the License, or (at your option) any later version.
 #
 # Authors
-#      Joerg Langenberg <joerg.langenberg@gmx.net>
-#      Jan Kiszka       <jan.kiszka@web.de>
-#
+#      Joerg Langenberg  <joerg.langenberg@gmx.net>
+#      Jan Kiszka        <jan.kiszka@web.de>
+#      Sebastian Smolorz <sesmo@gmx.net>
 #
 
 prefix=@prefix@
@@ -23,26 +23,11 @@ BINDIR=@bindir@
 DATAROOTDIR=@datarootdir@
 LIBDIR=@libdir@
 PKGLIBDIR=@libdir@/rack
-PKGDATADIR=@datadir@/rack
+PKGDATADIR=@datarootdir@/rack
 
 CURR_PATH=`pwd`
 
-
-# in case Xenomai was built modularised
-
-modprobe xeno_rtdm 2> /dev/null
-modprobe xeno_native 2> /dev/null
-
-
-# TiMS communication services
-
 cd $BINDIR
-
-./tims_client &
-./tims_router_tcp &
-
-insmod $PKGLIBDIR/tims.ko
-
 
 # RACK real-time applications
 
@@ -92,6 +77,5 @@ sleep 3
 echo -n "Press ENTER to terminate"
 read DUMMY
 
-killall PilotWallFollowing PilotJoystick Scan2dSim Position OdometryChassis ChassisSim tims_client tims_router_tcp
-sleep 3
-rmmod tims
+killall PilotWallFollowing PilotJoystick Scan2dSim Position OdometryChassis ChassisSim
+
