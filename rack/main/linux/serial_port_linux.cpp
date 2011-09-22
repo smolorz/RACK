@@ -30,15 +30,15 @@
 int open_serial_dev(const int serialDev)
 {
     int fd;
-    char filename[16];
+    char filename[20];
 
     if(serialDev < 100)
     {
-        snprintf(filename, 16, "/dev/ttyS%i", serialDev);
+        snprintf(filename, 20, "/dev/ttyS%i", serialDev);
     }
     else
     {
-        snprintf(filename, 16, "/dev/ttyUSB%i", (serialDev - 100));
+        snprintf(filename, 20, "/dev/usb/ttyUSB%i", (serialDev - 100));
     }
 
     // open port
@@ -140,7 +140,7 @@ int SerialPort::setConfig(const rtser_config *config)
 	options.c_cflag &= ~CRTSCTS;
 
     // disable software flow control
-	options.c_iflag &= ~(IXON | IXOFF | IXANY);
+	options.c_iflag &= ~(IXON | IXOFF | IXANY | INLCR | IGNCR | ICRNL);
     
     // raw input and output
 	options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
