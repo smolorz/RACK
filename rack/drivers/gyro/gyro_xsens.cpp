@@ -11,6 +11,7 @@
  *
  * Authors
  *      Matthias Hentschel   <hentschel@rts.uni-hannover.de>
+ *      Frauke Wuebbold       <wuebbold@rts.uni-hannover.de>
  *
  */
 #include "gyro_xsens.h"
@@ -30,17 +31,17 @@ arg_table_t argTab[] = {
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
-const struct rtser_config serialConfig = {
+struct rtser_config serialConfig = {
     config_mask       : 0xFFFF,
     baud_rate         : 115200,
     parity            : RTSER_NO_PARITY,
     data_bits         : RTSER_8_BITS,
-    stop_bits         : RTSER_2_STOPB,
+    stop_bits         : RTSER_1_STOPB,
     handshake         : RTSER_DEF_HAND,
     fifo_depth        : RTSER_DEF_FIFO_DEPTH,
-    rx_timeout        : 50000000ll,
+    rx_timeout        : 150000000ll,
     tx_timeout        : RTSER_DEF_TIMEOUT,
-    event_timeout     : 50000000ll,
+    event_timeout     : RTSER_DEF_TIMEOUT,
     timestamp_history : RTSER_RX_TIMESTAMP_HISTORY,
     event_mask        : RTSER_EVENT_RXPEND
 };
@@ -65,6 +66,8 @@ int  GyroXsens::moduleOn(void)
     {
         GDOS_ERROR("Can't clean serial port, code = %d \n", ret);
     }
+    
+    GDOS_DBG_DETAIL("baudrate %i\n", serialConfig.baud_rate);
 
     return RackDataModule::moduleOn();  // has to be last command in moduleOn();
 }
@@ -78,13 +81,13 @@ int  GyroXsens::moduleLoop(void)
 {
     gyro_data *pData;
     int        ret;
-
+    rack_time_t t;
 
     // get datapointer from databuffer
     pData = (gyro_data *)getDataBufferWorkSpace();
 
-    // read next message from gyro
-    ret = readMessage(&gyroMessage, &(pData->recordingTime));
+    // read next message from gyro, write timestamp before put
+    ret = readMessage(&gyroMessage, &t);
     if (ret)
     {
         GDOS_ERROR("Can't read message from serial dev %i, code %d\n", serialDev, ret);
@@ -100,12 +103,14 @@ int  GyroXsens::moduleLoop(void)
             {
                 GDOS_ERROR("Can't parse MTDataMessage, code %d\n", ret);
             }
-
+            
+            pData->recordingTime = t;
             putDataBufferWorkSpace(sizeof(gyro_data));
-
-            GDOS_DBG_DETAIL("data recordingtime %i roll %a pitch %a yaw %a\n",
-                            pData->recordingTime, pData->roll, pData->pitch,
-                            pData->yaw);
+            
+            GDOS_DBG_DETAIL("recordingTime %u angles %f %f %f acc %f %f %f wAngles %f %f %f\n",
+                            pData->recordingTime, pData->roll, pData->pitch, pData->yaw,
+                            pData->aX, pData->aY, pData->aZ, 
+                            pData->wRoll, pData->wPitch, pData->wYaw);
             break;
 
         default:
@@ -133,7 +138,7 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
     message->preamble = 0;
 
     // synchronize to preamble, timeout after 200 attempts
-    while ((i < 200) && (message->preamble != GYRO_XSENS_MESSAGE_PREAMBLE))
+    while ((i < sizeof(gyro_xsens_message)) && (message->preamble != GYRO_XSENS_MESSAGE_PREAMBLE))
     {
         // wait for next event on serial port
         ret = serialPort.recv(&message->preamble, 1, recordingTime);
@@ -143,11 +148,11 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
                        serialDev, ret);
             return ret;
         }
+        i ++;
     }
-    i++;
 
     // check for timeout
-    if (i >= 200)
+    if (i >= sizeof(gyro_xsens_message))
     {
         GDOS_ERROR("Can't synchronize on message head\n");
         return -ETIME;
@@ -165,6 +170,7 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
     // check if extended length message is given
     if (message->len == 0xff)
     {
+        message->len = 0;
         ret = serialPort.recv(&message->extLen, 2);
         if (ret)
         {
@@ -213,11 +219,8 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
     if (checksum != 0)
     {
         GDOS_ERROR("Wrong checksum in message\n");
-//        return -EINVAL;
+        return -EINVAL;
     }
-
-    GDOS_DBG_DETAIL("%d received message, bid %x, mid %x, len %x, extLen %x\n",
-                    *recordingTime, message->bid, message->mid, message->len, message->extLen);
 
     return 0;
 }
@@ -246,34 +249,36 @@ int  GyroXsens::parseMTDataMessage(gyro_xsens_message *message, gyro_data *data)
     // read sample count
     sampleCount = getDataShort(message->data, 48);
 
-    GDOS_DBG_DETAIL("parsed MTDataMessage\n");
-
+//    GDOS_DBG_DETAIL("parsedData angles %f %f %f acc %f %f %f wAngles %f %f %f sampleCount %i\n",
+//                            data->roll, data->pitch, data->yaw,
+//                            data->aX, data->aY, data->aZ, 
+//                            data->wRoll, data->wPitch, data->wYaw, sampleCount);
     return 0;
 }
 
 // return the current value of the data as an uint16_t (16 bits)
 uint16_t GyroXsens::getDataShort(uint8_t *data, uint16_t offset)
 {
-	uint16_t ret;
+    uint16_t ret;
 	uint8_t* dest = (uint8_t*) &ret;
 	uint8_t* src = &(data[offset]);
 	dest[0] = src[1];
 	dest[1] = src[0];
-
+	
 	return ret;
 }
 
 // return the current value of the data as a float (32 bits)
 float GyroXsens::getDataFloat(uint8_t *data, uint16_t offset)
 {
-	float ret;
+    float ret;
 	uint8_t* dest = (uint8_t*)&ret;
 	uint8_t* src = &(data[offset]);
 	dest[0] = src[3];
 	dest[1] = src[2];
 	dest[2] = src[1];
 	dest[3] = src[0];
-
+	
 	return ret;
 }
 
@@ -343,14 +348,14 @@ GyroXsens::GyroXsens(void)
                     16,               // command mailbox slots
                     48,               // command mailbox data size per slot
                     MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
-                    100,                // max buffer entries
+                    100,                // max buffer entries, default 100
                     10)               // data buffer listener
 
 
 {
     // get static module parameter
     serialDev = getIntArg("serialDev", argTab);
-    baudrate  = getIntArg("baudrate", argTab);
+    serialConfig.baud_rate  = getIntArg("baudrate", argTab);
 
     dataBufferMaxDataSize   = sizeof(gyro_data);
     dataBufferPeriodTime    = 10; // 10 ms (100 per sec)}

@@ -53,7 +53,6 @@ class GyroXsens : public RackDataModule
     private:
         // module parameter
         int                 serialDev;
-        int                 baudrate;
 
         // global variables
         SerialPort          serialPort;
