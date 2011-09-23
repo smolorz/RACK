@@ -131,14 +131,16 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
 {
     int     i;
     int     ret;
+    int     messageSize;
     uint8_t checksum;
 
     // init variables
-    i                 = 0;
-    message->preamble = 0;
+    i                   = 0;
+    messageSize         = sizeof(gyro_xsens_message);
+    message->preamble   = 0;
 
     // synchronize to preamble, timeout after 200 attempts
-    while ((i < sizeof(gyro_xsens_message)) && (message->preamble != GYRO_XSENS_MESSAGE_PREAMBLE))
+    while ((i < messageSize) && (message->preamble != GYRO_XSENS_MESSAGE_PREAMBLE))
     {
         // wait for next event on serial port
         ret = serialPort.recv(&message->preamble, 1, recordingTime);
@@ -152,7 +154,7 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
     }
 
     // check for timeout
-    if (i >= sizeof(gyro_xsens_message))
+    if (i >= messageSize)
     {
         GDOS_ERROR("Can't synchronize on message head\n");
         return -ETIME;
@@ -219,7 +221,7 @@ int  GyroXsens::readMessage(gyro_xsens_message *message, rack_time_t *recordingT
     if (checksum != 0)
     {
         GDOS_ERROR("Wrong checksum in message\n");
-        return -EINVAL;
+        //return -EINVAL;
     }
 
     return 0;
