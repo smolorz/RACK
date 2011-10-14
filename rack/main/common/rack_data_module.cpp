@@ -224,7 +224,7 @@ int         RackDataModule::getDataBufferIndex(rack_time_t time)
     new_rectime = getRecordingTime(dataBuffer[new_index].pData);
 
     n = globalDataCount > dataBufferMaxEntries ?
-        dataBufferMaxEntries : globalDataCount;
+        (dataBufferMaxEntries - 1) : globalDataCount;
 
     if (time != 0)
     {
