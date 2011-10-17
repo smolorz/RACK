@@ -366,7 +366,7 @@ AC_ARG_WITH(libjpeg-dir,
 
 dnl ----------------------------------------------------------------------------
 
-AC_ARG_ENABLE(libjng-support,
+AC_ARG_ENABLE(libpng-support,
     AS_HELP_STRING([--enable-libpng-support], [enable libpng support]),
     [case "$enableval" in
         y | yes) CONFIG_RACK_LIBPNG_SUPPORT=y ;;
