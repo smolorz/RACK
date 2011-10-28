@@ -40,12 +40,12 @@ class CameraTool {
     CameraTool(RackMailbox *p_mbx, int gdos_level);
     void initColorTables();
 
-    int clip(int in);
-    int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
-    int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData, int width, int height);
-    int convertCharUYVY2Gray(uint8_t* outputData, uint8_t* inputData, int width, int height);
-    int convertCharBGR2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
-    int convertCharRGB2MONO8(uint8_t* outputData, uint8_t* inputData,int width, int height);
+    static inline int clip(int in);
+    static int convertCharUYVY2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    static int convertCharUYVY2BGR(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    static int convertCharUYVY2Gray(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    static int convertCharBGR2RGB(uint8_t* outputData, uint8_t* inputData, int width, int height);
+    static int convertCharRGB2MONO8(uint8_t* outputData, uint8_t* inputData,int width, int height);
     int convertCharMono82RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
     int convertCharMono122RGBThermalRed(uint8_t* outputData, uint8_t* inputData, int width, int height);
     
