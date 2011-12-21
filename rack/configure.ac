@@ -1544,7 +1544,7 @@ if test x"${CONFIG_RACK_GSL_SUPPORT}" = x"y"; then
             AC_MSG_RESULT([${CONFIG_RACK_GSLDIR}])
 
             GSL_CPPFLAGS="-I${CONFIG_RACK_GSLDIR}/include"
-            GSL_LDFLAGS="-L${CONFIG_RACK_GSLDIR}/lib"
+            GSL_LDFLAGS="-L${CONFIG_RACK_GSLDIR}/lib -Wl,-rpath=${CONFIG_RACK_GSLDIR}/lib"
             GSL_LIBS="-lm -lgslcblas -lgsl"
 
             CPPFLAGS="${GSL_CPPFLAGS} ${CPPFLAGS}"
