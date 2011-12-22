@@ -302,6 +302,12 @@ int  LadarSickLms100::moduleLoop(void)
             pData->point[i].type |= LADAR_POINT_TYPE_REFLECTOR;
         }
         pData->point[i].intensity = ladarHeader.dataRemission[n-i];
+
+        // classify scan points that are too close to the ladar as invalid
+        if (pData->point[i].distance <= 30)
+        {
+            pData->point[i].type = LADAR_POINT_TYPE_INVALID;
+        }
      }
 
      GDOS_DBG_DETAIL("recordingTime %d, pointNum %d\n", pData->recordingTime, pData->pointNum);
@@ -373,11 +379,11 @@ int LadarSickLms100::hextodec (char tmpbuff[], int n)
     {
         if((int)tmpbuff[i]<=57)
         {
-            result += (((int)tmpbuff[i])-48)*pow(16,--n);
+            result += (((int)tmpbuff[i])-48) << (4 * (--n));
         }
         else
         {
-            result += (((int)tmpbuff[i])-55)*pow(16,--n);
+            result += (((int)tmpbuff[i])-55) << (4 * (--n));
         }
     }
     return result;

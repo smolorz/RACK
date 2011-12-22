@@ -24,10 +24,16 @@
 arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "vxMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "max vehicle velocity in x direction, default 700 m/s", { 700 } },
+      "max vehicle velocity in x direction, default 700 mm/s", { 700 } },
 
     { ARGOPT_OPT, "vxMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
-      "min vehicle velocity in x direction, default 50 m/s)", { 50 } },
+      "min vehicle velocity in x direction, default 50 mm/s)", { 50 } },
+
+    { ARGOPT_OPT, "vyMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "max vehicle velocity in y direction, default 0 mm/s", { 0 } },
+
+    { ARGOPT_OPT, "vyMin", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "min vehicle velocity in y direction, default 0 mm/s)", { 0 } },
 
     { ARGOPT_OPT, "accMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "max vehicle acceleration, default 500", { 500 } },
@@ -86,6 +92,9 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
         "1 / sampling rate in ms, default 100", { 100 } },
 
+    { ARGOPT_OPT, "periodTime", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+        "1 / sampling rate in ms, default 100", { 100 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -139,6 +148,8 @@ int ChassisSim::moduleOn(void)
     // get dynamic module parameter
     param.vxMax             = getInt32Param("vxMax");
     param.vxMin             = getInt32Param("vxMin");
+    param.vyMax             = getInt32Param("vyMax");
+    param.vyMin             = getInt32Param("vyMin");
     param.accMax            = getInt32Param("accMax");
     param.decMax            = getInt32Param("decMax");
     param.omegaMax          = getInt32Param("omegaMax") * M_PI / 180.0;
@@ -176,23 +187,23 @@ void ChassisSim::moduleOff(void)
 
 int ChassisSim::moduleLoop(void)
 {
-    chassis_data* p_data = NULL;
+    chassis_data* pData = NULL;
     ssize_t datalength = 0;
 
     // get datapointer from rackdatabuffer
-    p_data = (chassis_data *)getDataBufferWorkSpace();
+    pData = (chassis_data *)getDataBufferWorkSpace();
 
     mtx.lock(RACK_INFINITE);
 
-    p_data->recordingTime = rackTime.get();
-    p_data->vx            = (float)commandData.vx;    // in mm/s
-    p_data->vy            = 0.0f;
-    p_data->omega         = (float)commandData.omega; // in rad/s
-    p_data->deltaX        = p_data->vx * (float)dataBufferPeriodTime / 1000.0f;       // in mm
-    p_data->deltaY        = 0.0f;
-    p_data->deltaRho      = p_data->omega * (float)dataBufferPeriodTime / 1000.0f;    // in rad
-    p_data->battery       = 0.0f;
-    p_data->activePilot   = activePilot;
+    pData->recordingTime = rackTime.get();
+    pData->vx            = (float)commandData.vx;    // in mm/s
+    pData->vy            = (float)commandData.vy;    // in mm/s
+    pData->omega         = (float)commandData.omega; // in rad/s
+    pData->deltaX        = pData->vx * (float)dataBufferPeriodTime / 1000.0f;       // in mm
+    pData->deltaY        = pData->vy * (float)dataBufferPeriodTime / 1000.0f;       // in mm
+    pData->deltaRho      = pData->omega * (float)dataBufferPeriodTime / 1000.0f;    // in rad
+    pData->battery       = 0.0f;
+    pData->activePilot   = activePilot;
 
     mtx.unlock();
 
@@ -202,9 +213,9 @@ int ChassisSim::moduleLoop(void)
 
     GDOS_DBG_DETAIL("timestamp offset: %u\n",(unsigned long) rackTime.getOffset());
 
-    GDOS_DBG_DETAIL("vx:%f mm/s, vx:%f mm/s, omega:%a deg/s, timestamp: %d\n",
-                    p_data->vx, p_data->vy, p_data->omega,
-                    p_data->recordingTime);
+    GDOS_DBG_DETAIL("vx:%f mm/s, vy:%f mm/s, omega:%a deg/s, timestamp: %d\n",
+                    pData->vx, pData->vy, pData->omega,
+                    pData->recordingTime);
 
     sleepDataBufferPeriodTime();
 
@@ -213,23 +224,23 @@ int ChassisSim::moduleLoop(void)
 
 int ChassisSim::moduleCommand(RackMessage *msgInfo)
 {
-    unsigned int pilot_mask = RackName::getSysMask()   |
-                              RackName::getClassMask() |
-                              RackName::getInstMask();
-    chassis_move_data               *p_move;
-    chassis_set_active_pilot_data   *p_pilot;
+    unsigned int pilotMask = RackName::getSysMask()   |
+                             RackName::getClassMask() |
+                             RackName::getInstMask();
+    chassis_move_data               *pMove;
+    chassis_set_active_pilot_data   *pPilot;
 
     switch (msgInfo->getType())
     {
         case MSG_CHASSIS_MOVE:
             if (status != MODULE_STATE_ENABLED)
             {
-                cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
+               cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
                 break;
             }
 
-            p_move = ChassisMoveData::parse(msgInfo);
-            if ((msgInfo->getSrc() & pilot_mask) != activePilot)
+            pMove = ChassisMoveData::parse(msgInfo);
+            if ((msgInfo->getSrc() & pilotMask) != activePilot)
             {
                 cmdMbx.sendMsgReply(MSG_ERROR, msgInfo);
                 break;
@@ -238,16 +249,30 @@ int ChassisSim::moduleCommand(RackMessage *msgInfo)
             mtx.lock(RACK_INFINITE);
 
             // set min speed
-            if ((p_move->vx > 0) && (p_move->vx < param.vxMin))
-                p_move->vx = param.vxMin;
-            if ((p_move->vx < 0) && (p_move->vx > -param.vxMin))
-                p_move->vx = -param.vxMin;
-            if ((p_move->vy > 0) && (p_move->vy < param.vyMin))
-                p_move->vy = param.vyMin;
-            if ((p_move->vy < 0) && (p_move->vy > -param.vyMin))
-                p_move->vy = -param.vyMin;
+            if ((pMove->vx > 0) && (pMove->vx < param.vxMin))
+                pMove->vx = param.vxMin;
+            if ((pMove->vx < 0) && (pMove->vx > -param.vxMin))
+                pMove->vx = -param.vxMin;
+            if ((pMove->vy > 0) && (pMove->vy < param.vyMin))
+                pMove->vy = param.vyMin;
+            if ((pMove->vy < 0) && (pMove->vy > -param.vyMin))
+                pMove->vy = -param.vyMin;
 
-            memcpy(&commandData, p_move, sizeof(commandData));
+            // bound max speed
+            if ((pMove->vx > 0) && (pMove->vx > param.vxMax))
+                pMove->vx = param.vxMax;
+            if ((pMove->vx < 0) && (pMove->vx < -param.vxMax))
+                pMove->vx = -param.vxMax;
+            if ((pMove->vy > 0) && (pMove->vy > param.vyMax))
+                pMove->vy = param.vyMax;
+            if ((pMove->vy < 0) && (pMove->vy < -param.vyMax))
+                pMove->vy = -param.vxMax;
+            if ((pMove->omega > 0) && (pMove->omega > param.omegaMax))
+                pMove->omega = param.omegaMax;
+            if ((pMove->omega < 0) && (pMove->omega < -param.omegaMax))
+                pMove->omega = -param.omegaMax;
+
+            memcpy(&commandData, pMove, sizeof(commandData));
 
             mtx.unlock();
 
@@ -260,11 +285,11 @@ int ChassisSim::moduleCommand(RackMessage *msgInfo)
             break;
 
         case MSG_CHASSIS_SET_ACTIVE_PILOT:
-            p_pilot = ChassisSetActivePilotData::parse(msgInfo);
+            pPilot = ChassisSetActivePilotData::parse(msgInfo);
 
             mtx.lock(RACK_INFINITE);
 
-            activePilot = p_pilot->activePilot & pilot_mask;
+            activePilot = pPilot->activePilot & pilotMask;
 
             commandData.vx    = 0;
             commandData.vy    = 0;

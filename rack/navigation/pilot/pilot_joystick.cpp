@@ -44,6 +44,9 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "maxSpeed", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Maximal Speed, default 4000", { 4000 } },
 
+    { ARGOPT_OPT, "maxSpeedSide", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Maximal Speed in longitudinal direction, default 0", { 0 } },
+
     { ARGOPT_OPT, "mode", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Control mode (0 = speed-radius; 1 = speed-omega) (default 0)", { 0 } },
 
@@ -76,6 +79,7 @@ arg_table_t argTab[] = {
 
     // get dynamic module parameter
     maxSpeed             = getInt32Param("maxSpeed");
+    maxSpeedSide         = getInt32Param("maxSpeedSide");
     mode                 = getInt32Param("mode");
     chassisMinTurnRadius = getInt32Param("chassisMinTurnRadius");
     joystickExpX         = getFloatParam("joystickExpX");
@@ -103,6 +107,12 @@ arg_table_t argTab[] = {
     {
         maxSpeed = chasParData.vxMax;
         GDOS_DBG_DETAIL("Max speed : %d\n", maxSpeed);
+    }
+
+    if (maxSpeedSide > chasParData.vyMax)
+    {
+        maxSpeedSide = chasParData.vyMax;
+        GDOS_DBG_DETAIL("Max speed side : %d\n", maxSpeedSide);
     }
 
     if (chasParData.minTurningRadius < chassisMinTurnRadius)
@@ -208,6 +218,7 @@ void PilotJoystick::moduleOff(void)
 int  PilotJoystick::moduleLoop(void)
 {
     int         speed, speedSafe;
+    int         speedSide;
     int         ret;
     float       omega;
     float       joystickPositionY;
@@ -246,6 +257,9 @@ int  PilotJoystick::moduleLoop(void)
                 ((powf(2.0f, joystickExpX * (float)jstkData.position.x / 100.0f) - 1.0f)
                  / (powf(2.0f, joystickExpX) - 1.0f)));
         }
+
+        joystickSpeedSide = (int)rint((float)maxSpeedSide *
+                                     ((float)jstkData.position.z / 100.0f));
 
         if (joystickExpY <= 0.0f)
         {
@@ -414,12 +428,28 @@ int  PilotJoystick::moduleLoop(void)
         omega = speed * joystickCurve;
     }
 
-    // move chassis
-    ret = chassis->move(speed, speedSafe, omega);
-    if (ret)
+    // move chassis without lateral movement allowed
+    if (maxSpeedSide == 0)
     {
-        GDOS_ERROR("Can't send chassis_move, code = %d\n", ret);
-        return ret;
+        ret = chassis->move(speed, speedSafe, omega);
+        if (ret)
+        {
+            GDOS_ERROR("Can't send chassis_move, code = %d\n", ret);
+            return ret;
+        }
+    }
+    // move chassis with lateral movement allowed
+    else
+    {
+        speedSide = safeSpeedSide(joystickSpeedSide,  NULL,
+                                  &scan2dMsg.data, &chasParData);
+
+        ret = chassis->move(speed, speedSide, omega);
+        if (ret)
+        {
+            GDOS_ERROR("Can't send chassis_move, code = %d\n", ret);
+            return ret;
+        }
     }
 
 
