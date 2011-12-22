@@ -62,10 +62,12 @@ class PilotJoystick : public RackDataModule {
         float               joystickExpY;
 
         int                 maxSpeed;
+        int                 maxSpeedSide;
         int                 joystikDataMissing;
         int                 scan2dDataMissing;
 
         int                 joystickSpeed;
+        int                 joystickSpeedSide;
         float               joystickCurve;
         float               joystickOmega;
         int                 joystickForce;

@@ -253,6 +253,177 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
 }
 
 /**
+ * This function is an assistant for the speed reduction of the robot. The
+ * parameters "speed" and "radius" are the current speed and radius value of
+ * the robot. The flag "moveStatus" indicates if the robot is currently
+ * holding or moving. This value is necessary for the hysteresis
+ * functionality of this assistant (0 if no functionality is desired).
+ * This assistant calculates for each point in the scan2D "scan"
+ * the max. driveable speed without collision. If this speed value is less
+ * then the current speed the current speed is reduced.
+ * @ingroup main_tools
+ */
+static inline int safeSpeedSide(int speedSide, int *moveStatus,
+                                scan2d_data *scan,
+                                chassis_param_data *param)
+{
+    int     i;
+    int     xMax, xMin;
+    int     yMax, yMin;
+    int     sign;
+    int     vMax, vMaxX, vMaxY;
+    float   breakConstant;
+
+    // set parameters for right movement
+    if (speedSide > 0)  // set hysteresis boundaries
+    {
+        if ((moveStatus != NULL) && (*moveStatus == HOLD))
+        {
+            xMax =  param->boundaryFront + 2 * param->safetyMargin;
+            xMin = -param->boundaryBack  - 2 * param->safetyMargin;
+            yMax =  param->boundaryRight + 2 * param->safetyMargin + param->safetyMarginMove;
+            yMin = -param->boundaryLeft  -     param->safetyMargin;
+        }
+        else    // set normal boundaries
+        {
+            xMax =  param->boundaryFront + param->safetyMargin;
+            xMin = -param->boundaryBack  + param->safetyMargin;
+            yMax =  param->boundaryRight + param->safetyMargin + param->safetyMarginMove;
+            yMin = -param->boundaryLeft;
+        }
+
+        // reduce max speed
+        if (speedSide > param->vyMax)
+        {
+            speedSide = param->vyMax;
+        }
+
+        // set movement flag
+        sign = 1;
+
+    }
+    else if (speedSide < 0) // left
+    {
+        if ((moveStatus != NULL) && (*moveStatus == HOLD))
+        {
+            // set hysteresis boundaries
+            xMax =  param->boundaryFront + 2 * param->safetyMargin;
+            xMin = -param->boundaryBack  - 2 * param->safetyMargin;
+            yMax =  param->boundaryRight +     param->safetyMargin;
+            yMin = -param->boundaryLeft  - 2 * param->safetyMargin - param->safetyMarginMove;
+        }
+        else // set normal boundaries
+        {
+            xMax =  param->boundaryFront + param->safetyMargin;
+            xMin = -param->boundaryBack  - param->safetyMargin;
+            yMax =  param->boundaryRight;
+            yMin = -param->boundaryLeft  - param->safetyMargin - param->safetyMarginMove;
+        }
+
+        // reduce max speed
+        if (speedSide < -param->vyMax)
+        {
+            speedSide = -param->vyMax;
+        }
+
+        // set movement flag
+        sign        = -1;
+        speedSide   = abs(speedSide);
+
+    }
+    else // no movement
+    {
+        speedSide = 0;
+
+        // set move status
+        if (moveStatus != NULL)
+        {
+            *moveStatus = HOLD;
+        }
+
+        return speedSide;
+    }
+
+    // check scan2D
+    for (i = 0; i < scan->pointNum; i += 2)
+    {
+        if (((scan->point[i].type & SCAN_POINT_TYPE_INVALID) == 0) &
+            ((scan->point[i].type & SCAN_POINT_TYPE_MASK) != SCAN_POINT_TYPE_LANDMARK))
+        {
+            if ((scan->point[i].type & SCAN_POINT_TYPE_MASK) == SCAN_POINT_TYPE_DYN_OBSTACLE)
+            {
+                breakConstant = param->breakConstant * 3.0f;
+            }
+            else
+            {
+                breakConstant = param->breakConstant;
+            }
+
+            // check x-coordinate
+            if (scan->point[i].x > xMax)
+            {
+                vMaxX = (int)rint((float)abs(scan->point[i].x - xMax) * 4.0f / breakConstant);
+            }
+            else if (scan->point[i].x < xMin)
+            {
+                vMaxX = (int)rint((float)abs(scan->point[i].x - xMin) * 4.0f / breakConstant);
+            }
+            else
+            {
+                vMaxX = 0;
+            }
+
+
+            // check y coordinate
+            if (scan->point[i].y > yMax)
+            {
+                if (sign > 0)
+                    vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMax) / breakConstant);
+                else
+                    vMaxY  = speedSide;
+
+            }
+            else if (scan->point[i].y < yMin)
+            {
+                if (sign > 0)
+                    vMaxY = speedSide;
+                else
+                    vMaxY  =  (int)rint((float)abs(scan->point[i].y - yMin) / breakConstant);
+            }
+            else
+            {
+                vMaxY = 0;
+            }
+
+            // reduce speed if necessary
+            if (vMaxX > vMaxY)
+                vMax = vMaxX;
+            else
+                vMax = vMaxY;
+
+            if (vMax < speedSide)
+                speedSide = vMax;
+        }
+    }
+
+
+    // set min speed
+    if ((speedSide != 0) && (speedSide < param->vyMin))
+        speedSide = param->vyMin;
+
+    // set new move status
+    if (moveStatus != NULL)
+    {
+        if (speedSide != 0)
+            *moveStatus = MOVING;
+        else
+            *moveStatus = HOLD;
+    }
+
+    return speedSide * sign;
+}
+
+/**
  *
  * @ingroup main_tools
  */
