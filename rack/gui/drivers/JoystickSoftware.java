@@ -39,10 +39,12 @@ public class JoystickSoftware extends RackDataModuleGui
 
     protected JLabel xLabel = new JLabel("0%");
     protected JLabel yLabel = new JLabel("0%");
+    protected JLabel zLabel = new JLabel("0%");
     protected JLabel buttonsLabel = new JLabel("00000000");
 
     protected JLabel xNameLabel = new JLabel("x", SwingConstants.RIGHT);
     protected JLabel yNameLabel = new JLabel("y", SwingConstants.RIGHT);
+    protected JLabel zNameLabel = new JLabel("z", SwingConstants.RIGHT);    
     protected JLabel buttonsNameLabel = new JLabel("buttons", SwingConstants.RIGHT);
 
     protected JPanel steeringPanel;
@@ -113,11 +115,14 @@ public class JoystickSoftware extends RackDataModuleGui
         labelPanel.add(xLabel);
         labelPanel.add(yNameLabel);
         labelPanel.add(yLabel);
+        labelPanel.add(zNameLabel);
+        labelPanel.add(zLabel);
         labelPanel.add(buttonsNameLabel);
         labelPanel.add(buttonsLabel);
 
         outputData.position.x = 0;
         outputData.position.y = 0;
+        outputData.position.z = 0;
         outputData.buttons    = 0;
 
         forwardButton.addActionListener(new ActionListener()
@@ -234,16 +239,37 @@ public class JoystickSoftware extends RackDataModuleGui
                         case KeyEvent.VK_LEFT:
                         case KeyEvent.VK_KP_LEFT:
                         case KeyEvent.VK_NUMPAD4:
-                            left();
+                            if (e.isControlDown())
+                            {
+                                leftSide();
+                            }
+                            else
+                            {
+                                left();
+                            }
                             break;
                         case KeyEvent.VK_RIGHT:
                         case KeyEvent.VK_KP_RIGHT:
                         case KeyEvent.VK_NUMPAD6:
-                            right();
+                            if (e.isControlDown())
+                            {
+                                rightSide();
+                            }
+                            else
+                            {
+                                right();
+                            }
                             break;
                         case KeyEvent.VK_SHIFT:
                         case KeyEvent.VK_NUMPAD5:
-                            streight();
+                            if (e.isControlDown())
+                            {
+                                streightSide();
+                            }
+                            else
+                            {
+                                streight();
+                            }
                             break;
                         case KeyEvent.VK_F1:
                             f1Down();
@@ -261,8 +287,11 @@ public class JoystickSoftware extends RackDataModuleGui
                             zero();
                             break;
                         default:
-                            zero();
-                            activatePilot(ChassisProxy.INVAL_PILOT);
+                            if (!e.isControlDown())
+                            {
+                                zero();
+                                activatePilot(ChassisProxy.INVAL_PILOT);
+                            }
                     }
                 }
                 stopButton.grabFocus();
@@ -338,17 +367,37 @@ public class JoystickSoftware extends RackDataModuleGui
         if (outputData.position.y > 100)
             outputData.position.y = 100;
     }
+    
+    public synchronized void leftSide()
+    {
+        outputData.position.z -= 10;
+        if (outputData.position.z < -100)
+            outputData.position.z = -100;
+    }
+    
+    public synchronized void rightSide()
+    {
+        outputData.position.z += 10;
+        if (outputData.position.z > 100)
+            outputData.position.z = 100;
+    }    
 
     public synchronized void zero()
     {
         outputData.position.x = 0;
         outputData.position.y = 0;
+        outputData.position.z = 0;
     }
 
     public synchronized void streight()
     {
         outputData.position.y = 0;
     }
+    
+    public synchronized void streightSide()
+    {
+        outputData.position.z = 0;
+    }    
 
     public synchronized void f1Down()
     {
@@ -446,11 +495,13 @@ public class JoystickSoftware extends RackDataModuleGui
         {
             outputData.position.x = 0;
             outputData.position.y = 0;
+            outputData.position.z = 0;
             outputData.buttons = 0;
         }
 
         xLabel.setText("0%");
         yLabel.setText("0%");
+        zLabel.setText("0%");
         buttonsLabel.setText("");
 
         setEnabled(false);
@@ -494,6 +545,7 @@ public class JoystickSoftware extends RackDataModuleGui
 
         xLabel.setText(outputData.position.x + "%");
         yLabel.setText(outputData.position.y + "%");
+        zLabel.setText(outputData.position.z + "%");        
         buttonsLabel.setText(Integer.toBinaryString(outputData.buttons));
 
         try
@@ -519,9 +571,11 @@ public class JoystickSoftware extends RackDataModuleGui
     {
         xNameLabel.setEnabled(enabled);
         yNameLabel.setEnabled(enabled);
+        zNameLabel.setEnabled(enabled);        
         buttonsNameLabel.setEnabled(enabled);
         xLabel.setEnabled(enabled);
         yLabel.setEnabled(enabled);
+        zLabel.setEnabled(enabled);        
 
         buttonsLabel.setEnabled(enabled);
         forwardButton.setEnabled(enabled);
