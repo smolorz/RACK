@@ -266,7 +266,7 @@ int ChassisSim::moduleCommand(RackMessage *msgInfo)
             if ((pMove->vy > 0) && (pMove->vy > param.vyMax))
                 pMove->vy = param.vyMax;
             if ((pMove->vy < 0) && (pMove->vy < -param.vyMax))
-                pMove->vy = -param.vxMax;
+                pMove->vy = -param.vyMax;
             if ((pMove->omega > 0) && (pMove->omega > param.omegaMax))
                 pMove->omega = param.omegaMax;
             if ((pMove->omega < 0) && (pMove->omega < -param.omegaMax))
