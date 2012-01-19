@@ -30,6 +30,15 @@ arg_table_t argTab[] = {
     { ARGOPT_OPT, "chassisInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The instance number of the chassis module", { 0 } },
 
+    { ARGOPT_OPT, "initPosX", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The x-coordinate of the initial position in mm, default 0", { 0 } },
+
+    { ARGOPT_OPT, "initPosY", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The y-coordinate of the initial position in mm, default 0", { 0 } },
+
+    { ARGOPT_OPT, "initPosRho", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The rho-coordinate of the initial position in deg, default 0", { 0 } },
+
     { 0, "", 0, 0, "", { 0 } } // last entry
 };
 
@@ -48,9 +57,9 @@ int  OdometryChassis::moduleOn(void)
 {
     int         ret;
 
-    oldPositionX   = 0.0f;
-    oldPositionY   = 0.0f;
-    oldPositionRho = 0.0f;
+    oldPositionX   = getInt32Param("initPosX");
+    oldPositionY   = getInt32Param("initPosY");
+    oldPositionRho = (float)getInt32Param("initPosRho") * M_PI / 180.0f;
 
     ret = chassis->on();
     if (ret)
