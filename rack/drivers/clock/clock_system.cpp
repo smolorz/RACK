@@ -206,7 +206,7 @@ int ClockSystem::moduleInit(void)
     //
 
     // work mailbox
-    ret = createMbx(&workMbx, 1, sizeof(clock_data),
+    ret = createMbx(&workMbx, 10, sizeof(clock_data),
                     MBX_IN_KERNELSPACE | MBX_SLOT);
     if (ret)
     {
