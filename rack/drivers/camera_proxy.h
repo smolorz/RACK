@@ -31,7 +31,7 @@
 
 
 #define CAMERA_MAX_WIDTH  1280              /**< maximum width of camera image */
-#define CAMERA_MAX_HEIGHT  960              /**< maximum height of camera image */
+#define CAMERA_MAX_HEIGHT 1024              /**< maximum height of camera image */
 #define CAMERA_MAX_DEPTH    24              /**< maximum depth per pixel of camera image */
 #define CAMERA_MAX_BYTES  (CAMERA_MAX_WIDTH * CAMERA_MAX_HEIGHT * CAMERA_MAX_DEPTH / 8)
                                             /**< maximum bytes of camera image */
