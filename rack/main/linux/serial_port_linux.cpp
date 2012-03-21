@@ -36,9 +36,17 @@ int open_serial_dev(const int serialDev)
     {
         snprintf(filename, 20, "/dev/ttyS%i", serialDev);
     }
-    else
+    else if(serialDev < 200)
     {
         snprintf(filename, 20, "/dev/usb/ttyUSB%i", (serialDev - 100));
+    }
+    else if(serialDev < 300)
+    {
+        snprintf(filename, 20, "/dev/usb/ttyACM%i", (serialDev - 200));
+    }
+    else
+    {
+        return -ENODEV;
     }
 
     // open port
