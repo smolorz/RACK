@@ -3,6 +3,10 @@ config RACK_LADAR_HOKUYO_URG
     bool "Ladar - HokuyoUrg"
     default y
 
+config RACK_LADAR_HOKUYO_URG_USB
+    bool "Ladar - HokuyoUrgUsb"
+    default y
+
 config RACK_LADAR_IBEO
     bool "Ladar - Ibeo"
     default y

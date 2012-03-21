@@ -9,6 +9,10 @@ if CONFIG_RACK_LADAR_HOKUYO_URG
 bin_PROGRAMS +=	LadarHokuyoUrg
 endif
 
+if CONFIG_RACK_LADAR_HOKUYO_URG_USB
+bin_PROGRAMS += LadarHokuyoUrgUsb
+endif
+
 if CONFIG_RACK_LADAR_IBEO_LUX
 bin_PROGRAMS +=	LadarIbeoLux
 endif
@@ -41,6 +45,10 @@ LadarIbeo_SOURCES = \
 LadarHokuyoUrg_SOURCES = \
 	ladar_hokuyo_urg.h \
 	ladar_hokuyo_urg.cpp
+
+LadarHokuyoUrgUsb_SOURCES = \
+	ladar_hokuyo_urg_usb.h \
+	ladar_hokuyo_urg_usb.cpp
 
 LadarIbeoLux_SOURCES = \
 	ladar_ibeo_lux.h \

@@ -773,6 +773,23 @@ if test "$CONFIG_RACK_LADAR_HOKUYO_URG" = "y"; then
 fi
 
 dnl -----------------------------------------------------------------
+dnl  drivers - LadarHokuyoUrgUsb
+dnl -----------------------------------------------------------------
+
+AC_MSG_CHECKING([build LadarHokuyoUrgUsb])
+AC_ARG_ENABLE(ladar-hokuyo-urg-usb,
+    AS_HELP_STRING([--enable-ladar-hokuyo-urg-usb], [building LadarHokuyoUrgUsb]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_LADAR_HOKUYO_URG_USB=y ;;
+        *) CONFIG_RACK_LADAR_HOKUYO_URG_USB=n ;;
+    esac])     
+AC_MSG_RESULT([${CONFIG_RACK_LADAR_HOKUYO_URG_USB:-n}])
+AM_CONDITIONAL(CONFIG_RACK_LADAR_HOKUYO_URG_USB,[test "$CONFIG_RACK_LADAR_HOKUYO_URG_USB" = "y"])
+if test "$CONFIG_RACK_LADAR_HOKUYO_URG_USB" = "y"; then
+    AC_DEFINE(CONFIG_RACK_LADAR_HOKUYO_URG_USB,1,[building LadarHokuyoUrgUsb])
+fi  
+
+dnl -----------------------------------------------------------------
 dnl  drivers - LadarIbeo
 dnl -----------------------------------------------------------------
 

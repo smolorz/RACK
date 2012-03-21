@@ -1,0 +1,391 @@
+/*
+ * RACK - Robotics Application Construction Kit
+ * Copyright (C) 2005-2006 University of Hannover
+ *                         Institute for Systems Engineering - RTS
+ *                         Professor Bernardo Wagner
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * Authors
+ *      Oliver Wulf      <wulf@rts.uni-hannover.de>
+ *      Daniel Lecking   <lecking@rts.uni-hannover.de>
+ *      Thomas Wittmann  <wittmann@rts.uni-hannover.de>
+ *
+ */
+#include <iostream>
+#include <termios.h>
+
+// include own header file
+#include "ladar_hokuyo_urg_usb.h"
+
+arg_table_t argTab[] = {
+
+    { ARGOPT_REQ, "serialDev", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The number of the local serial device", { -1 } },
+
+    { ARGOPT_OPT, "start", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Point of the area from where the data reading starts, default 44",
+      { 44 } },
+
+    { ARGOPT_OPT, "end", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Point of the area from where the data reading stops, default 725",
+      { 725 } },
+
+    { ARGOPT_OPT, "cluster", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "Number of neighboring points that are grouped as a cluster, default 3",
+      { 3 } },
+
+    { ARGOPT_OPT, "startAngle", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "startAngle, default 120", { 120 } },
+
+    { 0, "", 0, 0, "", { 0 } } // last entry
+
+};
+
+/*******************************************************************************
+ *   !!! REALTIME CONTEXT !!!
+ *
+ *   moduleOn,
+ *   moduleOff,
+ *   moduleLoop,
+ *   moduleCommand,
+ *
+ *   own realtime user functions
+ ******************************************************************************/
+
+int  LadarHokuyoUrgUsb::moduleOn(void)
+{
+    int ret;
+    struct termios options;
+
+    // get dynamic module parameter
+    start       = getInt32Param("start");
+    end         = getInt32Param("end");
+    cluster     = getInt32Param("cluster");
+    startAngle  = getInt32Param("startAngle");
+
+    if (start > 44)
+    {
+ //       startAngle  = startAngle + 681 / (start - 44) * 240;
+    }
+
+    if (cluster < 0 || cluster > 3)
+    {
+        GDOS_ERROR("Invalid argument -> cluster [use 1..3] \n");
+    }
+
+    GDOS_DBG_INFO("Connect\n");
+
+    RackTask::disableRealtimeMode();
+    ret = write(serialPort, sCommand115200, 15);
+    if (ret < 15)
+    {
+        GDOS_ERROR("Can't send command to serial device, code = %d\n", ret);
+        return ret;
+    }
+
+    GDOS_DBG_INFO("Set baudrate to 115200\n");
+
+    ret = read(serialPort, serialBuffer, 1);
+    if (ret < 0)
+    {
+        GDOS_WARNING("Can't read set baudrate ack, code=%d\n", ret);
+        GDOS_WARNING("Try on work baudrate 115200\n");
+    }
+
+    RackTask::sleep(200000000); // 200 ms
+
+    //set baudrate to 115200
+    tcgetattr(serialPort, &options);
+    cfsetospeed(&options, B115200);
+	cfsetispeed(&options, B115200);
+	tcsetattr(serialPort, TCSAFLUSH, &options);
+    RackTask::enableRealtimeMode();
+
+    RackTask::sleep(200000000); // 200 ms
+
+    return RackDataModule::moduleOn();   // has to be last command in moduleOn();
+}
+
+void LadarHokuyoUrgUsb::moduleOff(void)
+{
+    RackDataModule::moduleOff();         // has to be first command in moduleOff();
+
+    struct termios options;
+    int ret;
+
+    GDOS_DBG_INFO("Disconnect\n");
+
+    RackTask::disableRealtimeMode();
+    ret = write(serialPort, sCommand19200, 15);
+    if (ret < 15)
+    {
+        GDOS_ERROR("Can't send command to serial device, code = %d\n", ret);
+    }
+
+    RackTask::sleep(200000000); // 200 ms
+
+	//set baudrate to 19200
+    tcgetattr(serialPort, &options);
+    cfsetospeed(&options, B19200);
+	cfsetispeed(&options, B19200);
+	tcsetattr(serialPort, TCSAFLUSH, &options);
+		
+    RackTask::enableRealtimeMode();
+}
+
+int  LadarHokuyoUrgUsb::moduleLoop(void)
+{
+    ladar_data  *p_data;
+    int         serialDataLen;
+    int         i, j, ret;
+    float       angleResolution;
+
+    p_data = (ladar_data *)getDataBufferWorkSpace();
+
+    p_data->duration        = 1000;
+    p_data->maxRange        = 4000;
+
+    // send G-Command (Distance Data Acquisition)
+    gCommand[1] = (int)(start/100)      + 0x30;
+    gCommand[2] = ((int)(start/10))%10  + 0x30;
+    gCommand[3] = (start%10)            + 0x30;
+
+    gCommand[4] = (int)(end/100)        + 0x30;
+    gCommand[5] = ((int)(end/10))%10    + 0x30;
+    gCommand[6] = (end%10) + 0x30;
+
+    gCommand[7] = (int)(cluster/10)     + 0x30;
+    gCommand[8] = (cluster%10)          + 0x30;
+
+	RackTask::disableRealtimeMode();  
+    ret = write(serialPort, gCommand, 10);
+    if (ret < 10)
+    {
+        GDOS_ERROR("Can't send command to serial device, code = %d\n", ret);
+        return ret;
+    }
+    
+    // receive G-Command (Distance Data Acquisition)
+
+    // synchronize on message head, timeout after 200 attempts *****
+    i = 0;
+    serialBuffer[0] = 0;
+
+    while((i < 2000) && (serialBuffer[0] != 'G'))
+    {
+        // Read next character
+        ret = read(serialPort, &serialBuffer[0], 1);
+        if (ret < 0)
+        {
+            GDOS_ERROR("Can't read data from serial dev, code=%d\n", ret);
+            return ret;
+        }
+        i++;
+    }
+	
+    if(i == 2000)
+    {
+        GDOS_ERROR("Can't read data 2 from serial dev\n");
+        return -1;
+    }
+
+    angleResolution         = (float)cluster * -0.3515625 * M_PI/180.0;
+    p_data->pointNum        = (int32_t)((end - start)/cluster);     //max 681
+    p_data->startAngle      = (float)startAngle * M_PI/180.0;
+    p_data->endAngle        = normaliseAngleSym0(p_data->startAngle +
+                                                 angleResolution * p_data->pointNum);
+
+    GDOS_DBG_DETAIL("pointNum %i, startAngle %a, endAngle %a, angleResolution %a\n",p_data->pointNum,p_data->startAngle,p_data->endAngle, angleResolution);
+
+    serialDataLen = 15 + p_data->pointNum * 2 + p_data->pointNum / 32;
+
+    ret = read(serialPort, serialBuffer, serialDataLen);
+    if (ret < 0)
+    {
+        GDOS_ERROR("Can't read data 3 from serial dev, code=%d\n",ret);
+        return ret;
+    }
+	
+	RackTask::enableRealtimeMode();
+
+    j = 10;
+    for (i = 0; i < p_data->pointNum; i++)
+    {
+        if ((i % 32) == 0)
+        {
+            j += 1;  // first j = 11
+        }
+
+        p_data->point[i].distance = ((int32_t)(serialBuffer[j] - 0x30) << 6) |
+                                     (int32_t)(serialBuffer[j + 1] - 0x30);
+									 
+		p_data->point[i].angle     = normaliseAngleSym0(p_data->startAngle + angleResolution * i);
+        p_data->point[i].type      = LADAR_POINT_TYPE_UNKNOWN;
+        p_data->point[i].intensity = 0;
+
+        if (p_data->point[i].distance < 20)
+        {
+            p_data->point[i].distance = 0;
+            p_data->point[i].type     = LADAR_POINT_TYPE_INVALID;
+        }
+
+
+        j += 2;
+    }
+
+    putDataBufferWorkSpace(sizeof(ladar_data) + sizeof(ladar_point) * p_data->pointNum);
+    return 0;
+}
+
+int  LadarHokuyoUrgUsb::moduleCommand(RackMessage *msgInfo)
+{
+    // not for me -> ask RackDataModule
+    return RackDataModule::moduleCommand(msgInfo);
+}
+
+/*******************************************************************************
+ *   !!! NON REALTIME CONTEXT !!!
+ *
+ *   moduleInit,
+ *   moduleCleanup,
+ *   Constructor,
+ *   Destructor,
+ *   main,
+ *
+ *   own non realtime user functions
+ ******************************************************************************/
+
+// init_flags (for init and cleanup)
+#define INIT_BIT_DATA_MODULE                0
+#define INIT_BIT_SERIALPORT_OPEN            1
+
+int  LadarHokuyoUrgUsb::moduleInit(void)
+{
+    int     ret;
+    struct  termios options;
+    char    dev[13];
+
+    ret = RackDataModule::moduleInit();
+    if (ret)
+    {
+        return ret;
+    }
+    initBits.setBit(INIT_BIT_DATA_MODULE);
+
+    snprintf(&dev[0], 13, "/dev/ttyACM%d", serialDev);
+    serialPort = open(&dev[0], O_RDWR | O_NOCTTY | O_NDELAY);
+    if (serialPort < 0)
+    {
+        GDOS_ERROR("Can't open serial device, code = %d\n", serialPort);
+        goto init_error;
+    }
+
+    fcntl(serialPort, F_SETFL, 0);
+    tcgetattr(serialPort, &options);
+
+    cfsetospeed(&options, B19200);
+	cfsetispeed(&options, B19200);
+	
+	// Enable the receiver and set local mode...
+	options.c_cflag |= (CLOCAL | CREAD);
+	
+	// options 8N1
+	options.c_cflag &= ~PARENB;
+	options.c_cflag &= ~CSTOPB;
+	options.c_cflag &= ~CSIZE;
+	options.c_cflag |= CS8;
+	
+	// disable hardware flow control
+	options.c_cflag &= ~CRTSCTS;
+	
+	// disable software flow control
+	options.c_iflag &= ~(IXON | IXOFF | IXANY | INLCR | IGNCR | ICRNL);
+	
+	// raw input and output
+	options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+	options.c_oflag &= ~OPOST;
+	tcsetattr(serialPort, TCSAFLUSH, &options);
+
+    initBits.setBit(INIT_BIT_SERIALPORT_OPEN);
+    return 0;
+
+init_error:
+
+    // !!! call local cleanup function !!!
+    LadarHokuyoUrgUsb::moduleCleanup();
+    return ret;
+}
+
+// non realtime context
+void LadarHokuyoUrgUsb::moduleCleanup(void)
+{
+    // call RackDataModule cleanup function
+    if (initBits.testAndClearBit(INIT_BIT_DATA_MODULE))
+    {
+        RackDataModule::moduleCleanup();
+    }
+
+    if (initBits.testAndClearBit(INIT_BIT_SERIALPORT_OPEN))
+    {
+        close(serialPort);
+    }
+}
+
+LadarHokuyoUrgUsb::LadarHokuyoUrgUsb()
+      : RackDataModule( MODULE_CLASS_ID,
+                    5000000000llu,    // 5s datatask error sleep time
+                    16,               // command mailbox slots
+                    48,               // command mailbox data size per slot
+                    MBX_IN_KERNELSPACE | MBX_SLOT,  // command mailbox flags
+                    5,                // max buffer entries
+                    10)               // data buffer listener
+{
+
+    // get static module parameter
+    serialDev   = getIntArg("serialDev", argTab);
+
+    dataBufferMaxDataSize   = sizeof(ladar_data_msg);
+    dataBufferPeriodTime    = 100;
+}
+
+int  main(int argc, char *argv[])
+{
+    int ret;
+
+    // get args
+    ret = RackModule::getArgs(argc, argv, argTab, "LadarHokuyoUrgUsb");
+    if (ret)
+    {
+        printf("Invalid arguments -> EXIT \n");
+        return ret;
+    }
+
+    LadarHokuyoUrgUsb *pInst;
+
+    // create new LadarHokuyoUrgUsb
+    pInst = new LadarHokuyoUrgUsb();
+    if (!pInst)
+    {
+        printf("Can't create new LadarHokuyoUrgUsb -> EXIT\n");
+        return -ENOMEM;
+    }
+
+    // init
+
+    ret = pInst->moduleInit();
+    if (ret)
+        goto exit_error;
+
+    pInst->run();
+
+    return 0;
+
+exit_error:
+
+    delete (pInst);
+    return ret;
+}
