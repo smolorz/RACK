@@ -1308,7 +1308,7 @@ if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
 
             LIBDC1394_CPPFLAGS="-I${CONFIG_RACK_LIBDC1394DIR}/include"
             LIBDC1394_LDFLAGS="-L${CONFIG_RACK_LIBDC1394DIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBDC1394DIR}/lib"
-            LIBDC1394_LIBS="-ldc1394_control"
+            LIBDC1394_LIBS="-ldc1394"
 
             CPPFLAGS="${LIBRAW1394_CPPFLAGS} ${CPPFLAGS}"
             LDFLAGS="${LIBRAW1394_LDFLAGS} ${LDFLAGS}"
@@ -1322,10 +1322,10 @@ if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
         fi
     fi
 
-    AC_CHECK_HEADER([libdc1394/dc1394_control.h],
-                    AC_CHECK_LIB(dc1394_control,
-                                 dc1394_get_camera_nodes,,
-                                 [AC_MSG_ERROR(cannot find function dc1394_get_camera_nodes)]
+    AC_CHECK_HEADER([dc1394/dc1394.h],
+                    AC_CHECK_LIB(dc1394,
+                                 dc1394_camera_enumerate,,
+                                 [AC_MSG_ERROR(cannot find function dc1394_camera_enumerate)]
                                 ),
                     [AC_MSG_ERROR(cannot find libdc1394 header files)]
                    )
@@ -1425,7 +1425,7 @@ if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
             AC_MSG_RESULT([${CONFIG_RACK_LIBPNGDIR}])
 
             LIBPNG_CPPFLAGS="-I${CONFIG_RACK_LIBPNGDIR}/include -I${CONFIG_RACK_ZLIBDIR}/include"
-            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib -L${CONFIG_RACK_ZLIBDIR}/lib -Wl,-rpath=${CONFIG_RACK_ZLIBDIR}/lib"
+            LIBPNG_LDFLAGS="-L${CONFIG_RACK_LIBPNGDIR}/lib -Wl,-rpath=${CONFIG_RACK_LIBPNGDIR}/lib -L${CONFIG_RACK_ZLIBDIR}/lib -Wl,-rpath=${CONFIG_RACK_ZLIBDIR}/lib"
             LIBPNG_LIBS="-lpng"
 
             CPPFLAGS="${LIBPNG_CPPFLAGS} ${CPPFLAGS}"

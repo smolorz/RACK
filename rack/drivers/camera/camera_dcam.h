@@ -1,6 +1,6 @@
 /*
  * RACK - Robotics Application Construction Kit
- * Copyright (C) 2005-2006 University of Hannover
+ * Copyright (C) 2005-2012 University of Hannover
  *                         Institute for Systems Engineering - RTS
  *                         Professor Bernardo Wagner
  *
@@ -11,6 +11,8 @@
  *
  * Authors
  *      Marko Reimer <reimer@rts.uni-hannover.de>
+ *      Sebastian Smolorz <smolorz@rts.uni-hannover.de>
+ *		Ported module to libdc1394 v2
  *
  */
 
@@ -21,8 +23,7 @@
 
 #include <drivers/camera_proxy.h>
 
-#include <libraw1394/raw1394.h>//firewire bus
-#include <libdc1394/dc1394_control.h>//iidc 1.30 or dcam standard
+#include <dc1394/dc1394.h>
 
 //helper construct for format7 specification
 typedef struct {
@@ -31,19 +32,13 @@ typedef struct {
     int width;
     int height;
     short bytesPerPacket;
-    unsigned int colorFilterId;
-    short mode;
-    short colorCodingId; // rggb=0; gbrg=1; grbg=2; bggr=3;
+    dc1394color_filter_t filter;
+    dc1394video_mode_t mode;
+    dc1394color_coding_t colorCodingId; // rggb=0; gbrg=1; grbg=2; bggr=3;
 } camera_dcam_format7;
 
 // define module class
 #define MODULE_CLASS_ID     CAMERA
-
-#define MAX_PORTS    6 //in the new board
-#define MAX_RESETS  10
-#define FW_ERROR   -10
-
-
 
 /**
  * Sensor driver for FireWire (IEEE1394) cameras with DCAM standard.
@@ -53,9 +48,7 @@ typedef struct {
 class CameraDcam : public RackDataModule {
   private:
 
-    // your values
     //variables for common control
-    int      format;
     int      bytesPerPixel;
     int      vValue;
     int      uValue;
@@ -66,7 +59,7 @@ class CameraDcam : public RackDataModule {
     int      fps;
 
     //variables for parameter
-    int      cameraGuid;
+    uint64_t cameraGuid;
     int      mode;
     unsigned int lossRate;
     int      vValueSet;
@@ -79,27 +72,20 @@ class CameraDcam : public RackDataModule {
     char     *intrParFile;
     char     *extrParFile;
 
-    //variables needed for initial handling of the firewire bus system.
-    int                     firewireNumPorts;
-
-    //variable needed to initialise and handle dcam strucures
-    raw1394handle_t         porthandle[MAX_PORTS]; //handle to raw 1394 bus for each port
-    nodeid_t                camera_node; //cameras[MODULE_NUM];
-    dc1394_cameracapture    dc1394Camera;//[id] //camera type already defined
-    int                     dc1394CameraPortNo; //cameraId2portNo[MODULE_NUM];
+    dc1394_t                *dc1394_context;
+    dc1394camera_t          *camera;
+    dc1394camera_list_t     *camera_list;
 
     //variables for dcam parameter
-    unsigned int            channel;
-    unsigned int            frameRate;
-    unsigned int            speed;
-    const char*             device;
+    dc1394framerate_t       frameRate;
+    dc1394speed_t           speed;
+    unsigned int            width, height;
     camera_dcam_format7     format7image;
     camera_param_data       param;
 
 
     int autoBrightness(camera_data_msg *dataPackage);
     int autoWhitebalance(camera_data_msg *dataPackage);
-    int getFirewirePortnum(void);
     int findCameraByGuid(void);
     int setupCaptureFormat2(void);
     int setupCaptureFormat7(void);
