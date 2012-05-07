@@ -1486,9 +1486,9 @@ if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
         if test -d ${CONFIG_RACK_OPENCVDIR}; then
             AC_MSG_RESULT([${CONFIG_RACK_OPENCVDIR}])
 
-            OPENCV_CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include/opencv"
-            OPENCV_LDFLAGS="${LIBPNG_LDFLAGS} ${LIBJPEG_LDFLAGS} ${LIBRAW1394_LDFLAGS} ${LIBDC1394_LDFLAGS} -L${CONFIG_RACK_OPENCVDIR}/lib"
-            OPENCV_LIBS="-lcv -lcvaux -lcxcore -lhighgui"
+            OPENCV_CPPFLAGS="-I${CONFIG_RACK_OPENCVDIR}/include"
+            OPENCV_LDFLAGS="${LIBPNG_LDFLAGS} ${LIBJPEG_LDFLAGS} ${LIBRAW1394_LDFLAGS} ${LIBDC1394_LDFLAGS} -L${CONFIG_RACK_OPENCVDIR}/lib -Wl,-rpath=${CONFIG_RACK_OPENCVDIR}/lib"
+            OPENCV_LIBS="-lopencv_legacy -lopencv_objdetect"
 
             CPPFLAGS="${OPENCV_CPPFLAGS} ${CPPFLAGS}"
             LDFLAGS="${OPENCV_LDFLAGS} ${LDFLAGS}"
@@ -1498,20 +1498,20 @@ if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
         fi
     fi
 
-    AC_CHECK_HEADERS(cv.h cvaux.h cxcore.h highgui.h,
-                    AC_CHECK_LIB(cv,
+    AC_CHECK_HEADERS(opencv/cv.h opencv/cxcore.h opencv/highgui.h,
+                    AC_CHECK_LIB(opencv_legacy,
                                  cvCreateData,,
                                  [AC_MSG_ERROR(cannot find function cvCreateData)]
                                 )
-                    AC_CHECK_LIB(cvaux,
+                    AC_CHECK_LIB(opencv_legacy,
                                  cvFindFace,,
                                  [AC_MSG_ERROR(cannot find function cvFindFace)]
                                 )
-                    AC_CHECK_LIB(cxcore,
+                    AC_CHECK_LIB(opencv_legacy,
                                  cvCreateSet,,
                                  [AC_MSG_ERROR(cannot find function cvCreateSet)]
                                 )
-                    AC_CHECK_LIB(highgui,
+                    AC_CHECK_LIB(opencv_legacy,
                                  cvShowImage,,
                                  [AC_MSG_ERROR(cannot find function cvShowImage)]
                                 ),
