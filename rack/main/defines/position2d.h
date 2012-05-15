@@ -16,6 +16,7 @@
 #ifndef __POSITION2D_H__
 #define __POSITION2D_H__
 
+#include <main/tims/tims_byteorder.h>
 #include <main/angle_tool.h>
 
 /**
