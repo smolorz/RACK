@@ -170,12 +170,25 @@ public class Scan2dGui extends RackModuleGui implements MapViewInterface {
     }
 
     public synchronized void paintMapView(MapViewGraphics mvg) {
+        Graphics2D g;
+
         mapViewIsShowing = true;
 
         if (scan2dData == null)
             return;
 
-        Graphics2D g = mvg.getRobotGraphics(scan2dData.recordingTime, ge.getSystem());
+        if ((scan2dData.refPos.x != 0) || (scan2dData.refPos.y != 0) || (scan2dData.refPos.rho != 0))
+        {
+            // use reference position
+            g = (Graphics2D)mvg.getWorldGraphics().create();
+            g.translate(scan2dData.refPos.x, scan2dData.refPos.y);
+            g.rotate(scan2dData.refPos.rho);
+        }
+        else
+        {
+            // use robot position
+            g = mvg.getRobotGraphics(scan2dData.recordingTime, ge.getSystem());
+        }
 
         for (int i = 0; i < scan2dData.pointNum; i++) {
             ScanPoint point = scan2dData.point[i];
