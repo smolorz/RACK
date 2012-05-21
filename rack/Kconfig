@@ -150,6 +150,14 @@ config RACK_LIBUSBDIR
     depends on RACK_LIBUSB_SUPPORT
     default "/usr/src/LiRE/libusb"
 
+config RACK_BOOST_SUPPORT
+    bool "Enable boost support"
+
+config RACK_BOOSTDIR
+    string "boost install directory"
+    depends on RACK_BOOST_SUPPORT
+    default "/usr/src/LiRE/boost"
+
 endmenu
 
 config RACK_CROSS_COMPILE

@@ -440,6 +440,25 @@ AC_ARG_WITH(libusb-dir,
     CONFIG_RACK_LIBUSBDIR="$withval"
     ])
 
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(boost-support,
+    AS_HELP_STRING([--enable-boost-support], [enable boost support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_BOOST_SUPPORT=y ;;
+        *) CONFIG_RACK_BOOST_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(boost-dir,
+    AS_HELP_STRING([--with-boost=<boost-dir>], [Install directory of boost]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-boost.])
+      ;;
+    esac
+    CONFIG_RACK_BOOSTDIR="$withval"
+    ])
+
 dnl ======================================================================
 dnl    JAVA Part
 dnl ======================================================================
@@ -1660,6 +1679,58 @@ AC_SUBST(LIBUSB_LDFLAGS)
 AC_SUBST(LIBUSB_LIBS)
 AM_CONDITIONAL(CONFIG_RACK_LIBUSB_SUPPORT,
                [test x"${CONFIG_RACK_LIBUSB_SUPPORT}" = "xy"])
+
+dnl ----- boost --------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
+
+AC_MSG_CHECKING([boost support])
+AC_MSG_RESULT([${CONFIG_RACK_BOOST_SUPPORT}])
+
+BOOST_CPPFLAGS=""
+BOOST_LDFLAGS=""
+BOOST_LIBS=""
+
+if test x"${CONFIG_RACK_BOOST_SUPPORT}" = x"y"; then
+
+    if test x${CONFIG_RACK_BOOSTDIR} != "x"; then
+        AC_MSG_CHECKING([boost directory])
+        if test -d ${CONFIG_RACK_BOOSTDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_BOOSTDIR}])
+
+            BOOST_ROOT="${CONFIG_RACK_BOOSTDIR}"
+            BOOST_REQUIRE(1.40.0)
+
+            BOOST_DATE_TIME()
+            BOOST_FILESYSTEM()
+            BOOST_PROGRAM_OPTIONS()
+            BOOST_REGEX()
+            BOOST_SERIALIZATION()
+            BOOST_SIGNALS()
+            BOOST_SYSTEM()
+            BOOST_TEST()
+            BOOST_THREADS()
+            BOOST_WAVE()
+
+            BOOST_LDFLAGS="${BOOST_DATE_TIME_LDFLAGS}"
+            BOOST_LIBS="${BOOST_DATE_TIME_LIBS} ${BOOST_FILESYSTEM_LIBS} ${BOOST_PROGRAM_OPTIONS_LIBS} ${BOOST_REGEX_LIBS} ${BOOST_SERIALIZATION_LIBS} ${BOOST_SIGNALS_LIBS} ${BOOST_SYSTEM_LIBS} ${BOOST_THREAD_LIBS} ${BOOST_WAVE_LIBS}"
+
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_BOOSTDIR})
+        fi
+    fi
+
+    RACK_SUPPORTS="boost ${RACK_SUPPORTS}"
+fi
+
+AC_SUBST(BOOST_CPPFLAGS)
+AC_SUBST(BOOST_LDFLAGS)
+AC_SUBST(BOOST_LIBS)
+AM_CONDITIONAL(CONFIG_RACK_BOOST_SUPPORT,
+               [test x"${CONFIG_RACK_BOOST_SUPPORT}" = "xy"])
 
 dnl ======================================================================
 dnl  set flags / libs

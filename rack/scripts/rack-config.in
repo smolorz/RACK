@@ -69,6 +69,10 @@ LIBUSB_CPPFLAGS="@LIBUSB_CPPFLAGS@"
 LIBUSB_LDFLAGS="@LIBUSB_LDFLAGS@"
 LIBUSB_LIBS="@LIBUSB_LIBS@"
 
+BOOST_CPPFLAGS="@BOOST_CPPFLAGS@"
+BOOST_LDFLAGS="@BOOST_LDFLAGS@"
+BOOST_LIBS="@BOOST_LIBS@"
+
 unset prefix exec_prefix libdir datadir pkgdatadir pkgincludedir
 
 usage ()
@@ -147,6 +151,7 @@ while test $# -gt 0; do
                 opencv)     echo $OPENCV_CPPFLAGS     ;;
                 gsl)        echo $GSL_CPPFLAGS        ;;
                 libusb)     echo $LIBUSB_CPPFLAGS     ;;
+                boost)      echo $BOOST_CPPFLAGS      ;;
                 *)          echo ""                   ;;
             esac
             shift
@@ -161,6 +166,7 @@ while test $# -gt 0; do
                 opencv)     echo $OPENCV_LDFLAGS     ;;
                 gsl)        echo $GSL_LDFLAGS        ;;
                 libusb)     echo $LIBUSB_LDFLAGS     ;;
+                boost)      echo $BOOST_LDFLAGS      ;;
                 *)          echo ""                  ;;
             esac
             shift
@@ -175,6 +181,7 @@ while test $# -gt 0; do
                 opencv)     echo $OPENCV_LIBS     ;;
                 gsl)        echo $GSL_LIBS        ;;
                 libusb)     echo $LIBUSB_LIBS     ;;
+                boost)      echo $BOOST_LIBS      ;;
                 *)          echo ""               ;;
             esac
             shift
