@@ -57,10 +57,16 @@ class PilotLab : public RackDataModule {
         int                 scan2dSys;
         int                 scan2dInst;
         int                 speedMax;
+        int                 vMaxSide;
         float               omegaMax;
         int                 varDistance;
         float               varRho;
         int                 distanceMin;
+		double 				distance_Dest;
+		double				tolerance_Angle_Dest;
+		double 				angle_Dest;
+		bool				driveBackwards;
+		int					counter;
 
         // mailboxes
         RackMailbox         workMbx;                // communication
@@ -81,6 +87,7 @@ class PilotLab : public RackDataModule {
         int                 comfortDistance;
         int                 pilotState;
         int                 speed;
+        int                 sideSpeed;
         float               omega;
 
       protected:
