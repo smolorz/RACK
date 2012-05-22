@@ -11,6 +11,7 @@
  *
  * Authors
  *      Matthias Hentschel <hentschel@rts.uni-hannover.de>
+ *      Frauke Wübbold <wuebbold@rts.uni-hannover.de>
  */
 
 #include "pilot_lab.h"
@@ -18,6 +19,10 @@
 // pilot states
 #define PILOT_STATE_IDLE            0
 #define PILOT_STATE_NEW_DEST        1
+#define PILOT_STATE_ROTATE 	       	2
+#define PILOT_STATE_DRIVE_TO    	3
+#define PILOT_STATE_WALL_FOLLOW		4
+#define PILOT_STATE_ROTATE_AT_DEST  5
 
 //
 // data structures
@@ -46,6 +51,9 @@ arg_table_t argTab[] = {
 
     { ARGOPT_OPT, "speedMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Maximum speed in mm/s, default 300 mm/s", { 300 } },
+
+    { ARGOPT_OPT, "vMaxSide", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "maximum lateral vehicle speed (> 0 for youbot)", { 0 } },
 
     { ARGOPT_OPT, "omegaMax", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "Maximum angular velocity in deg/s, default 30 deg/s", { 30 } },
@@ -78,10 +86,13 @@ arg_table_t argTab[] = {
 
     // get dynamic module parameter
     speedMax     = getInt32Param("speedMax");
+    vMaxSide     = abs(getInt32Param("vMaxSide"));
     omegaMax     = (float)getInt32Param("omegaMax") * M_PI / 180.0f;
     varDistance  = getInt32Param("varDistance");
     varRho       = (float)getInt32Param("varRho") * M_PI / 180.0f;
     distanceMin  = getInt32Param("distanceMin");
+
+    GDOS_PRINT("varDistance %d varRho %f\n", varDistance, varRho);
 
     // turn on chassis module
     ret = chassis->on();
@@ -133,17 +144,24 @@ arg_table_t argTab[] = {
     if (speedMax > chasParData.vxMax)
     {
         speedMax = chasParData.vxMax;
+        GDOS_PRINT("speedMax %f m/s,\n", (float)speedMax / 1000.0f);
+    }
+    if (vMaxSide > chasParData.vyMax)
+    {
+        vMaxSide = chasParData.vyMax;
+        GDOS_PRINT("vMaxSide %f m/s,\n", (float)vMaxSide / 1000.0f);
     }
     if (omegaMax > chasParData.omegaMax)
     {
         omegaMax = chasParData.omegaMax;
+        GDOS_PRINT("omegaMax %f m/s,\n", omegaMax);
     }
-    GDOS_PRINT("speedMax %f m/s, omegaMax %a deg/s\n", (float)speedMax / 1000.0f, omegaMax);
     GDOS_PRINT("Pilot is waiting for a new destination...\n");
 
     // init global variables
     pilotState      = PILOT_STATE_IDLE;
     speed           = 0;
+    sideSpeed       = 0;
     omega           = 0.0f;
     comfortDistance = 2 * distanceMin;
 
@@ -155,7 +173,7 @@ void PilotLab::moduleOff(void)
 {
     RackDataModule::moduleOff();        // has to be first command in moduleOff();
 
-    chassis->move(0, 0, 0);
+    chassis->move(0, 0, 0.0f);
     scan2d->stopContData(&scan2dDataMbx);
 }
 
@@ -167,9 +185,19 @@ int  PilotLab::moduleLoop(void)
     int          ret;
     int          radius = 0;
     float        curve  = 0.0f;
-    RackMessage msgInfo;
+    double       angle_Diff_Dest;
+    float        distance_Min_Scan;
+	float        AngleDiff;
+    float        deltaX, deltaY, diagonalVelocityFactor;
+    float        deltaXTemp, deltaYTemp;
+    int          signSpeed, signSideSpeed;
+    RackMessage  msgInfo;
     scan_point   scanPointMin;
     pilot_data*  pilotData = NULL;
+
+    // tolerances
+    //tolerance_Angle_Dest = 0.175f; // 10°
+    tolerance_Angle_Dest = 0.087f; // 5°
 
     // get continuous data from scan2d module
     ret = scan2dDataMbx.recvDataMsgTimed(rackTime.toNano(2 * dataBufferPeriodTime), &scan2dMsg.data,
@@ -221,6 +249,7 @@ int  PilotLab::moduleLoop(void)
             // pilot is waiting for a new destination
             case PILOT_STATE_IDLE:
                 speed = 0;
+                sideSpeed = 0;
                 omega = 0.0f;
                 break;
 
@@ -233,7 +262,7 @@ int  PilotLab::moduleLoop(void)
 
             // add new states here !!!!
         }
-
+        
 
         // limit robot speed by the distance to obstacles
         if (speed != 0)
@@ -249,7 +278,7 @@ int  PilotLab::moduleLoop(void)
         speed = safeSpeed(speed, radius, NULL, &scan2dMsg.data, &chasParData);
         
         // move chassis with limited speed
-        ret = chassis->move(speed, 0, omega);
+        ret = chassis->move(speed, sideSpeed, omega);
         if (ret)
         {
             GDOS_ERROR("Can't send move command to chassis, code = %d\n", ret);
