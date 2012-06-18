@@ -91,41 +91,22 @@ class CameraData
     public:
         static void le_to_cpu(camera_data *data)
         {
-            int i;
-            int bytes;
             data->recordingTime = __le32_to_cpu(data->recordingTime);
             data->width         = __le16_to_cpu(data->width);
             data->height        = __le16_to_cpu(data->height);
             data->depth         = __le16_to_cpu(data->depth);
             data->mode          = __le16_to_cpu(data->mode);
             data->colorFilterId = __le32_to_cpu(data->colorFilterId);
-
-            bytes = data->width * data->height * data->depth / 8;
-
-            for (i = 0; i < bytes; i++)
-            {
-                data->byteStream[i] = data->byteStream[i];
-            }
         }
 
         static void be_to_cpu(camera_data *data)
         {
-            int i;
-            int bytes;
-
             data->recordingTime = __be32_to_cpu(data->recordingTime);
             data->width         = __be16_to_cpu(data->width);
             data->height        = __be16_to_cpu(data->height);
             data->depth         = __be16_to_cpu(data->depth);
             data->mode          = __be16_to_cpu(data->mode);
             data->colorFilterId = __be32_to_cpu(data->colorFilterId);
-
-            bytes = data->width * data->height * data->depth / 8;
-
-            for (i = 0; i < bytes; i++)
-            {
-                data->byteStream[i] = data->byteStream[i];
-            }
         }
 
         static camera_data* parse(RackMessage *msgInfo)
