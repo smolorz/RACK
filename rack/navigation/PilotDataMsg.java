@@ -35,13 +35,14 @@ public class PilotDataMsg extends TimsMsg
     public Position3d    dest  = new Position3d(0,0,0,0.0f,0.0f,0.0f);
     public int           speed = 0;
     public float         curve = 0;
-    public int           distanceToDest = 0;    
+    public int           distanceToDest = 0;
+    public int           pilotState = 0;
     public int           splineNum = 0;
     public PolarSpline[] spline = new PolarSpline[0];
 
     public int getDataLen()
     {
-        return (20 + 2 * Position3d.getDataLen() +
+        return (24 + 2 * Position3d.getDataLen() +
                 splineNum * PolarSpline.getDataLen());
     }
 
@@ -86,6 +87,7 @@ public class PilotDataMsg extends TimsMsg
         speed                     = dataIn.readInt();
         curve                     = dataIn.readFloat();
         distanceToDest			  = dataIn.readInt();
+        pilotState                = dataIn.readInt();
         splineNum                 = dataIn.readInt();
         spline                    = new PolarSpline[splineNum];
 
@@ -107,6 +109,7 @@ public class PilotDataMsg extends TimsMsg
         dataOut.writeInt(speed);
         dataOut.writeFloat(curve);
         dataOut.writeInt(distanceToDest);
+        dataOut.writeInt(pilotState);
         dataOut.writeInt(splineNum);
 
         for (int i = 0; i < splineNum; i++)

@@ -25,6 +25,11 @@
 #define PILOT_HOLD_ENABLED      1
 #define PILOT_HOLD_DISABLED     0
 
+#define PILOT_STATE_IDLE        0
+#define PILOT_STATE_PLANNING    1
+#define PILOT_STATE_RUNNING     2
+#define PILOT_STATE_PATH_ERROR  3
+
 //######################################################################
 //# Pilot Message Types
 //######################################################################
@@ -64,6 +69,7 @@ typedef struct{
     int32_t         distanceToDest;         /**< [mm] distance to destination,
                                                       -1 if no destination is set,
                                                        0 if destination is reached */
+    uint32_t        pilotState;             /**< current state of the pilot */
     int32_t         splineNum;              /**< number of following splines */
     polar_spline    spline[0];              /**< list of splines */
 } __attribute__((packed)) pilot_data;
@@ -269,7 +275,9 @@ class PilotRevertData
 //# Pilot Get Status Data (static size  - MESSAGE)
 //######################################################################
 
-/** * pilot get status data structure */
+/**
+ * pilot get status data structure
+ */
 typedef struct{
     rack_time_t     recordingTime;          /**< [ms]  global timestamp (has to be first element)*/
     position_3d     pos;                    /**< position on the path */
@@ -279,6 +287,7 @@ typedef struct{
     int32_t         distanceToDest;         /**< [mm] distance to destination,
                                                       -1 if no destination is set,
                                                        0 if destination is reached */
+    uint32_t        pilotState;             /**< current state of the pilot */
 } __attribute__((packed)) pilot_status_data;
 
 class PilotStatusData

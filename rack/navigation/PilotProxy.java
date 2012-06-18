@@ -29,6 +29,11 @@ public class PilotProxy extends RackDataProxy
   public static final byte PILOT_HOLD_ENABLED = 1;
   public static final byte PILOT_HOLD_DISABLED = 0;
 
+  public static final byte PILOT_STATE_IDLE = 0;
+  public static final byte PILOT_STATE_PLANNING = 1;
+  public static final byte PILOT_STATE_RUNNING = 2;
+  public static final byte PILOT_STATE_PATH_ERROR = 3;
+
   public PilotProxy(int system, int instance, TimsMbx replyMbx)
   {
     super(RackName.create(system, RackName.PILOT, instance, 0), replyMbx, 500);
