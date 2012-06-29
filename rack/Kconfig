@@ -162,7 +162,7 @@ endmenu
 
 config RACK_CROSS_COMPILE
     bool "Use own toolchain"
-    default n
+    default y
 
 config RACK_TARGET_TUPLE
     string "target tuple or alias"
