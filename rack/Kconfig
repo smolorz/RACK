@@ -6,6 +6,16 @@ mainmenu "RACK configuration"
 
 menu "Build options"
 
+config RACK_LIRE_INSTALLDIR
+    string "LiRE Installdir (READ HELP!)"
+    default "/home/`whoami`/LiRE"
+    help
+    If you specify the LiRE installdir all dependencies which normally are
+    located inside the installdir do not need to be declared explicitly.
+    This goes for all external dependencies like xenomai and all libraries.
+    Nevertheless, you can still state an explicit path for every dependency
+    if this is necessary.
+
 choice
     prompt "Target OS"
     default RACK_OS_LINUX
@@ -18,16 +28,19 @@ config RACK_OS_LINUX
 
 endchoice
 
+config RACK_EXT_XENOMAIDIR
+    bool "Specify Xenomai installation tree explicitly"
+    default n
+    depends on RACK_OS_XENOMAI
+
 config RACK_XENOMAIDIR
     string "Xenomai installation tree"
-    depends on RACK_OS_XENOMAI
+    depends on RACK_EXT_XENOMAIDIR
     default "/usr/xenomai"
     help
     This option defines the directory where Xenomai is installed
     The default Xenomai installation directory is
     /usr/xenomai
-    LiRE gcchost users use
-    /usr/src/LiRE/xenomai
 
 config RACK_BUILD_KMOD
     bool "Build kernel modules"
@@ -42,20 +55,14 @@ config RACK_LINUXDIR
     This option defines the directory of the Linux sources
     The default Linux source directory is
     /lib/modules/`uname -r`/build
-    LiRE gcchost users use
-    /usr/src/LiRE/linux/src
 
 config RACK_INSTALLDIR
     string "Installation directory"
-    default "/usr/local/rack"
+    default "/home/`whoami`/rack_install"
     help
     This option defines the directory where the various RACK
     files will be installed on your system.
-    The default installation directory is
-    /usr/local/rack.
-    LiRE gcchost users use
-    /home/`whoami`/rack_install
-
+    
 config RACK_JAVA
     bool "Rack Java"
     default y
@@ -75,43 +82,68 @@ config RACK_RTNET_SUPPORT
     depends on RACK_OS_XENOMAI
     bool "Enable RTnet support"
 
+config RACK_EXT_RTNETDIR
+    bool "Specify RTnet install directory explicitly"
+    default n
+    depends on RACK_RTNET_SUPPORT
+
 config RACK_RTNETDIR
     string "RTnet install directory"
-    depends on RACK_RTNET_SUPPORT
+    depends on RACK_EXT_RTNETDIR
     default "/usr/src/LiRE/rtnet"
 
 config RACK_LIBRAW1394_SUPPORT
     bool "Enable libraw1394 support"
 
+config RACK_EXT_LIBRAW1394DIR
+    bool "Specify libraw1394 install directory explicitly"
+    default n
+    depends on RACK_LIBRAW1394_SUPPORT
+
 config RACK_LIBRAW1394DIR
     string "libraw1394 install directory"
-    depends on RACK_LIBRAW1394_SUPPORT
+    depends on RACK_EXT_LIBRAW1394DIR
     default "/usr/src/LiRE/libraw1394"
 
 config RACK_LIBDC1394_SUPPORT
     bool "Enable libdc1394 support"
     select RACK_LIBRAW1394_SUPPORT
 
+config RACK_EXT_LIBDC1394DIR
+    bool "Specify libdc1394 install directory explicitly"
+    default n
+    depends on RACK_LIBDC1394_SUPPORT
+
 config RACK_LIBDC1394DIR
     string "libdc1394 install directory"
-    depends on RACK_LIBDC1394_SUPPORT
+    depends on RACK_EXT_LIBDC1394DIR
     default "/usr/src/LiRE/libdc1394"
 
 config RACK_LIBJPEG_SUPPORT
     bool "Enable libjpeg support"
 
+config RACK_EXT_LIBJPEGDIR
+    bool "Specify jpeg install directory explicitly"
+    default n
+    depends on RACK_LIBJPEG_SUPPORT
+
 config RACK_LIBJPEGDIR
     string "libjpeg install directory"
-    depends on RACK_LIBJPEG_SUPPORT
+    depends on RACK_EXT_LIBJPEGDIR
     default "/usr/src/LiRE/libjpeg"
 
 config RACK_LIBPNG_SUPPORT
     bool "Enable libpng support"
     select RACK_ZLIB_SUPPORT
 
+config RACK_EXT_LIBPNGDIR
+    bool "Specify libpng install directory explicitly"
+    default n
+    depends on RACK_LIBPNG_SUPPORT
+
 config RACK_LIBPNGDIR
     string "libpng install directory"
-    depends on RACK_LIBPNG_SUPPORT
+    depends on RACK_EXT_LIBPNGDIR
     default "/usr/src/LiRE/libpng"
 
 config RACK_OPENCV_SUPPORT
@@ -121,41 +153,66 @@ config RACK_OPENCV_SUPPORT
     select RACK_LIBRAW1394_SUPPORT
     select RACK_LIBDC1394_SUPPORT
 
+config RACK_EXT_OPENCVDIR
+    bool "Specify opencv install directory explicitly"
+    default n
+    depends on RACK_OPENCV_SUPPORT
+
 config RACK_OPENCVDIR
     string "opencv install directory"
-    depends on RACK_OPENCV_SUPPORT
+    depends on RACK_EXT_OPENCVDIR
     default "/usr/src/LiRE/opencv"
 
 config RACK_GSL_SUPPORT
     bool "Enable gsl support"
 
+config RACK_EXT_GSLDIR
+    bool "Specify gsl install directory explicitly"
+    default n
+    depends on RACK_GSL_SUPPORT
+
 config RACK_GSLDIR
     string "gsl install directory"
-    depends on RACK_GSL_SUPPORT
+    depends on RACK_EXT_GSLDIR
     default "/usr/src/LiRE/gsl"
 
 config RACK_ZLIB_SUPPORT
     bool "Enable zlib support"
 
+config RACK_EXT_ZLIBDIR
+    bool "Specify zlib install directory explicitly"
+    default n
+    depends on RACK_ZLIB_SUPPORT
+
 config RACK_ZLIBDIR
     string "zlib install directory"
-    depends on RACK_ZLIB_SUPPORT
+    depends on RACK_EXT_ZLIBDIR
     default "/usr/src/LiRE/zlib"
 
 config RACK_LIBUSB_SUPPORT
     bool "Enable libusb support"
 
+config RACK_EXT_LIBUSBDIR
+    bool "Specify libusb install directory explicitly"
+    default n
+    depends on RACK_LIBUSB_SUPPORT
+
 config RACK_LIBUSBDIR
     string "libusb install directory"
-    depends on RACK_LIBUSB_SUPPORT
+    depends on RACK_EXT_LIBUSBDIR
     default "/usr/src/LiRE/libusb"
 
 config RACK_BOOST_SUPPORT
     bool "Enable boost support"
 
+config RACK_EXT_BOOSTDIR
+    bool "Specify boost install directory explicitly"
+    default n
+    depends on RACK_BOOST_SUPPORT
+
 config RACK_BOOSTDIR
     string "boost install directory"
-    depends on RACK_BOOST_SUPPORT
+    depends on RACK_EXT_BOOSTDIR
     default "/usr/src/LiRE/boost"
 
 endmenu

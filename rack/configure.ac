@@ -225,6 +225,10 @@ AC_ARG_WITH(xeno-user-dir,
 XENO_USER_PREFIX=""
 XENO_LIBRARIES=""
 
+if test x"$CONFIG_RACK_EXT_XENOMAIDIR" \!= "xy"; then
+    CONFIG_RACK_XENOMAIDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/xenomai/usr"
+fi
+
 if test "${CONFIG_RACK_XENOMAIDIR}" \!= "" ; then
 
 dnl -----------------------------------------------------------------
@@ -1215,6 +1219,10 @@ RTNET_CPPFLAGS=""
 
 if test x"${CONFIG_RACK_RTNET_SUPPORT}" = x"y"; then
 
+    if test x"$CONFIG_RACK_EXT_RTNETDIR" \!= "xy"; then
+        CONFIG_RACK_RTNETDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/rtnet"
+    fi
+
     cppflags_backup="${CPPFLAGS}"
     if test x${CONFIG_RACK_RTNETDIR} != "x"; then
         AC_MSG_CHECKING([rtnet directory])
@@ -1257,6 +1265,10 @@ LIBRAW1394_LDFLAGS=""
 LIBRAW1394_LIBS=""
 
 if test x"${CONFIG_RACK_LIBRAW1394_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_LIBRAW1394DIR" \!= "xy"; then
+        CONFIG_RACK_LIBRAW1394DIR="${CONFIG_RACK_LIRE_INSTALLDIR}/libraw1394"
+    fi
 
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
@@ -1315,6 +1327,10 @@ LIBDC1394_LDFLAGS=""
 LIBDC1394_LIBS=""
 
 if test x"${CONFIG_RACK_LIBDC1394_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_LIBDC1394DIR" \!= "xy"; then
+        CONFIG_RACK_LIBDC1394DIR="${CONFIG_RACK_LIRE_INSTALLDIR}/libdc1394"
+    fi
 
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
@@ -1377,6 +1393,10 @@ LIBJPEG_LIBS=""
 
 if test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = x"y"; then
 
+    if test x"$CONFIG_RACK_EXT_LIBJPEGDIR" \!= "xy"; then
+        CONFIG_RACK_LIBJPEGDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/libjpeg"
+    fi
+
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
     libs_backup="${LIBS}"
@@ -1418,6 +1438,17 @@ AC_SUBST(LIBJPEG_LIBS)
 AM_CONDITIONAL(CONFIG_RACK_LIBJPEG_SUPPORT,
                [test x"${CONFIG_RACK_LIBJPEG_SUPPORT}" = "xy"])
 
+dnl ----- zlib ---------------------------------------------------------------
+dnl
+dnl  depends on nothing
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl  TODO!
+
+if test x"$CONFIG_RACK_EXT_ZLIBDIR" \!= "xy"; then
+    CONFIG_RACK_ZLIBDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/zlib"
+fi
+
 dnl ----- libpng ---------------------------------------------------------------
 dnl
 dnl  depends on nothing
@@ -1429,6 +1460,10 @@ AC_MSG_CHECKING([libpng support])
 AC_MSG_RESULT([${CONFIG_RACK_LIBPNG_SUPPORT}])
 
 if test x"${CONFIG_RACK_LIBPNG_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_LIBPNGDIR" \!= "xy"; then
+        CONFIG_RACK_LIBPNGDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/libpng"
+    fi
 
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
@@ -1491,6 +1526,10 @@ AC_MSG_CHECKING([opencv support])
 AC_MSG_RESULT([${CONFIG_RACK_OPENCV_SUPPORT}])
 
 if test x"${CONFIG_RACK_OPENCV_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_OPENCVDIR" \!= "xy"; then
+        CONFIG_RACK_OPENCVDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/opencv"
+    fi
 
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
@@ -1566,6 +1605,10 @@ AC_MSG_RESULT([${CONFIG_RACK_GSL_SUPPORT}])
 
 if test x"${CONFIG_RACK_GSL_SUPPORT}" = x"y"; then
 
+    if test x"$CONFIG_RACK_EXT_GSLDIR" \!= "xy"; then
+        CONFIG_RACK_GSLDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/gsl"
+    fi
+
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
     libs_backup="${LIBS}"
@@ -1639,6 +1682,10 @@ LIBUSB_LIBS=""
 
 if test x"${CONFIG_RACK_LIBUSB_SUPPORT}" = x"y"; then
 
+    if test x"$CONFIG_RACK_EXT_LIBUSBDIR" \!= "xy"; then
+        CONFIG_RACK_LIBUSBDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/libusb"
+    fi
+
     cppflags_backup="${CPPFLAGS}"
     ldflags_backup="${LDFLAGS}"
     libs_backup="${LIBS}"
@@ -1695,6 +1742,10 @@ BOOST_LDFLAGS=""
 BOOST_LIBS=""
 
 if test x"${CONFIG_RACK_BOOST_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_BOOSTDIR" \!= "xy"; then
+        CONFIG_RACK_BOOSTDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/boost"
+    fi
 
     if test x${CONFIG_RACK_BOOSTDIR} != "x"; then
         AC_MSG_CHECKING([boost directory])
