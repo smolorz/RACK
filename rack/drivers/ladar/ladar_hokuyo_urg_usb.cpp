@@ -17,6 +17,7 @@
  */
 #include <iostream>
 #include <termios.h>
+#include <fcntl.h>
 
 // include own header file
 #include "ladar_hokuyo_urg_usb.h"
