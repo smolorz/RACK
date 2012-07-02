@@ -225,8 +225,10 @@ AC_ARG_WITH(xeno-user-dir,
 XENO_USER_PREFIX=""
 XENO_LIBRARIES=""
 
-if test x"$CONFIG_RACK_EXT_XENOMAIDIR" \!= "xy"; then
-    CONFIG_RACK_XENOMAIDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/xenomai/usr"
+if test x"${CONFIG_RACK_OS_XENOMAI}" = x"y"; then
+    if test x"$CONFIG_RACK_EXT_XENOMAIDIR" \!= "xy"; then
+        CONFIG_RACK_XENOMAIDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/xenomai/usr"
+    fi
 fi
 
 if test "${CONFIG_RACK_XENOMAIDIR}" \!= "" ; then
