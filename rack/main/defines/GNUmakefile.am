@@ -2,6 +2,7 @@
 defincludedir = $(pkgincludedir)/main/defines
 
 definclude_HEADERS = \
+	destinationPoint.h \
 	image_rect.h \
 	ladar_point.h \
 	obj_recog_object.h \
@@ -19,6 +20,7 @@ dist_java_JAVA =
 if CONFIG_RACK_JAVA
 
 dist_java_JAVA += \
+	DestinationPoint.java \
 	ImageRect.java \
 	LadarPoint.java \
 	ObjRecogObject.java \

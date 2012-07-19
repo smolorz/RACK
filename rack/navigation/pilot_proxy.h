@@ -19,6 +19,7 @@
 #include <main/rack_proxy.h>
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
+#include <main/defines/destinationPoint.h>
 
 #define PILOT_DATA_SPLINE_MAX   1000        /**< maximum number of splines */
 
@@ -39,6 +40,7 @@
 #define MSG_PILOT_REVERT_COMMAND            (RACK_PROXY_MSG_POS_OFFSET + 3)
 #define MSG_PILOT_GET_STATUS                (RACK_PROXY_MSG_POS_OFFSET + 4)
 #define MSG_PILOT_STATUS                    (RACK_PROXY_MSG_POS_OFFSET + 5)
+#define MSG_PILOT_SET_MULTI_DESTINATION     (RACK_PROXY_MSG_POS_OFFSET + 6)
 
 //######################################################################
 //# PilotData (!!! VARIABLE SIZE !!! MESSAGE !!!)
@@ -163,6 +165,61 @@ class PilotDestData
                 return NULL;
 
             pilot_dest_data *p_data = (pilot_dest_data *)msgInfo->p_data;
+
+            if (msgInfo->isDataByteorderLe()) // data in little endian
+            {
+                le_to_cpu(p_data);
+            }
+            else // data in big endian
+            {
+                be_to_cpu(p_data);
+            }
+            msgInfo->setDataByteorder();
+            return p_data;
+        }
+};
+
+//######################################################################
+//# Pilot Multi Destination Data (static size  - MESSAGE)
+//######################################################################
+
+/**
+ * pilot destination data structure
+ */
+typedef struct{						
+    int32_t         	pointNum;              /**< number of following points */
+    destination_point   point[0];              /**< list of points */														
+} __attribute__((packed)) pilot_multi_dest_data;
+
+class PilotMultiDestData
+{
+    public:
+        static void le_to_cpu(pilot_multi_dest_data *data)
+        {
+            int i;
+            data->pointNum         = __le32_to_cpu(data->pointNum);
+            for (i=0; i<data->pointNum; i++)
+            {
+                DestinationPoint::le_to_cpu(&data->point[i]);
+            }
+        }
+
+        static void be_to_cpu(pilot_multi_dest_data *data)
+        {
+            int i;
+            data->pointNum         = __be32_to_cpu(data->pointNum);
+            for (i=0; i<data->pointNum; i++)
+            {
+                DestinationPoint::be_to_cpu(&data->point[i]);
+            }
+        }
+
+        static pilot_multi_dest_data* parse(RackMessage *msgInfo)
+        {
+            if (!msgInfo->p_data)
+                return NULL;
+
+            pilot_multi_dest_data *p_data = (pilot_multi_dest_data *)msgInfo->p_data;
 
             if (msgInfo->isDataByteorderLe()) // data in little endian
             {
@@ -376,6 +433,14 @@ class PilotProxy : public RackDataProxy
     int setDestination(pilot_dest_data *recv_data, ssize_t recv_datalen,
                        uint64_t reply_timeout_ns);
 
+//destination data
+    int setMultiDestination(pilot_multi_dest_data *recv_data, ssize_t recv_datalen)
+    {
+        return setMultiDestination(recv_data, recv_datalen, dataTimeout);
+    }
+
+    int setMultiDestination(pilot_multi_dest_data *recv_data, ssize_t recv_datalen,
+                       uint64_t reply_timeout_ns);
 
 //hold command
     int holdCommand(pilot_hold_data *recv_data, ssize_t recv_datalen)

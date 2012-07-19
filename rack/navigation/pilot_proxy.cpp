@@ -38,6 +38,14 @@ int PilotProxy::setDestination(pilot_dest_data *recv_data, ssize_t recv_datalen,
                              reply_timeout_ns);
 }
 
+int PilotProxy::setMultiDestination(pilot_multi_dest_data *recv_data, ssize_t recv_datalen,
+                              uint64_t reply_timeout_ns)
+{
+    return proxySendDataCmd(MSG_PILOT_SET_MULTI_DESTINATION, recv_data, recv_datalen,
+                             reply_timeout_ns);
+}
+
+
 int PilotProxy::holdCommand(pilot_hold_data *recv_data, ssize_t recv_datalen,
                               uint64_t reply_timeout_ns)
 {
