@@ -19,7 +19,7 @@
 #include <main/rack_proxy.h>
 #include <main/defines/polar_spline.h>
 #include <main/defines/position3d.h>
-#include <main/defines/destinationPoint.h>
+#include <main/defines/destination_point.h>
 
 #define PILOT_DATA_SPLINE_MAX   1000        /**< maximum number of splines */
 

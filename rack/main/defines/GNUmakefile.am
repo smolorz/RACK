@@ -2,7 +2,7 @@
 defincludedir = $(pkgincludedir)/main/defines
 
 definclude_HEADERS = \
-	destinationPoint.h \
+	destination_point.h \
 	image_rect.h \
 	ladar_point.h \
 	obj_recog_object.h \
