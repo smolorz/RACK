@@ -465,6 +465,26 @@ AC_ARG_WITH(boost-dir,
     CONFIG_RACK_BOOSTDIR="$withval"
     ])
 
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(pcl-support,
+    AS_HELP_STRING([--enable-pcl-support], [enable pcl support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_PCL_SUPPORT=y ;;
+        *) CONFIG_RACK_PCL_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(pcl-dir,
+    AS_HELP_STRING([--with-pcl=<pcl-dir>], [Install directory of pcl]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-pcl.])
+      ;;
+    esac
+    CONFIG_RACK_PCLDIR="$withval"
+    ])
+
+
 dnl ======================================================================
 dnl    JAVA Part
 dnl ======================================================================
@@ -1784,6 +1804,88 @@ AC_SUBST(BOOST_LDFLAGS)
 AC_SUBST(BOOST_LIBS)
 AM_CONDITIONAL(CONFIG_RACK_BOOST_SUPPORT,
                [test x"${CONFIG_RACK_BOOST_SUPPORT}" = "xy"])
+
+dnl ----- pcl ----------------------------------------------------
+dnl
+dnl  depends on flann, eigen, boost
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
+
+AC_MSG_CHECKING([pcl support])
+AC_MSG_RESULT([${CONFIG_RACK_PCL_SUPPORT}])
+AC_LANG_PUSH([C++])
+
+PCL_CPPFLAGS=""
+PCL_LDFLAGS=""
+PCL_LIBS=""
+
+if test x"${CONFIG_RACK_PCL_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_PCLDIR" \!= "xy"; then
+        CONFIG_RACK_PCLDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/pcl"
+    fi
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    if test x${CONFIG_RACK_PCLDIR} != "x"; then
+        AC_MSG_CHECKING([pcl directory])
+        if test -d ${CONFIG_RACK_PCLDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_PCLDIR}])
+
+            EIGEN_CPPFLAGS="-I${CONFIG_RACK_LIRE_INSTALLDIR}/eigen/include/eigen3"
+            EIGEN_LDFLAGS=""
+            EIGEN_LIBS=""
+
+            FLANN_CPPFLAGS="-I${CONFIG_RACK_LIRE_INSTALLDIR}/flann/include"
+            FLANN_LDFLAGS="-L${CONFIG_RACK_LIRE_INSTALLDIR}/flann/lib"
+            FLANN_LIBS="-lflann -lflann_cpp -lflann_cpp-gd"
+
+            PCL_CPPFLAGS="${FLANN_CPPFLAGS} ${BOOST_CPPFLAGS} ${EIGEN_CPPFLAGS} -I${CONFIG_RACK_PCLDIR}/include/pcl-1.5"
+            PCL_LDFLAGS="${BOOST_LDFLAGS} -L${CONFIG_RACK_PCLDIR}/lib -Wl,-rpath=${CONFIG_RACK_PCLDIR}/lib"
+            PCL_LIBS="-lpcl_features -lpcl_filters -lpcl_io -lpcl_keypoints -lpcl_registration -lpcl_sample_consensus -lpcl_segmentation"
+
+            CPPFLAGS="${PCL_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${PCL_LDFLAGS} ${LDFLAGS}"
+            LIBS="${PCL_LIBS}"
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_PCLDIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER([pcl/point_cloud.h],
+                    AC_CHECK_LIB(pcl_filters,
+                                 main,,
+                                 [AC_MSG_ERROR(cannot find pcl_filters library)]
+                                ),
+                    [AC_MSG_ERROR(cannot find pcl header files)]
+                   )
+    AC_CHECK_HEADER([pcl/kdtree/kdtree_flann.h],
+                    AC_CHECK_LIB(pcl_kdtree,
+                                 main,,
+                                 [AC_MSG_ERROR(cannot find pcl_kdtree library)]
+                                ),
+                    [AC_MSG_ERROR(cannot find pcl header files)]
+                   )
+
+    RACK_SUPPORTS="pcl ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
+fi
+
+AC_LANG_POP([C++])
+AC_SUBST(PCL_CPPFLAGS)
+AC_SUBST(PCL_LDFLAGS)
+AC_SUBST(PCL_LIBS)
+
+AM_CONDITIONAL(CONFIG_PCL,
+               [test x"${PCL_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_PCL_SUPPORT,
+               [test x"${CONFIG_RACK_PCL_SUPPORT}" = "xy"])
 
 dnl ======================================================================
 dnl  set flags / libs

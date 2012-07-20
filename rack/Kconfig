@@ -215,6 +215,20 @@ config RACK_BOOSTDIR
     depends on RACK_EXT_BOOSTDIR
     default "/usr/src/LiRE/boost"
 
+config RACK_PCL_SUPPORT
+    bool "Enable pcl support"
+    select RACK_BOOST_SUPPORT
+
+config RACK_EXT_PCLDIR
+    bool "Specify pcl install directory explicitly"
+    default n
+    depends on RACK_PCL_SUPPORT
+
+config RACK_PCLDIR
+    string "pcl install directory"
+    depends on RACK_EXT_PCLDIR
+    default "/usr/src/LiRE/pcl"
+
 endmenu
 
 config RACK_CROSS_COMPILE

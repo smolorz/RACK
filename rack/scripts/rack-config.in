@@ -73,6 +73,10 @@ BOOST_CPPFLAGS="@BOOST_CPPFLAGS@"
 BOOST_LDFLAGS="@BOOST_LDFLAGS@"
 BOOST_LIBS="@BOOST_LIBS@"
 
+PCL_CPPFLAGS="@PCL_CPPFLAGS@"
+PCL_LDFLAGS="@PCL_LDFLAGS@"
+PCL_LIBS="@PCL_LIBS@"
+
 unset prefix exec_prefix libdir datadir pkgdatadir pkgincludedir
 
 usage ()
@@ -152,6 +156,7 @@ while test $# -gt 0; do
                 gsl)        echo $GSL_CPPFLAGS        ;;
                 libusb)     echo $LIBUSB_CPPFLAGS     ;;
                 boost)      echo $BOOST_CPPFLAGS      ;;
+                pcl)        echo $PCL_CPPFLAGS        ;;
                 *)          echo ""                   ;;
             esac
             shift
@@ -167,6 +172,7 @@ while test $# -gt 0; do
                 gsl)        echo $GSL_LDFLAGS        ;;
                 libusb)     echo $LIBUSB_LDFLAGS     ;;
                 boost)      echo $BOOST_LDFLAGS      ;;
+                pcl)        echo $PCL_LDFLAGS        ;;
                 *)          echo ""                  ;;
             esac
             shift
@@ -182,6 +188,7 @@ while test $# -gt 0; do
                 gsl)        echo $GSL_LIBS        ;;
                 libusb)     echo $LIBUSB_LIBS     ;;
                 boost)      echo $BOOST_LIBS      ;;
+                pcl)        echo $PCL_LIBS        ;;
                 *)          echo ""               ;;
             esac
             shift
