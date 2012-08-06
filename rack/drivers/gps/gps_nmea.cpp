@@ -610,7 +610,7 @@ int GpsNmea::readNMEAMessage()
 *  0:    GPRMC                          Protokoll header                     *
 *  1:    hhmmss.dd                      UTC time                             *
 *  2:    S                              Status indicator (A = valid /        *
-*                                                       V = invalid)         *
+*                                                         V = invalid)       *
 *  3:    xxmm.dddd                      Latitude                             *
 *  4:    <N|S>                          North/ south indicator               *
 *  5:    yyymm.dddd                     Longitude                            *
@@ -753,7 +753,8 @@ int GpsNmea::analyseRMC(gps_data *data)
 *  4:    yyymm.dddd                     Longitude                             *
 *  5:    <E|W>                          East/ west indicator                  *
 *  6:    v                              Fix valid indicator                   *
-*                                       (0 = fix not valid / 1 = fix valid)   *
+*                                       (0 = not valid / 1 = GPS /            *
+*                                        2 = DGPS / 6 = estimated)            *
 *  7:    ss                             Number of satellites used in          *
 *                                       position fix (00 - 12)                *
 *  8:    d.d                            HDOP                                  *
@@ -838,6 +839,23 @@ int GpsNmea::analyseGGA(gps_data *data)
                 case 5:
                     if (buffer[0] == 'W')
                         data->longitude *= -1.0;
+                    break;
+
+                // Position fix indicator
+                case 6:
+                    sscanf(buffer, "%d", &j);
+                    switch (j)
+                    {
+                        case 0:
+                            data->mode = GPS_MODE_INVALID;
+                            break;
+                        case 2:
+                            data->mode |= GPS_MODE_DIFF;
+                            break;
+                        case 6:
+                            data->mode |= GPS_MODE_EST;
+                            break;
+                    }
                     break;
 
                 // Number of satellites used in position fix
@@ -948,7 +966,19 @@ int GpsNmea::analyseGSA(gps_data *data)
             {
                 // Mode (1 = fix not valid / 2 = 2D / 3 = 3D)
                 case 2:
-                    sscanf(buffer, "%d", &data->mode);
+                    sscanf(buffer, "%d", &j);
+                    switch (j)
+                    {
+                        case 1:
+                            data->mode = GPS_MODE_INVALID;
+                            break;
+                        case 2:
+                            data->mode |= GPS_MODE_2D;
+                            break;
+                        case 3:
+                            data->mode |= GPS_MODE_3D;
+                            break;
+                    }
                     break;
 
                 // PDOP

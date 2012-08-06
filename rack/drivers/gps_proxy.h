@@ -19,10 +19,12 @@
 #include <main/rack_proxy.h>
 #include <main/defines/position3d.h>
 
-#define GPS_MODE_INVALID 1                  /**< no valid gps position fix */
-#define GPS_MODE_2D      2                  /**< latitude and longitude of gps position fix valid */
-#define GPS_MODE_3D      3                  /**< latitude, longitude and altitude of gps
+#define GPS_MODE_INVALID 0x00               /**< no valid gps position fix */
+#define GPS_MODE_2D      0x01               /**< latitude and longitude of gps position fix valid */
+#define GPS_MODE_3D      0x02               /**< latitude, longitude and altitude of gps
                                                  position fix valid */
+#define GPS_MODE_DIFF    0x10               /**< fix in differential mode */
+#define GPS_MODE_EST     0x20               /**< fix in estimated mode */
 
 //######################################################################
 //# Gps Data (static size - MESSAGE)

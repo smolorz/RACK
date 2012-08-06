@@ -195,6 +195,8 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
         float altitude;
         float speed;
 
+        String modeString = "INVALID";
+
         data = gps.getData();
 
         if (data != null)
@@ -210,18 +212,29 @@ public class GpsGui extends RackModuleGui implements MapViewInterface
             altitude = (float) data.altitude / 1000;
             speed = (float) data.speed / 1000;
 
-            if (data.mode == GpsDataMsg.MODE_2D)
+            if ((data.mode & GpsDataMsg.MODE_3D) > 0)
             {
-                modeLabel.setText("2D");
+                modeString = "3D";
             }
-            if (data.mode == GpsDataMsg.MODE_3D)
+            else if ((data.mode & GpsDataMsg.MODE_2D) > 0)
             {
-                modeLabel.setText("3D");
+                modeString = "2D";
             }
-            else
+
+            if ((data.mode & GpsDataMsg.MODE_DIFF) > 0)
             {
-                modeLabel.setText("invalid");
+                modeString += " DGPS";
             }
+            else if ((data.mode & GpsDataMsg.MODE_EST) > 0)
+            {
+                modeString += " ESTIMATED";
+            }
+            else if (data.mode != GpsDataMsg.MODE_INVALID)
+            {
+                modeString += " GPS";
+            }
+
+            modeLabel.setText(modeString);
 
             if (latitude >= 0.0)
             {

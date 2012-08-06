@@ -36,9 +36,11 @@ public class GpsDataMsg extends TimsMsg
     public Position3d   pos  		  = new Position3d();
     public Position3d   var           = new Position3d();
 
-    public static final byte MODE_INVALID     = 1;
-    public static final byte MODE_2D          = 2;
-    public static final byte MODE_3D          = 3;
+    public static final byte MODE_INVALID     = 0x00;
+    public static final byte MODE_2D          = 0x01;
+    public static final byte MODE_3D          = 0x02;
+    public static final byte MODE_DIFF        = 0x10;
+    public static final byte MODE_EST         = 0x20;
 
     public int getDataLen()
     {
