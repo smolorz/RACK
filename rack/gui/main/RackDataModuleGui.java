@@ -88,9 +88,9 @@ public abstract class RackDataModuleGui extends RackModuleGui
 
         try
         {
-            commandMbx = tims.mbxInit(RackName.create(ge.getSystem(), RackName.JOYSTICK, ge.getInstance(), 0));
-            dataMbx = tims.mbxInit(RackName.create(ge.getSystem(), RackName.JOYSTICK, ge.getInstance(), 1));
-            workMbx = tims.mbxInit(RackName.create(ge.getSystem(), RackName.JOYSTICK, ge.getInstance(), 2));
+            commandMbx = tims.mbxInit(RackName.create(ge.getSystem(), moduleName, ge.getInstance(), 0));
+            dataMbx = tims.mbxInit(RackName.create(ge.getSystem(), moduleName, ge.getInstance(), 1));
+            workMbx = tims.mbxInit(RackName.create(ge.getSystem(), moduleName, ge.getInstance(), 2));
 
             this.gdos = new GDOS(commandMbx, GDOS.WARNING);
 
