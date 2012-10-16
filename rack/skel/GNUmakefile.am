@@ -8,6 +8,7 @@ SUBDIRS = \
 drvinclude_HEADERS = \
 	dummy_proxy.h
 
+#javadir =
 #dist_java_JAVA =
 #
 #if CONFIG_RACK_DUMMY_JAVA
@@ -18,8 +19,6 @@ drvinclude_HEADERS = \
 #	DummySensMsg.java
 #
 #endif
-#
-#install-dist_javaJAVA: classdist_java.stamp
 
 EXTRA_DIST = \
 	Kconfig \
