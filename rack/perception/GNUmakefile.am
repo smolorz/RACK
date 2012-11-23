@@ -10,6 +10,7 @@ SUBDIRS = \
 	scan2d \
 	obj_recog
 
+javadir =
 dist_java_JAVA =
 
 if CONFIG_RACK_JAVA
@@ -24,8 +25,6 @@ dist_java_JAVA += \
         Scan3dRangeImageMsg.java
 
 endif
-
-install-dist_javaJAVA: classdist_java.stamp
 
 EXTRA_DIST = \
 	Kconfig \

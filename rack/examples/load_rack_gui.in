@@ -22,4 +22,4 @@ DATAROOTDIR=@datarootdir@
 PKGLIBDIR=@libdir@/rack
 PKGDATADIR=@datadir@/rack
 
-java -jar $PKGLIBDIR/rack.jar $PKGDATADIR/gui.cfg
+java -jar $PKGDATADIR/rack.jar $PKGDATADIR/gui.cfg

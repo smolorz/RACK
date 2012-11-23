@@ -433,7 +433,6 @@ int  LadarIbeoLux::moduleLoop(void)
             objRecogContourData.data.varRefPos.rho = 0.0f;
             objRecogContourData.data.objectNum     = 0;
 
-
             // loop over all objects
             for (i = 0; i < ladarObjData->objNum; i++)
             {
@@ -509,6 +508,13 @@ int  LadarIbeoLux::moduleLoop(void)
                     objRecogBoundData.object[i].imageArea.height = 0;
                 }
 
+                // Ibeo Lux bug: sends max number of contour points in some special environments
+                // (e. g. stacked fences of grid), capture to avoid segmentation fault
+                if (ladarObj->contourPointNum == 0xFFFF)
+                {
+                    GDOS_WARNING("Ibeo Lux bug: max number of contour points exceeded.");
+                    continue;
+                }
 
                 // contour data
                 for (j = 0; j < ladarObj->contourPointNum; j++)

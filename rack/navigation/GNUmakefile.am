@@ -15,6 +15,7 @@ SUBDIRS = \
 	position \
 	odometry
 
+javadir =
 dist_java_JAVA =
 
 if CONFIG_RACK_JAVA
@@ -51,8 +52,6 @@ dist_java_JAVA += \
 	PositionWgs84DataMsg.java \
 	PositionTool.java
 endif
-
-install-dist_javaJAVA: classdist_java.stamp
 
 EXTRA_DIST = \
 	Kconfig \

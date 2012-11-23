@@ -15,6 +15,7 @@ definclude_HEADERS = \
 	scan3d_range_img_point.h \
 	waypoint2d.h
 
+javadir =
 dist_java_JAVA =
 
 if CONFIG_RACK_JAVA
@@ -34,5 +35,3 @@ dist_java_JAVA += \
 	Waypoint2d.java
 
 endif
-
-install-dist_javaJAVA: classdist_java.stamp

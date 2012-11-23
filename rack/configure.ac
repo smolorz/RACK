@@ -1,13 +1,13 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
+AC_PREREQ([2.65])
 
 m4_define([ProjectName], [rack])
 m4_define([PrefixDefault], [/usr/local/]ProjectName)
 m4_define([ConfigScript], [rack-config])
 
-AC_INIT(ProjectName,m4_normalize(m4_include([config/version])),[])
+AC_INIT([ProjectName],[m4_normalize(m4_include(config/version))],[],[ProjectName])
 
 PROJNAME=ProjectName
 AC_SUBST(PROJNAME)
@@ -65,7 +65,7 @@ AC_DEFINE_UNQUOTED(CONFIG_RACK_COMPILER, "`$CC -v 2>&1 | tail -n 1`" , [Compiler
 
 AM_INIT_AUTOMAKE([foreign no-exeext no-dist-gzip dist-bzip2])
 AM_MAINTAINER_MODE
-AC_PROG_LIBTOOL
+LT_INIT
 AM_PROG_AS
 AC_SUBST(LD)
 

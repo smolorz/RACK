@@ -8,9 +8,12 @@ SUBDIRS = \
 	perception \
 	tools
 
+javadir =
+dist_java_JAVA =
+
 if CONFIG_RACK_JAVA_GUI
 
-dist_java_JAVA = \
+dist_java_JAVA += \
 	AppletGui.java \
 	Gui.java \
 	GuiCfg.java \
@@ -20,8 +23,6 @@ dist_java_JAVA = \
 	GuiWorkspaceDescriptor.java
 
 endif
-
-install-dist_javaJAVA: classdist_java.stamp
 
 EXTRA_DIST = \
 	gui.manifest
