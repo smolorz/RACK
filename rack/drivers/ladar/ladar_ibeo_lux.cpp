@@ -445,7 +445,7 @@ int  LadarIbeoLux::moduleLoop(void)
                 {
                     objRecogBoundData.data.objectNum++;
                     objRecogBoundData.object[i].objectId =  ladarObj->id;
-                    objRecogBoundData.object[i].type     =  0;
+                    objRecogBoundData.object[i].type     =  (int32_t)ladarObj->classification;
                     objRecogBoundData.object[i].pos.x    =  ladarObj->objBoxCenter.x * 10;
                     objRecogBoundData.object[i].pos.y    = -ladarObj->objBoxCenter.y * 10;
                     objRecogBoundData.object[i].pos.z    =  0;
@@ -532,7 +532,7 @@ int  LadarIbeoLux::moduleLoop(void)
 
                             objRecogContourData.data.objectNum++;
                             objRecogContourData.object[j].objectId =  ladarObj->id;
-                            objRecogContourData.object[j].type     =  0;
+                            objRecogContourData.object[j].type     =  (int32_t)ladarObj->classification;
                             objRecogContourData.object[j].pos.x    =  (startPoint.x + endPoint.x) / 2;
                             objRecogContourData.object[j].pos.y    =  (startPoint.y + endPoint.y) / 2;
                             objRecogContourData.object[j].pos.z    =  0;
