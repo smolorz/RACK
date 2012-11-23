@@ -20,6 +20,14 @@
 #include <main/defines/point3d.h>
 #include <main/defines/image_rect.h>
 
+#define OBJ_RECOG_OBJECT_TYPE_UNCLASSIFIED  0   /**< @ingroup main_defines */
+#define OBJ_RECOG_OBJECT_TYPE_UNKNOWN_SMALL 1   /**< @ingroup main_defines */
+#define OBJ_RECOG_OBJECT_TYPE_UNKNOWN_BIG   2   /**< @ingroup main_defines */
+#define OBJ_RECOG_OBJECT_TYPE_PEDESTRIAN    3   /**< @ingroup main_defines */
+#define OBJ_RECOG_OBJECT_TYPE_BIKE          4   /**< @ingroup main_defines */
+#define OBJ_RECOG_OBJECT_TYPE_CAR           5   /**< @ingroup main_defines */
+#define OBJ_RECOG_OBJECT_TYPE_TRUCK         6   /**< @ingroup main_defines */
+
 /**
  * object recognition object structure
  * @ingroup main_defines

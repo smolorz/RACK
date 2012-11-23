@@ -28,6 +28,13 @@ import rack.main.defines.*;
  */
 public class ObjRecogObject
 {
+    public static final int OBJ_RECOG_OBJECT_TYPE_UNCLASSIFIED  = 0;
+    public static final int OBJ_RECOG_OBJECT_TYPE_UNKNOWN_SMALL = 1;
+    public static final int OBJ_RECOG_OBJECT_TYPE_UNKNOWN_BIG   = 2;
+    public static final int OBJ_RECOG_OBJECT_TYPE_PEDESTRIAN    = 3;
+    public static final int OBJ_RECOG_OBJECT_TYPE_BIKE          = 4;
+    public static final int OBJ_RECOG_OBJECT_TYPE_CAR           = 5;
+    public static final int OBJ_RECOG_OBJECT_TYPE_TRUCK         = 6;
 
     public int objectId = 0;
     public int type = 0;
