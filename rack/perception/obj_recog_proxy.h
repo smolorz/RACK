@@ -32,7 +32,11 @@
 //# ObjRecog data defines
 //######################################################################
 
+#if defined (__MSG_VELODYNE__)
+#define OBJ_RECOG_OBJECT_MAX       300      /**< maximum number of objects */
+#else
 #define OBJ_RECOG_OBJECT_MAX       100      /**< maximum number of objects */
+#endif
 
 //######################################################################
 //# ObjRecogData (!!! VARIABLE SIZE !!!)
