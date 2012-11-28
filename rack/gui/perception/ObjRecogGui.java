@@ -136,6 +136,8 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
     protected boolean         mapViewIsShowing;
     protected MapViewGui      mapViewGui;
 
+    protected boolean       pointClassification;
+
     // for sound output
 	private Synthesizer	    synth;
 	private MidiChannel     midiChannels[];
@@ -144,6 +146,8 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
     public ObjRecogGui(GuiElementDescriptor guiElement)
     {
         super(guiElement);
+
+        pointClassification = guiElement.getParameter("pointClassification").length() > 0;
 
         objRecog = (ObjRecogProxy) proxy;
 
@@ -593,26 +597,56 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
         for (int i = 0; i < objRecogData.objectNum; i++)
         {
             // select color
-            switch (objRecogData.object[i].objectId % 6)
+            if (pointClassification)
             {
-                case 0:
-                    g.setColor(Color.BLACK);
-                    break;
-                case 1:
-                    g.setColor(Color.GREEN);
-                    break;
-                case 2:
-                    g.setColor(Color.ORANGE);
-                    break;
-                case 3:
-                    g.setColor(Color.MAGENTA);
-                    break;
-                case 4:
-                    g.setColor(Color.CYAN);
-                    break;
-                case 5:
-                    g.setColor(Color.PINK);
-                    break;
+                switch (objRecogData.object[i].type)
+                {
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_UNCLASSIFIED:
+                        g.setColor(Color.LIGHT_GRAY);
+                        break;
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_UNKNOWN_SMALL:
+                        g.setColor(Color.GRAY);
+                        break;
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_UNKNOWN_BIG:
+                        g.setColor(Color.BLACK);
+                        break;
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_PEDESTRIAN:
+                        g.setColor(Color.GREEN);
+                        break;
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_BIKE:
+                        g.setColor(Color.MAGENTA);
+                        break;
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_CAR:
+                        g.setColor(Color.ORANGE);
+                        break;
+                    case ObjRecogObject.OBJ_RECOG_OBJECT_TYPE_TRUCK:
+                        g.setColor(Color.CYAN);
+                        break;
+                }
+            }
+            else
+            {
+                switch (objRecogData.object[i].objectId % 6)
+                {
+                    case 0:
+                        g.setColor(Color.BLACK);
+                        break;
+                    case 1:
+                        g.setColor(Color.GREEN);
+                        break;
+                    case 2:
+                        g.setColor(Color.ORANGE);
+                        break;
+                    case 3:
+                        g.setColor(Color.MAGENTA);
+                        break;
+                    case 4:
+                        g.setColor(Color.CYAN);
+                        break;
+                    case 5:
+                        g.setColor(Color.PINK);
+                        break;
+                }
             }
 
             if ((objRecogData.object[i].dim.x != 0) || (objRecogData.object[i].dim.y != 0))
