@@ -136,7 +136,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
     protected boolean         mapViewIsShowing;
     protected MapViewGui      mapViewGui;
 
-    protected boolean       pointClassification;
+    protected boolean       paintClassification;
 
     // for sound output
 	private Synthesizer	    synth;
@@ -147,7 +147,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
     {
         super(guiElement);
 
-        pointClassification = guiElement.getParameter("pointClassification").length() > 0;
+        paintClassification = guiElement.getParameter("paintClassification").length() > 0;
 
         objRecog = (ObjRecogProxy) proxy;
 
@@ -597,7 +597,7 @@ public class ObjRecogGui extends RackModuleGui implements MapViewInterface
         for (int i = 0; i < objRecogData.objectNum; i++)
         {
             // select color
-            if (pointClassification)
+            if (paintClassification)
             {
                 switch (objRecogData.object[i].type)
                 {
