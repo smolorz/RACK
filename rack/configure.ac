@@ -484,6 +484,24 @@ AC_ARG_WITH(pcl-dir,
     CONFIG_RACK_PCLDIR="$withval"
     ])
 
+dnl ----------------------------------------------------------------------------
+
+AC_ARG_ENABLE(openni-support,
+    AS_HELP_STRING([--enable-openni-support], [enable openni support]),
+    [case "$enableval" in
+        y | yes) CONFIG_RACK_OPENNI_SUPPORT=y ;;
+        *) CONFIG_RACK_OPENNI_SUPPORT=n ;;
+    esac])
+
+AC_ARG_WITH(openni-dir,
+    AS_HELP_STRING([--with-openni=<openni-dir>], [Install directory of openni]),
+    [case "${withval}" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-openni.])
+      ;;
+    esac
+    CONFIG_RACK_OPENNIDIR="$withval"
+    ])
 
 dnl ======================================================================
 dnl    JAVA Part
@@ -1886,6 +1904,71 @@ AM_CONDITIONAL(CONFIG_PCL,
 
 AM_CONDITIONAL(CONFIG_RACK_PCL_SUPPORT,
                [test x"${CONFIG_RACK_PCL_SUPPORT}" = "xy"])
+
+dnl ----- openni ----------------------------------------------------
+dnl
+dnl  depends on libusb
+dnl  provides headers: yes
+dnl  provides libs:    yes
+dnl
+
+AC_MSG_CHECKING([openni support])
+AC_MSG_RESULT([${CONFIG_RACK_OPENNI_SUPPORT}])
+
+OPENNI_CPPFLAGS=""
+OPENNI_LDFLAGS=""
+OPENNI_LIBS=""
+
+if test x"${CONFIG_RACK_OPENNI_SUPPORT}" = x"y"; then
+
+    if test x"$CONFIG_RACK_EXT_OPENNIDIR" \!= "xy"; then
+        CONFIG_RACK_OPENNIDIR="${CONFIG_RACK_LIRE_INSTALLDIR}/openni/usr"
+    fi
+
+    cppflags_backup="${CPPFLAGS}"
+    ldflags_backup="${LDFLAGS}"
+    libs_backup="${LIBS}"
+
+    if test x${CONFIG_RACK_OPENNIDIR} != "x"; then
+        AC_MSG_CHECKING([openni directory])
+        if test -d ${CONFIG_RACK_OPENNIDIR}; then
+            AC_MSG_RESULT([${CONFIG_RACK_OPENNIDIR}])
+
+            OPENNI_CPPFLAGS="${LIBUSB_CPPFLAGS} -I${CONFIG_RACK_OPENNIDIR}/include/ni"
+            OPENNI_LDFLAGS="${LIBUSB_LDFLAGS} -L${CONFIG_RACK_OPENNIDIR}/lib -Wl,-rpath=${CONFIG_RACK_OPENNIDIR}/lib"
+            OPENNI_LIBS="${LIBUSB_LIBS} -lOpenNI -lnimCodecs -lnimMockNodes -lnimRecorder"
+
+            CPPFLAGS="${OPENNI_CPPFLAGS} ${CPPFLAGS}"
+            LDFLAGS="${OPENNI_LDFLAGS} ${LDFLAGS}"
+            LIBS="${OPENNI_LIBS}"
+        else
+            AC_MSG_ERROR(cannot find ${CONFIG_RACK_OPENNIDIR})
+        fi
+    fi
+
+    AC_CHECK_HEADER([XnOS.h],
+                    AC_CHECK_LIB(OpenNI,
+                                 xnOSInit,,
+                                 [AC_MSG_ERROR(cannot find OpenNI library)]
+                                ),
+                    [AC_MSG_ERROR(cannot find openni header files)]
+                   )
+
+    RACK_SUPPORTS="openni ${RACK_SUPPORTS}"
+    CPPFLAGS="${cppflags_backup}"
+    LDFLAGS="${ldflags_backup}"
+    LIBS="${libs_backup}"
+fi
+
+AC_SUBST(OPENNI_CPPFLAGS)
+AC_SUBST(OPENNI_LDFLAGS)
+AC_SUBST(OPENNI_LIBS)
+
+AM_CONDITIONAL(CONFIG_OPENNI,
+               [test x"${OPENNI_LIBS}" != x""])
+
+AM_CONDITIONAL(CONFIG_RACK_OPENNI_SUPPORT,
+               [test x"${CONFIG_RACK_OPENNI_SUPPORT}" = "xy"])
 
 dnl ======================================================================
 dnl  set flags / libs

@@ -229,6 +229,20 @@ config RACK_PCLDIR
     depends on RACK_EXT_PCLDIR
     default "/usr/src/LiRE/pcl"
 
+config RACK_OPENNI_SUPPORT
+    bool "Enable openni support"
+    select RACK_LIBUSB_SUPPORT
+
+config RACK_EXT_OPENNIDIR
+    bool "Specify openni install directory explicitly"
+    default n
+    depends on RACK_OPENNI_SUPPORT
+
+config RACK_OPENNIDIR
+    string "openni install directory"
+    depends on RACK_EXT_OPENNIDIR
+    default "/usr/src/LiRE/openni/usr"
+
 endmenu
 
 config RACK_CROSS_COMPILE
