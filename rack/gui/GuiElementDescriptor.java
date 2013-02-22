@@ -126,6 +126,11 @@ public class GuiElementDescriptor
     
     public void setNavButtonBackground(Color color)
     {
+        if (navButton == null)
+        {
+    	    return;
+        }
+
         if(navButtonBackground == null)
         {
             navButtonBackground = navButton.getBackground();
