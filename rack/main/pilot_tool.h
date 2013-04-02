@@ -23,6 +23,8 @@
 #define MOVING    0
 #define HOLD      1
 
+#define PILOT_TOOL_REVERSE_SPEED_MAX  -500
+
 /**
  * Converts radius to curviness
  * @ingroup main_tools
@@ -140,9 +142,9 @@ static inline int safeSpeed(int speed, int radius, int *moveStatus,
         }
 
         // limit reverse speed
-        if (speed < -500)
+        if (speed < PILOT_TOOL_REVERSE_SPEED_MAX)
         {
-            speed = -500;
+            speed = PILOT_TOOL_REVERSE_SPEED_MAX;
         }
 
         // set movement flag

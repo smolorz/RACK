@@ -196,7 +196,8 @@ int  Scan2d::moduleLoop(void)
     data2D = (scan2d_data *)getDataBufferWorkSpace();
 
     // get Ladar data
-    ret = ladarMbx.peekTimed(rackTime.toNano(2 * dataBufferPeriodTime), &msgInfo); // 1s
+    //ret = ladarMbx.peekTimed(1000000000llu, &msgInfo); // 1s
+    ret = ladarMbx.peekTimed(rackTime.toNano(2 * dataBufferPeriodTime), &msgInfo);
     if (ret)
     {
         GDOS_ERROR("Can't receive ladar data on DATA_MBX, "

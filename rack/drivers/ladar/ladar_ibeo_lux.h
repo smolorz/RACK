@@ -23,6 +23,7 @@
 #include <arpa/inet.h>
 
 #include <drivers/ladar_proxy.h>
+#include <navigation/position_proxy.h>
 #include <perception/obj_recog_proxy.h>
 #include <main/defines/point2d.h>
 
@@ -213,6 +214,8 @@ class LadarIbeoLux : public RackDataModule {
     private:
         char                        *ladarIp;
         int                         ladarPort;
+        int                         positionSys;
+        int                         positionInst;
         int                         objRecogBoundSys;
         int                         objRecogBoundInst;
         int                         objRecogContourSys;
@@ -236,13 +239,17 @@ class LadarIbeoLux : public RackDataModule {
 
         ladar_data_msg              ladarWorkMsg[LADAR_IBEO_LUX_LAYER_MAX];
 
+        position_data               positionData;
+
         obj_recog_data_msg          objRecogBoundData;
         obj_recog_data_msg          objRecogContourData;
 
         // mailboxes
         RackMailbox                 workMbx;
+        RackMailbox                 dataMbx;
 
         // proxies
+        PositionProxy               *position;
         ObjRecogProxy               *objRecogBound;
         ObjRecogProxy               *objRecogContour;
 

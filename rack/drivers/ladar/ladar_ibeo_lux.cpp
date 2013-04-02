@@ -25,6 +25,12 @@
 
 arg_table_t argTab[] = {
 
+    { ARGOPT_OPT, "positionSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The system number of the position module", { 0 } },
+
+    { ARGOPT_OPT, "positionInst", ARGOPT_REQVAL, ARGOPT_VAL_INT,
+      "The instance number of the position module", { -1 } },
+
     { ARGOPT_OPT, "objRecogBoundSys", ARGOPT_REQVAL, ARGOPT_VAL_INT,
       "The system number of the object recognition relay for bounding-boxes, default 0", { 0 } },
 
@@ -73,6 +79,29 @@ int LadarIbeoLux::moduleOn(void)
     ladarPort         = getInt32Param("ladarPort");
     distanceFilter    = getInt32Param("distanceFilter");
     velocityMode      = getInt32Param("velocityMode");
+
+    if (positionInst >= 0)
+    {
+        ret = position->on();
+        if (ret)
+        {
+            GDOS_ERROR("Can't turn on Position(%d/%d), code = %d\n",
+                       positionSys, positionInst, ret);
+            return ret;
+        }
+
+        ret = position->getData(&positionData, sizeof(position_data), (rack_time_t)0);
+        if (ret)
+        {
+            GDOS_ERROR("Can't get data from Position(%d/%d), code = %d\n",
+                       positionSys, positionInst, ret);
+            return ret;
+        }
+    }
+    else
+    {
+        memset(&positionData, 0, sizeof(position_data));
+    }
 
     // object recognition bounding-box
     if (objRecogBoundInst >= 0)
@@ -171,6 +200,19 @@ int LadarIbeoLux::moduleOn(void)
 
     RackTask::enableRealtimeMode();
 
+    dataMbx.clean();
+
+    if (positionInst >= 0)
+    {
+        ret = position->getContData(dataBufferPeriodTime, &dataMbx, NULL);
+        if (ret)
+        {
+            GDOS_ERROR("Can't get continuous data from Position(%d/%d), "
+                       "code = %d \n", positionSys, positionInst, ret);
+            return ret;
+        }
+    }
+
     // init variables
     fracFactor        = pow(2, -32);
     dataRate          = 0;
@@ -222,6 +264,7 @@ int  LadarIbeoLux::moduleLoop(void)
     double                      scanEndTime;
     double                      ladarSendTime;
     rack_time_t                 recordingTime;
+    RackMessage                 msgInfo;
     ladar_data                  *p_data            = NULL;
     ladar_ibeo_lux_scan_data    *ladarScanData     = NULL;
     ladar_ibeo_lux_obj_data     *ladarObjData      = NULL;
@@ -230,6 +273,32 @@ int  LadarIbeoLux::moduleLoop(void)
     ladar_ibeo_lux_point2d      ladarContourPointOld;
     point_2d                    startPoint, endPoint;
     ladar_point                 point;
+
+    if (positionInst >= 0)
+    {
+        // get position data
+        ret = dataMbx.recvDataMsgIf(&positionData, sizeof(position_data), &msgInfo);
+        if (!ret)
+        {
+            if ((msgInfo.getType() != MSG_DATA)
+                || (msgInfo.getSrc() != position->getDestAdr()))
+            {
+                GDOS_ERROR("Received unexpected message from %n to %n type %d on "
+                           "data mailbox\n", msgInfo.getSrc(), msgInfo.getDest(),
+                           msgInfo.getType());
+
+                return -EINVAL;
+            }
+
+            PositionData::parse(&msgInfo); 
+        }
+        else if (ret != -EWOULDBLOCK)
+        {
+            GDOS_ERROR("Can't receive position data on DATA_MBX, "
+                       "code = %d \n", ret);
+            return ret;
+        }
+    }
 
     // get datapointer from rackdatabuffer
     p_data = (ladar_data *)getDataBufferWorkSpace();
@@ -401,36 +470,16 @@ int  LadarIbeoLux::moduleLoop(void)
             // recalculate recordingtime to the beginning of the scan
             objRecogBoundData.data.recordingTime = recordingTime;/* -
                                                    (int)rint((ladarSendTime - scanStartTime) * 1000);*/
-            objRecogBoundData.data.refPos.x      = 0;
-            objRecogBoundData.data.refPos.y      = 0;
-            objRecogBoundData.data.refPos.z      = 0;
-            objRecogBoundData.data.refPos.phi    = 0.0f;
-            objRecogBoundData.data.refPos.psi    = 0.0f;
-            objRecogBoundData.data.refPos.rho    = 0.0f;
-            objRecogBoundData.data.varRefPos.x   = 0;
-            objRecogBoundData.data.varRefPos.y   = 0;
-            objRecogBoundData.data.varRefPos.z   = 0;
-            objRecogBoundData.data.varRefPos.phi = 0.0f;
-            objRecogBoundData.data.varRefPos.psi = 0.0f;
-            objRecogBoundData.data.varRefPos.rho = 0.0f;
+            memcpy(&objRecogBoundData.data.refPos, &positionData.pos, sizeof(position_3d));
+            memcpy(&objRecogBoundData.data.varRefPos, &positionData.var, sizeof(position_3d));
             objRecogBoundData.data.objectNum     = 0;
 
             // contour data
             // recalculate recordingtime to the beginning of the scan
             objRecogContourData.data.recordingTime = recordingTime;/* -
                                                      (int)rint((ladarSendTime - scanStartTime) * 1000);*/
-            objRecogContourData.data.refPos.x      = 0;
-            objRecogContourData.data.refPos.y      = 0;
-            objRecogContourData.data.refPos.z      = 0;
-            objRecogContourData.data.refPos.phi    = 0.0f;
-            objRecogContourData.data.refPos.psi    = 0.0f;
-            objRecogContourData.data.refPos.rho    = 0.0f;
-            objRecogContourData.data.varRefPos.x   = 0;
-            objRecogContourData.data.varRefPos.y   = 0;
-            objRecogContourData.data.varRefPos.z   = 0;
-            objRecogContourData.data.varRefPos.phi = 0.0f;
-            objRecogContourData.data.varRefPos.psi = 0.0f;
-            objRecogContourData.data.varRefPos.rho = 0.0f;
+            memcpy(&objRecogContourData.data.refPos, &positionData.pos, sizeof(position_3d));
+            memcpy(&objRecogContourData.data.varRefPos, &positionData.var, sizeof(position_3d));
             objRecogContourData.data.objectNum     = 0;
 
             // loop over all objects
@@ -778,8 +827,10 @@ int LadarIbeoLux::recvLadarData(void *data, unsigned int messageSize)
 // init_flags (for init and cleanup)
 #define INIT_BIT_DATA_MODULE                0
 #define INIT_BIT_MBX_WORK                   1
-#define INIT_BIT_PROXY_OBJ_RECOG_BOUND      2
-#define INIT_BIT_PROXY_OBJ_RECOG_CONTOUR    3
+#define INIT_BIT_MBX_DATA                   2
+#define INIT_BIT_PROXY_POSITION             3
+#define INIT_BIT_PROXY_OBJ_RECOG_BOUND      4
+#define INIT_BIT_PROXY_OBJ_RECOG_CONTOUR    5
 
 int LadarIbeoLux::moduleInit(void)
 {
@@ -801,6 +852,26 @@ int LadarIbeoLux::moduleInit(void)
         goto init_error;
     }
     initBits.setBit(INIT_BIT_MBX_WORK);
+
+    ret = createMbx(&dataMbx, 10, sizeof(position_data),
+                    MBX_IN_USERSPACE | MBX_SLOT);
+    if (ret)
+    {
+        goto init_error;
+    }
+    initBits.setBit(INIT_BIT_MBX_DATA);
+
+    // create Position Proxy
+    if (positionInst >= 0)
+    {
+        position = new PositionProxy(&workMbx, positionSys, positionInst);
+        if (!position)
+        {
+            ret = -ENOMEM;
+            goto init_error;
+        }
+        initBits.setBit(INIT_BIT_PROXY_POSITION);
+    }
 
     // create objRecogBound proxy
     if (objRecogBoundInst >= 0)
@@ -843,6 +914,12 @@ void LadarIbeoLux::moduleCleanup(void)
         RackDataModule::moduleCleanup();
     }
 
+    // destroy position proxy
+    if (initBits.testAndClearBit(INIT_BIT_PROXY_POSITION))
+    {
+        delete position;
+    }
+
     // destroy objRecogContour proxy
     if (objRecogContourInst >= 0)
     {
@@ -877,6 +954,8 @@ LadarIbeoLux::LadarIbeoLux()
                     10)               // data buffer listener
 {
     // get static module parameter
+    positionSys         = getIntArg("positionSys", argTab);
+    positionInst        = getIntArg("positionInst", argTab);
     objRecogBoundSys    = getIntArg("objRecogBoundSys", argTab);
     objRecogBoundInst   = getIntArg("objRecogBoundInst", argTab);
     objRecogContourSys  = getIntArg("objRecogContourSys", argTab);
