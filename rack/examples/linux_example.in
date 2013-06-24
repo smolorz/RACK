@@ -1,0 +1,66 @@
+#! /bin/sh
+
+#
+# RACK - Robotics Application Construction Kit
+# Copyright (C) 2005-2011 Leibniz Universität Hannover
+#                         Institute for Systems Engineering - RTS
+#                         Professor Bernardo Wagner
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# Authors
+#      Oliver Wulf        <oliver.wulf@web.de>
+#
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+BINDIR=@bindir@
+PKGDATADIR=@datarootdir@/rack
+
+echo ""
+echo "*"
+echo "* load tims message service"
+echo "*"
+echo ""
+
+./load_tims_linux
+
+echo ""
+echo "*"
+echo "* load rack sim applications"
+echo "*"
+echo ""
+
+./load_rack_sim
+
+echo ""
+echo "*"
+echo "* run java gui"
+echo "*"
+echo ""
+
+./rack_gui
+
+echo ""
+echo "*"
+echo "* kill all"
+echo "*"
+echo ""
+
+./unload_rack_sim
+
+sleep 2
+
+./unload_tims_linux
+
+sleep 5
+
+echo ""
+echo "*"
+echo "* done"
+echo "*"
+echo ""
+

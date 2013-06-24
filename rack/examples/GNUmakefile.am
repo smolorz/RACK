@@ -6,14 +6,27 @@ pkgdata_DATA = \
 	tims_rtnet.conf
 
 pkgdata_SCRIPTS = \
+	linux_example \
+	xenomai_example \
+	load_tims_linux \
+	load_tims_xenomai \
 	load_rack_sim \
-	load_rack_gui
+	unload_tims_linux \
+	unload_tims_xenomai \
+	unload_rack_sim \
+	rack_gui
 
 EXTRA_DIST = \
-	load_rack_sim.in \
-	load_rack_gui.in \
+	linux_example \
+	xenomai_example \
+	load_tims_linux \
+	load_tims_xenomai \
+	load_rack_sim \
+	unload_tims_linux \
+	unload_tims_xenomai \
+	unload_rack_sim \
+	rack_gui \
 	rack_example.dxf \
 	gui.cfg \
 	rack_gui.html \
 	tims_rtnet.conf
-

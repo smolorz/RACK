@@ -15,21 +15,18 @@
 #      Joerg Langenberg  <joerg.langenberg@gmx.net>
 #      Jan Kiszka        <jan.kiszka@web.de>
 #      Sebastian Smolorz <sesmo@gmx.net>
+#      Oliver Wulf       <oliver.wulf@web.de>
 #
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 BINDIR=@bindir@
-DATAROOTDIR=@datarootdir@
 LIBDIR=@libdir@
-PKGLIBDIR=@libdir@/rack
 PKGDATADIR=@datarootdir@/rack
 
 CURR_PATH=`pwd`
 
 cd $BINDIR
-
-# RACK real-time applications
 
 export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
 
@@ -38,10 +35,14 @@ export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
     --cmdTaskPrio 30 \
     --dataTaskPrio 29 &
 
+sleep 0.5
+
 ./OdometryChassis \
     --instance 0 \
     --cmdTaskPrio 20 \
     --dataTaskPrio 19 &
+
+sleep 0.5
 
 ./Scan2dSim \
     --instance 0 \
@@ -51,10 +52,14 @@ export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
     --dataTaskPrio 19 \
     --mapFile $PKGDATADIR/rack_example.dxf &
 
+sleep 0.5
+
 ./Position \
     --instance 0 \
     --cmdTaskPrio 20 \
     --dataTaskPrio 19 &
+
+sleep 0.5
 
 ./PilotJoystick \
     --instance 0 \
@@ -64,6 +69,8 @@ export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
     --cmdTaskPrio 30 \
     --dataTaskPrio 29 &
 
+sleep 0.5
+
 ./PilotWallFollowing \
     --instance 1 \
     --scan2dInst=0 \
@@ -71,11 +78,7 @@ export LD_LIBRARY_PATH=$LIBDIR:$LD_LIBRARY_PATH
     --cmdTaskPrio 30 \
     --dataTaskPrio 29 &
 
+sleep 0.5
+
 cd $CURR_PATH
-
-sleep 3
-echo -n "Press ENTER to terminate"
-read DUMMY
-
-killall PilotWallFollowing PilotJoystick Scan2dSim Position OdometryChassis ChassisSim
 

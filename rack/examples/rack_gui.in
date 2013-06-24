@@ -13,13 +13,13 @@
 #
 # Authors
 #      Jan Kiszka       <jan.kiszka@web.de>
+#      Oliver Wulf      <oliver.wulf@web.de>
 #
 #
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-DATAROOTDIR=@datarootdir@
-PKGLIBDIR=@libdir@/rack
-PKGDATADIR=@datadir@/rack
+PKGDATADIR=@datarootdir@/rack
 
 java -jar $PKGDATADIR/rack.jar $PKGDATADIR/gui.cfg
+

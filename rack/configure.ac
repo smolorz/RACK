@@ -2266,8 +2266,15 @@ AC_CONFIG_FILES([GNUmakefile \
     tools/datalog/GNUmakefile \
     \
     examples/GNUmakefile \
+    examples/linux_example \
+    examples/xenomai_example \
+    examples/load_tims_linux \
+    examples/load_tims_xenomai \
     examples/load_rack_sim \
-    examples/load_rack_gui \
+    examples/unload_tims_linux \
+    examples/unload_tims_xenomai \
+    examples/unload_rack_sim \
+    examples/rack_gui \
     \
     scripts/GNUmakefile \
     scripts/]ConfigScript[ \
