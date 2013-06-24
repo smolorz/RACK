@@ -1975,7 +1975,7 @@ dnl  set flags / libs
 dnl ======================================================================
 
 RACK_GLOBAL_CPPFLAGS="-Wall -pipe -O2 -fstrict-aliasing"
-RACK_GLOBAL_LDFLAGS="--export-dynamic"
+RACK_GLOBAL_LDFLAGS=""
 
 AC_SUBST(RACK_GLOBAL_CPPFLAGS)
 AC_SUBST(RACK_GLOBAL_LDFLAGS)
