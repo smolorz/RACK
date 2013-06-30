@@ -286,9 +286,17 @@ int tims_mbx_remove(int fd)
 
 int tims_mbx_clean(int fd, int addr)
 {
-    // close socket to clean socket buffer
-    tims_mbx_remove(fd);
-    return tims_mbx_create(addr, 0, 0, NULL, 0);
+    char buffer[128];
+    int ret;
+    
+    do
+    {
+        // read an dump the data from this socket
+        ret = recv(fd, buffer, 128, MSG_DONTWAIT);
+    }
+    while(ret > 0);
+    
+    return 0;
 }
 
 int tims_peek_timed(int fd, tims_msg_head **pp_head, int64_t timeout_ns)
