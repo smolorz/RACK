@@ -279,7 +279,7 @@ int tims_mbx_remove(int fd)
 {
     close(fd);
 
-    printf("Tims: Socket closed\n");
+    //printf("Tims: Socket closed\n");
 
     return 0;
 }

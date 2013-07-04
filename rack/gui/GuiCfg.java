@@ -55,11 +55,12 @@ public class GuiCfg
             {
                 cfgLines.add(cfg);
 
-                // Debug output
-                // System.out.println(string);
+                //System.out.println(cfg);
 
                 if (!cfg.startsWith("//") && cfg.length() > 0)
                 {
+                    System.out.println(cfg);
+                
                     if(cfg.startsWith("MAIN_FRAME "))
                     {
                         gui.mainFrameState = getLocationSizeState(cfg, gui.mainFrameLocation, gui.mainFrameSize);
@@ -177,7 +178,6 @@ public class GuiCfg
     // alle ModuleFrame Positionen in ConfigurationFile schreiben!
     void writeConfig(BufferedWriter cfgWriter) throws IOException
     {
-        System.out.println("Write config");
         StringBuffer sb;
         for (int i = 0; i < gui.elements.size(); i++)
         {
@@ -235,8 +235,8 @@ public class GuiCfg
                 if (ge.cfg.equals(cfgLines.get(z)))
                 {
                     cfgLines.set(z, sb.toString());
-                    System.out.println("moduleName:" + ge.cfg);
-                    System.out.println("configZeilen:" + cfgLines.get(z));
+                    //System.out.println("moduleName:" + ge.cfg);
+                    System.out.println(cfgLines.get(z));
                 }
             }
         }
@@ -278,7 +278,7 @@ public class GuiCfg
 
         for (int z = 0; z < cfgLines.size(); z++)
         {
-            System.out.println(cfgLines.get(z));
+            //System.out.println(cfgLines.get(z));
             cfgWriter.write(cfgLines.get(z));
             cfgWriter.newLine();
         }
@@ -342,7 +342,7 @@ public class GuiCfg
     private void getGuiProxyClass(GuiElementDescriptor ge)
     {
         ge.guiClass = ge.cfgSplit[0];
-        System.out.println("GuiClass:   " + ge.guiClass);
+        //System.out.println("GuiClass:   " + ge.guiClass);
 
         try
         {
@@ -359,7 +359,7 @@ public class GuiCfg
                     ge.proxyClass = ge.proxyClass.replaceAll("gui.", "");
                 }
             }
-            System.out.println("ProxyClass: " + ge.proxyClass + " System: " + ge.systemId + " Instance: " + ge.instance);
+            //System.out.println("ProxyClass: " + ge.proxyClass + " System: " + ge.systemId + " Instance: " + ge.instance);
         }
         catch (NumberFormatException e)
         {

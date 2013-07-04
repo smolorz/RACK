@@ -171,7 +171,7 @@ public final class Gui extends Thread
                 }
                 mainFrame.setVisible(true);
             }
-            System.out.println("GUI started ...");
+            System.out.println("RACK GUI started ...");
 
             // set GuiElements frame state (needs to be done after mainFrame.setVisible(true))
             for (int i = 0; i < elements.size(); i++)
@@ -419,7 +419,7 @@ public final class Gui extends Thread
         	    try
         	    {
         		    inst = inst + 1;// (int)(Math.random() * 255.0);
-        		    System.out.println("try to init:"+RackName.create(RackName.GUI, inst) );
+        		    System.out.println("Init MBX " + String.format("%08X", RackName.create(RackName.GUI, inst)));
         		    getStatusReplyMbx[i] = tims[i].mbxInit(RackName.create(RackName.GUI, inst));
         		    break;
         	    }
@@ -438,14 +438,15 @@ public final class Gui extends Thread
         
         try
         {
-        	System.out.println("init (dez) mbx:"+RackName.create(RackName.GUI, inst,0)+"-"+RackName.create(RackName.GUI, inst, elements.size()));
+        	System.out.println("Init sub MBX " + String.format("%08X", RackName.create(RackName.GUI, inst, 1)) +
+        	                   "-" + String.format("%08X", RackName.create(RackName.GUI, inst, elements.size())));
             int j = 0;
             for (int i = 0; i < elements.size(); i++)
             {
                 try
                 {
                     j++;
-                    System.out.println("try to init(sub):"+RackName.create(RackName.GUI, inst,j) );
+                    //System.out.println("try to init(sub):"+RackName.create(RackName.GUI, inst,j) );
                     elements.get(i).replyMbx = tims[elements.get(i).getTimsId()].mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
                 catch (TimsException e)
@@ -455,7 +456,7 @@ public final class Gui extends Thread
 						Thread.sleep(1000);
 					} catch (InterruptedException e1) {}
                     j++;
-                    System.out.println("try to init(ssub):"+RackName.create(RackName.GUI, inst,j) );
+                    //System.out.println("try to init(ssub):"+RackName.create(RackName.GUI, inst,j) );
                     elements.get(i).replyMbx = tims[elements.get(i).getTimsId()].mbxInit(RackName.create(RackName.GUI, inst, j));
                 }
             }
@@ -1280,7 +1281,7 @@ public final class Gui extends Thread
         // JOptionPane.showMessageDialog(frame,
         // "GUI Terminated",
         // "RACK GUI", JOptionPane.INFORMATION_MESSAGE);
-        System.out.println("GUI terminated");
+        System.out.println("RACK GUI terminated");
     }
 
     //
@@ -1292,7 +1293,7 @@ public final class Gui extends Thread
 
     public static void main(String[] args)
     {
-        System.out.println("RACK GUI");
+        System.out.println("Starting RACK GUI ...");
         
         mainSaveConfigFile = null;
         mainGui = null;
@@ -1300,17 +1301,20 @@ public final class Gui extends Thread
         try
         {
             // create main frame
-            JFrame frame = new JFrame("Robot Gui");
+            JFrame frame = new JFrame("Rack Gui");
             frame.addWindowListener(new WindowAdapter()
             {
                 public void windowClosing(WindowEvent event)
                 {
+                    System.out.println("RACK GUI terminating ...");
+                    
                     // write GUI configuration
                     if((mainSaveConfigFile != null) &&
                        (mainGui != null))
                     {
                         try
                         {
+                            System.out.println("Writing config file ...");
                             mainGui.cfg.writeConfig(new BufferedWriter(new FileWriter(mainSaveConfigFile)));
                         }
                         catch (IOException e)
@@ -1376,7 +1380,7 @@ public final class Gui extends Thread
 
             try
             {
-                System.out.println("Load config file \"" + fileName + "\"");
+                System.out.println("Loading config file \"" + fileName + "\" ...");
 
                 BufferedReader cfgReader = new BufferedReader(new FileReader(fileName));
                 mainSaveConfigFile  = new File(fileName);

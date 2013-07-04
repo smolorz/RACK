@@ -848,8 +848,6 @@ void      RackModule::moduleCleanup(void)
     {
         destroyMbx(&cmdMbx);
     }
-
-    GDOS_PRINT("Finished cleanup\n");
 }
 
 // realtime context
@@ -1041,14 +1039,12 @@ void signal_handler(int sig)
     int i;
 #endif
 
-    printf("---=== SIGNAL HANDLER of %s ===---\n", classname);
-
     switch(sig)
     {
 #ifdef __XENO__
         case SIGXCPU:
-            printf(" -> SIGXCPU (%02d)\n", sig);
-            printf(" !!! WARNING unexpected switch to secondary mode !!!\n");
+            printf("%s: SIGXCPU (%02d) -> Unexpected switch to secondary mode\n", classname, sig);
+            
             nentries = backtrace (array, 10);
             strings = backtrace_symbols (array, nentries);
             for (i = 0; i < nentries; i++)
@@ -1059,8 +1055,7 @@ void signal_handler(int sig)
             break;
 
         case SIGSEGV:
-            printf(" -> SIGSEGV (%02d)\n", sig);
-            printf(" -> Segmentation fault \n");
+            printf("%s: SIGSEGV (%02d) -> Segmentation fault\n", classname, sig);
 
             if ((signal_flags & HANDLING_SEGV) || // handle segmentation fault only once
                 (signal_flags & HANDLING_TERM))   // handle segmentation fault only if module is not terminated
@@ -1081,7 +1076,7 @@ void signal_handler(int sig)
 #endif
         case SIGTERM:
         case SIGINT:
-            printf(" -> SIGTERM, SIGINT (%02d)\n", sig);
+            printf("%s: SIGTERM/SIGINT (%02d)\n", classname, sig);
 
             if (signal_flags & HANDLING_TERM) // call moduleCleanup only once
                 break;
@@ -1090,13 +1085,13 @@ void signal_handler(int sig)
 
             p_signal_module->moduleTerminate();
             p_signal_module->moduleCleanup();
+            
+            printf("%s: Done\n", classname);
             break;
 
         default:
-            printf(" -> SIGNAL (%02d)\n", sig);
-            printf(" -> NOT HANDLED\n");
+            printf("%s: SIGNAL (%02d) -> NOT HANDLED\n", classname, sig);
     }
-    printf("---=== END OF %s SIGNAL HANDLER ===---\n", classname);
     return;
 }
 
