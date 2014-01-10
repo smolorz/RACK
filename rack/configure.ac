@@ -1861,7 +1861,7 @@ if test x"${CONFIG_RACK_PCL_SUPPORT}" = x"y"; then
             FLANN_LDFLAGS="-L${CONFIG_RACK_LIRE_INSTALLDIR}/flann/lib"
             FLANN_LIBS="-lflann -lflann_cpp -lflann_cpp-gd"
 
-            PCL_CPPFLAGS="${FLANN_CPPFLAGS} ${BOOST_CPPFLAGS} ${EIGEN_CPPFLAGS} -I${CONFIG_RACK_PCLDIR}/include/pcl-1.5"
+            PCL_CPPFLAGS="${FLANN_CPPFLAGS} ${BOOST_CPPFLAGS} ${EIGEN_CPPFLAGS} -I${CONFIG_RACK_PCLDIR}/include/pcl-1.6"
             PCL_LDFLAGS="${BOOST_LDFLAGS} -L${CONFIG_RACK_PCLDIR}/lib -Wl,-rpath=${CONFIG_RACK_PCLDIR}/lib"
             PCL_LIBS="-lpcl_features -lpcl_filters -lpcl_io -lpcl_keypoints -lpcl_registration -lpcl_sample_consensus -lpcl_segmentation"
 
