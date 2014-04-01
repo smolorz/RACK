@@ -172,6 +172,8 @@ if test "${CONFIG_RACK_LINUXDIR}" \!= "" ; then
     case "${LINUX_VERSION}" in
         2.6.*)
             ;;
+        3.*.*)
+            ;;
         *)
             AC_MSG_ERROR([*** Unsupported kernel version $LINUX_VERSION])
             ;;
