@@ -1055,11 +1055,11 @@ void signal_handler(int sig)
             break;
 
         case SIGSEGV:
-            printf("%s: SIGSEGV (%02d) -> Segmentation fault\n", classname, sig);
-
             if ((signal_flags & HANDLING_SEGV) || // handle segmentation fault only once
                 (signal_flags & HANDLING_TERM))   // handle segmentation fault only if module is not terminated
                 break;
+
+            printf("%s: SIGSEGV (%02d) -> Segmentation fault\n", classname, sig);
 
             signal_flags |= HANDLING_SEGV;
 
