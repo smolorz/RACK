@@ -325,6 +325,11 @@ int         RackDataModule::sendDataReply(rack_time_t time, RackMessage *msgInfo
     return ret;
 }
 
+void RackDataModule::setDataBufferMaxDataSize(uint32_t max_size)
+{
+    dataBufferMaxDataSize = max_size;
+}
+
 //
 // public RackDataModule functions
 //
