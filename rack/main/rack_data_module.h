@@ -108,6 +108,7 @@ class RackDataModule : public RackModule
         rack_time_t         getListenerPeriodTime(uint32_t dataMbx);
 
         void                setDataBufferMaxDataSize(uint32_t max_size);
+        uint32_t            getDataBufferMaxDataSize(void);
 
         friend void         cmd_task_proc(void* arg);
 

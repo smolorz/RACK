@@ -330,6 +330,11 @@ void RackDataModule::setDataBufferMaxDataSize(uint32_t max_size)
     dataBufferMaxDataSize = max_size;
 }
 
+uint32_t RackDataModule::getDataBufferMaxDataSize(void)
+{
+    return dataBufferMaxDataSize;
+}
+
 //
 // public RackDataModule functions
 //
