@@ -224,6 +224,11 @@ config RACK_EXT_PCLDIR
     default n
     depends on RACK_PCL_SUPPORT
 
+config RACK_PCL_VERSION_SUFFIX
+    string "Specify the used PCL's major version (only up to one decimal), e.g. 1.6"
+    depends on RACK_PCL_SUPPORT
+    default 1.6
+
 config RACK_PCLDIR
     string "pcl install directory"
     depends on RACK_EXT_PCLDIR
