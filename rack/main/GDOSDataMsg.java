@@ -146,10 +146,13 @@ public class GDOSDataMsg extends TimsMsg
                     case '%': // print character %
                         message = message + '%';
                         break;
-                    case 'L': // 64Bit integer for d,i,u,x,X
-                        message = "Parameter %L is not yet implemented \""
-                                + new String(byteArray, 0, stringLen) + "\"";
-                        return;
+                    case 'L':  // 64Bit integer for d,i,u,x,X
+                        /*message = "Parameter %L is not yet implemented \""
+                        + new String(byteArray, 0, stringLen) + "\"";
+                		return;*/
+                    	message = message
+                    	+ Long.toString(dataIn.readLong());
+                    	break;	
 
                     default:
                         message = "Unknown parameter %"
