@@ -1,9 +1,9 @@
 #
 # Automatically generated make config: don't edit
-# RACK version: 0.6.0
+# RACK version: 0.6.1
 # Sun Sep 12 20:05:58 2010
 #
-CONFIG_RACK_VERSION="0.6.0"
+CONFIG_RACK_VERSION="0.6.1"
 
 #
 # Build options
