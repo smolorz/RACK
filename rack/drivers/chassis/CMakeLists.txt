@@ -1,0 +1,36 @@
+option(Drivers/Chassis_Sim "Chassis - Sim" ON)
+option(Drivers/Chassis_UsarSim "Chassis - UsarSim" OFF)
+option(Drivers/Chassis_Pioneer "Chassis - Pioneer" OFF)
+option(Drivers/Chassis_ER1 "Chassis - Er1" OFF)
+option(Drivers/Chassis_Roomba "Chassis - Roomba" OFF)
+
+if(Drivers/Chassis_Sim)
+  add_executable(ChassisSim chassis_sim.cpp)
+  target_link_libraries(ChassisSim ${RACK_LIBS})
+  install(TARGETS ChassisSim RUNTIME DESTINATION bin)
+endif(Drivers/Chassis_Sim)
+
+if(Drivers/Chassis_UsarSim)
+  add_executable(ChassisUsarsim chassis_usarsim.cpp)
+  target_link_libraries(ChassisUsarsim ${RACK_LIBS})
+  install(TARGETS ChassisUsarsim RUNTIME DESTINATION bin)
+endif(Drivers/Chassis_UsarSim)
+
+if(Drivers/Chassis_Pioneer)
+  add_executable(ChassisPioneer chassis_pioneer.cpp)
+  target_link_libraries(ChassisPioneer ${RACK_LIBS})
+  install(TARGETS ChassisPioneer RUNTIME DESTINATION bin)
+endif(Drivers/Chassis_Pioneer)
+
+if(Drivers/Chassis_ER1)
+  add_executable(ChassisEr1 chassis_er1.cpp)
+  target_link_libraries(ChassisEr1 ${RACK_LIBS})
+  install(TARGETS ChassisEr1 RUNTIME DESTINATION bin)
+endif(Drivers/Chassis_ER1)
+
+if(Drivers/Chassis_Roomba)
+  add_executable(ChassisRoomba chassis_roomba.cpp)
+  target_link_libraries(ChassisRoomba ${RACK_LIBS})
+  install(TARGETS ChassisRoomba RUNTIME DESTINATION bin)
+endif(Drivers/Chassis_Roomba)
+

@@ -1,0 +1,61 @@
+option(Drivers/Ladar_HokuyoUrg "Ladar - HokuyoUrg" OFF)
+option(Drivers/Ladar_HokuyoUrgUsb "Ladar - HokuyoUrgUsb" OFF)
+option(Drivers/Ladar_Ibeo "SICK IBEO LD-A" OFF)
+option(Drivers/Ladar_IbeoLux "Ladar - IbeoLux" OFF)
+option(Drivers/Ladar_SickLms200 "Ladar - SickLms200" OFF)
+option(Drivers/Ladar_SickS "SICK S300, SICK S3000" OFF)
+option(Drivers/Ladar_SickLms100 "Ladar - SickLms100" OFF)
+option(Drivers/Ladar_Sim "Ladar - Sim" ON)
+
+unset(LADAR_BINS)
+
+if(Drivers/Ladar_HokuyoUrg)
+  add_executable(LadarHokuyoUrg ladar_hokuyo_urg.cpp)
+  target_link_libraries(LadarHokuyoUrg ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarHokuyoUrg)
+endif(Drivers/Ladar_HokuyoUrg)
+
+if(Drivers/Ladar_HokuyoUrgUsb)
+  add_executable(LadarHokuyoUrgUsb ladar_hokuyo_urg_usb.cpp)
+  target_link_libraries(LadarHokuyoUrgUsb ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarHokuyoUrgUsb)
+endif(Drivers/Ladar_HokuyoUrgUsb)
+
+if(Drivers/Ladar_Ibeo)
+  add_executable(LadarIbeo ladar_ibeo.cpp)
+  target_link_libraries(LadarIbeo ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarIbeo)
+endif(Drivers/Ladar_Ibeo)
+
+if(Drivers/Ladar_IbeoLux)
+  add_executable(LadarIbeoLux ladar_ibeo_lux.cpp)
+  target_link_libraries(LadarIbeoLux ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarIbeoLux)
+endif(Drivers/Ladar_IbeoLux)
+
+if(Drivers/Ladar_SickLms200)
+  add_executable(LadarSickLms200 ladar_sick_lms200.cpp)
+  target_link_libraries(LadarSickLms200 ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarSickLms200)
+endif(Drivers/Ladar_SickLms200)
+
+if(Drivers/Ladar_SickS)
+  add_executable(LadarSickS ladar_sick_s.cpp)
+  target_link_libraries(LadarSickS ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarSickS)
+endif(Drivers/Ladar_SickS)
+
+if(Drivers/Ladar_SickLms100)
+  add_executable(LadarSickLms100 ladar_sick_lms100.cpp)
+  target_link_libraries(LadarSickLms100 ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarSickLms100)
+endif(Drivers/Ladar_SickLms100)
+
+if(Drivers/Ladar_Sim)
+  add_executable(LadarSim ladar_sim.cpp)
+  target_link_libraries(LadarSim ${RACK_LIBS})
+  set(LADAR_BINS ${LADAR_BINS} LadarSim)
+endif(Drivers/Ladar_Sim)
+
+install(TARGETS ${LADAR_BINS} RUNTIME DESTINATION bin)
+

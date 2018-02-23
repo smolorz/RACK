@@ -7,18 +7,18 @@ libdir=@libdir@
 pkglibdir=${libdir}/@PACKAGE@
 datadir=@datadir@
 datarootdir=@datarootdir@
-pkgdatadir=${datarootdir}${datadir}/@PACKAGE@
+pkgdatadir=$datarootdir/@PACKAGE@
 pkgincludedir=@includedir@/@PACKAGE@
 
 #
 # RACK
 #
 RACK_VERSION="@PACKAGE_VERSION@"
-RACK_PREFIX="${staging}${prefix}"
-RACK_CPPFLAGS="-I${staging}${pkgincludedir} @XENOMAI_CPPFLAGS@ @RACK_MSG_SIZE_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
-RACK_LDFLAGS="-L${staging}${libdir} @XENOMAI_LDFLAGS@ @RACK_GLOBAL_LDFLAGS@"
+RACK_PREFIX="$staging$prefix"
+RACK_CPPFLAGS="-I$staging$pkgincludedir @XENOMAI_CPPFLAGS@ @RACK_MSG_SIZE_CPPFLAGS@ @RACK_GLOBAL_CPPFLAGS@"
+RACK_LDFLAGS="-L$staging$libdir @XENOMAI_LDFLAGS@ @RACK_GLOBAL_LDFLAGS@"
 RACK_LIBS="@RACK_LIBS@"
-RACK_CLASSPATH="${staging}${pkgdatadir}/@PROJNAME@.jar"
+RACK_CLASSPATH="$staging$pkgdatadir/@PROJNAME@.jar"
 
 #
 # common

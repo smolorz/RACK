@@ -1,0 +1,11 @@
+set(DESTDIR \${DESTDIR})
+set(PACKAGE ${PROJECT_NAME})
+set(datadir \${datarootdir})
+set(PACKAGE_VERSION ${RACK_VERSION})
+set(RACK_GLOBAL_CPPFLAGS ${CMAKE_CXX_FLAGS})
+set(PROJNAME ${PROJECT_NAME})
+
+set(RACK_CONFIG_SCRIPT "${PROJECT_BINARY_DIR}/scripts/rack-config")
+configure_file(rack-config.in ${RACK_CONFIG_SCRIPT})
+
+install(PROGRAMS ${RACK_CONFIG_SCRIPT} DESTINATION bin)
