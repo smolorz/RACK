@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 include(CMakeDependentOption)
 include(UseJava)
 include(CheckIncludeFile)
+include(CheckIncludeFiles)
 include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 
@@ -401,48 +402,87 @@ endif(Build/ExternalDependencies_OpenCV)
 
 #----- gsl ----------------------------
 
+if(Build/ExternalDependencies_gsl)
 
+  find_package(GSL REQUIRED)
+
+  set(CMAKE_REQUIRED_INCLUDES ${GSL_INCLUDE_DIRS})
+  CHECK_INCLUDE_FILES("math.h;gsl/gsl_cblas.h;gsl/gsl_blas.h" GSL_H_FOUND)
+  if(NOT GSL_H_FOUND)
+    message(FATAL_ERROR "*** Cannot include GSL header files.")
+  endif()
+
+  set(CMAKE_REQUIRED_LIBRARIES ${GSL_LIBRARIES})
+  CHECK_FUNCTION_EXISTS(cos HAVE_COS)
+  if(NOT HAVE_COS)
+    message(FATAL_ERROR "*** Cannot link to cos() of libm.")
+  endif()
+  CHECK_FUNCTION_EXISTS(cblas_dgemm HAVE_CBLAS_DGEMM)
+  CHECK_FUNCTION_EXISTS(gsl_blas_dgemm HAVE_GSL_BLAS_DGEMM)
+  if(NOT HAVE_CBLAS_DGEMM OR NOT HAVE_GSL_BLAS_DGEMM)
+    message(FATAL_ERROR "*** Cannot link to libgsl and libgslcblas.")
+  endif()
+
+  set(RACK_SUPPORTS "gsl ${RACK_SUPPORTS}")
+
+endif(Build/ExternalDependencies_gsl)
 
 #----- libusb -------------------------
 
+if(Build/ExternalDependencies_libusb)
+
+  find_path(LIBUSB_INCLUDE_PATH "libusb.h" PATH_SUFFIXES libusb-1.0)
+  if(NOT LIBUSB_INCLUDE_PATH)
+    message(FATAL_ERROR "*** Cannot find libusb.h")
+  endif()
+
+  set(CMAKE_REQUIRED_INCLUDES "${LIBUSB_INCLUDE_PATH}")
+  CHECK_INCLUDE_FILE("libusb.h" LIBUSB_H_FOUND)
+  if(NOT LIBUSB_H_FOUND)
+    message(FATAL_ERROR "*** Cannot include libusb.h")
+  endif()
+
+  find_library(LIBUSB_LIB "usb-1.0")
+  if(NOT LIBUSB_LIB)
+    message(FATAL_ERROR "*** Cannot find libusb-1.0.")
+  endif()
+
+  set(CMAKE_REQUIRED_LIBRARIES ${LIBUSB_LIB})
+  CHECK_FUNCTION_EXISTS(libusb_get_device_list LIBUSB_FOUND)
+  if(NOT LIBUSB_FOUND)
+    message(FATAL_ERROR "*** Cannot link to libusb_get_device_list() of libusb-1.0.")
+  endif()
+
+  set(RACK_SUPPORTS "libusb ${RACK_SUPPORTS}")
+
+endif(Build/ExternalDependencies_libusb)
 
 #----- boost --------------------------
 
+if(Build/ExternalDependencies_boost)
 
+  find_package(Boost 1.40.0 REQUIRED)
+
+  set(RACK_SUPPORTS "boost ${RACK_SUPPORTS}")
+
+endif(Build/ExternalDependencies_boost)
 
 #----- pcl ----------------------------
+#
+# depends on: flann, eigen, boost
+#
+
+# TODO
 
 
 
 #----- OpenNI -------------------------
+#
+# depends on: libusb
+#
 
+# TODO
 
-
-
-
-
-#--------------------------------------------------
-# Unset temporary cache variables used for checks
-#--------------------------------------------------
-
-unset(XENO_USER_CONFIG CACHE)
-unset(RTNET_INCLUDE_PATH CACHE)
-unset(LIBRAW1394_INCLUDE_PATH CACHE)
-unset(LIBRAW1394_LIB CACHE)
-unset(LIBDC1394_LIB CACHE)
-unset(LIBDC1394_INCLUDE_PATH CACHE)
-unset(OpenCV_DIR CACHE)
-
-
-
-#======================================================================
-#   Set hard-coded compiler flags (no CMAKE_BUILD_TYPE)
-#======================================================================
-
-set(CMAKE_CXX_FLAGS "-Wall -O2 -pipe -fstrict-aliasing" CACHE
-    STRING "CXX default compiler flags for RACK." FORCE)
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}" CACHE
-    STRING "C default compiler flags for RACK." FORCE)
 
 
 #======================================================================
@@ -482,11 +522,27 @@ endif(Build_RACK_Java)
 
 
 #======================================================================
-#   Include Directory and RACK Libs
+#   Set include directories, flags and libs
 #======================================================================
 
+#-----------------------------------------------------
+# Set hard-coded compiler flags (no CMAKE_BUILD_TYPE)
+#-----------------------------------------------------
+
+set(CMAKE_CXX_FLAGS "-Wall -O2 -pipe -fstrict-aliasing" CACHE
+    STRING "CXX default compiler flags for RACK." FORCE)
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}" CACHE
+    STRING "C default compiler flags for RACK." FORCE)
+
 include_directories("${PROJECT_SOURCE_DIR}")
-set(RACK_LIBS "${PROJECT_NAME}")
+
+if(Build_OS_Xenomai)
+  set(RACK_CFLAGS "-D__IN_RACK__ ${XENOMAI_CFLAGS}")
+  set(RACK_LIBS "${PROJECT_NAME} ${XENOMAI_LIBS}")
+else()
+  set(RACK_CFLAGS "-D__IN_RACK__") 
+  set(RACK_LIBS "${PROJECT_NAME}")
+endif()
 
 #======================================================================
 #   Subdirectories
@@ -494,6 +550,9 @@ set(RACK_LIBS "${PROJECT_NAME}")
 
 set(PKG_INCLUDE_DIR "include/rack")
 
+#--------------------------------------------------
+# generate rack_config.h
+#--------------------------------------------------
 add_subdirectory(config)
 include_directories("${PROJECT_BINARY_DIR}/config")
 
@@ -508,6 +567,22 @@ add_subdirectory(tools)
 add_subdirectory(gui)
 add_subdirectory(examples)
 add_subdirectory(scripts)
+
+
+#======================================================================
+# Unset temporary cache variables used for checks and include/linking
+# so that they do not pop up in cmake-gui
+#======================================================================
+
+unset(XENO_USER_CONFIG CACHE)
+unset(RTNET_INCLUDE_PATH CACHE)
+unset(LIBRAW1394_INCLUDE_PATH CACHE)
+unset(LIBRAW1394_LIB CACHE)
+unset(LIBDC1394_LIB CACHE)
+unset(LIBDC1394_INCLUDE_PATH CACHE)
+unset(OpenCV_DIR CACHE)
+unset(LIBUSB_INCLUDE_PATH CACHE)
+unset(LIBUSB_LIB CACHE)
 
 
 #======================================================================
