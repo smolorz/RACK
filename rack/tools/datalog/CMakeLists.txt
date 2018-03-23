@@ -9,7 +9,7 @@ set(TOOLS_DATALOG_INCLUDE_HEADERS
 install(FILES ${TOOLS_DATALOG_INCLUDE_HEADERS} DESTINATION ${TOOLS_DATALOG_INCLUDE_DIR})
 
 
-option(DatalogRec "Record data from RACK modules" OFF)
+option(Tools_DatalogRec "Record data from RACK modules" OFF)
 
 if(DatalogRec)
   add_executable(DatalogRec datalog_rec.cpp)
