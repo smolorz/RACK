@@ -218,7 +218,23 @@ if(Build_OS_Xenomai)
   execute_process(COMMAND ${XENO_USER_CONFIG} --skin=native --cflags
                   OUTPUT_VARIABLE XENOMAI_CFLAGS
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(XENOMAI_LIBS "native rtdm xenomai pthread rt")
+
+  find_library(XENO_NATIVE_LIB "native")
+  if(NOT XENO_NATIVE_LIB)
+    message(FATAL_ERROR "*** Cannot find libnative of Xenomai.")
+  endif()
+
+  find_library(XENO_RTDM_LIB "rtdm")
+  if(NOT XENO_RTDM_LIB)
+    message(FATAL_ERROR "*** Cannot find librtdm of Xenomai.")
+  endif()
+
+  find_library(XENOMAI_LIB "xenomai")
+  if(NOT XENOMAI_LIB)
+    message(FATAL_ERROR "*** Cannot find libxenomai.")
+  endif()
+
+  set(XENOMAI_LIBS ${XENO_NATIVE_LIB} ${XENO_RTDM_LIB} ${XENOMAI_LIB})
 
 endif(Build_OS_Xenomai)
 
@@ -495,6 +511,7 @@ set(bindir \${exec_prefix}/bin)
 set(libdir \${exec_prefix}/lib)
 set(datarootdir \${prefix}/share)
 set(includedir \${prefix}/include)
+set(top_srcdir ${PROJECT_SOURCE_DIR})
 
 
 #======================================================================
@@ -522,7 +539,7 @@ endif(Build_RACK_Java)
 
 
 #======================================================================
-#   Set include directories, flags and libs
+#   Set include directories, definitions and flags
 #======================================================================
 
 #-----------------------------------------------------
@@ -534,15 +551,71 @@ set(CMAKE_CXX_FLAGS "-Wall -O2 -pipe -fstrict-aliasing" CACHE
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}" CACHE
     STRING "C default compiler flags for RACK." FORCE)
 
-include_directories("${PROJECT_SOURCE_DIR}")
+include_directories(${PROJECT_SOURCE_DIR})
+
+set(RACK_DEFS __IN_RACK__) 
 
 if(Build_OS_Xenomai)
-  set(RACK_CFLAGS "-D__IN_RACK__ ${XENOMAI_CFLAGS}")
-  set(RACK_LIBS "${PROJECT_NAME} ${XENOMAI_LIBS}")
-else()
-  set(RACK_CFLAGS "-D__IN_RACK__") 
-  set(RACK_LIBS "${PROJECT_NAME}")
+
+  string(REPLACE " " ";" XENOMAI_CFLAGS_LIST ${XENOMAI_CFLAGS})
+  foreach(XENOMAI_CFLAG IN LISTS XENOMAI_CFLAGS_LIST)
+
+    string(FIND ${XENOMAI_CFLAG} "-D" XENO_DEF_AT)
+    if(XENO_DEF_AT EQUAL 0)
+      string(SUBSTRING ${XENOMAI_CFLAG} 2 -1 XENO_DEF)
+      list(APPEND RACK_DEFS ${XENO_DEF})
+    endif()
+
+    string(FIND ${XENOMAI_CFLAG} "-I" XENO_INCLUDE_AT)
+    if(XENO_INCLUDE_AT EQUAL 0)
+      string(SUBSTRING ${XENOMAI_CFLAG} 2 -1 XENO_INCLUDE)
+      include_directories(${XENO_INCLUDE})
+    endif()
+ 
+  endforeach()
+
 endif()
+
+
+#======================================================================
+#   Current project
+#======================================================================
+
+set(RACK_SUPPORTS "${PROJECT_NAME} ${RACK_SUPPORTS}")
+
+
+#======================================================================
+#   Doxygen documentation
+#======================================================================
+
+if(Build_Doxygen)
+
+  if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/doc)
+
+    find_package(Doxygen)
+
+    if(NOT DOXYGEN_FOUND)
+      message(FATAL_ERROR "Missing the Doxygen tools to generate the documentation.")
+
+    else()
+
+      if(DOXYGEN_DOT_FOUND)
+        set(DOXYGEN_HAVE_DOT YES)
+        set(DOXYGEN_SHOW_INCLUDE_FILES NO)
+      else(DOXYGEN_DOT_FOUND)
+        set(DOXYGEN_HAVE_DOT NO)
+        set(DOXYGEN_SHOW_INCLUDE_FILES YES)
+      endif(DOXYGEN_DOT_FOUND)
+
+    endif()
+
+  else()
+    message(FATAL_ERROR "Documentation tree is missing.")
+
+  endif()
+
+endif(Build_Doxygen)
+
 
 #======================================================================
 #   Subdirectories
@@ -559,14 +632,14 @@ include_directories("${PROJECT_BINARY_DIR}/config")
 add_subdirectory(main)
 add_subdirectory(drivers)
 add_subdirectory(navigation)
-#add_subdirectory(doc)
 add_subdirectory(control)
 add_subdirectory(perception)
 add_subdirectory(tools)
-#add_subdirectory(skel)
+add_subdirectory(skel)
 add_subdirectory(gui)
 add_subdirectory(examples)
 add_subdirectory(scripts)
+add_subdirectory(doc)
 
 
 #======================================================================
@@ -575,6 +648,9 @@ add_subdirectory(scripts)
 #======================================================================
 
 unset(XENO_USER_CONFIG CACHE)
+unset(XENO_NATIVE_LIB CACHE)
+unset(XENO_RTDM_LIB CACHE)
+unset(XENOMAI_LIB CACHE)
 unset(RTNET_INCLUDE_PATH CACHE)
 unset(LIBRAW1394_INCLUDE_PATH CACHE)
 unset(LIBRAW1394_LIB CACHE)

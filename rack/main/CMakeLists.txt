@@ -31,7 +31,15 @@ set(MAIN_INCLUDE_HEADERS
     scan3d_compress_tool.h
 )
 
+if(Build/ExternalDependencies_libjpeg)
+  set(MAIN_INCLUDE_HEADERS ${MAIN_INCLUDE_HEADERS} jpeg_tool.h)
+endif(Build/ExternalDependencies_libjpeg)
+
 install(FILES ${MAIN_INCLUDE_HEADERS} DESTINATION ${MAIN_INCLUDE_DIR})
+
+if(NOT Build_OS_Xenomai)
+  add_subdirectory(linux)
+endif()
 
 
 if(Build_RACK_Java)

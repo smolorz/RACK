@@ -1,5 +1,5 @@
 add_subdirectory(scan2d)
-#add_subdirectory(obj_recog)
+add_subdirectory(obj_recog)
 
 set(PERCEPTION_SUBDIR "perception")
 set(PERCEPTION_INCLUDE_DIR "${PKG_INCLUDE_DIR}/${PERCEPTION_SUBDIR}")

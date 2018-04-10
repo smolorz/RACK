@@ -1,5 +1,12 @@
 add_subdirectory(router)
 
+if(Build_OS_Xenomai)
+  add_subdirectory(xenomai)
+  if(Build_KMod)
+    add_subdirectory(xenomai_kmod)
+  endif(Build_KMod)
+endif(Build_OS_Xenomai)
+
 set(MAIN_TIMS_SUBDIR "main/tims")
 set(TIMS_INCLUDE_DIR "${PKG_INCLUDE_DIR}/${MAIN_TIMS_SUBDIR}")
 

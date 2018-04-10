@@ -1,0 +1,5 @@
+obj-m  := tims.o
+
+ccflags-y := -Iinclude/xenomai -I${PROJECT_SOURCE_DIR} -I${PROJECT_BINARY_DIR}/config
+tims-y := tims_copy.o tims_rtnet.o tims_clock.o tims_debug.o tims_driver.o
+

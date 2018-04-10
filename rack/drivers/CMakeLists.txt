@@ -1,9 +1,9 @@
-#add_subdirectory(camera)
+add_subdirectory(camera)
 add_subdirectory(chassis)
-#add_subdirectory(clock)
-#add_subdirectory(compass)
-#add_subdirectory(gps)
-#add_subdirectory(gyro)
+add_subdirectory(clock)
+add_subdirectory(compass)
+add_subdirectory(gps)
+add_subdirectory(gyro)
 add_subdirectory(ladar)
 
 set(DRIVERS_SUBDIR "drivers")
@@ -68,5 +68,3 @@ if(Build_RACK_Java)
   PARENT_SCOPE)
 
 endif(Build_RACK_Java)
-
-        
