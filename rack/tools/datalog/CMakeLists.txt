@@ -11,9 +11,9 @@ install(FILES ${TOOLS_DATALOG_INCLUDE_HEADERS} DESTINATION ${TOOLS_DATALOG_INCLU
 
 option(Tools_DatalogRec "Record data from RACK modules" OFF)
 
-if(DatalogRec)
+if(Tools_DatalogRec)
   add_executable(DatalogRec datalog_rec.cpp)
   target_link_libraries(DatalogRec ${RACK_LIBS})
   install(TARGETS DatalogRec RUNTIME DESTINATION bin)
-endif(DatalogRec)
+endif(Tools_DatalogRec)
 
